@@ -87,6 +87,17 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
         internal set => field = Entering(MotherBrainBodyStage.Phase2Fight, value);
     }
 
+    /// <summary>The <paramref name="phase"/> her body holds for <paramref name="stage"/>, read only while her body is in that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    private T PhaseIn<T>(MotherBrainBodyStage stage, T phase) => Stage == stage ? phase : throw NotIn(stage);
+
+    /// <summary>Enters <paramref name="stage"/>, whose phase her body then holds as <paramref name="phase"/>, which this returns.</summary>
+    private T Entering<T>(MotherBrainBodyStage stage, T phase)
+    {
+        Stage = stage;
+        return phase;
+    }
+
     /// <summary>The failure of reading a stage's phase while her body is in another.</summary>
     private InvalidOperationException NotIn(MotherBrainBodyStage stage) =>
         new($"Mother Brain's body is in its {Stage} stage, not {stage}.");

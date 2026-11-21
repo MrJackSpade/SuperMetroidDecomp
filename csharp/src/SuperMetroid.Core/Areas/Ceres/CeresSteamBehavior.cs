@@ -45,7 +45,7 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
         state.Playback = playback;
     }
 
-    /// <summary>What <c>CarryOut</c> does for each <see cref="CeresSteamCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="CarryOut"/> does for each <see cref="CeresSteamCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<CeresSteamCueKind, Action<RoomEnemyPlace>> CarryOutForCeresSteamCueKind => field ??= new(new Dictionary<CeresSteamCueKind, Action<RoomEnemyPlace>>
     {
         [CeresSteamCueKind.Vanish] = static place =>

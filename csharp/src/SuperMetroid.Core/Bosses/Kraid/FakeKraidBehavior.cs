@@ -51,7 +51,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     private FakeKraidSegment? ApplyFakeKraidCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, FakeKraidCue cue, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera) =>
         cue.Match(ApplyFakeKraidCueCases, new ApplyFakeKraidCueContext(occupant, place, samus, level, camera, this));
 
-    /// <summary>What <c>ApplyFakeKraidCue</c> does on each <see cref="FakeKraidCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyFakeKraidCue"/> does on each <see cref="FakeKraidCue"/>, built once (#2553).</summary>
     private static FakeKraidCueCases<ApplyFakeKraidCueContext, FakeKraidSegment?> ApplyFakeKraidCueCases { get; } = new(
             Spit: static (spit, context) =>
             {
@@ -74,7 +74,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
             });
 
-    /// <summary>What <c>ApplyFakeKraidCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyFakeKraidCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <c>ApplyFakeKraidCue</c> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplyFakeKraidCue</c> was handed.</param>

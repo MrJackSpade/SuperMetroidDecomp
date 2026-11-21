@@ -187,7 +187,7 @@ internal sealed class IntroBabyDiscoveryState
             slimeDrop.Draw(screenSprites, eggEffectArt);
     }
 
-    /// <summary>What <c>CheckDemoPhase</c> does for each <see cref="IntroBabyDiscoveryDemoPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="CheckDemoPhase"/> does for each <see cref="IntroBabyDiscoveryDemoPhase"/> member, each member's own arm.</summary>
     private IdentityTable<IntroBabyDiscoveryDemoPhase, Action<bool>> CheckDemoPhaseForIntroBabyDiscoveryDemoPhase => field ??= new(new Dictionary<IntroBabyDiscoveryDemoPhase, Action<bool>>
     {
         [IntroBabyDiscoveryDemoPhase.RunningLeft] = crossfadeFinishing =>
@@ -228,7 +228,7 @@ internal sealed class IntroBabyDiscoveryState
         samusUpdateStopped = true;
     }
 
-    /// <summary>What <c>HandleEggCue</c> does for each <see cref="IntroDiscoveryCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="HandleEggCue"/> does for each <see cref="IntroDiscoveryCue"/> member, each member's own arm.</summary>
     private IdentityTable<IntroDiscoveryCue, Action> HandleEggCueForIntroDiscoveryCue => field ??= new(new Dictionary<IntroDiscoveryCue, Action>
     {
         [IntroDiscoveryCue.SpawnShellPieces] = () =>
@@ -260,7 +260,7 @@ internal sealed class IntroBabyDiscoveryState
         HandleEggCueForIntroDiscoveryCue[cue]();
     }
 
-    /// <summary>What <c>StepConfusedBaby</c> does for each <see cref="ConfusedBabyMotion"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="StepConfusedBaby"/> does for each <see cref="ConfusedBabyMotion"/> member, each member's own arm.</summary>
     private IdentityTable<ConfusedBabyMotion, Action<bool>> StepConfusedBabyForConfusedBabyMotion => field ??= new(new Dictionary<ConfusedBabyMotion, Action<bool>>
     {
         [ConfusedBabyMotion.WaitingForHatch] = crossfadeFinishing =>

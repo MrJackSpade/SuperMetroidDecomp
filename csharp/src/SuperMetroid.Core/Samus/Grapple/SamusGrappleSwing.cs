@@ -414,7 +414,7 @@ public static class SamusGrappleSwing
     private static int BiasedWithinBlock(int anchor, UnitComponent ropeComponent) =>
         RoomGridConversions.BlockStart(anchor) + (ropeComponent.IsNegative ? GrappleBeamDefinitions.Swing.AnchorBiasTowardNegative : GrappleBeamDefinitions.Swing.AnchorBiasTowardPositive);
 
-    /// <summary>What <c>IsSwingCollision</c> comes to for each <see cref="RoomCollisionType"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="IsSwingCollision"/> comes to for each <see cref="RoomCollisionType"/> member, each member's own arm.</summary>
     private static IdentityTable<RoomCollisionType, Func<SamusState, RoomCollisionBlock, bool>> IsSwingCollisionForRoomCollisionType => field ??= new(new Dictionary<RoomCollisionType, Func<SamusState, RoomCollisionBlock, bool>>
     {
         // The swing step intentionally treats shootable/bombable air as air;

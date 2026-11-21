@@ -287,7 +287,7 @@ public sealed class SuperMetroidGame
     /// </summary>
     private bool PhaseIsWaitingOutDisplayFrame => Session.RunningPhase.IsWaitingOutDisplayFrame;
 
-    /// <summary>What <c>AdvanceMenuRandom</c> does for each <see cref="PhaseRandomStep"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="AdvanceMenuRandom"/> does for each <see cref="PhaseRandomStep"/> member, each member's own arm.</summary>
     private IdentityTable<PhaseRandomStep, Action> AdvanceMenuRandomForPhaseRandomStep => field ??= new(new Dictionary<PhaseRandomStep, Action>
     {
         [PhaseRandomStep.Reseed] = () =>

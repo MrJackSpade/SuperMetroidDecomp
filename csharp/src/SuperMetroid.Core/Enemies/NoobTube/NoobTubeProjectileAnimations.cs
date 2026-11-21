@@ -146,7 +146,7 @@ internal static class NoobTubeProjectileAnimations
             AnimationEnd.Holds);
 
     /// <summary>A shard flickering with its mirror image across the tube, <paramref name="shard"/> and <paramref name="mirrored"/>.</summary>
-    private static AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>[] ReflectedFlicker(EnemyProjectileFrameId shard, EnemyProjectileFrameId mirrored) =>
+    private static AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Unpaused[] ReflectedFlicker(EnemyProjectileFrameId shard, EnemyProjectileFrameId mirrored) =>
         [Cue(new(K.FlickerReflected)), Flicker(shard, mirrored)];
 
     /// <summary>The plays of the fallen crack's last pieces before it is deleted.</summary>

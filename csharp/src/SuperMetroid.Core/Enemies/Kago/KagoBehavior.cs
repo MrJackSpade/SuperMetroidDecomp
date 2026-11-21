@@ -130,7 +130,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         /// <inheritdoc/>
         public void RunCue(EnemyProjectileCueContext context, KagoBugProjectileCue cue) => ApplyKagoBugCue(context.Projectile, cue, context.Samus);
 
-        /// <summary>What <c>ApplyKagoBugCue</c> does for each <see cref="KagoBugProjectileCueKind"/> member, each member's own arm.</summary>
+        /// <summary>What <see cref="ApplyKagoBugCue"/> does for each <see cref="KagoBugProjectileCueKind"/> member, each member's own arm.</summary>
         private IdentityTable<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>> ApplyKagoBugCueForKagoBugProjectileCueKind => field ??= new(new Dictionary<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>>
         {
             [KagoBugProjectileCueKind.StartJump] = (projectile, samus) => StartKagoBugJump(projectile),

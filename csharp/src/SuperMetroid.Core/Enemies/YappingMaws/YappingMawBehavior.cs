@@ -44,7 +44,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         _scrollCap = scrollCap;
     }
 
-    /// <summary>What <c>ApplyYappingMawCue</c> does for each <see cref="YappingMawCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyYappingMawCue"/> does for each <see cref="YappingMawCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<YappingMawCueKind, Action<YappingMawEnemyState>> ApplyYappingMawCueForYappingMawCueKind => field ??= new(new Dictionary<YappingMawCueKind, Action<YappingMawEnemyState>>
     {
         [YappingMawCueKind.PlayBiteSound] = state => PlayYappingMawAttackSound(state),
@@ -56,7 +56,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         cue.React(ApplyYappingMawCueReactions, new ApplyYappingMawCueContext(state, this));
     }
 
-    /// <summary>What <c>ApplyYappingMawCue</c> does on each <see cref="YappingMawCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyYappingMawCue"/> does on each <see cref="YappingMawCue"/>, built once (#2553).</summary>
     private static YappingMawCueReactions<ApplyYappingMawCueContext> ApplyYappingMawCueReactions { get; } = new(
         HoldSamus: static (hold, context) => SetYappingMawHeldOffset(context.State, hold.Aim),
         Signal: static (signal, context) =>
@@ -64,7 +64,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             context.Owner.ApplyYappingMawCueForYappingMawCueKind[signal.Kind](context.State);
         });
 
-    /// <summary>What <c>ApplyYappingMawCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyYappingMawCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="State">The <c>state</c> <c>ApplyYappingMawCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="YappingMawBehavior"/> reacting.</param>
     private readonly record struct ApplyYappingMawCueContext(YappingMawEnemyState State, YappingMawBehavior Owner);
@@ -105,7 +105,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             YappingMawReach.Of(occupant.SpawnSettings<YappingMawSpawnSettings>().Attack).Bite));
     }
 
-    /// <summary>What <c>RunYappingMawMain</c> does for each <see cref="YappingMawAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunYappingMawMain"/> does for each <see cref="YappingMawAction"/> member, each member's own arm.</summary>
     private IdentityTable<YappingMawAction, Action<RoomEnemyOccupant, RoomEnemyPlace, YappingMawEnemyState, SamusState>> RunYappingMawMainForYappingMawAction => field ??= new(new Dictionary<YappingMawAction, Action<RoomEnemyOccupant, RoomEnemyPlace, YappingMawEnemyState, SamusState>>
     {
         [YappingMawAction.WaitingForSamus] = (occupant, place, state, samus) => WaitForSamusWithYappingMaw(occupant, state, samus),

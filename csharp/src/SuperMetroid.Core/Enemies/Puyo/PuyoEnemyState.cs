@@ -52,7 +52,7 @@ public sealed class PuyoEnemyState
     /// <summary>One-half point of the initial vertical speed-curve place.</summary>
     public QuadraticSpeedCurvePlace InitialYSpeedCurvePlaceHalf { get; internal set; }
 
-    /// <summary>What <c>StepAirbornePlace</c> does for a Puyo falling and one rising.</summary>
+    /// <summary>What <see cref="StepAirbornePlace"/> does for a Puyo falling and one rising.</summary>
     private IdentityTable<VerticalDirection, Action<QuadraticSpeedCurvePlace>> StepAirbornePlaceByHeading => field ??= new(new Dictionary<VerticalDirection, Action<QuadraticSpeedCurvePlace>>
     {
         [VerticalDirection.Down] = delta =>

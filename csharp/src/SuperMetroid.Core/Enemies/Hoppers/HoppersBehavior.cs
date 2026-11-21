@@ -38,7 +38,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>What <c>ApplyHopperCue</c> does for each <see cref="HopperCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyHopperCue"/> does for each <see cref="HopperCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<HopperCueKind, Action<RoomEnemyPlace, HopperEnemyState>> ApplyHopperCueForHopperCueKind => field ??= new(new Dictionary<HopperCueKind, Action<RoomEnemyPlace, HopperEnemyState>>
     {
         [HopperCueKind.ProcessOffScreen] = static (place, state) => place.Processing = place.Processing.With(EnemyProcessing.OffScreen),
@@ -52,7 +52,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         cue.React(ApplyHopperCueReactions, new ApplyHopperCueContext(place, state, this));
     }
 
-    /// <summary>What <c>ApplyHopperCue</c> does on each <see cref="HopperCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyHopperCue"/> does on each <see cref="HopperCue"/>, built once (#2553).</summary>
     private static HopperCueReactions<ApplyHopperCueContext> ApplyHopperCueReactions { get; } = new(
         PlaySound: static (sound, context) => context.Owner._audio.QueueEnemySound(sound.Sound, priority: SoundRequestPriority.Normal),
         Signal: static (signal, context) =>
@@ -60,7 +60,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             ApplyHopperCueForHopperCueKind[signal.Kind](context.Place, context.State);
         });
 
-    /// <summary>What <c>ApplyHopperCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyHopperCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Place">The <c>place</c> <c>ApplyHopperCue</c> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyHopperCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="HoppersBehavior"/> reacting.</param>
@@ -82,7 +82,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         SetHopperAnimation(place, state, ReadHopperAnimation(occupant, state, HopperPhase.Landed));
     }
 
-    /// <summary>What <c>RunHopperMain</c> does for each <see cref="HopperAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunHopperMain"/> does for each <see cref="HopperAction"/> member, each member's own arm.</summary>
     private IdentityTable<HopperAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, RoomLevelData, HopperEnemyState>> RunHopperMainForHopperAction => field ??= new(new Dictionary<HopperAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, RoomLevelData, HopperEnemyState>>
     {
         [HopperAction.ChooseHopSize] = (_, place, samus, level, state) =>

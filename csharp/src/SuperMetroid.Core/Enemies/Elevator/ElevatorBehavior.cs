@@ -132,7 +132,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         ArrivalElevator = place;
     }
 
-    /// <summary>What <c>RunElevatorMain</c> does for each <see cref="ElevatorActorStatus"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunElevatorMain"/> does for each <see cref="ElevatorActorStatus"/> member, each member's own arm.</summary>
     private IdentityTable<ElevatorActorStatus, Action<RoomEnemyOccupant, RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction, SamusProjectileSystem>> RunElevatorMainForElevatorActorStatus => field ??= new(new Dictionary<ElevatorActorStatus, Action<RoomEnemyOccupant, RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction, SamusProjectileSystem>>
     {
         [ElevatorActorStatus.Inactive] = (occupant, place, state, samus, newlyPressedControllerInput, samusProjectiles) =>

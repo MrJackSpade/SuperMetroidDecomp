@@ -111,7 +111,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The chain a segment found when it was placed: its segments and their shared motion and target (#2452).</summary>
     private ShaktoolChain ChainOf(RoomEnemyPlace segment) => _chains.Of(segment).Chain;
 
-    /// <summary>What <c>RunShaktoolMain</c> does for each <see cref="ShaktoolSegmentMotion"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunShaktoolMain"/> does for each <see cref="ShaktoolSegmentMotion"/> member, each member's own arm.</summary>
     private IdentityTable<ShaktoolSegmentMotion, Action<RoomEnemyPlace, ShaktoolSegmentState, RoomLevelData>> RunShaktoolMainForShaktoolSegmentMotion => field ??= new(new Dictionary<ShaktoolSegmentMotion, Action<RoomEnemyPlace, ShaktoolSegmentState, RoomLevelData>>
     {
         [ShaktoolSegmentMotion.Idle] = (place, state, level) => { },
@@ -241,7 +241,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             chain.Motion = chain.Motion with { Phase = ShaktoolChainPhase.Straightening };
     }
 
-    /// <summary>What <c>ReverseShaktoolAfterCollision</c> does for each <see cref="ShaktoolWallResponse"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ReverseShaktoolAfterCollision"/> does for each <see cref="ShaktoolWallResponse"/> member, each member's own arm.</summary>
     private IdentityTable<ShaktoolWallResponse, Action<RoomEnemyPlace, Position16<RoomPixels>, ShaktoolChain, ShaktoolChainMotion>> ReverseShaktoolAfterCollisionForShaktoolWallResponse => field ??= new(new Dictionary<ShaktoolWallResponse, Action<RoomEnemyPlace, Position16<RoomPixels>, ShaktoolChain, ShaktoolChainMotion>>
     {
         [ShaktoolWallResponse.ReverseOrbit] = (place, previous, chain, motion) => chain.Motion = new(ShaktoolChainPhase.Curling, ShaktoolWallResponse.TurnEndForEnd, motion.OrbitDirection.Reversed()),
@@ -374,7 +374,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         place.FoundOrClearedState<ShaktoolSegmentState>() ?? throw new InvalidOperationException(
             $"Enemy place {place.Ordinal} has no initialized Shaktool state.");
 
-    /// <summary>What <c>ApplyShaktoolCue</c> does for each <see cref="ShaktoolCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyShaktoolCue"/> does for each <see cref="ShaktoolCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<ShaktoolCueKind, Action<RoomEnemyPlace, ShaktoolCue>> ApplyShaktoolCueForShaktoolCueKind => field ??= new(new Dictionary<ShaktoolCueKind, Action<RoomEnemyPlace, ShaktoolCue>>
     {
         [ShaktoolCueKind.Lower] = (place, cue) => ApplyShaktoolCueForShaktoolCueKindLower(place, cue),

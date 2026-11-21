@@ -49,7 +49,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private MamaTurtleSegment? ApplyMamaTurtleCue(RoomEnemyPlace place, MamaTurtleCue cue) =>
         cue.Match(ApplyMamaTurtleCueCases, new ApplyMamaTurtleCueContext(place, this));
 
-    /// <summary>What <c>ApplyMamaTurtleCue</c> does on each <see cref="MamaTurtleCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyMamaTurtleCue"/> does on each <see cref="MamaTurtleCue"/>, built once (#2553).</summary>
     private static MamaTurtleCueCases<ApplyMamaTurtleCueContext, MamaTurtleSegment?> ApplyMamaTurtleCueCases { get; } = new(
             RiseToHover: static (rise, context) =>
             {
@@ -62,7 +62,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
             });
 
-    /// <summary>What <c>ApplyMamaTurtleCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyMamaTurtleCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Place">The <c>place</c> <c>ApplyMamaTurtleCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="MamaTurtleBehavior"/> reacting.</param>
     private readonly record struct ApplyMamaTurtleCueContext(RoomEnemyPlace Place, MamaTurtleBehavior Owner);
@@ -165,7 +165,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>What <c>RunMamaTurtleMain</c> does for each <see cref="MamaTurtleAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunMamaTurtleMain"/> does for each <see cref="MamaTurtleAction"/> member, each member's own arm.</summary>
     private IdentityTable<MamaTurtleAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MamaTurtleEnemyState, SamusState, PseudoScrewCharge, RoomLevelData, int>> RunMamaTurtleMainForMamaTurtleAction => field ??= new(new Dictionary<MamaTurtleAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MamaTurtleEnemyState, SamusState, PseudoScrewCharge, RoomLevelData, int>>
     {
         [MamaTurtleAction.Placed] = (_, place, state, samus, pseudoScrew, level, frameCycle) => state.Action = MamaTurtleAction.Asleep,
@@ -450,7 +450,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = MamaTurtleAction.Idle;
     }
 
-    /// <summary>What <c>RunBabyTurtleMain</c> does for each <see cref="BabyTurtleAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunBabyTurtleMain"/> does for each <see cref="BabyTurtleAction"/> member, each member's own arm.</summary>
     private IdentityTable<BabyTurtleAction, Action<RoomEnemyPlace, BabyTurtleEnemyState, SamusState, RoomLevelData>> RunBabyTurtleMainForBabyTurtleAction => field ??= new(new Dictionary<BabyTurtleAction, Action<RoomEnemyPlace, BabyTurtleEnemyState, SamusState, RoomLevelData>>
     {
         [BabyTurtleAction.CrawlingNotCarryingSamus] = (baby, state, samus, level) =>

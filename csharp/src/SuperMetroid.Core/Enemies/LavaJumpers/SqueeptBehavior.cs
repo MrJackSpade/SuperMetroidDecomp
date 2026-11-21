@@ -71,7 +71,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
         FollowSqueeptParent(follower);
     }
 
-    /// <summary>What <c>RunSqueeptMain</c> does for each <see cref="SqueeptAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunSqueeptMain"/> does for each <see cref="SqueeptAction"/> member, each member's own arm.</summary>
     private IdentityTable<SqueeptAction, Action<RoomEnemyPlace, SqueeptState, int>> RunSqueeptMainForSqueeptAction => field ??= new(new Dictionary<SqueeptAction, Action<RoomEnemyPlace, SqueeptState, int>>
     {
         [SqueeptAction.BeginJump] = (place, state, random) =>

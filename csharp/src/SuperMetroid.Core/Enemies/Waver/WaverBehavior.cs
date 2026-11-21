@@ -26,7 +26,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>What <c>ApplyWaverCue</c> does for each <see cref="WaverCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyWaverCue"/> does for each <see cref="WaverCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<WaverCueKind, Action<WaverEnemyState>> ApplyWaverCueForWaverCueKind => field ??= new(new Dictionary<WaverCueKind, Action<WaverEnemyState>>
     {
         // The four-frame spin hands its completion back to main AI rather than going on to the steady animation itself

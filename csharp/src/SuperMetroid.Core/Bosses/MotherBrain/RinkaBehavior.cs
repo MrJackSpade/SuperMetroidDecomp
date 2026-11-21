@@ -160,7 +160,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>What <c>RunRinkaMain</c> does for each <see cref="RinkaAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunRinkaMain"/> does for each <see cref="RinkaAction"/> member, each member's own arm.</summary>
     private IdentityTable<RinkaAction, Action<RoomEnemyOccupant, RoomEnemyPlace, RinkaEnemyState, SamusState>> RunRinkaMainForRinkaAction => field ??= new(new Dictionary<RinkaAction, Action<RoomEnemyOccupant, RoomEnemyPlace, RinkaEnemyState, SamusState>>
     {
         [RinkaAction.WatchForLeavingViewport] = (occupant, place, state, samus) =>
@@ -264,7 +264,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>What <c>ApplyRinkaCue</c> does for each <see cref="RinkaCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyRinkaCue"/> does for each <see cref="RinkaCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<RinkaCueKind, Action<RoomEnemyPlace, RinkaEnemyState>> ApplyRinkaCueForRinkaCueKind => field ??= new(new Dictionary<RinkaCueKind, Action<RoomEnemyPlace, RinkaEnemyState>>
     {
         [RinkaCueKind.Hide] = static (place, state) =>

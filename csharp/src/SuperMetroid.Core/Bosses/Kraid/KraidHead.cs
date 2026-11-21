@@ -52,7 +52,7 @@ internal sealed class KraidHead
             UpdateKraidHealthColours(body, state, shown);
     }
 
-    /// <summary>What <c>UpdateKraidHealthColours</c> does for each <see cref="KraidHurtFlashShade"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="UpdateKraidHealthColours"/> does for each <see cref="KraidHurtFlashShade"/> member, each member's own arm.</summary>
     private IdentityTable<KraidHurtFlashShade, Action<RoomEnemyPlace, KraidEnemyState>> UpdateKraidHealthColoursForKraidHurtFlashShade => field ??= new(new Dictionary<KraidHurtFlashShade, Action<RoomEnemyPlace, KraidEnemyState>>
     {
         [KraidHurtFlashShade.HurtColours] = (body, state) => state.Colours.ShowHurtFlash(_background.EyeColours.Hurt, _background.EyeColours.Shaded),
@@ -165,7 +165,7 @@ internal sealed class KraidHead
         };
     }
 
-    /// <summary>What <c>PublishKraidHeadCue</c> does for each <see cref="KraidHeadCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="PublishKraidHeadCue"/> does for each <see cref="KraidHeadCue"/> member, each member's own arm.</summary>
     private IdentityTable<KraidHeadCue, Action> PublishKraidHeadCueForKraidHeadCue => field ??= new(new Dictionary<KraidHeadCue, Action>
     {
         [KraidHeadCue.Roar] = () => _access.RequestKraidSound(KraidSoundDefinitions.HeadRoar),

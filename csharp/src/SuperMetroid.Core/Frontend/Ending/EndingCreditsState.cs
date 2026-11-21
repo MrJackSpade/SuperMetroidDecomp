@@ -492,7 +492,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// <summary>Runs the cast's actors in running order, their cues answered by <see cref="HandleSceneCue"/>.</summary>
     private void StepActors() => EscapeScenes.StepSprites(this, HandleSceneCue);
 
-    /// <summary>What <c>HandleSceneCue</c> does for each <see cref="EndingSceneCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="HandleSceneCue"/> does for each <see cref="EndingSceneCue"/> member, each member's own arm.</summary>
     private IdentityTable<EndingSceneCue, Action<EndingSprite, EndingSceneCue>> HandleSceneCueForEndingSceneCue => field ??= new(new Dictionary<EndingSceneCue, Action<EndingSprite, EndingSceneCue>>
     {
         [EndingSceneCue.EndZebesExplosion] = (actor, cue) =>

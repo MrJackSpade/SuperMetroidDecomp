@@ -84,7 +84,7 @@ internal static class PhantoonFlameAnimations
     internal static Animation<PhantoonFlameSegment> StartingWith(PhantoonFlameSegment segment) => StartingAt[segment];
 
     /// <summary>A falling flame's flicker: <paramref name="pose"/> for one update, then nothing for one.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>[] Flicker(EnemyProjectileFrameId pose) =>
+    private static IUnpausedHidingAnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>[] Flicker(EnemyProjectileFrameId pose) =>
         [Show(pose, 1), Hide(1)];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>

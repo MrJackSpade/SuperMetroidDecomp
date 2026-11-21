@@ -103,7 +103,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         UpdateSporeSpawnStalks(body, state);
     }
 
-    /// <summary>What <c>RunSporeSpawnMain</c> does for each <see cref="SporeSpawnMovement"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunSporeSpawnMain"/> does for each <see cref="SporeSpawnMovement"/> member, each member's own arm.</summary>
     private IdentityTable<SporeSpawnMovement, Action<RoomEnemyPlace, SporeSpawnEnemyState>> RunSporeSpawnMainForSporeSpawnMovement => field ??= new(new Dictionary<SporeSpawnMovement, Action<RoomEnemyPlace, SporeSpawnEnemyState>>
     {
         [SporeSpawnMovement.Idle] = (body, state) => { },
@@ -425,7 +425,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>What <c>ApplySporeSpawnCue</c> does for each <see cref="SporeSpawnCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplySporeSpawnCue"/> does for each <see cref="SporeSpawnCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<SporeSpawnCueKind, Action<RoomEnemyPlace, SporeSpawnEnemyState, SamusState>> ApplySporeSpawnCueForSporeSpawnCueKind => field ??= new(new Dictionary<SporeSpawnCueKind, Action<RoomEnemyPlace, SporeSpawnEnemyState, SamusState>>
     {
         [SporeSpawnCueKind.WidenSway] = (body, state, samus) => state.SwayRadius = state.SwayRadius.Widened(),
@@ -447,7 +447,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         cue.React(ApplySporeSpawnCueReactions, new ApplySporeSpawnCueContext(body, state, samus, this));
     }
 
-    /// <summary>What <c>ApplySporeSpawnCue</c> does on each <see cref="SporeSpawnCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplySporeSpawnCue"/> does on each <see cref="SporeSpawnCue"/>, built once (#2553).</summary>
     private static SporeSpawnCueReactions<ApplySporeSpawnCueContext> ApplySporeSpawnCueReactions { get; } = new(
         ShowDeathShade: static (showDeathShade, context) => ShowSporeSpawnDeathShade(context.Body, context.State, showDeathShade.DeathShadeStep),
         QueueSound: static (queueSound, context) => context.Owner.RequestSporeSpawnSound(queueSound.Sound),
@@ -463,7 +463,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             context.Owner.ApplySporeSpawnCueForSporeSpawnCueKind[signal.Kind](context.Body, context.State, context.Samus);
         });
 
-    /// <summary>What <c>ApplySporeSpawnCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplySporeSpawnCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Body">The <c>body</c> <c>ApplySporeSpawnCue</c> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplySporeSpawnCue</c> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplySporeSpawnCue</c> was handed.</param>

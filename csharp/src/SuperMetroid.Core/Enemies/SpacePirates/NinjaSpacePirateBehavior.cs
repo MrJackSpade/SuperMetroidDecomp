@@ -81,7 +81,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.SpawnPosition = place.Position.Whole;
     }
 
-    /// <summary>What <c>RunNinjaSpacePirateMain</c> does for each <see cref="NinjaSpacePirateAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunNinjaSpacePirateMain"/> does for each <see cref="NinjaSpacePirateAction"/> member, each member's own arm.</summary>
     private IdentityTable<NinjaSpacePirateAction, Action<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, RoomLevelData, SamusProjectileSystem>> RunNinjaSpacePirateMainForNinjaSpacePirateAction => field ??= new(new Dictionary<NinjaSpacePirateAction, Action<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, RoomLevelData, SamusProjectileSystem>>
     {
         [NinjaSpacePirateAction.StandingStill] = (place, state, samus, level, samusProjectiles) => { },
@@ -476,7 +476,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         return cue.Match(ApplyNinjaSpacePirateCueCases, new ApplyNinjaSpacePirateCueContext(occupant, place, state, samus, this));
     }
 
-    /// <summary>What <c>ApplyNinjaSpacePirateCue</c> does on each <see cref="NinjaSpacePirateCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyNinjaSpacePirateCue"/> does on each <see cref="NinjaSpacePirateCue"/>, built once (#2553).</summary>
     private static NinjaSpacePirateCueCases<ApplyNinjaSpacePirateCueContext, NinjaSpacePirateSegment?> ApplyNinjaSpacePirateCueCases { get; } = new(
         PlaySound: static (playSound, context) =>
         {
@@ -509,7 +509,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         },
         Signal: static (signal, context) => context.Owner.NinjaSignals[signal.Kind](context.Place, context.State, context.Samus));
 
-    /// <summary>What <c>ApplyNinjaSpacePirateCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyNinjaSpacePirateCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <c>ApplyNinjaSpacePirateCue</c> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyNinjaSpacePirateCue</c> works with.</param>

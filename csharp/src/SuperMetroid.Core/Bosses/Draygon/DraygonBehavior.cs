@@ -80,7 +80,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         Combat = new DraygonCombat(dependencies.Projectiles, dependencies.Collision, Grab);
     }
 
-    /// <summary>What <c>RunDraygonBodyMain</c> does for each <see cref="DraygonPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunDraygonBodyMain"/> does for each <see cref="DraygonPhase"/> member, each member's own arm.</summary>
     private IdentityTable<DraygonPhase, Action<SamusState, int, DraygonEnemyState>> RunDraygonBodyMainForDraygonPhase => field ??= new(new Dictionary<DraygonPhase, Action<SamusState, int, DraygonEnemyState>>
     {
         [DraygonPhase.IntroInitialDelay] = (samus, frameCounter, state) => Intro.RunDraygonIntroInitialDelay(state, samus, frameCounter),

@@ -64,7 +64,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>What <c>RunGerutaMain</c> does for each <see cref="GerutaAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunGerutaMain"/> does for each <see cref="GerutaAction"/> member, each member's own arm.</summary>
     private IdentityTable<GerutaAction, Action<RoomEnemyPlace, GerutaEnemyState, SamusState, RoomLevelData, int>> RunGerutaMainForGerutaAction => field ??= new(new Dictionary<GerutaAction, Action<RoomEnemyPlace, GerutaEnemyState, SamusState, RoomLevelData, int>>
     {
         [GerutaAction.WaitForAttackOpportunity] = (place, state, samus, level, random) =>
@@ -169,7 +169,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
         cue.React(ApplyGerutaCueReactions, state);
     }
 
-    /// <summary>What <c>ApplyGerutaCue</c> does on each <see cref="GerutaCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyGerutaCue"/> does on each <see cref="GerutaCue"/>, built once (#2553).</summary>
     private static GerutaCueReactions<GerutaEnemyState> ApplyGerutaCueReactions { get; } = new(
         PlaceFlames: static (placeFlames, state) =>
         {

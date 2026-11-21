@@ -580,7 +580,7 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Queues the enemy-killed sound, as the death explosion's cue does.</summary>
     internal void QueueEnemyKilledSound() => RequestDeathSound(EnemyKilledSound);
 
-    /// <summary>What <c>ApplyEnemyDeathAndDropCue</c> comes to for each <see cref="EnemyDeathAndDropCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyEnemyDeathAndDropCue"/> comes to for each <see cref="EnemyDeathAndDropCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<EnemyDeathAndDropCueKind, Func<EnemyProjectile, SamusState, EnemyDeathAndDropSegment?>> ApplyEnemyDeathAndDropCueForEnemyDeathAndDropCueKind => field ??= new(new Dictionary<EnemyDeathAndDropCueKind, Func<EnemyProjectile, SamusState, EnemyDeathAndDropSegment?>>
     {
         [EnemyDeathAndDropCueKind.Delete] = (projectile, samus) =>

@@ -574,7 +574,7 @@ internal sealed class RoomLoader
         _backgroundScroll.ForegroundPosition = camera;
     }
 
-    /// <summary>What <c>AlignSamusAfterDoorLoading</c> does for each <see cref="DoorDirection"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="AlignSamusAfterDoorLoading"/> does for each <see cref="DoorDirection"/> member, each member's own arm.</summary>
     private static IdentityTable<DoorDirection, Action<SamusState>> AlignSamusAfterDoorLoadingForDoorDirection => field ??= new(new Dictionary<DoorDirection, Action<SamusState>>
     {
         [DoorDirection.Right] = static samus => samus.Position = samus.Position.WithWholeX(RoomGridConversions.HalfBlockEnd(samus.Position.X.Whole)),

@@ -83,7 +83,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = StartPowampAnimation(place, PowampSegment.BodySlow);
     }
 
-    /// <summary>What <c>RunPowampMain</c> does for each <see cref="PowampAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunPowampMain"/> does for each <see cref="PowampAction"/> member, each member's own arm.</summary>
     private IdentityTable<PowampAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PowampBodyState, RoomLevelData, SamusState, PowampBalloon>> RunPowampMainForPowampAction => field ??= new(new Dictionary<PowampAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PowampBodyState, RoomLevelData, SamusState, PowampBalloon>>
     {
         [PowampAction.DeflatedResting] = (_, place, state, level, samus, balloon) => RunPowampDeflatedResting(place, state, balloon),

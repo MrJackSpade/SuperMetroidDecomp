@@ -54,7 +54,7 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
     private protected TSegment SegmentStartedAt(Animation<TSegment> started)
     {
         Ensure.NotNull(started);
-        return StartingAt.Values.Any(keyed => ReferenceEquals(keyed, started))
+        return StartingAt.Any(keyed => ReferenceEquals(keyed.Value, started))
             ? StartingAt.Single(pair => ReferenceEquals(pair.Value, started)).Key
             : started.Phases[0].Segment;
     }

@@ -133,7 +133,7 @@ internal sealed class TorizoAttacks
             return cue.Match(ApplyTorizoProjectileCueCases, new ApplyTorizoProjectileCueContext(audio, projectiles, projectile, samus, this));
         }
 
-        /// <summary>What <c>ApplyTorizoProjectileCueCases</c> comes to for each <see cref="TorizoProjectileCueKind"/> member, each member's own arm.</summary>
+        /// <summary>What <see cref="ApplyTorizoProjectileCueCases"/> comes to for each <see cref="TorizoProjectileCueKind"/> member, each member's own arm.</summary>
         private static IdentityTable<TorizoProjectileCueKind, Func<ApplyTorizoProjectileCueContext, AnimationContinuation<TorizoProjectileSegment>?>> ApplyTorizoProjectileCueCasesForTorizoProjectileCueKind => field ??= new(new Dictionary<TorizoProjectileCueKind, Func<ApplyTorizoProjectileCueContext, AnimationContinuation<TorizoProjectileSegment>?>>
         {
             [TorizoProjectileCueKind.StopMoving] = static context =>
@@ -251,7 +251,7 @@ internal sealed class TorizoAttacks
             },
         });
 
-        /// <summary>What <c>ApplyTorizoProjectileCue</c> does on each <see cref="TorizoProjectileCue"/>, built once (#2553).</summary>
+        /// <summary>What <see cref="ApplyTorizoProjectileCue"/> does on each <see cref="TorizoProjectileCue"/>, built once (#2553).</summary>
         private static TorizoProjectileCueCases<ApplyTorizoProjectileCueContext, AnimationContinuation<TorizoProjectileSegment>?> ApplyTorizoProjectileCueCases { get; } = new(
             PlaySound: static (playSound, context) =>
             {
@@ -273,7 +273,7 @@ internal sealed class TorizoAttacks
                 return ApplyTorizoProjectileCueCasesForTorizoProjectileCueKind[signal.Kind](context);
             });
 
-        /// <summary>What <c>ApplyTorizoProjectileCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+        /// <summary>What <see cref="ApplyTorizoProjectileCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
         /// <param name="Audio">The <c>audio</c> <c>ApplyTorizoProjectileCue</c> was handed.</param>
         /// <param name="Projectiles">The <c>projectiles</c> <c>ApplyTorizoProjectileCue</c> was handed.</param>
         /// <param name="Projectile">The <c>projectile</c> <c>ApplyTorizoProjectileCue</c> was handed.</param>

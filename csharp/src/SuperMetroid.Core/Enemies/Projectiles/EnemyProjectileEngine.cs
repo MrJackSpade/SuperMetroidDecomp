@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 [RoomLifetime]
 internal sealed class EnemyProjectileEngine
 {
-    /// <summary>What <c>ApplyCommonCue</c> does for each <see cref="EnemyProjectileCommonCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyCommonCue"/> does for each <see cref="EnemyProjectileCommonCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<EnemyProjectileCommonCueKind, Action<EnemyProjectile>> ApplyCommonCueForEnemyProjectileCommonCueKind => field ??= new(new Dictionary<EnemyProjectileCommonCueKind, Action<EnemyProjectile>>
     {
         [EnemyProjectileCommonCueKind.Delete] = static projectile => projectile.Delete(),
@@ -38,7 +38,7 @@ internal sealed class EnemyProjectileEngine
         cue.React(ApplyCommonCueReactions, new ApplyCommonCueContext(projectile, this));
     }
 
-    /// <summary>What <c>ApplyCommonCue</c> does on each <see cref="EnemyProjectileCommonCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyCommonCue"/> does on each <see cref="EnemyProjectileCommonCue"/>, built once (#2553).</summary>
     private static EnemyProjectileCommonCueReactions<ApplyCommonCueContext> ApplyCommonCueReactions { get; } = new(
         Scatter: static (scatter, context) => context.Owner.Scatter(context.Projectile, scatter.Spread),
         Signal: static (signal, context) =>
@@ -46,7 +46,7 @@ internal sealed class EnemyProjectileEngine
             ApplyCommonCueForEnemyProjectileCommonCueKind[signal.Kind](context.Projectile);
         });
 
-    /// <summary>What <c>ApplyCommonCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyCommonCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Projectile">The <c>projectile</c> <c>ApplyCommonCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="EnemyProjectileEngine"/> reacting.</param>
     private readonly record struct ApplyCommonCueContext(EnemyProjectile Projectile, EnemyProjectileEngine Owner);

@@ -28,7 +28,7 @@ internal static class GunshipLiftoffDust
     /// <summary>A gunship liftoff dust cloud, which ends with its animation.</summary>
     internal sealed class GunshipDustBehavior : EnemyProjectileBehavior, IEnemyProjectileCues<GunshipDustCue>
     {
-        /// <summary>What <c>RunCue</c> does for each <see cref="GunshipDustCue"/> member, each member's own arm.</summary>
+        /// <summary>What <see cref="RunCue"/> does for each <see cref="GunshipDustCue"/> member, each member's own arm.</summary>
         private static IdentityTable<GunshipDustCue, Action<EnemyProjectileCueContext>> RunCueForGunshipDustCue => field ??= new(new Dictionary<GunshipDustCue, Action<EnemyProjectileCueContext>>
         {
             [GunshipDustCue.Delete] = static context => context.Projectile.Delete(),

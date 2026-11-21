@@ -43,7 +43,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Random.Reseed(SpeciesRandomReseed.PolypPlacement);
     }
 
-    /// <summary>What <c>RunPolypMain</c> does for each <see cref="PolypAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunPolypMain"/> does for each <see cref="PolypAction"/> member, each member's own arm.</summary>
     private IdentityTable<PolypAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PolypEnemyState, SamusState>> RunPolypMainForPolypAction => field ??= new(new Dictionary<PolypAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PolypEnemyState, SamusState>>
     {
         [PolypAction.WaitingForSamus] = (_, place, state, samus) =>
@@ -127,7 +127,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = source.Position;
     }
 
-    /// <summary>What <c>FlyPolypRock</c> does for each <see cref="PolypRockMovement"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="FlyPolypRock"/> does for each <see cref="PolypRockMovement"/> member, each member's own arm.</summary>
     private IdentityTable<PolypRockMovement, Action<EnemyProjectile>> FlyPolypRockForPolypRockMovement => field ??= new(new Dictionary<PolypRockMovement, Action<EnemyProjectile>>
     {
         [PolypRockMovement.Rising] = projectile => StepRisingPolypRock(projectile),

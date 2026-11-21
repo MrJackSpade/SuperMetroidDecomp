@@ -215,7 +215,7 @@ internal sealed class CrocomireFight
         return cue.Match(ApplyCrocomireBodyCueCases, new ApplyCrocomireBodyCueContext(state, body, cameraX, level, samus, this));
     }
 
-    /// <summary>What <c>ApplyCrocomireBodyCue</c> does on each <see cref="CrocomireBodyCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyCrocomireBodyCue"/> does on each <see cref="CrocomireBodyCue"/>, built once (#2553).</summary>
     private static CrocomireBodyCueCases<ApplyCrocomireBodyCueContext, CrocomireBodyAnimation?> ApplyCrocomireBodyCueCases { get; } = new(
         Step: static (step, context) =>
         {
@@ -232,7 +232,7 @@ internal sealed class CrocomireFight
         },
         Signal: static (signal, context) => context.Owner.ApplyCrocomireBodySignal(context.State, context.Samus, context.Level, signal.Kind));
 
-    /// <summary>What <c>ApplyCrocomireBodyCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyCrocomireBodyCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="State">The Crocomire encounter whose body runs the animation.</param>
     /// <param name="Body">The <c>body</c> <c>ApplyCrocomireBodyCue</c> works with.</param>
     /// <param name="CameraX">The camera's X, which the on-screen movement tests use.</param>
@@ -250,7 +250,7 @@ internal sealed class CrocomireFight
         _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireStepCondition)} {condition}."),
     };
 
-    /// <summary>What <c>ApplyCrocomireBodySignal</c> comes to for each <see cref="CrocomireBodyCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyCrocomireBodySignal"/> comes to for each <see cref="CrocomireBodyCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<CrocomireBodyCueKind, Func<CrocomireEnemyState, SamusState, RoomLevelData, RoomEnemyPlace, CrocomireBodyAnimation?>> ApplyCrocomireBodySignalForCrocomireBodyCueKind => field ??= new(new Dictionary<CrocomireBodyCueKind, Func<CrocomireEnemyState, SamusState, RoomLevelData, RoomEnemyPlace, CrocomireBodyAnimation?>>
     {
         [CrocomireBodyCueKind.FightAi] = (state, samus, level, body) => RunCrocomireFightCue(state, samus),
@@ -324,7 +324,7 @@ internal sealed class CrocomireFight
     private static bool CrocomireBodyIsOnScreen(RoomEnemyPlace body, int cameraX) =>
         body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.StepBackScreenReach < cameraX;
 
-    /// <summary>What <c>RunCrocomireFightCue</c> comes to for each <see cref="CrocomirePhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunCrocomireFightCue"/> comes to for each <see cref="CrocomirePhase"/> member, each member's own arm.</summary>
     private IdentityTable<CrocomirePhase, Func<CrocomireEnemyState, SamusState, CrocomireBodyAnimation?>> RunCrocomireFightCueForCrocomirePhase => field ??= new(new Dictionary<CrocomirePhase, Func<CrocomireEnemyState, SamusState, CrocomireBodyAnimation?>>
     {
         [CrocomirePhase.Dormant] = (state, samus) =>

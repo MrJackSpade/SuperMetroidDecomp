@@ -410,7 +410,7 @@ internal static class TorizoProjectileAnimations
     /// <paramref name="pictures"/> burst at the quick pace a scattered explosion's burst plays (#2557): two updates for the spark
     /// and the flare ball, three for each ring with its core and open, and two for the fading ring.
     /// </summary>
-    private static AnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[] QuickBurst(FlareBurst pictures) =>
+    private static IUnpausedHidingAnimationBeat<EnemyProjectileFrameId, TorizoProjectileCue>[] QuickBurst(FlareBurst pictures) =>
         FlareBurst.Paced<TorizoProjectileCue>(pictures, 2, 2, 3, 3, 2);
 
     /// <summary>Shows <paramref name="frame"/> for good: a still picture (#2235).</summary>

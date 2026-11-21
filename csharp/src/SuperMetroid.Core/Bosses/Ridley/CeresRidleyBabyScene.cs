@@ -108,7 +108,7 @@ internal sealed class CeresRidleyBabyScene
         outcome.React(AdvanceCeresBabyAnimationReactions, new AdvanceCeresBabyAnimationContext(baby, ridley, this));
     }
 
-    /// <summary>What <c>AdvanceCeresBabyAnimation</c> does on each <see cref="AnimationShown{CeresBabySegment, CeresBabyPose}"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="AdvanceCeresBabyAnimation"/> does on each <see cref="AnimationShown{CeresBabySegment, CeresBabyPose}"/>, built once (#2553).</summary>
     private static AnimationShownReactions<CeresBabySegment, CeresBabyPose, AdvanceCeresBabyAnimationContext> AdvanceCeresBabyAnimationReactions { get; } = new(
         Frame: static (shown, context) =>
         {
@@ -125,7 +125,7 @@ internal sealed class CeresRidleyBabyScene
         Held: static (_, context) => context.Baby.Clock.Stop(),
         Ended: static (_, context) => context.Baby.Clock.Stop());
 
-    /// <summary>What <c>AdvanceCeresBabyAnimation</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="AdvanceCeresBabyAnimation"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Baby">The <c>baby</c> <c>AdvanceCeresBabyAnimation</c> works with.</param>
     /// <param name="Ridley">Ceres Ridley's encounter, which holds the Baby and the colours its cues show.</param>
     /// <param name="Owner">The <see cref="CeresRidleyBabyScene"/> reacting.</param>
@@ -145,7 +145,7 @@ internal sealed class CeresRidleyBabyScene
     private CeresBabySegment? ApplyCeresBabyCue(CeresRidleyState ridley, CeresBabyCue cue) =>
         cue.Match(ApplyCeresBabyCueCases, new ApplyCeresBabyCueContext(ridley, this));
 
-    /// <summary>What <c>ApplyCeresBabyCue</c> does on each <see cref="CeresBabyCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyCeresBabyCue"/> does on each <see cref="CeresBabyCue"/>, built once (#2553).</summary>
     private static CeresBabyCueCases<ApplyCeresBabyCueContext, CeresBabySegment?> ApplyCeresBabyCueCases { get; } = new(
             ReactsToMotion: static (_, context) => !context.Ridley.Baby.VerticalVelocity.IsZero ? MovingAnimation : null,
             UpdateColors: static (updateColors, context) =>
@@ -163,7 +163,7 @@ internal sealed class CeresRidleyBabyScene
                 return null;
             });
 
-    /// <summary>What <c>ApplyCeresBabyCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyCeresBabyCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Ridley">The <c>ridley</c> <c>ApplyCeresBabyCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="CeresRidleyBabyScene"/> reacting.</param>
     private readonly record struct ApplyCeresBabyCueContext(CeresRidleyState Ridley, CeresRidleyBabyScene Owner);

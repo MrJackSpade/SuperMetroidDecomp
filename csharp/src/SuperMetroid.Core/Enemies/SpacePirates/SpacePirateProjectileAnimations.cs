@@ -37,7 +37,7 @@ internal static class SpacePirateProjectileAnimations
     internal static Animation<SpacePirateProjectileSegment> StartingWith(SpacePirateProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>A laser fired <paramref name="facing"/>: its flare grows, it fires, and the beam extends to its full length, flickering bright and dim.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[] Laser(HorizontalDirection facing) =>
+    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Unpaused[] Laser(HorizontalDirection facing) =>
     [
         Show(EnemyProjectileFrameId.SpacePirateLaserFlareGlint, 2),
         Show(EnemyProjectileFrameId.SpacePirateLaserFlareGlow, 2),
@@ -53,17 +53,17 @@ internal static class SpacePirateProjectileAnimations
     ];
 
     /// <summary>A full-length laser flickering bright and dim, which ends its extension and plays on while it flies either way.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[] LaserFlicker =>
+    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Unpaused[] LaserFlicker =>
     [
         Show(EnemyProjectileFrameId.SpacePirateLaserFullLengthBright, 1),
         Show(EnemyProjectileFrameId.SpacePirateLaserFullLengthDim, 1),
     ];
 
     /// <summary>A claw thrown <paramref name="facing"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[] Claw(HorizontalDirection facing) => [Cue(SpacePirateProjectileCueKind.ThrowClaw, facing)];
+    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Unpaused[] Claw(HorizontalDirection facing) => [Cue(SpacePirateProjectileCueKind.ThrowClaw, facing)];
 
     /// <summary>A thrown claw's spin over its side's <paramref name="turns"/>, turned by 0 degrees through to 315, one update each.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[] ClawSpin(params ReadOnlySpan<EnemyProjectileFrameId> turns) =>
+    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Unpaused[] ClawSpin(params ReadOnlySpan<EnemyProjectileFrameId> turns) =>
         AnimationBeats<EnemyProjectileFrameId, SpacePirateProjectileCue>.Steady(1, turns);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>

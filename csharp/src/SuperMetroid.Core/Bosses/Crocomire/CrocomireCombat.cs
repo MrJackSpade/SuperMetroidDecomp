@@ -107,7 +107,7 @@ internal sealed class CrocomireCombat
             MoveForCrocomireProjectileMotion[motion](context);
         }
 
-        /// <summary>What <c>RunCue</c> does for each <see cref="CrocomireProjectileCue"/> member, each member's own arm.</summary>
+        /// <summary>What <see cref="RunCue"/> does for each <see cref="CrocomireProjectileCue"/> member, each member's own arm.</summary>
         private IdentityTable<CrocomireProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForCrocomireProjectileCue => field ??= new(new Dictionary<CrocomireProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
         {
             [CrocomireProjectileCue.SpawnDrops] = (context, projectile) => deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.Crocomire, context.Samus),

@@ -117,7 +117,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
         return ReactForGreyDoorWait[Waits](place, context, doors);
     }
 
-    /// <summary>What <c>SequenceEnded</c> does for each <see cref="GreyDoorPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="GreyDoorPhase"/> member, each member's own arm.</summary>
     private IdentityTable<GreyDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForGreyDoorPhase => field ??= new(new Dictionary<GreyDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [GreyDoorPhase.Closing] = (place, context) => Look(place, context),

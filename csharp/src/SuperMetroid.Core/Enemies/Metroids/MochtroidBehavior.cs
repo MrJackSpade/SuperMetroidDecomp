@@ -50,7 +50,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             place, state, MochtroidSegment.FreeFlight);
     }
 
-    /// <summary>What <c>RunMochtroidMain</c> does for each <see cref="MochtroidMovementMode"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunMochtroidMain"/> does for each <see cref="MochtroidMovementMode"/> member, each member's own arm.</summary>
     private IdentityTable<MochtroidMovementMode, Action<RoomEnemyPlace, SamusState, RoomLevelData, MochtroidEnemyState>> RunMochtroidMainForMochtroidMovementMode => field ??= new(new Dictionary<MochtroidMovementMode, Action<RoomEnemyPlace, SamusState, RoomLevelData, MochtroidEnemyState>>
     {
         [MochtroidMovementMode.NotTouchingSamus] = (place, samus, level, state) => RunMochtroidFreeFlight(place, state, samus, level),

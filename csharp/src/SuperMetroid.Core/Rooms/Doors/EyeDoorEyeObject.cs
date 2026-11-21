@@ -92,7 +92,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
         RaiseForEyeDoorAction[raised](place, eyes);
     }
 
-    /// <summary>What <c>SequenceEnded</c> does for each <see cref="EyeDoorEyePhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="EyeDoorEyePhase"/> member, each member's own arm.</summary>
     private IdentityTable<EyeDoorEyePhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForEyeDoorEyePhase => field ??= new(new Dictionary<EyeDoorEyePhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [EyeDoorEyePhase.Placed] = (place, context) => Look(place, context),

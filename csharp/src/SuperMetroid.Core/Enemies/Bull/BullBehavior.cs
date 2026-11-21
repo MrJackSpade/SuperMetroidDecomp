@@ -36,7 +36,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ActivationTimer = UpdateCountdown.For(BullMovementDefinitions.MovementDelay);
     }
 
-    /// <summary>What <c>RunBullMain</c> does for each <see cref="BullAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunBullMain"/> does for each <see cref="BullAction"/> member, each member's own arm.</summary>
     private static IdentityTable<BullAction, Action<RoomEnemyOccupant, RoomEnemyPlace, BullEnemyState, SamusState>> RunBullMainForBullAction => field ??= new(new Dictionary<BullAction, Action<RoomEnemyOccupant, RoomEnemyPlace, BullEnemyState, SamusState>>
     {
         [BullAction.MovementDelay] = static (_, place, state, samus) =>

@@ -282,7 +282,7 @@ public static class GameplayDisplayCapture
         return new(new PicturedPlane(placed), camera.AsPlaneOffset());
     }
 
-    /// <summary>What <c>PhantoonScene</c> comes to for each <see cref="PhantoonBodyVisibility"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="PhantoonScene"/> comes to for each <see cref="PhantoonBodyVisibility"/> member, each member's own arm.</summary>
     private static IdentityTable<PhantoonBodyVisibility, Func<GameplaySceneLayer, GameplaySceneLayer>> PhantoonSceneForPhantoonBodyVisibility => field ??= new(new Dictionary<PhantoonBodyVisibility, Func<GameplaySceneLayer, GameplaySceneLayer>>
     {
         [PhantoonBodyVisibility.Shown] = static ordinary => ordinary,

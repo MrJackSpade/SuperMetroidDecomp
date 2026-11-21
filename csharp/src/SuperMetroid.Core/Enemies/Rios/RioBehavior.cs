@@ -43,7 +43,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(place, RioAnimations.StartingWith(RioSegment.TuckedWingbeat));
     }
 
-    /// <summary>What <c>RunRioMain</c> does for each <see cref="RioAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunRioMain"/> does for each <see cref="RioAction"/> member, each member's own arm.</summary>
     private IdentityTable<RioAction, Action<RoomEnemyPlace, RioEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>> RunRioMainForRioAction => field ??= new(new Dictionary<RioAction, Action<RoomEnemyPlace, RioEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>>
     {
         [RioAction.WaitingForSamus] = (place, state, samus, level, camera) =>
@@ -178,7 +178,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         RunRioMainForRioAction[state.Action](place, state, samus, level, camera);
     }
 
-    /// <summary>What <c>ApplyRioCue</c> does for each <see cref="RioCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyRioCue"/> does for each <see cref="RioCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<RioCueKind, Action<RioEnemyState>> ApplyRioCueForRioCueKind => field ??= new(new Dictionary<RioCueKind, Action<RioEnemyState>>
     {
         [RioCueKind.AnimationFinished] = static state => state.Finish.Raise(),

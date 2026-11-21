@@ -45,7 +45,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue) =>
         cue.Match(ApplyAlcoonCueCases, new ApplyAlcoonCueContext(occupant, place, state, level, this));
 
-    /// <summary>What <c>ApplyAlcoonCue</c> does on each <see cref="AlcoonCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyAlcoonCue"/> does on each <see cref="AlcoonCue"/>, built once (#2553).</summary>
     private static AlcoonCueCases<ApplyAlcoonCueContext, AnimationContinuation<AlcoonSegment>?> ApplyAlcoonCueCases { get; } = new(
             Fire: static (fire, context) =>
             {
@@ -55,7 +55,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             },
             Signal: static (signal, context) => context.Owner.AlcoonSignals[signal.Kind](context.Place, context.State, context.Level));
 
-    /// <summary>What <c>ApplyAlcoonCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyAlcoonCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <c>ApplyAlcoonCue</c> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyAlcoonCue</c> was handed.</param>
@@ -116,7 +116,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWholeY(state.SpawnPosition.Y);
     }
 
-    /// <summary>What <c>RunAlcoonMain</c> does for each <see cref="AlcoonAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunAlcoonMain"/> does for each <see cref="AlcoonAction"/> member, each member's own arm.</summary>
     private IdentityTable<AlcoonAction, Action<RoomEnemyPlace, AlcoonEnemyState, SamusState, RoomLevelData>> RunAlcoonMainForAlcoonAction => field ??= new(new Dictionary<AlcoonAction, Action<RoomEnemyPlace, AlcoonEnemyState, SamusState, RoomLevelData>>
     {
         [AlcoonAction.WaitingForSamus] = (place, state, samus, level) => WaitForAlcoonActivation(place, state, samus),

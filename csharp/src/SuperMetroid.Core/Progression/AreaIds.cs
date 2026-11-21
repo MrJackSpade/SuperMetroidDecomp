@@ -40,7 +40,7 @@ public static class AreaIds
 
     /// <summary>The definition of <paramref name="area"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is undefined.</exception>
-    internal static AreaDefinition Of(AreaId area) => Ensure.Listed(AreaDefinitions.Areas, area);
+    internal static AreaDefinition Of(AreaId area) => AreaDefinitions.Areas[area];
 
     /// <summary>Whether <paramref name="area"/>'s machinery has power, given whether its boss is defeated.</summary>
     internal static bool HasPower(AreaId area, bool areaBossDefeated) => !Of(area).PoweredFromBossDefeat || areaBossDefeated;

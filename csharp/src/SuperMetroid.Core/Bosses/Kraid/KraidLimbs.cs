@@ -59,7 +59,7 @@ internal sealed class KraidLimbs
         partState.Playback = playback;
     }
 
-    /// <summary>What <c>ApplyKraidPartCue</c> comes to for each <see cref="KraidPartCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyKraidPartCue"/> comes to for each <see cref="KraidPartCue"/> member, each member's own arm.</summary>
     private IdentityTable<KraidPartCue, Func<KraidEnemyState, RoomEnemyPlace, KraidPartSegment?>> ApplyKraidPartCueForKraidPartCue => field ??= new(new Dictionary<KraidPartCue, Func<KraidEnemyState, RoomEnemyPlace, KraidPartSegment?>>
     {
         [KraidPartCue.RaiseBody] = (state, body) =>
@@ -174,7 +174,7 @@ internal sealed class KraidLimbs
             arm.AnimationClock.Resume();
     }
 
-    /// <summary>What <c>RunKraidFootMain</c> does for each <see cref="KraidFootPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunKraidFootMain"/> does for each <see cref="KraidFootPhase"/> member, each member's own arm.</summary>
     private IdentityTable<KraidFootPhase, Action<RoomEnemyPlace, KraidFootState, KraidEnemyState, RoomEnemyPlace>> RunKraidFootMainForKraidFootPhase => field ??= new(new Dictionary<KraidFootPhase, Action<RoomEnemyPlace, KraidFootState, KraidEnemyState, RoomEnemyPlace>>
     {
         [KraidFootPhase.Resting] = (foot, part, state, body) => { },

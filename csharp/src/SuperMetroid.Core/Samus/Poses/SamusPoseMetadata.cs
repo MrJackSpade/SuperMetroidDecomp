@@ -490,7 +490,7 @@ internal static class SamusPoseMetadata
         return reject;
     }
 
-    /// <summary>What <c>TrySetupPublishedBombJump</c> comes to for each <see cref="SamusBombJumpSetup"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="TrySetupPublishedBombJump"/> comes to for each <see cref="SamusBombJumpSetup"/> member, each member's own arm.</summary>
     private static IdentityTable<SamusBombJumpSetup, Func<SamusState, SamusTerrain, int, GameplayAction, SamusMovementType, bool>> TrySetupPublishedBombJumpForSamusBombJumpSetup => field ??= new(new Dictionary<SamusBombJumpSetup, Func<SamusState, SamusTerrain, int, GameplayAction, SamusMovementType, bool>>
     {
         [SamusBombJumpSetup.ForwardJump] = static (samus, terrain, frameCounter, controllerNewInput, movementType) => TrySetupPublishedBombJumpForSamusBombJumpSetupForwardJump(samus, terrain, frameCounter, controllerNewInput, movementType),

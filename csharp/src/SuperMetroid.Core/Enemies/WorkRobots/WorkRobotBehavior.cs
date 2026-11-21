@@ -134,7 +134,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     private WorkRobotSegment? ApplyWorkRobotCue(RoomEnemyPlace place, WorkRobotEnemyState state, EnemyAnimationCueContext context, WorkRobotCue cue) =>
         cue.Match(ApplyWorkRobotCueCases, new ApplyWorkRobotCueContext(place, state, context, this));
 
-    /// <summary>What <c>ApplyWorkRobotCue</c> does on each <see cref="WorkRobotCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyWorkRobotCue"/> does on each <see cref="WorkRobotCue"/>, built once (#2553).</summary>
     private static WorkRobotCueCases<ApplyWorkRobotCueContext, WorkRobotSegment?> ApplyWorkRobotCueCases { get; } = new(
             Step: static (step, reads) => reads.Owner.MoveWorkRobot(reads.Place, reads.State, reads.Context.Samus, reads.Context.Level, step.Move),
             TryLaser: static (laser, reads) => reads.Owner.TryFireWorkRobotLaser(reads.Place, reads.State, laser.Laser, laser.Firing, reads.Context.Camera),
@@ -144,7 +144,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
                 return null;
             });
 
-    /// <summary>What <c>ApplyWorkRobotCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyWorkRobotCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Place">The <c>place</c> <c>ApplyWorkRobotCue</c> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyWorkRobotCue</c> was handed.</param>
     /// <param name="Context">The <c>context</c> <c>ApplyWorkRobotCue</c> was handed.</param>

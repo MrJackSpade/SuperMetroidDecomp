@@ -97,7 +97,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DeathStage.Entry.React(RunCrocomireDeathSequenceReactions, new RunCrocomireDeathSequenceContext(state, camera, samus, this));
     }
 
-    /// <summary>What <c>RunCrocomireDeathSequence</c> does on each <see cref="CrocomireDeathStage"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="RunCrocomireDeathSequence"/> does on each <see cref="CrocomireDeathStage"/>, built once (#2553).</summary>
     private static CrocomireDeathStageReactions<RunCrocomireDeathSequenceContext> RunCrocomireDeathSequenceReactions { get; } = new(
         Fighting: static (_, _) =>
         {
@@ -136,7 +136,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         {
         });
 
-    /// <summary>What <c>RunCrocomireDeathSequence</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="RunCrocomireDeathSequence"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="State">The <c>state</c> <c>RunCrocomireDeathSequence</c> was handed.</param>
     /// <param name="Camera">The <c>camera</c> <c>RunCrocomireDeathSequence</c> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>RunCrocomireDeathSequence</c> was handed.</param>

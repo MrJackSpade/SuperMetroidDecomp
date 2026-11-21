@@ -31,7 +31,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio = audio;
     }
 
-    /// <summary>What <c>ApplyHibashiCue</c> does for each <see cref="HibashiCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyHibashiCue"/> does for each <see cref="HibashiCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<HibashiCueKind, Action<RoomEnemyPlace>> ApplyHibashiCueForHibashiCueKind => field ??= new(new Dictionary<HibashiCueKind, Action<RoomEnemyPlace>>
     {
         [HibashiCueKind.PlayEruptionSound] = place => PlayHibashiEruptionSound(),
@@ -44,7 +44,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         cue.React(ApplyHibashiCueReactions, new ApplyHibashiCueContext(place, this));
     }
 
-    /// <summary>What <c>ApplyHibashiCue</c> does on each <see cref="HibashiCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyHibashiCue"/> does on each <see cref="HibashiCue"/>, built once (#2553).</summary>
     private static HibashiCueReactions<ApplyHibashiCueContext> ApplyHibashiCueReactions { get; } = new(
         EruptionStep: static (step, context) => context.Owner.ApplyHibashiEruptionStep(context.Place, step.Step),
         Signal: static (signal, context) =>
@@ -52,7 +52,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             context.Owner.ApplyHibashiCueForHibashiCueKind[signal.Kind](context.Place);
         });
 
-    /// <summary>What <c>ApplyHibashiCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyHibashiCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Place">The <c>place</c> <c>ApplyHibashiCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="HibashiBehavior"/> reacting.</param>
     private readonly record struct ApplyHibashiCueContext(RoomEnemyPlace Place, HibashiBehavior Owner);
@@ -82,7 +82,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Radius = place.Radius.WithX(0);
     }
 
-    /// <summary>What <c>RunHibashiMain</c> does for each <see cref="HibashiAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunHibashiMain"/> does for each <see cref="HibashiAction"/> member, each member's own arm.</summary>
     private IdentityTable<HibashiAction, Action<RoomEnemyOccupant, RoomEnemyPlace, HibashiEnemyState>> RunHibashiMainForHibashiAction => field ??= new(new Dictionary<HibashiAction, Action<RoomEnemyOccupant, RoomEnemyPlace, HibashiEnemyState>>
     {
         [HibashiAction.Inactive] = (_, place, state) => RunHibashiInactive(place, state),

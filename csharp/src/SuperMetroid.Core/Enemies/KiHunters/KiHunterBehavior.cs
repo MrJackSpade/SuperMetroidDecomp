@@ -59,7 +59,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private KiHunterSegment? ApplyKiHunterCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, KiHunterCue cue) =>
         cue.Match(ApplyKiHunterCueCases, new ApplyKiHunterCueContext(occupant, place, this));
 
-    /// <summary>What <c>ApplyKiHunterCue</c> does on each <see cref="KiHunterCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyKiHunterCue"/> does on each <see cref="KiHunterCue"/>, built once (#2553).</summary>
     private static KiHunterCueCases<ApplyKiHunterCueContext, KiHunterSegment?> ApplyKiHunterCueCases { get; } = new(
             Spit: static (spit, context) =>
             {
@@ -68,7 +68,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             },
             Signal: static (signal, context) => context.Owner.KiHunterSignals[signal.Kind](context.Place));
 
-    /// <summary>What <c>ApplyKiHunterCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyKiHunterCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <c>ApplyKiHunterCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="KiHunterBehavior"/> reacting.</param>
@@ -136,7 +136,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
     }
 
-    /// <summary>What <c>RunKiHunterMain</c> does for each <see cref="KiHunterAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunKiHunterMain"/> does for each <see cref="KiHunterAction"/> member, each member's own arm.</summary>
     private IdentityTable<KiHunterAction, Action<RoomEnemyPlace, KiHunterBodyState, SamusState, RoomLevelData>> RunKiHunterMainForKiHunterAction => field ??= new(new Dictionary<KiHunterAction, Action<RoomEnemyPlace, KiHunterBodyState, SamusState, RoomLevelData>>
     {
         [KiHunterAction.FlyingPatrol] = (actor, state, samus, level) => RunKiHunterFlyingPatrol(actor, state, samus, level),
@@ -165,7 +165,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         RunKiHunterMainForKiHunterAction[state.Action](actor, state, samus, level);
     }
 
-    /// <summary>What <c>RunKiHunterWingMain</c> does for each <see cref="KiHunterWingAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunKiHunterWingMain"/> does for each <see cref="KiHunterWingAction"/> member, each member's own arm.</summary>
     private IdentityTable<KiHunterWingAction, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>> RunKiHunterWingMainForKiHunterWingAction => field ??= new(new Dictionary<KiHunterWingAction, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>>
     {
         [KiHunterWingAction.FollowBody] = (wings, state, level) => FollowKiHunterBody(wings),
@@ -448,7 +448,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
     }
 
-    /// <summary>What <c>RunDetachedKiHunterWing</c> does for each <see cref="KiHunterWingMovement"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunDetachedKiHunterWing"/> does for each <see cref="KiHunterWingMovement"/> member, each member's own arm.</summary>
     private IdentityTable<KiHunterWingMovement, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>> RunDetachedKiHunterWingForKiHunterWingMovement => field ??= new(new Dictionary<KiHunterWingMovement, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>>
     {
         [KiHunterWingMovement.Orbit] = (wings, state, level) => RunDetachedKiHunterWingOrbit(wings, state),
@@ -719,7 +719,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         /// <summary>The way each acid was spat, given as its Ki-Hunter spits it.</summary>
         internal EnemyProjectileStates<KiHunterAcidState> Spits { get; } = new();
 
-        /// <summary>What <c>RunCue</c> does for each <see cref="KiHunterAcidSpitCueKind"/> member, each member's own arm.</summary>
+        /// <summary>What <see cref="RunCue"/> does for each <see cref="KiHunterAcidSpitCueKind"/> member, each member's own arm.</summary>
         private static IdentityTable<KiHunterAcidSpitCueKind, Action<EnemyProjectile>> RunCueForKiHunterAcidSpitCueKind => field ??= new(new Dictionary<KiHunterAcidSpitCueKind, Action<EnemyProjectile>>
         {
             [KiHunterAcidSpitCueKind.StopMoving] = static projectile => projectile.HoldStill(),
@@ -733,7 +733,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             cue.React(RunCueReactions, new RunCueContext(projectile, this));
         }
 
-        /// <summary>What <c>RunCue</c> does on each <see cref="KiHunterAcidSpitCue"/>, built once (#2553).</summary>
+        /// <summary>What <see cref="RunCue"/> does on each <see cref="KiHunterAcidSpitCue"/>, built once (#2553).</summary>
         private static KiHunterAcidSpitCueReactions<RunCueContext> RunCueReactions { get; } = new(
             Launch: static (launch, context) =>
             {
@@ -746,7 +746,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunCueForKiHunterAcidSpitCueKind[signal.Kind](context.Projectile);
             });
 
-        /// <summary>What <c>RunCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+        /// <summary>What <see cref="RunCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
         /// <param name="Projectile">The <c>projectile</c> <c>RunCue</c> works with.</param>
         /// <param name="Owner">The <see cref="AcidBehavior"/> reacting.</param>
         private readonly record struct RunCueContext(EnemyProjectile Projectile, AcidBehavior Owner);

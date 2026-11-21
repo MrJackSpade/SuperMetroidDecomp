@@ -57,7 +57,7 @@ internal sealed class IntroRinkaSystem
             rinka.Sprite.Draw(screenSprites, installedArt: installedArt);
     }
 
-    /// <summary>What <c>HandleRinkaCue</c> does for each <see cref="IntroRinkaCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="HandleRinkaCue"/> does for each <see cref="IntroRinkaCue"/> member, each member's own arm.</summary>
     private static IdentityTable<IntroRinkaCue, Action<IntroRinka>> HandleRinkaCueForIntroRinkaCue => field ??= new(new Dictionary<IntroRinkaCue, Action<IntroRinka>>
     {
         [IntroRinkaCue.StartMoving] = static rinka => rinka.StartMoving(),

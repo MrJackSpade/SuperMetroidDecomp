@@ -551,7 +551,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen, ICompose
         }
     }
 
-    /// <summary>What <c>HandleExplosionSpawnerCue</c> does for each <see cref="CeresExplosionSpawnerCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="HandleExplosionSpawnerCue"/> does for each <see cref="CeresExplosionSpawnerCue"/> member, each member's own arm.</summary>
     private IdentityTable<CeresExplosionSpawnerCue, Action> HandleExplosionSpawnerCueForCeresExplosionSpawnerCue => field ??= new(new Dictionary<CeresExplosionSpawnerCue, Action>
     {
         [CeresExplosionSpawnerCue.SpawnInitialWave] = () =>
@@ -664,7 +664,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen, ICompose
         }
     }
 
-    /// <summary>What <c>HandleZebesCue</c> does for each <see cref="CeresCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="HandleZebesCue"/> does for each <see cref="CeresCue"/> member, each member's own arm.</summary>
     private IdentityTable<CeresCue, Action> HandleZebesCueForCeresCue => field ??= new(new Dictionary<CeresCue, Action>
     {
         [CeresCue.FadeInZebesTitle] = () =>

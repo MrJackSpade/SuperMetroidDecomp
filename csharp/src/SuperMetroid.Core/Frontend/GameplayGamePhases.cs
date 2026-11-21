@@ -104,7 +104,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         EnterUpdateTransition(outcome.Transition);
     }
 
-    /// <summary>What <c>EnterUpdateTransition</c> does for each <see cref="GameplayUpdateTransition"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="EnterUpdateTransition"/> does for each <see cref="GameplayUpdateTransition"/> member, each member's own arm.</summary>
     private IdentityTable<GameplayUpdateTransition, Action> EnterUpdateTransitionForGameplayUpdateTransition => field ??= new(new Dictionary<GameplayUpdateTransition, Action>
     {
         [GameplayUpdateTransition.None] = () =>

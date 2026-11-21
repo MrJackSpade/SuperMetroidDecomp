@@ -22,7 +22,7 @@ internal sealed class CrocomireMelting
         _bodyLayer = bodyLayer;
     }
 
-    /// <summary>What <c>ShowCrocomireMeltImage</c> does for each <see cref="CrocomireMeltingIllustration"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ShowCrocomireMeltImage"/> does for each <see cref="CrocomireMeltingIllustration"/> member, each member's own arm.</summary>
     private IdentityTable<CrocomireMeltingIllustration, Action<CrocomireEnemyState>> ShowCrocomireMeltImageForCrocomireMeltingIllustration => field ??= new(new Dictionary<CrocomireMeltingIllustration, Action<CrocomireEnemyState>>
     {
         [CrocomireMeltingIllustration.Flesh] = state => ShowFirstCrocomireMeltImage(state),

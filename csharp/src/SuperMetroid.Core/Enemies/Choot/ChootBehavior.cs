@@ -34,7 +34,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
     }
 
-    /// <summary>What <c>RunChootMain</c> does for each <see cref="ChootAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunChootMain"/> does for each <see cref="ChootAction"/> member, each member's own arm.</summary>
     private static IdentityTable<ChootAction, Action<RoomEnemyOccupant, RoomEnemyPlace, ChootEnemyState, SamusState>> RunChootMainForChootAction => field ??= new(new Dictionary<ChootAction, Action<RoomEnemyOccupant, RoomEnemyPlace, ChootEnemyState, SamusState>>
     {
         [ChootAction.WaitingForSamus] = static (occupant, place, state, samus) => WaitForChootActivation(occupant, place, state, samus),

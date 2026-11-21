@@ -47,7 +47,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     internal sealed class WallExplosionBehavior(EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
         : EnemyProjectileBehavior, IEnemyProjectileCues<OldTourianWallExplosionCue>
     {
-        /// <summary>What <c>RunCue</c> does for each <see cref="OldTourianWallExplosionCue"/> member, each member's own arm.</summary>
+        /// <summary>What <see cref="RunCue"/> does for each <see cref="OldTourianWallExplosionCue"/> member, each member's own arm.</summary>
         private IdentityTable<OldTourianWallExplosionCue, Action<EnemyProjectile>> RunCueForOldTourianWallExplosionCue => field ??= new(new Dictionary<OldTourianWallExplosionCue, Action<EnemyProjectile>>
         {
             [OldTourianWallExplosionCue.StopMoving] = projectile => projectile.HoldStill(),

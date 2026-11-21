@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </remarks>
 public sealed class SamusLiquidPhysicsState
 {
-    /// <summary>What <c>ConfigureFor</c> does for each <see cref="RoomFxType"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ConfigureFor"/> does for each <see cref="RoomFxType"/> member, each member's own arm.</summary>
     private IdentityTable<RoomFxType, Action<RoomFxOverlayState>> ConfigureForForRoomFxType => field ??= new(new Dictionary<RoomFxType, Action<RoomFxOverlayState>>
     {
         [RoomFxType.Water] = fx => ConfigureWater(LiveSurface(fx), fx.Liquid is RoomWater { IgnoresSurfaceUntilEnabled: true }, WaterRoomFx.Water),

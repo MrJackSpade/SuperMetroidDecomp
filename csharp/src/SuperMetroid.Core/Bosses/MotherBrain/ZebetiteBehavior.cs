@@ -102,7 +102,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWholeY(Zebetites.YPosition(definition, state.Half));
     }
 
-    /// <summary>What <c>RunZebetiteMain</c> does for each <see cref="ZebetiteAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunZebetiteMain"/> does for each <see cref="ZebetiteAction"/> member, each member's own arm.</summary>
     private IdentityTable<ZebetiteAction, Action<RoomEnemyOccupant, RoomEnemyPlace, ZebetiteEnemyState>> RunZebetiteMainForZebetiteAction => field ??= new(new Dictionary<ZebetiteAction, Action<RoomEnemyOccupant, RoomEnemyPlace, ZebetiteEnemyState>>
     {
         [ZebetiteAction.SpawnLinkedHalf] = (zebetite, place, state) => RunZebetiteSpawnLinkedHalf(zebetite, state),

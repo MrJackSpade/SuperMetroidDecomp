@@ -130,16 +130,15 @@ internal sealed class CeresEscape : IGameplayShadingSource
             BeginSelfDestruct();
             return;
         }
-        int update = flying.Place;
         Floor.Flight = flying.Following;
 
         // The getaway requests the departure sound on its first update only.
-        if (update == 0)
+        if (flying == ListStep<CeresRidleyGetawayStep>.FirstOf(CeresRidleyGetawayCurve.Steps))
             _audio.QueueEnemySound(EnemySound.CeresRidleyGetaway, priority: SoundRequestPriority.Normal);
 
         // Ridley's shove takes Samus's movement so the rotating boss image cannot overlap her from the following update
         // onward.
-        if (update == CeresRidleyGetawayDefinitions.SamusShoveUpdate)
+        if (flying == ListStep<CeresRidleyGetawayStep>.At(CeresRidleyGetawayCurve.Steps, CeresRidleyGetawayDefinitions.SamusShoveUpdate))
             samus.CeresRidleyEjection.Request(samus);
 
         FloorZoom zoom = flying.Entry.Zoom;
@@ -199,7 +198,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         Warning.Phase = CeresSelfDestructPhase.Start;
     }
 
-    /// <summary>What <c>RunRidleysStep</c> does for each <see cref="CeresEscapeStage"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunRidleysStep"/> does for each <see cref="CeresEscapeStage"/> member, each member's own arm.</summary>
     private IdentityTable<CeresEscapeStage, Action<int>> RunRidleysStepForCeresEscapeStage => field ??= new(new Dictionary<CeresEscapeStage, Action<int>>
     {
         [CeresEscapeStage.Getaway] = ridleyFrameCounter =>

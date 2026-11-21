@@ -85,7 +85,7 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IGamePhase
         session.display.PublishBlack();
     }
 
-    /// <summary>What <c>StepGameLoadingWait</c> does for each <see cref="GameLoadingCompletion"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="StepGameLoadingWait"/> does for each <see cref="GameLoadingCompletion"/> member, each member's own arm.</summary>
     private IdentityTable<GameLoadingCompletion, Action> StepGameLoadingWaitForGameLoadingCompletion => field ??= new(new Dictionary<GameLoadingCompletion, Action>
     {
         [GameLoadingCompletion.CeresArrivalFadeIn] = () =>

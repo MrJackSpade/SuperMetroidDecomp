@@ -75,7 +75,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Flight.React(RunFirefleaMainReactions, occupant);
     }
 
-    /// <summary>What <c>RunFirefleaMain</c> does on each <see cref="FirefleaFlightState"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="RunFirefleaMain"/> does on each <see cref="FirefleaFlightState"/>, built once (#2553).</summary>
     private static FirefleaFlightStateReactions<RoomEnemyOccupant> RunFirefleaMainReactions { get; } = new(
         BobbingFirefleaState: static (bobbing, occupant) =>
         {

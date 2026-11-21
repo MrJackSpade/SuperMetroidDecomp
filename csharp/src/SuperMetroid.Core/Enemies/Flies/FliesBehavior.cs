@@ -41,7 +41,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>What <c>RunFlyMain</c> does for each <see cref="FlyAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunFlyMain"/> does for each <see cref="FlyAction"/> member, each member's own arm.</summary>
     private static IdentityTable<FlyAction, Action<RoomEnemyPlace, SamusState, FlyEnemyState>> RunFlyMainForFlyAction => field ??= new(new Dictionary<FlyAction, Action<RoomEnemyPlace, SamusState, FlyEnemyState>>
     {
         [FlyAction.Circling] = static (place, samus, state) => RunFlyCircle(place, state, samus),

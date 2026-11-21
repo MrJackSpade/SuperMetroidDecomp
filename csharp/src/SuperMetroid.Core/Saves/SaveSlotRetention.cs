@@ -40,12 +40,11 @@ internal static class SaveSlotRetention
     }
 
     /// <summary>
-    /// What Samus carries as the save keeps it (#2557): the reserve mode a defined one, and every count and capacity within
-    /// the range a count holds; the items and beams are kept as they are.
+    /// What Samus carries as the save keeps it (#2557): every count and capacity within the range a count holds; the reserve
+    /// mode, the items and the beams are kept as they are.
     /// </summary>
     private static SamusInventory Kept(SamusInventory inventory) => inventory with
     {
-        ReserveMode = Defined(inventory.ReserveMode, nameof(inventory.ReserveMode)),
         Health = Kept(inventory.Health),
         MaxHealth = Kept(inventory.MaxHealth),
         Missiles = Kept(inventory.Missiles),

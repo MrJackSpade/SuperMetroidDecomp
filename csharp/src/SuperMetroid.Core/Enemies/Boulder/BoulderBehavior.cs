@@ -48,12 +48,12 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         int initialYOffset = settings.Start.InitialLift;
         place.Position = place.Position.WithWholeY(state.RestingY - initialYOffset);
 
-        state.Playback = new(BoulderAnimations.StartingWith(Ensure.Listed(BoulderRollDefinitions.Rolls, settings.Roll).Segment),
+        state.Playback = new(BoulderAnimations.StartingWith(BoulderRollDefinitions.Rolls[settings.Roll].Segment),
             AnimationPlace.StartOfAnimation);
         state.VerticalCompensation = BoulderMotionDefinitions.RollingGroundReach;
     }
 
-    /// <summary>What <c>RunBoulderMain</c> does for each <see cref="BoulderAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunBoulderMain"/> does for each <see cref="BoulderAction"/> member, each member's own arm.</summary>
     private IdentityTable<BoulderAction, Action<RoomEnemyOccupant, RoomEnemyPlace, BoulderEnemyState, SamusState, RoomLevelData>> RunBoulderMainForBoulderAction => field ??= new(new Dictionary<BoulderAction, Action<RoomEnemyOccupant, RoomEnemyPlace, BoulderEnemyState, SamusState, RoomLevelData>>
     {
         [BoulderAction.WaitingForSamus] = (occupant, place, state, samus, level) => RunBoulderWaiting(occupant, place, state, samus),

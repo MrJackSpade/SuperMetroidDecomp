@@ -164,7 +164,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>What <c>RunGunshipTopMain</c> does for each <see cref="GunshipPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunGunshipTopMain"/> does for each <see cref="GunshipPhase"/> member, each member's own arm.</summary>
     private IdentityTable<GunshipPhase, Action<RoomEnemyPlace, SamusState, GameplayAction>> RunGunshipTopMainForGunshipPhase => field ??= new(new Dictionary<GunshipPhase, Action<RoomEnemyPlace, SamusState, GameplayAction>>
     {
         [GunshipPhase.DescendAfterCeres] = (top, samus, newlyPressedControllerInput) => DescendPostCeresGunship(top, samus),

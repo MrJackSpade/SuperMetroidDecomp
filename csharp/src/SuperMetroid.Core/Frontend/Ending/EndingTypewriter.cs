@@ -64,7 +64,7 @@ internal sealed class EndingTypewriter
     /// <summary>Runs the typing one update: the initial delay, character cadence, optional percentage hold, and completion handoff.</summary>
     public void Step() => typing.Step(CarryOut);
 
-    /// <summary>What <c>CarryOut</c> does for each <see cref="EndingTypewriterCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="CarryOut"/> does for each <see cref="EndingTypewriterCue"/> member, each member's own arm.</summary>
     private IdentityTable<EndingTypewriterCue, Action> CarryOutForEndingTypewriterCue => field ??= new(new Dictionary<EndingTypewriterCue, Action>
     {
         [EndingTypewriterCue.ShowPercentage] = () => shownPercentage = ItemPercentage(),

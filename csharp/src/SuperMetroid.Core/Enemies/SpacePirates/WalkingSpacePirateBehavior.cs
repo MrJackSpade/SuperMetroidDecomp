@@ -66,7 +66,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, WalkingSpacePirateCue cue, SamusState samus) =>
         cue.Match(ApplyWalkingSpacePirateCueCases, new ApplyWalkingSpacePirateCueContext(occupant, place, samus, this));
 
-    /// <summary>What <c>ApplyWalkingSpacePirateCue</c> does on each <see cref="WalkingSpacePirateCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyWalkingSpacePirateCue"/> does on each <see cref="WalkingSpacePirateCue"/>, built once (#2553).</summary>
     private static WalkingSpacePirateCueCases<ApplyWalkingSpacePirateCueContext, WalkingSpacePirateSegment?> ApplyWalkingSpacePirateCueCases { get; } = new(
             FireLaser: static (fireLaser, context) =>
             {
@@ -92,7 +92,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             // The walking pirates' one signal chooses their movement.
             Signal: static (_, context) => SelectWalkingSpacePirateMovement(context.Place, context.Samus));
 
-    /// <summary>What <c>ApplyWalkingSpacePirateCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyWalkingSpacePirateCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <c>ApplyWalkingSpacePirateCue</c> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplyWalkingSpacePirateCue</c> was handed.</param>
@@ -125,7 +125,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         state.LeftPostX = OffRoomPlaces.Place(place.Position.X.Whole - settings.PatrolReach);
     }
 
-    /// <summary>What <c>RunWalkingSpacePirateMain</c> does for each <see cref="WalkingSpacePirateAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunWalkingSpacePirateMain"/> does for each <see cref="WalkingSpacePirateAction"/> member, each member's own arm.</summary>
     private IdentityTable<WalkingSpacePirateAction, Action<RoomEnemyPlace, WalkingSpacePirateEnemyState, SamusState, RoomLevelData>> RunWalkingSpacePirateMainForWalkingSpacePirateAction => field ??= new(new Dictionary<WalkingSpacePirateAction, Action<RoomEnemyPlace, WalkingSpacePirateEnemyState, SamusState, RoomLevelData>>
     {
         [WalkingSpacePirateAction.StandingStill] = (place, state, samus, level) =>

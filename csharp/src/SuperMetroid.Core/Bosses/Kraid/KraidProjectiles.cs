@@ -111,7 +111,7 @@ internal sealed class KraidProjectiles
             MoveForKraidRockMotion[motion](context);
         }
 
-        /// <summary>What <c>RunCue</c> does for each <see cref="KraidRockCue"/> member, each member's own arm.</summary>
+        /// <summary>What <see cref="RunCue"/> does for each <see cref="KraidRockCue"/> member, each member's own arm.</summary>
         private static IdentityTable<KraidRockCue, Action<EnemyProjectile>> RunCueForKraidRockCue => field ??= new(new Dictionary<KraidRockCue, Action<EnemyProjectile>>
         {
             [KraidRockCue.StopFlyingFromNextPass] = static projectile => projectile.HoldStill(),
@@ -149,7 +149,7 @@ internal sealed class KraidProjectiles
         lint.Contact = lint.Contact.With(EnemyContact.IgnoresSamus);
     }
 
-    /// <summary>What <c>RunKraidNailMain</c> does for each <see cref="KraidNailPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunKraidNailMain"/> does for each <see cref="KraidNailPhase"/> member, each member's own arm.</summary>
     private IdentityTable<KraidNailPhase, Action<RoomEnemyPlace, KraidNailState, RoomLevelData>> RunKraidNailMainForKraidNailPhase => field ??= new(new Dictionary<KraidNailPhase, Action<RoomEnemyPlace, KraidNailState, RoomLevelData>>
     {
         [KraidNailPhase.WaitBeforeLaunch] = (nail, part, level) =>
@@ -248,7 +248,7 @@ internal sealed class KraidProjectiles
     /// </summary>
     private static SignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SignedSixteenSixteen velocity) => -velocity;
 
-    /// <summary>What <c>RunKraidLintMain</c> does for each <see cref="KraidLintPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunKraidLintMain"/> does for each <see cref="KraidLintPhase"/> member, each member's own arm.</summary>
     private IdentityTable<KraidLintPhase, Action<RoomEnemyPlace, KraidLintState, SamusState>> RunKraidLintMainForKraidLintPhase => field ??= new(new Dictionary<KraidLintPhase, Action<RoomEnemyPlace, KraidLintState, SamusState>>
     {
         [KraidLintPhase.Inactive] = (lint, part, samus) => { },

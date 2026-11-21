@@ -220,7 +220,7 @@ public sealed class SamusCrystalFlashState
         EndHitImmunityAndKnockback(samus);
     }
 
-    /// <summary>What <c>StepAmmoDrain</c> does for each <see cref="CrystalFlashAmmoKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="StepAmmoDrain"/> does for each <see cref="CrystalFlashAmmoKind"/> member, each member's own arm.</summary>
     private static IdentityTable<CrystalFlashAmmoKind, Action<SamusState>> StepAmmoDrainForCrystalFlashAmmoKind => field ??= new(new Dictionary<CrystalFlashAmmoKind, Action<SamusState>>
     {
         [CrystalFlashAmmoKind.Missiles] = static samus => samus.Missiles = CountsRunBelowZero.DecrementWrapping(samus.Missiles),

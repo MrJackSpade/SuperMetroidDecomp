@@ -44,7 +44,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.MetareeIdling), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>What <c>RunMetareeMain</c> does for each <see cref="MetareeAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunMetareeMain"/> does for each <see cref="MetareeAction"/> member, each member's own arm.</summary>
     private IdentityTable<MetareeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MetareeEnemyState, SamusState, RoomLevelData>> RunMetareeMainForMetareeAction => field ??= new(new Dictionary<MetareeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MetareeEnemyState, SamusState, RoomLevelData>>
     {
         [MetareeAction.Idling] = (_, place, state, samus, level) => RunMetareeIdle(place, state, samus),

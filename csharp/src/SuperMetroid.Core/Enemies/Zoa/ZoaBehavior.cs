@@ -53,7 +53,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
     }
 
-    /// <summary>What <c>RunZoaMain</c> does for each <see cref="ZoaAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunZoaMain"/> does for each <see cref="ZoaAction"/> member, each member's own arm.</summary>
     private static IdentityTable<ZoaAction, Action<RoomEnemyPlace, ZoaEnemyState, SamusState, Position16<RoomPixels>>> RunZoaMainForZoaAction => field ??= new(new Dictionary<ZoaAction, Action<RoomEnemyPlace, ZoaEnemyState, SamusState, Position16<RoomPixels>>>
     {
         [ZoaAction.WaitForSamus] = static (place, state, samus, camera) => RunZoaWait(place, state, samus),

@@ -141,7 +141,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         ApplyBabyMetroidFrameEffects(state.Colours, step);
     }
 
-    /// <summary>What <c>ShowOrDeleteBabyMetroid</c> does for each <see cref="BabyMetroidVisibilityRequest"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ShowOrDeleteBabyMetroid"/> does for each <see cref="BabyMetroidVisibilityRequest"/> member, each member's own arm.</summary>
     private static IdentityTable<BabyMetroidVisibilityRequest, Action<RoomEnemyPlace>> ShowOrDeleteBabyMetroidForBabyMetroidVisibilityRequest => field ??= new(new Dictionary<BabyMetroidVisibilityRequest, Action<RoomEnemyPlace>>
     {
         [BabyMetroidVisibilityRequest.Show] = static place => place.Presence = place.Presence.Without(EnemyPresence.Hidden),

@@ -17,7 +17,7 @@ public readonly record struct PuyoHopDefinition(int JumpHeight, int XPixels, Qua
     QuadraticSpeedCurvePlace CurveStep, PuyoAirborneMovement Movement, SignedSixteenSixteen DropSpeed)
 {
     /// <summary>How far along the speed curve each pass of the launch's search steps, past the curve's start.</summary>
-    public QuadraticSpeedCurvePlace LaunchSearchStep { get; } = LaunchSearchStep > QuadraticSpeedCurvePlace.Start
+    public QuadraticSpeedCurvePlace LaunchSearchStep { get; } = LaunchSearchStep.CompareTo(QuadraticSpeedCurvePlace.Start) > 0
         ? LaunchSearchStep
         : throw new ArgumentOutOfRangeException(nameof(LaunchSearchStep), LaunchSearchStep, "A Puyo hop's launch search steps past the curve's start.");
 }

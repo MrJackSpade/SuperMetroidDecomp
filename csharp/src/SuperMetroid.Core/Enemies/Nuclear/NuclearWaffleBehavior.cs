@@ -59,7 +59,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(place, NuclearWaffleAnimations.StartingWith(NuclearWaffleSegment.BodyLoop));
     }
 
-    /// <summary>What <c>RunNuclearWaffleMain</c> does for each <see cref="NuclearWaffleAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunNuclearWaffleMain"/> does for each <see cref="NuclearWaffleAction"/> member, each member's own arm.</summary>
     private IdentityTable<NuclearWaffleAction, Action<RoomEnemyOccupant, RoomEnemyPlace, NuclearWaffleEnemyState>> RunNuclearWaffleMainForNuclearWaffleAction => field ??= new(new Dictionary<NuclearWaffleAction, Action<RoomEnemyOccupant, RoomEnemyPlace, NuclearWaffleEnemyState>>
     {
         [NuclearWaffleAction.Waiting] = (occupant, place, state) => RunNuclearWaffleWaiting(occupant, place, state),

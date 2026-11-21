@@ -171,7 +171,7 @@ public sealed class SamusSuitPickupState
         LeaveProgress(samus);
     }
 
-    /// <summary>What <c>LeaveProgress</c> does for each <see cref="SamusSuitPickupStage"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="LeaveProgress"/> does for each <see cref="SamusSuitPickupStage"/> member, each member's own arm.</summary>
     private IdentityTable<SamusSuitPickupStage, Action<SamusState>> LeaveProgressForSamusSuitPickupStage => field ??= new(new Dictionary<SamusSuitPickupStage, Action<SamusState>>
     {
         [SamusSuitPickupStage.LightBeamAppears] = samus => samus.SparkCarryover.LeaveLines(Stage, _lightBeamLines),

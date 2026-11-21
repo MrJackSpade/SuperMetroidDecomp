@@ -91,7 +91,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         // trailing past its written places stands at the room's origin, (0,0).
     }
 
-    /// <summary>What <c>RunBotwoonMain</c> does for each <see cref="BotwoonPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunBotwoonMain"/> does for each <see cref="BotwoonPhase"/> member, each member's own arm.</summary>
     private IdentityTable<BotwoonPhase, Action<RoomEnemyOccupant, RoomEnemyPlace, BotwoonEnemyState, SamusState>> RunBotwoonMainForBotwoonPhase => field ??= new(new Dictionary<BotwoonPhase, Action<RoomEnemyOccupant, RoomEnemyPlace, BotwoonEnemyState, SamusState>>
     {
         [BotwoonPhase.InitialDelay] = (_, head, state, samus) =>
@@ -228,7 +228,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         state.RingIndex = BotwoonTrailRing.PlaceAt(state.RingIndex + 1);
     }
 
-    /// <summary>What <c>RunBotwoonMovement</c> does for each <see cref="BotwoonMovement"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunBotwoonMovement"/> does for each <see cref="BotwoonMovement"/> member, each member's own arm.</summary>
     private static IdentityTable<BotwoonMovement, Action<RoomEnemyPlace, BotwoonEnemyState>> RunBotwoonMovementForBotwoonMovement => field ??= new(new Dictionary<BotwoonMovement, Action<RoomEnemyPlace, BotwoonEnemyState>>
     {
         [BotwoonMovement.MoveTowardHole] = static (head, state) => MoveBotwoonTowardHole(head, state),
@@ -433,7 +433,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         state.HoleLatch = false;
     }
 
-    /// <summary>What <c>RunBotwoonHeadAction</c> does for each <see cref="BotwoonHeadAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunBotwoonHeadAction"/> does for each <see cref="BotwoonHeadAction"/> member, each member's own arm.</summary>
     private IdentityTable<BotwoonHeadAction, Action<RoomEnemyOccupant, RoomEnemyPlace, BotwoonEnemyState, SamusState>> RunBotwoonHeadActionForBotwoonHeadAction => field ??= new(new Dictionary<BotwoonHeadAction, Action<RoomEnemyOccupant, RoomEnemyPlace, BotwoonEnemyState, SamusState>>
     {
         [BotwoonHeadAction.AnimateFromMovement] = (_, head, state, samus) => AnimateBotwoonHeadFromMovement(head, state),
@@ -534,7 +534,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         EnemyAnimationPlayback.Show(head, advance, static frame => BotwoonVisualDefinitions.HeadFrames.Of(frame));
     }
 
-    /// <summary>What <c>ApplyBotwoonHeadCue</c> does for each <see cref="BotwoonHeadCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyBotwoonHeadCue"/> does for each <see cref="BotwoonHeadCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<BotwoonHeadCueKind, Action<BotwoonEnemyState>> ApplyBotwoonHeadCueForBotwoonHeadCueKind => field ??= new(new Dictionary<BotwoonHeadCueKind, Action<BotwoonEnemyState>>
     {
         [BotwoonHeadCueKind.QueueSpitSound] = state => RequestBotwoonSound(BotwoonSoundDefinitions.Spit),
@@ -552,7 +552,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         cue.React(ApplyBotwoonHeadCueReactions, new ApplyBotwoonHeadCueContext(head, state, this));
     }
 
-    /// <summary>What <c>ApplyBotwoonHeadCue</c> does on each <see cref="BotwoonHeadCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyBotwoonHeadCue"/> does on each <see cref="BotwoonHeadCue"/>, built once (#2553).</summary>
     private static BotwoonHeadCueReactions<ApplyBotwoonHeadCueContext> ApplyBotwoonHeadCueReactions { get; } = new(
         ApplyFacingRadius: static (radius, context) => context.Head.Radius = BotwoonAnimations.HeadRadius(radius.Facing),
         Signal: static (signal, context) =>
@@ -560,7 +560,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             context.Owner.ApplyBotwoonHeadCueForBotwoonHeadCueKind[signal.Kind](context.State);
         });
 
-    /// <summary>What <c>ApplyBotwoonHeadCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyBotwoonHeadCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Head">The <c>head</c> <c>ApplyBotwoonHeadCue</c> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyBotwoonHeadCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="BotwoonBehavior"/> reacting.</param>

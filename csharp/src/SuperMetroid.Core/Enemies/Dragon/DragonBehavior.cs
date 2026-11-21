@@ -44,7 +44,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio = audio;
     }
 
-    /// <summary>What <c>ApplyDragonCue</c> does for each <see cref="DragonCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyDragonCue"/> does for each <see cref="DragonCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<DragonCueKind, Action<DragonEnemyState>> ApplyDragonCueForDragonCueKind => field ??= new(new Dictionary<DragonCueKind, Action<DragonEnemyState>>
     {
         [DragonCueKind.FinishAttack] = static body =>
@@ -93,7 +93,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PlaceFollowUpRecipient(RoomEnemyPlace place) =>
         _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipient(_places.PlacesAfter(place)));
 
-    /// <summary>What <c>RunDragonMain</c> does for each <see cref="DragonAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunDragonMain"/> does for each <see cref="DragonAction"/> member, each member's own arm.</summary>
     private IdentityTable<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, SamusState>> RunDragonMainForDragonAction => field ??= new(new Dictionary<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, SamusState>>
     {
         [DragonAction.WaitToRise] = (_, place, state, samus) => RunDragonWaitToRise(place, state, samus),
@@ -148,7 +148,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         wing.Position = wing.Position.WithWholeY(wing.Position.Y.Whole - 1);
     }
 
-    /// <summary>What <c>RunDragonAttacking</c> does for each <see cref="DragonAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunDragonAttacking"/> does for each <see cref="DragonAction"/> member, each member's own arm.</summary>
     private IdentityTable<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, Animation<DragonSegment>>> RunDragonAttackingForDragonAction => field ??= new(new Dictionary<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, Animation<DragonSegment>>>
     {
         [DragonAction.Attacking] = (_, body, bodyState, attack) => bodyState.Playback = EnemyAnimationPlayback.StartUnlessPlaying(body, bodyState.Playback, attack),

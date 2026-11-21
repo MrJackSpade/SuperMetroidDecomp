@@ -689,7 +689,7 @@ public sealed class BabyMetroidCutsceneState
         Health = Math.Max(0, healthBefore - damage);
     }
 
-    /// <summary>What <c>StepSamusRainbowColours</c> does for each <see cref="BabyMetroidSamusRainbowPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="StepSamusRainbowColours"/> does for each <see cref="BabyMetroidSamusRainbowPhase"/> member, each member's own arm.</summary>
     private IdentityTable<BabyMetroidSamusRainbowPhase, Action<SamusState>> StepSamusRainbowColoursForBabyMetroidSamusRainbowPhase => field ??= new(new Dictionary<BabyMetroidSamusRainbowPhase, Action<SamusState>>
     {
         [BabyMetroidSamusRainbowPhase.Inactive] = samus => { },

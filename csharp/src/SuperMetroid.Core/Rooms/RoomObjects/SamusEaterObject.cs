@@ -57,7 +57,7 @@ internal sealed class SamusEaterObject : SilentSequencedRoomObject<SamusEaterSeg
         base.Update(place, context);
     }
 
-    /// <summary>What <c>SequenceEnded</c> does for each <see cref="SamusEaterPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="SamusEaterPhase"/> member, each member's own arm.</summary>
     private IdentityTable<SamusEaterPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForSamusEaterPhase => field ??= new(new Dictionary<SamusEaterPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [SamusEaterPhase.Biting] = (place, context) =>

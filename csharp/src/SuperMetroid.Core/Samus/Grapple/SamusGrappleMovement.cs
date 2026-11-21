@@ -604,7 +604,7 @@ public static class SamusGrappleMovement
         grapple.FlareOrigin = samus.Position.Whole + grapple.FlareOffset;
     }
 
-    /// <summary>What <c>ReactAtEndpoint</c> comes to for each <see cref="RoomCollisionType"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ReactAtEndpoint"/> comes to for each <see cref="RoomCollisionType"/> member, each member's own arm.</summary>
     private static IdentityTable<RoomCollisionType, Func<RoomTerrain, SamusState, RoomCollisionBlock, GrappleBlockReaction>> ReactAtEndpointForRoomCollisionType => field ??= new(new Dictionary<RoomCollisionType, Func<RoomTerrain, SamusState, RoomCollisionBlock, GrappleBlockReaction>>
     {
         // These four block kinds let the beam pass: it remains live.

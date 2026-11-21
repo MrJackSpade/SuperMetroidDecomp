@@ -42,7 +42,7 @@ internal sealed class RidleyBodyAnimation
         ridley.Flight.BodyPlayback = playback;
     }
 
-    /// <summary>What <c>ApplyCue</c> comes to for each <see cref="RidleyBodyCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyCue"/> comes to for each <see cref="RidleyBodyCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<RidleyBodyCueKind, Func<RoomEnemyPlace, SamusState, IRidleyBodyOwner, RidleyFlightState, RidleyBodySegment?>> ApplyCueForRidleyBodyCueKind => field ??= new(new Dictionary<RidleyBodyCueKind, Func<RoomEnemyPlace, SamusState, IRidleyBodyOwner, RidleyFlightState, RidleyBodySegment?>>
     {
         [RidleyBodyCueKind.MayCutFireballingShort] = (place, samus, owner, flight) => owner.CutFireballingShort(samus),
@@ -98,7 +98,7 @@ internal sealed class RidleyBodyAnimation
         return cue.Match(ApplyCueCases, new ApplyCueContext(place, flight, ridley, samus, owner, this));
     }
 
-    /// <summary>What <c>ApplyCue</c> does on each <see cref="RidleyBodyCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyCue"/> does on each <see cref="RidleyBodyCue"/>, built once (#2553).</summary>
     private static RidleyBodyCueCases<ApplyCueContext, RidleyBodySegment?> ApplyCueCases { get; } = new(
         Move: static (move, context) =>
         {
@@ -121,7 +121,7 @@ internal sealed class RidleyBodyAnimation
             return context.Animation.ApplyCueForRidleyBodyCueKind[signal.Kind](context.Place, context.Samus, context.Owner, context.Flight);
         });
 
-    /// <summary>What <c>ApplyCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Place">Ridley's body.</param>
     /// <param name="Flight">The <c>flight</c> <c>ApplyCue</c> works with.</param>
     /// <param name="Ridley">Ridley's encounter.</param>

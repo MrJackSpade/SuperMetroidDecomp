@@ -64,7 +64,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place, YardEnemyState state, YardCue cue, AnimationPlayback<YardSegment> playing) =>
         cue.Match(ApplyYardCueCases, new ApplyYardCueContext(place, state, playing, this));
 
-    /// <summary>What <c>ApplyYardCue</c> does on each <see cref="YardCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyYardCue"/> does on each <see cref="YardCue"/>, built once (#2553).</summary>
     private static YardCueCases<ApplyYardCueContext, AnimationContinuation<YardSegment>?> ApplyYardCueCases { get; } = new(
             MoveBy: static (moveBy, context) =>
             {
@@ -90,7 +90,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             },
             Signal: static (signal, context) => context.Owner.YardSignals[signal.Kind](context.State, context.Playing));
 
-    /// <summary>What <c>ApplyYardCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyYardCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Place">The Yard.</param>
     /// <param name="State">The Yard's state.</param>
     /// <param name="Playing">Where the play stands just past the cue.</param>
@@ -164,7 +164,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction) =>
         state.CrawlingVelocity = YardCrawlVelocity.Apply(state.CrawlSpeed, direction);
 
-    /// <summary>What <c>RunYardMain</c> does for each <see cref="YardMovement"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunYardMain"/> does for each <see cref="YardMovement"/> member, each member's own arm.</summary>
     private IdentityTable<YardMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, YardEnemyState>> RunYardMainForYardMovement => field ??= new(new Dictionary<YardMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, YardEnemyState>>
     {
         [YardMovement.HoldingStill] = (place, samus, level, state) => { },

@@ -47,7 +47,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         _collision = dependencies.Collision;
     }
 
-    /// <summary>What <c>ApplyDeadSidehopperCue</c> does for each <see cref="DeadTourianCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyDeadSidehopperCue"/> does for each <see cref="DeadTourianCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<DeadTourianCueKind, Action<RoomEnemyPlace>> ApplyDeadSidehopperCueForDeadTourianCueKind => field ??= new(new Dictionary<DeadTourianCueKind, Action<RoomEnemyPlace>>
     {
         [DeadTourianCueKind.EndHop] = static place =>
@@ -63,7 +63,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         ApplyDeadSidehopperCueForDeadTourianCueKind[cue.Kind](place);
     }
 
-    /// <summary>What <c>InitializeDeadSidehopper</c> does for each <see cref="DeadSidehopperLayout"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="InitializeDeadSidehopper"/> does for each <see cref="DeadSidehopperLayout"/> member, each member's own arm.</summary>
     private IdentityTable<DeadSidehopperLayout, Action<RoomEnemyPlace>> InitializeDeadSidehopperForDeadSidehopperLayout => field ??= new(new Dictionary<DeadSidehopperLayout, Action<RoomEnemyPlace>>
     {
         [DeadSidehopperLayout.BabyMetroidVictim] = place => InitializeBabyMetroidVictimSidehopper(place),
@@ -125,7 +125,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         Position16<RoomPixels> camera) =>
         RunDeadSidehopperState(place, place.RequireSpeciesState<DeadSidehopperEnemyState>(), samus, level, camera);
 
-    /// <summary>What <c>RunDeadSidehopperState</c> does for each <see cref="DeadSidehopperAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunDeadSidehopperState"/> does for each <see cref="DeadSidehopperAction"/> member, each member's own arm.</summary>
     private IdentityTable<DeadSidehopperAction, Action<RoomEnemyPlace, DeadSidehopperEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>> RunDeadSidehopperStateForDeadSidehopperAction => field ??= new(new Dictionary<DeadSidehopperAction, Action<RoomEnemyPlace, DeadSidehopperEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>>
     {
         [DeadSidehopperAction.AliveWaitForCamera] = (place, state, samus, level, camera) =>

@@ -24,7 +24,7 @@ internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops
     /// <param name="motion">The spore's one motion, its drift.</param>
     internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => DriftSpore(context.Projectile);
 
-    /// <summary>What <c>RunCue</c> does for each <see cref="SporeSpawnProjectileCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunCue"/> does for each <see cref="SporeSpawnProjectileCue"/> member, each member's own arm.</summary>
     private IdentityTable<SporeSpawnProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForSporeSpawnProjectileCue => field ??= new(new Dictionary<SporeSpawnProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
     {
         [SporeSpawnProjectileCue.SetImpactProperties] = (context, spore) => SetImpactProperties(spore),

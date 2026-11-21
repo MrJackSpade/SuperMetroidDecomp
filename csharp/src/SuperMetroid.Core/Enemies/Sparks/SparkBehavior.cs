@@ -30,7 +30,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Binds the spark species to its falling-spark producer.</summary>
     internal SparkBehavior(FallingSparksBehavior fallingSparksBehavior) => FallingSparks = fallingSparksBehavior;
 
-    /// <summary>What <c>ApplySparkCue</c> does for each <see cref="SparkCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplySparkCue"/> does for each <see cref="SparkCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<SparkCueKind, Action<RoomEnemyPlace>> ApplySparkCueForSparkCueKind => field ??= new(new Dictionary<SparkCueKind, Action<RoomEnemyPlace>>
     {
         [SparkCueKind.BecomeIntangible] = static place =>
@@ -67,7 +67,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         // defeat is exempt under the emulation scope limits (owner decision on #1318).
     }
 
-    /// <summary>What <c>RunSparkMain</c> does for each <see cref="SparkAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunSparkMain"/> does for each <see cref="SparkAction"/> member, each member's own arm.</summary>
     private IdentityTable<SparkAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SparkEnemyState>> RunSparkMainForSparkAction => field ??= new(new Dictionary<SparkAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SparkEnemyState>>
     {
         [SparkAction.AlwaysActive] = (_, place, state) => { },

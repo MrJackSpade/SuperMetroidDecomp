@@ -48,7 +48,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         return new(x, y, SbugMovement.FacingOf(heading));
     }
 
-    /// <summary>What <c>RunSbugMain</c> does for each <see cref="SbugAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunSbugMain"/> does for each <see cref="SbugAction"/> member, each member's own arm.</summary>
     private static IdentityTable<SbugAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, SbugEnemyState>> RunSbugMainForSbugAction => field ??= new(new Dictionary<SbugAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, SbugEnemyState>>
     {
         [SbugAction.WaitForSamus] = static (occupant, place, samus, state) => RunSbugWait(occupant, place, state, samus),

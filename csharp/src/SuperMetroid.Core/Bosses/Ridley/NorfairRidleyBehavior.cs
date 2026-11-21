@@ -106,7 +106,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
             RunNorfairRidleyFightPhase(place, state, samus, controllerInput, level, powerBomb);
     }
 
-    /// <summary>What <c>RunNorfairRidleyFightPhase</c> does for each <see cref="NorfairRidleyPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunNorfairRidleyFightPhase"/> does for each <see cref="NorfairRidleyPhase"/> member, each member's own arm.</summary>
     private IdentityTable<NorfairRidleyPhase, Action<RoomEnemyPlace, NorfairRidleyState, SamusState, GameplayAction, RoomLevelData, SamusPowerBombExplosionState>> RunNorfairRidleyFightPhaseForNorfairRidleyPhase => field ??= new(new Dictionary<NorfairRidleyPhase, Action<RoomEnemyPlace, NorfairRidleyState, SamusState, GameplayAction, RoomLevelData, SamusPowerBombExplosionState>>
     {
         [NorfairRidleyPhase.EnterArena] = (place, state, samus, controllerInput, level, powerBomb) =>

@@ -162,7 +162,7 @@ internal sealed class MotherBrainBody
         state.BodyPlayback = playback;
     }
 
-    /// <summary>What <c>ApplyMotherBrainBodyCue</c> does for each <see cref="MotherBrainBodyCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyMotherBrainBodyCue"/> does for each <see cref="MotherBrainBodyCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<MotherBrainBodyCueKind, Action<MotherBrainEnemyState, SamusState>> ApplyMotherBrainBodyCueForMotherBrainBodyCueKind => field ??= new(new Dictionary<MotherBrainBodyCueKind, Action<MotherBrainEnemyState, SamusState>>
     {
         [MotherBrainBodyCueKind.FireHandBeam] = (state, samus) =>
@@ -183,7 +183,7 @@ internal sealed class MotherBrainBody
         cue.React(ApplyMotherBrainBodyCueReactions, new ApplyMotherBrainBodyCueContext(state, samus, this));
     }
 
-    /// <summary>What <c>ApplyMotherBrainBodyCue</c> does on each <see cref="MotherBrainBodyCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyMotherBrainBodyCue"/> does on each <see cref="MotherBrainBodyCue"/>, built once (#2553).</summary>
     private static MotherBrainBodyCueReactions<ApplyMotherBrainBodyCueContext> ApplyMotherBrainBodyCueReactions { get; } = new(
         SetPose: static (setPose, context) => context.State.Pose = setPose.Pose,
         Move: static (move, context) => MoveMotherBrainBody(context.State, move.Offset),
@@ -203,7 +203,7 @@ internal sealed class MotherBrainBody
             context.Owner.ApplyMotherBrainBodyCueForMotherBrainBodyCueKind[signal.Kind](context.State, context.Samus);
         });
 
-    /// <summary>What <c>ApplyMotherBrainBodyCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyMotherBrainBodyCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="State">The <c>state</c> <c>ApplyMotherBrainBodyCue</c> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplyMotherBrainBodyCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="MotherBrainBody"/> reacting.</param>

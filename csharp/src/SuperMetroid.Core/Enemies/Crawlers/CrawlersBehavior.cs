@@ -127,7 +127,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         SetUpCrawler(place, CrawlerAnimationFamily.Shared, settings.Orientation, settings.BlockSide, crawlSpeed);
     }
 
-    /// <summary>What <c>RunOrangeZoomerMain</c> does for each <see cref="CrawlerAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunOrangeZoomerMain"/> does for each <see cref="CrawlerAction"/> member, each member's own arm.</summary>
     private IdentityTable<CrawlerAction, Action<RoomEnemyPlace, SamusState, RoomLevelData, CrawlerEnemyState>> RunOrangeZoomerMainForCrawlerAction => field ??= new(new Dictionary<CrawlerAction, Action<RoomEnemyPlace, SamusState, RoomLevelData, CrawlerEnemyState>>
     {
         [CrawlerAction.Settling] = (place, samus, level, state) => state.Action = CrawlActionOn(state),
@@ -156,7 +156,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             BeginCrawlerFall(state);
     }
 
-    /// <summary>What <c>RunCrawlerMain</c> does for each <see cref="CrawlerAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunCrawlerMain"/> does for each <see cref="CrawlerAction"/> member, each member's own arm.</summary>
     private IdentityTable<CrawlerAction, Action<RoomEnemyPlace, RoomLevelData, CrawlerEnemyState>> RunCrawlerMainForCrawlerAction => field ??= new(new Dictionary<CrawlerAction, Action<RoomEnemyPlace, RoomLevelData, CrawlerEnemyState>>
     {
         [CrawlerAction.Settling] = (place, level, state) => state.Action = CrawlActionOn(state),

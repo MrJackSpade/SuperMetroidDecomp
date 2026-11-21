@@ -26,7 +26,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>What <c>ApplySkulteraCue</c> does for each <see cref="SkulteraCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplySkulteraCue"/> does for each <see cref="SkulteraCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<SkulteraCueKind, Action<SkulteraEnemyState>> ApplySkulteraCueForSkulteraCueKind => field ??= new(new Dictionary<SkulteraCueKind, Action<SkulteraEnemyState>>
     {
         // Turns rest immediately after finishing (#2450): the cue moves the Skultera into its finished turn, which main AI
@@ -56,7 +56,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousYOffset = EnemyMath.CircleNegativeSinePixels(state.Angle.ToTrigonometryAngle(), settings.Radius);
     }
 
-    /// <summary>What <c>RunSkulteraMain</c> does for each <see cref="SkulteraAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunSkulteraMain"/> does for each <see cref="SkulteraAction"/> member, each member's own arm.</summary>
     private IdentityTable<SkulteraAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SkulteraEnemyState, RoomLevelData>> RunSkulteraMainForSkulteraAction => field ??= new(new Dictionary<SkulteraAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SkulteraEnemyState, RoomLevelData>>
     {
         [SkulteraAction.Swimming] = (occupant, place, state, level) => SwimSkultera(occupant, place, state, level, state.Heading),

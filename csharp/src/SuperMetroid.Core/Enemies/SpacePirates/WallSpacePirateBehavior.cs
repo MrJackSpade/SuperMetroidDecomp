@@ -53,7 +53,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         SnapWallSpacePirateXToWallGrid(place);
     }
 
-    /// <summary>What <c>RunWallSpacePirateMain</c> does for each <see cref="WallSpacePirateAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunWallSpacePirateMain"/> does for each <see cref="WallSpacePirateAction"/> member, each member's own arm.</summary>
     private static IdentityTable<WallSpacePirateAction, Action<RoomEnemyOccupant, RoomEnemyPlace, WallSpacePirateEnemyState, SamusState>> RunWallSpacePirateMainForWallSpacePirateAction => field ??= new(new Dictionary<WallSpacePirateAction, Action<RoomEnemyOccupant, RoomEnemyPlace, WallSpacePirateEnemyState, SamusState>>
     {
         [WallSpacePirateAction.Climbing] = static (_, place, state, samus) =>
@@ -221,7 +221,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         return cue.Match(ApplyWallSpacePirateCueCases, new ApplyWallSpacePirateCueContext(occupant, place, state, level, this));
     }
 
-    /// <summary>What <c>ApplyWallSpacePirateCue</c> does on each <see cref="WallSpacePirateCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyWallSpacePirateCue"/> does on each <see cref="WallSpacePirateCue"/>, built once (#2553).</summary>
     private static WallSpacePirateCueCases<ApplyWallSpacePirateCueContext, WallSpacePirateSegment?> ApplyWallSpacePirateCueCases { get; } = new(
         Climb: static (climb, context) => context.Owner.MoveWallSpacePirateAndReverseOnCollision(context.Place, context.State, context.Level, climb.ClimbPixels, wall: climb.Wall),
         ChooseClimb: static (choose, context) => context.Owner.RandomizeWallSpacePirateClimbDirection(context.State, wall: choose.Wall),
@@ -253,7 +253,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             return null;
         });
 
-    /// <summary>What <c>ApplyWallSpacePirateCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyWallSpacePirateCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <c>ApplyWallSpacePirateCue</c> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyWallSpacePirateCue</c> works with.</param>

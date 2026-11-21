@@ -47,7 +47,7 @@ internal sealed class EyeDoorObjects
         WriteExtensionRows(level, place.Block, EyeDoorDefinitions.EyeExtensionRows);
     }
 
-    /// <summary>What <c>SetupEyeDoorPart</c> does for each <see cref="EyeDoorBodyPart"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="SetupEyeDoorPart"/> does for each <see cref="EyeDoorBodyPart"/> member, each member's own arm.</summary>
     private static IdentityTable<EyeDoorBodyPart, Action<RoomObjectPlace, EyeDoorPart, PlacedDoor>> SetupEyeDoorPartForEyeDoorBodyPart => field ??= new(new Dictionary<EyeDoorBodyPart, Action<RoomObjectPlace, EyeDoorPart, PlacedDoor>>
     {
         [EyeDoorBodyPart.Middle] = static (place, part, placedDoor) => place.BecomeDoor(new EyeDoorBodyObject(part.Orientation, placedDoor)),

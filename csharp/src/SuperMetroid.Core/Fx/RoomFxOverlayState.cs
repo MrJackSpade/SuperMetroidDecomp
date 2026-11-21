@@ -615,7 +615,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         ? LavaAcidWaveDefinitions.VerticalWavePhaseDuration
         : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration;
 
-    /// <summary>What <c>StepLiquidRise</c> does for each <see cref="LiquidRisePhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="StepLiquidRise"/> does for each <see cref="LiquidRisePhase"/> member, each member's own arm.</summary>
     private IdentityTable<LiquidRisePhase, Action<int, PowerOnEarthquakeSoundDelay>> StepLiquidRiseForLiquidRisePhase => field ??= new(new Dictionary<LiquidRisePhase, Action<int, PowerOnEarthquakeSoundDelay>>
     {
         [LiquidRisePhase.Dormant] = (randomNumber, earthquakeSoundDelay) =>

@@ -34,7 +34,7 @@ internal static class ChozoTourianDustAnimations
     });
 
     /// <summary>The dust's puff growing to a dense cloud, two updates a picture, which both the footsteps and the descent raise.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[] PuffToCloud =>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused[] PuffToCloud =>
     [
         Show(EnemyProjectileFrameId.ChozoDustPuff, 2),
         Show(EnemyProjectileFrameId.ChozoDustPuffPair, 2),

@@ -44,7 +44,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.SkreeIdling), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>What <c>RunSkreeMain</c> does for each <see cref="SkreeAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunSkreeMain"/> does for each <see cref="SkreeAction"/> member, each member's own arm.</summary>
     private IdentityTable<SkreeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, RoomLevelData, SkreeEnemyState>> RunSkreeMainForSkreeAction => field ??= new(new Dictionary<SkreeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, RoomLevelData, SkreeEnemyState>>
     {
         [SkreeAction.Idling] = (_, place, samus, level, state) =>

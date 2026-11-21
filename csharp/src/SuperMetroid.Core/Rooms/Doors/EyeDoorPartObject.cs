@@ -73,7 +73,7 @@ internal abstract class EyeDoorPartObject
     private protected override void Show(EyeDoorPartPose frame, RoomObjectPlace place, RoomObjectStepContext context) =>
         context.Draw(place, EyeDoorDraws.Of(Part, frame));
 
-    /// <summary>What <c>SequenceEnded</c> does for each <see cref="EyeDoorPartPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="EyeDoorPartPhase"/> member, each member's own arm.</summary>
     private IdentityTable<EyeDoorPartPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForEyeDoorPartPhase => field ??= new(new Dictionary<EyeDoorPartPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [EyeDoorPartPhase.ClosingBehindSamus] = (place, context) => context.RoomObjects.DeleteObject(place),

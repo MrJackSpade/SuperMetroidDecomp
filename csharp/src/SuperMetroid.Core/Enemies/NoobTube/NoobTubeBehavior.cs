@@ -36,7 +36,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>What <c>SpawnNoobTubeProjectile</c> does for each <see cref="NoobTubeProjectileDefinition"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="SpawnNoobTubeProjectile"/> does for each <see cref="NoobTubeProjectileDefinition"/> member, each member's own arm.</summary>
     private IdentityTable<NoobTubeProjectileDefinition, Action<NoobTubePiece, EnemyProjectile, Position16<RoomPixels>>> SpawnNoobTubeProjectileForNoobTubeProjectileDefinition => field ??= new(new Dictionary<NoobTubeProjectileDefinition, Action<NoobTubePiece, EnemyProjectile, Position16<RoomPixels>>>
     {
         [NoobTubeProjectileDefinition.Crack] = (piece, projectile, place) =>
@@ -216,7 +216,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         private void FlickerNoobTubeCrack(EnemyProjectile projectile, Compatibility.ShortFrameCount shortCounter) =>
             Pieces.Of(projectile).IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsSetIn(shortCounter);
 
-        /// <summary>What <c>ApplyNoobTubeProjectileCue</c> does for each <see cref="NoobTubeProjectileCueKind"/> member, each member's own arm.</summary>
+        /// <summary>What <see cref="ApplyNoobTubeProjectileCue"/> does for each <see cref="NoobTubeProjectileCueKind"/> member, each member's own arm.</summary>
         private IdentityTable<NoobTubeProjectileCueKind, Action<EnemyProjectile, NoobTubeShardMirroring, bool>> ApplyNoobTubeProjectileCueForNoobTubeProjectileCueKind => field ??= new(new Dictionary<NoobTubeProjectileCueKind, Action<EnemyProjectile, NoobTubeShardMirroring, bool>>
         {
             [NoobTubeProjectileCueKind.FlickerReflected] = (projectile, mirroring, atOwnColumn) =>

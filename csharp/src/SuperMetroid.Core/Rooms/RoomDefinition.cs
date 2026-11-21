@@ -27,7 +27,7 @@ public sealed record RoomDefinition
         Area = area;
         MapPosition = mapPosition;
         Size = size;
-        Ground = Ensure.Listed(RoomGroundDefinitions.AreaGrounds, area);
+        Ground = RoomGroundDefinitions.AreaGrounds[area];
     }
 
     /// <summary>The room's name.</summary>

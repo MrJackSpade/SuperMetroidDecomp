@@ -64,7 +64,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         statue.AnimationClock.Restart();
 
         // The statue shows its own colours, the shade of its site's statue, which no other enemy shows (#1512).
-        ChozoStatueSiteDefinition definition = Ensure.Listed(ChozoStatueSiteDefinitions.Sites, site);
+        ChozoStatueSiteDefinition definition = ChozoStatueSiteDefinitions.Sites[site];
         statue.Shading = PictureShading.Shaded(definition.Shade);
 
         var state = new ChozoStatueState { Phase = ChozoStatuePhase.Placed, Site = site };
@@ -130,12 +130,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Playback = new(ChozoStatueAnimations.StartingWith(
-            Ensure.Listed(ChozoStatueSiteDefinitions.Sites, occupant.SpawnSettings<ChozoStatueSpawnSettings>().Site).Activated), AnimationPlace.StartOfAnimation);
+            ChozoStatueSiteDefinitions.Sites[occupant.SpawnSettings<ChozoStatueSpawnSettings>().Site].Activated), AnimationPlace.StartOfAnimation);
         statue.AnimationClock.StepOnNextUpdate();
         state.Phase = ChozoStatuePhase.Activated;
     }
 
-    /// <summary>What <c>ApplyChozoStatueCue</c> does for each <see cref="ChozoStatueCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyChozoStatueCue"/> does for each <see cref="ChozoStatueCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<ChozoStatueCueKind, Action<ChozoStatueState>> ApplyChozoStatueCueForChozoStatueCueKind => field ??= new(new Dictionary<ChozoStatueCueKind, Action<ChozoStatueState>>
     {
         [ChozoStatueCueKind.AwaitHand] = state => state.AwaitHand(),
@@ -166,7 +166,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         cue.React(ApplyChozoStatueCueReactions, new ApplyChozoStatueCueContext(statue, level, samus, state, this));
     }
 
-    /// <summary>What <c>ApplyChozoStatueCue</c> does on each <see cref="ChozoStatueCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyChozoStatueCue"/> does on each <see cref="ChozoStatueCue"/>, built once (#2553).</summary>
     private static ChozoStatueCueReactions<ApplyChozoStatueCueContext> ApplyChozoStatueCueReactions { get; } = new(
         Footstep: static (footstep, context) =>
         {
@@ -188,7 +188,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             context.Owner.ApplyChozoStatueCueForChozoStatueCueKind[signal.Kind](context.State);
         });
 
-    /// <summary>What <c>ApplyChozoStatueCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyChozoStatueCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Statue">The <c>statue</c> <c>ApplyChozoStatueCue</c> was handed.</param>
     /// <param name="Level">The <c>level</c> <c>ApplyChozoStatueCue</c> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplyChozoStatueCue</c> was handed.</param>

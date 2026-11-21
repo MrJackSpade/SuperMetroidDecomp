@@ -253,7 +253,7 @@ public static class GameplayEffectCapture
         return new(SuitPickupBeamWindow(active.Beam), active.Color);
     }
 
-    /// <summary>What <c>SuitPickupBeamWindow</c> comes to for each <see cref="SamusSuitPickupBeamShape"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="SuitPickupBeamWindow"/> comes to for each <see cref="SamusSuitPickupBeamShape"/> member, each member's own arm.</summary>
     private static IdentityTable<SamusSuitPickupBeamShape, Func<SamusSuitPickupBeam, int, int, int, int, ScreenWindow>> SuitPickupBeamWindowForSamusSuitPickupBeamShape => field ??= new(new Dictionary<SamusSuitPickupBeamShape, Func<SamusSuitPickupBeam, int, int, int, int, ScreenWindow>>
     {
         [SamusSuitPickupBeamShape.None] = static (beam, left, right, lines, centre) => ScreenWindow.Closed,

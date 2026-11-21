@@ -42,7 +42,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         _collision = collision;
     }
 
-    /// <summary>What <c>ApplyEvirCue</c> does for each <see cref="EvirCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyEvirCue"/> does for each <see cref="EvirCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<EvirCueKind, Action<EvirSpitState>> ApplyEvirCueForEvirCueKind => field ??= new(new Dictionary<EvirCueKind, Action<EvirSpitState>>
     {
         [EvirCueKind.PlaySpitSound] = state => QueueEvirSpitSound(),
@@ -168,7 +168,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>What <c>RunEvirProjectileMain</c> does for each <see cref="EvirSpitAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunEvirProjectileMain"/> does for each <see cref="EvirSpitAction"/> member, each member's own arm.</summary>
     private static IdentityTable<EvirSpitAction, Action<RoomEnemyPlace, EvirSpitState, Position16<RoomPixels>>> RunEvirProjectileMainForEvirSpitAction => field ??= new(new Dictionary<EvirSpitAction, Action<RoomEnemyPlace, EvirSpitState, Position16<RoomPixels>>>
     {
         [EvirSpitAction.Idle] = static (place, state, camera) => ResetEvirProjectilePosition(place, state),

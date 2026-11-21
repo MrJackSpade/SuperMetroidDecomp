@@ -111,7 +111,7 @@ internal sealed class DraygonParts
         eye.Facing = facing;
     }
 
-    /// <summary>What <c>RunDraygonEyeMain</c> does for each <see cref="DraygonEyeAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunDraygonEyeMain"/> does for each <see cref="DraygonEyeAction"/> member, each member's own arm.</summary>
     private IdentityTable<DraygonEyeAction, Action<DraygonEnemyState, SamusState, DraygonEyeState>> RunDraygonEyeMainForDraygonEyeAction => field ??= new(new Dictionary<DraygonEyeAction, Action<DraygonEnemyState, SamusState, DraygonEyeState>>
     {
         [DraygonEyeAction.Inert] = (state, samus, eye) => { },
@@ -165,7 +165,7 @@ internal sealed class DraygonParts
         cue.React(ApplyDraygonCueReactions, new ApplyDraygonCueContext(state, samus, this));
     }
 
-    /// <summary>What <c>ApplyDraygonCue</c> does on each <see cref="DraygonCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyDraygonCue"/> does on each <see cref="DraygonCue"/>, built once (#2553).</summary>
     private static DraygonCueReactions<ApplyDraygonCueContext> ApplyDraygonCueReactions { get; } = new(
         StartPartAnimations: static (start, context) =>
         {
@@ -192,7 +192,7 @@ internal sealed class DraygonParts
         TailWhipHit: static (_, context) => context.Owner.ApplyDraygonTailWhipHit(context.State, context.Samus),
         SpawnGoop: static (goop, context) => context.Owner.SpawnDraygonGoop(context.State, goop.Direction));
 
-    /// <summary>What <c>ApplyDraygonCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyDraygonCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="State">The <c>state</c> <c>ApplyDraygonCue</c> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplyDraygonCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="DraygonParts"/> reacting.</param>

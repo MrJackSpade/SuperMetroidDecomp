@@ -47,7 +47,7 @@ public sealed class SamusParticles
     }
 
     /// <summary>How particles of <paramref name="kind"/> move and are placed.</summary>
-    private static SamusParticleKindDefinition Definition(SamusParticleKind kind) => Ensure.Listed(SamusParticleKindDefinitions.Kinds, kind);
+    private static SamusParticleKindDefinition Definition(SamusParticleKind kind) => SamusParticleKindDefinitions.Kinds[kind];
 
     /// <summary>Adds a particle already under way, as a restored game does.</summary>
     private void Add(SamusParticle particle) => _particles.Add(Ensure.NotNull(particle));

@@ -44,7 +44,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         _inheritance = inheritance;
     }
 
-    /// <summary>What <c>ApplyBeetomCue</c> does for each <see cref="BeetomCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyBeetomCue"/> does for each <see cref="BeetomCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<BeetomCueKind, Action<RoomEnemyPlace>> ApplyBeetomCueForBeetomCueKind => field ??= new(new Dictionary<BeetomCueKind, Action<RoomEnemyPlace>>
     {
         [BeetomCueKind.ProcessOffScreen] = static place => place.Processing = place.Processing.With(EnemyProcessing.OffScreen),
@@ -78,7 +78,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : BeetomSegment.CrawlingRight);
     }
 
-    /// <summary>What <c>RunBeetomMain</c> does for each <see cref="BeetomAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunBeetomMain"/> does for each <see cref="BeetomAction"/> member, each member's own arm.</summary>
     private IdentityTable<BeetomAction, Action<RoomEnemyPlace, BeetomEnemyState, SamusState, RoomLevelData, GameplayAction>> RunBeetomMainForBeetomAction => field ??= new(new Dictionary<BeetomAction, Action<RoomEnemyPlace, BeetomEnemyState, SamusState, RoomLevelData, GameplayAction>>
     {
         [BeetomAction.DecideAction] = (place, state, samus, level, controllerInput) =>

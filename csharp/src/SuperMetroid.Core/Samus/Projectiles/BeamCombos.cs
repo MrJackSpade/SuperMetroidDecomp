@@ -267,7 +267,7 @@ internal sealed class BeamCombos
             < BeamComboDefinitions.ViewTopReach or >= BeamComboDefinitions.ViewBottomReach;
     }
 
-    /// <summary>What <c>StepPlasmaCombo</c> does for each <see cref="PlasmaRingPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="StepPlasmaCombo"/> does for each <see cref="PlasmaRingPhase"/> member, each member's own arm.</summary>
     private IdentityTable<PlasmaRingPhase, Action<SamusProjectileOccupant, Position16<RoomPixels>, PlasmaParticleState>> StepPlasmaComboForPlasmaRingPhase => field ??= new(new Dictionary<PlasmaRingPhase, Action<SamusProjectileOccupant, Position16<RoomPixels>, PlasmaParticleState>>
     {
         [PlasmaRingPhase.Expanding] = (held, camera, ring) =>

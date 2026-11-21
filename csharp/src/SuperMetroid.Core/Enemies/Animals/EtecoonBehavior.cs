@@ -58,7 +58,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(place, EtecoonAnimations.StartingWith(EtecoonSegment.StartingCrouch));
     }
 
-    /// <summary>What <c>RunEtecoonMain</c> does for each <see cref="EtecoonAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunEtecoonMain"/> does for each <see cref="EtecoonAction"/> member, each member's own arm.</summary>
     private IdentityTable<EtecoonAction, Action<RoomEnemyPlace, EtecoonEnemyState, SamusState, RoomLevelData>> RunEtecoonMainForEtecoonAction => field ??= new(new Dictionary<EtecoonAction, Action<RoomEnemyPlace, EtecoonEnemyState, SamusState, RoomLevelData>>
     {
         [EtecoonAction.Dormant] = (place, state, samus, level) => RunEtecoonDormant(place, state, samus),
@@ -313,7 +313,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.HopSpeed);
     }
 
-    /// <summary>What <c>RunEtecoonRouteAfterLanding</c> does for each <see cref="EtecoonRoute"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunEtecoonRouteAfterLanding"/> does for each <see cref="EtecoonRoute"/> member, each member's own arm.</summary>
     private static IdentityTable<EtecoonRoute, Action<EtecoonEnemyState>> RunEtecoonRouteAfterLandingForEtecoonRoute => field ??= new(new Dictionary<EtecoonRoute, Action<EtecoonEnemyState>>
     {
         [EtecoonRoute.RunLeftToTeachingStart] = static state =>

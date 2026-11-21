@@ -78,7 +78,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 : PipeBugSegment.GeegaFlyingRight));
     }
 
-    /// <summary>What <c>RunBrinstarPipeBug</c> does for each <see cref="BrinstarPipeBugAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunBrinstarPipeBug"/> does for each <see cref="BrinstarPipeBugAction"/> member, each member's own arm.</summary>
     private static IdentityTable<BrinstarPipeBugAction, Action<RoomEnemyOccupant, RoomEnemyPlace, BrinstarPipeBugState, SamusState, Position16<RoomPixels>>> RunBrinstarPipeBugForBrinstarPipeBugAction => field ??= new(new Dictionary<BrinstarPipeBugAction, Action<RoomEnemyOccupant, RoomEnemyPlace, BrinstarPipeBugState, SamusState, Position16<RoomPixels>>>
     {
         [BrinstarPipeBugAction.WaitUntilOnScreen] = static (_, place, state, samus, camera) =>
@@ -107,7 +107,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         RunBrinstarPipeBugForBrinstarPipeBugAction[state.Action](occupant, place, state, samus, camera);
     }
 
-    /// <summary>What <c>RunNorfairPipeBug</c> does for each <see cref="NorfairPipeBugAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunNorfairPipeBug"/> does for each <see cref="NorfairPipeBugAction"/> member, each member's own arm.</summary>
     private IdentityTable<NorfairPipeBugAction, Action<RoomEnemyOccupant, RoomEnemyPlace, NorfairPipeBugState, SamusState, Position16<RoomPixels>>> RunNorfairPipeBugForNorfairPipeBugAction => field ??= new(new Dictionary<NorfairPipeBugAction, Action<RoomEnemyOccupant, RoomEnemyPlace, NorfairPipeBugState, SamusState, Position16<RoomPixels>>>
     {
         [NorfairPipeBugAction.WaitForFormation] = (occupant, place, state, samus, camera) =>
@@ -160,7 +160,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         RunNorfairPipeBugForNorfairPipeBugAction[state.Action](occupant, place, state, samus, camera);
     }
 
-    /// <summary>What <c>RunYellowPipeBug</c> does for each <see cref="YellowPipeBugAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunYellowPipeBug"/> does for each <see cref="YellowPipeBugAction"/> member, each member's own arm.</summary>
     private static IdentityTable<YellowPipeBugAction, Action<RoomEnemyOccupant, RoomEnemyPlace, YellowPipeBugState, SamusState, Position16<RoomPixels>>> RunYellowPipeBugForYellowPipeBugAction => field ??= new(new Dictionary<YellowPipeBugAction, Action<RoomEnemyOccupant, RoomEnemyPlace, YellowPipeBugState, SamusState, Position16<RoomPixels>>>
     {
         [YellowPipeBugAction.WaitForSamus] = static (occupant, place, state, samus, camera) => RunYellowPipeBugWaiting(occupant, place, state, samus),

@@ -314,7 +314,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         effect.WatchedCondition.React(CheckConditionReactions, new CheckConditionContext(conditions, effect, this));
     }
 
-    /// <summary>What <c>CheckCondition</c> does on each <see cref="ColourEffectCondition"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="CheckCondition"/> does on each <see cref="ColourEffectCondition"/>, built once (#2553).</summary>
     private static ColourEffectConditionReactions<CheckConditionContext> CheckConditionReactions { get; } = new(
         WatchesNothing: static (_, _) =>
         {
@@ -337,7 +337,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         },
         BurnsSamusInHeat: static (_, context) => context.Owner.BurnSamusInHeat(context.Effect, context.Conditions.EquippedItems, context.Conditions.Samus, context.Conditions.FrameCounter));
 
-    /// <summary>What <c>CheckCondition</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="CheckCondition"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Conditions">The <c>conditions</c> <c>CheckCondition</c> was handed.</param>
     /// <param name="Effect">The <c>effect</c> <c>CheckCondition</c> was handed.</param>
     /// <param name="Owner">The <see cref="ColourEffectSystem"/> reacting.</param>
@@ -382,7 +382,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         cue.React(CarryOutReactions, this);
     }
 
-    /// <summary>What <c>CarryOut</c> does on each <see cref="ColourEffectCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="CarryOut"/> does on each <see cref="ColourEffectCue"/>, built once (#2553).</summary>
     private static ColourEffectCueReactions<ColourEffectSystem> CarryOutReactions { get; } = new(
         QueueSound: static (queueSound, owner) => owner.sounds?.QueueSound(queueSound.Sound, ColourEffectSoundPriorities.CueSound),
         PublishHeatPhase: static (publishHeatPhase, owner) => owner._session.PublishedHeatPhase = publishHeatPhase.Phase);

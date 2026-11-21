@@ -240,7 +240,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
         sprites.FinishFrame();
     }
 
-    /// <summary>What <c>StepPrimary</c> does for each <see cref="GameOptionsPrimaryRow"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="StepPrimary"/> does for each <see cref="GameOptionsPrimaryRow"/> member, each member's own arm.</summary>
     private IdentityTable<GameOptionsPrimaryRow, Action> StepPrimaryForGameOptionsPrimaryRow => field ??= new(new Dictionary<GameOptionsPrimaryRow, Action>
     {
         [GameOptionsPrimaryRow.StartGame] = () =>
@@ -341,7 +341,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
         controllerRow.React(StepControllerReactions, this);
     }
 
-    /// <summary>What <c>StepController</c> does on each <see cref="GameOptionsControllerRow"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="StepController"/> does on each <see cref="GameOptionsControllerRow"/>, built once (#2553).</summary>
     private static GameOptionsControllerRowReactions<GameOptionsMenuState> StepControllerReactions { get; } = new(
         AssignsAction: static (_, _) =>
         {
@@ -401,7 +401,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
             [GameOptionsSpecialRow.Exit] = static menu => menu.BeginDissolveTo(GameOptionsPage.Primary),
         });
 
-    /// <summary>What <c>SelectFirstRow</c> does for each <see cref="GameOptionsPage"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="SelectFirstRow"/> does for each <see cref="GameOptionsPage"/> member, each member's own arm.</summary>
     private IdentityTable<GameOptionsPage, Action> SelectFirstRowForGameOptionsPage => field ??= new(new Dictionary<GameOptionsPage, Action>
     {
         [GameOptionsPage.Primary] = () => primaryRow = GameOptionsPageRows.Primary.Top,

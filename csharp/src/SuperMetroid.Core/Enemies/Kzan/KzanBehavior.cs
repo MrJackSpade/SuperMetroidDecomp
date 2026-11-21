@@ -70,7 +70,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         bottom.Position = bottom.Position.WithWhole(new(top.Position.X.Whole, top.Position.Y.Whole + KzanMotionDefinitions.BottomBelowTop));
     }
 
-    /// <summary>What <c>RunKzanTopMain</c> does for each <see cref="KzanAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunKzanTopMain"/> does for each <see cref="KzanAction"/> member, each member's own arm.</summary>
     private IdentityTable<KzanAction, Action<RoomEnemyOccupant, RoomEnemyPlace, KzanEnemyState, SamusState>> RunKzanTopMainForKzanAction => field ??= new(new Dictionary<KzanAction, Action<RoomEnemyOccupant, RoomEnemyPlace, KzanEnemyState, SamusState>>
     {
         [KzanAction.WaitingToFall] = (occupant, place, state, samus) => RunKzanWaitingToFall(occupant, state),

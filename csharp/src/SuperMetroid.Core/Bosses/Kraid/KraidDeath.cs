@@ -60,7 +60,7 @@ internal sealed class KraidDeath
         state.ShowsBodyLayer = false;
     }
 
-    /// <summary>What <c>RunKraidDeathPhase</c> does for each <see cref="KraidDeathPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunKraidDeathPhase"/> does for each <see cref="KraidDeathPhase"/> member, each member's own arm.</summary>
     private IdentityTable<KraidDeathPhase, Action<RoomEnemyPlace, KraidEnemyState, int, SamusState>> RunKraidDeathPhaseForKraidDeathPhase => field ??= new(new Dictionary<KraidDeathPhase, Action<RoomEnemyPlace, KraidEnemyState, int, SamusState>>
     {
         [KraidDeathPhase.Initialize] = (body, state, cameraX, samus) => InitializeKraidDeath(state, samus),

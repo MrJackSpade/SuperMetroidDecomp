@@ -32,7 +32,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>What <c>ApplyFuneNamiheCue</c> does for each <see cref="FuneNamiheCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyFuneNamiheCue"/> does for each <see cref="FuneNamiheCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<FuneNamiheCueKind, Action<FuneNamiheEnemyState>> ApplyFuneNamiheCueForFuneNamiheCueKind => field ??= new(new Dictionary<FuneNamiheCueKind, Action<FuneNamiheEnemyState>>
     {
         [FuneNamiheCueKind.SpitSound] = state =>
@@ -82,7 +82,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     private static UpdateCountdown CooldownOf(RoomEnemyOccupant occupant) =>
         UpdateCountdown.Lasting(Math.Max(1, occupant.SpawnSettings<FuneSpawnSettings>().CooldownTime));
 
-    /// <summary>What <c>RunFuneMain</c> does for each <see cref="FuneAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunFuneMain"/> does for each <see cref="FuneAction"/> member, each member's own arm.</summary>
     private static IdentityTable<FuneAction, Action<RoomEnemyOccupant, RoomEnemyPlace, FuneEnemyState>> RunFuneMainForFuneAction => field ??= new(new Dictionary<FuneAction, Action<RoomEnemyOccupant, RoomEnemyPlace, FuneEnemyState>>
     {
         [FuneAction.WaitForCooldown] = static (occupant, place, state) =>
@@ -107,7 +107,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         RunFuneMainForFuneAction[state.Action](occupant, place, state);
     }
 
-    /// <summary>What <c>RunNamiheMain</c> does for each <see cref="NamiheAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunNamiheMain"/> does for each <see cref="NamiheAction"/> member, each member's own arm.</summary>
     private static IdentityTable<NamiheAction, Action<RoomEnemyOccupant, RoomEnemyPlace, NamiheEnemyState, SamusState>> RunNamiheMainForNamiheAction => field ??= new(new Dictionary<NamiheAction, Action<RoomEnemyOccupant, RoomEnemyPlace, NamiheEnemyState, SamusState>>
     {
         [NamiheAction.WaitForSamus] = static (occupant, place, state, samus) =>

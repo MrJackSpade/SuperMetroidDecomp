@@ -75,7 +75,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             new(EscapeDachoraAnimations.RunningAroundLowTide, AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>What <c>RunEscapeEtecoonMain</c> does for each <see cref="EscapeEtecoonAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunEscapeEtecoonMain"/> does for each <see cref="EscapeEtecoonAction"/> member, each member's own arm.</summary>
     private IdentityTable<EscapeEtecoonAction, Action<RoomEnemyPlace, EscapeEtecoonEnemyState, RoomLevelData>> RunEscapeEtecoonMainForEscapeEtecoonAction => field ??= new(new Dictionary<EscapeEtecoonAction, Action<RoomEnemyPlace, EscapeEtecoonEnemyState, RoomLevelData>>
     {
         [EscapeEtecoonAction.ExpressingGratitude] = (place, state, level) => { },
@@ -151,7 +151,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
-    /// <summary>What <c>ApplyEscapeEtecoonCue</c> comes to for each <see cref="EscapeEtecoonCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyEscapeEtecoonCue"/> comes to for each <see cref="EscapeEtecoonCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<EscapeEtecoonCueKind, Func<EscapeEtecoonEnemyState, EscapeEtecoonSegment?>> ApplyEscapeEtecoonCueForEscapeEtecoonCueKind => field ??= new(new Dictionary<EscapeEtecoonCueKind, Func<EscapeEtecoonEnemyState, EscapeEtecoonSegment?>>
     {
         [EscapeEtecoonCueKind.Escapes] = static state =>
@@ -172,7 +172,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         return cue.Match(ApplyEscapeEtecoonCueCases, new ApplyEscapeEtecoonCueContext(samus, place, state));
     }
 
-    /// <summary>What <c>ApplyEscapeEtecoonCue</c> does on each <see cref="EscapeEtecoonCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyEscapeEtecoonCue"/> does on each <see cref="EscapeEtecoonCue"/>, built once (#2553).</summary>
     private static EscapeEtecoonCueCases<ApplyEscapeEtecoonCueContext, EscapeEtecoonSegment?> ApplyEscapeEtecoonCueCases { get; } = new(
         LowTideRunStarts: static (lowTide, context) => IsAcidLow(context.Samus) ? null : HighTideRun(lowTide.Running),
         Move: static (move, context) =>
@@ -185,7 +185,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             return ApplyEscapeEtecoonCueForEscapeEtecoonCueKind[signal.Kind](context.State);
         });
 
-    /// <summary>What <c>ApplyEscapeEtecoonCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyEscapeEtecoonCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Samus">The <c>samus</c> <c>ApplyEscapeEtecoonCue</c> was handed.</param>
     /// <param name="Place">The <c>place</c> <c>ApplyEscapeEtecoonCue</c> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyEscapeEtecoonCue</c> was handed.</param>
@@ -204,7 +204,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         return cue.Match(ApplyEscapeDachoraCueCases, new ApplyEscapeDachoraCueContext(samus, place, this));
     }
 
-    /// <summary>What <c>ApplyEscapeDachoraCue</c> does on each <see cref="EscapeDachoraCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyEscapeDachoraCue"/> does on each <see cref="EscapeDachoraCue"/>, built once (#2553).</summary>
     private static EscapeDachoraCueCases<ApplyEscapeDachoraCueContext, AnimationContinuation<EscapeDachoraSegment>?> ApplyEscapeDachoraCueCases { get; } = new(
         LowTideLapEnds: static (lowTide, context) => IsAcidLow(context.Samus) ? null : RisingTideTakesOver(lowTide.Lap),
         LapEnds: static (lap, context) => context.Owner.HasCrittersEscaped() ? EscapeTakesOver(lap.Lap) : null,
@@ -214,7 +214,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             return null;
         });
 
-    /// <summary>What <c>ApplyEscapeDachoraCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyEscapeDachoraCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Samus">The <c>samus</c> <c>ApplyEscapeDachoraCue</c> was handed.</param>
     /// <param name="Place">The <c>place</c> <c>ApplyEscapeDachoraCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="EscapeAnimalsBehavior"/> reacting.</param>

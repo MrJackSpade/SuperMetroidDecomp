@@ -318,7 +318,7 @@ public sealed class AudioQueues
             HandleSoundEffectQueue(library, acknowledgements[library], requests);
     }
 
-    /// <summary>What <c>HandleSoundEffectQueue</c> does for each <see cref="SoundRequestHandshakes{TLibrary, TSound}.HandshakeStep"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="HandleSoundEffectQueue"/> does for each <see cref="SoundRequestHandshakes{TLibrary, TSound}.HandshakeStep"/> member, each member's own arm.</summary>
     private IdentityTable<SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep, Action<SoundEffectLibrary, List<AudioRequest>>> HandleSoundEffectQueueForHandshakeStep => field ??= new(new Dictionary<SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep, Action<SoundEffectLibrary, List<AudioRequest>>>
     {
         [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Wait] = (library, requests) =>

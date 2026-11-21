@@ -73,7 +73,7 @@ internal sealed class EndingLogo
         return false;
     }
 
-    /// <summary>What <c>HandleCue</c> does for each <see cref="EndingLogoCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="HandleCue"/> does for each <see cref="EndingLogoCue"/> member, each member's own arm.</summary>
     private IdentityTable<EndingLogoCue, Action> HandleCueForEndingLogoCue => field ??= new(new Dictionary<EndingLogoCue, Action>
     {
         [EndingLogoCue.GreyOut] = () => NextCrossfade = EndingLogoCrossfadeStep.First,

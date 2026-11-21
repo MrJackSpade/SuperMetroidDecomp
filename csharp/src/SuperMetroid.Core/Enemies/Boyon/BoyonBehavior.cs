@@ -23,7 +23,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="common">The shared participation the entity composes.</param>
     private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BoyonEntity(this, occupant, place, common));
 
-    /// <summary>What <c>ApplyBoyonCue</c> does for each <see cref="BoyonCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyBoyonCue"/> does for each <see cref="BoyonCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<BoyonCueKind, Action<RoomEnemyPlace, BoyonEnemyState>> ApplyBoyonCueForBoyonCueKind => field ??= new(new Dictionary<BoyonCueKind, Action<RoomEnemyPlace, BoyonEnemyState>>
     {
         [BoyonCueKind.PlayBounceSound] = (place, state) => PlayBoyonBounceSound(),

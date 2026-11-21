@@ -157,7 +157,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         FinishPlacingMagdollitePart();
     }
 
-    /// <summary>What <c>RunMagdolliteHead</c> does for each <see cref="MagdolliteHeadAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunMagdolliteHead"/> does for each <see cref="MagdolliteHeadAction"/> member, each member's own arm.</summary>
     private IdentityTable<MagdolliteHeadAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MagdolliteHeadState, SamusState>> RunMagdolliteHeadForMagdolliteHeadAction => field ??= new(new Dictionary<MagdolliteHeadAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MagdolliteHeadState, SamusState>>
     {
         [MagdolliteHeadAction.Waiting] = (occupant, place, state, samus) => RunMagdolliteHeadWaiting(occupant, place, state, samus),
@@ -175,7 +175,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         RunMagdolliteHeadForMagdolliteHeadAction[state.Action](occupant, place, state, samus);
     }
 
-    /// <summary>What <c>RunMagdolliteBody</c> does for each <see cref="MagdolliteBodyAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunMagdolliteBody"/> does for each <see cref="MagdolliteBodyAction"/> member, each member's own arm.</summary>
     private IdentityTable<MagdolliteBodyAction, Action<RoomEnemyPlace, MagdolliteBodyState, SamusState>> RunMagdolliteBodyForMagdolliteBodyAction => field ??= new(new Dictionary<MagdolliteBodyAction, Action<RoomEnemyPlace, MagdolliteBodyState, SamusState>>
     {
         [MagdolliteBodyAction.Dormant] = (place, state, samus) => { },
@@ -191,7 +191,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         RunMagdolliteBodyForMagdolliteBodyAction[state.Action](place, state, samus);
     }
 
-    /// <summary>What <c>RunMagdolliteOverlay</c> does for each <see cref="MagdolliteOverlayAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunMagdolliteOverlay"/> does for each <see cref="MagdolliteOverlayAction"/> member, each member's own arm.</summary>
     private IdentityTable<MagdolliteOverlayAction, Action<RoomEnemyPlace, MagdolliteOverlayState, SamusState>> RunMagdolliteOverlayForMagdolliteOverlayAction => field ??= new(new Dictionary<MagdolliteOverlayAction, Action<RoomEnemyPlace, MagdolliteOverlayState, SamusState>>
     {
         [MagdolliteOverlayAction.WaitingForAttack] = (place, state, samus) => RunMagdolliteOverlayWaiting(place, state),
@@ -470,7 +470,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         }
     }
 
-    /// <summary>What <c>ApplyMagdolliteCue</c> does for each <see cref="MagdolliteCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyMagdolliteCue"/> does for each <see cref="MagdolliteCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<MagdolliteCueKind, Action<RoomEnemyOccupant, RoomEnemyPlace, MagdollitePartState>> ApplyMagdolliteCueForMagdolliteCueKind => field ??= new(new Dictionary<MagdolliteCueKind, Action<RoomEnemyOccupant, RoomEnemyPlace, MagdollitePartState>>
     {
         [MagdolliteCueKind.FinishSubmerge] = (_, place, state) => place.RequireSpeciesState<MagdolliteHeadState>().FinishSubmerge(),
@@ -518,7 +518,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         cue.React(ApplyMagdolliteCueReactions, new ApplyMagdolliteCueContext(occupant, place, camera, state, this));
     }
 
-    /// <summary>What <c>ApplyMagdolliteCue</c> does on each <see cref="MagdolliteCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyMagdolliteCue"/> does on each <see cref="MagdolliteCue"/>, built once (#2553).</summary>
     private static MagdolliteCueReactions<ApplyMagdolliteCueContext> ApplyMagdolliteCueReactions { get; } = new(
         PlaySoundIfOnScreen: static (playSound, context) =>
         {
@@ -539,7 +539,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
             context.Owner.ApplyMagdolliteCueForMagdolliteCueKind[signal.Kind](context.Occupant, context.Place, context.State);
         });
 
-    /// <summary>What <c>ApplyMagdolliteCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyMagdolliteCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <c>ApplyMagdolliteCue</c> was handed.</param>
     /// <param name="Camera">The <c>camera</c> <c>ApplyMagdolliteCue</c> was handed.</param>
@@ -593,7 +593,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation ShotAnimation() => new MagdolliteLavaAnimation(this, MagdolliteLavaSegment.Shot);
 
-        /// <summary>What <c>RunCue</c> does for each <see cref="MagdolliteLavaCueKind"/> member, each member's own arm.</summary>
+        /// <summary>What <see cref="RunCue"/> does for each <see cref="MagdolliteLavaCueKind"/> member, each member's own arm.</summary>
         private IdentityTable<MagdolliteLavaCueKind, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForMagdolliteLavaCueKind => field ??= new(new Dictionary<MagdolliteLavaCueKind, Action<EnemyProjectileCueContext, EnemyProjectile>>
         {
             [MagdolliteLavaCueKind.Delete] = (context, projectile) => projectile.Delete(),

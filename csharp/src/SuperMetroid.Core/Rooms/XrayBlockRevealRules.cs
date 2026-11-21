@@ -12,5 +12,5 @@ public static class XrayBlockRevealRules
     /// </summary>
     public static bool RevealsBlocks(RoomDefinition room, AreaBoss? boss) =>
         !Ensure.NotNull(room).XrayRevealsNoBlocks &&
-        !(boss is { } loaded && Ensure.Listed(AreaBossDefinitions.Bosses, loaded).XrayKeepsBackground);
+        !(boss is { } loaded && AreaBossDefinitions.Bosses[loaded].XrayKeepsBackground);
 }

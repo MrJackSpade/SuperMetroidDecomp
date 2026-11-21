@@ -145,7 +145,7 @@ internal sealed class ProjectileEnemyImpacts
         return false;
     }
 
-    /// <summary>What <c>TryStartEnemyImpact</c> comes to for each <see cref="SamusProjectileFamily"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="TryStartEnemyImpact"/> comes to for each <see cref="SamusProjectileFamily"/> member, each member's own arm.</summary>
     private IdentityTable<SamusProjectileFamily, Func<SamusBombProjectileSystem, bool, SamusProjectileOccupant, bool>> TryStartEnemyImpactForSamusProjectileFamily => field ??= new(new Dictionary<SamusProjectileFamily, Func<SamusBombProjectileSystem, bool, SamusProjectileOccupant, bool>>
     {
         [SamusProjectileFamily.Beam] = (samusBombs, blocksPlasmaBeam, held) =>

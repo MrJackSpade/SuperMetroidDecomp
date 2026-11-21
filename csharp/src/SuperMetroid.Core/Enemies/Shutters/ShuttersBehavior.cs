@@ -92,11 +92,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
 
         // The shutter's new clock shows no new frame until its animation's first step shows one.
         place.CollidesByFrameHitboxes = false;
-        ListStep<ShutterSegment> first = GrowingShutterEnemyState.FirstSection;
-        StartGrowingShutterAnimation(place, state, first.Entry, GrowthRadius(first));
+        ListStep<GrowingShutterSection> first = GrowingShutterEnemyState.FirstSection;
+        StartGrowingShutterAnimation(place, state, first.Entry.Artwork, GrowthRadius(first));
     }
 
-    /// <summary>What <c>RunGrowingShutterMain</c> does for each <see cref="GrowingShutterAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunGrowingShutterMain"/> does for each <see cref="GrowingShutterAction"/> member, each member's own arm.</summary>
     private IdentityTable<GrowingShutterAction, Action<RoomEnemyOccupant, RoomEnemyPlace, GrowingShutterEnemyState, SamusState, Position16<RoomPixels>>> RunGrowingShutterMainForGrowingShutterAction => field ??= new(new Dictionary<GrowingShutterAction, Action<RoomEnemyOccupant, RoomEnemyPlace, GrowingShutterEnemyState, SamusState, Position16<RoomPixels>>>
     {
         [GrowingShutterAction.WaitForTimer] = (_, place, state, samus, camera) =>
@@ -215,11 +215,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     internal static void FinishGrowingShutterSection(
         RoomEnemyPlace place,
         GrowingShutterEnemyState state,
-        ListStep<ShutterSegment> section,
+        ListStep<GrowingShutterSection> section,
         int targetY,
         VerticalDirection direction)
     {
-        ListStep<ShutterSegment>? next = section.Following;
+        ListStep<GrowingShutterSection>? next = section.Following;
         int placedY = next is null
             ? targetY
             : targetY + (GrowingShutterDefinitions.IntermediateInset.Toward(direction.Reversed()));
@@ -227,11 +227,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         state.Growing = next;
 
         if (next is { } growing)
-            StartGrowingShutterAnimation(place, state, growing.Entry, GrowthRadius(growing));
+            StartGrowingShutterAnimation(place, state, growing.Entry.Artwork, GrowthRadius(growing));
     }
 
     /// <summary>The vertical radius of a shutter growing <paramref name="section"/>: one section's radius per section grown, its own included.</summary>
-    private static int GrowthRadius(ListStep<ShutterSegment> section) => GrowingShutterDefinitions.SectionRadius * (section.Place + 1);
+    private static int GrowthRadius(ListStep<GrowingShutterSection> section) => GrowingShutterDefinitions.SectionRadius * (section.Entry.GrownBefore + 1);
 
     /// <summary>Restarts the next growth pose and updates the shutter's vertical collision radius.</summary>
     private static void StartGrowingShutterAnimation(
@@ -396,7 +396,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         StartVerticalShutterAnimation(place, state, pose);
     }
 
-    /// <summary>What <c>RunVerticalShutterMain</c> does for each <see cref="VerticalShutterAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunVerticalShutterMain"/> does for each <see cref="VerticalShutterAction"/> member, each member's own arm.</summary>
     private IdentityTable<VerticalShutterAction, Action<RoomEnemyOccupant, RoomEnemyPlace, VerticalShutterEnemyState, SamusState, Position16<RoomPixels>>> RunVerticalShutterMainForVerticalShutterAction => field ??= new(new Dictionary<VerticalShutterAction, Action<RoomEnemyOccupant, RoomEnemyPlace, VerticalShutterEnemyState, SamusState, Position16<RoomPixels>>>
     {
         [VerticalShutterAction.WaitForTimer] = (occupant, place, state, samus, camera) =>

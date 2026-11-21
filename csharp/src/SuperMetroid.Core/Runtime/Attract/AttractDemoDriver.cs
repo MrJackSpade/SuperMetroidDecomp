@@ -129,7 +129,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _attractSession.Input = new AttractDemoInput(scene);
     }
 
-    /// <summary>What <c>ApplyAttractRoomSetup</c> does for each <see cref="AttractDemoRoomSetup"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyAttractRoomSetup"/> does for each <see cref="AttractDemoRoomSetup"/> member, each member's own arm.</summary>
     private IdentityTable<AttractDemoRoomSetup, Action<RoomEnemySystem>> ApplyAttractRoomSetupForAttractDemoRoomSetup => field ??= new(new Dictionary<AttractDemoRoomSetup, Action<RoomEnemySystem>>
     {
         [AttractDemoRoomSetup.ChargeBeamScroll] = enemies => _room.LoadedCamera.Scrolls.SetRoomScreen(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed),

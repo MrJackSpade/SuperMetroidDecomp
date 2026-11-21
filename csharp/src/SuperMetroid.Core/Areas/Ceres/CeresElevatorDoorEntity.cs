@@ -32,7 +32,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
         doors.Presentation.ShowLook(CeresElevatorDoorLookDefinitions.OverlayLook);
     }
 
-    /// <summary>What <c>RunMainAi</c> does for each <see cref="CeresElevatorDoorPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunMainAi"/> does for each <see cref="CeresElevatorDoorPhase"/> member, each member's own arm.</summary>
     private IdentityTable<CeresElevatorDoorPhase, Action<CeresElevatorDoorState>> RunMainAiForCeresElevatorDoorPhase => field ??= new(new Dictionary<CeresElevatorDoorPhase, Action<CeresElevatorDoorState>>
     {
         [CeresElevatorDoorPhase.Intact] = state =>

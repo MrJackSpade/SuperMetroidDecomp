@@ -99,7 +99,7 @@ internal sealed class IntroNarrationActors
     /// </summary>
     public void HideCaret() => caretHidden = true;
 
-    /// <summary>What <c>StartPage</c> does for each <see cref="IntroNarrationPageOpening"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="StartPage"/> does for each <see cref="IntroNarrationPageOpening"/> member, each member's own arm.</summary>
     private IdentityTable<IntroNarrationPageOpening, Action> StartPageForIntroNarrationPageOpening => field ??= new(new Dictionary<IntroNarrationPageOpening, Action>
     {
         [IntroNarrationPageOpening.KeepsSetupCaret] = () => { },
@@ -164,7 +164,7 @@ internal sealed class IntroNarrationActors
             TypeCharacter(page.Characters, typed.Letters - 1);
     }
 
-    /// <summary>What <c>CarryOut</c> does for each <see cref="IntroNarrationTypingCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="CarryOut"/> does for each <see cref="IntroNarrationTypingCue"/> member, each member's own arm.</summary>
     private IdentityTable<IntroNarrationTypingCue, Action<IntroNarrationPageId>> CarryOutForIntroNarrationTypingCue => field ??= new(new Dictionary<IntroNarrationTypingCue, Action<IntroNarrationPageId>>
     {
         [IntroNarrationTypingCue.ShowSubtitle] = page =>

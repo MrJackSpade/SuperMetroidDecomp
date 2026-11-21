@@ -134,7 +134,7 @@ internal sealed class KraidRise
         state.ThinkingWait.LastFor(_head.ChooseKraidThinkingUpdates());
     }
 
-    /// <summary>What <c>RunKraidGrowthPhase</c> does for each <see cref="KraidGrowthPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunKraidGrowthPhase"/> does for each <see cref="KraidGrowthPhase"/> member, each member's own arm.</summary>
     private IdentityTable<KraidGrowthPhase, Action<RoomEnemyPlace, KraidEnemyState>> RunKraidGrowthPhaseForKraidGrowthPhase => field ??= new(new Dictionary<KraidGrowthPhase, Action<RoomEnemyPlace, KraidEnemyState>>
     {
         [KraidGrowthPhase.ReleaseCamera] = (body, state) =>
@@ -245,7 +245,7 @@ internal sealed class KraidRise
         _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
     }
 
-    /// <summary>What <c>RunKraidRisePhase</c> does for each <see cref="KraidRisePhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunKraidRisePhase"/> does for each <see cref="KraidRisePhase"/> member, each member's own arm.</summary>
     private IdentityTable<KraidRisePhase, Action<RoomEnemyPlace, KraidEnemyState, SamusState>> RunKraidRisePhaseForKraidRisePhase => field ??= new(new Dictionary<KraidRisePhase, Action<RoomEnemyPlace, KraidEnemyState, SamusState>>
     {
         [KraidRisePhase.RestrictSamusToFirstScreen] = (body, state, samus) =>

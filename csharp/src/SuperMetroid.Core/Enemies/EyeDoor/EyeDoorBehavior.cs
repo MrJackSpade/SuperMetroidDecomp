@@ -22,7 +22,7 @@ internal sealed class EyeDoorBehavior
         _projectiles = projectiles;
     }
 
-    /// <summary>What <c>SpawnEyeDoorProjectile</c> does for each <see cref="EyeDoorProjectileDefinition"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="SpawnEyeDoorProjectile"/> does for each <see cref="EyeDoorProjectileDefinition"/> member, each member's own arm.</summary>
     private IdentityTable<EyeDoorProjectileDefinition, Action<EyeDoorProjectileRequest, RoomEnemyProjectileKind, EnemyProjectile, Position16<RoomBlocks>>> SpawnEyeDoorProjectileForEyeDoorProjectileDefinition => field ??= new(new Dictionary<EyeDoorProjectileDefinition, Action<EyeDoorProjectileRequest, RoomEnemyProjectileKind, EnemyProjectile, Position16<RoomBlocks>>>
     {
         [EyeDoorProjectileDefinition.Sweat] = (request, kind, projectile, block) =>
@@ -237,7 +237,7 @@ internal sealed class EyeDoorBehavior
         projectile.StartAnimation(new EyeDoorProjectileAnimation(owner, EyeDoorProjectileSegment.Impact));
     }
 
-    /// <summary>What <c>ApplyEyeDoorProjectileCue</c> does for each <see cref="EyeDoorProjectileCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyEyeDoorProjectileCue"/> does for each <see cref="EyeDoorProjectileCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<EyeDoorProjectileCueKind, Action<EyeDoorProjectileBehavior, EnemyProjectile, IRoomSamus>> ApplyEyeDoorProjectileCueForEyeDoorProjectileCueKind => field ??= new(new Dictionary<EyeDoorProjectileCueKind, Action<EyeDoorProjectileBehavior, EnemyProjectile, IRoomSamus>>
     {
         [EyeDoorProjectileCueKind.AimAtSamus] = static (owner, projectile, samus) => AimEyeDoorProjectileAtSamus(owner, projectile, samus),

@@ -34,7 +34,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
         MoveForSporeSpawnSpawnerMotion[motion](context);
     }
 
-    /// <summary>What <c>RunCue</c> does for each <see cref="SporeSpawnProjectileCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunCue"/> does for each <see cref="SporeSpawnProjectileCue"/> member, each member's own arm.</summary>
     private IdentityTable<SporeSpawnProjectileCue, Action<EnemyProjectileCueContext, SporeSpawnProjectileCue>> RunCueForSporeSpawnProjectileCue => field ??= new(new Dictionary<SporeSpawnProjectileCue, Action<EnemyProjectileCueContext, SporeSpawnProjectileCue>>
     {
         [SporeSpawnProjectileCue.SpawnSpore] = (context, cue) =>

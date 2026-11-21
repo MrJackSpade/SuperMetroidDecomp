@@ -91,7 +91,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
         return true;
     }
 
-    /// <summary>What <c>SequenceEnded</c> does for each <see cref="ColoredDoorPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="ColoredDoorPhase"/> member, each member's own arm.</summary>
     private IdentityTable<ColoredDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForColoredDoorPhase => field ??= new(new Dictionary<ColoredDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [ColoredDoorPhase.Closing] = (place, context) => Look(place, context),

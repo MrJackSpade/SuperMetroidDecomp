@@ -48,7 +48,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             place.Position = place.Position.WithWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.MaximumBurialDepth);
     }
 
-    /// <summary>What <c>RunOwtchMain</c> does for each <see cref="OwtchBehaviorState"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunOwtchMain"/> does for each <see cref="OwtchBehaviorState"/> member, each member's own arm.</summary>
     private IdentityTable<OwtchBehaviorState, Action<RoomEnemyOccupant, RoomEnemyPlace, OwtchEnemyState>> RunOwtchMainForOwtchBehaviorState => field ??= new(new Dictionary<OwtchBehaviorState, Action<RoomEnemyOccupant, RoomEnemyPlace, OwtchEnemyState>>
     {
         [OwtchBehaviorState.MovingLeft] = (occupant, place, state) =>

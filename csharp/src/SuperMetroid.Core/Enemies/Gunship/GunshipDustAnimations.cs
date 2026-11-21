@@ -44,7 +44,7 @@ internal static class GunshipDustAnimations
     /// <paramref name="firstUpdates"/>, the next two each for <paramref name="secondUpdates"/> and the last four each for
     /// <paramref name="thirdUpdates"/>, then the cloud deletes itself.
     /// </summary>
-    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>[] Cloud(int firstUpdates, int secondUpdates, int thirdUpdates,
+    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Unpaused[] Cloud(int firstUpdates, int secondUpdates, int thirdUpdates,
         params ReadOnlySpan<EnemyProjectileFrameId> poses) =>
     [
         .. AnimationBeats<EnemyProjectileFrameId, GunshipDustCue>.Steady(firstUpdates, poses[..2]),
@@ -54,7 +54,7 @@ internal static class GunshipDustAnimations
     ];
 
     /// <summary>An outer dust cloud over its side's pictures, <paramref name="puff"/>, <paramref name="billowing"/>, <paramref name="spreading"/>, <paramref name="drifting"/>, <paramref name="thinning"/>, <paramref name="fading"/>, <paramref name="faint"/>, each pair of pictures a little longer than the last, and then the cloud is deleted.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>[] OuterCloud(EnemyProjectileFrameId puff, EnemyProjectileFrameId billowing, EnemyProjectileFrameId spreading, EnemyProjectileFrameId drifting, EnemyProjectileFrameId thinning, EnemyProjectileFrameId fading, EnemyProjectileFrameId faint) =>
+    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Unpaused[] OuterCloud(EnemyProjectileFrameId puff, EnemyProjectileFrameId billowing, EnemyProjectileFrameId spreading, EnemyProjectileFrameId drifting, EnemyProjectileFrameId thinning, EnemyProjectileFrameId fading, EnemyProjectileFrameId faint) =>
     [
         Show(puff, 11),
         Show(billowing, 11),

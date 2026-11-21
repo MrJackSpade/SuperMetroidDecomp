@@ -188,7 +188,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="IsPlacedBomb">Whether the projectile is a placed bomb or Power Bomb rather than a fired or spread one.</param>
     internal readonly record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileType Type, int Damage, bool IsPlacedBomb);
 
-    /// <summary>What <c>RunKraidBodyStage</c> does for each <see cref="KraidBodyStage"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunKraidBodyStage"/> does for each <see cref="KraidBodyStage"/> member, each member's own arm.</summary>
     private IdentityTable<KraidBodyStage, Action<RoomEnemyPlace, KraidEnemyState, int, SamusState>> RunKraidBodyStageForKraidBodyStage => field ??= new(new Dictionary<KraidBodyStage, Action<RoomEnemyPlace, KraidEnemyState, int, SamusState>>
     {
         [KraidBodyStage.Rising] = (body, state, cameraX, samus) => Rise.RunKraidRisePhase(body, state, samus),
@@ -207,7 +207,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RunKraidBodyStageForKraidBodyStage[state.BodyState.Stage](body, state, cameraX, samus);
     }
 
-    /// <summary>What <c>RunKraidFightPhase</c> does for each <see cref="KraidFightPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunKraidFightPhase"/> does for each <see cref="KraidFightPhase"/> member, each member's own arm.</summary>
     private IdentityTable<KraidFightPhase, Action<RoomEnemyPlace, KraidEnemyState>> RunKraidFightPhaseForKraidFightPhase => field ??= new(new Dictionary<KraidFightPhase, Action<RoomEnemyPlace, KraidEnemyState>>
     {
         [KraidFightPhase.FirstPhaseThinking] = (body, state) =>

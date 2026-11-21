@@ -182,7 +182,7 @@ internal sealed class MotherBrainFakeDeath
         tube.SetSpeciesState(state);
     }
 
-    /// <summary>What <c>RunMotherBrainFallingTubeMain</c> does for each <see cref="MotherBrainTubeAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunMotherBrainFallingTubeMain"/> does for each <see cref="MotherBrainTubeAction"/> member, each member's own arm.</summary>
     private IdentityTable<MotherBrainTubeAction, Action<RoomEnemyPlace, MotherBrainFallingTubeState>> RunMotherBrainFallingTubeMainForMotherBrainTubeAction => field ??= new(new Dictionary<MotherBrainTubeAction, Action<RoomEnemyPlace, MotherBrainFallingTubeState>>
     {
         [MotherBrainTubeAction.NonMainTube] = (tube, tubeState) => FallMotherBrainSideTube(tube),

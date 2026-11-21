@@ -18,5 +18,5 @@ internal static class MotherBrainDeathExplosionStyles
 
     /// <summary>The definition of <paramref name="style"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="style"/> is undefined.</exception>
-    internal static MotherBrainDeathExplosionStyleDefinition Of(MotherBrainDeathExplosionStyle style) => Ensure.Listed(Styles, style);
+    internal static MotherBrainDeathExplosionStyleDefinition Of(MotherBrainDeathExplosionStyle style) => Styles[style];
 }

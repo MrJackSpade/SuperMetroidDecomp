@@ -747,7 +747,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
-    /// <summary>What <c>ApplyBabyMetroidCue</c> comes to for each <see cref="BabyMetroidCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyBabyMetroidCue"/> comes to for each <see cref="BabyMetroidCue"/> member, each member's own arm.</summary>
     private IdentityTable<BabyMetroidCue, Func<AnimationContinuation<BabyMetroidSegment>?>> ApplyBabyMetroidCueForBabyMetroidCue => field ??= new(new Dictionary<BabyMetroidCue, Func<AnimationContinuation<BabyMetroidSegment>?>>
     {
         [BabyMetroidCue.MaybeRemorseCry] = () =>

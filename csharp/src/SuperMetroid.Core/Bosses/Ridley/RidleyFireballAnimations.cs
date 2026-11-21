@@ -49,7 +49,7 @@ internal static class RidleyFireballAnimations
     });
 
     /// <summary>Every afterburn run's opening: the fire stops where it is and sparks, before the run raises its spawn.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>[] AfterburnSpark =>
+    private static AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Unpaused[] AfterburnSpark =>
         [Cue(C.StopMoving), Show(EnemyProjectileFrameId.RidleyFireballSpark, 5)];
 
     /// <summary>

@@ -141,7 +141,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     /// <summary>The animation the elevator room's wall starts, as the left-facing door it stands as, until Ceres Ridley has escaped (#2189).</summary>
     private const CeresDoorSegment ElevatorRoomWallDoorAnimation = CeresDoorSegment.Door;
 
-    /// <summary>What <c>ApplyCue</c> comes to for each <see cref="CeresDoorCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyCue"/> comes to for each <see cref="CeresDoorCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<CeresDoorCueKind, Func<RoomEnemyPlace, SamusState, CeresDoorSegment?>> ApplyCueForCeresDoorCueKind => field ??= new(new Dictionary<CeresDoorCueKind, Func<RoomEnemyPlace, SamusState, CeresDoorSegment?>>
     {
         [CeresDoorCueKind.DoorAppears] = (place, samus) => IsSamusAway(place, samus) ? DoorClosedAnimation : null,

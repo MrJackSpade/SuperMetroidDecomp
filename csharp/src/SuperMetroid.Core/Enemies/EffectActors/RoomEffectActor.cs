@@ -79,7 +79,7 @@ public sealed class RoomEffectActor
         shown.React(AdvanceAnimationReactions, this);
     }
 
-    /// <summary>What <c>AdvanceAnimation</c> does on each outcome of the object's animation, which never pauses, built once (#2553).</summary>
+    /// <summary>What <see cref="AdvanceAnimation"/> does on each outcome of the object's animation, which never pauses, built once (#2553).</summary>
     private static UnpausedAnimationShownReactions<RoomEffectActorSegment, RoomEffectActorPicture, RoomEffectActor> AdvanceAnimationReactions { get; } = new(
         Frame: static (frame, actor) =>
         {

@@ -33,7 +33,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>What <c>ApplyCacatacCue</c> does for each <see cref="CacatacCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyCacatacCue"/> does for each <see cref="CacatacCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<CacatacCueKind, Action<CacatacEnemyState>> ApplyCacatacCueForCacatacCueKind => field ??= new(new Dictionary<CacatacCueKind, Action<CacatacEnemyState>>
     {
         [CacatacCueKind.RestorePatrol] = state => RestoreCacatacPatrol(state),
@@ -46,7 +46,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         cue.React(ApplyCacatacCueReactions, new ApplyCacatacCueContext(occupant, place, state, this));
     }
 
-    /// <summary>What <c>ApplyCacatacCue</c> does on each <see cref="CacatacCue"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="ApplyCacatacCue"/> does on each <see cref="CacatacCue"/>, built once (#2553).</summary>
     private static CacatacCueReactions<ApplyCacatacCueContext> ApplyCacatacCueReactions { get; } = new(
         SpawnSpike: static (spike, context) => context.Owner.SpawnCacatacSpike(context.Occupant, context.Place, spike.Direction),
         Signal: static (signal, context) =>
@@ -54,7 +54,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             context.Owner.ApplyCacatacCueForCacatacCueKind[signal.Kind](context.State);
         });
 
-    /// <summary>What <c>ApplyCacatacCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What <see cref="ApplyCacatacCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <c>ApplyCacatacCue</c> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyCacatacCue</c> was handed.</param>
@@ -85,7 +85,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         SetCacatacAnimation(place, state, onFloor ? CacatacSegment.OnFloorIdle : CacatacSegment.OnCeilingIdle);
     }
 
-    /// <summary>What <c>RunCacatacMain</c> does for each <see cref="CacatacAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunCacatacMain"/> does for each <see cref="CacatacAction"/> member, each member's own arm.</summary>
     private IdentityTable<CacatacAction, Action<RoomEnemyOccupant, RoomEnemyPlace, CacatacEnemyState>> RunCacatacMainForCacatacAction => field ??= new(new Dictionary<CacatacAction, Action<RoomEnemyOccupant, RoomEnemyPlace, CacatacEnemyState>>
     {
         [CacatacAction.Patrolling] = (occupant, place, state) =>

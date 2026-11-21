@@ -43,7 +43,7 @@ internal static class KiHunterAcidSpitAnimations
     internal static Animation<KiHunterAcidSpitSegment> StartingWith(KiHunterAcidSpitSegment segment) => StartingAt[segment];
 
     /// <summary>Acid spat over a facing's pictures and launch, <paramref name="droplet"/>, <paramref name="streak"/>, <paramref name="blob"/>, <paramref name="blobTrailing"/>, <paramref name="blobSpattering"/>, <paramref name="facing"/>, <paramref name="ball"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, KiHunterAcidSpitCue>[] Spat(EnemyProjectileFrameId droplet, EnemyProjectileFrameId streak, EnemyProjectileFrameId blob, EnemyProjectileFrameId blobTrailing, EnemyProjectileFrameId blobSpattering, HorizontalDirection facing, EnemyProjectileFrameId ball) =>
+    private static AnimationBeat<EnemyProjectileFrameId, KiHunterAcidSpitCue>.Unpaused[] Spat(EnemyProjectileFrameId droplet, EnemyProjectileFrameId streak, EnemyProjectileFrameId blob, EnemyProjectileFrameId blobTrailing, EnemyProjectileFrameId blobSpattering, HorizontalDirection facing, EnemyProjectileFrameId ball) =>
     [
         Show(droplet, 3),
         Show(streak, 3),

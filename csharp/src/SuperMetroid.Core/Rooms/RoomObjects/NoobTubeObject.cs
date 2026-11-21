@@ -36,7 +36,7 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SilentSequencedRoo
         base.Update(place, context);
     }
 
-    /// <summary>What <c>SequenceEnded</c> does for each <see cref="NoobTubePhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="NoobTubePhase"/> member, each member's own arm.</summary>
     private IdentityTable<NoobTubePhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForNoobTubePhase => field ??= new(new Dictionary<NoobTubePhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [NoobTubePhase.Starting] = (place, context) =>

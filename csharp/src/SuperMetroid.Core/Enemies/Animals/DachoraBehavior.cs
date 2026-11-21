@@ -84,7 +84,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.Restart();
     }
 
-    /// <summary>What <c>RunDachoraMain</c> does for each <see cref="DachoraAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunDachoraMain"/> does for each <see cref="DachoraAction"/> member, each member's own arm.</summary>
     private IdentityTable<DachoraAction, Action<RoomEnemyPlace, DachoraEnemyState, SamusState, RoomLevelData>> RunDachoraMainForDachoraAction => field ??= new(new Dictionary<DachoraAction, Action<RoomEnemyPlace, DachoraEnemyState, SamusState, RoomLevelData>>
     {
         [DachoraAction.WaitingForSamus] = (place, state, samus, level) => RunDachoraWaiting(place, state, samus, level),
@@ -399,7 +399,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ShowDachoraColours(
         RoomEnemyPlace place, DachoraColourPhase phase, int frame)
     {
-        int lastFrame = Ensure.Listed(DachoraColorDefinitions.PhaseFrameCounts, phase) - 1;
+        int lastFrame = DachoraColorDefinitions.PhaseFrameCounts[phase] - 1;
         place.Shading = PictureShading.Shaded(DachoraShades.Of(phase, Ensure.BetweenInclusive(0, lastFrame, frame)));
     }
 

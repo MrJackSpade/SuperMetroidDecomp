@@ -21,7 +21,7 @@ internal sealed class MotherBrainAttacks
         _room = room;
     }
 
-    /// <summary>What <c>RunMotherBrainHandBeamAttack</c> does for each <see cref="MotherBrainHandBeamPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunMotherBrainHandBeamAttack"/> does for each <see cref="MotherBrainHandBeamPhase"/> member, each member's own arm.</summary>
     private static IdentityTable<MotherBrainHandBeamPhase, Action<MotherBrainEnemyState>> RunMotherBrainHandBeamAttackForMotherBrainHandBeamPhase => field ??= new(new Dictionary<MotherBrainHandBeamPhase, Action<MotherBrainEnemyState>>
     {
         [MotherBrainHandBeamPhase.BackUp] = static state =>
@@ -102,7 +102,7 @@ internal sealed class MotherBrainAttacks
         state.Phase2FightPhase = MotherBrainPhase2FightPhase.HandBeam;
     }
 
-    /// <summary>What <c>RunMotherBrainSecondPhaseTryAttack</c> does for each <see cref="MotherBrainAttackPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunMotherBrainSecondPhaseTryAttack"/> does for each <see cref="MotherBrainAttackPhase"/> member, each member's own arm.</summary>
     private IdentityTable<MotherBrainAttackPhase, Action<MotherBrainEnemyState, SamusState>> RunMotherBrainSecondPhaseTryAttackForMotherBrainAttackPhase => field ??= new(new Dictionary<MotherBrainAttackPhase, Action<MotherBrainEnemyState, SamusState>>
     {
         [MotherBrainAttackPhase.ChooseAttack] = (state, samus) => ChooseMotherBrainSecondPhaseAttack(state, samus),
@@ -130,7 +130,7 @@ internal sealed class MotherBrainAttacks
         RunMotherBrainSecondPhaseTryAttackForMotherBrainAttackPhase[state.AttackPhase](state, samus);
     }
 
-    /// <summary>What <c>ChooseMotherBrainSecondPhaseAttack</c> does for each <see cref="MotherBrainSecondPhaseAttack"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ChooseMotherBrainSecondPhaseAttack"/> does for each <see cref="MotherBrainSecondPhaseAttack"/> member, each member's own arm.</summary>
     private IdentityTable<MotherBrainSecondPhaseAttack, Action<MotherBrainEnemyState, SamusState>> ChooseMotherBrainSecondPhaseAttackForMotherBrainSecondPhaseAttack => field ??= new(new Dictionary<MotherBrainSecondPhaseAttack, Action<MotherBrainEnemyState, SamusState>>
     {
         [MotherBrainSecondPhaseAttack.Neutral] = (state, samus) => MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2),
@@ -305,7 +305,7 @@ internal sealed class MotherBrainAttacks
         return false;
     }
 
-    /// <summary>What <c>TryMakeMotherBrainStand</c> comes to for each <see cref="MotherBrainBodyPose"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="TryMakeMotherBrainStand"/> comes to for each <see cref="MotherBrainBodyPose"/> member, each member's own arm.</summary>
     private static IdentityTable<MotherBrainBodyPose, Func<MotherBrainEnemyState, bool>> TryMakeMotherBrainStandForMotherBrainBodyPose => field ??= new(new Dictionary<MotherBrainBodyPose, Func<MotherBrainEnemyState, bool>>
     {
         [MotherBrainBodyPose.Standing] = static state => true,

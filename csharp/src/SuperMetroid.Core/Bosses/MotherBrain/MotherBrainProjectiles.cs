@@ -79,7 +79,7 @@ internal sealed class MotherBrainProjectiles
         public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue) => RunTurretCue(context.Projectile, cue);
     }
 
-    /// <summary>What <c>RunTurretCue</c> does for each <see cref="MotherBrainTurretCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunTurretCue"/> does for each <see cref="MotherBrainTurretCue"/> member, each member's own arm.</summary>
     private static IdentityTable<MotherBrainTurretCue, Action<EnemyProjectile>> RunTurretCueForMotherBrainTurretCue => field ??= new(new Dictionary<MotherBrainTurretCue, Action<EnemyProjectile>>
     {
         [MotherBrainTurretCue.StopMoving] = static projectile => projectile.HoldStill(),
@@ -197,7 +197,7 @@ internal sealed class MotherBrainProjectiles
         /// <summary>Carries out a turret cue: stopping, or deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue) => RunTurretCue(context.Projectile, cue);
 
-        /// <summary>What <c>RunCue</c> does for each <see cref="MotherBrainGlassCue"/> member, each member's own arm.</summary>
+        /// <summary>What <see cref="RunCue"/> does for each <see cref="MotherBrainGlassCue"/> member, each member's own arm.</summary>
         private static IdentityTable<MotherBrainGlassCue, Action<EnemyProjectileCueContext>> RunCueForMotherBrainGlassCue => field ??= new(new Dictionary<MotherBrainGlassCue, Action<EnemyProjectileCueContext>>
         {
             [MotherBrainGlassCue.Delete] = static context => context.Projectile.Delete(),
@@ -213,7 +213,7 @@ internal sealed class MotherBrainProjectiles
         public void RunCue(EnemyProjectileCueContext context, MotherBrainEffectCue cue) =>
             ApplyMotherBrainEffectCue(context.Projectile, cue);
 
-        /// <summary>What <c>RunCue</c> does for each <see cref="MotherBrainHandBeamCue"/> member, each member's own arm.</summary>
+        /// <summary>What <see cref="RunCue"/> does for each <see cref="MotherBrainHandBeamCue"/> member, each member's own arm.</summary>
         private IdentityTable<MotherBrainHandBeamCue, Action<EnemyProjectileCueContext>> RunCueForMotherBrainHandBeamCue => field ??= new(new Dictionary<MotherBrainHandBeamCue, Action<EnemyProjectileCueContext>>
         {
             [MotherBrainHandBeamCue.SpawnNextBeam] = context => SpawnMotherBrainHandBeamFired(MotherBrains.Of(context.Projectile).MotherBrain),
@@ -226,7 +226,7 @@ internal sealed class MotherBrainProjectiles
             RunCueForMotherBrainHandBeamCue[cue](context);
         }
 
-        /// <summary>What <c>ApplyMotherBrainEffectCue</c> does for each <see cref="MotherBrainEffectCueKind"/> member, each member's own arm.</summary>
+        /// <summary>What <see cref="ApplyMotherBrainEffectCue"/> does for each <see cref="MotherBrainEffectCueKind"/> member, each member's own arm.</summary>
         private IdentityTable<MotherBrainEffectCueKind, Action<EnemyProjectile>> ApplyMotherBrainEffectCueForMotherBrainEffectCueKind => field ??= new(new Dictionary<MotherBrainEffectCueKind, Action<EnemyProjectile>>
         {
             [MotherBrainEffectCueKind.DropDrool] = projectile =>
@@ -246,7 +246,7 @@ internal sealed class MotherBrainProjectiles
             cue.React(ApplyMotherBrainEffectCueReactions, new ApplyMotherBrainEffectCueContext(projectile, this));
         }
 
-        /// <summary>What <c>ApplyMotherBrainEffectCue</c> does on each <see cref="MotherBrainEffectCue"/>, built once (#2553).</summary>
+        /// <summary>What <see cref="ApplyMotherBrainEffectCue"/> does on each <see cref="MotherBrainEffectCue"/>, built once (#2553).</summary>
         private static MotherBrainEffectCueReactions<ApplyMotherBrainEffectCueContext> ApplyMotherBrainEffectCueReactions { get; } = new(
             SetRadius: static (setRadius, context) => context.Projectile.Radius = setRadius.Radius,
             Signal: static (signal, context) =>
@@ -254,7 +254,7 @@ internal sealed class MotherBrainProjectiles
                 context.Owner.ApplyMotherBrainEffectCueForMotherBrainEffectCueKind[signal.Kind](context.Projectile);
             });
 
-        /// <summary>What <c>ApplyMotherBrainEffectCue</c>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+        /// <summary>What <see cref="ApplyMotherBrainEffectCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
         /// <param name="Projectile">The <c>projectile</c> <c>ApplyMotherBrainEffectCue</c> was handed.</param>
         /// <param name="Owner">The <see cref="MotherBrainProjectileBehavior"/> reacting.</param>
         private readonly record struct ApplyMotherBrainEffectCueContext(EnemyProjectile Projectile, MotherBrainProjectileBehavior Owner);

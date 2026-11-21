@@ -559,7 +559,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
         return true;
     }
 
-    /// <summary>What <c>MoveEquipmentSelector</c> does for each <see cref="PauseEquipmentCategory"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="MoveEquipmentSelector"/> does for each <see cref="PauseEquipmentCategory"/> member, each member's own arm.</summary>
     private IdentityTable<PauseEquipmentCategory, Action<bool, bool, bool, bool, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>>> MoveEquipmentSelectorForPauseEquipmentCategory => field ??= new(new Dictionary<PauseEquipmentCategory, Action<bool, bool, bool, bool, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>>>
     {
         [PauseEquipmentCategory.Beams] = (left, right, up, down, beams, suits, boots) =>

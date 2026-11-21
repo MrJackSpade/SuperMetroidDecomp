@@ -206,7 +206,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         part.Playback = playback;
     }
 
-    /// <summary>What <c>ApplyPhantoonPartCue</c> does for each <see cref="PhantoonPartCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyPhantoonPartCue"/> does for each <see cref="PhantoonPartCue"/> member, each member's own arm.</summary>
     private IdentityTable<PhantoonPartCue, Action<PhantoonEnemyState>> ApplyPhantoonPartCueForPhantoonPartCue => field ??= new(new Dictionary<PhantoonPartCue, Action<PhantoonEnemyState>>
     {
         [PhantoonPartCue.PlayMaterializationSound] = state =>

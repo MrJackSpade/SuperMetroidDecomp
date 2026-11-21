@@ -44,7 +44,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     private static void ShowFade(RoomEnemyPlace place, WreckedShipGhostEnemyState state) =>
         place.Shading = PictureShading.Shaded(WreckedShipGhostFadeShade.Of(state.Fade));
 
-    /// <summary>What <c>RunWreckedShipGhostMain</c> does for each <see cref="WreckedShipGhostAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunWreckedShipGhostMain"/> does for each <see cref="WreckedShipGhostAction"/> member, each member's own arm.</summary>
     private static IdentityTable<WreckedShipGhostAction, Action<RoomEnemyPlace, WreckedShipGhostEnemyState, SamusState>> RunWreckedShipGhostMainForWreckedShipGhostAction => field ??= new(new Dictionary<WreckedShipGhostAction, Action<RoomEnemyPlace, WreckedShipGhostEnemyState, SamusState>>
     {
         [WreckedShipGhostAction.BrighteningAndFlickering] = static (place, state, samus) => RunWreckedShipGhostBrightening(place, state),

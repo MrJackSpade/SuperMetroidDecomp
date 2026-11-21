@@ -48,7 +48,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _deathsAndDrops = deathsAndDrops;
     }
 
-    /// <summary>What <c>ApplyMetroidCue</c> does for each <see cref="MetroidCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyMetroidCue"/> does for each <see cref="MetroidCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<MetroidCueKind, Action> ApplyMetroidCueForMetroidCueKind => field ??= new(new Dictionary<MetroidCueKind, Action>
     {
         [MetroidCueKind.PlayDrainingSound] = () =>
@@ -92,7 +92,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>What <c>RunMetroidMain</c> does for each <see cref="MetroidMovement"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunMetroidMain"/> does for each <see cref="MetroidMovement"/> member, each member's own arm.</summary>
     private IdentityTable<MetroidMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, MetroidEnemyState, int>> RunMetroidMainForMetroidMovement => field ??= new(new Dictionary<MetroidMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, MetroidEnemyState, int>>
     {
         [MetroidMovement.Homing] = (place, samus, level, state, targetY) => RunMetroidHoming(place, state, samus, targetY, level),

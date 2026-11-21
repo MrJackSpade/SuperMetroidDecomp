@@ -337,7 +337,7 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         return next.Match(PlayOnCases, this);
     }
 
-    /// <summary>What <c>PlayOnReacting</c> makes of each <see cref="AnimationShown{TSegment, TFrame}"/>, built once (#2553).</summary>
+    /// <summary>What <see cref="PlayOnReacting"/> makes of each <see cref="AnimationShown{TSegment, TFrame}"/>, built once (#2553).</summary>
     private static AnimationShownCases<TSegment, TFrame, AnimationPlayer<TSegment, TFrame, TEvent>, TFrame?> PlayOnCases { get; } = new(
         Frame: static (frame, player) =>
         {

@@ -128,7 +128,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         // the map.
     }
 
-    /// <summary>What <c>ReachAccessMoment</c> does for each <see cref="StationAccessCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ReachAccessMoment"/> does for each <see cref="StationAccessCue"/> member, each member's own arm.</summary>
     private IdentityTable<StationAccessCue, Action<RoomObjectStepContext, StationObjects, IRoomSamus>> ReachAccessMomentForStationAccessCue => field ??= new(new Dictionary<StationAccessCue, Action<RoomObjectStepContext, StationObjects, IRoomSamus>>
     {
         [StationAccessCue.Activates] = (context, stations, samus) =>

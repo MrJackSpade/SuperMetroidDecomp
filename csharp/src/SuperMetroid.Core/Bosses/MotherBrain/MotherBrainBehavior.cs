@@ -123,7 +123,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>What <c>RunMotherBrainFakeDeath</c> does for each <see cref="MotherBrainDescentPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunMotherBrainFakeDeath"/> does for each <see cref="MotherBrainDescentPhase"/> member, each member's own arm.</summary>
     private IdentityTable<MotherBrainDescentPhase, Action<MotherBrainEnemyState, SamusState>> RunMotherBrainFakeDeathForMotherBrainDescentPhase => field ??= new(new Dictionary<MotherBrainDescentPhase, Action<MotherBrainEnemyState, SamusState>>
     {
         [MotherBrainDescentPhase.InitialPause] = (state, samus) =>
@@ -214,7 +214,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Colours.ShowRoomFlash(flash.Showing);
     }
 
-    /// <summary>What <c>RunMotherBrainAscent</c> does for each <see cref="MotherBrainAscentPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunMotherBrainAscent"/> does for each <see cref="MotherBrainAscentPhase"/> member, each member's own arm.</summary>
     private IdentityTable<MotherBrainAscentPhase, Action<MotherBrainEnemyState>> RunMotherBrainAscentForMotherBrainAscentPhase => field ??= new(new Dictionary<MotherBrainAscentPhase, Action<MotherBrainEnemyState>>
     {
         [MotherBrainAscentPhase.DrawMural] = state => FakeDeath.DrawNextMuralRows(state),
@@ -236,7 +236,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         RunMotherBrainAscentForMotherBrainAscentPhase[state.AscentPhase](state);
     }
 
-    /// <summary>What <c>RunMotherBrainPhase2Fight</c> does for each <see cref="MotherBrainPhase2FightPhase"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunMotherBrainPhase2Fight"/> does for each <see cref="MotherBrainPhase2FightPhase"/> member, each member's own arm.</summary>
     private IdentityTable<MotherBrainPhase2FightPhase, Action<MotherBrainEnemyState, SamusState>> RunMotherBrainPhase2FightForMotherBrainPhase2FightPhase => field ??= new(new Dictionary<MotherBrainPhase2FightPhase, Action<MotherBrainEnemyState, SamusState>>
     {
         [MotherBrainPhase2FightPhase.StretchingShakeHead] = (state, samus) => MotherBrainAscent.ShakeMotherBrainHeadMenacingly(state),

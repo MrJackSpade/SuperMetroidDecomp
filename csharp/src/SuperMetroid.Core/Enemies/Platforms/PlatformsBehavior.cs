@@ -103,7 +103,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         StartPlatformStillAnimationForHeading(place, state);
     }
 
-    /// <summary>What <c>MovePlatformVertically</c> does for each <see cref="PlatformVerticalMovement"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="MovePlatformVertically"/> does for each <see cref="PlatformVerticalMovement"/> member, each member's own arm.</summary>
     private IdentityTable<PlatformVerticalMovement, Action<RoomEnemyOccupant, RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>> MovePlatformVerticallyForPlatformVerticalMovement => field ??= new(new Dictionary<PlatformVerticalMovement, Action<RoomEnemyOccupant, RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>>
     {
         [PlatformVerticalMovement.Rising] = (occupant, place, state, samus, level, preHorizontalX) => RaisePlatform(occupant, place, state, level),

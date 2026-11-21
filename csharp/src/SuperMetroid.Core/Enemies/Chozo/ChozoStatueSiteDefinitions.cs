@@ -11,7 +11,7 @@ internal static class ChozoStatueSiteDefinitions
     /// admits Samus once Phantoon is defeated; Lower Norfair's, whose placement puts its hand and whose hand admits her once
     /// she has Space Jump.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<ChozoStatueSite, ChozoStatueSiteDefinition> Sites = new Dictionary<ChozoStatueSite, ChozoStatueSiteDefinition>
+    internal static readonly IdentityTable<ChozoStatueSite, ChozoStatueSiteDefinition> Sites = new(new Dictionary<ChozoStatueSite, ChozoStatueSiteDefinition>
     {
         [ChozoStatueSite.WreckedShip] = new(ChozoAndTubeShades.WreckedShipStatue, ChozoStatueSegment.WreckedShipIdle, ChozoStatueSegment.WreckedShipActivated,
             [new(ChozoStatueRoomDefinitions.WreckedShipHandBlock, ChozoStatueRoomObject.WreckedShipHand),
@@ -20,5 +20,5 @@ internal static class ChozoStatueSiteDefinitions
         [ChozoStatueSite.LowerNorfair] = new(ChozoAndTubeShades.LowerNorfairStatue, ChozoStatueSegment.LowerNorfairIdle, ChozoStatueSegment.LowerNorfairActivated,
             [new(ChozoStatueRoomDefinitions.LowerNorfairHandBlock, ChozoStatueRoomObject.LowerNorfairHand)],
             AreaId.Norfair, ChozoStatueRoomDefinitions.LowerNorfairHandBehavior, ChozoHandAdmission.SpaceJumpCollected),
-    };
+    });
 }

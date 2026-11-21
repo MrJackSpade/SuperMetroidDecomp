@@ -228,7 +228,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         MoveForRidleyFireballMotion[motion](context, projectile);
     }
 
-    /// <summary>What <c>RunCue</c> does for each <see cref="RidleyFireballCue"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunCue"/> does for each <see cref="RidleyFireballCue"/> member, each member's own arm.</summary>
     private IdentityTable<RidleyFireballCue, Action<EnemyProjectile>> RunCueForRidleyFireballCue => field ??= new(new Dictionary<RidleyFireballCue, Action<EnemyProjectile>>
     {
         [RidleyFireballCue.StopMoving] = projectile => projectile.HoldStill(),

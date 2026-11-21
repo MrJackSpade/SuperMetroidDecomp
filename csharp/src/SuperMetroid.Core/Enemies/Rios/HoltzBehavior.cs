@@ -63,7 +63,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>What <c>RunHoltzMain</c> does for each <see cref="HoltzAction"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="RunHoltzMain"/> does for each <see cref="HoltzAction"/> member, each member's own arm.</summary>
     private IdentityTable<HoltzAction, Action<RoomEnemyPlace, HoltzEnemyState, SamusState, RoomLevelData, int>> RunHoltzMainForHoltzAction => field ??= new(new Dictionary<HoltzAction, Action<RoomEnemyPlace, HoltzEnemyState, SamusState, RoomLevelData, int>>
     {
         [HoltzAction.WaitForAttackOpportunity] = (place, state, samus, level, random) =>
@@ -169,7 +169,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
         RunHoltzMainForHoltzAction[state.Action](place, state, samus, level, random);
     }
 
-    /// <summary>What <c>ApplyHoltzCue</c> does for each <see cref="HoltzCueKind"/> member, each member's own arm.</summary>
+    /// <summary>What <see cref="ApplyHoltzCue"/> does for each <see cref="HoltzCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<HoltzCueKind, Action<HoltzEnemyState>> ApplyHoltzCueForHoltzCueKind => field ??= new(new Dictionary<HoltzCueKind, Action<HoltzEnemyState>>
     {
         [HoltzCueKind.AnimationFinished] = static state => state.Finish.Raise(),

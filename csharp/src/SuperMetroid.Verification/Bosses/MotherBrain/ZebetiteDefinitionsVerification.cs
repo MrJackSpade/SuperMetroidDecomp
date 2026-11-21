@@ -103,7 +103,7 @@ internal static class ZebetiteDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.Zebetite, linkedHalf ? (ushort)2 : (ushort)0);
             place.Bind(EnemyDefinitionId.Zebetite, place.KeptDefinition);
-            enemies.ZebetiteBehavior.InitializeZebetite(place.HeldOccupant(), place);
+            place.SetUpAsPlaced();
             ZebetiteEnemyState state = enemies.ZebetiteStates[0] ??
                 throw new InvalidDataException("Zebetite initializer omitted typed state.");
             ZebetiteGenerationDefinition expected = Zebetites.Generation(generation);

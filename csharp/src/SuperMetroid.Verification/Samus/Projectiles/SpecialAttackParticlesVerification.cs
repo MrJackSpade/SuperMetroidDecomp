@@ -338,7 +338,7 @@ internal static class SpecialAttackParticlesVerification
                 bool wasFalling = spazer.Phase == SpazerComboPhase.Falling;
                 TrigonometryAngle angleBefore = spazer.Angle;
                 int radiusBefore = spazer.Radius;
-                SoundEffectId? sound = projectiles.Combos.StepSpazerCombo(samus, particle.HeldShot(), shared, SpazerCameraY);
+                SoundEffectId? sound = projectiles.Combos.StepSpazerCombo(samus, particle.HeldShot(), particle.KindStateAs<SpazerParticleState>(), shared, SpazerCameraY);
                 if (sound is not null)
                 {
                     AssertEqual(SamusSound.SpazerSpecialAttackEnd, sound.Value, $"update {update} Spazer sound");
@@ -395,7 +395,7 @@ internal static class SpecialAttackParticlesVerification
                 StartAttack(SamusBeamFlags.Spazer, SpazerSamus);
             SamusProjectile spent = projectiles.Shots[spentPlace];
             spent.Spend();
-            AssertTrue(projectiles.Combos.StepSpazerCombo(samus, spent.HeldShot(), shared, SpazerCameraY) is null,
+            AssertTrue(projectiles.Combos.StepSpazerCombo(samus, spent.HeldShot(), spent.KindStateAs<SpazerParticleState>(), shared, SpazerCameraY) is null,
                 $"spent Spazer particle {spentPlace} makes no sound");
             for (int place = 0; place < 4; place++)
                 AssertEqual(place != spentPlace && place != (spentPlace ^ 2), projectiles.Shots[place].IsOccupied,
@@ -412,7 +412,7 @@ internal static class SpecialAttackParticlesVerification
         AssertTrue(!replaced.IsOccupied, "the crash echo's release ends the trailing particle it replaces");
         SamusProjectile spentBeam = echoProjectiles.Shots[1];
         spentBeam.Spend();
-        _ = echoProjectiles.Combos.StepSpazerCombo(echoSamus, spentBeam.HeldShot(), echoShared, SpazerCameraY);
+        _ = echoProjectiles.Combos.StepSpazerCombo(echoSamus, spentBeam.HeldShot(), spentBeam.KindStateAs<SpazerParticleState>(), echoShared, SpazerCameraY);
         AssertTrue(!echo.IsOccupied, "a spent Spazer particle ends the crash echo holding its partner's place");
         AssertTrue(ReferenceEquals(echo, echoProjectiles.Shots[3]), "the ended echo is the last shot of its place");
         AssertTrue(echoProjectiles.Shots[0].IsOccupied && echoProjectiles.Shots[2].IsOccupied,
@@ -439,7 +439,7 @@ internal static class SpecialAttackParticlesVerification
                     continue;
                 int place = particle.Place;
                 bool wasNegative = particle.Velocity.X.IsNegative;
-                SoundEffectId? sound = projectiles.Combos.StepWaveCombo(samus, particle.HeldShot(), shared);
+                SoundEffectId? sound = projectiles.Combos.StepWaveCombo(samus, particle.HeldShot(), particle.KindStateAs<WaveParticleState>(), shared);
                 SoundEffectId? expected = !particle.IsActive
                     ? BeamComboDefinitions.WaveRemovalSound
                     : place == 3 && wasNegative != particle.Velocity.X.IsNegative

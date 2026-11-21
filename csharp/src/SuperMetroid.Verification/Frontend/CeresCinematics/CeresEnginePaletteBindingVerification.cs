@@ -34,7 +34,7 @@ internal static class CeresEnginePaletteBindingVerification
         });
         // Both ways into the destruction run with a selected game's runtime loaded.
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
-        game.Session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped);
+        game.Session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped, game.Session.GameplayRuntime);
 
         // Enter via the real frontend constructor call, then select exactly the
         // phase reported by the player. No preceding controller playthrough is needed.

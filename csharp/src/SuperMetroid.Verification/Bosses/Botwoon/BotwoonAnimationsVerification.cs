@@ -184,7 +184,7 @@ internal static class BotwoonAnimationsVerification
         Action<EnemyProjectile, int> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
         var segment = new EnemyProjectile(1, default, RoomEnemyProjectileKind.BotwoonBody, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still);
         var segmentAnimation = new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(0));
-        enemies.BotwoonBehavior.Segments.Start(segment, new BotwoonSegmentState(head, 1, segment, segmentAnimation));
+        enemies.BotwoonBehavior.Segments.Start(segment, new BotwoonSegmentState(head, head.RequireSpeciesState<BotwoonEnemyState>(), 1, segment, segmentAnimation));
         segment.StartAnimation(segmentAnimation);
         Pass(segment);
         Pass(segment);

@@ -46,15 +46,4 @@ internal static class KraidPartsAccess
             return state;
         }
     }
-
-    /// <summary>
-    /// Kraid's parts in a fresh fixture room that lists them in his room's order (#2554), for checks that build his
-    /// encounter's state without running his body.
-    /// </summary>
-    internal static KraidParts StandaloneParts()
-    {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        enemies.Places.BindKraidPartsInRoomOrder();
-        return new KraidParts(enemies.Places, enemies.Places.InUpdateOrder[0]);
-    }
 }

@@ -23,7 +23,7 @@ internal static class MagdollitePhaseDefinitionsVerification
             AssertEqual(ReadMagdolliteWord(rom, thresholdTable + phaseIndex * 2),
                 phase.DistanceThreshold, $"Magdollite threshold {phaseIndex}");
             AssertEqual(ReadMagdolliteWord(rom, instructionTable + phaseIndex * 2),
-                NativeEnemyAnimationOracle.EntryOf(MagdolliteNativeListAddresses.Entries, phase.BodyAnimation), $"Magdollite body list {phaseIndex}");
+                NativeEnemyAnimationOracle.EntryOf(MagdolliteNativeListAddresses.BodyEntries, phase.BodyAnimation), $"Magdollite body list {phaseIndex}");
             AssertEqual(ReadMagdolliteWord(rom, overlayOffsetTable + phaseIndex * 2),
                 phase.OverlayYOffset, $"Magdollite overlay offset {phaseIndex}");
         }

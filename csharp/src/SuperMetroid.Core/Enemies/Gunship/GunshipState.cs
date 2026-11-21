@@ -60,7 +60,4 @@ internal sealed class GunshipState
         if (EscapeVelocity >= GunshipMotionDefinitions.EscapeVelocityCapTrigger)
             EscapeVelocity = GunshipMotionDefinitions.EscapeVelocityCap;
     }
-
-    /// <summary>The state of the ship whose top hull <paramref name="top"/> holds, failing if it never initialized as one.</summary>
-    internal static GunshipState Of(GunshipState gunshipState) => gunshipState;
 }

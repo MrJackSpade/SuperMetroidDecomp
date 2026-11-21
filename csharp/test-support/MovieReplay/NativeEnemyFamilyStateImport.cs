@@ -209,7 +209,7 @@ internal static class NativeEnemyFamilyStateImport
             throw new InvalidDataException(
                 $"Recorded Ceres door or wall {enemy.Ordinal} runs routine {words.A:X4}, not its actor's {CeresNativeWords.MainBehaviourWord(enemy):X4}.");
         }
-        if (enemy.SpeciesState<CeresRidleyRoomDoorState>() is { } ridleyRoomDoorRecord)
+        if (enemy.SpeciesState<CeresDoorAnimationState>() is { } ridleyRoomDoorRecord)
             ridleyRoomDoorRecord.Look = words.B != 0 ? CeresRidleyRoomDoorLook.Overlay : CeresRidleyRoomDoorLook.Actor;
         if (enemy.SpeciesState<DeadTorizoEnemyState>() is { } deadTorizoRecord)
         {
@@ -239,8 +239,8 @@ internal static class NativeEnemyFamilyStateImport
             // A zero word is a fight that has not begun; the state keeps the phase it starts in.
             if (words.A != 0)
             {
-                (DraygonPhase phase, HorizontalDirection? pass) = DraygonNativeWords.Phases.Decode(words.A, "recorded DraygonPhase");
-                draygonRecord.Phase = phase;
+                // The snapshot import enters the step the phase stands for before this import (DraygonStepImport).
+                (_, HorizontalDirection? pass) = DraygonNativeWords.Phases.Decode(words.A, "recorded DraygonPhase");
                 // Only a swoop or goop pass names the way it travels (#2165).
                 if (pass is { } passDirection)
                     draygonRecord.PassDirection = passDirection;
@@ -824,7 +824,7 @@ internal static class NativeEnemyFamilyStateImport
             // The ascent cursor is 8.8 and moves by whole records, so its signed high byte is the record index.
             choot.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(unchecked((short)words.B) >> 8);
             choot.FallingLoop = (words.C & 0xff) == 0
-                ? UpdateCountdownAccess.AtAge(ChootFalls.LoopUpdates(enemy.HeldOccupant().SpawnSettings<ChootSpawnSettings>().FallingPath), words.C >> 8)
+                ? ChootFallLoopAccess.AtAge(enemy.HeldOccupant().SpawnSettings<ChootSpawnSettings>().FallingPath, words.C >> 8)
                 : throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
             choot.FallingPatternLoopCounter = TrueDuration(words.D);
             // The Choot falls along its placement's path (#2476), which the recording's must be.

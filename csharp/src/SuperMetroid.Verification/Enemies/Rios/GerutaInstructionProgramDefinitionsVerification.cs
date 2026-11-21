@@ -76,7 +76,7 @@ internal static class GerutaInstructionProgramDefinitionsVerification
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
         parent.BindPlaced(EnemyDefinitionId.Geruta, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         parent.Bind(parent.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        GerutaBehavior.InitializeGeruta();
+        parent.SetUpAsPlaced();
         AssertEqual(new AnimationPlayback<GerutaSegment>(GerutaAnimations.StartingWith(GerutaSegment.Idle), AnimationPlace.StartOfAnimation),
             enemies.Places.InUpdateOrder[0].EntityState<GerutaEntity, GerutaEnemyState>()?.Playback,
             "Norfair Rio parent initializer selects idle");
@@ -85,7 +85,7 @@ internal static class GerutaInstructionProgramDefinitionsVerification
         follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, 0x8000);
         follower.Bind(EnemyDefinitionId.Geruta, follower.KeptDefinition);
         follower.Bind(follower.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        enemies.GerutaBehavior.InitializeGerutaFollower(follower);
+        follower.SetUpAsPlaced();
         AssertEqual(new AnimationPlayback<GerutaSegment>(GerutaAnimations.StartingWith(GerutaSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
             enemies.Places.InUpdateOrder[1].EntityState<GerutaFollowerEntity, GerutaFollowerState>()?.Playback,
             "Norfair Rio follower initializer selects ascending flames");

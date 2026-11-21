@@ -131,7 +131,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
 )
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = fixturePlace => enemies.ShaktoolBehavior.InitializeShaktool(fixturePlace.HeldOccupant(), fixturePlace);
+        Action<RoomEnemyPlace> initialize = fixturePlace => fixturePlace.SetUpAsPlaced();
         for (int index = 0; index < 7; index++)
         {
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];

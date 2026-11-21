@@ -23,7 +23,7 @@ internal static class SkulteraOwnedStateVerification
         const int speedRecord = 3;
         place.SetSpawnParameter1(EnemyDefinitionId.Skultera, speedRecord);
         place.SetSpawnParameter2(EnemyDefinitionId.Skultera, LittleEndianBytes.Word(20, 10));
-        SkulteraBehavior.InitializeSkultera(place);
+        place.SetSpeciesState(SkulteraBehavior.InitializeSkultera(place.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>()));
         SkulteraEnemyState state = enemies.SkulteraStates[0]
             ?? throw new InvalidOperationException("The initialized Skultera has no state.");
 

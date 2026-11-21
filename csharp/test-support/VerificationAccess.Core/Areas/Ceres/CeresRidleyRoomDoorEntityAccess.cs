@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Areas.Ceres;
+namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>Verification access to <see cref="CeresRidleyRoomDoorEntity"/> members production does not use.</summary>
 internal static class CeresRidleyRoomDoorEntityAccess
@@ -10,6 +10,6 @@ internal static class CeresRidleyRoomDoorEntityAccess
         /// How the door shows (#2573): its overlay picture from its animation's <see cref="CeresDoorCueKind.ShowOverlay"/>
         /// until its <see cref="CeresDoorCueKind.MakeVisibleAndShowActor"/>, otherwise its actor frames.
         /// </summary>
-        public CeresRidleyRoomDoorLook Look => self.Place.RequireSpeciesState<CeresRidleyRoomDoorState>().Look;
+        public CeresRidleyRoomDoorLook Look => self.Place.RequireSpeciesState<CeresDoorAnimationState>().Look;
     }
 }

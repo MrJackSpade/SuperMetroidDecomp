@@ -438,7 +438,7 @@ internal static class LookupStream5Verification
             int first = ReadVerificationWord(rom, 0xa6c162) - GameplayVramLayout.Bg1TilemapWord;
             int count = ReadVerificationWord(rom, 0xa6c15d) / sizeof(ushort);
             // The getaway writes the title's picture by name (#1466); the words it stands for are the page's.
-            System.Collections.Immutable.ImmutableArray<int> shownWords = system.CeresEscape.Warning.Overlay.WordsIn(result);
+            System.Collections.Immutable.ImmutableArray<int> shownWords = system.CeresEscape.FixtureWarning.Text.WordsIn(result);
             AssertEqual(count, shownWords.Count(word => word != RoomWarningText.Unwritten), "Native emergency word extent");
             AssertEqual(source.Pages["emergency"].Length, count, "Emergency page keeps its native extent");
             for (int index = 0; index < count; index++)
@@ -1513,7 +1513,7 @@ internal static class LookupStream5Verification
                 stage = stage.Higher;
             var actual = stage.Phase;
             AssertEqual(ReadVerificationWord(rom, 0xa8af55 + 2 * index), actual.DistanceThreshold, "Magdollite original rise threshold");
-            AssertEqual(ReadVerificationWord(rom, 0xa8af67 + 2 * index), NativeEnemyAnimationOracle.EntryOf(MagdolliteNativeListAddresses.Entries, actual.BodyAnimation), "Magdollite original body program");
+            AssertEqual(ReadVerificationWord(rom, 0xa8af67 + 2 * index), NativeEnemyAnimationOracle.EntryOf(MagdolliteNativeListAddresses.BodyEntries, actual.BodyAnimation), "Magdollite original body program");
             AssertEqual(ReadVerificationWord(rom, 0xa8af79 + 2 * index), actual.OverlayYOffset, "Magdollite original overlay offset");
         }
         AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(7), "Ceres door upper bound");
@@ -1604,8 +1604,8 @@ internal static class LookupStream5Verification
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         var door = enemies.Places.InUpdateOrder[1];
         door.BindCeresDoorOrWall(EnemyDefinitionId.CeresRidleyRoomDoor, EnemySpawnSettings.None);
-        enemies.CeresDoorBehavior.AttachRidleyRoomDoor(door);
-        door.SetSpeciesState(new CeresRidleyRoomDoorState { Look = SuperMetroid.Core.Areas.Ceres.CeresRidleyRoomDoorLook.Overlay });
+        door.SetSpeciesState(new CeresDoorAnimationState { Look = SuperMetroid.Core.Areas.Ceres.CeresRidleyRoomDoorLook.Overlay });
+        enemies.CeresDoorBehavior.AttachRidleyRoomDoor(door, door.RequireSpeciesState<CeresDoorAnimationState>());
         door.Position = door.Position.WithWholeY(80);
         foreach (ushort x in new ushort[] { 0, 1, 3, 255, 256, 511, ushort.MaxValue })
         foreach (ushort camera in new ushort[] { 0, ushort.MaxValue })

@@ -164,7 +164,7 @@ internal static class MorphBallEyeBehaviorVerification
         enemies.MorphBallEyeBehavior.RunMorphBallEyeMainAi(eye.HeldOccupant().SpawnSettings<MorphBallEyeBodySpawnSettings>(), eye, eye.RequireSpeciesState<MorphBallEyeEnemyState>(), frame);
         AssertEqual(MorphBallEyeAction.Active, state.Action, "the eye has opened");
         AssertEqual(MorphBallEyeBeamPhase.PendingInitialization, enemies.MorphBallEyeBehavior.MorphBallEyeBeam.Phase, "the opened eye requests the beam");
-        AssertTrue(ReferenceEquals(eye, enemies.MorphBallEyeBehavior.MorphBallEyeBeam.Body), "the beam follows the eye that opened");
+        AssertTrue(ReferenceEquals(eye, enemies.MorphBallEyeBehavior.MorphBallEyeBeam.Cast?.Body), "the beam follows the eye that opened");
         Console.WriteLine("  Morph Ball eye beam: every room places one mount and one eye, and the beam follows the eye that opened.");
     }
 

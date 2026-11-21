@@ -39,16 +39,16 @@ internal static class MamaTurtleOwnedStateVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace mama = enemies.Places.InUpdateOrder[1];
         mama.Bind(EnemyDefinitionId.MamaTurtle, mama.KeptDefinition);
-        enemies.MamaTurtleBehavior.InitializeMamaTurtle(mama);
+        mama.SetUpAsPlaced();
         for (int place = 2; place < 6; place++)
         {
             RoomEnemyPlace baby = enemies.Places.InUpdateOrder[place];
             baby.Bind(EnemyDefinitionId.BabyTurtle, baby.KeptDefinition);
             baby.SetSpawnSettings(new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Right));
-            enemies.MamaTurtleBehavior.InitializeBabyTurtle(baby);
+            baby.SetUpAsPlaced();
         }
         var samus = new SuperMetroid.Core.Samus.SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-        enemies.MamaTurtleBehavior.RunMamaTurtleMainAi(mama.HeldOccupant(), new ClockedEnemyAiFrame(
+        enemies.MamaTurtleBehavior.RunMamaTurtleMainAi(mama.HeldOccupant(), mama.RequireSpeciesState<MamaTurtleEnemyState>(), new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), 0) with { Samus = samus },
             new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero)));
         AssertEqual(MamaTurtleAction.Asleep, mama.RequireSpeciesState<MamaTurtleEnemyState>().Action,

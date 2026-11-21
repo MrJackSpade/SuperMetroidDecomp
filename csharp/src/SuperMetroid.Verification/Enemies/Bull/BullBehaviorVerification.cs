@@ -49,10 +49,7 @@ internal static class BullBehaviorVerification
         var bomb = new SamusBomb(0);
         bomb.OccupyAsPlaced(SamusProjectileType.Of(SamusProjectileFamily.Bomb));
         var context = new EnemyBombContext(bombed.HeldOccupant(), bomb.HeldBomb(), InstalledFixtures.CreateProjectileSystem(), RoomEnemyFrameFixtures.StandaloneSamus(),
-            SelectedShot: SuperMetroid.Core.Enemies.Bull.BullReactions.Shot, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0))
-        {
-            StruckOccupant = bombed.OccupantStates,
-        };
+            SelectedShot: SuperMetroid.Core.Enemies.Bull.BullReactions.Shot, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0));
         (enemies.BullBehavior.BombReaction.AfterCommon ?? throw new InvalidOperationException("The Bull has no bomb recoil."))(
             new EnemyBombHitContext(context, bombed.Health));
         AssertEqual(BullMovementDefinitions.ShotAngles.For(SamusProjectileDirection.UpFacingRight), bombed.RequireSpeciesState<BullEnemyState>().Angle,

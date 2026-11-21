@@ -125,7 +125,9 @@ internal static class BlockReactionSelectorsVerification
     /// <summary>Checks collision-triggered bomb PLM instruction selection through native headers.</summary>
     internal static void VerifyCollisionBombInstructionSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94936b, 8,
-            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.CollisionBomb(RoomBlockBehaviorCodec.Decode(index).Bombable)), "collision bomb"));
+            index => BlockReactionChanges.TryCollisionBomb(RoomBlockBehaviorCodec.Decode(index).Bombable ?? throw new InvalidDataException($"Bomb BTS {index} gives no reaction."), out BlockReactionChange? change)
+                ? RoomObjectNativeListAddresses.BlockReactionEntry(change)
+                : throw new InvalidDataException($"Bomb BTS {index} breaks nothing."), "collision bomb"));
 
     /// <summary>Checks projectile-triggered bomb reaction instruction selection through native headers.</summary>
     internal static void VerifyReactionBombInstructionSelection(CartridgeImportAddressSpace rom) =>

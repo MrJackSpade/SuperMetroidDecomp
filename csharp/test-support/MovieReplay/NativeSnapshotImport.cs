@@ -402,15 +402,21 @@ internal static class NativeSnapshotImport
             var words = new NativeEnemyRecordWords(
                 W(address + 48), W(address + 50), W(address + 52), W(address + 54), W(address + 56), W(address + 58));
             // A free native slot's family words are its last occupant's, which no family state of this slot holds (#1435).
+            // Draygon's recorded phase is the step that runs it (#2554): a swoop's flies the path whose length is word C,
+            // which is zero before he plans his first swoop.
+            if (W(address) != 0 && words.A != 0 && enemy.SpeciesState<SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState>() is { } draygon)
+            {
+                (SuperMetroid.Core.Bosses.Draygon.DraygonPhase phase, HorizontalDirection? pass) =
+                    SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.Phases.Decode(words.A, "recorded DraygonPhase");
+                draygon.Step = SuperMetroid.Core.Bosses.Draygon.DraygonStepImport.StepOf(phase, pass ?? draygon.PassDirection,
+                    words.C != 0 ? SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.SwoopPathAt(W, words.C) : null);
+            }
             if (W(address) != 0)
             {
                 NativeEnemyFamilyStateImport.Import(runtime.Enemies, enemy, words);
                 int extra = NativeSnapshotMemory.EnemyExtra + index * NativeSnapshotMemory.EnemyExtraBytes;
                 NativeEnemyFamilyStateImport.ImportExtraWords(enemy, words, offset => W(extra + offset));
             }
-            // A recorded swoop path's length is word C; before Draygon plans his first swoop it is zero and he has none.
-            if (W(address) != 0 && enemy.SpeciesState<SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState>() is { } draygon && words.C != 0)
-                draygon.SwoopPath = SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.SwoopPathAt(W, words.C);
             // Kraid's head program is typed and kept in the encounter state; the recorded body word is its native cursor,
             // which only this import translates. Before the first attack the word names no head record and the head stays unstarted.
             if (enemy.SpeciesState<SuperMetroid.Core.Bosses.Kraid.KraidPartState>() is SuperMetroid.Core.Bosses.Kraid.KraidBodyState kraidBody)

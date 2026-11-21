@@ -38,13 +38,14 @@ internal static class CeresRidleyPicturesVerification
         CeresEscape escape = runtime.Enemies.CeresEscape;
         int ridleyFrameCounter = (runtime.Enemies.RidleyEncounter.CeresRidley ?? throw new InvalidOperationException("The Ceres Ridley room loads Ridley.")).Body.FrameCounter;
         escape.BeginSelfDestruct();
+        escape.UseWarning(runtime.Room.LoadedScope.Warnings?.WithForeground ?? throw new InvalidOperationException("Ceres's rooms hold their warnings."));
         // Each frame's uploads and words reach the display as the next accepted frame begins, which resolves their pictures.
         while (escape.Stage == CeresEscapeStage.SelfDestruct)
         {
-            escape.RunRidleysStep(ridleyFrameCounter, RoomWarningFixtures.Ceres());
+            escape.RunRidleysStep(ridleyFrameCounter);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
         }
-        RoomWarningText overlay = runtime.Room.LoadedScope.Enemies.CeresEscape.Warning.Overlay;
+        RoomWarningText overlay = escape.FixtureWarning.Text;
         AssertTrue(!overlay.Pictures.IsEmpty, "Ceres Ridley's getaway shows its warning over BG1");
         // The getaway writes its pages' and glyphs' pictures by name (#1466); the words they stand for are the import's.
         System.Collections.Immutable.ImmutableArray<int> words = overlay.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);

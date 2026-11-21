@@ -152,7 +152,7 @@ internal static class DraygonStateQuantitiesVerification
         still.SwoopAcceleration = default;
         AssertThrows<InvalidOperationException>(() => DraygonSwoops.BuildDraygonSwoopYPositions(still, NewSwoopSamus()),
             "a swoop path is not planned without a swoop acceleration");
-        AssertTrue(still.SwoopPath is null, "Draygon has no swoop path before he plans one");
+        AssertTrue(still.Step is not DraygonSwoopStep, "Draygon has no swoop path before he plans one");
     }
 
     /// <summary>
@@ -181,7 +181,7 @@ internal static class DraygonStateQuantitiesVerification
         }
         if (expectedCount is { } count)
             AssertEqual(count, expected.Count, $"the reference table build under acceleration {acceleration} holds {count} heights");
-        DraygonSwoopPath path = state.SwoopPath ?? throw new InvalidOperationException("The swoop plans its path.");
+        DraygonSwoopPath path = (state.Step as DraygonSwoopStep)?.Path ?? throw new InvalidOperationException("The swoop plans its path.");
         AssertEqual(expected.Count, path.EntryCount, "swoop path sample count");
         for (int index = 0; index < expected.Count; index++)
             AssertEqual(expected[index], path.HeightAt(index), $"swoop path sample {index}");

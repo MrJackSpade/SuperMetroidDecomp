@@ -20,7 +20,7 @@ internal static class MultiviolaBehaviorVerification
         place.Bind(EnemyDefinitionId.Multiviola, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.Multiviola, words => words);
-        MultiviolaBehavior.InitializeMultiviola(place);
+        place.SetSpeciesState(MultiviolaBehavior.InitializeMultiviola(place.HeldOccupant().SpawnSettings<MultiviolaSpawnSettings>()));
         AssertEqual(new AnimationPlayback<MultiviolaSegment>(MultiviolaAnimations.StartingWith(MultiviolaSegment.Flying), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<MultiviolaEntity, MultiviolaEnemyState>() ?? throw new InvalidOperationException("Multiviola has no state.")).Playback,
             "Multiviola initializer animation");
         place.AnimationClock.StepOnNextUpdate();

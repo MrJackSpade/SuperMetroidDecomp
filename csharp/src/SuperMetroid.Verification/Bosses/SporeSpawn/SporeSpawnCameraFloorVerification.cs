@@ -87,10 +87,7 @@ internal static class SporeSpawnCameraFloorVerification
         bomb.OccupyAsPlaced(SamusProjectileType.Of(SamusProjectileFamily.Bomb));
         bomb.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
         return new EnemyBombContext(body.HeldOccupant(), bomb.HeldBomb(), ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
-            SelectedShot: SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnReactions.Shot, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0))
-        {
-            StruckOccupant = body.OccupantStates,
-        };
+            SelectedShot: SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnReactions.Shot, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0));
     }
 
     /// <summary>A camera in a one-by-three-screen room tracked to <paramref name="y"/>, with fractions on both axes.</summary>

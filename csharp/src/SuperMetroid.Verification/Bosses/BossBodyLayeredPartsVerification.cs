@@ -62,7 +62,7 @@ internal static class BossBodyLayeredPartsVerification
             compared++;
         }
 
-        enemies.CrocomireBehavior.BodyLayer.ShowCrocomireBodyFrame(sheets.Of(BossBodyOwner.Crocomire).Frame(EnemyFrameId.CrocomireBodyNearFootForwardArmBent));
+        enemies.CrocomireBehavior.BodyLayer.ShowCrocomireBodyFrame(state, sheets.Of(BossBodyOwner.Crocomire).Frame(EnemyFrameId.CrocomireBodyNearFootForwardArmBent));
         Compare("showing his body");
         CrocomireMelting melting = enemies.CrocomireBehavior.Melting;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())

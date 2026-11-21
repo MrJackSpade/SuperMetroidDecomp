@@ -68,7 +68,7 @@ internal static class GunshipInstalledCompositionsVerification
             game.StepCaptured(0);
         game.GameplayRuntimeForVerification.System.RecordBossesDefeated(AreaId.Ceres, DefeatedBosses.AreaBoss);
         game.GameplayRuntimeForVerification.System.LoadSavedStartupRoute(SaveStartupRoute.CeresDestruction);
-        game.Session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped);
+        game.Session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped, game.Session.GameplayRuntime);
         game.StepCaptured(0);
         var scene = game.Session.ScreenAs<CeresDestructionCinematicState>();
         (scene ?? throw new InvalidOperationException("Verification requires scene.")).SkipToPhase(CeresDestructionPhase.Finished);

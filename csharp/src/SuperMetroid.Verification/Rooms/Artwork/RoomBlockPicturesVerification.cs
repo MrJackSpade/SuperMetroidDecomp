@@ -309,7 +309,7 @@ internal static class RoomBlockPicturesVerification
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        WrittenPictureSheet sheet = (runtime.Room.Scope?.WrittenPictures ?? throw new InvalidOperationException($"{room.Name} has no written pictures.")).Sheet;
+        WrittenPictureSheet sheet = (runtime.Room.Scope?.Warnings ?? throw new InvalidOperationException($"{room.Name} has no written pictures.")).WithBackground.Sheet;
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         var typewriter = new EscapeTypewriterState(runtime.BossArtwork.EscapeTypewriterPresentation.Get(EscapeTypewriterMessageId.Zebes));
         // The typewriter types each glyph's picture by name (#1466); the overlay is checked against the tiles it typed.

@@ -21,7 +21,7 @@ internal static class KraidHealthThresholdsVerification
     {
         for (int instruction = 0; instruction < shifts; instruction++)
             AssertEqual((byte)0x4a, KraidHealthFractionRomByte(rom, shiftAddress + instruction), "Native initializer uses accumulator LSR");
-        var state = new KraidEnemyState(KraidPartsAccess.StandaloneParts());
+        var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             state.InitialHealth = (ushort)raw;

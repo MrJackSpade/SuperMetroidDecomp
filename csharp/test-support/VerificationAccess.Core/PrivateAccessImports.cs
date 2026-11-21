@@ -481,9 +481,6 @@ global using static SuperMetroid.Core.Enemies.KiHunters.KiHunterBehaviorPrivateA
 global using static SuperMetroid.Core.Enemies.Kzan.KzanAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.LavaJumpers.SqueeptBehaviorPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Magdollite.MagdolliteBodyAnimationsPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Magdollite.MagdolliteHeadAnimationsPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.MamaTurtles.BabyTurtleAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleAnimationsPrivateAccess;

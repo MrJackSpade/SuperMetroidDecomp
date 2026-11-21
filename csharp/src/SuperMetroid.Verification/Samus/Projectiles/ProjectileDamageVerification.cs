@@ -210,11 +210,11 @@ internal static class ProjectileDamageVerification
             OrbitingParticleState orbit = first.KindStateAs<OrbitingParticleState>();
             Offset16<RoomPixels> offset = SamusComboMechanics.GetSineOffset(orbit.Angle, orbit.Radius);
             if (beam == 2)
-                projectiles.Combos.StepIceOrbit(samus, first.HeldShot(), shared);
+                projectiles.Combos.StepIceOrbit(samus, first.HeldShot(), first.KindStateAs<IceParticleState>(), shared);
             else if (beam == 4)
-                projectiles.Combos.StepSpazerCombo(samus, first.HeldShot(), shared, 0);
+                projectiles.Combos.StepSpazerCombo(samus, first.HeldShot(), first.KindStateAs<SpazerParticleState>(), shared, 0);
             else
-                projectiles.Combos.StepPlasmaCombo(samus, first.HeldShot(), shared, Position16<RoomPixels>.Zero);
+                projectiles.Combos.StepPlasmaCombo(samus, first.HeldShot(), first.KindStateAs<PlasmaParticleState>(), shared, Position16<RoomPixels>.Zero);
             AssertEqual(unchecked((ushort)(samus.Position.X.Whole + offset.X)), first.Position.X.Whole,
                 $"beam {beam:X} production X consumes compiled sine offset");
             AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + offset.Y)), first.Position.Y.Whole,
@@ -259,7 +259,7 @@ internal static class ProjectileDamageVerification
                 AssertEqual(TrigonometryAngle.Wrapped(angle + step), new TrigonometryAngle(angle) + global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.OrbitingParticleState, global::SuperMetroid.Core.Spatial.TrigonometryAngle>(ring, "TurnPerUpdate"),
                     $"{pose} orbit turn from angle {angle} matches the signed step {step}");
             ring.Angle = new TrigonometryAngle(checked((byte)from));
-            projectiles.Combos.StepPlasmaCombo(samus, first.HeldShot(), shared, Position16<RoomPixels>.Zero);
+            projectiles.Combos.StepPlasmaCombo(samus, first.HeldShot(), first.KindStateAs<PlasmaParticleState>(), shared, Position16<RoomPixels>.Zero);
             AssertEqual(new TrigonometryAngle(checked((byte)to)), ring.Angle, $"{pose} angle {from} steps by {step} to {to} on the 256-step circle");
         }
         Console.WriteLine("Special beam angle step: right- and left-facing Plasma attacks wrap the slot angle at the byte boundary.");
@@ -298,11 +298,11 @@ internal static class ProjectileDamageVerification
         ringState.Radius = 254;
         // The camera centres the particle's place at radius 254, so the final expansion's screen test keeps it.
         Offset16<RoomPixels> outer = SamusComboMechanics.GetSineOffset(ringState.Angle, 254);
-        projectiles.Combos.StepPlasmaCombo(samus, ring.HeldShot(), shared, new Position16<RoomPixels>(1024 + outer.X - 128, 1024 + outer.Y - 112));
+        projectiles.Combos.StepPlasmaCombo(samus, ring.HeldShot(), ring.KindStateAs<PlasmaParticleState>(), shared, new Position16<RoomPixels>(1024 + outer.X - 128, 1024 + outer.Y - 112));
         AssertEqual(2, ringState.Radius, "an on-screen ring grown from 254 past 255 collapses onto Samus at radius 2");
         TrigonometryAngle angle = ringState.Angle;
         var centredOnSamus = new Position16<RoomPixels>(1024 - 128, 1024 - 112);
-        projectiles.Combos.StepPlasmaCombo(samus, ring.HeldShot(), shared, centredOnSamus);
+        projectiles.Combos.StepPlasmaCombo(samus, ring.HeldShot(), ring.KindStateAs<PlasmaParticleState>(), shared, centredOnSamus);
         AssertEqual(new Position16<RoomPixels>(1024, 1024) + SamusComboMechanics.GetSineOffset(angle, 2), ring.Position.Whole,
             "the collapsed ring orbits Samus two pixels away");
         AssertEqual(2 + BeamComboDefinitions.PlasmaRadiusStep, ringState.Radius, "the collapsed ring grows outward again");

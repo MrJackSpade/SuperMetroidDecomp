@@ -104,7 +104,7 @@ internal static class BossSpriteEntriesVerification
         place.Position = place.Position.WithWhole(new(200, 100));
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
-        var ridley = new SuperMetroid.Core.Bosses.Ridley.CeresRidleyState(Position16<RoomPixels>.Zero)
+        var ridley = new SuperMetroid.Core.Bosses.Ridley.CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres())
         {
             MovementAnimationEnabled = true,
             Flight = { FacingDirection = SuperMetroid.Core.Bosses.Ridley.RidleyFacing.Left },

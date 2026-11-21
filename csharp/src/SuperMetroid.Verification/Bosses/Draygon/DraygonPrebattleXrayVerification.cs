@@ -83,7 +83,7 @@ internal static class DraygonPrebattleXrayVerification
         boss.IntroStage = UpdateCountdown.Ended();
         runtime.StepFrame(0); // Dance completion selects the first swoop.
         runtime.StepFrame(0); // Build the authored swoop path.
-        int descentFrames = (boss.SwoopPath ?? throw new InvalidOperationException("The first swoop plans its path.")).EntryCount;
+        int descentFrames = ((boss.Step as DraygonSwoopStep)?.Path ?? throw new InvalidOperationException("The first swoop plans its path.")).EntryCount;
         for (int frame = 0; frame < descentFrames + 2; frame++) runtime.StepFrame(0);
         var combat = runtime.PublishDisplayFrame().OrdinaryBaseScene;
         var ordinary = (GameplaySceneLayer)combat.Layers[0];

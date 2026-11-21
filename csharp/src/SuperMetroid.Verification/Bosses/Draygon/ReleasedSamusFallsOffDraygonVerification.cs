@@ -39,7 +39,7 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         draygon.IntroStage = UpdateCountdown.Ended();
         runtime.StepFrame(0);
         runtime.StepFrame(0);
-        int descentFrames = (draygon.SwoopPath ?? throw new InvalidOperationException("The first swoop plans its path.")).EntryCount;
+        int descentFrames = ((draygon.Step as DraygonSwoopStep)?.Path ?? throw new InvalidOperationException("The first swoop plans its path.")).EntryCount;
         for (int frame = 0; frame < descentFrames + 2; frame++)
             runtime.StepFrame(0);
         draygon.Body.Health = 0;

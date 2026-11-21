@@ -45,7 +45,7 @@ internal static class PowampOwnedStateVerification
 
         bodyState.Action = PowampAction.Inflating;
         bodyState.ActionTimer = UpdateCountdown.For(1);
-        enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, bodyState, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, bodyState, (body.Entity as PowampBodyEntity ?? throw new InvalidOperationException("The Powamp body has no entity.")).Balloon, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(PowampAction.InflatedRiseToTargetHeight, bodyState.Action, "inflation finishes");
         AssertEqual(SignedSixteenSixteen.FromParts(-1, 0x8000), bodyState.YVelocity, "the body rises half a pixel per update");
         Console.WriteLine("Powamp owned state: both halves' values match.");

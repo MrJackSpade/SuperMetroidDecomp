@@ -28,7 +28,7 @@ internal static class KraidHeadInstructionsVerification
 
         var unstarted = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
         Func<KraidEnemyState, KraidHeadAnimationResult> run = unstarted.KraidBehavior.Head.RunKraidHeadAnimationStep;
-        AssertThrows<InvalidDataException>(() => run(new KraidEnemyState(KraidPartsAccess.StandaloneParts())),
+        AssertThrows<InvalidDataException>(() => run(new KraidEnemyState(KraidPartsFixtures.Standalone())),
             "an unstarted Kraid head program fails loudly, as an unset native cursor did");
 
         Console.WriteLine(
@@ -46,7 +46,7 @@ internal static class KraidHeadInstructionsVerification
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.RunKraidHeadAnimationStep;
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            var state = new KraidEnemyState(KraidPartsAccess.StandaloneParts());
+            var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
             state.HeadPlayback = record.Playback;
 
             KraidHeadAnimationResult result = execute(state);

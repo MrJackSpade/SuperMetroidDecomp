@@ -151,7 +151,7 @@ internal static class ProjectileInstructionsVerification
                         trail = pointer; pointer = unchecked((ushort)(pointer + 8)); break;
                     }
                 }
-                system.Animation.AdvanceProjectileAnimation(slot);
+                system.Animation.AdvanceProjectileAnimation(slot, slot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
                 AssertEqual(deleted, !slot.IsActive, "Native delete/timed outcome");
                 if (bombPlays)
                 {

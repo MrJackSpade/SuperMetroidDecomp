@@ -31,7 +31,7 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
         {
             byte behavior = (byte)(highBit | index);
             AssertEqual(index == 15,
-                EnemyBreakableTerrain.IsEnemyBreakable(RoomBlockBehaviorCodec.Decode(behavior)),
+                RoomBlockBehaviorCodec.Decode(behavior).Spike is { } spike && EnemyBreakableTerrain.IsEnemyBreakable(spike),
                 $"compiled enemy spike reaction ${behavior:X2}");
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes(
@@ -64,9 +64,8 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
         {
             if ((behavior & 0x7f) <= 15) continue;
             byte invalid = (byte)behavior;
-            AssertThrows<InvalidDataException>(
-                () => EnemyBreakableTerrain.IsEnemyBreakable(RoomBlockBehaviorCodec.Decode(invalid)),
-                $"out-of-domain enemy spike BTS ${invalid:X2}");
+            AssertTrue(RoomBlockBehaviorCodec.Decode(invalid).Spike is null,
+                $"out-of-domain enemy spike BTS ${invalid:X2} gives no spike reaction");
         }
 
         Console.WriteLine(

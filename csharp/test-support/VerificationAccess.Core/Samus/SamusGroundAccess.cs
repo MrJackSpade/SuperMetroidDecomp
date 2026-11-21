@@ -44,11 +44,11 @@ internal static class SamusGroundAccess
 
         /// <summary>Handles her landing's sounds and graphics on the ground the check stands her on.</summary>
         /// <param name="samus">Samus.</param>
-        /// <param name="movementType">Her movement type.</param>
-        /// <param name="pose">Her pose.</param>
+        /// <param name="previousMovementType">Her movement type before the landing.</param>
+        /// <param name="previousPose">Her pose before the landing.</param>
         /// <param name="impactYSpeed">Her landing speed.</param>
-        internal void HandleLandingSoundEffectsAndGraphics(SamusState samus, SamusMovementType movementType, SamusPoseId pose,
+        internal void HandleLandingSoundEffectsAndGraphics(SamusState samus, SamusMovementType previousMovementType, SamusPoseId previousPose,
             UnsignedSixteenSixteen impactYSpeed) =>
-            physics.HandleLandingSoundEffectsAndGraphics(samus, samus.Ground, movementType, pose, impactYSpeed);
+            physics.HandleLandingSoundEffectsAndGraphics(samus, samus.Ground, previousMovementType, previousPose, impactYSpeed);
     }
 }

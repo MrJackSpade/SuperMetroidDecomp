@@ -17,11 +17,11 @@ internal static class RioOwnedStateVerification
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         parent.Bind(EnemyDefinitionId.Geruta, parent.KeptDefinition);
-        GerutaBehavior.InitializeGeruta();
+        parent.SetUpAsPlaced();
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, EnemyParameterMasks.FollowerBit);
         follower.Bind(EnemyDefinitionId.Geruta, follower.KeptDefinition);
-        enemies.GerutaBehavior.InitializeGerutaFollower(follower);
+        follower.SetUpAsPlaced();
         // The placement builds the part's own entity (#2164): the parent a Rio, the follower its flames.
         AssertTrue(parent.EntityState<GerutaEntity, GerutaEnemyState>() is not null &&
             parent.SpeciesState<GerutaFollowerState>() is null &&

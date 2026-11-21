@@ -99,7 +99,7 @@ internal static class AudioVerification
             audio.AdvanceFrame(default);
         AssertEqual(3, reset.Count, "audio reset command count");
         AssertEqual(
-            new AudioRequest.ChangeMusicDataSet(null),
+            new AudioRequest.InstallSharedSounds(),
             reset[0],
             "power-on loads only the shared sounds");
         AssertEqual(new AudioRequest.StopMusic(), reset[1], "reset music port");

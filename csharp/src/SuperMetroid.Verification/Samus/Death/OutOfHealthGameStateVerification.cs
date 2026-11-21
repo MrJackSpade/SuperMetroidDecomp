@@ -258,15 +258,15 @@ internal static class OutOfHealthGameStateVerification
         // The camera shows the landed ship, whose pieces the enemies' update then runs.
         (SuperMetroidGame game, SuperMetroidRuntime runtime, SamusState samus) = MainGameplayAtTheLandingSite(new Position16<RoomPixels>(0x0400, 0x0400));
         RoomEnemyPlace top = runtime.Enemies.Places.InUpdateOrder.Single(place => place.SpeciesState<GunshipState>() is not null);
-        GunshipState.Of().Phase = GunshipPhase.AcceleratingLiftoff;
+        top.RequireSpeciesState<GunshipState>().Phase = GunshipPhase.AcceleratingLiftoff;
         // The ship carries Samus, the top hull above her: past the takeoff height, the update's ascent completes the takeoff.
         samus.Position = samus.Position.WithWholeY(GunshipTakeoffDefinitions.TakeoffCompleteY + GunshipMotionDefinitions.TopHullAboveSamus - 8);
         RunsOutOfHealthWithoutReserves(samus);
         GameClockReading beforeTakeoff = runtime.GameTime.Reading;
 
         game.Step(0);
-        AssertTrue(runtime.EnemyFrameResults.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.EscapeTakeoffCompleted)),
-            $"the ship's ascent completes the takeoff; the top hull is at {top.Position.Y.Whole} in {GunshipState.Of().Phase}");
+        AssertTrue(runtime.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.EscapeTakeoffCompleted)),
+            $"the ship's ascent completes the takeoff; the top hull is at {top.Position.Y.Whole} in {top.RequireSpeciesState<GunshipState>().Phase}");
         AssertTrue(game.IsAt(EndingStep.LeavingZebes), $"the gunship's takeoff takes the update Samus runs out of health on, not her death; ended in {game.GameState}");
         AssertEqual(beforeTakeoff, runtime.GameTime.Reading, "the out-of-health check returns before counting the play time");
 

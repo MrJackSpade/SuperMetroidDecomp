@@ -85,7 +85,7 @@ internal static class RipperBehaviorVerification
             RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.Ripper);
             place.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
             place.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
-            RipperBehavior.InitializeRipper(place);
+            place.SetSpeciesState(RipperBehavior.InitializeRipper(place.HeldOccupant().SpawnSettings<RipperSpawnSettings>()));
             VerifyInstalledLoop(enemies, place, expectedProgram, context);
         }
 

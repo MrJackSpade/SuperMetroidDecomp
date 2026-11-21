@@ -70,10 +70,7 @@ internal static class CrocomireMouthShotHoldVerification
             body.AnimationClock.HoldFor(StartingHold);
             body.HurtFlash.End();
             enemies.CrocomireBehavior.Combat.ReactToCrocomireBomb(new EnemyBombContext(body.HeldOccupant(), bomb.HeldBomb(), ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
-                CrocomireReactions.MouthShot, UsesFrameHitboxes: true, new Position16<RoomPixels>(cameraX, 0))
-            {
-                StruckOccupant = body.OccupantStates,
-            }, state);
+                CrocomireReactions.MouthShot, UsesFrameHitboxes: true, new Position16<RoomPixels>(cameraX, 0)), state);
             AssertEqual(reacts, state.StepBack.IsAwaited, $"a bomb with the camera at column {cameraX} finds his body {place}");
             AssertEqual(reacts ? expected : StartingHold, body.AnimationClock.Hold,
                 $"a bomb with the camera at column {cameraX} {(reacts ? "holds" : "leaves")} his frame");

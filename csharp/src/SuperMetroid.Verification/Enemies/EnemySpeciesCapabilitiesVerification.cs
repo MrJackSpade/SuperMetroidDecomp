@@ -246,7 +246,7 @@ internal static class EnemySpeciesCapabilitiesVerification
                 answers++;
             }
 
-            var doorState = new CeresRidleyRoomDoorState();
+            var doorState = new CeresDoorAnimationState();
             place.SetSpeciesState(doorState);
             foreach (CeresRidleyRoomDoorLook look in new[] { CeresRidleyRoomDoorLook.Actor, CeresRidleyRoomDoorLook.Overlay })
             {

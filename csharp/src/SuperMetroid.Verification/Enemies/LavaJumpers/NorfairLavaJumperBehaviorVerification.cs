@@ -26,7 +26,7 @@ internal static class NorfairLavaJumperBehaviorVerification
         parent.Bind(EnemyDefinitionId.Squeept, parent.KeptDefinition);
         parent.Bind(parent.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         parent.Position = parent.Position.WithWhole(new(256, 480));
-        SqueeptBehavior.InitializeSqueept(parent);
+        parent.SetUpAsPlaced();
         SqueeptState parentState = enemies.SqueeptStates[0]
             ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumpingEnemyStates[0].");
         AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation), parentState.Playback,
@@ -53,7 +53,7 @@ internal static class NorfairLavaJumperBehaviorVerification
         follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, 32768);
         follower.Bind(EnemyDefinitionId.Squeept, follower.KeptDefinition);
         follower.Bind(follower.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        enemies.SqueeptBehavior.InitializeNorfairLavaJumperFollower(follower);
+        follower.SetUpAsPlaced();
         NorfairLavaJumperFollowerState followerState = enemies.NorfairLavaJumperFollowerStates[1]
             ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumperFollowerStates[1].");
         AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation), followerState.Playback,

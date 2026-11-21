@@ -1488,7 +1488,7 @@ internal static class LookupStream2Verification
             ushort pointer = (ushort)(0x86db + direction * 12);
             var shot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            system.Animation.AdvanceProjectileAnimation(shot);
+            system.Animation.AdvanceProjectileAnimation(shot, shot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
         }
         int checkedWaveIce = 0;
@@ -1512,7 +1512,7 @@ internal static class LookupStream2Verification
                 checkedCappedSweep++;
             var shot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            system.Animation.AdvanceProjectileAnimation(shot);
+            system.Animation.AdvanceProjectileAnimation(shot, shot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             checkedWaveIce++;
         }

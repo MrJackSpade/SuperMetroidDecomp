@@ -78,7 +78,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         escape.BeginSelfDestruct();
         for (int index = 0; index < spriteList.Length; index++)
         {
-            escape.RunRidleysStep(0, RoomWarningFixtures.Ceres());
+            escape.RunRidleysStep(0);
             TileTransferDefinition expected = spriteList[index];
             AssertEqual(index == spriteList.Length - 1, escape.Warning.Phase == CeresSelfDestructPhase.WaitingForTitle,
                 $"Ceres transfer ${expected.Pointer:X4}'s update ends the wait only last");
@@ -106,7 +106,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             for (int word = 0; word < expected.ByteCount / sizeof(ushort); word++)
                 written[first + word] = true;
         }
-        ImmutableArray<int> shownWords = escape.Warning.Overlay.WordsIn(overlay);
+        ImmutableArray<int> shownWords = escape.FixtureWarning.Text.WordsIn(overlay);
         for (int word = 0; word < written.Length; word++)
             AssertEqual(written[word], shownWords[word] != RoomWarningText.Unwritten,
                 $"Ceres Japanese overlay writes BG1 word {word} only inside its compiled records");

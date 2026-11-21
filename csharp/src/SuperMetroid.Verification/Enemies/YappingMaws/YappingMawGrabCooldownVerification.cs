@@ -49,11 +49,11 @@ internal static class YappingMawGrabCooldownVerification
 
         // The word now stands at none: a touch is refused, and the next update, which counts it past none, allows one.
         AssertTrue(!state.GrabCooldown.AllowsGrab, "the cooldown refuses at the end of its second round");
-        YappingMawBehavior.ReactToYappingMawTouch(Touch(place, samus), Touch(place, samus).RequireSpeciesState<YappingMawEnemyState>());
+        YappingMawBehavior.ReactToYappingMawTouch(Touch(place, samus), place.RequireSpeciesState<YappingMawEnemyState>());
         AssertTrue(!state.HasGrabbedSamus, "a touch while the cooldown refuses leaves Samus free");
         enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
         AssertTrue(state.GrabCooldown.AllowsGrab, "the next update lets the Maw grab again");
-        YappingMawBehavior.ReactToYappingMawTouch(Touch(place, samus), Touch(place, samus).RequireSpeciesState<YappingMawEnemyState>());
+        YappingMawBehavior.ReactToYappingMawTouch(Touch(place, samus), place.RequireSpeciesState<YappingMawEnemyState>());
         AssertTrue(state.HasGrabbedSamus, "a touch while the cooldown allows grabs Samus");
         AssertEqual(YappingMawGrabCooldown.Spent, state.GrabCooldown, "the grab spends the cooldown");
         Console.WriteLine("  Yapping Maw grab cooldown: two rounds from none and from 48 grab exactly while the original's word is negative.");

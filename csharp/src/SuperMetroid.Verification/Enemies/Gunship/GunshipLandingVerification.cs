@@ -61,7 +61,7 @@ internal static class GunshipLandingVerification
         RoomEnemyPlace pad = enemies.Places.InUpdateOrder[2];
         AssertEqual(0x006f, top.Position.Y.Whole, "post-Ceres top begins seventeen pixels above Samus");
         AssertEqual(0x0097, bottom.Position.Y.Whole, "post-Ceres bottom begins twenty-three pixels below Samus");
-        AssertEqual(GunshipPhase.DescendAfterCeres, GunshipState.Of().Phase, "post-Ceres top selects descent function three");
+        AssertEqual(GunshipPhase.DescendAfterCeres, top.RequireSpeciesState<GunshipState>().Phase, "post-Ceres top selects descent function three");
 
         int frames = 0;
         bool observedSlowDescent = false;
@@ -73,7 +73,7 @@ internal static class GunshipLandingVerification
         {
             ushort previousTopY = top.Position.Y.Whole;
             ushort previousTopSubY = top.Position.Y.Fraction;
-            GunshipPhase previousPhase = GunshipState.Of().Phase;
+            GunshipPhase previousPhase = top.RequireSpeciesState<GunshipState>().Phase;
             ushort cameraY = samus.Position.Y.Whole > 120
                 ? unchecked((ushort)(samus.Position.Y.Whole - 120))
                 : (ushort)0;
@@ -84,7 +84,7 @@ internal static class GunshipLandingVerification
                 AssertTrue(hummed, "the ship descending after Ceres hums on its first update (#2373)");
             observedEngineSound |= hummed;
 
-            if (GunshipState.Of().Phase == GunshipPhase.DescendAfterCeres)
+            if (top.RequireSpeciesState<GunshipState>().Phase == GunshipPhase.DescendAfterCeres)
             {
                 AssertEqual(
                     unchecked((ushort)(top.Position.Y.Whole + 17)),
@@ -102,7 +102,7 @@ internal static class GunshipLandingVerification
                 }
             }
 
-            if (previousPhase == GunshipPhase.DescendAfterCeres && GunshipState.Of().Phase != GunshipPhase.DescendAfterCeres)
+            if (previousPhase == GunshipPhase.DescendAfterCeres && top.RequireSpeciesState<GunshipState>().Phase != GunshipPhase.DescendAfterCeres)
             {
                 // $A2:A8B2 clamps whole Y positions only; each hull keeps this call's subpixel sum.
                 ushort carriedSubY = unchecked((ushort)(previousTopSubY + 0x8000));
@@ -147,7 +147,7 @@ internal static class GunshipLandingVerification
         AssertTrue(enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.LandingCompleted)),
             "gunship completes post-Ceres landing");
         AssertEqual(641, frames, "gunship full landing frame count");
-        AssertEqual(GunshipPhase.Idle, GunshipState.Of().Phase, "gunship installs ordinary idle function");
+        AssertEqual(GunshipPhase.Idle, top.RequireSpeciesState<GunshipState>().Phase, "gunship installs ordinary idle function");
         AssertTrue(!samus.Control.InputLocked, "gunship completion restores Samus input handler");
         AssertEqual(0x0440, samus.Position.Y.Whole, "gunship raises Samus to deck standing Y");
 

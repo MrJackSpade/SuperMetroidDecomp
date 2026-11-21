@@ -65,7 +65,7 @@ internal static class PipeBugBehaviorVerification
             state.Action = NorfairPipeBugAction.WaitForStagger;
             state.Role = new NorfairPipeBugRole.Leader(StaggerTarget: 72);
             PrivateState.Set(state, "Departure", UpdateCountdownAccess.AtAge(72, before));
-            PipeBugsBehavior.RunNorfairPipeBugMainAi(place.HeldOccupant(), place, Frame(new(200, 128)));
+            PipeBugsBehavior.RunNorfairPipeBugMainAi(place.HeldOccupant().SpawnSettings<NorfairPipeBugSpawnSettings>(), place, place.RequireSpeciesState<NorfairPipeBugState>(), Frame(new(200, 128)));
             AssertEqual(after, state.Departure.Age, $"Norfair Pipe Bug count after {before}");
             AssertEqual(departs ? NorfairPipeBugAction.Fly : NorfairPipeBugAction.WaitForStagger, state.Action,
                 $"Norfair Pipe Bug departs only on reaching its target (count {before})");
@@ -149,7 +149,7 @@ internal static class PipeBugBehaviorVerification
             int updates = 0;
             while (state.Action == NorfairPipeBugAction.Stagger && updates <= stagger.Distance + 1)
             {
-                PipeBugsBehavior.RunNorfairPipeBugMainAi(slot.HeldOccupant(), slot, frame);
+                PipeBugsBehavior.RunNorfairPipeBugMainAi(slot.HeldOccupant().SpawnSettings<NorfairPipeBugSpawnSettings>(), slot, slot.RequireSpeciesState<NorfairPipeBugState>(), frame);
                 updates++;
             }
             AssertEqual(NorfairPipeBugAction.WaitForStagger, state.Action, $"the member staggering {offset} pixels then waits");
@@ -180,7 +180,7 @@ internal static class PipeBugBehaviorVerification
                 PipeBugsBehavior.InitializeBrinstarPipeBug(place.HeldOccupant().SpawnSettings<BrinstarPipeBugSpawnSettings>(), place);
                 break;
             case EnemyDefinitionId.Gamet:
-                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place.HeldOccupant(), place);
+                place.SetUpAsPlaced();
                 break;
             case EnemyDefinitionId.Boyon:
             case EnemyDefinitionId.MamaTurtle:

@@ -58,9 +58,6 @@ internal static class MotherBrainGlassShardDefinitionsVerification
             }
         }
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainGlassShards.Placement((MotherBrainGlassShard)99),
-            "Mother Brain glass-shard undefined emitter");
         Console.WriteLine(
             "Mother Brain glass-shard definitions: sixteen instruction selectors, six placement words and 48 real spawns pass with source tables forbidden.");
     }

@@ -7,7 +7,6 @@ internal static class FakeKraidProjectiles
     /// The launch velocity of <paramref name="spit"/>: its speed toward <paramref name="direction"/> and the shots'
     /// common rise.
     /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="spit"/> is neither of the two shots.</exception>
     internal static PixelVelocity<RoomPixels> SpitLaunch(HorizontalDirection direction, FakeKraidSpit spit)
     {
         SignedEightEight horizontal = SignedEightEight.FromPixels(

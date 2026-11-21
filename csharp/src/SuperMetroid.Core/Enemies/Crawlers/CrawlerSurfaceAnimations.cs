@@ -4,7 +4,6 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal static class CrawlerSurfaceAnimations
 {
     /// <summary>The animation <paramref name="family"/> shows on the surface <paramref name="orientation"/> names.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="family"/> has no authored animations.</exception>
     internal static CrawlerSegment AnimationFor(
         CrawlerAnimationFamily family,
         CrawlerSurfaceOrientation orientation) => ForOrientation(Family(family), orientation);

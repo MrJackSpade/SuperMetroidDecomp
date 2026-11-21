@@ -108,8 +108,6 @@ internal static class EnemyEntityStates
             return held107;
         if (entity is global::SuperMetroid.Core.Enemies.Shutters.VerticalShutterEntity entity111 && entity111.State is T held111)
             return held111;
-        if (entity is global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawEntity entity122 && entity122.State is T held122)
-            return held122;
         return null;
     }
 }

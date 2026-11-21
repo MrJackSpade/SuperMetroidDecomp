@@ -193,10 +193,6 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<KiHunterWingState?> KiHunterWingStates =>
             [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<KiHunterWingState>())];
 
-        /// <summary>Typed native state for every loaded Yapping Maw slot.</summary>
-        internal IReadOnlyList<YappingMawEnemyState?> YappingMawStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<YappingMawEntity, YappingMawEnemyState>())];
-
         /// <summary>The state the room's Torizo, Bomb or Golden, owns as its entity's species state, or null in a room without one.</summary>
         internal TorizoEnemyState? Torizo =>
             self.Places.InUpdateOrder.Select(place => place.SpeciesState<TorizoEnemyState>()).OfType<TorizoEnemyState>().SingleOrDefault();

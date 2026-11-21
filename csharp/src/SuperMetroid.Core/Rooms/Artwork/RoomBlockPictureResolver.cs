@@ -22,11 +22,8 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     /// <summary>The further pictures <see cref="used"/> holds.</summary>
     private HashSet<RoomCellPicture> further = [];
 
-    /// <summary>The blocks and collectible pictures the planes use.</summary>
-    private RoomCellPicture[] used = [];
-
-    /// <summary>The value each input of each used picture took when it was last resolved, by used picture.</summary>
-    private string[][] values = [];
+    /// <summary>The blocks and collectible pictures the planes use, each with the value each of its inputs took when it was last resolved.</summary>
+    private UsedPicture[] used = [];
 
     /// <summary>The last table resolved.</summary>
     private RoomBlockPictureTable? table;
@@ -60,16 +57,16 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
             backgroundPlane = background;
             further = also;
             used = [.. Uses(foreground).Concat(background is null ? [] : Uses(background))
-                .Concat(also.Where(shown => !shown.ShowsNothing)).Distinct()];
-            values = [.. used.Select(shown => new string[InputsOf(shown).Length])];
+                .Concat(also.Where(shown => !shown.ShowsNothing)).Distinct()
+                .Select(shown => new UsedPicture(shown, new string[InputsOf(shown).Length]))];
         }
         LayeredPicture?[]? blocks = fresh ? new LayeredPicture?[Sheet.Inputs.Count] : null;
         Dictionary<CollectiblePicture, LayeredPicture>? collectibles = fresh ? [] : null;
-        for (int index = 0; index < used.Length; index++)
+        foreach (UsedPicture picture in used)
         {
-            RoomCellPicture shown = used[index];
+            RoomCellPicture shown = picture.Picture;
             ImmutableArray<AppearanceInput> inputs = InputsOf(shown);
-            string[] shownValues = values[index];
+            string[] shownValues = picture.Values;
             bool changed = fresh;
             for (int input = 0; input < inputs.Length; input++)
             {
@@ -131,4 +128,9 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
             pictures[block] = previous.Picture(RoomCellPicture.OfBlock(block));
         return pictures;
     }
+
+    /// <summary>One picture the planes use, with the value each of its inputs took when it was last resolved.</summary>
+    /// <param name="Picture">The block or collectible picture.</param>
+    /// <param name="Values">The value each of its inputs took when last resolved, in the order of its inputs.</param>
+    private sealed record UsedPicture(RoomCellPicture Picture, string[] Values);
 }

@@ -31,7 +31,7 @@ public static class SamusDeathPaletteArtworkFiles
     /// Schema revision of the installed death-step document: 2 installs the death steps by purpose (#1637), and 3 writes each
     /// whiteout colour as <c>#rrggbb</c> (#2564).
     /// </summary>
-    private const int StepFormatVersion = 3;
+    private const int StepFormatVersion = 4;
     /// <summary>Strict camel-case JSON settings for the colour artwork and the death steps.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -91,7 +91,7 @@ public static class SamusDeathPaletteArtworkFiles
         // The game works with the death steps and the whiteout colours alone: they are installed by purpose.
         SamusDeathSteps steps = Build(document).Steps;
         File.WriteAllBytes(Path.Combine(directory, StepFileName), JsonSerializer.SerializeToUtf8Bytes(new StepDocument(StepFormatVersion,
-            [.. SamusDeathSheetDefinitions.Explosion.Select(frame => steps.ExplosionShade(frame).Step)],
+            SamusDeathSheetDefinitions.Explosion.Distinct().ToDictionary(frame => SamusDeathExplosionFrameKeys.Installed.Of(frame), frame => steps.ExplosionShade(frame).Step, StringComparer.Ordinal),
             [.. SamusWhiteoutShade.All.Select(shade => InstalledColourText.Format(steps.WhiteoutColour(shade)))]),
             JsonOptions));
     }
@@ -141,8 +141,17 @@ public static class SamusDeathPaletteArtworkFiles
     {
         if (document.Version != StepFormatVersion || document.ExplosionSteps is null || document.Whiteout is null)
             throw new InvalidDataException("Samus death steps have an invalid structure.");
-        return new SamusDeathSteps([.. document.ExplosionSteps.Select(shade => new SamusDeathShade(shade))],
-            [.. document.Whiteout.Select((colour, step) => InstalledColourText.ParseOnFadeScale(colour, $"Samus death whiteout step {step}"))]);
+        if (document.Whiteout.Length != SamusWhiteoutShade.All.Count)
+            throw new InvalidDataException("Samus death steps hold one whiteout colour per whiteout step.");
+        var explosion = new Dictionary<SamusDeathExplosionFrame, SamusDeathShade>();
+        foreach ((string key, int step) in document.ExplosionSteps)
+        {
+            if (!SamusDeathExplosionFrameKeys.Installed.TryParse(key, out SamusDeathExplosionFrame frame) || !explosion.TryAdd(frame, new SamusDeathShade(step)))
+                throw new InvalidDataException($"Samus death steps name explosion frame '{key}', which is no explosion frame or is named twice.");
+        }
+        // The whiteout's colours are listed in the order of its steps.
+        return new SamusDeathSteps(explosion, SamusWhiteoutShade.All.ToDictionary(shade => shade,
+            shade => InstalledColourText.ParseOnFadeScale(document.Whiteout[shade.Step], $"Samus death whiteout step {shade.Step}")));
     }
 
     /// <summary>The artwork file stores the cartridge's colour words; each must be a fifteen-bit color.</summary>
@@ -169,5 +178,5 @@ public static class SamusDeathPaletteArtworkFiles
     /// The installed death steps by purpose: the death step each explosion frame shows her suit and suitless body in, and the
     /// colour the room and every other sprite whiten to at each whiteout step, written as <c>#rrggbb</c> (#2564).
     /// </summary>
-    private sealed record StepDocument(int Version, int[] ExplosionSteps, string[] Whiteout);
+    private sealed record StepDocument(int Version, Dictionary<string, int> ExplosionSteps, string[] Whiteout);
 }

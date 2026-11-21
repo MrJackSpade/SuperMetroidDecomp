@@ -8,14 +8,11 @@ namespace SuperMetroid.Core.Map.Artwork;
 /// </summary>
 public sealed class AreaMapPresentationAsset : IAreaMapView
 {
-    /// <summary>Validated cells, row by row from the map's top left, <see cref="AreaMapSize.WidthInMapTiles"/> to a row.</summary>
-    private readonly MapCell[] cells;
-    /// <summary>Snapshot of stock discoverability rules, unaffected by visual tile edits.</summary>
-    private readonly bool[] discoverable;
-    /// <summary>Snapshot of map-station reveal rules, unaffected by visual tile edits.</summary>
-    private readonly bool[] station;
-    /// <summary>Snapshot of sloped-cell reveal-above rules, unaffected by visual tile edits.</summary>
-    private readonly bool[] revealsAbove;
+    /// <summary>
+    /// Each validated cell, row by row from the map's top left, <see cref="AreaMapSize.WidthInMapTiles"/> to a row: how it
+    /// looks with a snapshot of the stock exploration rules it is shown under, which visual tile edits do not affect.
+    /// </summary>
+    private readonly ExploredMapCell[] cells;
     /// <summary>Area shared by the decoded cells and their separately supplied exploration rules.</summary>
     public AreaId Area { get; }
 
@@ -28,30 +25,25 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         Ensure.NotNull(cells);
         Ensure.NotNull(rules);
         Ensure.LengthEqual<MapCell>(cells, AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles);
-        this.cells = cells;
         Area = rules.Area;
-        discoverable = new bool[cells.Length];
-        station = new bool[cells.Length];
-        revealsAbove = new bool[cells.Length];
+        this.cells = new ExploredMapCell[cells.Length];
         for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
         for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
         {
             var cell = new Position16<MapTiles>(x, y);
             int i = Index(cell);
-            discoverable[i] = rules.IsDiscoverable(cell);
-            station[i] = rules.IsRevealedByMapStation(cell);
-            revealsAbove[i] = rules.RevealsCellAbove(cell);
+            this.cells[i] = new ExploredMapCell(cells[i], rules.IsDiscoverable(cell), rules.IsRevealedByMapStation(cell), rules.RevealsCellAbove(cell));
         }
     }
 
     /// <summary>How the cell at logical map coordinates within the area map looks.</summary>
-    public MapCell Cell(Position16<MapTiles> cell) => cells[Index(cell)];
+    public MapCell Cell(Position16<MapTiles> cell) => cells[Index(cell)].Look;
     /// <summary>Gets the supplied rule snapshot for whether a logical cell within the area map can be discovered, independent of the cell's edited or blank artwork.</summary>
-    public bool IsDiscoverable(Position16<MapTiles> cell) => discoverable[Index(cell)];
+    public bool IsDiscoverable(Position16<MapTiles> cell) => cells[Index(cell)].Discoverable;
     /// <summary>Gets the supplied rule snapshot for whether downloading this area's map reveals a logical cell within the area map; asking marks nothing explored.</summary>
-    public bool IsRevealedByMapStation(Position16<MapTiles> cell) => station[Index(cell)];
+    public bool IsRevealedByMapStation(Position16<MapTiles> cell) => cells[Index(cell)].RevealedByMapStation;
     /// <summary>Gets the supplied slope-rule snapshot for whether visiting a logical cell within the area map also explores the cell above; replacing its artwork does not change this rule.</summary>
-    public bool RevealsCellAbove(Position16<MapTiles> cell) => revealsAbove[Index(cell)];
+    public bool RevealsCellAbove(Position16<MapTiles> cell) => cells[Index(cell)].RevealsCellAbove;
 
     /// <summary>Validates the logical coordinate, then indexes the row-major arrays.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The cell lies outside the area map.</exception>
@@ -61,4 +53,11 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
             throw new ArgumentOutOfRangeException(nameof(cell), "The cell lies outside the area map.");
         return AreaMapSize.Extent.RowMajorIndex(cell);
     }
+
+    /// <summary>One map cell: how it looks and the exploration rules it is shown under.</summary>
+    /// <param name="Look">How the cell looks.</param>
+    /// <param name="Discoverable">Whether the cell can be discovered.</param>
+    /// <param name="RevealedByMapStation">Whether downloading the area's map reveals the cell.</param>
+    /// <param name="RevealsCellAbove">Whether visiting the cell also explores the cell above.</param>
+    private readonly record struct ExploredMapCell(MapCell Look, bool Discoverable, bool RevealedByMapStation, bool RevealsCellAbove);
 }

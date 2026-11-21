@@ -130,17 +130,7 @@ internal sealed class MotherBrainCombat
         // The shot collision marked the projectile before running this reaction.
         TouchHeadWithoutImpact(head, held, projectiles, projectileType);
 
-        // A missile's explosion reacts as a beam does.
-        MotherBrainProjectileType reactionProjectile = projectileType.Family switch
-        {
-            SamusProjectileFamily.Beam or SamusProjectileFamily.MissileExplosion => MotherBrainProjectileType.Beam,
-            SamusProjectileFamily.Missile => MotherBrainProjectileType.Missile,
-            SamusProjectileFamily.SuperMissile => MotherBrainProjectileType.SuperMissile,
-            SamusProjectileFamily.PowerBomb => MotherBrainProjectileType.PowerBomb,
-            SamusProjectileFamily.Bomb => MotherBrainProjectileType.Bomb,
-            SamusProjectileFamily.BeamExplosion => MotherBrainProjectileType.BeamExplosion,
-            _ => throw new InvalidOperationException($"Undefined {nameof(SamusProjectileFamily)} {projectileType.Family}."),
-        };
+        SamusProjectileFamily reactionProjectile = projectileType.Family;
         if (state.RainbowBeamSequence is { } sequence)
         {
             // The attached sequence shares the walk counter with the encounter. A shot that takes the walk credit below

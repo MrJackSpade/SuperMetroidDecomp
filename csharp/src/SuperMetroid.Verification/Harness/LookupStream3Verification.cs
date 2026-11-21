@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -981,7 +982,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), DustExplosionProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Animations[MotherBrainDeathExplosionNativeSelectors.Animations[parameter]]),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), DustExplosionProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionNativeSelectors.Animations[parameter]),
                 "stream 3 native death explosion variant");
         // The groups are listed in the order they burst, which steps back through the cartridge's groups.
         for (int index = 0; index < 28; index++)
@@ -1010,7 +1011,7 @@ internal static class LookupStream3Verification
                     AssertEqual(new OctantVector(x, y), new OctantVector(requests[item].Offset.X, requests[item].Offset.Y), "stream 3 selected death scatter anchors");
                     AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.State.BodyPosition.X + requests[item].Offset.X)), "stream 3 death scatter body-relative X");
                     AssertEqual((ushort)(192 + y), unchecked((ushort)(scatter.State.BodyPosition.Y + requests[item].Offset.Y)), "stream 3 death scatter body-relative Y");
-                    AssertEqual(mixed ? MotherBrainDeathExplosionAnimation.BigExplosion : MotherBrainDeathExplosionAnimation.Smoke, requests[item].Animation, "stream 3 independent death type case");
+                    AssertEqual(mixed ? DustExplosionAnimation.BigExplosion : DustExplosionAnimation.Smoke, requests[item].Animation, "stream 3 independent death type case");
                 }
             }
         }

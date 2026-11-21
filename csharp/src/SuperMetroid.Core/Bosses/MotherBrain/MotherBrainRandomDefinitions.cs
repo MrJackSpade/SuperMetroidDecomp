@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
@@ -147,15 +148,15 @@ internal static class MotherBrainRandomDefinitions
     internal static readonly RandomChance EscapeDoorDustSmokes = RandomChance.Lowest(16384, RandomSampleField.Whole);
 
     /// <summary>
-    /// The animation a mixed death explosion plays (<see cref="MotherBrainDeathExplosionDefinitions.Animations"/>): every
+    /// The animation a mixed death explosion plays (<see cref="DustExplosionAnimation"/>): every
     /// sample below 16384, a quarter, the small explosion; every sample from 57344, an eighth, the big explosion; and
     /// every other the smoke.
     /// </summary>
-    internal static readonly WeightedRandomChoice<MotherBrainDeathExplosionAnimation> MixedDeathExplosionAnimation = new(
+    internal static readonly WeightedRandomChoice<DustExplosionAnimation> MixedDeathExplosionAnimation = new(
         RandomSampleField.RangePart(8),
-        new(2, MotherBrainDeathExplosionAnimation.SmallExplosion),
-        new(5, MotherBrainDeathExplosionAnimation.Smoke),
-        new(1, MotherBrainDeathExplosionAnimation.BigExplosion));
+        new(2, DustExplosionAnimation.SmallExplosion),
+        new(5, DustExplosionAnimation.Smoke),
+        new(1, DustExplosionAnimation.BigExplosion));
 
     /// <summary>A fired hand beam's scatter turn, in steps of the turn.</summary>
     internal static readonly RandomSampleField HandBeamScatterTurn = RandomSampleField.OneOf(256);

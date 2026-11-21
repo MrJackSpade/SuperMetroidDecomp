@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>What each style of Mother Brain's death explosions does.</summary>
@@ -11,7 +12,7 @@ internal static class MotherBrainDeathExplosionStyles
         new Dictionary<MotherBrainDeathExplosionStyle, MotherBrainDeathExplosionStyleDefinition>
         {
             [MotherBrainDeathExplosionStyle.Smoky] = new(MotherBrainDeathExplosionDefinitions.SmokyIntervalUpdates,
-                group => group.Smoky, _ => MotherBrainDeathExplosionAnimation.Smoke),
+                group => group.Smoky, _ => DustExplosionAnimation.Smoke),
             [MotherBrainDeathExplosionStyle.Mixed] = new(MotherBrainDeathExplosionDefinitions.MixedIntervalUpdates,
                 group => group.Mixed, MotherBrainRandomDefinitions.MixedDeathExplosionAnimation.Choose),
         };

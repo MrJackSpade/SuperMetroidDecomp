@@ -76,8 +76,12 @@ internal static class IntroBabyActorDefinitionsVerification
         var reference = new IntroBabyDiscoveryState(new SharedRandom(), 
             existingSamus: (new SuperMetroid.Core.Samus.SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())),
             shellFallPastCurve: InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve, audio: AudioQueues.Standalone());
+        // The scene's room is the plain terrain of the discovery room's authored collision, at its size.
+        var discoveryRoom = new SuperMetroid.Core.Samus.Movement.PlainTerrain(
+            new Extent16<RoomBlocks>(IntroBabyDiscoveryCollisionDefinitions.Columns, IntroBabyDiscoveryCollisionDefinitions.RoomRows),
+            IntroBabyDiscoveryCollision.CreateCollision());
         for (int block = 0; block < nativeCollision.Length; block++)
-            AssertEqual(nativeCollision[block], discovery.Terrain.Level.GetCollisionBlockByIndex(block).Terrain.Collision,
+            AssertEqual(nativeCollision[block], discoveryRoom.Level.GetCollisionBlockByIndex(block).Terrain.Collision,
                 $"SR388 discovery physical block {block} matches the decoded original");
         discovery.Samus.Position = discovery.Samus.Position.WithWholeX(0x00a8);
         reference.Samus.Position = reference.Samus.Position.WithWholeX(0x00a8);

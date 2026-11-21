@@ -24,7 +24,7 @@ internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSour
     private bool betweenCommonRooms;
 
     /// <summary>Where the fade is.</summary>
-    internal DoorFadeStage Stage { get; private set; } = DoorFadeStage.None;
+    private DoorFadeStage Stage { get; set; } = DoorFadeStage.None;
 
     /// <summary>Starts the room being left fading out over <paramref name="fade"/>'s steps.</summary>
     /// <param name="fade">The fade's steps, which the door takes one per update.</param>

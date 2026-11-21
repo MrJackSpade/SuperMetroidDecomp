@@ -5,12 +5,21 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// <summary>Verification access to <see cref="TitleSequenceState"/> members production does not use.</summary>
 internal static class TitleSequenceStateAccess
 {
+    /// <summary>The finest fraction of a floor pixel a zoom counts in: two hundred and fifty-sixths.</summary>
+    private const int ZoomDenominator = 256;
+
     /// <summary>Reads title display and demo-timer state for focused frontend verification.</summary>
     extension(TitleSequenceState self)
     {
 
-        /// <summary>The floor's current zoom, exposed for title regression checks.</summary>
-        internal FloorZoom FloorZoom => self.Zoom.FloorZoom;
+        /// <summary>
+        /// The zoom of the floor the title shows, read from the scale of the floor in the scene it composes, or null while it
+        /// shows no floor. Composing builds only the shown sprites, so it leaves the title's run as it was.
+        /// </summary>
+        internal FloorZoom? FloorZoom => self.ComposeScene().Floor is { } floor
+            ? Spatial.FloorZoom.FromFloorPixelsPerScreenPixel(
+                checked((int)Math.Round(floor.View.Scale * ZoomDenominator)), ZoomDenominator)
+            : null;
 
         /// <summary>
         /// NTSC demo countdown. Retail initializes this to $0384 (900 frames); PAL uses $02D0

@@ -84,7 +84,7 @@ internal sealed class IntroBabyDiscoveryState
     public SamusState Samus { get; }
 
     /// <summary>The discovery room's collision: its two authored strips and air elsewhere.</summary>
-    internal PlainTerrain Terrain { get; }
+    private PlainTerrain Terrain { get; }
 
     /// <summary>Signals the outer cinematic owner to start the next page's colour transition.</summary>
     /// <remarks>

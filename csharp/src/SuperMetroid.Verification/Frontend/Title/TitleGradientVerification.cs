@@ -528,7 +528,8 @@ internal static class TitleGradientVerification
             title.Step(0);
             FloorScene snapshot = title.ComposeScene();
             if (snapshot.Gradient is { } shown)
-                return new CaptureInstalledTitleGradientResult(shown.Gradient, title.FloorZoom, snapshot);
+                return new CaptureInstalledTitleGradientResult(shown.Gradient,
+                    title.FloorZoom ?? throw new InvalidDataException("The title's gradient frame shows its floor."), snapshot);
         }
         throw new InvalidDataException("Production title rendering never reached a gradient frame.");
     }

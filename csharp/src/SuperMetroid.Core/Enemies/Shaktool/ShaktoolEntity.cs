@@ -21,7 +21,7 @@ internal sealed class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant
     internal ShaktoolSegmentState State { get; } = ShaktoolBehavior.InitializeShaktool(settings, place, chain);
 
     /// <summary>The chain the segment is in: its seven segments and their shared motion and target.</summary>
-    private ShaktoolChain Chain { get; } = chain;
+    internal ShaktoolChain Chain { get; } = chain;
 
     /// <summary>How the segment moves while its motion runs, as its definition names it, found as it is built.</summary>
     private Action<ShaktoolSegmentState, RoomLevelData> Course { get; } = species.CourseOf(place, settings.Segment, chain);

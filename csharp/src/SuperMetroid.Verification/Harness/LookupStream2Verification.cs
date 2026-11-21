@@ -1193,10 +1193,11 @@ internal static class LookupStream2Verification
         var transfers = GunshipLiftoffTransferDefinitions.Frames;
         AssertEqual(5, transfers.Length, "Gunship calculated transfer count");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.ShipTop, place.KeptDefinition);
-        var part = new GunshipState(GunshipPhase.WaitForEngines) { PhaseTimer = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineStartUpdates) };
-        place.SetSpeciesState(part);
+        var samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        GunshipTopEntity top = GunshipShipFixtures.PlaceShip(enemies, samus);
+        GunshipState part = top.State.Ship;
+        part.Phase = GunshipPhase.WaitForEngines;
+        part.PhaseTimer = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineStartUpdates);
         int enumerated = 0;
         foreach (var transfer in transfers)
         {
@@ -1208,7 +1209,7 @@ internal static class LookupStream2Verification
             AssertEqual(destination, ObjCharacterNativeWords.Of(firstCharacter), "Gunship original destination");
             AssertEqual(GunshipLiftoffTransferDefinitions.Frames[enumerated].Asset, transfer.Asset, "Gunship typed transfer identity");
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
-            enemies.GunshipBehavior.WaitForGunshipEngines(place);
+            top.Place.RunMainAi(samus);
             AssertEqual(enumerated + 1 == GunshipTakeoffDefinitions.EngineStartUpdates,
                 enemies.Presentation.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook),
                 "the gunship shows its takeoff look from the wait's last update only");

@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Samus;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shaktool;
@@ -40,8 +41,9 @@ internal static class ShaktoolInstructionDefinitionsVerification
         RoomEnemyPlace center = enemies.Places.InUpdateOrder[3];
         ShaktoolSegmentState centerState = (enemies.ShaktoolSegments[3] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[3]."));
         ShaktoolSegmentState nextState = (enemies.ShaktoolSegments[4] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[4]."));
-        Action<RoomEnemyPlace, ShaktoolSegmentState> orient = ShaktoolBehavior.AdvanceAndOrientShaktoolCenter;
-        ShaktoolChain chain = ShaktoolBehavior.ChainOf(center);
+        // The centre's main AI orbits it and turns it to face between its neighbours.
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        ShaktoolChain chain = center.EntityOf<ShaktoolEntity>().Chain;
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
             ushort midpoint = unchecked((ushort)(bucket << 8));
@@ -50,7 +52,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
             centerState.AngularVelocity = RotationAngle.Zero;
             centerState.ResetOrientation();
             nextState.OrbitAngle = RotationAngleConstants.FromRaw(midpoint);
-            orient(center, centerState);
+            center.RunMainAi(samus);
             AssertEqual(AimAngleConstants.FromClockwiseSteps(bucket).DirectionOfEighth(), centerState.Orientation,
                 $"Shaktool production orientation bucket {bucket:X2}");
             AssertEqual<EnemyFrameId?>(ShaktoolHeadPictures.Aiming(AimAngleConstants.FromClockwiseSteps(bucket).DirectionOfEighth()), center.Frame,
@@ -59,9 +61,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         }
 
         RoomEnemyPlace tail = enemies.Places.InUpdateOrder[6];
-        ShaktoolSegmentState tailState = (enemies.ShaktoolSegments[6] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[6]."));
-        Action<RoomEnemyPlace, ShaktoolSegmentState, Position16<RoomPixels>> reverse = ShaktoolBehavior.ReverseShaktoolAfterCollision;
-        reverse(tail, (tailState), tail.Position.Whole);
+        DriveTailIntoWall(tail);
         for (int index = 0; index < 7; index++)
         {
             AssertEqual(new AnimationPlayback<ShaktoolSegment>(ShaktoolAnimations.StartingWith(ShaktoolSegmentDefinitions.Segments[index].CollisionAnimation), AnimationPlace.StartOfAnimation),
@@ -100,13 +100,22 @@ internal static class ShaktoolInstructionDefinitionsVerification
         }
 
         RoomEnemyPlace tail = enemies.Places.InUpdateOrder[6];
-        ShaktoolSegmentState tailState = enemies.ShaktoolSegments[6] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[6].");
-        ShaktoolBehavior.ReverseShaktoolAfterCollision(tail, tailState, tail.Position.Whole);
+        DriveTailIntoWall(tail);
         for (int index = 0; index < 7; index++)
             RunForcedShaktoolInstructions(enemies.Places.InUpdateOrder[index], 8);
 
         Suite(nameof(ShaktoolAnimationsVerification.VerifyShaktoolAnimations), () => ShaktoolAnimationsVerification.VerifyShaktoolAnimations(rom));
         Console.WriteLine("Shaktool: every steady and collision program runs on the real seven-segment group.");
+    }
+
+    /// <summary>
+    /// Runs the trailing saw's main AI once through solid terrain, away from where its orbit last put it, so its move meets a
+    /// wall and the chain reverses as the saw's collision has it.
+    /// </summary>
+    internal static void DriveTailIntoWall(RoomEnemyPlace tail)
+    {
+        tail.Position = tail.Position.WithWhole(new(unchecked((ushort)(tail.Position.X.Whole + 0x40)), tail.Position.Y.Whole));
+        tail.RunMainAi(PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus(), level: PlacedEnemyAccess.SolidRoom(new(64, 64))));
     }
 
     /// <summary>Forces successive instruction steps and reports whether they moved the segment.</summary>

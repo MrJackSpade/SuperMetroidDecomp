@@ -559,16 +559,13 @@ internal sealed class RoomEnemySpecies
     /// <summary>The gunship's scenario and the Rinkas' camera, which the room's load hands the species first.</summary>
     /// <param name="gunship">Samus's gunship.</param>
     /// <param name="rinka">The Rinkas.</param>
-    internal sealed class RoomLoadPreparation(GunshipBehavior gunship, RinkaBehavior rinka) : IEnemyLoadPreparation
+    private sealed class RoomLoadPreparation(GunshipBehavior gunship, RinkaBehavior rinka) : IEnemyLoadPreparation
     {
-        /// <summary>Samus's gunship, whose scenario the room's load begins.</summary>
-        private GunshipBehavior Gunship { get; } = gunship;
-
         /// <inheritdoc/>
         public void PrepareRoomLoad(IRoomEnemyLoad request)
         {
             Ensure.NotNull(request);
-            Gunship.BeginRoomLoad(request.GunshipScenario);
+            gunship.BeginRoomLoad(request.GunshipScenario);
             // Initialization AI reads the already-positioned destination camera before the first enemy frame captures its own.
             rinka.SetRinkaCamera(request.Camera);
         }
@@ -600,9 +597,6 @@ internal sealed class RoomEnemySpecies
         TorizoBehavior bombTorizo,
         EscapeExplosionsBehavior escapeExplosions) : IEnemyObjectSpawns
     {
-        /// <summary>Maridia's glass tube, which a power bomb shatters.</summary>
-        private NoobTubeBehavior NoobTube { get; } = noobTube;
-
         /// <summary>The eyes guarding some doors.</summary>
         private EyeDoorBehavior EyeDoor { get; } = eyeDoor;
 
@@ -613,7 +607,7 @@ internal sealed class RoomEnemySpecies
         private EscapeExplosionsBehavior EscapeExplosions { get; } = escapeExplosions;
 
         /// <inheritdoc/>
-        public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) => NoobTube.SpawnNoobTubeProjectile(request);
+        public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) => noobTube.SpawnNoobTubeProjectile(request);
 
         /// <inheritdoc/>
         public void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request) => EyeDoor.SpawnEyeDoorProjectile(request);

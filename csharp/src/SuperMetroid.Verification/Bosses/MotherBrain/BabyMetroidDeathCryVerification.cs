@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFixtureHeadVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -19,26 +18,26 @@ internal static class BabyMetroidDeathCryVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var installation = RepositoryInstallation.Installation;
         // The Baby's scene runs while Mother Brain's encounter is loaded; the room shows the shades it lays (#1512).
-        var motherBrain = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes());
-        enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        // Mother Brain is placed as her room's population places her, and her late fight brings in the Baby, whose own main
+        // AI then runs its cutscene.
+        MotherBrainEnemyState motherBrain = MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
+        BabyMetroidCutsceneEntity entity = MotherBrainBabyArrival.BabyOf(MotherBrainBabyArrival.BringInBaby(motherBrain, samus));
         ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.ImportMaps, InstalledFixtures.BossArtwork,
             [.. Enumerable.Range(0, 256).Select(index => (ushort)(index + 1))]);
-        var sequence = MotherBrainLateFightFixtures.NewSequence();
         // The Baby's health lives in the place the final beam's spawn makes it in (#2572).
-        var baby = MotherBrainLateFightFixtures.Arrive(sequence, FixedPosition<RoomPixels>.Zero);
+        BabyMetroidCutsceneState baby = entity.Baby;
         global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.FinalCharge);
         global::SuperMetroid.Core.PrivateState.Set(baby, "Health", 79);
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-        Action<BabyMetroidCutsceneStepResult> apply = step => enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(motherBrain.Colours, step);
-        apply(baby.Step(samus, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0));
+        enemies.BeginEnemySoundRequestFrame();
+        entity.Place.RunMainAi(samus);
         AssertEqual(0, enemies.Audio.SoundRequests.Count, "The live final charge does not emit a death cry early");
         ushort[] charged = Shown();
         for (int index = 0; index < 256; index++)
             AssertEqual((ushort)(index + 1), charged[index], "Live final charge preserves room colors");
         baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
-        var fatal = baby.Step(samus, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
-        AssertEqual(BabyMetroidCutscenePhase.TakeFinalBlow, fatal.PhaseAfter, "Fatal hit enters native shake phase");
-        apply(fatal);
+        entity.Place.RunMainAi(samus);
+        AssertEqual(BabyMetroidCutscenePhase.TakeFinalBlow, baby.Phase, "Fatal hit enters native shake phase");
         ushort[] blackout = Shown();
         for (int index = 0; index < 256; index++)
             AssertEqual((ushort)(IsBlackoutColor(index) ? 0 : index + 1), blackout[index],
@@ -51,15 +50,14 @@ internal static class BabyMetroidDeathCryVerification
         for (int frame = 0; frame < 3; frame++)
         {
             enemies.BeginEnemySoundRequestFrame();
-            apply(baby.Step(samus, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0));
+            entity.Place.RunMainAi(samus);
             AssertEqual(0, enemies.Audio.SoundRequests.Count, "Fatal shake does not replay the death cry");
         }
         global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.FinalCutscene);
         for (int frame = 0; frame < 7; frame++)
         {
-            var recovery = baby.Step(samus, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
-            AssertEqual<MotherBrainFadeImage?>(MotherBrainFadeDefinitions.RecoveryLights.Images[frame], recovery.RecoveryLightsImage, "Recovery publishes each native light row");
-            apply(recovery);
+            // Each update of the final cutscene shows its row of the recovering lights, which the colours below observe.
+            entity.Place.RunMainAi(samus);
             ushort[] cgram = Shown();
             for (int index = 0; index < 256; index++)
             {

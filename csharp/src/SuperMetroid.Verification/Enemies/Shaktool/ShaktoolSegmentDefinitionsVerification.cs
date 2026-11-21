@@ -4,6 +4,7 @@ using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shaktool;
+using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -66,8 +67,15 @@ internal static class ShaktoolSegmentDefinitionsVerification
 
         foreach (ShaktoolSegmentState? state in enemies.ShaktoolSegments.Take(7))
             (state ?? throw new InvalidOperationException("Verification requires state.")).Motion = ShaktoolSegmentMotion.Idle;
-        // The reset cue carries out its reaction and the animation plays on: a cue's reaction continues nowhere else.
-        ShaktoolBehavior.ApplyShaktoolCue(enemies.Places.InUpdateOrder[0], new ShaktoolCue(ShaktoolCueKind.ResumeMotion));
+        // The trailing saw's head bob ends with the cue that resumes the whole chain's motion, which its animation carries out
+        // as it plays on.
+        RoomEnemyPlace trailingSaw = enemies.Places.InUpdateOrder[6];
+        (enemies.ShaktoolSegments[6] ?? throw new InvalidOperationException("Verification requires the trailing saw's state.")).Playback =
+            new(ShaktoolAnimations.StartingWith(ShaktoolSegment.SawHandHeadBobFinalPiece), AnimationPlace.StartOfAnimation);
+        trailingSaw.AnimationClock.StepOnNextUpdate();
+        object?[] arguments = [trailingSaw, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+        for (int update = 0; update < 21 && enemies.ShaktoolSegments[0]?.Motion != definitions[0].Motion; update++)
+            EnemyInstructionRunner.Process(arguments);
         for (int index = 0; index < definitions.Length; index++)
         {
             AssertEqual(definitions[index].Motion,

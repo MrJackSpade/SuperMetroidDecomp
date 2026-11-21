@@ -125,15 +125,18 @@ internal static class FamilyTrigonometryVerification
             segment.Bind(EnemyDefinitionId.Shaktool, segment.KeptDefinition);
             segment.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 2);
             segment.SetUpAsPlaced();
-            var segmentState = new ShaktoolSegmentState();
-            Action<RoomEnemyPlace, ShaktoolSegmentState> place = ShaktoolBehavior.PositionShaktoolAroundPreviousSegment;
+            // The segment's main AI places it on its orbit around the saw before it; with no angular speed of its own its
+            // orbit then stays where it was.
+            ShaktoolSegmentState segmentState = segment.EntityOf<ShaktoolEntity>().State;
+            segmentState.AngularVelocity = RotationAngle.Zero;
+            IEnemyAiFrame frame = PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus());
             int firstAngle = block * AnglesPerBlock;
             foreach (uint initial in origins)
             for (int angle = firstAngle; angle < firstAngle + AnglesPerBlock; angle++)
             {
                 previous.Position = new(SixteenSixteenWords.ToCoordinate(initial), SixteenSixteenWords.ToCoordinate(initial));
                 segmentState.OrbitAngle = RotationAngleConstants.FromRaw((ushort)angle);
-                place(segment, segmentState);
+                segment.RunMainAi(frame);
                 uint expectedX = unchecked(initial + (uint)EightEightOracle.ToSixteenSixteen(orbit[RotationAngleConstants.FromRaw(unchecked((ushort)angle)).ToTrigonometryAngle().RawValue + 64]));
                 uint expectedY = unchecked(initial + (uint)EightEightOracle.ToSixteenSixteen(orbit[RotationAngleConstants.FromRaw(unchecked((ushort)angle)).ToTrigonometryAngle().RawValue]));
                 if (segment.Position.X != SixteenSixteenWords.ToCoordinate(expectedX) ||

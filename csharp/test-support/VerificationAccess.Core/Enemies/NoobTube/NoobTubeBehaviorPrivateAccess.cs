@@ -8,16 +8,6 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 /// </summary>
 internal static class NoobTubeBehaviorPrivateAccess
 {
-    /// <summary>The private instance members checks read or call.</summary>
-    extension(global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior self)
-    {
-        /// <summary>The private property <c>TubePieces</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior.NoobTubeProjectileBehavior TubePieces
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior, global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior.NoobTubeProjectileBehavior>(self, "TubePieces");
-        }
-    }
-
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior)
     {

@@ -74,9 +74,9 @@ internal static class CeresRidleyColorsVerification
         var guarded = NewCeresRidleyColorReadGuard(rom, forbidden);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(fixtureAssets.EnemyTiles.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: fixtureAssets.EnemyTiles.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        // Binding gives the place a fresh occupant, so the body is bound before it begins the encounter it holds (#2231).
-        place.Bind(EnemyDefinitionId.RidleyCeres, place.KeptDefinition);
-        enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley(place, RoomWarningFixtures.Ceres());
+        // Ceres Ridley is placed as his room's population places him: his body begins the encounter it holds as it is set
+        // up (#2231).
+        place.PlaceAs<CeresRidleyEntity>(EnemyDefinitionId.RidleyCeres, EnemySpawnSettings.None, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         CheckCgram(enemies.CeresRidley() ?? throw new InvalidOperationException("Ceres Ridley initialization did not publish state."),
             document.Start.Length, CeresRidleyShadeDefinitionsConstants.StartCgramIndex,
             InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveStart, "Ceres Ridley initialization");
@@ -139,7 +139,7 @@ internal static class CeresRidleyColorsVerification
         activeRidley.Phase = CeresRidleyPhase.RetreatDelay;
         activeRidley.PhaseTimer.LastFor(1);
         activeRidley.Motion = RidleyMotion.Still;
-        enemies.CeresRidleyBehavior.RunCeresRidleyMain(place, activeRidley, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), InstalledFixtures.CreateProjectileSystem());
+        place.RunMainAi(SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(CeresRidleyPhase.PublishEscapeHandoff, activeRidley.Phase,
             "Ceres Ridley retreat publishes the Mode-7 handoff");
         CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatBgColorCount,

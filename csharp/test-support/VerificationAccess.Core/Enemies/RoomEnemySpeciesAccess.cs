@@ -30,7 +30,6 @@ using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Enemies.Fireflea;
 using SuperMetroid.Core.Enemies.Flies;
 using SuperMetroid.Core.Enemies.FuneNamihe;
-using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Hibashi;
 using SuperMetroid.Core.Enemies.Hoppers;
 using SuperMetroid.Core.Enemies.Kago;
@@ -68,7 +67,6 @@ using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Enemies.Zoa;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.EyeDoor;
-using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Enemies.OldTourianWall;
 using SuperMetroid.Core.World;
 
@@ -91,13 +89,8 @@ internal static class RoomEnemySpeciesAccess
             yield return participant;
             if (participant is SparkBehavior spark)
                 yield return spark.FallingSparks;
-            if (participant is MotherBrainBehavior motherBrain)
-                yield return motherBrain.Body.RoomActors.BabyMetroid;
         }
-        yield return ((RoomEnemySpecies.RoomLoadPreparation)species.LoadPreparation).Gunship;
-        yield return ((CeresEncounter)species.Ceres).CeresRidley;
         var spawns = (RoomEnemySpecies.ObjectSpawns)species.RoomObjectSpawns;
-        yield return spawns.NoobTube;
         yield return spawns.EyeDoor;
         yield return spawns.OldTourianWall;
         yield return spawns.EscapeExplosions;
@@ -119,9 +112,6 @@ internal static class RoomEnemySpeciesAccess
     /// <summary>The owners of the room's species, by the names the room system once held them under.</summary>
     extension(RoomEnemySystem self)
     {
-        /// <summary>Samus's gunship: its landing, save prompt, boarding and exit, and its lift-offs after Ceres and the escape.</summary>
-        internal GunshipBehavior GunshipBehavior => Owner<GunshipBehavior>(self);
-
         /// <summary>Ridley's fireballs and the afterburn that trails them, in Ceres and Norfair, which Mother Brain's afterburn reuses.</summary>
         internal RidleyProjectiles RidleyProjectiles => self.SpeciesComposition.RidleyProjectiles;
 
@@ -248,9 +238,6 @@ internal static class RoomEnemySpeciesAccess
         /// <summary>The enemies that leap out of Norfair's lava and fall back in.</summary>
         internal SqueeptBehavior SqueeptBehavior => Owner<SqueeptBehavior>(self);
 
-        /// <summary>Maridia's glass tube, which a power bomb shatters.</summary>
-        internal NoobTubeBehavior NoobTubeBehavior => Owner<NoobTubeBehavior>(self);
-
         /// <summary>The ninja space pirates, which leap across their rooms and throw their claws.</summary>
         internal NinjaSpacePirateBehavior NinjaSpacePirateBehavior => Owner<NinjaSpacePirateBehavior>(self);
 
@@ -368,9 +355,6 @@ internal static class RoomEnemySpeciesAccess
         /// <summary>The Choots, Maridia's flat fish that leap when Samus comes near and glide back down.</summary>
         internal ChootBehavior ChootBehavior => Owner<ChootBehavior>(self);
 
-        /// <summary>Ridley in Ceres station: his fight over the Baby Metroid and his getaway.</summary>
-        internal CeresRidleyBehavior CeresRidleyBehavior => Owner<CeresRidleyBehavior>(self);
-
         /// <summary>Ceres station's doors and walls, and the quake that shakes them during the escape.</summary>
         internal CeresDoorBehavior CeresDoorBehavior => Owner<CeresDoorBehavior>(self);
 
@@ -397,9 +381,6 @@ internal static class RoomEnemySpeciesAccess
 
         /// <summary>The Beetoms, which leap at Samus, latch on and drain her energy.</summary>
         internal BeetomBehavior BeetomBehavior => Owner<BeetomBehavior>(self);
-
-        /// <summary>The Baby Metroid's meeting with Samus in Tourian, where it latches on and lets her go.</summary>
-        internal BabyMetroidCutsceneBehavior BabyMetroidCutsceneBehavior => Owner<BabyMetroidCutsceneBehavior>(self);
 
         /// <summary>The Atomics, the Wrecked Ship's spinning atoms that drift after Samus.</summary>
         internal AtomicBehavior AtomicBehavior => Owner<AtomicBehavior>(self);

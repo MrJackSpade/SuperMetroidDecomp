@@ -17,11 +17,8 @@ internal sealed class MotherBrainRoomActors(
     WalkingSpacePirateBehavior pirates,
     RidleyProjectiles ridleyProjectiles) : IMotherBrainRoomActors
 {
-    /// <summary>The Baby Metroid cutscene, which the late fight spawns.</summary>
-    private BabyMetroidCutsceneBehavior BabyMetroid { get; } = babyMetroid;
-
     /// <inheritdoc/>
-    public void SpawnBabyMetroid(MotherBrainRainbowBeamAttackSequence lateFight) => BabyMetroid.SpawnMotherBrainBabyMetroid(lateFight);
+    public void SpawnBabyMetroid(MotherBrainRainbowBeamAttackSequence lateFight) => babyMetroid.SpawnMotherBrainBabyMetroid(lateFight);
 
     /// <inheritdoc/>
     public void TerminateRinkas() => rinkas.RequestTermination();

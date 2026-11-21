@@ -27,23 +27,18 @@ internal static class GunshipMotionDefinitionsVerification
             short expected = unchecked((short)rom.ReadCartridgeWord((0xa2a622 + frame * 2)));
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(rom));
-            var applyBrake = new Action<RoomEnemyPlace, SamusState>(enemies.GunshipBehavior.BouncePostCeresGunship);
-            RoomEnemyPlace top = enemies.Places.InUpdateOrder[0];
-            // The top hull finds the bottom hull and pad listed after it as production places it; each piece keeps its own
-            // animation, which the bounce restarts on the pad. It is placed inside the room before it is raised onto its pad.
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x3000)) };
+            // The ship is placed as its room's population places it, its top hull finding the bottom hull and pad listed
+            // after it; it then lands as its descent hands it the brake, and its main AI applies that brake.
+            GunshipTopEntity ship = GunshipShipFixtures.PlaceShip(enemies, samus);
+            RoomEnemyPlace top = ship.Place;
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
-            enemies.GunshipBehavior.InitializeGunshipTop(top, RoomEnemyFrameFixtures.StandaloneSamus());
-            enemies.Places.InUpdateOrder[1].SetSpeciesState(new GunshipPieceState(default));
-            enemies.Places.InUpdateOrder[2].SetSpeciesState(new GunshipPieceState(default));
-            top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
-            var part = new GunshipState(GunshipPhase.ApplyLandingBrakes);
-            top.SetSpeciesState(part);
-            part.LandingBrake = Brake(frame);
+            ship.State.Ship.Phase = GunshipPhase.ApplyLandingBrakes;
+            ship.State.Ship.LandingBrake = Brake(frame);
             enemies.Places.InUpdateOrder[1].Position = enemies.Places.InUpdateOrder[1].Position.WithWholeY(0x2100);
             enemies.Places.InUpdateOrder[2].Position = enemies.Places.InUpdateOrder[2].Position.WithWholeY(0x2200);
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x3000)) };
 
-            applyBrake(top, samus);
+            top.RunMainAi(samus);
 
             AssertEqual(unchecked((ushort)(0x3000 + expected)), samus.Position.Y.Whole,
                 $"gunship production brake Samus Y {frame}");
@@ -62,20 +57,19 @@ internal static class GunshipMotionDefinitionsVerification
             sbyte expectedDelta = unchecked((sbyte)GunshipMotionDefinitionsRomByte(rom, address + 1));
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(rom));
-            var stepBob = new Action<RoomEnemyPlace>(GunshipBehavior.StepGunshipBob);
-            RoomEnemyPlace top = enemies.Places.InUpdateOrder[0];
-            // The top hull finds the bottom hull and pad listed after it as production places it, inside the room.
-            top.Position = top.Position.WithWholeY(0x2000);
-            enemies.GunshipBehavior.InitializeGunshipTop(top, RoomEnemyFrameFixtures.StandaloneSamus());
-            var part = new GunshipState(GunshipPhase.Idle);
-            top.SetSpeciesState(part);
+            // The landed ship idles as its room's population places it, and its main AI steps its bob before the idle phase.
+            var samus = RoomEnemyFrameFixtures.StandaloneSamus();
+            GunshipTopEntity ship = GunshipShipFixtures.PlaceShip(enemies, samus);
+            RoomEnemyPlace top = ship.Place;
+            GunshipState part = ship.State.Ship;
+            part.Phase = GunshipPhase.Idle;
             part.Bob = Bob(phase);
             part.BobTimer = UpdateCountdown.For(1);
             top.Position = top.Position.WithWholeY(0x2000);
             enemies.Places.InUpdateOrder[1].Position = enemies.Places.InUpdateOrder[1].Position.WithWholeY(0x2100);
             enemies.Places.InUpdateOrder[2].Position = enemies.Places.InUpdateOrder[2].Position.WithWholeY(0x2200);
 
-            stepBob(top);
+            top.RunMainAi(samus);
 
             AssertEqual(expectedTimer, part.BobTimer.UpdatesLeft,
                 $"gunship production bob timer {phase}");

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shaktool;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Shaktool;
 using SuperMetroid.Verification.Harness;
@@ -21,7 +22,8 @@ internal static class ShaktoolOwnedStateVerification
             enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException($"Shaktool segment {index} has no state."))];
         RoomEnemyPlace center = enemies.Places.InUpdateOrder[3];
         ShaktoolSegmentState centerState = states[3];
-        ShaktoolChain chain = ShaktoolBehavior.ChainOf(center);
+        ShaktoolChain chain = center.EntityOf<ShaktoolEntity>().Chain;
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
 
         foreach ((bool reversed, CompassDirection expectedOrientation) in new[] { new VerifyShaktoolOwnedStateCase(false, CompassDirection.Down), new VerifyShaktoolOwnedStateCase(true, CompassDirection.Up) })
         {
@@ -31,7 +33,7 @@ internal static class ShaktoolOwnedStateVerification
             centerState.ResetOrientation();
             centerState.OrientationReversed = reversed;
             states[4].OrbitAngle = RotationAngleConstants.FromRaw(0x8080);
-            ShaktoolBehavior.AdvanceAndOrientShaktoolCenter(center, centerState);
+            center.RunMainAi(samus);
             AssertEqual((ushort)0x0080, centerState.OrbitAngle.RawValue, "the centre's orbit wraps through zero");
             AssertEqual(expectedOrientation, centerState.Orientation, $"reversed={reversed} selects the expected head orientation");
             AssertEqual(reversed, centerState.OrientationReversed, "orienting keeps the chain's reversal");
@@ -41,7 +43,8 @@ internal static class ShaktoolOwnedStateVerification
         centerState.ResetOrientation();
         RoomEnemyPlace tail = enemies.Places.InUpdateOrder[6];
         states[6].CurlProgress = RotationAngle.FromSteps(0x12, 0x34);
-        ShaktoolBehavior.ReverseShaktoolAfterCollision(tail, states[6], tail.Position.Whole);
+        // The trailing saw's move meets a wall, which reverses the chain.
+        ShaktoolInstructionDefinitionsVerification.DriveTailIntoWall(tail);
         AssertEqual(RotationAngle.Zero, states[6].CurlProgress, "a wall reversal empties the saw's curl progress");
         AssertTrue(centerState.OrientationReversed, "a first wall reversal swaps the chain's ends");
         AssertEqual(ShaktoolChainMotion.CurlingClockwise with { NextWall = ShaktoolWallResponse.ReverseOrbit }, chain.Motion, "the chain curls again and its next wall reverses its orbit");

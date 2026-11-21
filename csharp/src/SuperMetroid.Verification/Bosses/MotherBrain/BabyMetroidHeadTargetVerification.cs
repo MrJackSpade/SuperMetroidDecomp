@@ -26,8 +26,7 @@ internal static class BabyMetroidHeadTargetVerification
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemyPlace head = state.Head;
-        MotherBrainRainbowBeamAttackSequence sequence = state.BeginLateFight();
-        runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(sequence);
+        MotherBrainRainbowBeamAttackSequence sequence = MotherBrainBabyArrival.BringInBaby(state, runtime.Player.Samus);
         BabyMetroidCutsceneState baby = sequence.Baby ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");
         RoomEnemyPlace place = baby.Place;
 
@@ -35,7 +34,7 @@ internal static class BabyMetroidHeadTargetVerification
         global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody);
         global::SuperMetroid.Core.PrivateState.Set(baby, "Position", FixedPosition<RoomPixels>.FromWhole(new(0x007d, 0x0045)).WithFractionsOf(baby.Position));
 
-        runtime.Enemies.BabyMetroidCutsceneBehavior.RunMotherBrainBabyMetroidMain((place), runtime.Player.Samus, Position16<RoomPixels>.Zero);
+        place.RunMainAi(runtime.Player.Samus);
         AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase, "the Baby reaches the head");
         AssertEqual((ushort)0x007d, place.Position.X.Whole, "the Baby pins to the head enemy's current X");
         AssertEqual((ushort)0x0045, place.Position.Y.Whole, "the Baby pins $18 above the head enemy's current Y");

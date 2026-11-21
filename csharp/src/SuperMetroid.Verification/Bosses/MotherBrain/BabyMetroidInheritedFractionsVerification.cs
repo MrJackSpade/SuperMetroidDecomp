@@ -36,11 +36,9 @@ internal static class BabyMetroidInheritedFractionsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
-        MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
-
         RoomEnemyPlace free = runtime.Enemies.Places.InUpdateOrder.First(place => place.Occupant is null);
         free.Position = free.Position.WithFractionX(0x1400).WithFractionY(0x2800);
-        runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
+        MotherBrainRainbowBeamAttackSequence lateFight = MotherBrainBabyArrival.BringInBaby(state, runtime.Player.Samus);
 
         BabyMetroidCutsceneState baby = lateFight.Baby ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");
         AssertTrue(ReferenceEquals(free, baby.Place), "the Baby takes the first free slot");

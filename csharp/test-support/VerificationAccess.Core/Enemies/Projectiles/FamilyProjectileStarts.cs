@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Enemies.FuneNamihe;
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.NoobTube;
@@ -107,7 +108,7 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.RidleyHorizontalAfterburn or RoomEnemyProjectileKind.RidleyVerticalAfterburn =>
             enemies.RidleyProjectiles.Fireballs,
         RoomEnemyProjectileKind.CeresFallingDebris => enemies.CeresFallingTiles.Behavior,
-        RoomEnemyProjectileKind.GunshipLiftoffDustCloud => enemies.GunshipBehavior.Dust,
+        RoomEnemyProjectileKind.GunshipLiftoffDustCloud => new GunshipLiftoffDust.GunshipDustBehavior(),
         RoomEnemyProjectileKind.AlcoonFireball => AlcoonBehavior.Fireball,
         RoomEnemyProjectileKind.PowampSpike => enemies.PowampBehavior.Spike,
         RoomEnemyProjectileKind.WorkRobotLaserDiagonal or RoomEnemyProjectileKind.WorkRobotLaserHorizontal => WorkRobotBehavior.Laser,
@@ -149,7 +150,7 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.SporeSpawnSpawner => enemies.SporeSpawnBehavior.Spawner,
         RoomEnemyProjectileKind.DownwardGateMoving or RoomEnemyProjectileKind.DownwardGateClosed => enemies.DownwardGateBehavior.Gate,
         RoomEnemyProjectileKind.NoobTubeCrack or RoomEnemyProjectileKind.NoobTubeShard or
-            RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => enemies.NoobTubeBehavior.TubePieces,
+            RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => NoobTubePieceFixtures.PlacedPieces(enemies),
         RoomEnemyProjectileKind.YappingMawBody or RoomEnemyProjectileKind.NuclearWaffleBody or
             RoomEnemyProjectileKind.EyeDoorSmoke or RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
             RoomEnemyProjectileKind.SaveStationElectricity =>
@@ -187,9 +188,9 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.SaveStationElectricity => _ => new SaveStationElectricityAnimation(),
         RoomEnemyProjectileKind.DownwardGateMoving => enemies => new DownwardGateProjectileAnimation(enemies.DownwardGateBehavior.Gate, DownwardGateProjectileSegment.Moving),
         RoomEnemyProjectileKind.DownwardGateClosed => enemies => new DownwardGateProjectileAnimation(enemies.DownwardGateBehavior.Gate, DownwardGateProjectileSegment.Closed),
-        RoomEnemyProjectileKind.NoobTubeCrack => enemies => new NoobTubeProjectileAnimation(enemies.NoobTubeBehavior.TubePieces, NoobTubeProjectileAnimations.StartingAt[NoobTubeProjectileSegment.Crack]),
-        RoomEnemyProjectileKind.NoobTubeShard => enemies => new NoobTubeProjectileAnimation(enemies.NoobTubeBehavior.TubePieces, NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward]),
-        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => enemies => new NoobTubeProjectileAnimation(enemies.NoobTubeBehavior.TubePieces, NoobTubeProjectileAnimations.StartingAt[NoobTubeProjectileSegment.ReleasedAirBubble]),
+        RoomEnemyProjectileKind.NoobTubeCrack => enemies => new NoobTubeProjectileAnimation(NoobTubePieceFixtures.PlacedPieces(enemies), NoobTubeProjectileAnimations.StartingAt[NoobTubeProjectileSegment.Crack]),
+        RoomEnemyProjectileKind.NoobTubeShard => enemies => new NoobTubeProjectileAnimation(NoobTubePieceFixtures.PlacedPieces(enemies), NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward]),
+        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => enemies => new NoobTubeProjectileAnimation(NoobTubePieceFixtures.PlacedPieces(enemies), NoobTubeProjectileAnimations.StartingAt[NoobTubeProjectileSegment.ReleasedAirBubble]),
         RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion =>
             _ => new DustExplosionProjectileAnimation(DustExplosionAnimation.MotherBrainRainbowBeamExplosion),
         RoomEnemyProjectileKind.MotherBrainTopRightTube => _ => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopRight),

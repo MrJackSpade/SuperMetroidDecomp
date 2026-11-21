@@ -1031,7 +1031,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
         AssertTrue(projectiles.Shots[0].Position.X.Whole - projectiles.Shots[0].Radius.X > ridley.Position.X.Whole + 8,
             $"Ceres Ridley hit {hit + 1} is outside the header collision radius");
-        AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
+        AssertEqual(1, enemies.Ceres.ResolveCeresRidleyProjectileHits(
             projectiles, samusBombs),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
         observedNormalRidleyPalette |= !global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState, global::SuperMetroid.Core.Bosses.Ridley.RidleyHurtFlashShowing>(state, "HurtFlashShows").Body;

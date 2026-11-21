@@ -1,6 +1,7 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -50,18 +51,17 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
 
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.MotherBrainBody, body.KeptDefinition);
-        var state = new MotherBrainEnemyState(body.HeldOccupant(), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes());
-        MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
-        enemies.MotherBrainEncounter.BeginAsSetUp(state);
-
-        enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
+        // Mother Brain is placed as her room's population places her, her body and then her brain, which joins the encounter
+        // her body begins; her late fight then brings in the Baby as her final beam charges.
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        MotherBrainEnemyState state = enemies.Places.InUpdateOrder[0].PlaceAs<MotherBrainBodyEntity>(EnemyDefinitionId.MotherBrainBody, EnemySpawnSettings.None, samus).Encounter;
+        enemies.Places.InUpdateOrder[1].PlaceAs<MotherBrainHeadEntity>(EnemyDefinitionId.MotherBrainHead, EnemySpawnSettings.None, samus);
+        MotherBrainRainbowBeamAttackSequence lateFight = MotherBrainBabyArrival.BringInBaby(state, samus);
 
         BabyMetroidCutsceneState madeBaby = lateFight.Baby ??
             throw new InvalidDataException("Mother Brain Baby allocator produced no physical slot.");
         RoomEnemyPlace baby = madeBaby.Place;
-        AssertEqual(1, baby.Ordinal, "Mother Brain Baby first free physical slot");
+        AssertEqual(2, baby.Ordinal, "Mother Brain Baby first free physical slot, after her body and brain");
         AssertEqual(EnemyDefinitionId.BabyMetroidCutscene,
             baby.HeldOccupant().DefinitionId,
             "Mother Brain Baby physical definition");
@@ -69,14 +69,14 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             "Mother Brain Baby retained population snapshot");
         AssertTrue(ReferenceEquals(madeBaby, baby.SpeciesState<BabyMetroidCutsceneState>()),
             "Mother Brain Baby's place holds the Baby its late fight made");
-        AssertEqual(2, enemies.Places.EnemyCount,
+        AssertEqual(3, enemies.Places.EnemyCount,
             "Mother Brain Baby extended physical enemy high-water mark");
-        AssertEqual(enemies.Places.InUpdateOrder[2], enemies.Places.FindFreePlace(),
+        AssertEqual(enemies.Places.InUpdateOrder[3], enemies.Places.FindFreePlace(),
             "Mother Brain Baby's spawn leaves the following slot free");
 
         try
         {
-            enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
+            MotherBrainBabyArrival.BringInBaby(state, samus);
             throw new InvalidDataException(
                 "Mother Brain Baby accepted a duplicate physical allocation.");
         }

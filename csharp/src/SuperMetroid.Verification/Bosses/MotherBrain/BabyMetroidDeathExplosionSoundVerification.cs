@@ -27,15 +27,12 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = (runtime.Enemies.BossEncounters.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.MotherBrain."));
-        var step = new BabyMetroidCutsceneStepResult(
-            BabyMetroidCutscenePhase.TakeFinalBlow, BabyMetroidCutscenePhase.TakeFinalBlow,
-            LatchSoundQueued: false, ReleaseDustClouds: [],
-            AmbientCrySoundQueued: false,
-            DeathExplosion: new DustExplosionRequest(new(0x0080, 0x0080), DustExplosionAnimation.SmallExplosion, MotherBrainSoundDefinitions.Explosion),
-            BabyFadeImage: null, RecoveryLightsImage: null, StartedAnimation: null, Visibility: BabyMetroidVisibilityRequest.Unchanged);
+        // Her late fight brings in the Baby, whose death sequence's first update sets off its first explosion.
+        BabyMetroidCutsceneEntity baby = MotherBrainBabyArrival.BabyOf(MotherBrainBabyArrival.BringInBaby(state, runtime.Player.Samus));
+        global::SuperMetroid.Core.PrivateState.Set(baby.Baby, "Phase", BabyMetroidCutscenePhase.DeathSequence);
 
         runtime.Enemies.Audio.BeginFrame();
-        runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(state.Colours, step);
+        baby.Place.RunMainAi(runtime.Player.Samus);
         AssertSequenceEqual(
             new[] { MotherBrainSoundDefinitions.Explosion },
             runtime.Enemies.Audio.SoundRequests, "the explosion queues the enemies' small explosion at low priority, and nothing else");

@@ -77,11 +77,13 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         static SpriteArtworkPlacements ShowAllTakeoffPages(ImportEnemyArtwork art, IInstalledEncounterArtwork resolver)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), installedBosses: art.Bosses);
-            RoomEnemyPlace top = enemies.Places.InUpdateOrder[0];
-            var part = new GunshipState(GunshipPhase.WaitForEngines) { PhaseTimer = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineStartUpdates) };
-            top.SetSpeciesState(part);
+            // The ship waits for its engines as its takeoff has it, and its main AI runs that wait through to its end.
+            var samus = RoomEnemyFrameFixtures.StandaloneSamus();
+            GunshipTopEntity top = GunshipShipFixtures.PlaceShip(enemies, samus);
+            top.State.Ship.Phase = GunshipPhase.WaitForEngines;
+            top.State.Ship.PhaseTimer = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineStartUpdates);
             for (int index = 0; index < GunshipTakeoffDefinitions.EngineStartUpdates; index++)
-                enemies.GunshipBehavior.WaitForGunshipEngines(top);
+                top.Place.RunMainAi(samus);
             AssertTrue(enemies.Presentation.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook), "the engines firing up shows the takeoff look");
             return EncounterArtworkPlacements.Of(enemies.Presentation.Looks, resolver);
         }

@@ -821,7 +821,7 @@ internal static class NativeEnemyFamilyStateImport
             // Every segment's record holds a copy of the chain's target; the leading saw's, which no straightening turns
             // on, is the chain's (#2452).
             if (segmentIndex == 0)
-                ShaktoolBehavior.ChainOf(enemy).TargetAngle = RotationAngleConstants.FromRaw(words.A);
+                enemy.EntityOf<ShaktoolEntity>().Chain.TargetAngle = RotationAngleConstants.FromRaw(words.A);
             segment.OrbitAngle = RotationAngleConstants.FromRaw(words.B);
             segment.AngularVelocity = RotationAngleConstants.FromRaw(Index(words.C, 1020, "Shaktool angular velocity"));
             ImportShaktoolOrientation(segment, segmentIndex, words.D);

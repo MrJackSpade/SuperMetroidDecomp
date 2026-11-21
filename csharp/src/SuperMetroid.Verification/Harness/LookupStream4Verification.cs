@@ -2267,9 +2267,14 @@ internal static class LookupStream4Verification
         {
             IReadOnlyList<SheetShade> babySprites = RidleySheetShades.CeresSprites(stock);
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+            // Ceres Ridley is placed as his room's population places him, holding the Baby; the Baby's animation runs as the
+            // enemy pass ends before his reveal starts his animation, and after the actors' drawing steps once it has.
+            CeresRidleyState placed = enemies.Places.InUpdateOrder[0].PlaceAs<CeresRidleyEntity>(EnemyDefinitionId.RidleyCeres, EnemySpawnSettings.None,
+                RoomEnemyFrameFixtures.StandaloneSamus()).Encounter;
             Func<CeresRidleyState, ushort> advance = ridley =>
             {
-                enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyAnimation(ridley);
+                enemies.Ceres.StepCeresBabyWithEnemyPass();
+                enemies.Ceres.StepCeresBabyAfterActors();
                 return EnemyFrameCartridgeLookupTooling.Word(SuperMetroid.Core.Areas.Ceres.Artwork.CeresBabyFrameDefinitions.ShownFrames.Of(
                     ridley.Baby.ShownPose ?? throw new InvalidOperationException("The Baby's animation showed no pose.")));
             };
@@ -2278,10 +2283,11 @@ internal static class LookupStream4Verification
                 int cursor = 0xbf5d + phase * 8;
                 int row = (rom.ReadCartridgeWordFixedBank(0xa60000 | (cursor + 2)) - 0xe1f1) / 30;
                 // The expressive loop's palette command for this phase is beat 1 + 2 * phase, its pose the next beat.
-                var state = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres())
-                {
-                    Baby = { Playback = new AnimationPlayback<CeresBabySegment>(CeresBabyAnimations.StartingWith(CeresBabySegment.ExpressiveLoop), new AnimationPlace(0, 1 + 2 * phase)), VerticalVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1) },
-                };
+                // The Baby's expressive loop stands at this phase's palette command, which its animation's next step runs.
+                CeresRidleyState state = placed;
+                state.Baby.Playback = new AnimationPlayback<CeresBabySegment>(CeresBabyAnimations.StartingWith(CeresBabySegment.ExpressiveLoop), new AnimationPlace(0, 1 + 2 * phase));
+                state.Baby.VerticalVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1);
+                state.Baby.Clock.Restart();
                 AssertEqual(rom.ReadCartridgeWordFixedBank(0xa60000 | (cursor + 6)), advance(state), "Actual palette instruction selects matching native pose");
                 AssertEqual(new AnimationPlayback<CeresBabySegment>(CeresBabyAnimations.StartingWith(CeresBabySegment.ExpressiveLoop), new AnimationPlace(0, 3 + 2 * phase)), state.Baby.Playback, "Palette instruction runs on to its pose");
                 // The pose record the palette instruction runs on to holds its duration, then its picture (#2228).

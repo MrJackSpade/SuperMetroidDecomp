@@ -26,8 +26,7 @@ internal static class BabyMetroidPresenceVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
-        MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
-        runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
+        MotherBrainRainbowBeamAttackSequence lateFight = MotherBrainBabyArrival.BringInBaby(state, runtime.Player.Samus);
         BabyMetroidCutsceneState baby = lateFight.Baby
             ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");
         RoomEnemyPlace place = baby.Place;
@@ -42,7 +41,7 @@ internal static class BabyMetroidPresenceVerification
         void RunMain(int enemyFrame)
         {
             place.FrameCounter = enemyFrame;
-            runtime.Enemies.BabyMetroidCutsceneBehavior.RunBabyMetroidCutsceneMainAi(place, place.RequireSpeciesState<BabyMetroidCutsceneState>(), new ClockedEnemyAiFrame(
+            EnemyLifecycle.RunMainAi(place, new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), enemyFrame) with { Samus = runtime.Player.Samus },
                 new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero.After(enemyFrame))));
             AssertEqual(contact, place.Contact, $"enemy frame {enemyFrame}: the Baby's contact stands");

@@ -11,10 +11,6 @@ internal static class MotherBrainBodyPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBody self)
     {
-        /// <summary>The private field <c>_roomActors</c>, read by name: the room's actors over the species that own them.</summary>
-        internal global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRoomActors RoomActors =>
-            PrivateState.Field<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBody, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRoomActors>(self, "_roomActors");
-
         /// <summary>The private method <c>SpawnMotherBrainHandBeamCharging</c>, invoked by name.</summary>
         internal void SpawnMotherBrainHandBeamCharging(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEnemyState state, global::SuperMetroid.Core.Samus.SamusState samus) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBody>(self, "SpawnMotherBrainHandBeamCharging", [typeof(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEnemyState), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { state, samus });

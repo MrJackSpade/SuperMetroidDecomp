@@ -36,9 +36,9 @@ internal static class CompiledProjectileMathVerification
         // The native view's index runs a quarter turn ahead of the angle it holds: its first 64 words are the negative cosine.
         var shaktool = new Func<int, int>(index => ShaktoolBehavior.SineVelocity(TrigonometryAngle.Wrapped(index - 64)).RawValue);
         var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new TrigonometryAngle(unchecked((byte)angle)), radius));
-        NoobTubeBehavior.NoobTubeProjectileBehavior pieces = SuperMetroid.Verification.Harness.EnemySystemFixtures.New(
+        NoobTubeBehavior.NoobTubeProjectileBehavior pieces = NoobTubePieceFixtures.PlacedPieces(SuperMetroid.Verification.Harness.EnemySystemFixtures.New(
             SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySessionFixtures.WithInstalledServices(),
-            SuperMetroid.Core.World.RoomEnemyCompatibilityFixtures.ForNewRoom()).NoobTubeBehavior.TubePieces;
+            SuperMetroid.Core.World.RoomEnemyCompatibilityFixtures.ForNewRoom()));
         var arc = new Action<EnemyProjectile, int>((projectile, swaySteps) => NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc(pieces, projectile, swaySteps));
         var crocomire = new Func<byte, PixelVelocity<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(AimAngleConstants.FromClockwiseSteps(bearing)));
         var echo = new Func<RotationAngle, int, Offset16<RoomPixels>>(SamusShinesparkState.OffsetAlong);

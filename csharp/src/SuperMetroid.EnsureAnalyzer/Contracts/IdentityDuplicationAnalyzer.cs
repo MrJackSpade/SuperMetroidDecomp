@@ -10,17 +10,20 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <summary>
 /// Each thing has one identity named for what it is (SME6488, #2574). In <c>SuperMetroid.Core</c> and
 /// <c>SuperMetroid.AssetExtraction</c> the rule reports an enum mirrored member for member by another: a switch expression
-/// or a dictionary initializer that maps every member of one source enum to a member of another named for it
+/// or a dictionary initializer that maps every member of one source enum to the member of another of the same name
 /// (<c>MotherBrainDeathExplosionAnimation.Smoke =&gt; DustExplosionAnimation.Smoke</c>,
-/// <c>[IntroEggShellFragment.Left] = IntroEggEffectAnimation.ShellLeft</c>), each member to its own or every member of the
-/// other enum reached, and two enums whose members bear the same names. It also reports a member named by joining the
-/// names of two or more members of one other type, each of two words or more
-/// (<c>EastAqueductQuicksandWestAqueductQuicksand</c>, joined from two rooms): a thing several users share is named for
-/// what it is, not by listing them.
+/// <c>SamusProjectileFamily.Missile =&gt; MotherBrainProjectileType.Missile</c>), each member to its own or every member of
+/// the other enum reached. It also reports a member of a generated catalog (<c>&lt;auto-generated/&gt;</c>) named by joining
+/// the names of two or more members of one other type, each of two words or more
+/// (<c>EastAqueductQuicksandWestAqueductQuicksand</c>, joined from two rooms): a generator names a thing several users
+/// share for what it is, not by listing them. A hand-written name built of two others (a charged Ice Spazer's trail, a
+/// scene's asteroid) is composed, not a list of users.
 /// </summary>
 /// <remarks>
 /// A mirrored enum is a second identity for the same things, and its map must be kept in step with the first. The fix is
-/// one identity: the users name the shared enum, or the definition carries the member of the other it stands for. Generated
+/// one identity: the users name the shared enum, or the definition carries the member of the other it stands for. A map
+/// onto members of other names (a pose to the picture it shows, a piece to its colours) is a definition carrying its
+/// property, and two enums of the same member names that nothing maps onto each other are separate identities. Generated
 /// code is read too: a generated catalog's names are its generator's, which names a shared entry for what it is.
 /// </remarks>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -50,13 +53,13 @@ public sealed class IdentityDuplicationAnalyzer : DiagnosticAnalyzer
 
     private static readonly DiagnosticDescriptor DeclarationRule = new(
         IdentityDuplicationId,
-        "A thing has two identities or a name joined from its users",
+        "A name joined from its users",
         "{0}",
         "Design",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Each thing has one identity named for what it is (#2574): two enums with the same members are one " +
-            "identity defined twice, and a thing several users share is named for what it is, not by joining their names.",
+        description: "Each thing has one identity named for what it is (#2574): a thing several users share is named for " +
+            "what it is, not by joining their names.",
         customTags: [WellKnownDiagnosticTags.CompilationEnd]);
 
     /// <inheritdoc/>
@@ -77,9 +80,7 @@ public sealed class IdentityDuplicationAnalyzer : DiagnosticAnalyzer
             start.RegisterOperationAction(AnalyzeInitializer, OperationKind.ObjectOrCollectionInitializer);
             start.RegisterCompilationEndAction(end =>
             {
-                INamedTypeSymbol[] declared = [.. types.Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default)];
-                ReportSameMemberEnums(end, declared);
-                ReportJoinedNames(end, declared);
+                ReportJoinedNames(end, [.. types.Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default)]);
             });
         });
     }
@@ -132,7 +133,7 @@ public sealed class IdentityDuplicationAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// Reports <paramref name="syntax"/> when <paramref name="entries"/> map every member of one source enum to members of
-    /// another named for them, each member to its own or every member of the other reached.
+    /// another of the same names, each member to its own or every member of the other reached.
     /// </summary>
     private static void ReportMirror(OperationAnalysisContext context, SyntaxNode syntax, List<(IFieldSymbol[] Keys, IFieldSymbol Value)> entries, string what)
     {
@@ -152,30 +153,11 @@ public sealed class IdentityDuplicationAnalyzer : DiagnosticAnalyzer
         bool distinctValues = valueNames.Distinct(StringComparer.Ordinal).Count() == valueNames.Length;
         bool eachToItsOwn = entries.All(entry => entry.Keys.Length == 1);
         bool everyValue = valueMembers.All(valueNames.Contains);
-        bool namedForIt = entries.All(entry => entry.Keys.Any(key => Related(key.Name, entry.Value.Name)));
-        if (!everyKey || !distinctValues || !(eachToItsOwn || everyValue) || !namedForIt)
+        bool sameNames = entries.All(entry => entry.Keys.Any(key => string.Equals(key.Name, entry.Value.Name, StringComparison.Ordinal)));
+        if (!everyKey || !distinctValues || !(eachToItsOwn || everyValue) || !sameNames)
             return;
         context.ReportDiagnostic(Diagnostic.Create(MirrorRule, syntax.GetLocation(),
-            $"{what} maps every member of {keyType.Name} to the member of {valueType.Name} named for it: one of them mirrors the other member for member"));
-    }
-
-    /// <summary>Reports each pair of source enums whose members bear the same names.</summary>
-    private static void ReportSameMemberEnums(CompilationAnalysisContext context, INamedTypeSymbol[] types)
-    {
-        INamedTypeSymbol[] enums = [.. types.Where(IsIdentityEnum).Where(type => Members(type).Length >= MirroredMembers)];
-        foreach (IGrouping<string, INamedTypeSymbol> same in enums.GroupBy(type => string.Join(",", Members(type).OrderBy(name => name, StringComparer.Ordinal)), StringComparer.Ordinal))
-        {
-            INamedTypeSymbol[] mirrored = [.. same];
-            if (mirrored.Length < 2)
-                continue;
-            foreach (INamedTypeSymbol type in mirrored)
-            {
-                string others = string.Join(", ", mirrored.Where(other => !SymbolEqualityComparer.Default.Equals(other, type)).Select(other => other.Name));
-                foreach (Location location in type.Locations.Where(location => location.IsInSource))
-                    context.ReportDiagnostic(Diagnostic.Create(DeclarationRule, location,
-                        $"{type.Name} has the same members as {others}: one identity is defined twice; name it once and let both users name it"));
-            }
-        }
+            $"{what} maps every member of {keyType.Name} to the member of {valueType.Name} of the same name: one of them mirrors the other member for member"));
     }
 
     /// <summary>Reports each member named by joining the names of two or more members of one type.</summary>
@@ -197,9 +179,9 @@ public sealed class IdentityDuplicationAnalyzer : DiagnosticAnalyzer
         }
         foreach (INamedTypeSymbol type in types)
         {
-            foreach (ISymbol member in NamedMembers(type))
+            foreach (ISymbol member in NamedMembers(type).Where(IsGenerated))
             {
-                if (JoinedFrom(member.Name, owners, names) is not { } joined)
+                if (JoinedFrom(member.Name, type, owners, names) is not { } joined)
                     continue;
                 foreach (Location location in member.Locations.Where(location => location.IsInSource))
                     context.ReportDiagnostic(Diagnostic.Create(DeclarationRule, location,
@@ -208,9 +190,12 @@ public sealed class IdentityDuplicationAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    /// <summary>The type whose members' names, each of two words or more, join into <paramref name="name"/>, and those names.</summary>
-    private static (INamedTypeSymbol Owner, IReadOnlyList<string> Parts)? JoinedFrom(string name, Dictionary<string, HashSet<INamedTypeSymbol>> owners,
-        Dictionary<INamedTypeSymbol, HashSet<string>> names)
+    /// <summary>
+    /// The type other than <paramref name="declaring"/> whose members' names, each of two words or more, join into
+    /// <paramref name="name"/>, and those names; a type's own combined member (a reach spanning two of its others) is its own.
+    /// </summary>
+    private static (INamedTypeSymbol Owner, IReadOnlyList<string> Parts)? JoinedFrom(string name, INamedTypeSymbol declaring,
+        Dictionary<string, HashSet<INamedTypeSymbol>> owners, Dictionary<INamedTypeSymbol, HashSet<string>> names)
     {
         var candidates = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
         for (int length = 1; length < name.Length; length++)
@@ -218,6 +203,7 @@ public sealed class IdentityDuplicationAnalyzer : DiagnosticAnalyzer
             if (owners.TryGetValue(name.Substring(0, length), out HashSet<INamedTypeSymbol>? holding))
                 candidates.UnionWith(holding);
         }
+        candidates.Remove(declaring);
         foreach (INamedTypeSymbol owner in candidates)
         {
             if (Split(name, names[owner]) is { } parts)
@@ -251,6 +237,10 @@ public sealed class IdentityDuplicationAnalyzer : DiagnosticAnalyzer
         return reached[name.Length];
     }
 
+    /// <summary>Whether <paramref name="member"/> is declared in a generated file, one opening with an <c>&lt;auto-generated/&gt;</c> comment.</summary>
+    private static bool IsGenerated(ISymbol member) => member.Locations.Any(location => location.SourceTree is { } tree &&
+        tree.GetText().Lines.Count > 0 && tree.GetText().Lines[0].ToString().Contains("<auto-generated"));
+
     /// <summary>The words of a PascalCase <paramref name="name"/>: its capital letters.</summary>
     private static int Words(string name) => name.Count(char.IsUpper);
 
@@ -259,10 +249,6 @@ public sealed class IdentityDuplicationAnalyzer : DiagnosticAnalyzer
         type.GetMembers().Where(member => !member.IsImplicitlyDeclared && member.Locations.Any(location => location.IsInSource) &&
             (member is IFieldSymbol { IsStatic: true } or IPropertySymbol { IsStatic: true, IsIndexer: false } ||
                 member is IFieldSymbol && type.TypeKind == TypeKind.Enum));
-
-    /// <summary>Whether one name is the other, or holds it.</summary>
-    private static bool Related(string key, string value) =>
-        key.IndexOf(value, StringComparison.Ordinal) >= 0 || value.IndexOf(key, StringComparison.Ordinal) >= 0;
 
     /// <summary>Whether <paramref name="type"/> is a source enum that is not <c>[Flags]</c>.</summary>
     private static bool IsIdentityEnum(INamedTypeSymbol type) =>

@@ -163,7 +163,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Green Brinstar Elevator room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition GreenBrinstarElevator { get; } = new("GreenBrinstarElevator",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 162)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 162)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Final Missile room in its default state.</summary>
@@ -300,7 +300,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Red Brinstar Elevator room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition RedBrinstarElevator { get; } = new("RedBrinstarElevator",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 194)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 194)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Gauntlet Energy Tank room.</summary>
@@ -351,13 +351,13 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Elevator to Blue Brinstar room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition ElevatorToBlueBrinstar { get; } = new("ElevatorToBlueBrinstar",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 162)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 162)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Forgotten Highway Elevator room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition ForgottenHighwayElevator { get; } = new("ForgottenHighwayElevator",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 192)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 192)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Pre Map Flyway room.</summary>
@@ -458,7 +458,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Statues room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition Statues { get; } = new("Statues",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 432)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 576)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 432)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Down, ArrivalY: 576)),
         new(EnemyDefinitionId.TourianStatue, EnemyPlacing.At(new(120, 184)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Role: TourianEntranceStatueRole.SpawnsDecorations)),
         new(EnemyDefinitionId.TourianStatue, EnemyPlacing.At(new(142, 85)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Role: TourianEntranceStatueRole.Inert)),
         new(EnemyDefinitionId.TourianStatue, EnemyPlacing.At(new(132, 136)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Role: TourianEntranceStatueRole.Inert)),

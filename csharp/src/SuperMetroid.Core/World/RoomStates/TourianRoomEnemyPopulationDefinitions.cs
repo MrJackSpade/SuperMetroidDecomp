@@ -106,7 +106,7 @@ internal static class TourianRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Tourian First room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition TourianFirst { get; } = new("TourianFirst",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Up, ArrivalY: 24)),
     ], 0);
 
     /// <summary>The enemy population of the Metroids 2 room in its default state.</summary>

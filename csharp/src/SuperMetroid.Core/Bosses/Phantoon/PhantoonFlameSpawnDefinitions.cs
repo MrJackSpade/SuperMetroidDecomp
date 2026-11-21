@@ -6,7 +6,7 @@ public static class PhantoonFlameSpawnDefinitions
 {
     /// <summary>
     /// The chances of what a shot-down flame drops: mostly missiles or nothing, sometimes energy or a Super Missile, never
-    /// a Power Bomb. The cartridge kept them in his eye's enemy header and read them from there.
+    /// a Power Bomb; the same chances his eye's definition lists.
     /// </summary>
     internal static readonly EnemyDropChances ShotFlameDropChances = new(SmallEnergy: 20, BigEnergy: 20, Missile: 100, Nothing: 105, SuperMissile: 10, PowerBomb: 0);
 

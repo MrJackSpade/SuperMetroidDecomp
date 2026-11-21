@@ -144,7 +144,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Lower Norfair Elevator room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition LowerNorfairElevator { get; } = new("LowerNorfairElevator",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 160)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 320)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 160)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Down, ArrivalY: 320)),
     ], 0);
 
     /// <summary>The enemy population of the Lower Norfair Save room.</summary>
@@ -292,8 +292,8 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.Multiviola, EnemyPlacing.At(new(1455, 456)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MultiviolaSpawnSettings(Heading: new TrigonometryAngle(208), Speed: 3)),
         new(EnemyDefinitionId.PirateRedWalking, EnemyPlacing.At(new(2555, 624)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 0)),
         new(EnemyDefinitionId.PirateRedWalking, EnemyPlacing.At(new(1767, 656)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, ShotWatch: WalkingSpacePirateShotWatch.FlinchesFromShots, PatrolReach: 16)),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(3160, 483)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(3240, 483)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(3160, 483)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(3240, 483)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
     ], 7);
 
     /// <summary>The enemy population of the Plowerhouse room.</summary>
@@ -444,7 +444,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Main Hall room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition MainHall { get; } = new("MainHall",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(1152, 674)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(1152, 674)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Up, ArrivalY: 24)),
         new(EnemyDefinitionId.Dragon, EnemyPlacing.At(new(720, 760)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Body)),
         new(EnemyDefinitionId.Dragon, EnemyPlacing.At(new(720, 760)), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Wing)),
         new(EnemyDefinitionId.Dragon, EnemyPlacing.At(new(816, 760)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new DragonSpawnSettings(Part: DragonPart.Body)),
@@ -551,7 +551,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.Waver, EnemyPlacing.At(new(185, 440)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
         new(EnemyDefinitionId.Waver, EnemyPlacing.At(new(448, 544)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
         new(EnemyDefinitionId.Waver, EnemyPlacing.At(new(147, 222)), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
-        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(268, 149)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
+        new(EnemyDefinitionId.Cacatac, EnemyPlacing.At(new(268, 149)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacAction.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.Zero)),
     ], 8);
 
     /// <summary>The enemy population of the Ice Beam Acid room.</summary>
@@ -709,7 +709,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Business Center room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition BusinessCenter { get; } = new("BusinessCenter",
     [
-        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Up, ArrivalY: 24)),
+        new(EnemyDefinitionId.Elevator, EnemyPlacing.At(new(128, 706)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: VerticalDirection.Up, ArrivalY: 24)),
         new(EnemyDefinitionId.Sova, EnemyPlacing.At(new(123, 856)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
         new(EnemyDefinitionId.Sova, EnemyPlacing.At(new(144, 1000)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),
         new(EnemyDefinitionId.Sova, EnemyPlacing.At(new(97, 1080)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.OnFloor, BlockSide: CrawlerSurfaceOrientation.OnRightWall, CrawlSpeed: SignedEightEight.FromPixelFraction(1, 2))),

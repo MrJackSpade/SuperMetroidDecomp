@@ -12,9 +12,9 @@ public static class ElevatorActorDefinitions
     internal static readonly SignedSixteenSixteen TravelSpeed = SignedSixteenSixteen.FromPixelFraction(3, 2);
 
     /// <summary>The newly pressed input that begins each direction's travel.</summary>
-    internal static readonly Dictionary<ElevatorTravelDirection, GameplayAction> RequiredDirectionInputs = new()
+    internal static readonly Dictionary<VerticalDirection, GameplayAction> RequiredDirectionInputs = new()
     {
-        [ElevatorTravelDirection.Down] = GameplayAction.Down,
-        [ElevatorTravelDirection.Up] = GameplayAction.Up,
+        [VerticalDirection.Down] = GameplayAction.Down,
+        [VerticalDirection.Up] = GameplayAction.Up,
     };
 }

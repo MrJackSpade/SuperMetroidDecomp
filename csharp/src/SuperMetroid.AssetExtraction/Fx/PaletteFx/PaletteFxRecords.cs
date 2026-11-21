@@ -12,17 +12,28 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// </summary>
 internal static class PaletteFxRecords
 {
-    /// <summary>The frame that shows each record, by the record's place: the frame of the animation whose run holds it.</summary>
-    private static readonly ColourEffectFrame[] Frames = Number();
+    /// <summary>
+    /// Each record by its place in the cartridge's order: the frame of the animation whose run holds it, and the layout its
+    /// run writes its colours in.
+    /// </summary>
+    private static readonly RunRecord[] Records = Number();
 
     /// <summary>The record each frame shows.</summary>
     private static readonly FrozenDictionary<ColourEffectFrame, PaletteFxRecord> ByFrame = Index();
 
     /// <summary>The frame that shows <paramref name="record"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No animation shows the record.</exception>
-    internal static ColourEffectFrame FrameOf(PaletteFxRecord record) => (uint)record.Record < (uint)Frames.Length
-        ? Frames[record.Record]
-        : throw new ArgumentOutOfRangeException(nameof(record), record, $"The colour effects' animations show {Frames.Length} records.");
+    internal static ColourEffectFrame FrameOf(PaletteFxRecord record) => Placed(record).Frame;
+
+    /// <summary>How <paramref name="record"/> writes its colours: its run's layout.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">No animation shows the record.</exception>
+    internal static IReadOnlyList<PaletteFxRecordPart> Layout(PaletteFxRecord record) => Placed(record).Layout;
+
+    /// <summary>The run record at <paramref name="record"/>'s place.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">No animation shows the record.</exception>
+    private static RunRecord Placed(PaletteFxRecord record) => (uint)record.Record < (uint)Records.Length
+        ? Records[record.Record]
+        : throw new ArgumentOutOfRangeException(nameof(record), record, $"The colour effects' animations show {Records.Length} records.");
 
     /// <summary>The record <paramref name="frame"/> shows.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The frame is not one its animation shows.</exception>
@@ -40,7 +51,7 @@ internal static class PaletteFxRecords
     /// animation's records.
     /// </summary>
     /// <exception cref="InvalidDataException">An animation numbers its frames out of order, or the runs miss or repeat a frame.</exception>
-    private static ColourEffectFrame[] Number()
+    private static RunRecord[] Number()
     {
         foreach (ColourEffectId animation in Enum.GetValues<ColourEffectId>())
         {
@@ -54,13 +65,14 @@ internal static class PaletteFxRecords
                 next++;
             }
         }
-        var frames = new List<ColourEffectFrame>();
+        var records = new List<RunRecord>();
         foreach (ColourEffectRecordRun run in ColourEffectRecordOrder.Runs)
         {
             for (int frame = run.FirstFrame; frame < run.FirstFrame + run.FrameCount; frame++)
-                frames.Add(new ColourEffectFrame(run.Effect, frame));
+                records.Add(new RunRecord(new ColourEffectFrame(run.Effect, frame), run.Layout));
         }
-        if (frames.Distinct().Count() != frames.Count)
+        HashSet<ColourEffectFrame> frames = [.. records.Select(record => record.Frame)];
+        if (frames.Count != records.Count)
             throw new InvalidDataException("The colour effects' record runs hold a frame twice.");
         foreach (ColourEffectId animation in Enum.GetValues<ColourEffectId>())
         {
@@ -72,19 +84,19 @@ internal static class PaletteFxRecords
                     throw new InvalidDataException($"No record run holds frame {frame} of colour effect animation {animation}.");
             }
         }
-        return [.. frames];
+        return [.. records];
     }
 
     /// <summary>
-    /// The record each frame shows, from <see cref="Frames"/>: an animation that shows another's records shows, at each of
+    /// The record each frame shows, from <see cref="Records"/>: an animation that shows another's records shows, at each of
     /// its frames, the record of that animation's frame of the same number.
     /// </summary>
     /// <exception cref="InvalidDataException">An animation shows another's records but shows another number of frames.</exception>
     private static FrozenDictionary<ColourEffectFrame, PaletteFxRecord> Index()
     {
-        var byFrame = new Dictionary<ColourEffectFrame, PaletteFxRecord>(Frames.Length);
-        for (int record = 0; record < Frames.Length; record++)
-            byFrame.Add(Frames[record], new PaletteFxRecord(record));
+        var byFrame = new Dictionary<ColourEffectFrame, PaletteFxRecord>(Records.Length);
+        for (int record = 0; record < Records.Length; record++)
+            byFrame.Add(Records[record].Frame, new PaletteFxRecord(record));
         foreach ((ColourEffectId animation, ColourEffectId shown) in ColourEffectRecordOrder.ShowsRecordsOf)
         {
             if (FrameCount(animation) != FrameCount(shown))
@@ -94,4 +106,9 @@ internal static class PaletteFxRecords
         }
         return byFrame.ToFrozenDictionary();
     }
+
+    /// <summary>One record of a run: the frame that shows it and the layout its run writes its colours in.</summary>
+    /// <param name="Frame">The frame of the animation whose run holds the record.</param>
+    /// <param name="Layout">How the record writes its colours.</param>
+    private readonly record struct RunRecord(ColourEffectFrame Frame, IReadOnlyList<PaletteFxRecordPart> Layout);
 }

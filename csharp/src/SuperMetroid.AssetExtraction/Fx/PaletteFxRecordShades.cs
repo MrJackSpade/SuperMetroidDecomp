@@ -33,7 +33,7 @@ internal static class PaletteFxRecordShades
         int ink = inks.First;
         var written = new Dictionary<int, RgbColor>();
         int colour = 0;
-        foreach (PaletteFxRecordPart part in PaletteFxRecordDefinitions.Layout(record))
+        foreach (PaletteFxRecordPart part in SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxRecords.Layout(record))
         {
             if (part.Skip)
             {

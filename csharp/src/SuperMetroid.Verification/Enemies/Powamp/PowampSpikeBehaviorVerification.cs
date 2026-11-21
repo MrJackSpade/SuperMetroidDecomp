@@ -8,6 +8,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Verification.Enemies.Deaths;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Powamp;
 
@@ -37,11 +38,11 @@ internal static class PowampSpikeBehaviorVerification
         AssertEqual(lastSpikePlace - 1, explosion.Place, "the Powamp's explosion takes the place below the burst's last spike");
         AssertEqual(EnemyDeathExplosions.Animation(PowampBurstExplosionVerification.ExplosionAfter(lastSpikePlace)), EnemyDeathProjectilePrograms.AnimationOf(explosion),
             "the Powamp dies in the explosion its burst's last spike's place selects");
-        // Each spike flies, accelerating from still, the way it points: one update in an open room shows which.
+        // Each spike flies, accelerating from still, the way it points: its motion's first update in an open room shows which.
         RoomLevelData open = RoomEnemyFrameFixtures.OpenRoom(new(16, 16));
         Dictionary<EnemyProjectile, CompassDirection> flights = spikes.ToDictionary(spike => spike, spike =>
         {
-            enemies.PowampBehavior.FlyPowampSpike(spike, open);
+            Fly(enemies, spike, open);
             return PowampSpikeCartridgeOrder.Directions.Single(direction => PowampMotion.SpikeAcceleration(direction) == spike.Velocity);
         });
         // The cartridge's burst counts its direction down from the table's last, so the highest place flies up and left.
@@ -57,7 +58,7 @@ internal static class PowampSpikeBehaviorVerification
         }
 
         // In a room of solid blocks, the spike's next move runs into a wall.
-        enemies.PowampBehavior.FlyPowampSpike(spikes[0], VerificationHelpersVerification.CreateSolidRowsRoom(new(16, 16), 0, 16));
+        Fly(enemies, spikes[0], VerificationHelpersVerification.CreateSolidRowsRoom(new(16, 16), 0, 16));
         AssertEqual(PowampSpikeSegment.Delete, ProgramOf(spikes[0]), "a spike flying into a wall starts the private delete program");
         (bool removed, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spikes[0], Entry(PowampSpikeSegment.Delete), 4, "Powamp spike deletion");
         AssertTrue(removed, "the private delete program deletes the spike");
@@ -65,6 +66,15 @@ internal static class PowampSpikeBehaviorVerification
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the spike's native list bytes");
         Console.WriteLine("  Powamp spike behavior: all eight burst spikes loop and the private delete program deletes as natively.");
     }
+
+    /// <summary>
+    /// Runs one update of <paramref name="spike"/>'s motion in <paramref name="level"/>, as the projectile pass runs it
+    /// before the spike's animation: through the behaviour the burst bound to it.
+    /// </summary>
+    private static void Fly(RoomEnemySystem enemies, EnemyProjectile spike, RoomLevelData level) =>
+        FamilyProjectileStarts.BehaviorOf(enemies, spike.Kind).RunMotion(new EnemyProjectileMotionContext(spike, level,
+            RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, ShortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero,
+            FrameCounter: 0, InstalledFixtures.CreateBombSystem()));
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
     private static ushort Entry(PowampSpikeSegment program) =>

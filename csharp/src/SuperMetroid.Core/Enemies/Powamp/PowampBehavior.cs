@@ -559,7 +559,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Flies the Powamp spike for one update.</summary>
-    internal void FlyPowampSpike(
+    private void FlyPowampSpike(
         EnemyProjectile spike,
         RoomLevelData level)
     {

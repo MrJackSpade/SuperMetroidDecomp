@@ -360,6 +360,11 @@ internal static class NativeSnapshotImport
         samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(bus);
         var kraidHeadCursors = new KraidHeadNativeCursors(bus);
+        // A Shaktool chain reaches its recorded target through its wall, whose reversal the segments' records then replace
+        // (#2554); its leading saw is the first enemy.
+        int firstEnemy = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(0);
+        if (W(firstEnemy) != 0 && runtime.Enemies.Places.InUpdateOrder[0].Holds(EnemyDefinitionId.Shaktool))
+            NativeEnemyFamilyStateImport.ImportShaktoolTarget(runtime.Enemies, W(firstEnemy + 48));
         // EnemyData +$0E onward; +$00 is the identity, +$02..+$08 the 16.16 position and
         // +$0A/+$0C the radii, each imported as one typed value below.
         for (int index = 0; index < runtime.Enemies.Places.InUpdateOrder.Count; index++)

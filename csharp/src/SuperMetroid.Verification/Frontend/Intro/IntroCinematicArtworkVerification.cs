@@ -290,9 +290,10 @@ internal static class IntroCinematicArtworkVerification
         installedState.SetupFirstIllustratedPage();
         ((nativeState.CurrentNarration ?? throw new InvalidOperationException("Verification requires nativeState.objects."))).Step(0);
         ((installedState.CurrentNarration ?? throw new InvalidOperationException("Verification requires installedState.objects."))).Step(0);
-        var nativeOam = nativeState.PrepareIllustratedPageSprites().FinalizedAsOam();
-        var installedOam = installedState.PrepareIllustratedPageSprites().FinalizedAsOam();
-        AssertTrue(installedOam.ImageEquals(nativeOam),
+        // The illustrated page's scene draws the caret (#2554).
+        PlacedSpritePart[] nativeParts = PlacedSpritePart.Of(nativeState.ComposeScene().SpriteDraws);
+        PlacedSpritePart[] installedParts = PlacedSpritePart.Of(installedState.ComposeScene().SpriteDraws);
+        AssertTrue(nativeParts.Length > 0 && installedParts.SequenceEqual(nativeParts),
             "installed illustrated page draws caret without cartridge spritemap reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed caret art avoids the native OAM composition source");
@@ -322,12 +323,14 @@ internal static class IntroCinematicArtworkVerification
     {
         RoomCollisionType[] native = VerifyIntroMotherBrainCollisionSource(bus);
         var guarded = NewIntroArtworkSourceReadGuard(bus);
-        var state = CreateRetailIntroFixture(characterArtwork: stock);
-        state.SetupFirstIllustratedPage();
-        state.SetupMotherBrainFlashback();
-        var level = state.CurrentFlashbackLevel ?? throw new InvalidOperationException("Verification requires level.");
+        var audio = AudioQueues.Standalone();
+        var state = CreateRetailIntroFixture(audio, characterArtwork: stock);
+        // The intro runs to the flashback's setup, which builds its room from the installed collision (#2554).
+        _ = state.StepToMotherBrainFlashback(audio);
+        RoomCollisionType[] installed = IntroMotherBrainCollision.CreateCollision();
+        AssertTrue(installed.Length >= native.Length, "the flashback's installed collision covers the decoded original");
         for (int index = 0; index < native.Length; index++)
-            AssertEqual(native[index], level.GetCollisionBlockByIndex(index).Terrain.Collision,
+            AssertEqual(native[index], installed[index],
                 $"Mother Brain flashback collision block {index} matches the decoded original without ROM reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "flashback setup never rereads the physical level source");

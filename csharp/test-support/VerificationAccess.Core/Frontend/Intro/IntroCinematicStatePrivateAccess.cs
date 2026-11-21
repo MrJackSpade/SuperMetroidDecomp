@@ -37,18 +37,6 @@ internal static class IntroCinematicStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Frontend.Intro.IntroCeresFlightState?>(self, "CurrentCeresFlight");
         }
 
-        /// <summary>The demo input the Mother Brain flashback replays, while it plays.</summary>
-        internal global::SuperMetroid.Core.Input.DemoInputState? CurrentFlashbackDemoInput => self.MotherBrainFlashback?.DemoInput;
-
-        /// <summary>The Mother Brain flashback's room level, while it plays.</summary>
-        internal global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData? CurrentFlashbackLevel => self.MotherBrainFlashback?.Level;
-
-        /// <summary>The Mother Brain flashback's Mother Brain, while it plays.</summary>
-        internal global::SuperMetroid.Core.Frontend.Intro.IntroMotherBrainSpriteState? CurrentFlashbackMotherBrain => self.MotherBrainFlashback?.MotherBrain;
-
-        /// <summary>The Mother Brain flashback's Samus, while it plays.</summary>
-        internal global::SuperMetroid.Core.Samus.SamusState? CurrentFlashbackSamus => self.MotherBrainFlashback?.Samus;
-
         /// <summary>The private property <c>CurrentNarration</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Frontend.Intro.IntroNarrationActors? CurrentNarration
         {

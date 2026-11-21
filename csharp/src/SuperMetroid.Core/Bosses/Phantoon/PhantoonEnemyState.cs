@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// and its timer, the figure-eight, the swoop, the round of vulnerability, the casual flames, the fade on his body, the
 /// wave, whether his body shows, and his death.
 /// </summary>
-[ArchitectureReview("context-bag", "Phantoon's encounter state: every member is a part or sub-state of his own fight that he owns for the room (his four parts, phases, flames, fades, wave and visibility, #2252), not a service carried through.")]
 public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
     /// <inheritdoc />

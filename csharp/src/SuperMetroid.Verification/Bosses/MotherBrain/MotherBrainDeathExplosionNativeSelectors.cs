@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Bosses.MotherBrain;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 

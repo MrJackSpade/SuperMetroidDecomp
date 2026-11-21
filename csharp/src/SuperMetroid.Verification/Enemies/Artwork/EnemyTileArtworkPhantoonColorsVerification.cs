@@ -41,7 +41,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
                     PhantoonSourceDefinitions.HealthBandColors +
                     (band * PhantoonColorFormat.HealthBandColorCount + color) *
                         sizeof(ushort)),
-                native.ResolveHealth(band, color),
+                native.ResolveHealthAtNative(band, color),
                 $"installed Phantoon health palette {band} color {color} preserves RGB5");
 
         string file = Path.Combine(stockDirectory, PhantoonColorFormat.FileName);
@@ -73,11 +73,11 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         for (int row = 0; row < PhantoonColorDefinitions.HealthBandCount; row++)
         {
             // The cartridge's band at health 312 times its row plus one is the row's band (#2259).
-            PhantoonHealthBand band = PhantoonHealthBandDefinitions.LowestFirst[row];
+            PhantoonHealthBand band = PhantoonHealthBandDefinitions.HighestFirst[^(row + 1)];
             body.Health = unchecked((ushort)(row * 312 + 1));
             PhantoonBehavior.ShowPhantoonHealthColours(state);
             AssertEqual(PictureShading.Shaded(PhantoonShades.Body(PhantoonBodyLook.Health(band))), Shown(state), $"Phantoon live health restore band {band}");
-            AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.Health(band)), color => colors.ResolveHealth(row, color),
+            AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.Health(band)), color => colors.ResolveHealth(band, color),
                 $"Phantoon health band {band}");
             state.BodyFade.Steps = 1;
             state.BodyFade.Resume();
@@ -136,13 +136,14 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         AssertEqual(PhantoonShades.Powered, powered.Shade, "the import pre-colours the room's powered colours");
         for (int color = 0; color < PhantoonSourceDefinitions.PowerOnColourCount; color++)
             AssertEqual(colors.ResolvePowerOnAtNative(color),
-                powered.Colours[PhantoonColorDestinations.PowerOnDestination + color],
+                powered.InkColours[PhantoonColorDestinations.PowerOnDestination + color],
                 $"Phantoon live ship power-on target {color}");
 
         AssertThrows<InvalidDataException>(
             () => PhantoonColorFile.Read(new MemoryStream("{\"version\":1,\"version\":1}"u8.ToArray(), writable: false)),
             "duplicate Phantoon color property fails loudly");
-        visual.HealthBands[2][1] = visual.HealthBands[2][1] with { Green = 32 };
+        string altered = PhantoonHealthBandDefinitions.HighestFirst[2].Key;
+        visual.HealthBands[altered][1] = visual.HealthBands[altered][1] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => PhantoonColorFile.Read(new MemoryStream(PhantoonColorFile.Write(visual), writable: false)),
             "reading Phantoon colors rejects an RGB5 channel outside five-bit precision");
         Console.WriteLine("  Phantoon colors: 256 native RGB5 targets, all health bands and three live transitions, ROM guard, and strict document failures pass.");
@@ -175,7 +176,11 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
     private static void AssertShade(IReadOnlyList<SheetShade> made, PictureShade shade, Func<int, RgbColor> expected, string label)
     {
         SheetShade found = made.Single(candidate => candidate.Shade == shade);
-        for (int color = 0; color < found.Colours.Length; color++)
-            AssertEqual(expected(color), found.Colours[color], $"{label} colour {color}");
+        int colour = 0;
+        foreach (RgbColor shown in found.Colours)
+        {
+            AssertEqual(expected(colour), shown, $"{label} colour {colour}");
+            colour++;
+        }
     }
 }

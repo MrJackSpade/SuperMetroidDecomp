@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
@@ -8,21 +9,21 @@ public sealed class MotherBrainDeathColorCatalog
 {
     /// <summary>The installed body fade.</summary>
     private readonly InstalledColourRows bodyFade;
-    /// <summary>The installed rear-leg fade.</summary>
+    /// <summary>The installed rear-leg fade, each stage's legs beside the same stage's body.</summary>
     private readonly InstalledColourRows legFade;
     /// <summary>The installed detached-brain corpse fade.</summary>
     private readonly InstalledColourRows corpseFade;
 
     /// <summary>Keeps the complete installed fades.</summary>
-    /// <param name="bodyFade">Each body fade frame's colours.</param>
-    /// <param name="legFade">Each leg fade frame's colours.</param>
+    /// <param name="bodyFade">Each body fade stage's body and leg colours, in the order the stages show.</param>
     /// <param name="corpseFade">Each corpse fade frame's colours.</param>
     /// <exception cref="InvalidDataException">A fade is missing a frame or a colour.</exception>
-    internal MotherBrainDeathColorCatalog(RgbColor[][] bodyFade, RgbColor[][] legFade, RgbColor[][] corpseFade)
+    internal MotherBrainDeathColorCatalog(IReadOnlyList<MotherBrainDeathFadeStage> bodyFade, RgbColor[][] corpseFade)
     {
-        this.bodyFade = new InstalledColourRows(bodyFade, MotherBrainDeathColorFile.BodyFadeFrameCount,
+        Ensure.NotNull(bodyFade);
+        this.bodyFade = new InstalledColourRows([.. bodyFade.Select(stage => stage.Body)], MotherBrainDeathColorFile.BodyFadeFrameCount,
             MotherBrainDeathColorFormat.BodyColorCount, "Mother Brain death body fade");
-        this.legFade = new InstalledColourRows(legFade, MotherBrainDeathColorFile.BodyFadeFrameCount,
+        legFade = new InstalledColourRows([.. bodyFade.Select(stage => stage.Legs)], MotherBrainDeathColorFile.BodyFadeFrameCount,
             MotherBrainDeathColorFormat.BodyColorCount, "Mother Brain death leg fade");
         this.corpseFade = new InstalledColourRows(corpseFade, MotherBrainDeathColorFile.CorpseFadeFrameCount,
             MotherBrainDeathColorFormat.CorpseColorCount, "Mother Brain death corpse fade");

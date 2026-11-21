@@ -114,8 +114,8 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             if (enemies.ZebetiteBehavior.PulseShown is { } shown)
             {
                 SheetShade pulse = Pulse(artwork, shown.Step);
-                for (int index = 0; index < pulse.Inks.Length; index++)
-                    cgram.SetColor(BossShadeColours.Sprites + pulse.Inks[index], pulse.Colours[index]);
+                foreach ((int ink, RgbColor colour) in pulse.InkColours)
+                    cgram.SetColor(BossShadeColours.Sprites + ink, colour);
             }
             return cgram;
         }

@@ -33,25 +33,27 @@ public static class ProjectileSpriteDefinitions
     /// <summary>The missile explosion's flare, which the Super Missile explosion shows too.</summary>
     private static readonly ProjectileSpriteId MissileExplosionFlare = new(ProjectileSpriteGroup.MissileExplosion, "Flare");
 
+    /// <summary>Charged Wave's core.</summary>
+    private static readonly ProjectileSpriteId ChargedWaveCore = new(ProjectileSpriteGroup.ChargedWave, "Core");
+
+    /// <summary>Charged Wave's core as a starburst, which its flicker trades with the orb.</summary>
+    private static readonly ProjectileSpriteId ChargedWaveCoreStarburst = new(ProjectileSpriteGroup.ChargedWave, "CoreStarburst");
+
     /// <summary>
     /// Charged Wave's cores and paired lobes, in storage order: its core as an orb and as a starburst, and each lobe pair's
     /// swing from the core (Near, Midway, Far, Peak) with the orb on its upper (or left) lobe and then on its lower (or right)
     /// one, the starburst on the other: the two pictures its flicker trades. Charged Ice Wave stores all of them again, byte
     /// for byte, and charged Ice's cross and star are its starburst core and core.
     /// </summary>
-    private static readonly ProjectileSpriteId[] ChargedWave = Poses(ProjectileSpriteGroup.ChargedWave,
-        "Core", "CoreStarburst", "Right.LobesNear", "Right.LobesNearOrbBelow", "Right.LobesMidway",
+    private static readonly ProjectileSpriteId[] ChargedWave = [ChargedWaveCore, ChargedWaveCoreStarburst, .. Poses(ProjectileSpriteGroup.ChargedWave,
+        "Right.LobesNear", "Right.LobesNearOrbBelow", "Right.LobesMidway",
         "Right.LobesMidwayOrbBelow", "Right.LobesFar", "Right.LobesFarOrbBelow", "Right.LobesPeak",
         "Right.LobesPeakOrbBelow", "DownRight.LobesNear", "DownRight.LobesNearOrbBelow", "DownRight.LobesMidway",
         "DownRight.LobesMidwayOrbBelow", "DownRight.LobesFar", "DownRight.LobesFarOrbBelow", "DownRight.LobesPeak",
         "DownRight.LobesPeakOrbBelow", "UpRight.LobesNear", "UpRight.LobesNearOrbBelow", "UpRight.LobesMidway",
         "UpRight.LobesMidwayOrbBelow", "UpRight.LobesFar", "UpRight.LobesFarOrbBelow", "UpRight.LobesPeak",
         "UpRight.LobesPeakOrbBelow", "Down.LobesNear", "Down.LobesNearOrbRight", "Down.LobesMidway",
-        "Down.LobesMidwayOrbRight", "Down.LobesFar", "Down.LobesFarOrbRight", "Down.LobesPeak", "Down.LobesPeakOrbRight");
-    /// <summary>Charged Wave's core.</summary>
-    private static readonly ProjectileSpriteId ChargedWaveCore = ChargedWave[0];
-    /// <summary>Charged Wave's core as a starburst, which its flicker trades with the orb.</summary>
-    private static readonly ProjectileSpriteId ChargedWaveCoreStarburst = ChargedWave[1];
+        "Down.LobesMidwayOrbRight", "Down.LobesFar", "Down.LobesFarOrbRight", "Down.LobesPeak", "Down.LobesPeakOrbRight")];
 
     /// <summary>The Spazer beam's up-right seed, which charged Spazer's up-right startup grows into.</summary>
     private static readonly ProjectileSpriteId SpazerUpRightSeed = new(ProjectileSpriteGroup.Spazer, "UpRight.Seed");
@@ -82,32 +84,73 @@ public static class ProjectileSpriteDefinitions
     /// <summary>Charged Spazer's thick up-right startup strip, which charged Plasma's thick up-right core also shows.</summary>
     private static readonly ProjectileSpriteId SpazerStartupUpRightThickShort = new(ProjectileSpriteGroup.SpazerStartup, "UpRightThick.Short");
 
-    /// <summary>
-    /// The composition each of the cartridge's 416 pictured projectile composition records holds, in its storage order after
-    /// the empty record no picture is composed from, which a frame showing nothing selects (#1762, #2295, #2558):
-    /// each named by its family and pose, the pose naming the direction it points or travels and the stage of its animation
-    /// it shows. A wave's poses name the side it swings to and how far (Near, Midway, Far, Peak), a spread its lanes'
-    /// widening from its seed (Splitting, Parting, Spreading, NearlySpread, Spread), and a charged shot's flicker the
-    /// picture it trades on alternate updates: Charged Power's orb, Charged Wave's starburst core and lobes with the orb
-    /// moved (OrbBelow, OrbRight), and the Spazer and Plasma beams' thick beam. A record that stores, byte for byte, a composition stored earlier holds that composition:
-    /// it is one picture, named once, for the family that stores it first, and the import maps both records to it.
-    /// </summary>
-    internal static IReadOnlyList<ProjectileSpriteId> Stored { get; } =
+    /// <summary>The Power beam's shots, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> PowerShots { get; } =
     [
         PowerLeft, PowerUpLeft, PowerUp, PowerUpRight,
         .. Poses(ProjectileSpriteGroup.Power, "Right", "DownRight", "Down", "DownLeft"),
+    ];
+
+    /// <summary>The Plasma beam's shots, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> PlasmaShots { get; } =
+    [
         .. Poses(ProjectileSpriteGroup.Plasma, "Right", "DownRight", "Up", "UpRight"),
+    ];
+
+    /// <summary>The missile explosion's stages, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> MissileExplosions { get; } =
+    [
         new(ProjectileSpriteGroup.MissileExplosion, "Spark"), MissileExplosionBall,
         new(ProjectileSpriteGroup.MissileExplosion, "Blast"), MissileExplosionFlare,
         .. Poses(ProjectileSpriteGroup.MissileExplosion, "Burst", "Embers"),
+    ];
+
+    /// <summary>The bomb explosion's stages, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> BombExplosions { get; } =
+    [
         .. Poses(ProjectileSpriteGroup.BombExplosion, "Orb", "SparklingOrb", "Burst", "WideBurst", "Ring"),
+    ];
+
+    /// <summary>The Super Missile explosion's stages, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> SuperMissileExplosions { get; } =
+    [
         MissileExplosionBall, new(ProjectileSpriteGroup.SuperMissileExplosion, "Blast"), MissileExplosionFlare,
         .. Poses(ProjectileSpriteGroup.SuperMissileExplosion, "RingedBall", "Ring", "FadingRing"),
+    ];
+
+    /// <summary>The Power Bomb's stages, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> PowerBombs { get; } =
+    [
         .. Poses(ProjectileSpriteGroup.PowerBomb, "Bright", "Dimming", "Dark"),
+    ];
+
+    /// <summary>The beam explosion's stages, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> BeamExplosions { get; } =
+    [
         .. Poses(ProjectileSpriteGroup.BeamExplosion, "Speck", "Glint", "Flash", "RingedFlash", "Ring", "FadingRing"),
+    ];
+
+    /// <summary>The bomb's stages, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> Bombs { get; } =
+    [
         .. Poses(ProjectileSpriteGroup.Bomb, "Dark", "Smouldering", "Glowing", "Flashing"),
+    ];
+
+    /// <summary>The missile's directions, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> Missiles { get; } =
+    [
         .. Poses(ProjectileSpriteGroup.Missile, "Left", "UpLeft", "Up", "UpRight", "Right", "DownRight", "Down", "DownLeft"),
+    ];
+
+    /// <summary>The Super Missile's directions, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> SuperMissiles { get; } =
+    [
         .. Poses(ProjectileSpriteGroup.SuperMissile, "Left", "UpLeft", "Up", "UpRight", "Right", "DownRight", "Down", "DownLeft"),
+    ];
+
+    /// <summary>The Wave beam's centre and swings, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> WaveShots { get; } =
+    [
         PowerLeft,
         .. Poses(ProjectileSpriteGroup.Wave, "Right.UpNear", "Right.UpMidway", "Right.UpFar", "Right.UpPeak", "Right.DownNear",
             "Right.DownMidway", "Right.DownFar", "Right.DownPeak", "DownRight.UpRightNear", "DownRight.UpRightMidway",
@@ -116,8 +159,23 @@ public static class ProjectileSpriteDefinitions
             "Down.RightPeak", "Down.LeftNear", "Down.LeftMidway", "Down.LeftFar", "Down.LeftPeak", "UpRight.UpLeftNear",
             "UpRight.UpLeftMidway", "UpRight.UpLeftFar", "UpRight.UpLeftPeak", "UpRight.DownRightNear",
             "UpRight.DownRightMidway", "UpRight.DownRightFar", "UpRight.DownRightPeak"),
+    ];
+
+    /// <summary>Charged Wave's cores and lobes, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> ChargedWaveShots { get; } =
+    [
         .. ChargedWave,
+    ];
+
+    /// <summary>Charged Ice Wave's cores and lobes, Charged Wave's again, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> ChargedIceWaveShots { get; } =
+    [
         .. ChargedWave,
+    ];
+
+    /// <summary>The Plasma Wave beam's cores and lobes, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> PlasmaWaveShots { get; } =
+    [
         .. Poses(ProjectileSpriteGroup.PlasmaWave, "RightShort.Core", "RightShort.LobesNear", "RightShort.LobesMidway",
             "RightShort.LobesFar", "RightShort.LobesPeak", "RightLong.Core", "RightLong.LobesNear", "RightLong.LobesMidway",
             "RightLong.LobesFar", "RightLong.LobesPeak", "DownRightShort.Core", "DownRightShort.LobesNear",
@@ -133,6 +191,11 @@ public static class ProjectileSpriteDefinitions
             "UpRightThick.LobesFar", "UpRightThick.LobesPeak", "UpRightShort.Core", "UpRightShort.LobesNear",
             "UpRightShort.LobesMidway", "UpRightShort.LobesFar", "UpRightShort.LobesPeak", "UpRightLong.Core",
             "UpRightLong.LobesNear", "UpRightLong.LobesMidway", "UpRightLong.LobesFar", "UpRightLong.LobesPeak"),
+    ];
+
+    /// <summary>The Spazer beam's seeds and spreads, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> SpazerShots { get; } =
+    [
         SpazerUpRightSeed,
         .. Poses(ProjectileSpriteGroup.Spazer, "UpRight.Parting", "UpRight.Spreading", "UpRight.NearlySpread",
             "UpRight.Spread", "UpRight.Splitting"),
@@ -153,6 +216,11 @@ public static class ProjectileSpriteDefinitions
             "Right.Seed"),
         SpazerLeftSplitting,
         .. Poses(ProjectileSpriteGroup.Spazer, "Right.Parting", "Right.Spreading", "Right.NearlySpread", "Right.Spread"),
+    ];
+
+    /// <summary>Charged Spazer's seeds and spreads, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> ChargedSpazerShots { get; } =
+    [
         .. Poses(ProjectileSpriteGroup.ChargedSpazer, "HorizontalThick.Seed", "HorizontalThick.Splitting",
             "HorizontalThick.Parting", "HorizontalThick.Spreading", "HorizontalThick.NearlySpread",
             "HorizontalThick.Spread", "VerticalThick.Seed", "VerticalThick.Splitting", "VerticalThick.Parting",
@@ -172,11 +240,31 @@ public static class ProjectileSpriteDefinitions
             "Up.Seed", "Up.Splitting", "Up.Parting", "Up.Spreading", "Up.NearlySpread", "Up.Spread", "Right.Seed"),
         ChargedSpazerLeftSplitting,
         .. Poses(ProjectileSpriteGroup.ChargedSpazer, "Right.Parting", "Right.Spreading", "Right.NearlySpread", "Right.Spread"),
+    ];
+
+    /// <summary>Charged Power's shots and orb, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> ChargedPowerShots { get; } =
+    [
         new(ProjectileSpriteGroup.ChargedPower, "Left"),
         .. Repeated(ChargedPowerUpLeft, 7),
         .. Repeated(ChargedPowerOrb, 8),
+    ];
+
+    /// <summary>Charged Ice's cross and star, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> ChargedIceShots { get; } =
+    [
         ChargedWaveCoreStarburst, ChargedWaveCore, ChargedWaveCoreStarburst, ChargedWaveCore,
+    ];
+
+    /// <summary>The Ice beam's shots, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> IceShots { get; } =
+    [
         PowerLeft, PowerUpLeft, PowerUp, PowerUpRight,
+    ];
+
+    /// <summary>Charged Spazer's startup strips, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> SpazerStartups { get; } =
+    [
         PowerLeft, new(ProjectileSpriteGroup.SpazerStartup, "Left.Long"),
         new(ProjectileSpriteGroup.SpazerStartup, "UpLeft.Short"), SpazerUpLeftSeed,
         SpazerStartupUpShort, SpazerUpSeed,
@@ -187,6 +275,11 @@ public static class ProjectileSpriteDefinitions
         SpazerStartupDownRightThickShort, new(ProjectileSpriteGroup.SpazerStartup, "DownRightThick.Long"),
         SpazerStartupVerticalThickShort, new(ProjectileSpriteGroup.SpazerStartup, "VerticalThick.Long"),
         SpazerStartupUpRightThickShort, new(ProjectileSpriteGroup.SpazerStartup, "UpRightThick.Long"),
+    ];
+
+    /// <summary>Charged Plasma's startup strips, in their records' storage order (#2565).</summary>
+    internal static IReadOnlyList<ProjectileSpriteId> PlasmaStartups { get; } =
+    [
         PowerLeft, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "Right.Short", "Right.Long", "Right.Full"),
         SpazerStartupUpShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "Up.Short", "Up.Long", "Up.Full",
             "DownRight.Core", "DownRight.Short", "DownRight.Long", "DownRight.Full", "UpRight.Core", "UpRight.Short",
@@ -199,6 +292,43 @@ public static class ProjectileSpriteDefinitions
             "DownRightThick.Long", "DownRightThick.Full"),
         SpazerStartupUpRightThickShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "UpRightThick.Short",
             "UpRightThick.Long", "UpRightThick.Full"),
+    ];
+
+    /// <summary>
+    /// The composition each of the cartridge's 416 pictured projectile composition records holds, in its storage order after
+    /// the empty record no picture is composed from, which a frame showing nothing selects (#1762, #2295, #2558):
+    /// each named by its family and pose, the pose naming the direction it points or travels and the stage of its animation
+    /// it shows. A wave's poses name the side it swings to and how far (Near, Midway, Far, Peak), a spread its lanes'
+    /// widening from its seed (Splitting, Parting, Spreading, NearlySpread, Spread), and a charged shot's flicker the
+    /// picture it trades on alternate updates: Charged Power's orb, Charged Wave's starburst core and lobes with the orb
+    /// moved (OrbBelow, OrbRight), and the Spazer and Plasma beams' thick beam. A record that stores, byte for byte, a composition stored earlier holds that composition:
+    /// it is one picture, named once, for the family that stores it first, and the import maps both records to it. The
+    /// groups are listed in their storage order; where each group's records lie is the import's layout of it
+    /// (<see cref="ProjectileSpriteLocations"/>).
+    /// </summary>
+    private static IReadOnlyList<ProjectileSpriteId> Stored { get; } =
+    [
+        .. PowerShots,
+        .. PlasmaShots,
+        .. MissileExplosions,
+        .. BombExplosions,
+        .. SuperMissileExplosions,
+        .. PowerBombs,
+        .. BeamExplosions,
+        .. Bombs,
+        .. Missiles,
+        .. SuperMissiles,
+        .. WaveShots,
+        .. ChargedWaveShots,
+        .. ChargedIceWaveShots,
+        .. PlasmaWaveShots,
+        .. SpazerShots,
+        .. ChargedSpazerShots,
+        .. ChargedPowerShots,
+        .. ChargedIceShots,
+        .. IceShots,
+        .. SpazerStartups,
+        .. PlasmaStartups,
     ];
 
     /// <summary>

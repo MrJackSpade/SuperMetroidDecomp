@@ -41,7 +41,7 @@ public sealed class ChootEnemyState
     /// <summary>Spawn X, and spawn Y less the jump height: where the Choot stands at the top of its jump and starts falling from.</summary>
     public Position16<RoomPixels> InitialFallingPosition { get; internal set; }
 
-    /// <summary>The whole-pixel base added to each signed falling-pattern offset; initialized at the apex, and its Y advanced by its falling path's authored loop distance (<see cref="ChootPatternDefinitions.LoopYDistances"/>) at every loop's end (#2531).</summary>
+    /// <summary>The whole-pixel base added to each signed falling-pattern offset; initialized at the apex, and its Y advanced by its falling path's authored loop distance (<see cref="ChootFallingPathDefinition.LoopYDistance"/>) at every loop's end (#2531).</summary>
     public Position16<RoomPixels> FallingOrigin { get; internal set; }
 
     /// <summary>The ascent's starting place calculated from the population's loop count and pattern height; copied back to <see cref="YSpeedCurvePlace"/> when the jump cycle finishes.</summary>

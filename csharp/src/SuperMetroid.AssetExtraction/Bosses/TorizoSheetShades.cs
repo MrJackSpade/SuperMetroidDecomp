@@ -56,15 +56,18 @@ internal static class TorizoSheetShades
         Ensure.NotNull(paletteFx);
         var shades = new List<SheetShade>
         {
-            new(TorizoShades.Shared,
-                [.. Enumerable.Range(OrbsFirstInk, LoadedSetColours.RowColours), .. Enumerable.Range(ShadingFirstInk, LoadedSetColours.RowColours)],
-                TorizoPaletteColours.Shared.ToArray()),
+            // The shared colours are the orb-and-flame row's run, then the statue-shading row's.
+            SheetShade.Combined(TorizoShades.Shared,
+            [
+                SheetShade.Run(TorizoShades.Shared, OrbsFirstInk, TorizoPaletteColours.Shared[..LoadedSetColours.RowColours]),
+                SheetShade.Run(TorizoShades.Shared, ShadingFirstInk, TorizoPaletteColours.Shared[LoadedSetColours.RowColours..]),
+            ]),
         };
         TorizoLook[] settled =
         [
             new(TorizoLookKind.BombStatue), new(TorizoLookKind.GoldenInitial), new(TorizoLookKind.Normal), new(TorizoLookKind.Golden),
             new(TorizoLookKind.White), new(TorizoLookKind.Black),
-            .. GoldenTorizoHealthBandDefinitions.LowestFirst.Select(TorizoLook.GoldenHealth),
+            .. GoldenTorizoHealthBandDefinitions.HighestFirst.Reverse().Select(TorizoLook.GoldenHealth),
         ];
         foreach (TorizoLook look in settled)
             shades.Add(SheetShade.Run(TorizoShades.Body(look), BodyFirstInk, Colours(auxiliary, look)));
@@ -92,7 +95,7 @@ internal static class TorizoSheetShades
         foreach (TorizoLook to in FadeTargets)
         {
             RgbColor[] colouring = Colours(auxiliary, to);
-            shades.Add(new SheetShade(TorizoShades.GlowingBelly(to), inks, [.. inks.Select(ink => colouring[ink - BodyFirstInk])]));
+            shades.Add(SheetShade.Of(TorizoShades.GlowingBelly(to), inks, ink => colouring[ink - BodyFirstInk]));
         }
         return shades;
     }
@@ -114,19 +117,23 @@ internal static class TorizoSheetShades
         _ => throw new InvalidDataException($"Undefined Torizo colouring {look.Kind}."),
     };
 
-    /// <summary>
-    /// The row of Golden Torizo's installed health colours <paramref name="look"/>'s band reads: they hold his bands lowest
-    /// first, one row per 2048 health.
-    /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="look"/> names no health band.</exception>
+    /// <summary>The row of Golden Torizo's installed health colours each band reads, one row per 2048 health.</summary>
+    private static readonly Dictionary<GoldenTorizoHealthBand, int> HealthRows = new()
+    {
+        [GoldenTorizoHealthBandDefinitions.NearlyDead] = 0,
+        [GoldenTorizoHealthBandDefinitions.GravelyWounded] = 1,
+        [GoldenTorizoHealthBandDefinitions.BadlyWounded] = 2,
+        [GoldenTorizoHealthBandDefinitions.Wounded] = 3,
+        [GoldenTorizoHealthBandDefinitions.Hurt] = 4,
+        [GoldenTorizoHealthBandDefinitions.Grazed] = 5,
+        [GoldenTorizoHealthBandDefinitions.Unhurt] = 6,
+    };
+
+    /// <summary>The row of Golden Torizo's installed health colours <paramref name="look"/>'s band reads.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="look"/> names no health band, or one with no installed colours.</exception>
     private static int HealthRow(TorizoLook look)
     {
         GoldenTorizoHealthBand band = look.Band ?? throw new InvalidDataException($"The Torizo health colouring {look.Kind} names no band.");
-        for (int row = 0; row < GoldenTorizoHealthBandDefinitions.LowestFirst.Count; row++)
-        {
-            if (GoldenTorizoHealthBandDefinitions.LowestFirst[row] == band)
-                return row;
-        }
-        throw new InvalidDataException($"Golden Torizo has no installed health colours for band {band}.");
+        return HealthRows.TryGetValue(band, out int row) ? row : throw new InvalidDataException($"Golden Torizo has no installed health colours for band {band}.");
     }
 }

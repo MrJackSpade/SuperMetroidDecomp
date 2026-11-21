@@ -47,12 +47,12 @@ internal static class XrayInputVerification
         runtime.StepFrame(0);
         runtime.StepFrame(ControllerButton.Select);
         AssertEqual(HudItem.XRay, samus.SelectedHudItem, "Select reaches the equipped X-ray through ordinary HUD input");
-        runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
+        runtime.StepFrame(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
         AssertTrue(samus.Xray.IsActive, "held Run activates selected X-ray without diagnostic activation");
         AssertTrue(runtime.Freeze.TimeIsFrozen, "X-ray activation freezes gameplay");
         for (int frame = 0; frame < 90; frame++)
         {
-            runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
+            runtime.StepFrame(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
             if (frame < 8)
             {
                 var startup = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
@@ -84,7 +84,7 @@ internal static class XrayInputVerification
 
         }
         for (int frame = 0; frame < 240; frame++)
-            runtime.StepFrame((runtime.Options.ControllerBindings.Dash | (frame < 80 ? ControllerButton.Up : ControllerButton.Down)));
+            runtime.StepFrame((runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash] | (frame < 80 ? ControllerButton.Up : ControllerButton.Down)));
         var captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var reveal = captured.LayersOf<GameplayBlendLayer>().Single();
         AssertTrue(!reveal.Window.IsClosed, "full X-ray publishes a nonempty visible window");
@@ -141,7 +141,7 @@ internal static class XrayInputVerification
             // This fixture checks display selection only; X-ray freezes the seeded
             // position so it need not drive an unrelated room's entrance sequence.
             AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusPoseMetadata.ReadMovementType(samus), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }), "excluded-room capture fixture activates");
-            for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
+            for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
             var baseFrame = runtime.PublishDisplayFrame().OrdinaryBaseScene;
             var excludedFrame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             var excluded = (GameplayBlendLayer)excludedFrame.Layers[0];

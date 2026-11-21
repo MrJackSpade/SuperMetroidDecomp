@@ -65,14 +65,18 @@ internal static class CeresCinematicPictureSheetComposer
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)(captionHeight + PlanetCells * CharacterPixels))));
         RgbColor[] colours = ScreenPaletteColours.FlightColours(intro)[..ImageColourGroup.HalfColours].ToArray();
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
-        // The caption's glyphs side by side, then the katakana caption beside them, then the planet below.
-        var glyphGroups = new ImageColourGroups[glyphs.Length];
-        for (int glyph = 0; glyph < glyphs.Length; glyph++)
-            glyphGroups[glyph] = Paint(canvas, glyph * CharacterPixels, 0, glyphs[glyph], flight, colours);
+        // The caption's glyphs side by side, then the katakana caption beside them, then the planet below. Each glyph's
+        // picture is held with the glyph, and each letter shows its glyph's.
+        var glyphPictures = new Dictionary<BackgroundTile, SpriteSheetFrameDocument>();
+        for (int place = 0; place < glyphs.Length; place++)
+        {
+            glyphPictures.Add(glyphs[place], Frame(place * CharacterPixels, 0, 1, 1,
+                Paint(canvas, place * CharacterPixels, 0, glyphs[place], flight, colours)));
+        }
         for (int letter = 0; letter < letters; letter++)
         {
-            int glyph = Array.IndexOf(glyphs, Ensure.Listed(SpaceColonyCaptionTileDefinitions.Glyphs, CaptionCharacter(letter)));
-            frames.Add(CeresCinematicPictures.CaptionLetter(letter), Frame(glyph * CharacterPixels, 0, 1, 1, glyphGroups[glyph]));
+            frames.Add(CeresCinematicPictures.CaptionLetter(letter),
+                Ensure.Listed(glyphPictures, Ensure.Listed(SpaceColonyCaptionTileDefinitions.Glyphs, CaptionCharacter(letter))));
         }
         ImageColourGroups japanese = ImageColourGroups.None;
         ReadOnlySpan<BackgroundTile> japaneseTiles = SpaceColonyCaptionTileDefinitions.JapaneseTiles;

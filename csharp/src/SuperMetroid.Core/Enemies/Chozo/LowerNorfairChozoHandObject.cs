@@ -36,7 +36,7 @@ internal sealed class LowerNorfairChozoHandObject(ChozoStatueObjects statue) : R
                 return;
             case LowerNorfairChozoHandPhase.Waiting:
                 RoomLevelData level = context.Level;
-                Position16<RoomBlocks> trigger = level.GridBlock(new(ChozoStatueRoomDefinitions.LowerNorfairTriggerX, ChozoStatueRoomDefinitions.LowerNorfairTriggerY));
+                Position16<RoomBlocks> trigger = level.GridBlock(ChozoStatueRoomDefinitions.LowerNorfairTriggerBlock);
                 if (!context.RoomObjects.BlockReactions.IsBrokenOpen(trigger))
                     return;
                 ChozoStatueObjects.WriteChozoBlock(level, trigger, RoomCollisionType.SpecialBlock, ChozoStatueRoomDefinitions.LowerNorfairHandBehavior);

@@ -577,13 +577,13 @@ internal static class MapPresentationVerification
         AssertThrows<InvalidDataException>(() => MotherBrainHealthPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
-                Body = document.Body.Take(3).ToArray(),
+                HealthBands = document.HealthBands.Take(3).ToDictionary(),
             }, ArtworkJson.Options))), "reject incomplete Mother Brain damage states");
         AssertThrows<InvalidDataException>(() => MotherBrainHealthPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
-                BackLegs = document.BackLegs.Select((colors, index) => index == 0 ?
-                    colors.Take(14).ToArray() : colors).ToArray(),
+                HealthBands = document.HealthBands.Select((band, index) => index == 0 ?
+                    KeyValuePair.Create(band.Key, band.Value with { BackLegs = band.Value.BackLegs.Take(14).ToArray() }) : band).ToDictionary(),
             }, ArtworkJson.Options))), "reject truncated Mother Brain rear-leg palette");
 
         Console.WriteLine("Mother Brain health palette: 8 threshold boundaries, ROM-free stock copies and schema checks pass.");

@@ -21,7 +21,7 @@ internal static class PaletteFxColorAddressAccess
         for (int record = 0; record < PaletteFxRecordSourcesConstants.RecordCount; record++)
         {
             var shown = new PaletteFxRecord(record);
-            int colors = PaletteFxRecordDefinitions.Layout(shown).Where(part => !part.Skip).Sum(part => part.Count);
+            int colors = SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxRecords.Layout(shown).Where(part => !part.Skip).Sum(part => part.Count);
             for (int color = 0; color < colors; color++)
             {
                 var key = new PaletteFxColorKey(shown, color);

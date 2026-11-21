@@ -12,10 +12,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 public sealed class InstalledSamusChargeColors
 {
-    /// <summary>The installed charged-beam rows, by suit, phase and colour.</summary>
-    private readonly RgbColor[][][] chargedBeam;
-    /// <summary>The installed pseudo-Screw rows, by suit, phase and colour.</summary>
-    private readonly RgbColor[][][] pseudoScrew;
+    /// <summary>The installed charged-beam rows, keyed by suit, then by phase and colour.</summary>
+    private readonly Dictionary<SamusSuit, RgbColor[][]> chargedBeam;
+    /// <summary>The installed pseudo-Screw rows, keyed by suit, then by phase and colour.</summary>
+    private readonly Dictionary<SamusSuit, RgbColor[][]> pseudoScrew;
     /// <summary>Shot-glow playback uses its own Hyper colours, independent of the full-body cycle asset.</summary>
     private readonly InstalledSamusHyperBeamColors hyperShot;
 
@@ -24,8 +24,8 @@ public sealed class InstalledSamusChargeColors
     /// <param name="pseudoScrew">Three suits of six pseudo-Screw phase rows.</param>
     /// <param name="hyperShot">The Hyper-shot rows in full-body cycle order.</param>
     /// <exception cref="InvalidDataException">A suit, phase or colour is missing.</exception>
-    internal InstalledSamusChargeColors(RgbColor[][][] chargedBeam,
-        RgbColor[][][] pseudoScrew, InstalledSamusHyperBeamColors hyperShot)
+    internal InstalledSamusChargeColors(Dictionary<SamusSuit, RgbColor[][]> chargedBeam,
+        Dictionary<SamusSuit, RgbColor[][]> pseudoScrew, InstalledSamusHyperBeamColors hyperShot)
     {
         this.chargedBeam = Complete(chargedBeam, "charged beam");
         this.pseudoScrew = Complete(pseudoScrew, "pseudo-Screw");
@@ -39,36 +39,35 @@ public sealed class InstalledSamusChargeColors
     public SamusChargeColours ToColours()
     {
         var palettes = new Dictionary<SamusChargeShade, ImmutableArray<RgbColor>>();
-        // The document lists each sequence's rows suit by suit, in the suits' order (SamusSuitListLayout.Order).
-        var chargedBySuit = SamusSuitListLayout.Order.Zip(chargedBeam, KeyValuePair.Create).ToDictionary();
-        var screwBySuit = SamusSuitListLayout.Order.Zip(pseudoScrew, KeyValuePair.Create).ToDictionary();
         foreach (SamusSuit suit in SamusSuitListLayout.Order)
         for (int phase = 0; phase < SamusChargeColorFormat.PhasesPerSuit; phase++)
         {
-            palettes.Add(new(SamusChargeKind.ChargedBeam, suit, phase), [.. chargedBySuit[suit][phase]]);
-            palettes.Add(new(SamusChargeKind.PseudoScrew, suit, phase), [.. screwBySuit[suit][phase]]);
+            palettes.Add(new(SamusChargeKind.ChargedBeam, suit, phase), [.. chargedBeam[suit][phase]]);
+            palettes.Add(new(SamusChargeKind.PseudoScrew, suit, phase), [.. pseudoScrew[suit][phase]]);
         }
         return new(palettes, hyperShot.ToColours());
     }
 
     /// <summary>Copies <paramref name="rows"/>, rejecting a set without every suit, phase and colour.</summary>
-    private static RgbColor[][][] Complete(RgbColor[][][] rows, string name)
+    private static Dictionary<SamusSuit, RgbColor[][]> Complete(Dictionary<SamusSuit, RgbColor[][]> rows, string name)
     {
-        if (rows.Length != SamusChargeColorFormat.SuitCount)
-            throw new InvalidDataException($"{name} requires {SamusChargeColorFormat.SuitCount} suits.");
-        var copy = new RgbColor[rows.Length][][];
-        for (int suit = 0; suit < rows.Length; suit++)
+        var copy = new Dictionary<SamusSuit, RgbColor[][]>();
+        foreach (SamusSuit suit in SamusSuitListLayout.Order)
         {
-            if (rows[suit].Length != SamusChargeColorFormat.PhasesPerSuit)
+            RgbColor[][] phases = rows.TryGetValue(suit, out RgbColor[][]? held) ? held
+                : throw new InvalidDataException($"{name} requires the {suit} suit's phases.");
+            if (phases.Length != SamusChargeColorFormat.PhasesPerSuit)
                 throw new InvalidDataException($"{name} suit {suit} requires {SamusChargeColorFormat.PhasesPerSuit} phases.");
-            copy[suit] = new RgbColor[rows[suit].Length][];
-            for (int phase = 0; phase < rows[suit].Length; phase++)
+            copy[suit] = new RgbColor[phases.Length][];
+            for (int phase = 0; phase < phases.Length; phase++)
             {
-                if (rows[suit][phase].Length != SamusChargeColorFormat.ColorsPerPalette)
+                if (phases[phase].Length != SamusChargeColorFormat.ColorsPerPalette)
                     throw new InvalidDataException($"{name} suit {suit}, phase {phase} requires {SamusChargeColorFormat.ColorsPerPalette} colors.");
-                copy[suit][phase] = (RgbColor[])rows[suit][phase].Clone();
+                copy[suit][phase] = (RgbColor[])phases[phase].Clone();
             }
         }
+        if (rows.Count != copy.Count)
+            throw new InvalidDataException($"{name} holds rows for a suit Samus does not wear.");
         return copy;
     }
 }

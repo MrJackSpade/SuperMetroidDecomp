@@ -140,7 +140,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         SheetShade spikes = BossSheetShades.OwnRow(new BossSourceArtwork { CrocomireColors = colors }, EnemyDefinitionId.Crocomire, 0)
             .Single(shade => shade.Shade == CrocomireShades.WallSpikes);
         for (int color = 0; color < CrocomireColorDefinitions.WallSpikesCount; color++)
-            AssertEqual(colors.ResolveWallSpikes(color), spikes.Colours[color],
+            AssertEqual(colors.ResolveWallSpikes(color), spikes.Colours.ElementAt(color),
                 $"Crocomire rumble termination applies installed wall-spike color {color}");
 
         Console.WriteLine(

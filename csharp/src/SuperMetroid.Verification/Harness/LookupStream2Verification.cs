@@ -788,7 +788,7 @@ internal static class LookupStream2Verification
             pages[ordinal++] = RoomCharacterAtlasPng.Read(png, page.ByteCount);
         }
         AssertEqual(8, ordinal, "Torizo page count");
-        var artwork = new TorizoSwapArtwork(pages);
+        var artwork = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All.Zip(pages).ToDictionary(entry => entry.First.Page, entry => entry.Second));
         string expectedHash = SelectedPresentationHash.Create("TorizoInstructionVramArtwork-v1", content =>
         {
             content.Append("pages", original.Length);
@@ -1230,8 +1230,8 @@ internal static class LookupStream2Verification
         {
             var pulse = shades.Single(shade => shade.Shade == SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowShades.Pulse(SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowPulseFrame.All[frame]));
             AssertTrue(pulse.Inks.SequenceEqual([102, 107]), "the pulse shade recolours the arrow's two bevel colours");
-            AssertEqual(ReadVerificationWord(rom, 0x82ad5d + 2 * frame), pulse.Colours[0], "Native arrow color6 reaches the arrow's shade colour");
-            AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), pulse.Colours[1], "Native arrow color11 reaches the arrow's light colour");
+            AssertEqual(ReadVerificationWord(rom, 0x82ad5d + 2 * frame), pulse.InkColours[102], "Native arrow color6 reaches the arrow's shade colour");
+            AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), pulse.InkColours[107], "Native arrow color11 reaches the arrow's light colour");
         }
         Check(stock, document);
         Console.WriteLine("Reserve arrow ramps: all 64 native colors and shades pass.");

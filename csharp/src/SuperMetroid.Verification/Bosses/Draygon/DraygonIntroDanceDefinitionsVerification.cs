@@ -48,7 +48,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
     internal static void VerifyDraygonIntroLatencyDefinitions(CartridgeImportAddressSpace rom)
     {
         const int source = DraygonIntroDanceDefinitionsConstants.NativeMovementLatencyAddress;
-        for (int dancer = 0; dancer < DraygonIntroDanceDefinitions.EvirCount; dancer++)
+        for (int dancer = 0; dancer < DraygonIntroDanceDefinitions.DancerStartDelays.Count; dancer++)
         {
             int slotIndex = NativeDancerSlot(dancer);
             int address = source + (slotIndex - 28) * 2;
@@ -56,16 +56,10 @@ internal static class DraygonIntroDanceDefinitionsVerification
             AssertEqual(native % DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes, 0,
                 $"Draygon intro Evir slot {slotIndex} latency is whole records");
             AssertEqual(-native / DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes,
-                DraygonIntroDance.StartDelay(dancer),
+                DraygonIntroDanceDefinitions.DancerStartDelays[dancer],
                 $"Draygon intro Evir {dancer} (native slot {slotIndex}) start delay");
         }
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => DraygonIntroDance.StartDelay(-1),
-            "Draygon intro Evir before the first spawned");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => DraygonIntroDance.StartDelay(DraygonIntroDanceDefinitions.EvirCount),
-            "Draygon intro Evir after the last spawned");
-        Console.WriteLine("Evir start delays: all four native latencies and dancer bounds match.");
+        Console.WriteLine("Evir start delays: all four native latencies match.");
     }
 
     /// <summary>
@@ -115,8 +109,8 @@ internal static class DraygonIntroDanceDefinitionsVerification
         ushort[] expectedY = new ushort[4];
         bool[] expectedActive = new bool[4];
         // Each dancer is the Evir spawned in its turn; the native slot it would take indexes its expected values.
-        var dancers = new RoomEffectActor[DraygonIntroDanceDefinitions.EvirCount];
-        for (int dancer = 0; dancer < DraygonIntroDanceDefinitions.EvirCount; dancer++)
+        var dancers = new RoomEffectActor[DraygonIntroDanceDefinitions.DancerStartDelays.Count];
+        for (int dancer = 0; dancer < dancers.Length; dancer++)
         {
             dancers[dancer] = enemies.EffectActors.SpawnRoomEffectActor(new(0x0100, 0x0180), RoomEffectActorKind.EvirFacingLeft,
                 SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs));
@@ -124,7 +118,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             expectedX[actor] = 0x0100;
             expectedY[actor] = 0x0180;
             expectedActive[actor] = true;
-            state.IntroDancers.Add(new DraygonIntroDancer(dancers[dancer], DraygonIntroDance.StartDelay(dancer)));
+            state.IntroDancers.Add(new DraygonIntroDancer(dancers[dancer], DraygonIntroDanceDefinitions.DancerStartDelays[dancer]));
         }
 
         const int latencySource = DraygonIntroDanceDefinitionsConstants.NativeMovementLatencyAddress;
@@ -187,11 +181,11 @@ internal static class DraygonIntroDanceDefinitionsVerification
         {
             // The first Evir waits the shortest, so it reaches one step past the path's end first.
             IntroStage = UpdateCountdownAccess.AtAge(DraygonIntroDanceDefinitions.DurationFrames,
-                DraygonIntroDanceDefinitions.TracedPath.Length + 1 + DraygonIntroDance.StartDelay(0)),
+                DraygonIntroDanceDefinitions.TracedPath.Length + 1 + DraygonIntroDanceDefinitions.DancerStartDelays[0]),
         };
         RoomEffectActor malformedSprite = malformedEnemies.EffectActors.SpawnRoomEffectActor(new(0x0100, 0x0180),
             RoomEffectActorKind.EvirFacingLeft, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs));
-        malformedState.IntroDancers.Add(new DraygonIntroDancer(malformedSprite, DraygonIntroDance.StartDelay(0)));
+        malformedState.IntroDancers.Add(new DraygonIntroDancer(malformedSprite, DraygonIntroDanceDefinitions.DancerStartDelays[0]));
         AssertThrows<InvalidDataException>(
             () => malformedRun(malformedState, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 1),
             "Production Draygon intro rejects a restored step past the traced path");
@@ -199,8 +193,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
 
 
     /// <summary>The longest start delay of the Evirs the dance spawns.</summary>
-    private static int LongestEvirStartDelay() =>
-        Enumerable.Range(0, DraygonIntroDanceDefinitions.EvirCount).Max(DraygonIntroDance.StartDelay);
+    private static int LongestEvirStartDelay() => DraygonIntroDanceDefinitions.DancerStartDelays.Max();
 
     /// <summary>Runs the Draygon intro dance suite through the verification command dispatcher.</summary>
     [VerificationCommand("--draygon-intro-dance-definitions")]

@@ -61,7 +61,7 @@ internal static class XrayGameStateVerification
         {
             game.Step(ControllerButton.Start);
             AssertTrue(game.IsAt(PauseStep.DarkeningGameplay), "Start begins pause darkening");
-            game.Step(runtime.Options.ControllerBindings.Dash);
+            game.Step(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
             AssertTrue(game.IsAt(PauseStep.DarkeningGameplay), "the held-Run frame is a darkening gameplay frame");
             AssertEqual(SuperMetroidGameState.Pause, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.Progression.SuperMetroidGameState>(runtime, "RunningGameState"), "the runtime sees the live pause");
             AssertTrue(!samus.Xray.IsActive, "state $0C rejects X-ray setup");
@@ -72,7 +72,7 @@ internal static class XrayGameStateVerification
         {
             game.Session.screenFade.Show(DisplayBrightness.Black);
             game.Session.Enter(PauseStep.BrighteningGameplay);
-            game.Step(runtime.Options.ControllerBindings.Dash);
+            game.Step(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
             AssertTrue(game.IsAt(PauseStep.BrighteningGameplay), "the held-Run frame is an unpausing gameplay frame");
             AssertEqual(SuperMetroidGameState.Pause, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.Progression.SuperMetroidGameState>(runtime, "RunningGameState"), "the runtime sees the live pause");
             AssertTrue(!samus.Xray.IsActive, "state $12 rejects X-ray setup");
@@ -82,7 +82,7 @@ internal static class XrayGameStateVerification
         // State eight still admits the same held-Run input.
         {
             game.Session.Enter(SuperMetroidGameState.MainGameplay);
-            game.Step(runtime.Options.ControllerBindings.Dash);
+            game.Step(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
             AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the held-Run frame is a state-eight frame");
             AssertTrue(samus.Xray.IsActive, "state eight admits X-ray setup");
             AssertTrue(runtime.Freeze.TimeIsFrozen, "admitted X-ray freezes gameplay");

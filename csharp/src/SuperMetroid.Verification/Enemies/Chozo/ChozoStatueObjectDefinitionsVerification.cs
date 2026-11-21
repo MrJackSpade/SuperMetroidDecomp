@@ -137,7 +137,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
     private static void VerifyLowerNorfairHandTrigger()
     {
         RoomLevelData level = CreateEmptyRoom(new(48, 32));
-        var trigger = new Position16<RoomBlocks>(ChozoStatueRoomDefinitions.LowerNorfairTriggerX, ChozoStatueRoomDefinitions.LowerNorfairTriggerY);
+        Position16<RoomBlocks> trigger = ChozoStatueRoomDefinitions.LowerNorfairTriggerBlock;
         level.SetTerrain(trigger, RoomTerrainBlock.Of(0x1f4, BlockMirroring.None, RoomCollisionType.ShootableBlock));
         RoomObjectSystem roomObjects = RoomObjectFixtures.Bound(
             new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Norfair),

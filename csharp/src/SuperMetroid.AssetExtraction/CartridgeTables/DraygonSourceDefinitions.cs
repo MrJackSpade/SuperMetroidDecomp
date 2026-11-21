@@ -26,4 +26,8 @@ internal static class DraygonSourceDefinitions
 
     /// <summary>$A5:96AF, <c>DraygonHealthBasedPaletteTable</c>: eight consecutive four-colour rows.</summary>
     internal const int HealthBandColors = 0xa596af;
+
+    /// <summary>The health bands in the order <see cref="HealthBandColors"/> holds their rows: highest first.</summary>
+    internal static IReadOnlyList<SuperMetroid.Core.Bosses.Draygon.DraygonHealthBand> HealthTableOrder =>
+        SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst;
 }

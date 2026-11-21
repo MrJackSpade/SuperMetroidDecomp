@@ -78,18 +78,16 @@ public static class RoomObjectCrocomireVisualFiles
         RoomBlockShape shape = described;
         // A wall is written as its three columns, each down from the wall's top row and started from the origin rather
         // than from the column before. A bridge is written as the one run along its row.
-        Offset16<RoomBlocks>[] wallStarts = [new(0, 0), new(1, 0), new(2, 0)];
         int wallColumnHeight = 8;
-        if (WallFrames.Contains(RoomObjectDrawIdentity.FrameOf<CrocomireArenaMutation>(draw, "Crocomire arena")))
-        {
-            list = RoomObjectDrawListExport.Runs(draw, wallStarts.Length, _ => wallColumnHeight,
-                (run, cell) => shape.CollisionAt(wallStarts[run] + new Offset16<RoomBlocks>(0, cell)),
-                _ => RoomObjectRunDirection.Vertical, run => wallStarts[run]);
-            return true;
-        }
-        list = RoomObjectDrawListExport.Runs(draw, 1, _ => shape.Cells.Count,
-            (_, cell) => shape.CollisionAt(new Offset16<RoomBlocks>(cell, 0)),
-            RoomObjectDrawListExport.Horizontal, _ => Offset16<RoomBlocks>.Zero);
+        RoomObjectShapeRun[] wall =
+        [
+            RoomObjectShapeRun.Column(new(0, 0), wallColumnHeight), RoomObjectShapeRun.Column(new(1, 0), wallColumnHeight),
+            RoomObjectShapeRun.Column(new(2, 0), wallColumnHeight),
+        ];
+        list = RoomObjectDrawListExport.Runs(draw, shape,
+            WallFrames.Contains(RoomObjectDrawIdentity.FrameOf<CrocomireArenaMutation>(draw, "Crocomire arena"))
+                ? wall
+                : [RoomObjectShapeRun.Row(Offset16<RoomBlocks>.Zero, shape.Cells.Count)]);
         return true;
     }
 

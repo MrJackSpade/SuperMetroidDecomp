@@ -77,8 +77,8 @@ public sealed class StoredExploredMaps<TArea>
     /// <summary>The areas whose maps are stored, in the order the game keeps them.</summary>
     private readonly IReadOnlyList<TArea> _storedOrder;
 
-    /// <summary>Each area's stored map, in the order the game keeps them: whether each cell, row by row, is explored.</summary>
-    private readonly bool[][] _stored;
+    /// <summary>Each area's stored map, by area: whether each cell, row by row, is explored.</summary>
+    private readonly Dictionary<TArea, bool[]> _stored;
 
     /// <summary>The live map: whether each cell, row by row, is explored.</summary>
     private bool[] _live = new bool[MapCells];
@@ -92,7 +92,7 @@ public sealed class StoredExploredMaps<TArea>
         if (storedOrder.Count > KeptMapCount || storedOrder.Distinct().Count() != storedOrder.Count)
             throw new ArgumentException("The game keeps at most eight stored maps, one per area.", nameof(storedOrder));
         _storedOrder = storedOrder;
-        _stored = [.. storedOrder.Select(_ => new bool[MapCells])];
+        _stored = storedOrder.ToDictionary(area => area, _ => new bool[MapCells]);
     }
 
     /// <summary>Marks <paramref name="cell"/> explored on the live map.</summary>
@@ -102,11 +102,11 @@ public sealed class StoredExploredMaps<TArea>
 
     /// <summary>Stores the live map as <paramref name="area"/>'s map.</summary>
     /// <param name="area">The area the game stores the live map for.</param>
-    public void StoreLiveMap(TArea area) => _stored[IndexOf(area)] = [.. _live];
+    public void StoreLiveMap(TArea area) => _stored[Stored(area)] = [.. _live];
 
     /// <summary>Loads the live map from <paramref name="area"/>'s stored map.</summary>
     /// <param name="area">The area whose stored map becomes the live map.</param>
-    public void LoadLiveMap(TArea area) => _live = [.. _stored[IndexOf(area)]];
+    public void LoadLiveMap(TArea area) => _live = [.. _stored[Stored(area)]];
 
     /// <summary>Replaces <paramref name="area"/>'s stored map with <paramref name="explored"/>, as loading a file does.</summary>
     /// <param name="area">The area.</param>
@@ -117,12 +117,12 @@ public sealed class StoredExploredMaps<TArea>
         var map = new bool[MapCells];
         foreach (Position16<MapTiles> cell in Ensure.NotNull(explored))
             map[CellNumber(cell)] = true;
-        _stored[IndexOf(area)] = map;
+        _stored[Stored(area)] = map;
     }
 
     /// <summary>Clears <paramref name="area"/>'s stored map.</summary>
     /// <param name="area">The area.</param>
-    public void ClearStoredMap(TArea area) => Array.Clear(_stored[IndexOf(area)]);
+    public void ClearStoredMap(TArea area) => Array.Clear(_stored[Stored(area)]);
 
     /// <summary>Clears the live map.</summary>
     public void ClearLiveMap() => Array.Clear(_live);
@@ -150,7 +150,8 @@ public sealed class StoredExploredMaps<TArea>
         int run = cellsPast % RunsPerMap;
         int firstX = run / RunsPerHalf * HalfWidth + run % RunsPerHalfRow * RunCells;
         int y = run % RunsPerHalf / RunsPerHalfRow;
-        bool[] stored = _stored[map];
+        // The scroll check reads the stored maps in the order the game keeps them.
+        bool[] stored = _stored[_storedOrder[map]];
         int explored = 0;
         for (int x = firstX; x < firstX + RunCells; x++)
         {
@@ -171,15 +172,8 @@ public sealed class StoredExploredMaps<TArea>
             ? cell.Y * Width + cell.X
             : throw new ArgumentOutOfRangeException(nameof(cell), cell, "A map cell lies within the 64-by-32 map.");
 
-    /// <summary>The place of <paramref name="area"/>'s stored map.</summary>
+    /// <summary><paramref name="area"/>, when the game stores a map for it.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The game stores no map for the area.</exception>
-    private int IndexOf(TArea area)
-    {
-        for (int index = 0; index < _storedOrder.Count; index++)
-        {
-            if (EqualityComparer<TArea>.Default.Equals(_storedOrder[index], area))
-                return index;
-        }
-        throw new ArgumentOutOfRangeException(nameof(area), area, "The game stores no explored map for this area.");
-    }
+    private TArea Stored(TArea area) =>
+        _stored.ContainsKey(area) ? area : throw new ArgumentOutOfRangeException(nameof(area), area, "The game stores no explored map for this area.");
 }

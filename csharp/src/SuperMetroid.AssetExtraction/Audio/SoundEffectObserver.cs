@@ -14,8 +14,6 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// <param name="command">The request byte.</param>
 internal sealed class SoundEffectObserver(SoundEffectLibrary soundLibrary, int command) : ISpcDriverObserver
 {
-    /// <summary>Where the emulated driver keeps the library's state.</summary>
-    private readonly int libraryIndex = SoundLibraryNumbers.DriverIndex(soundLibrary);
 
     /// <summary>Most channels any library allocates (library 1).</summary>
     private const int MaximumChannels = 4;
@@ -79,13 +77,13 @@ internal sealed class SoundEffectObserver(SoundEffectLibrary soundLibrary, int c
     public void KeysPublished(int keyOn, int keyOff)
     {
         ManagedSpcPlayer player = MusicTrackAnalysis.Required(renderer).Player;
-        ManagedSpcSoundLibrary library = player.soundLibraries[libraryIndex];
+        ManagedSpcSoundLibrary library = player.soundLibraries[soundLibrary];
         if (StartSample is null)
         {
             if (library.CurrentSound != command)
             {
                 if (requested)
-                    throw new InvalidDataException($"Sound library {libraryIndex + 1} rejected ${command:X2} from the power-on state.");
+                    throw new InvalidDataException($"Sound library {soundLibrary} rejected ${command:X2} from the power-on state.");
                 return;
             }
             StartSample = tickSample;
@@ -103,7 +101,7 @@ internal sealed class SoundEffectObserver(SoundEffectLibrary soundLibrary, int c
     /// <summary>Records each allocated channel's state and notes its first repeat.</summary>
     private void RecordChannelStates(ManagedSpcPlayer player, long relative)
     {
-        ManagedSpcSoundChannel[] channels = player.soundChannels[libraryIndex];
+        ManagedSpcSoundChannel[] channels = player.soundLibraries[soundLibrary].Channels;
         bool all = processed;
         for (int index = 0; index < channels.Length; index++)
         {

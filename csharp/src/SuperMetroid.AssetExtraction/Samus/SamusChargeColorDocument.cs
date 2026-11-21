@@ -10,10 +10,10 @@ public sealed record SamusChargeColorDocument
 {
     /// <summary>Color schema revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }
-    /// <summary>Power/Varia/Gravity suits, each with six playback phases.</summary>
-    public required PaletteRgb5[][][] ChargedBeam { get; init; }
-    /// <summary>Power/Varia/Gravity suits, each with six playback phases.</summary>
-    public required PaletteRgb5[][][] PseudoScrew { get; init; }
+    /// <summary>Each suit's six playback phases, keyed by the suit's name.</summary>
+    public required Dictionary<string, PaletteRgb5[][]> ChargedBeam { get; init; }
+    /// <summary>Each suit's six playback phases, keyed by the suit's name.</summary>
+    public required Dictionary<string, PaletteRgb5[][]> PseudoScrew { get; init; }
     /// <summary>Ten Hyper-shot glow frames in playback order.</summary>
     public required PaletteRgb5[][] HyperShot { get; init; }
 }

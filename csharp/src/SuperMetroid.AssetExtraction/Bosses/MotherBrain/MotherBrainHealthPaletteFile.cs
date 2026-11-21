@@ -1,4 +1,5 @@
 using System.Text.Json;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
@@ -8,8 +9,8 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// <summary>Reads and writes the installed Mother Brain health palette document.</summary>
 public static class MotherBrainHealthPaletteFile
 {
-    /// <summary>Supported schema version requiring paired body and rear-leg arrays with four fifteen-color RGB5 rows each.</summary>
-    public const int Version = 1;
+    /// <summary>Supported schema version: 2 keys each health band's body and rear-leg colours by the band (#2565).</summary>
+    public const int Version = 2;
 
     /// <summary>Installed resource filename loaded with area-map presentation assets for Mother Brain's body/brain and rear-leg damage colors.</summary>
     public const string FileName = "mother-brain-health-palette.json";
@@ -25,33 +26,21 @@ public static class MotherBrainHealthPaletteFile
             json, ArtworkJson.Options, "Mother Brain health palette");
         if (document.Version != Version)
             throw new InvalidDataException("Unsupported Mother Brain health palette version.");
-        return new MotherBrainHealthPalettePresentation(Rows(document.Body, nameof(document.Body)),
-            Rows(document.BackLegs, nameof(document.BackLegs)));
+        IReadOnlyList<MotherBrainHealthBand> bands = MotherBrainHealthBandDefinitions.HighestFirst;
+        if (document.HealthBands is not { } installed || installed.Count != bands.Count)
+            throw new InvalidDataException($"Mother Brain health palette requires {bands.Count} damage states, each keyed by its band.");
+        Dictionary<MotherBrainHealthBand, MotherBrainBodyColoursDocument> byBand = bands.ToDictionary(band => band, band =>
+            installed.TryGetValue(band.Key, out MotherBrainBodyColoursDocument? colours) && colours is not null
+                ? colours
+                : throw new InvalidDataException($"Mother Brain health palette holds no colours for her {band} band."));
+        return new MotherBrainHealthPalettePresentation(
+            Rows(byBand.ToDictionary(entry => entry.Key, entry => Rgb5Rows.Compile(entry.Value.Body, MotherBrainRainbowPaletteGeometry.ColorCount,
+                $"Mother Brain {entry.Key} body")), "body"),
+            Rows(byBand.ToDictionary(entry => entry.Key, entry => Rgb5Rows.Compile(entry.Value.BackLegs, MotherBrainRainbowPaletteGeometry.ColorCount,
+                $"Mother Brain {entry.Key} rear legs")), "rear legs"));
 
-        static InstalledColourRows Rows(PaletteRgb5[][]? frames, string name) => new(Convert(frames, name),
-            MotherBrainHealthPaletteFormat.StateCount, MotherBrainRainbowPaletteGeometry.ColorCount, $"Mother Brain {name}");
-
-        static RgbColor[][] Convert(PaletteRgb5[][]? frames, string name)
-        {
-            if (frames is null || frames.Length != MotherBrainHealthPaletteFormat.StateCount)
-                throw new InvalidDataException($"Mother Brain {name} requires four damage states.");
-            var values = new RgbColor[frames.Length][];
-            for (int state = 0; state < frames.Length; state++)
-            {
-                PaletteRgb5[]? colors = frames[state];
-                if (colors is null || colors.Length != MotherBrainRainbowPaletteGeometry.ColorCount)
-                    throw new InvalidDataException($"Mother Brain {name} state {state} requires fifteen colors.");
-                values[state] = new RgbColor[colors.Length];
-                for (int color = 0; color < colors.Length; color++)
-                {
-                    PaletteRgb5? rgb = colors[color];
-                    if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 || (uint)rgb.Blue > 31)
-                        throw new InvalidDataException($"Mother Brain {name} state {state} color {color} requires RGB5 components.");
-                    values[state][color] = rgb.ToRgbColor();
-                }
-            }
-            return values;
-        }
+        InstalledKeyedColourRows<MotherBrainHealthBand> Rows(Dictionary<MotherBrainHealthBand, RgbColor[]> colours, string name) =>
+            new(colours, bands, MotherBrainRainbowPaletteGeometry.ColorCount, $"Mother Brain {name}");
     }
 
     /// <summary>Serializes artwork as UTF-8 JSON and writes the bytes without retaining the document.</summary>

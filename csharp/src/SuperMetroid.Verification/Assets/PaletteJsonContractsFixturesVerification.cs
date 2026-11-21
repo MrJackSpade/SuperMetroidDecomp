@@ -74,8 +74,12 @@ internal static class PaletteJsonContractsFixturesVerification
         }), json => _ = TitlePaletteFile.Read(json));
         yield return new("Mother Brain health", PaletteContractDocument(new MotherBrainHealthPaletteDocument
         { Version = MotherBrainHealthPaletteFile.Version,
-            Body = PaletteContractRows(MotherBrainHealthPaletteFormat.StateCount, MotherBrainRainbowPaletteGeometry.ColorCount),
-            BackLegs = PaletteContractRows(MotherBrainHealthPaletteFormat.StateCount, MotherBrainRainbowPaletteGeometry.ColorCount) }),
+            HealthBands = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHealthBandDefinitions.HighestFirst.Select((band, row) => KeyValuePair.Create(band.Key,
+                new MotherBrainBodyColoursDocument
+                {
+                    Body = PaletteContractColors(MotherBrainRainbowPaletteGeometry.ColorCount, row),
+                    BackLegs = PaletteContractColors(MotherBrainRainbowPaletteGeometry.ColorCount, row + 4),
+                })).ToDictionary() }),
             json => _ = MotherBrainHealthPaletteFile.Read(json));
         yield return new("Mother Brain room", PaletteContractDocument(new MotherBrainRoomColorDocument
         {

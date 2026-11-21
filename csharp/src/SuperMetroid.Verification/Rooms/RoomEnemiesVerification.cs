@@ -120,8 +120,8 @@ internal static void VerifyRoomEnemyLoading()
     SeedRoomEnemyLoadingArtworkAndSpawnData(bus, primaryPaletteBytes, specialPaletteBytes, primaryTileBytes, specialTileBytes);
 
     SeedRoomEnemyGraphicsSet(bus, tilesetPointer,
-        new(primaryDefinitionPointer),
-        new(specialDefinitionPointer));
+        new(primaryDefinitionPointer, FixturePaletteRow),
+        new(specialDefinitionPointer, FixturePaletteRow));
 
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
         SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Decode(primaryDefinitionPointer, 0x0456, 0x0789, 0, 0x2000, 0x0004, 0x1357, 0x2468));
@@ -415,7 +415,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         0x00, 0x02, 0x00, 0x02, 0x00, 0x00, 0x02, 0x00, 0x00, 0x02,
     ]);
 
-    SeedRoomEnemyGraphicsSet(bus, tilesetPointer, new RoomEnemyGraphicsSetMember(definitionPointer));
+    SeedRoomEnemyGraphicsSet(bus, tilesetPointer, new RoomEnemyGraphicsSetMember(definitionPointer, FixturePaletteRow));
 
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
         SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Decode(definitionPointer, 80, 64, 0, 0x2800, 0, 16, 1));
@@ -1469,16 +1469,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // The room's graphics set is the retail Ceres Ridley set, Ridley and the Ceres door, each in the palette row the
     // import catalogues for it (#1512), so its members' sheets compose in the rows the cartridge loads their colours into.
     RoomEnemyGraphicsSetDefinition ceresRidleySet = RoomEnemyGraphicsSetDefinitions.CeresRidleyDefault;
-    int[] ceresRidleyRows = SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows[ceresRidleySet];
-    ReadOnlySpan<RoomEnemyGraphicsSetMember> ceresRidleyRecords = RoomEnemyGraphicsSetLists.MembersOf(ceresRidleySet).Records.Span;
-    for (int record = 0; record < ceresRidleyRecords.Length; record++)
-    {
-        int recordAddress = (0xb40000 | tilesetPointer) + record * 4;
-        WriteTestWord(bus, recordAddress, TestAddressSpace.FixtureHeaderPointer(ceresRidleyRecords[record]));
-        WriteTestWord(bus, recordAddress + 2, RoomEnemyGraphicsSetMember.NativePlacement(ceresRidleyRows[record],
-            ceresRidleyRecords[record].FixedBlock ?? 0));
-    }
-    WriteTestWord(bus, (0xb40000 | tilesetPointer) + ceresRidleyRecords.Length * 4, 0xffff);
+    SeedRoomEnemyGraphicsSet(bus, tilesetPointer, RoomEnemyGraphicsSetLists.MembersOf(ceresRidleySet).Records.Span);
     for (int color = 0; color < 16; color++)
         WriteTestWord(bus, 0xa6e14f + color * 2, unchecked((ushort)(0x1000 + color)));
 

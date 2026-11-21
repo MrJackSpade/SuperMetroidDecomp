@@ -21,8 +21,7 @@ public static class RoomObjectEscapeGateVisualFiles
 
     /// <summary>The gate as the import pictures it: every frame's geometry and published name, keyed by the frame's draw.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
-        new(VisualFileName, "Escape-gate", Layouts(), MotherBrainEscapeGateDrawKeys.Installed.ByIdentity.ToDictionary(
-            RoomObjectDraw (frame) => MotherBrainEscapeGateDraws.Family.Of(frame.Key), frame => frame.Value));
+        new(VisualFileName, "Escape-gate", Layouts());
 
     /// <summary>Pictures the three gate frames from the cartridge's draw lists and writes the installed file.</summary>
     /// <param name="bus">The cartridge, whose draw lists are checked against the gate's four solid cells.</param>
@@ -49,7 +48,8 @@ public static class RoomObjectEscapeGateVisualFiles
             RoomObjectDraw draw = MotherBrainEscapeGateDraws.Family.Of(frame);
             if (!RoomObjectDrawIdentity.TryShape(MotherBrainEscapeGateDraws.Family, draw, out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Escape-gate frame {frame} has no shape.");
-            layouts.Add(new(draw, RoomObjectShapeRun.Layout(draw, shape, RoomObjectShapeRun.Column(Offset16<RoomBlocks>.Zero, 4))));
+            layouts.Add(new(draw, RoomObjectShapeRun.Layout(draw, shape, RoomObjectShapeRun.Column(Offset16<RoomBlocks>.Zero, 4)),
+                MotherBrainEscapeGateDrawKeys.Installed.Of(frame)));
         }
         return layouts;
     }

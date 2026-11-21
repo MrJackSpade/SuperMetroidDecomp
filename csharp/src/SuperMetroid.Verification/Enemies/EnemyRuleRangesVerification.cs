@@ -67,12 +67,13 @@ internal static class EnemyRuleRangesVerification
     /// </summary>
     internal static void VerifyUnauthoredBeamVulnerability()
     {
-        string[] combinations = ["Spazer-Plasma", "Spazer-Plasma-Wave", "Spazer-Plasma-Ice", "Spazer-Plasma-Ice-Wave"];
-        string[] responses = ["missile", "Super Missile", "bomb", "Power Bomb"];
-        for (int place = 0; place < combinations.Length; place++)
-            AssertEqual(responses[place], UnauthoredBeamVulnerability.Response(combinations[place], combinations, responses),
-                $"{combinations[place]} takes the {responses[place]} response");
-        AssertThrows<ArgumentOutOfRangeException>(() => UnauthoredBeamVulnerability.Response("Plasma", combinations, responses),
+        var responses = new Dictionary<string, string>
+        {
+            ["Spazer-Plasma"] = "missile", ["Spazer-Plasma-Wave"] = "Super Missile", ["Spazer-Plasma-Ice"] = "bomb", ["Spazer-Plasma-Ice-Wave"] = "Power Bomb",
+        };
+        foreach ((string combination, string response) in responses)
+            AssertEqual(response, UnauthoredBeamVulnerability.Response(combination, responses), $"{combination} takes the {response} response");
+        AssertThrows<ArgumentOutOfRangeException>(() => UnauthoredBeamVulnerability.Response("Plasma", responses),
             "an authored combination is refused");
 
         EnemyVulnerabilities standard = EnemyVulnerabilityDefinitions.Standard;

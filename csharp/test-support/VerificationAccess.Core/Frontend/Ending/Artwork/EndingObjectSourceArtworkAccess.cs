@@ -9,8 +9,8 @@ internal static class EndingObjectSourceArtworkAccess
     /// <summary>Exposes <see cref="EndingObjectSourceArtwork"/> state that only verification reads.</summary>
     extension(EndingObjectSourceArtwork self)
     {
-        /// <summary>The four explosion maps in their installed fragments' order.</summary>
-        public IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments => self.fragments;
+        /// <summary>The four explosion maps in the installation's order of their pictures.</summary>
+        public IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments => [.. EndingObjectArtworkFormat.ExplosionPictures.Select(self.Fragment)];
         /// <summary>
         /// Identity of every selected ending/credits map and the compositions its sheets are composed from; the characters are
         /// import data the installation never holds (#1636).

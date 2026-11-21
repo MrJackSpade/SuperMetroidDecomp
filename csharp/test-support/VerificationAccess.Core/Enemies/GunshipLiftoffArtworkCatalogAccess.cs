@@ -7,6 +7,7 @@ internal static class GunshipLiftoffArtworkCatalogAccess
     extension(GunshipLiftoffArtworkCatalog self)
     {
         /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-        public string ContentIdentity => GunshipLiftoffArtworkConstants.ContentIdentity(self.frames);
+        public string ContentIdentity => GunshipLiftoffArtworkConstants.ContentIdentity(
+            [.. GunshipLiftoffTransferDefinitions.Frames.Select(transfer => self.frames[transfer.Asset])]);
     }
 }

@@ -13,7 +13,7 @@ public sealed class SporeSpawnColorCatalog
     /// <summary>The installed spore colours.</summary>
     private readonly InstalledColourRows spores;
     /// <summary>The installed health bands.</summary>
-    private readonly InstalledColourRows health;
+    private readonly InstalledKeyedColourRows<SporeSpawnHealthBand> health;
     /// <summary>The installed sprite-death phases.</summary>
     private readonly InstalledColourRows deathSprite;
     /// <summary>The installed level-graphics death phases.</summary>
@@ -28,12 +28,12 @@ public sealed class SporeSpawnColorCatalog
     /// <param name="deathLevel">The level-graphics death phases' colours.</param>
     /// <param name="deathBackground">The background death phases' colours.</param>
     /// <exception cref="InvalidDataException">A set is missing a frame or a colour.</exception>
-    internal SporeSpawnColorCatalog(RgbColor[] spores, RgbColor[][] health, RgbColor[][] deathSprite, RgbColor[][] deathLevel,
+    internal SporeSpawnColorCatalog(RgbColor[] spores, IReadOnlyDictionary<SporeSpawnHealthBand, RgbColor[]> health, RgbColor[][] deathSprite, RgbColor[][] deathLevel,
         RgbColor[][] deathBackground)
     {
         this.spores = new InstalledColourRows(spores, SporeSpawnColorFormat.ColorsPerFrame, "Spore Spawn spores");
-        this.health = new InstalledColourRows(health, SporeSpawnColorFormat.HealthFrameCount,
-            SporeSpawnColorFormat.ColorsPerFrame, "Spore Spawn health");
+        this.health = new InstalledKeyedColourRows<SporeSpawnHealthBand>(health, SporeSpawnHealthBandDefinitions.HighestFirst,
+            SporeSpawnColorFormat.ColorsPerFrame, "Spore Spawn health band");
         this.deathSprite = new InstalledColourRows(deathSprite, SporeSpawnColorFormat.DeathSpriteFrameCount,
             SporeSpawnColorFormat.ColorsPerFrame, "Spore Spawn death sprite");
         this.deathLevel = new InstalledColourRows(deathLevel, SporeSpawnColorFormat.DeathSceneFrameCount,
@@ -46,7 +46,7 @@ public sealed class SporeSpawnColorCatalog
     public RgbColor ResolveSpore(int color) => spores.Colour(color);
     /// <summary>Gets installed ink 0–15 of health band <paramref name="band"/>, selected by boss health and copied to sprite palette 1.</summary>
     public RgbColor ResolveHealth(SporeSpawnHealthBand band, int color) =>
-        health.Colour(InstalledRows.Of(SporeSpawnHealthBandDefinitions.HighestFirst, band), color);
+        health.Colour(band, color);
     /// <summary>Gets installed ink 0–15 of sprite-death phase 0–7.</summary>
     public RgbColor ResolveDeathSprite(int frame, int color) => deathSprite.Colour(frame, color);
     /// <summary>Gets installed ink 0–15 of level-graphics death phase 0–6, assigned to background palette 4 by the death-script owner.</summary>

@@ -24,7 +24,7 @@ public sealed class SporeSpawnEnemyState
     /// His stalk's four links, from the one at the ceiling down toward his body (#1932): his last spawned link hangs at the
     /// ceiling. They live as long as he does; his death clears every other projectile.
     /// </summary>
-    internal IReadOnlyList<EnemyProjectile> StalkLinks { get; set; } = [];
+    internal IReadOnlyList<SporeSpawnStalkLink> StalkLinks { get; set; } = [];
     /// <summary>
     /// Fixed stalk interpolation anchor in room pixels: the spawn body's X and a Y above it by
     /// <see cref="SporeSpawnArenaDefinitions.StalkAnchorAboveBody"/>.

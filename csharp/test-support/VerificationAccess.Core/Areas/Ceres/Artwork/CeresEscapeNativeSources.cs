@@ -11,7 +11,8 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 internal static class CeresEscapeNativeSources
 {
     /// <summary>Where character page <paramref name="page"/> (<see cref="CeresEscapeTileArtworkDefinitions.All"/>) starts on the bus.</summary>
-    internal static int PageSource(int page) => (int)EscapeSourceDefinitions.CeresEscapePages[page];
+    internal static int PageSource(int page) =>
+        (int)EscapeSourceDefinitions.CeresEscapePageSources[SuperMetroid.AssetExtraction.Areas.Ceres.Artwork.CeresEscapeTileArtworkDefinitions.All[page]];
 
     /// <summary>Where overlay <paramref name="page"/>'s words start on the bus.</summary>
     internal static int OverlaySource(CeresEscapeWarningPicture page) => (int)CeresEscapeOverlayTilemapFiles.Source(page);

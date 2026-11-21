@@ -76,7 +76,8 @@ internal static class SamusContentIdentityVerification
         ushort[][] suitless = Rows();
         var whiteout = new ushort[SamusShadeDefinitions.Death.WhiteoutShadeCount];
         var explosion = new ushort[SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordCount];
-        var deathPalettes = new InstalledSamusDeathPalettes(ToColors(suited), ToColors(suitless), ToColors(whiteout), Array.ConvertAll(explosion, step => (int)step));
+        var deathPalettes = new InstalledSamusDeathPalettes(SamusDeathPaletteFixtureKeys.Suits(ToColors(suited)), ToColors(suitless), ToColors(whiteout),
+            SamusDeathPaletteFixtureKeys.ExplosionSteps(explosion));
         var cannonDocument = new SamusArmCannonArtworkDocument
         {
             Version = SamusArmCannonArtworkFormat.Version,

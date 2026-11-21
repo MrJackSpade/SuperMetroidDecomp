@@ -19,7 +19,7 @@ internal static class PaletteFxRecordSources
     {
         int word = Address(key.Record) + sizeof(ushort);
         int ordinal = 0;
-        foreach (PaletteFxRecordPart part in PaletteFxRecordDefinitions.Layout(key.Record))
+        foreach (PaletteFxRecordPart part in SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxRecords.Layout(key.Record))
         {
             if (part.Skip)
             {

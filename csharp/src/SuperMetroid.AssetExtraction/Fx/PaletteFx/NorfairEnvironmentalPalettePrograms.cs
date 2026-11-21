@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx.ColourEffects;
 using static SuperMetroid.AssetExtraction.Fx.PaletteFx.NorfairEnvironmentalPaletteFxColorDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
@@ -9,17 +10,18 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 internal sealed class NorfairEnvironmentalPalettePrograms : IReadOnlyList<NorfairEnvironmentalPaletteFxColorDefinition>
 {
     /// <summary>The four adjacent definition identities, one for each owner.</summary>
-    public int Count => Owners.Length;
+    public int Count => NorfairEnvironmentalPaletteFxColorDefinitions.Programs.Count;
     /// <summary>Builds one program's definition from its owner index.</summary>
     public NorfairEnvironmentalPaletteFxColorDefinition this[int index]
     {
         get
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+            (NorfairEnvironmentalPaletteOwner owner, ColourEffectId effect) = NorfairEnvironmentalPaletteFxColorDefinitions.Programs[index];
             return new()
             {
-                Owner = Owners[index],
-                ColorFrames = PaletteFxColorFrames.Of(NorfairEnvironmentalPaletteFxColorDefinitions.Objects[index], NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame),
+                Owner = owner,
+                ColorFrames = PaletteFxColorFrames.Of(effect, NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame),
             };
         }
     }

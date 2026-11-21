@@ -171,18 +171,42 @@ internal static class EncounterLookUploads
 
     /// <summary><paramref name="encounter"/>'s looks in the order it shows them, its room's load first.</summary>
     /// <exception cref="InvalidDataException">The encounter is not one the import composes.</exception>
-    private static IReadOnlyList<ComposedLook> Looks(ComposedEncounter encounter) => encounter switch
+    private static IReadOnlyList<ComposedLook> Looks(ComposedEncounter encounter) =>
+        [ComposedLook.Loaded(encounter), .. Authored(encounter).Select(look => look.Look)];
+
+    /// <summary>
+    /// <paramref name="encounter"/>'s looks after its room's load, in the order it shows them, each with what it copies: a
+    /// Torizo's look is the authored artwork look it shows, and Mother Brain's the sheet whose pages it copies.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The encounter is not one the import composes.</exception>
+    private static IReadOnlyList<AuthoredLook> Authored(ComposedEncounter encounter) => encounter switch
     {
-        ComposedEncounter.DraygonEvirs => [ComposedLook.Loaded(encounter), DraygonEvirsLook],
-        ComposedEncounter.Gunship => [ComposedLook.Loaded(encounter), ComposedLook.Of(encounter, GunshipTakeoffDefinitions.TakeoffLook)],
-        ComposedEncounter.Crocomire => [ComposedLook.Loaded(encounter), ComposedLook.Of(encounter, CrocomireSkeletonLookDefinitions.SkeletonLook)],
-        ComposedEncounter.BombTorizo => [ComposedLook.Loaded(encounter),
-            .. TorizoLookUploadDefinitions.BombSequence.Select(look => ComposedLook.Of(encounter, look.Of(EncounterArtwork.BombTorizo)))],
-        ComposedEncounter.GoldenTorizo => [ComposedLook.Loaded(encounter),
-            .. TorizoLookUploadDefinitions.GoldenSequence.Select(look => ComposedLook.Of(encounter, look.Of(EncounterArtwork.GoldenTorizo)))],
-        ComposedEncounter.CeresEscape => [ComposedLook.Loaded(encounter), ComposedLook.Of(encounter, CeresEscapeWarningLookDefinitions.WarningLook)],
-        ComposedEncounter.CeresElevatorDoor => [ComposedLook.Loaded(encounter), ComposedLook.Of(encounter, CeresElevatorDoorLookDefinitions.OverlayLook)],
-        ComposedEncounter.MotherBrain => [ComposedLook.Loaded(encounter), .. MotherBrainLooks.Select(look => look.Look)],
+        ComposedEncounter.DraygonEvirs => [new(DraygonEvirsLook, installed => [new(EncounterCharacterPlacementDefinitions.EvirFirstCharacter,
+            Whole(installed.EnemyTiles.TilesOf(EnemyDefinitionId.Evir), EncounterCharacterPlacementDefinitions.EvirByteCount, "the Evir tiles"))])],
+        ComposedEncounter.Gunship => [new(ComposedLook.Of(encounter, GunshipTakeoffDefinitions.TakeoffLook), installed =>
+            [.. Enumerable.Range(0, GunshipLiftoffTransferDefinitions.Frames.Length).Select(page =>
+                new EncounterArtworkUpload(EncounterCharacterPlacementDefinitions.GunshipFirstCharacter
+                        + page * (GunshipLiftoffCharacterDefinitions.ByteCount / SpriteCharacterTableLayout.CharacterByteCount),
+                    Whole(installed.Resolve(GunshipLiftoffTransferDefinitions.Frames[page].Asset), GunshipLiftoffCharacterDefinitions.ByteCount,
+                        $"{GunshipLiftoffTransferDefinitions.Frames[page].Asset}")))])],
+        ComposedEncounter.Crocomire => [new(ComposedLook.Of(encounter, CrocomireSkeletonLookDefinitions.SkeletonLook), installed =>
+            [.. Enumerable.Range(0, CrocomireSkeletonCharacterDefinitions.ChunkCount).Select(chunk =>
+                new EncounterArtworkUpload(SkeletonFirstCharacter(chunk),
+                    Whole((installed.BossTiles.CrocomireSkeleton ?? throw new InvalidDataException(
+                        "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(chunk), CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
+                        $"Crocomire skeleton chunk {chunk}")))])],
+        ComposedEncounter.BombTorizo => [.. TorizoLookUploadDefinitions.BombSequence.Select(look => new AuthoredLook(
+            ComposedLook.Of(encounter, look.Of(EncounterArtwork.BombTorizo)), installed => Torizo(look, installed)))],
+        ComposedEncounter.GoldenTorizo => [.. TorizoLookUploadDefinitions.GoldenSequence.Select(look => new AuthoredLook(
+            ComposedLook.Of(encounter, look.Of(EncounterArtwork.GoldenTorizo)), installed => Torizo(look, installed)))],
+        ComposedEncounter.CeresEscape => [new(ComposedLook.Of(encounter, CeresEscapeWarningLookDefinitions.WarningLook), installed =>
+            [.. TimerPages.Select(page => Timer(page, installed)),
+                .. Enumerable.Range(0, CeresWarningTextPageDefinitions.PageCount).Select(page => Warning(page, installed))])],
+        ComposedEncounter.CeresElevatorDoor => [new(ComposedLook.Of(encounter, CeresElevatorDoorLookDefinitions.OverlayLook), installed =>
+            [new(EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter,
+                Whole((installed.AreaTiles.CeresDoor ?? throw new InvalidDataException("Installed area artwork has no Ceres door visuals.")).Characters,
+                    CeresDoorVisualFormat.CharacterBytes, "the Ceres door characters"))])],
+        ComposedEncounter.MotherBrain => [.. MotherBrainLooks.Select(look => new AuthoredLook(look.Look, installed => MotherBrainPages(look.Sheet, installed)))],
         _ => throw new InvalidDataException($"Undefined {nameof(ComposedEncounter)} {encounter}."),
     };
 
@@ -195,47 +219,13 @@ internal static class EncounterLookUploads
         return index >= 0 ? index : throw new InvalidDataException($"{encounter} has no look {look}.");
     }
 
-    /// <summary>What each of <paramref name="encounter"/>'s looks copies, resolved against <paramref name="installed"/>.</summary>
+    /// <summary>What each of <paramref name="encounter"/>'s looks copies, resolved against <paramref name="installed"/>: nothing for the room's load.</summary>
     /// <exception cref="InvalidDataException">The installed artwork lacks a look's characters.</exception>
-    internal static EncounterLookSteps Steps(ComposedEncounter encounter, IInstalledEncounterArtwork installed) =>
-        new(encounter, [.. Looks(encounter).Select(look => new EncounterLookStep(look, Uploads(encounter, look, installed)))]);
-
-    /// <summary>
-    /// What look <paramref name="look"/> of <paramref name="encounter"/> copies, in the order its copies land, resolved
-    /// against <paramref name="installed"/>: nothing for the room's load. A look after the load is found by its turn in the
-    /// encounter's authored sequence of looks.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The installed artwork lacks the look's characters, or the encounter has no such look.</exception>
-    private static IReadOnlyList<EncounterArtworkUpload> Uploads(ComposedEncounter encounter, ComposedLook look, IInstalledEncounterArtwork installed)
+    internal static EncounterLookSteps Steps(ComposedEncounter encounter, IInstalledEncounterArtwork installed)
     {
         Ensure.NotNull(installed);
-        int turn = IndexOf(encounter, look);
-        if (look.IsLoaded)
-            return [];
-        return encounter switch
-        {
-            ComposedEncounter.DraygonEvirs => [new(EncounterCharacterPlacementDefinitions.EvirFirstCharacter,
-                Whole(installed.EnemyTiles.TilesOf(EnemyDefinitionId.Evir), EncounterCharacterPlacementDefinitions.EvirByteCount, "the Evir tiles"))],
-            ComposedEncounter.Gunship => [.. Enumerable.Range(0, GunshipLiftoffTransferDefinitions.Frames.Length).Select(page =>
-                new EncounterArtworkUpload(EncounterCharacterPlacementDefinitions.GunshipFirstCharacter
-                        + page * (GunshipLiftoffCharacterDefinitions.ByteCount / SpriteCharacterTableLayout.CharacterByteCount),
-                    Whole(installed.Resolve(GunshipLiftoffTransferDefinitions.Frames[page].Asset), GunshipLiftoffCharacterDefinitions.ByteCount,
-                        $"{GunshipLiftoffTransferDefinitions.Frames[page].Asset}")))],
-            ComposedEncounter.Crocomire => [.. Enumerable.Range(0, CrocomireSkeletonCharacterDefinitions.ChunkCount).Select(chunk =>
-                new EncounterArtworkUpload(SkeletonFirstCharacter(chunk),
-                    Whole((installed.BossTiles.CrocomireSkeleton ?? throw new InvalidDataException(
-                        "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(chunk), CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
-                        $"Crocomire skeleton chunk {chunk}")))],
-            ComposedEncounter.BombTorizo => Torizo(TorizoLookUploadDefinitions.BombSequence[turn - 1], installed),
-            ComposedEncounter.GoldenTorizo => Torizo(TorizoLookUploadDefinitions.GoldenSequence[turn - 1], installed),
-            ComposedEncounter.CeresEscape => [.. TimerPages.Select(page => Timer(page, installed)),
-                .. Enumerable.Range(0, CeresWarningTextPageDefinitions.PageCount).Select(page => Warning(page, installed))],
-            ComposedEncounter.CeresElevatorDoor => [new(EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter,
-                Whole((installed.AreaTiles.CeresDoor ?? throw new InvalidDataException("Installed area artwork has no Ceres door visuals.")).Characters,
-                    CeresDoorVisualFormat.CharacterBytes, "the Ceres door characters"))],
-            ComposedEncounter.MotherBrain => MotherBrainPages(MotherBrainLooks[turn - 1].Sheet, installed),
-            _ => throw new InvalidDataException($"Undefined {nameof(ComposedEncounter)} {encounter}."),
-        };
+        return new(encounter, [new EncounterLookStep(ComposedLook.Loaded(encounter), []),
+            .. Authored(encounter).Select(look => new EncounterLookStep(look.Look, look.Copies(installed)))]);
     }
 
     /// <summary>What Torizo artwork look <paramref name="look"/> copies, in the order its copies land, each where the cartridge copies it.</summary>
@@ -303,6 +293,11 @@ internal static class EncounterLookUploads
     private static int SkeletonFirstCharacter(int chunk) => chunk < EncounterCharacterPlacementDefinitions.SkeletonFirstRegionRows
         ? EncounterCharacterPlacementDefinitions.SkeletonFirstRegionCharacter + chunk * EncounterCharacterPlacementDefinitions.SkeletonCharactersPerRow
         : EncounterCharacterPlacementDefinitions.SkeletonSecondRegionCharacter + (chunk - EncounterCharacterPlacementDefinitions.SkeletonFirstRegionRows) * EncounterCharacterPlacementDefinitions.SkeletonCharactersPerRow;
+
+    /// <summary>One of an encounter's looks after its room's load, with what it copies.</summary>
+    /// <param name="Look">The look.</param>
+    /// <param name="Copies">What the look copies, in the order its copies land, resolved against the installed artwork.</param>
+    private readonly record struct AuthoredLook(ComposedLook Look, Func<IInstalledEncounterArtwork, IReadOnlyList<EncounterArtworkUpload>> Copies);
 
     /// <summary>One of Mother Brain's looks after her room's load.</summary>
     /// <param name="Look">The look.</param>

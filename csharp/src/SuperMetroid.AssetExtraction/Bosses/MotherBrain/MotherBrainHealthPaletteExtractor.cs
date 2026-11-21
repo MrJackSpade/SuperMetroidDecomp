@@ -19,27 +19,27 @@ internal static class MotherBrainHealthPaletteExtractor
         MotherBrainHealthPaletteFile.Write(json, new MotherBrainHealthPaletteDocument
         {
             Version = MotherBrainHealthPaletteFile.Version,
-            Body = ReadTable(MotherBrainSourceDefinitions.Palettes.HealthBodyPointerTable),
-            BackLegs = ReadTable(MotherBrainSourceDefinitions.Palettes.HealthRearLegPointerTable),
+            HealthBands = MotherBrainSourceDefinitions.Palettes.HealthTableOrder.Select((band, state) => KeyValuePair.Create(band.Key,
+                new MotherBrainBodyColoursDocument
+                {
+                    Body = ReadState(MotherBrainSourceDefinitions.Palettes.HealthBodyPointerTable, state),
+                    BackLegs = ReadState(MotherBrainSourceDefinitions.Palettes.HealthRearLegPointerTable, state),
+                })).ToDictionary(StringComparer.Ordinal),
         });
         return json.ToArray();
 
-        PaletteRgb5[][] ReadTable(int table)
+        PaletteRgb5[] ReadState(int table, int state)
         {
-            var states = new PaletteRgb5[MotherBrainHealthPaletteFormat.StateCount][];
-            for (int state = 0; state < states.Length; state++)
+            int pointer = table + state * sizeof(ushort);
+            int source = (MotherBrainSourceDefinitions.Palettes.PaletteBank|CartridgeImportSource.Require(bus).ReadCartridgeWord(pointer));
+            var colours = new PaletteRgb5[MotherBrainRainbowPaletteGeometry.ColorCount];
+            for (int color = 0; color < colours.Length; color++)
             {
-                int pointer = table + state * sizeof(ushort);
-                int source = (MotherBrainSourceDefinitions.Palettes.PaletteBank|CartridgeImportSource.Require(bus).ReadCartridgeWord(pointer));
-                states[state] = new PaletteRgb5[MotherBrainRainbowPaletteGeometry.ColorCount];
-                for (int color = 0; color < states[state].Length; color++)
-                {
-                    int address = source + color * sizeof(ushort);
-                    int word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-                    states[state][color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
-                }
+                int address = source + color * sizeof(ushort);
+                int word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+                colours[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
-            return states;
+            return colours;
         }
     }
 }

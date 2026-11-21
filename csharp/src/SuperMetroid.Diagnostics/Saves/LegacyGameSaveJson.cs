@@ -23,7 +23,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// reserve-missile count nothing in the game reads, which is not carried; schema thirteen (#2491) named some item
 /// locations after the room state that first places them, which become their rooms' names; schema fourteen (#2501) named
 /// some doors after the room states that place them, which become their rooms' names; schema fifteen (#2560) kept the save
-/// file's history as two marks, which become the history they mark.
+/// file's history as two marks, which become the history they mark; schema sixteen (#2565) listed the slots and numbered
+/// the selected one by their place in the file select's list, which become entries keyed by the slots' names.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -61,7 +62,7 @@ public static class LegacyGameSaveJson
         return GameSaveJsonCodec.Deserialize(current, sourceName);
     }
 
-    /// <summary>One-way upgrade of schemas one through fourteen to the current schema; the current schema is returned unchanged.</summary>
+    /// <summary>One-way upgrade of schemas one through sixteen to the current schema; the current schema is returned unchanged.</summary>
     private static string Upgrade(string json, out int sourceSchemaVersion)
     {
         JsonObject root = JsonNode.Parse(json) as JsonObject ??
@@ -102,8 +103,47 @@ public static class LegacyGameSaveJson
             UpgradeSchemaFourteen(root);
         if (sourceSchemaVersion <= SchemaFifteen)
             UpgradeSchemaFifteen(root);
+        if (sourceSchemaVersion <= SchemaSixteen)
+            UpgradeSchemaSixteen(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
+    }
+
+    /// <summary>The last schema that listed the slots, and numbered the selected one, by their place in the file select's list.</summary>
+    private const int SchemaSixteen = 16;
+
+    /// <summary>
+    /// Schema sixteen to seventeen (#2565): schemas one through sixteen listed the three slots in the file select's order, an
+    /// empty slot as null and each saved slot numbering its place, and numbered the selected slot by its place; each saved
+    /// slot becomes the entry of the slot's name, without its number, and the selected slot is named.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The slots are not three, a slot numbers another place, or the selected slot is no place.</exception>
+    private static void UpgradeSchemaSixteen(JsonObject root)
+    {
+        JsonArray slots = root["slots"] as JsonArray ?? throw new InvalidDataException("slots is required");
+        if (slots.Count != SaveSlots.All.Count)
+            throw new InvalidDataException("slots must contain exactly three entries");
+        var named = new JsonObject();
+        int place = 0;
+        foreach (SaveSlot slot in SaveSlots.All)
+        {
+            JsonNode? entry = slots[place];
+            if (entry is not null)
+            {
+                JsonObject saved = entry as JsonObject ?? throw new InvalidDataException($"slots[{place}] must be an object");
+                if (saved["slot"] is not JsonValue number || !number.TryGetValue(out int numbered) || numbered != place)
+                    throw new InvalidDataException($"slots[{place}].slot must equal {place}");
+                saved.Remove("slot");
+                slots[place] = null;
+                named.Add(GameSaveJsonFormat.SlotKey(slot), saved);
+            }
+            place++;
+        }
+        root["slots"] = named;
+        if (root["selectedSlot"] is not JsonValue selected || !selected.TryGetValue(out int selectedPlace) ||
+            (uint)selectedPlace >= SaveSlots.All.Count)
+            throw new InvalidDataException("selectedSlot must be 0, 1, or 2");
+        root["selectedSlot"] = GameSaveJsonFormat.SlotKey(SaveSlots.All[selectedPlace]);
     }
 
     /// <summary>The last schema that kept no history of a power-on that found no valid save.</summary>

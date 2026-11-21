@@ -207,7 +207,7 @@ internal static class ProjectileInheritanceProbeVerification
         ushort inherited = records.WordBefore(SamusCollisionDirection.Right);
         AssertTrue((LittleEndianBytes.HighByteInPlace(inherited)) != 0, "Controller-driven beta publishes nonzero preceding-frame movement");
         byte[] captured = SuperMetroid.Verification.Harness.GraphDigestVerification.SerializeGraph(runtime, InstalledFixtures.BoundContent);
-        runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings.Shoot));
+        runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot]));
         AssertEqual(unchecked((short)(inherited + ReadPowerBeamLaunchSpeedSum(bus))), runtime.Projectiles.Shots.First(slot => slot.IsActive).Velocity.X.InTwoHundredFiftySixthsOfPixel,
             "Next alpha fires using prior beta displacement before reset and this-frame movement");
         AssertEqual(runtime.Room.LoadedCamera.Speed.Y.Fraction, records.CameraYSubspeed,
@@ -234,7 +234,7 @@ internal static class ProjectileInheritanceProbeVerification
             // The host binds a restored runtime to its content as it binds a new one.
             BindRetailRuntimeFixture(restored);
             restored.Player.IntroducedSamus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon);
-            restored.StepFrame((ControllerButton.Right | restored.Options.ControllerBindings.Shoot));
+            restored.StepFrame((ControllerButton.Right | restored.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot]));
             var shot = restored.Projectiles.Shots.First(slot => slot.IsActive);
             AssertEqual(family, shot.HeldShot().Type.Family, "Each resumed runtime fires the weapon it selected");
             AssertEqual(unchecked((short)(inherited + launchSpeed)), shot.Velocity.X.InTwoHundredFiftySixthsOfPixel,

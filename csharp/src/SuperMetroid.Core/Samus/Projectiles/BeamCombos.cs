@@ -60,18 +60,16 @@ internal sealed class BeamCombos
         {
             // The attack's particles replace the shots Samus has in her first places (SpecialAttackReplacesFirstShots),
             // and each plays its part.
-            IReadOnlyList<SpecialAttackParticle> parts = SpecialAttackParticleDefinitions.InPlaceOrder;
-            SamusProjectileOccupant[] particles = SpecialAttackReplacesFirstShots.ParticleShots(parts.Count,
-                place => OccupyComboShot(_pool, place, ParticleType(kind, parts[place], beam), ParticleShotKind(kind, parts[place])));
+            IReadOnlyList<SpecialAttackReplacesFirstShots.ParticleShot<SpecialAttackParticle, SamusProjectileOccupant>> particles =
+                SpecialAttackReplacesFirstShots.ParticleShots(SpecialAttackParticleDefinitions.InPlaceOrder, part => part.ShotPlace,
+                    part => OccupyComboShot(_pool, part.ShotPlace, ParticleType(kind, part, beam), ParticleShotKind(kind, part)));
             // The Ice and Plasma particles turn round Samus by OrbitTurnOn each update, or by OrbitTurnBack (a full circle
             // less as much) when a left-facing Samus starts the attack, which carries them the opposite way by as much.
             TrigonometryAngle orbitTurn = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right)
                 ? BeamComboDefinitions.OrbitTurnOn
                 : BeamComboDefinitions.OrbitTurnBack;
-            for (int partIndex = 0; partIndex < parts.Count; partIndex++)
+            foreach ((SpecialAttackParticle part, SamusProjectileOccupant held) in particles)
             {
-                SpecialAttackParticle part = parts[partIndex];
-                SamusProjectileOccupant held = particles[partIndex];
                 SamusProjectile shot = held.Projectile;
                 BeamComboShotKind shotKind = ParticleShotKind(kind, part);
                 held.PicturedBeams = beam;
@@ -111,12 +109,12 @@ internal sealed class BeamCombos
             // Each Spazer beam particle pairs with the trailing particle that turns its way.
             if (kind == SamusComboKind.Spazer)
             {
-                SamusProjectile[] shots = [.. particles.Select(static particle => particle.Projectile)];
+                SamusProjectile[] shots = [.. particles.Select(static particle => particle.Shot.Projectile)];
                 foreach (SamusProjectile particle in shots)
                     particle.KindStateAs<SpazerParticleState>().Partner = shots.Single(other => !ReferenceEquals(other, particle) &&
                         PartOf(other).SpazerTurn == PartOf(particle).SpazerTurn);
             }
-            _pool.ShotCount.CountSpecialAttack(parts.Count);
+            _pool.ShotCount.CountSpecialAttack(particles.Count);
             // The attack waits the cooldown of its first place's projectile: the combination's charged shot.
             shared.SetSharedCooldown(SamusProjectileCooldowns.Read(beam, BeamShotCooldowns.Shot.Charged));
             sound = BeamComboDefinitions.ActivationSounds.TryGetValue(kind, out SoundEffectId activationSound)

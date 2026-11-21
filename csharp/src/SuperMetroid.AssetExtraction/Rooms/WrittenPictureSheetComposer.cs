@@ -257,7 +257,7 @@ internal static class WrittenPictureSheetComposer
                 if (!RoomAppearanceComposition.InputsOver(options.Set, [character], options.Options).IsEmpty)
                     throw new InvalidDataException($"{sheetName} part {part.Name} reads {options.Set} character {character}, which a room can show other artwork at.");
             }
-            pictures.Add(Shown(part, part.Name, [], []) ?? throw new InvalidDataException($"{sheetName} part {part.Name} reads a character its room loads nothing over."));
+            pictures.Add(Shown(part, part.Name, AppearanceAssignment.OfNoInput) ?? throw new InvalidDataException($"{sheetName} part {part.Name} reads a character its room loads nothing over."));
         }
         var inputsOf = new Dictionary<string, ImmutableArray<AppearanceInput>>(StringComparer.Ordinal);
         // Each subject's pictures are installed as their two parts (#1634); the fixed parts and the frames cut from them, the
@@ -269,10 +269,10 @@ internal static class WrittenPictureSheetComposer
                 subject.Words.Select(word => word.Word.CharacterIndex).Distinct(), options.Options);
             if (!inputsOf.TryAdd(subject.Name, depends))
                 throw new InvalidDataException($"{sheetName} pictures {subject.Name} twice.");
-            foreach (string[] values in RoomAppearanceComposition.Assignments(depends, options.Options, withLoaded: true))
+            foreach (AppearanceAssignment assignment in RoomAppearanceComposition.Assignments(depends, options.Options, withLoaded: true))
             {
-                bool loaded = values.All(value => value == RoomAppearanceValues.Loaded);
-                ShownPicture? shown = Shown(subject, AppearancePictureNames.Of(subject.Name, depends, values), depends, values);
+                bool loaded = assignment.ShowsLoadThroughout;
+                ShownPicture? shown = Shown(subject, assignment.NameOf(subject.Name), assignment);
                 if (shown is not null)
                 {
                     pictures.Add(shown);
@@ -320,9 +320,9 @@ internal static class WrittenPictureSheetComposer
         // A written picture covers its layer wherever it lies, so one that inks nothing is still installed (#1634).
         return new ComposedPictures(canvas.ToSplitRoomSheet(colours, frames, split, kind, keepsEmpty: true), inputsOf);
 
-        // `subject`'s words as they show while `depends` take `values`, named `name`, laid from its top-left written tile;
-        // null where a word's character shows nothing for them.
-        ShownPicture? Shown(WrittenSubject subject, string name, ImmutableArray<AppearanceInput> depends, string[] values)
+        // `subject`'s words as they show while its inputs take the values of `assignment`, named `name`, laid from its
+        // top-left written tile; null where a word's character shows nothing for them.
+        ShownPicture? Shown(WrittenSubject subject, string name, AppearanceAssignment assignment)
         {
             int left = subject.Words.Min(word => word.Corner.X), top = subject.Words.Min(word => word.Corner.Y);
             int right = subject.Words.Max(word => word.Corner.X), bottom = subject.Words.Max(word => word.Corner.Y);
@@ -331,7 +331,7 @@ internal static class WrittenPictureSheetComposer
             foreach (SubjectWord written in subject.Words)
             {
                 SnesBgTilemapWord word = written.Word;
-                if (!RoomAppearanceComposition.TryShowing(new CharacterSpan(options.Set, word.CharacterIndex, 1), depends, values,
+                if (!RoomAppearanceComposition.TryShowing(new CharacterSpan(options.Set, word.CharacterIndex, 1), assignment,
                         options.Options, content, out BgArtworkShown shown))
                     return null;
                 words.Add(new PictureWord(written.Corner - origin, new ShownWord(word, shown)));

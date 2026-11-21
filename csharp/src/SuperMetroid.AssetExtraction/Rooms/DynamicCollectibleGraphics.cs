@@ -18,7 +18,7 @@ internal static class DynamicCollectibleGraphics
         byte[] palettes = new byte[8];
         for (int tile = 0; tile < palettes.Length; tile++)
             palettes[tile] = PaletteOffset(kind, tile);
-        return new(kind, palettes, Convert.FromHexString(Tiles[GraphicIndex(kind)]));
+        return new(kind, palettes, Convert.FromHexString(Tiles[GraphicFor(kind)]));
     }
 
     /// <summary>The place of <paramref name="kind"/> in <see cref="RoomObjectDynamicCollectibleGraphicsDefinitions.Kinds"/>, the order the dynamic uploads list it.</summary>
@@ -27,8 +27,6 @@ internal static class DynamicCollectibleGraphics
         ? Array.IndexOf(Kinds, kind)
         : throw new InvalidDataException($"Permanent-item kind {kind} has no dynamic graphics upload.");
 
-    /// <summary>The place of <paramref name="kind"/>'s artwork block among the item graphics, in their stored order.</summary>
-    private static int GraphicIndex(InWorldCollectibleKind kind) => Array.IndexOf(StoredGraphics, GraphicFor(kind));
 
     /// <summary>Maps collectible identity to its distinct bank $89 tile block, independent of enum order.</summary>
     private static ItemGraphic GraphicFor(InWorldCollectibleKind kind) => kind switch

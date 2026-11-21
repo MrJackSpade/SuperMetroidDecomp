@@ -14,7 +14,7 @@ public static class FileSelectPresentationFormat
     /// Supported file-select layout JSON schema version: 2 holds each slot field's and slot letter's anchor as the page pixel
     /// the game shows it at, and 3 holds only the layout the game binds, the artwork being import data (#1638).
     /// </summary>
-    public const int Version = 3;
+    public const int Version = 4;
     /// <summary>Installed JSON filename for the slot fields, anchors and durations the game binds.</summary>
     public const string FileName = "file-select.json";
     /// <summary>Supported file-select artwork JSON schema version.</summary>

@@ -7,8 +7,9 @@ public sealed record MotherBrainHealthPaletteDocument
 {
     /// <summary>Schema version required to match <see cref="MotherBrainHealthPaletteFile.Version"/> during loading or writing.</summary>
     public required int Version { get; init; }
-    /// <summary>Four rows of fifteen RGB5 colors in native <c>MotherBrainHealthBasedPalettes_BrainBody</c> order from <c>$AD:E6A2</c>; ascending row index denotes lower health, and each row supplies both body BG and brain/neck OBJ colors 1..15.</summary>
-    public required PaletteRgb5[][] Body { get; init; }
-    /// <summary>Four rows of fifteen RGB5 colors in native <c>MotherBrainHealthBasedPalettes_BackLeg</c> order from <c>$AD:E742</c>, aligned with the body health bands and supplying rear-leg OBJ palette colors 1..15.</summary>
-    public required PaletteRgb5[][] BackLegs { get; init; }
+    /// <summary>
+    /// Each of her four health bands' colours, keyed by the band's installed key: fifteen body BG and brain/neck OBJ colors
+    /// 1..15 (native <c>$AD:E6A2</c>) and fifteen rear-leg OBJ colors 1..15 (native <c>$AD:E742</c>).
+    /// </summary>
+    public required Dictionary<string, MotherBrainBodyColoursDocument> HealthBands { get; init; }
 }

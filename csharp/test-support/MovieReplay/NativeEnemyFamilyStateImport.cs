@@ -158,12 +158,12 @@ internal static class NativeEnemyFamilyStateImport
             // top hull's variables A and C through E. Variable B counts the records the takeoff has copied while the ship
             // waits for its engines, which the port times on its phase timer from the wait's start (#2469).
             gunshipRecord.PhaseTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
-            gunshipRecord.Bob = GunshipIdleBob.All[words.C];
+            gunshipRecord.Bob = IdleBobAt(words.C);
             gunshipRecord.BobTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.D));
             gunshipRecord.BaseY = words.E;
             // E holds the next landing brake only while the ship brakes; otherwise it holds the base Y.
-            if (words.E < GunshipLandingBrake.All.Count)
-                gunshipRecord.LandingBrake = GunshipLandingBrake.All[words.E];
+            if (words.E < GunshipMotionDefinitions.LandingBrakeYDeltas.Length)
+                gunshipRecord.LandingBrake = LandingBrakeAt(words.E);
         }
         if (enemy.Holds(EnemyDefinitionId.ShipBottomEntrance) && index > 0 &&
             enemies.Places.InUpdateOrder[index - 1].SpeciesState<GunshipState>() is { } bottomOfShip)
@@ -1394,6 +1394,28 @@ internal static class NativeEnemyFamilyStateImport
     /// </summary>
     /// <param name="word">The recorded countdown, read as signed.</param>
     private static int TrueDuration(ushort word) => Math.Max(0, unchecked((short)word) + 1);
+
+    /// <summary>The idle bob's step at <paramref name="place"/> in its cycle, the place the cartridge records.</summary>
+    /// <exception cref="InvalidDataException">The cycle has no such place.</exception>
+    private static GunshipIdleBob IdleBobAt(int place)
+    {
+        if ((uint)place >= (uint)GunshipMotionDefinitions.IdleBobs.Length)
+            throw new InvalidDataException($"The gunship's idle bob has no step {place}.");
+        GunshipIdleBob bob = GunshipIdleBob.First;
+        for (int step = 0; step < place; step++)
+            bob = bob.Next;
+        return bob;
+    }
+
+    /// <summary>The landing brake at <paramref name="place"/> in its schedule, the place the cartridge records.</summary>
+    /// <exception cref="InvalidDataException">The schedule has no such place.</exception>
+    private static GunshipLandingBrake LandingBrakeAt(int place)
+    {
+        GunshipLandingBrake brake = GunshipLandingBrake.First;
+        for (int step = 0; step < place; step++)
+            brake = brake.Next ?? throw new InvalidDataException($"The gunship's landing brakes have no step {place}.");
+        return brake;
+    }
 
     /// <summary>A recorded countdown that runs out on the step that takes it to zero, as the wait it stands for: its true duration left.</summary>
     /// <param name="word">The recorded countdown, read as signed.</param>

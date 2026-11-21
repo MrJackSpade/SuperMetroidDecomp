@@ -1,4 +1,6 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -265,13 +267,14 @@ internal static class SpcSoundEffectDefinitions
     ];
 
     /// <summary>
-    /// Each library's voice-allocation state in SPC RAM, from the first library: its base and channel count. The
+    /// Each library's voice-allocation state in SPC RAM, keyed by the library: its base and channel count. The
     /// per-channel bitsets and masks are contiguous, then one intervening byte precedes the per-channel voice indices.
     /// </summary>
-    internal static readonly SoundLibraryAllocation[] Allocations =
-    [
-        new(0x03a6, 4),
-        new(0x0446, 2),
-        new(0x047e, 2),
-    ];
+    internal static readonly FrozenDictionary<SoundEffectLibrary, SoundLibraryAllocation> Allocations =
+        new Dictionary<SoundEffectLibrary, SoundLibraryAllocation>
+        {
+            [SoundEffectLibrary.Samus] = new(0x03a6, SpcDriverDefinitions.SoundEffects.LibraryOneChannelCount),
+            [SoundEffectLibrary.Enemies] = new(0x0446, SpcDriverDefinitions.SoundEffects.OtherLibraryChannelCount),
+            [SoundEffectLibrary.Room] = new(0x047e, SpcDriverDefinitions.SoundEffects.OtherLibraryChannelCount),
+        }.ToFrozenDictionary();
 }

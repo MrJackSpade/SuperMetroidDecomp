@@ -54,8 +54,9 @@ internal static class SamusAnimationProgramLayout
         }
         if (starts.Values.Distinct().Count() != starts.Count)
             throw new InvalidDataException("Two Samus animation programs start at the same place.");
-        if (starts.Count != SamusAnimationDelayDefinitions.All.Count)
-            throw new InvalidDataException($"The cartridge lays out {starts.Count} of Samus's {SamusAnimationDelayDefinitions.All.Count} animations.");
+        if (starts.Count != SamusAnimationDelayDefinitions.All.Count ||
+            SamusAnimationDelayDefinitions.All.Any(animation => !starts.ContainsKey(animation)))
+            throw new InvalidDataException($"The cartridge lays out {starts.Count} of Samus's {SamusAnimationDelayDefinitions.All.Count} animations, not each of them.");
         return [.. starts.OrderBy(pair => pair.Value).Select(pair => new LaidOutProgram(pair.Key, pair.Value))];
     }
 }

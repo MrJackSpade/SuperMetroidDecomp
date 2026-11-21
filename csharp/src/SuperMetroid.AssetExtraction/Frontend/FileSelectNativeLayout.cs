@@ -1,16 +1,36 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
 /// Where bank $81's file-select routines write each label, prompt and save-slot field into the menu's BG1 tilemap, as
-/// byte offsets into its 32-word rows, and the native spritemaps of its borders. Extraction places the cartridge's text
-/// patches by these offsets once; the installed presentation carries the resulting cells and anchors.
+/// byte offsets into its 32-word rows, and the native spritemaps of its borders and of the selected slot's helmet.
+/// Extraction places the cartridge's text patches by these offsets once; the installed presentation carries the resulting
+/// cells and anchors.
 /// </summary>
-[EncodingOwner("bank-$81 file-select tilemap offsets and border spritemaps")]
+[EncodingOwner("bank-$81 file-select tilemap offsets and border and helmet spritemaps")]
 internal static class FileSelectNativeLayout
 {
+    /// <summary>
+    /// The menu spritemap each picture of the selected slot's helmet selects (#2359, #2565): the consecutive spritemaps
+    /// $2C..33, in the order the helmet turns and shines.
+    /// </summary>
+    internal static readonly FrozenDictionary<FileSelectHelmetFrame, int> HelmetSpritemaps =
+        new Dictionary<FileSelectHelmetFrame, int>
+        {
+            [FileSelectHelmetFrame.TurnedAway] = 0x2c,
+            [FileSelectHelmetFrame.Turning] = 0x2d,
+            [FileSelectHelmetFrame.ShineLeft] = 0x2e,
+            [FileSelectHelmetFrame.ShineLeftOfMiddle] = 0x2f,
+            [FileSelectHelmetFrame.ShineRightOfMiddle] = 0x30,
+            [FileSelectHelmetFrame.ShineRight] = 0x31,
+            [FileSelectHelmetFrame.SparkleTall] = 0x32,
+            [FileSelectHelmetFrame.SparkleWide] = 0x33,
+        }.ToFrozenDictionary();
+
     /// <summary>Main file-select border spritemap.</summary>
     public const ushort NormalBorderSpritemap = 0x48;
     /// <summary>Copy-menu border spritemap.</summary>

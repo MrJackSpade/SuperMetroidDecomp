@@ -78,18 +78,18 @@ internal sealed class BombSpreadTransitionScenario
     internal ControllerButton Input(int frame)
     {
         var bindings = Runtime.Options.ControllerBindings;
-        ControllerButton input = bindings.Shoot;
+        ControllerButton input = bindings[SuperMetroid.Core.Input.ControllerAction.Shoot];
         if (!WallRoute)
         {
-            if (frame is >= 70 and < 125) input |= bindings.Jump;
+            if (frame is >= 70 and < 125) input |= bindings[SuperMetroid.Core.Input.ControllerAction.Jump];
             if (frame >= 76 && frame < 105 && frame != 78 + Delay)
                 input |= ControllerButton.Down;
             if (frame is >= 78 and < 125) input |= (Left ? ControllerButton.Right : ControllerButton.Left);
             return input;
         }
         int morphDelay = TimingCase >= 12 ? 0 : Delay;
-        input = TimingCase == 12 || frame < 87 || frame >= 94 + morphDelay ? bindings.Shoot : ControllerButton.None;
-        if (frame is >= 70 and < 86 or >= 89 and < 200) input |= bindings.Jump;
+        input = TimingCase == 12 || frame < 87 || frame >= 94 + morphDelay ? bindings[SuperMetroid.Core.Input.ControllerAction.Shoot] : ControllerButton.None;
+        if (frame is >= 70 and < 86 or >= 89 and < 200) input |= bindings[SuperMetroid.Core.Input.ControllerAction.Jump];
         if (frame is >= 68 and < 87) input |= (Left ? ControllerButton.Left : ControllerButton.Right);
         if (frame is >= 87 and < 140) input |= (Left ? ControllerButton.Right : ControllerButton.Left);
         if (TimingCase == 13 && frame == 93)

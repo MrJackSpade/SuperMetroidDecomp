@@ -17,13 +17,13 @@ public static class GrappleTileSelection
     };
 
     /// <summary>$9B:BFBD cycles endpoint characters at $8200/$8400/$8600/$8800, independently of rope angle.</summary>
-    public static InstalledArtworkId PointAssetFor(int frame) => frame switch
+    public static InstalledArtworkId PointAssetFor(GrappleEndpointFrame frame) => frame switch
     {
-        0 => InstalledArtworkId.GrapplePointFirstTiles,
-        1 => InstalledArtworkId.GrapplePointSecondTiles,
-        2 => InstalledArtworkId.GrapplePointThirdTiles,
-        3 => InstalledArtworkId.GrapplePointFourthTiles,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame)),
+        GrappleEndpointFrame.Point => InstalledArtworkId.GrapplePointFirstTiles,
+        GrappleEndpointFrame.Orb => InstalledArtworkId.GrapplePointSecondTiles,
+        GrappleEndpointFrame.Ring => InstalledArtworkId.GrapplePointThirdTiles,
+        GrappleEndpointFrame.SparklingRing => InstalledArtworkId.GrapplePointFourthTiles,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined grapple endpoint frame."),
     };
 
     /// <summary>Resolves one of seven Grapple-owned upload identities to its native source and planar-sheet slice; this lookup neither advances endpoint animation nor enqueues a VRAM transfer.</summary>
@@ -32,43 +32,11 @@ public static class GrappleTileSelection
     /// <exception cref="InvalidDataException">The asset identity is not owned by the Grapple tile catalog.</exception>
     public static GrappleTileTransfer TransferFor(InstalledArtworkId asset)
     {
-        int index = asset switch
+        foreach (GrappleTileTransfer transfer in Transfers)
         {
-            InstalledArtworkId.GrapplePointFirstTiles => 0,
-            InstalledArtworkId.GrapplePointSecondTiles => 1,
-            InstalledArtworkId.GrapplePointThirdTiles => 2,
-            InstalledArtworkId.GrapplePointFourthTiles => 3,
-            Horizontal => 4,
-            Diagonal => 5,
-            Vertical => 6,
-            InstalledArtworkId.StandardHudTiles or
-                InstalledArtworkId.EscapeTimerFirstTiles or
-                InstalledArtworkId.EscapeTimerSecondTiles or
-                InstalledArtworkId.BeamPowerTiles or
-                InstalledArtworkId.BeamWaveTiles or
-                InstalledArtworkId.BeamIceTiles or
-                InstalledArtworkId.BeamIceWaveTiles or
-                InstalledArtworkId.BeamSpazerTiles or
-                InstalledArtworkId.BeamSpazerWaveTiles or
-                InstalledArtworkId.BeamSpazerIceTiles or
-                InstalledArtworkId.BeamSpazerIceWaveTiles or
-                InstalledArtworkId.BeamPlasmaTiles or
-                InstalledArtworkId.BeamPlasmaWaveTiles or
-                InstalledArtworkId.BeamPlasmaIceTiles or
-                InstalledArtworkId.BeamPlasmaIceWaveTiles or
-                InstalledArtworkId.ProjectileIceWaveTrailTiles or
-                InstalledArtworkId.ProjectileMissileTrailTiles or
-                InstalledArtworkId.GunshipLiftoffFirstTiles or
-                InstalledArtworkId.GunshipLiftoffSecondTiles or
-                InstalledArtworkId.GunshipLiftoffThirdTiles or
-                InstalledArtworkId.GunshipLiftoffFourthTiles or
-                InstalledArtworkId.GunshipLiftoffFifthTiles or
-                InstalledArtworkId.BeamChainsawTiles or
-                InstalledArtworkId.BeamSpacetimeTiles or
-                InstalledArtworkId.StandardObjectTiles or
-                InstalledArtworkId.HudTopRowTilemap => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
-            _ => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
-        };
-        return Transfers[index];
+            if (transfer.Asset == asset)
+                return transfer;
+        }
+        throw new InvalidDataException($"Not a Grapple tile asset: {asset}.");
     }
 }

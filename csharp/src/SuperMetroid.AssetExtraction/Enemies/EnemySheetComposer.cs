@@ -57,19 +57,21 @@ internal static class EnemySheetComposer
         var setLayouts = new SetLayouts[drawnSets.Length];
         Parallel.For(0, drawnSets.Length, index =>
         {
-            GraphicsSetSheetSources setSources = Sources(inputs, drawnSets[index]);
-            setLayouts[index] = new SetLayouts(setSources,
-                [.. setSources.Enemies.Select(source => new SpriteSheetLayout(source.Sources, EnemySheetShades.SheetRow, ActorDepth.BehindRoom))],
-                [.. setSources.Spawned.Select(source => new SpriteSheetLayout(source.Sources, EnemySheetShades.SheetRow, ActorDepth.BehindRoom))]);
+            RoomEnemyGraphicsSetDefinition set = drawnSets[index];
+            GraphicsSetSheetSources setSources = Sources(inputs, set);
+            setLayouts[index] = new SetLayouts(set,
+                [.. setSources.Enemies.Select(source => new LaidOutEnemySheet(source,
+                    new SpriteSheetLayout(source.Sources, EnemySheetShades.SheetRow, ActorDepth.BehindRoom)))],
+                [.. setSources.Spawned.Select(source => new LaidOutSpawnedSheet(source,
+                    new SpriteSheetLayout(source.Sources, EnemySheetShades.SheetRow, ActorDepth.BehindRoom)))]);
         });
-        for (int index = 0; index < drawnSets.Length; index++)
+        foreach (SetLayouts laid in setLayouts)
         {
-            SetLayouts laid = setLayouts[index];
-            laidSets.Add(new LaidGraphicsSet(drawnSets[index],
-                [.. laid.Sources.Enemies.Select((source, sheet) => new LaidEnemySheet(source.Enemy, Laid(laid.Enemies[sheet], layouts, layoutOf),
-                    source.LookChanges, source.CorpsePictures))],
-                [.. laid.Sources.Spawned.Select((source, sheet) => new LaidSpawnedSheet(source.Plan, Laid(laid.Spawned[sheet], spawnedLayouts, spawnedLayoutOf),
-                    source.LookChanges, source.CorpsePictures, source.Empty))]));
+            laidSets.Add(new LaidGraphicsSet(laid.Set,
+                [.. laid.Enemies.Select(enemy => new LaidEnemySheet(enemy.Source.Enemy, Laid(enemy.Layout, layouts, layoutOf),
+                    enemy.Source.LookChanges, enemy.Source.CorpsePictures))],
+                [.. laid.Spawned.Select(spawned => new LaidSpawnedSheet(spawned.Source.Plan, Laid(spawned.Layout, spawnedLayouts, spawnedLayoutOf),
+                    spawned.Source.LookChanges, spawned.Source.CorpsePictures, spawned.Source.Empty))]));
         }
         var installed = new InstalledSheet[layouts.Count];
         Parallel.For(0, layouts.Count, () => new InstalledSheetPainter(), (index, _, painter) =>
@@ -111,9 +113,9 @@ internal static class EnemySheetComposer
                 // colouring (#1513).
                 string? own = share.Own is { } ownSheet ? names.Of(ownSheet, $"Spawned-{SpawnedObjectOwnerNames.Name(plan.Owner)}") : null;
                 var commonPictures = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-                foreach ((string picture, int commonSheet) in share.Common.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+                foreach ((string picture, InstalledSheet commonSheet) in share.Common.OrderBy(entry => entry.Key, StringComparer.Ordinal))
                 {
-                    string commonName = names.Of(shared.Common[commonSheet], "Spawned-Common");
+                    string commonName = names.Of(commonSheet, "Spawned-Common");
                     if (!commonPictures.TryGetValue(commonName, out List<string>? held))
                         commonPictures.Add(commonName, held = []);
                     held.Add(picture);
@@ -174,11 +176,22 @@ internal static class EnemySheetComposer
         return index;
     }
 
-    /// <summary>A graphics set's sheet sources and each sheet's layout, in the order the sources list them.</summary>
-    /// <param name="Sources">The set's sheet sources.</param>
-    /// <param name="Enemies">Each enemy sheet's layout.</param>
-    /// <param name="Spawned">Each spawned-object sheet's layout.</param>
-    private sealed record SetLayouts(GraphicsSetSheetSources Sources, SpriteSheetLayout[] Enemies, SpriteSheetLayout[] Spawned);
+    /// <summary>A graphics set's sheets, each source with its layout, in the order the set's sources list them.</summary>
+    /// <param name="Set">The set.</param>
+    /// <param name="Enemies">Each enemy sheet's source and layout.</param>
+    /// <param name="Spawned">Each spawned-object sheet's source and layout.</param>
+    private sealed record SetLayouts(RoomEnemyGraphicsSetDefinition Set, IReadOnlyList<LaidOutEnemySheet> Enemies,
+        IReadOnlyList<LaidOutSpawnedSheet> Spawned);
+
+    /// <summary>An enemy sheet's source and the layout of its pictures.</summary>
+    /// <param name="Source">The sheet's source.</param>
+    /// <param name="Layout">The layout of the source's pictures.</param>
+    private sealed record LaidOutEnemySheet(EnemySheetSource Source, SpriteSheetLayout Layout);
+
+    /// <summary>A spawned-object sheet's source and the layout of its pictures.</summary>
+    /// <param name="Source">The sheet's source.</param>
+    /// <param name="Layout">The layout of the source's pictures.</param>
+    private sealed record LaidOutSpawnedSheet(SpawnedObjectSheetSource Source, SpriteSheetLayout Layout);
 
     /// <summary>A graphics set's sheets, each by the distinct layout it paints.</summary>
     /// <param name="Set">The set.</param>

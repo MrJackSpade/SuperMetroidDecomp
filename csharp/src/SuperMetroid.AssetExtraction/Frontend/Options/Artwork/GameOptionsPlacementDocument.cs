@@ -9,8 +9,8 @@ public sealed record GameOptionsPlacementDocument
     public required int Version { get; init; }
     /// <summary>Each menu's heading origin in screen pixels, by menu name.</summary>
     public required Dictionary<string, Offset16<ScreenPixels>> HeadingAnchors { get; init; }
-    /// <summary>Each menu's cursor origins in selection-row order, in screen pixels, by menu name.</summary>
-    public required Dictionary<string, Offset16<ScreenPixels>[]> CursorAnchors { get; init; }
+    /// <summary>Each menu's cursor origins in screen pixels, keyed by the row's name, by menu name.</summary>
+    public required Dictionary<string, Dictionary<string, Offset16<ScreenPixels>>> CursorAnchors { get; init; }
     /// <summary>Duration in menu updates, at least one, of each looping cursor frame.</summary>
     public required int CursorFrameDuration { get; init; }
 }

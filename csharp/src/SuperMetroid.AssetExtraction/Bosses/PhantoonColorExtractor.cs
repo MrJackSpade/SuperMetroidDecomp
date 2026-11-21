@@ -18,19 +18,19 @@ public static class PhantoonColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var bands = new PaletteRgb5[PhantoonColorDefinitions.HealthBandCount][];
-        for (int band = 0; band < bands.Length; band++)
-            bands[band] = Read(PhantoonSourceDefinitions.HealthBandColors +
-                band * PhantoonColorFormat.HealthBandColorCount * sizeof(ushort),
-                PhantoonColorFormat.HealthBandColorCount);
         return PhantoonColorFile.Write(new PhantoonColorDocument
         {
             Version = PhantoonColorFormat.Version,
-            HealthBands = bands,
+            HealthBands = PhantoonHealthBandDefinitions.HighestFirst.ToDictionary(band => band.Key,
+                band => Read(PhantoonSourceDefinitions.HealthBandColors +
+                    PhantoonSourceDefinitions.HealthBandPalettes[band] * PhantoonColorFormat.HealthBandColorCount * sizeof(ushort),
+                    PhantoonColorFormat.HealthBandColorCount), StringComparer.Ordinal),
             FadeOut = Read(PhantoonSourceDefinitions.FadeOutColors,
                 PhantoonColorFormat.FadeOutCount),
-            PowerOn = Read(PhantoonSourceDefinitions.PowerOnColors,
-                PhantoonSourceDefinitions.PowerOnColourCount),
+            PowerOn = PhantoonColorFormat.PoweredPartKeys.ToDictionary(part => part.Value,
+                part => Read(PhantoonSourceDefinitions.PowerOnColors +
+                    PhantoonSourceDefinitions.PowerOnGroups[part.Key] * PhantoonColorFormat.PoweredPartColourCount * sizeof(ushort),
+                    PhantoonColorFormat.PoweredPartColourCount), StringComparer.Ordinal),
         });
 
         PaletteRgb5[] Read(int source, int count)

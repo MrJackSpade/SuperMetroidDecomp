@@ -10,7 +10,8 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// this is intentionally not a general interchange format. Build changes are permitted,
 /// but fields and delegate identities must still resolve against the current layout. A collection keyed by hash is held
 /// as its entries and rebuilt from them, never by its buckets (<see cref="HashKeyedCollection"/>, #1681). An array of
-/// values with no identity is written as one packed run of its elements' values (<see cref="PackedElementLayout"/>, #1696).
+/// values with no identity is written as one packed run of its elements' values (<see cref="PackedElementLayout"/>, #1696),
+/// the objects its elements hold written once each in the run's table (#2609).
 /// A <see cref="Type"/> value is written as the identity of the type it names (#2060).
 /// </summary>
 internal static class DebuggerObjectGraphSerializer
@@ -101,7 +102,8 @@ internal static class DebuggerObjectGraphSerializer
         HashEntries,
         /// <summary>
         /// The elements of an array of values with no identity, after array shape metadata, as one packed run: their schema
-        /// once, their enums' member tables, then their values back to back (<see cref="PackedElementLayout"/>, #1696).
+        /// once, their enums' member tables, the objects they hold (#2609), then their values back to back
+        /// (<see cref="PackedElementLayout"/>, #1696).
         /// </summary>
         PackedArray,
         /// <summary>
@@ -316,27 +318,33 @@ internal static class DebuggerObjectGraphSerializer
         }
 
         /// <summary>
-        /// The values of the run being packed, gathered before they are written so the run's enum member tables, which its
-        /// values index, can precede them; reused for every run of the capture.
+        /// The values of each run being packed, gathered before they are written so the run's tables, which its values
+        /// index, can precede them; one per run being written at once, since the objects a run's table writes can hold runs
+        /// of their own (#2609), each reused for every run of the capture written at its depth.
         /// </summary>
-        private MemoryStream? packedValues;
+        private readonly List<(MemoryStream Values, BinaryWriter Writer)> packedBuffers = [];
 
-        /// <summary>The writer of <see cref="packedValues"/>.</summary>
-        private BinaryWriter? packedWriter;
+        /// <summary>How many packed runs are being written at once: the depth of <see cref="packedBuffers"/> in use.</summary>
+        private int packedDepth;
 
         /// <summary>
         /// Writes an array of values with no identity as one packed run (#1696): its shape, its element schema, each of its
-        /// enums' member tables, then its values' byte count and the values back to back.
+        /// enums' member tables, the objects its elements hold (#2609), then its values' byte count and the values back to
+        /// back.
         /// </summary>
         private void WritePackedArray(Array array, Type type, PackedElementLayout packed)
         {
             writer.Write((byte)PayloadKind.PackedArray);
             WriteArrayShape(array);
             writer.Write(packed.Schema);
-            MemoryStream values = packedValues ??= new MemoryStream();
-            BinaryWriter output = packedWriter ??= new BinaryWriter(values, System.Text.Encoding.UTF8, leaveOpen: true);
+            if (packedDepth == packedBuffers.Count)
+            {
+                var buffer = new MemoryStream();
+                packedBuffers.Add((buffer, new BinaryWriter(buffer, System.Text.Encoding.UTF8, leaveOpen: true)));
+            }
+            (MemoryStream values, BinaryWriter output) = packedBuffers[packedDepth++];
             values.SetLength(0);
-            PackedElementLayout.EnumTables tables = packed.NewTables();
+            PackedElementLayout.RunTables tables = packed.NewTables();
             if (type.IsSZArray && packed.VectorWriter(array.Length) is { } elements)
             {
                 for (int index = 0; index < array.Length; index++)
@@ -353,10 +361,13 @@ internal static class DebuggerObjectGraphSerializer
                     packed.WriteElement(output, tables, array.GetValue(indices));
             }
             output.Flush();
-            packed.WriteTables(writer, tables);
+            // The objects the elements hold are written as any value is, so they keep their identities and paths; one
+            // that holds a run of its own packs it in the next buffer, leaving this run's values in place.
+            packed.WriteTables(writer, tables, Write);
             int length = checked((int)values.Length);
             writer.Write(length);
             writer.Write(values.GetBuffer(), 0, length);
+            packedDepth--;
         }
 
         /// <summary>Records rank, lengths, and lower bounds for exact array reconstruction.</summary>
@@ -858,8 +869,10 @@ internal static class DebuggerObjectGraphSerializer
 
         /// <summary>
         /// Restores an array of values with no identity from its packed run (#1696): checks the run's element schema against
-        /// this build's layout, reads its enums' member tables, then fills each element from the run's values, which must
-        /// be read exactly. Enum members inside struct elements may be zero storage slots, as for framed struct elements.
+        /// this build's layout, reads its enums' member tables and the objects its elements hold (#2609), then fills each
+        /// element from the run's values, which must be read exactly. Enum members inside struct elements may be zero
+        /// storage slots, as for framed struct elements, and the objects struct elements hold are read inside struct
+        /// storage, as a framed struct element's are.
         /// </summary>
         private Array ReadPackedArray(Type type, int referenceId)
         {
@@ -870,7 +883,11 @@ internal static class DebuggerObjectGraphSerializer
             PackedElementLayout packed = PackedElementLayout.For(elementType) ?? throw new InvalidDataException(
                 $"{UnsupportedVersion}: the state packs the elements of {type.FullName}; this build writes each of them framed.");
             packed.CheckSchema(new PackedElementLayout.SchemaSource(reader, ReadName, ResolveName));
-            object[][] tables = packed.ReadTables(reader, zeroStorageSlot: !elementType.IsEnum || structElementDepth > 0);
+            bool zeroStorageSlot = !elementType.IsEnum || structElementDepth > 0;
+            bool structElements = !elementType.IsPrimitive && !elementType.IsEnum;
+            if (structElements) structElementDepth++;
+            PackedElementLayout.SavedTables tables = packed.ReadTables(reader, zeroStorageSlot, Read);
+            if (structElements) structElementDepth--;
             int byteCount = ReadNonnegativeLength("packed element byte");
             byte[] bytes = reader.ReadBytes(byteCount);
             if (bytes.Length != byteCount)

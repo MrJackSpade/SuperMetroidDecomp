@@ -8,18 +8,25 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 
 /// <summary>
 /// How a debugger state writes an array whose elements are values with no identity of their own (#1696): enums, the
-/// scalars that are not stored raw (<see cref="RawArrayElements"/>), structs whose every field is such a value, and
-/// nullable values of them. Such an array is one packed run: a schema naming the element type and each nested field once,
-/// a table of the members the run holds of each enum, then every element's values back to back, with no per-element
-/// marker, type name or field header. A room's block arrays were written a framed object per block, over a kilobyte each.
+/// scalars that are not stored raw (<see cref="RawArrayElements"/>), structs whose every field is such a value or a
+/// reference (#2609), and nullable values of them. Such an array is one packed run: a schema naming the element type and
+/// each nested field once, a table of the members the run holds of each enum, a table of the objects its elements hold,
+/// then every element's values back to back, with no per-element marker, type name or field header. A room's block arrays
+/// were written a framed object per block, over a kilobyte each.
 /// </summary>
 /// <remarks>
 /// <para>
 /// Packing is decided statically by the element type, never by the values: a value-type element holds exactly its own
-/// type, so every element of a run has the schema's layout. An element type that can hold a reference (a class, an
-/// interface, or a struct with a reference, pointer or inline-array field), that is a hash-keyed collection or that
-/// reattaches shared content after a restore has no packed layout, and its arrays keep the framed form, element by
-/// element, with every identity, shared reference, bound and definition path that form carries.
+/// type, so every element of a run has the schema's layout. An element type that is itself a reference (a class or an
+/// interface), a struct with a pointer or inline-array field, a hash-keyed collection or a struct that reattaches shared
+/// content after a restore has no packed layout, and its arrays keep the framed form, element by element.
+/// </para>
+/// <para>
+/// A struct's field holding a reference (#2609) is written as the object's place in the run's table of the objects its
+/// elements hold, distinct by identity, in the order the run first held each; the table writes each object once through
+/// the graph, with the identity, shared reference, bound or definition path a framed field carries, so a restore holds the
+/// same objects the elements held. A room's block behaviours are such structs: each holds the kept behaviour it is, so the
+/// blocks of a room past its grid, which hold a behaviour each, were written framed, 73 MB for Landing Site.
 /// </para>
 /// <para>
 /// An enum is stored by its member's name, as a framed enum is (#1507): the run's table holds each distinct member's name
@@ -44,11 +51,14 @@ internal sealed class PackedElementLayout
     /// <summary>The member names of each slot's enum.</summary>
     private readonly DebuggerEnumNames[] enumNames;
 
+    /// <summary>Whether the element holds a reference anywhere in its layout, so its runs carry a table of the objects held.</summary>
+    private readonly bool holdsReferences;
+
     /// <summary>How many elements were written by reflection before the vector writer was compiled.</summary>
     private int reflectiveElements;
 
     /// <summary>The compiled writer of an element of a vector of the type, once compiled.</summary>
-    private Action<BinaryWriter, EnumTables, Array, int>? vectorWriter;
+    private Action<BinaryWriter, RunTables, Array, int>? vectorWriter;
 
     /// <summary>The layout of <paramref name="elementType"/>, whose values <paramref name="root"/> lays out.</summary>
     private PackedElementLayout(Type elementType, Node root, Type[] enumSlots)
@@ -58,6 +68,7 @@ internal sealed class PackedElementLayout
         this.enumSlots = enumSlots;
         enumNames = [.. enumSlots.Select(slot => DebuggerEnumNames.For(slot) ??
             throw new InvalidOperationException($"Enum {slot.FullName} has no member names."))];
+        holdsReferences = root.HoldsReferences;
         using var stream = new MemoryStream();
         using (var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, leaveOpen: true))
             root.WriteSchema(writer);
@@ -70,21 +81,29 @@ internal sealed class PackedElementLayout
     /// <summary>The schema every run of the element type starts with, as written.</summary>
     internal byte[] Schema { get; }
 
-    /// <summary>The packed layout of <paramref name="elementType"/>, or null when its arrays are written framed.</summary>
+    /// <summary>
+    /// The packed layout of <paramref name="elementType"/>, or null when its arrays are written framed: an element that is
+    /// itself a reference is written framed, a value whose fields hold references is packed.
+    /// </summary>
     internal static PackedElementLayout? For(Type elementType) =>
         layouts.GetOrAdd(Ensure.NotNull(elementType), static type =>
         {
+            if (!type.IsValueType)
+                return null;
             var slots = new List<Type>();
             return Build(type, slots) is { } node ? new PackedElementLayout(type, node, [.. slots]) : null;
         });
 
     /// <summary>
     /// The layout of a value of <paramref name="type"/>, adding each enum it holds to <paramref name="slots"/>; null when the
-    /// type has none, so arrays of it are written framed.
+    /// type has none, so arrays of it are written framed. A reference, as a struct's field holds it, is laid out as its
+    /// place in the run's table of the objects held (#2609).
     /// </summary>
     [ReflectionAudit("debugger state packing decides from a value type's serialized fields whether its arrays are packed")]
     private static Node? Build(Type type, List<Type> slots)
     {
+        if (!type.IsValueType)
+            return type.IsPointer || type.IsByRef || type.IsFunctionPointer ? null : new ReferenceNode(type);
         if (type.IsEnum)
         {
             if (DebuggerEnumNames.For(type) is not { } names)
@@ -101,10 +120,9 @@ internal sealed class PackedElementLayout
             return new PrimitiveNode(type);
         if (Nullable.GetUnderlyingType(type) is { } underlying)
             return Build(underlying, slots) is { } value ? new NullableNode(type, value) : null;
-        // A reference can be shared or name a bound or definition object; a hash-keyed collection is rebuilt from its
-        // entries; shared content reattaches after its fields are read; an inline array declares one field for many
-        // elements. Each of those keeps the framed form.
-        if (!type.IsValueType || type.IsPrimitive || type.IsByRefLike || type.ContainsGenericParameters ||
+        // A hash-keyed collection is rebuilt from its entries; shared content reattaches after its fields are read; an
+        // inline array declares one field for many elements. Each of those keeps the framed form.
+        if (type.IsPrimitive || type.IsByRefLike || type.ContainsGenericParameters ||
             InlineArrayElements.Length(type) is not null || HashKeyedCollection.For(type) is not null ||
             typeof(SuperMetroid.AssetExtraction.Installation.IRestoredSharedContent).IsAssignableFrom(type))
             return null;
@@ -120,21 +138,35 @@ internal sealed class PackedElementLayout
         return new StructNode(type, fields, children);
     }
 
-    /// <summary>Empty tables of the enum members a run of the element type holds.</summary>
-    internal EnumTables NewTables() => new(enumSlots.Length);
+    /// <summary>Empty tables of the enum members and the objects a run of the element type holds.</summary>
+    internal RunTables NewTables() => new(enumSlots.Length);
 
-    /// <summary>Writes each slot's table: its member count, then each member's name in the order the run first held it.</summary>
-    internal void WriteTables(BinaryWriter writer, EnumTables tables) => tables.Write(writer, enumNames);
+    /// <summary>
+    /// Writes each enum slot's table: its member count, then each member's name in the order the run first held it; then,
+    /// for an element that holds references, the count of the objects the run holds and each object, in the order the run
+    /// first held it, through <paramref name="writeObject"/>, which writes it as the graph writes any value (#2609).
+    /// </summary>
+    internal void WriteTables(BinaryWriter writer, RunTables tables, Action<object> writeObject)
+    {
+        Ensure.NotNull(tables);
+        Ensure.NotNull(writeObject);
+        tables.WriteEnums(writer, enumNames);
+        if (!holdsReferences)
+            return;
+        writer.Write(tables.Objects.Count);
+        foreach (object held in tables.Objects)
+            writeObject(held);
+    }
 
     /// <summary>Writes the values of the boxed element <paramref name="element"/>, through reflection.</summary>
-    internal void WriteElement(BinaryWriter writer, EnumTables tables, object? element) => root.Write(writer, tables, element);
+    internal void WriteElement(BinaryWriter writer, RunTables tables, object? element) => root.Write(writer, tables, element);
 
     /// <summary>
     /// The compiled writer of an element of a vector of the element type, writing exactly what <see cref="WriteElement"/>
     /// writes, compiled once an array of <paramref name="length"/> elements or the type's earlier reflective writes repay
     /// it; null before then.
     /// </summary>
-    internal Action<BinaryWriter, EnumTables, Array, int>? VectorWriter(int length)
+    internal Action<BinaryWriter, RunTables, Array, int>? VectorWriter(int length)
     {
         if (Volatile.Read(ref vectorWriter) is { } compiled)
             return compiled;
@@ -147,10 +179,10 @@ internal sealed class PackedElementLayout
 
     /// <summary>Compiles the writer of element <c>index</c> of a vector of the element type.</summary>
     [ReflectionAudit("debugger state packing compiles a value type's element writer from its serialized field layout")]
-    private Action<BinaryWriter, EnumTables, Array, int> CompileVectorWriter()
+    private Action<BinaryWriter, RunTables, Array, int> CompileVectorWriter()
     {
         var output = Expr.Parameter(typeof(BinaryWriter), "output");
-        var tables = Expr.Parameter(typeof(EnumTables), "tables");
+        var tables = Expr.Parameter(typeof(RunTables), "tables");
         var array = Expr.Parameter(typeof(Array), "array");
         var index = Expr.Parameter(typeof(int), "index");
         var element = Expr.Variable(ElementType, "element");
@@ -158,7 +190,7 @@ internal sealed class PackedElementLayout
             Expr.Assign(element, Expr.ArrayIndex(Expr.Convert(array, ElementType.MakeArrayType()), index)),
             root.WriteExpression(output, tables, element),
             Expr.Empty());
-        return Expr.Lambda<Action<BinaryWriter, EnumTables, Array, int>>(body, output, tables, array, index).Compile();
+        return Expr.Lambda<Action<BinaryWriter, RunTables, Array, int>>(body, output, tables, array, index).Compile();
     }
 
     /// <summary>
@@ -169,12 +201,16 @@ internal sealed class PackedElementLayout
 
     /// <summary>
     /// Reads each slot's table of members, each decoded and validated once, inside struct storage when
-    /// <paramref name="zeroStorageSlot"/> (<see cref="DebuggerEnumValues.Decode"/>).
+    /// <paramref name="zeroStorageSlot"/> (<see cref="DebuggerEnumValues.Decode"/>); then, for an element that holds
+    /// references, the table of the objects the run holds, each read through <paramref name="readObject"/>, which reads it
+    /// as the graph reader reads any value (#2609).
     /// </summary>
-    internal object[][] ReadTables(BinaryReader reader, bool zeroStorageSlot)
+    /// <exception cref="InvalidDataException">A count is negative, or the table of objects holds no object.</exception>
+    internal SavedTables ReadTables(BinaryReader reader, bool zeroStorageSlot, Func<object?> readObject)
     {
-        var tables = new object[enumSlots.Length][];
-        for (int slot = 0; slot < tables.Length; slot++)
+        Ensure.NotNull(readObject);
+        var enums = new object[enumSlots.Length][];
+        for (int slot = 0; slot < enums.Length; slot++)
         {
             int count = reader.ReadInt32();
             if (count < 0)
@@ -182,13 +218,24 @@ internal sealed class PackedElementLayout
             var members = new object[count];
             for (int member = 0; member < count; member++)
                 members[member] = DebuggerEnumValues.DecodeName(enumSlots[slot], reader.ReadString(), zeroStorageSlot);
-            tables[slot] = members;
+            enums[slot] = members;
         }
-        return tables;
+        if (!holdsReferences)
+            return new SavedTables(enums, []);
+        int held = reader.ReadInt32();
+        if (held < 0)
+            throw new InvalidDataException($"Debugger state has a negative count {held} of the objects a packed {ElementType.FullName} run holds.");
+        var objects = new object[held];
+        for (int index = 0; index < held; index++)
+        {
+            objects[index] = readObject() ?? throw new InvalidDataException(
+                $"The table of the objects a packed {ElementType.FullName} run holds holds no object at {index}.");
+        }
+        return new SavedTables(enums, objects);
     }
 
-    /// <summary>Reads one boxed element from a run's values, its enums resolved through <paramref name="tables"/>.</summary>
-    internal object? ReadElement(BinaryReader values, object[][] tables) => root.Read(values, tables);
+    /// <summary>Reads one boxed element from a run's values, its enums and objects resolved through <paramref name="tables"/>.</summary>
+    internal object? ReadElement(BinaryReader values, SavedTables tables) => root.Read(values, tables);
 
     /// <summary>What a saved schema is read through: the state's reader, and the restore's name reader and type resolution.</summary>
     /// <param name="Reader">The state's reader.</param>
@@ -196,8 +243,16 @@ internal sealed class PackedElementLayout
     /// <param name="Resolve">Resolves a saved type name to this build's type, rejecting a type it does not have.</param>
     internal readonly record struct SchemaSource(BinaryReader Reader, Func<string> ReadName, Func<string, Type> Resolve);
 
-    /// <summary>The distinct members of each enum one run holds, in the order the run first held each.</summary>
-    internal sealed class EnumTables
+    /// <summary>A saved run's tables: each enum slot's members, and the objects the run's elements hold (#2609).</summary>
+    /// <param name="Enums">Each enum slot's members, in table order.</param>
+    /// <param name="Objects">The objects the run's elements hold, in table order.</param>
+    internal sealed record SavedTables(object[][] Enums, object[] Objects);
+
+    /// <summary>
+    /// The distinct members of each enum one run holds, and the distinct objects its elements hold (#2609), each in the
+    /// order the run first held it.
+    /// </summary>
+    internal sealed class RunTables
     {
         /// <summary>Each slot's member indices, by member bits.</summary>
         private readonly Dictionary<ulong, int>[] indices;
@@ -205,8 +260,17 @@ internal sealed class PackedElementLayout
         /// <summary>Each slot's member bits, in table order.</summary>
         private readonly List<ulong>[] members;
 
+        /// <summary>Each object's place in <see cref="Objects"/>, by its identity.</summary>
+        private readonly Dictionary<object, int> objectPlaces = new(ReferenceEqualityComparer.Instance);
+
+        /// <summary>The distinct objects the run's elements hold, in the order the run first held each.</summary>
+        private readonly List<object> objects = [];
+
+        /// <summary>The distinct objects the run's elements hold, in the order the run first held each.</summary>
+        internal IReadOnlyList<object> Objects => objects;
+
         /// <summary>Empty tables for <paramref name="slots"/> enums.</summary>
-        internal EnumTables(int slots)
+        internal RunTables(int slots)
         {
             indices = new Dictionary<ulong, int>[slots];
             members = new List<ulong>[slots];
@@ -228,8 +292,25 @@ internal sealed class PackedElementLayout
             return index;
         }
 
+        /// <summary>
+        /// What a reference held by an element is written as: zero for none, else one more than the object's place in
+        /// <see cref="Objects"/>, where it is added when new.
+        /// </summary>
+        internal int Reference(object? held)
+        {
+            if (held is null)
+                return 0;
+            if (!objectPlaces.TryGetValue(held, out int place))
+            {
+                place = objects.Count;
+                objectPlaces.Add(held, place);
+                objects.Add(held);
+            }
+            return place + 1;
+        }
+
         /// <summary>Writes each slot's member count, then each member's encoded name from <paramref name="names"/>.</summary>
-        internal void Write(BinaryWriter writer, DebuggerEnumNames[] names)
+        internal void WriteEnums(BinaryWriter writer, DebuggerEnumNames[] names)
         {
             for (int slot = 0; slot < members.Length; slot++)
             {
@@ -251,6 +332,11 @@ internal sealed class PackedElementLayout
         Nullable,
         /// <summary>A struct, written as its fields' values in their serialized order.</summary>
         Struct,
+        /// <summary>
+        /// A reference a struct's field holds, written as none or the object's place in the run's table of the objects its
+        /// elements hold (#2609).
+        /// </summary>
+        Reference,
     }
 
     /// <summary>One value type's layout within a packed element: its schema, and how a value of it is written and read.</summary>
@@ -262,6 +348,9 @@ internal sealed class PackedElementLayout
 
         /// <summary>Which layout the node gives the value.</summary>
         internal abstract NodeKind Kind { get; }
+
+        /// <summary>Whether the value holds a reference anywhere in its layout.</summary>
+        internal virtual bool HoldsReferences => false;
 
         /// <summary>Writes the node's schema: its kind and type name, then what its kind adds.</summary>
         internal virtual void WriteSchema(BinaryWriter writer)
@@ -285,13 +374,13 @@ internal sealed class PackedElementLayout
         }
 
         /// <summary>Writes the boxed <paramref name="value"/>, through reflection.</summary>
-        internal abstract void Write(BinaryWriter writer, EnumTables tables, object? value);
+        internal abstract void Write(BinaryWriter writer, RunTables tables, object? value);
 
         /// <summary>The expression writing <paramref name="value"/>, a value of the node's type, exactly as <see cref="Write"/> writes it.</summary>
         internal abstract Expr WriteExpression(Expr output, Expr tables, Expr value);
 
         /// <summary>Reads one boxed value from a run's values.</summary>
-        internal abstract object? Read(BinaryReader values, object[][] tables);
+        internal abstract object? Read(BinaryReader values, SavedTables tables);
 
         /// <summary>The <see cref="BinaryWriter"/> overload that writes one <paramref name="type"/>.</summary>
         protected static MethodInfo WriterOverload(Type type) => typeof(BinaryWriter).GetMethod(nameof(BinaryWriter.Write), [type])
@@ -310,7 +399,7 @@ internal sealed class PackedElementLayout
         internal override NodeKind Kind => NodeKind.Primitive;
 
         /// <inheritdoc/>
-        internal override void Write(BinaryWriter writer, EnumTables tables, object? value) =>
+        internal override void Write(BinaryWriter writer, RunTables tables, object? value) =>
             DebuggerPrimitives.Write(writer, Type, Present(value));
 
         /// <inheritdoc/>
@@ -333,7 +422,7 @@ internal sealed class PackedElementLayout
         }
 
         /// <inheritdoc/>
-        internal override object Read(BinaryReader values, object[][] tables) => DebuggerPrimitives.Read(values, Type);
+        internal override object Read(BinaryReader values, SavedTables tables) => DebuggerPrimitives.Read(values, Type);
     }
 
     /// <summary>An enum, written as its member's index in the run's table of the enum, which names each member once.</summary>
@@ -346,7 +435,7 @@ internal sealed class PackedElementLayout
         internal override NodeKind Kind => NodeKind.Enum;
 
         /// <inheritdoc/>
-        internal override void Write(BinaryWriter writer, EnumTables tables, object? value) =>
+        internal override void Write(BinaryWriter writer, RunTables tables, object? value) =>
             writer.Write7BitEncodedInt(tables.Index(slot, names.BitsOf(Present(value))));
 
         /// <inheritdoc/>
@@ -354,18 +443,18 @@ internal sealed class PackedElementLayout
         internal override Expr WriteExpression(Expr output, Expr tables, Expr value)
         {
             Expr bits = Expr.Convert(Expr.Convert(Expr.Convert(value, Enum.GetUnderlyingType(Type)), names.BitsType), typeof(ulong));
-            MethodInfo index = typeof(EnumTables).GetMethod(nameof(EnumTables.Index), BindingFlags.Instance | BindingFlags.NonPublic)
-                ?? throw new MissingMethodException(nameof(EnumTables), nameof(EnumTables.Index));
+            MethodInfo index = typeof(RunTables).GetMethod(nameof(RunTables.Index), BindingFlags.Instance | BindingFlags.NonPublic)
+                ?? throw new MissingMethodException(nameof(RunTables), nameof(RunTables.Index));
             MethodInfo write = typeof(BinaryWriter).GetMethod(nameof(BinaryWriter.Write7BitEncodedInt), [typeof(int)])
                 ?? throw new MissingMethodException(nameof(BinaryWriter), nameof(BinaryWriter.Write7BitEncodedInt));
             return Expr.Call(output, write, Expr.Call(tables, index, Expr.Constant(slot), bits));
         }
 
         /// <inheritdoc/>
-        internal override object Read(BinaryReader values, object[][] tables)
+        internal override object Read(BinaryReader values, SavedTables tables)
         {
             int index = values.Read7BitEncodedInt();
-            object[] members = tables[slot];
+            object[] members = tables.Enums[slot];
             return (uint)index < (uint)members.Length
                 ? members[index]
                 : throw new InvalidDataException(
@@ -382,6 +471,9 @@ internal sealed class PackedElementLayout
         internal override NodeKind Kind => NodeKind.Nullable;
 
         /// <inheritdoc/>
+        internal override bool HoldsReferences => value.HoldsReferences;
+
+        /// <inheritdoc/>
         internal override void WriteSchema(BinaryWriter writer)
         {
             base.WriteSchema(writer);
@@ -396,7 +488,7 @@ internal sealed class PackedElementLayout
         }
 
         /// <inheritdoc/>
-        internal override void Write(BinaryWriter writer, EnumTables tables, object? held)
+        internal override void Write(BinaryWriter writer, RunTables tables, object? held)
         {
             // A boxed nullable is null or its value.
             writer.Write(held is not null);
@@ -415,7 +507,7 @@ internal sealed class PackedElementLayout
             typeof(void));
 
         /// <inheritdoc/>
-        internal override object? Read(BinaryReader values, object[][] tables) =>
+        internal override object? Read(BinaryReader values, SavedTables tables) =>
             values.ReadBoolean() ? value.Read(values, tables) : null;
     }
 
@@ -427,6 +519,9 @@ internal sealed class PackedElementLayout
     {
         /// <inheritdoc/>
         internal override NodeKind Kind => NodeKind.Struct;
+
+        /// <inheritdoc/>
+        internal override bool HoldsReferences => children.Any(child => child.HoldsReferences);
 
         /// <summary>Writes the field count, then each field's declaring type name, name and layout.</summary>
         internal override void WriteSchema(BinaryWriter writer)
@@ -468,7 +563,7 @@ internal sealed class PackedElementLayout
 
         /// <inheritdoc/>
         [ReflectionAudit("debugger state packing writes a struct element's serialized fields by reflection")]
-        internal override void Write(BinaryWriter writer, EnumTables tables, object? value)
+        internal override void Write(BinaryWriter writer, RunTables tables, object? value)
         {
             object owner = Present(value);
             for (int index = 0; index < fields.Length; index++)
@@ -489,12 +584,59 @@ internal sealed class PackedElementLayout
 
         /// <summary>Rebuilds a boxed struct from its fields' saved values, as a framed struct is rebuilt, not by a constructor.</summary>
         [ReflectionAudit("debugger state restore: a packed struct element is rebuilt from its serialized fields, not by a constructor")]
-        internal override object Read(BinaryReader values, object[][] tables)
+        internal override object Read(BinaryReader values, SavedTables tables)
         {
             object instance = RuntimeHelpers.GetUninitializedObject(Type);
             for (int index = 0; index < fields.Length; index++)
                 fields[index].SetValue(instance, children[index].Read(values, tables));
             return instance;
+        }
+    }
+
+    /// <summary>
+    /// A reference a struct's field holds (#2609), written as zero for none, else one more than the object's place in the
+    /// run's table of the objects its elements hold, which writes each object once as the graph writes any value.
+    /// </summary>
+    /// <param name="type">The field's type, which every object restored into it must be.</param>
+    private sealed class ReferenceNode(Type type) : Node(type)
+    {
+        /// <inheritdoc/>
+        internal override NodeKind Kind => NodeKind.Reference;
+
+        /// <inheritdoc/>
+        internal override bool HoldsReferences => true;
+
+        /// <inheritdoc/>
+        internal override void Write(BinaryWriter writer, RunTables tables, object? value) =>
+            writer.Write7BitEncodedInt(tables.Reference(value));
+
+        /// <inheritdoc/>
+        [ReflectionAudit("debugger state packing compiles a held reference's write as its place in the run's table of objects")]
+        internal override Expr WriteExpression(Expr output, Expr tables, Expr value)
+        {
+            MethodInfo reference = typeof(RunTables).GetMethod(nameof(RunTables.Reference), BindingFlags.Instance | BindingFlags.NonPublic)
+                ?? throw new MissingMethodException(nameof(RunTables), nameof(RunTables.Reference));
+            MethodInfo write = typeof(BinaryWriter).GetMethod(nameof(BinaryWriter.Write7BitEncodedInt), [typeof(int)])
+                ?? throw new MissingMethodException(nameof(BinaryWriter), nameof(BinaryWriter.Write7BitEncodedInt));
+            return Expr.Call(output, write, Expr.Call(tables, reference, Expr.Convert(value, typeof(object))));
+        }
+
+        /// <summary>
+        /// Reads the object a saved reference names in the run's table, or null for none; the object must be one this
+        /// build's field can hold.
+        /// </summary>
+        /// <exception cref="InvalidDataException">The place lies outside the table, or the object is not of the field's type.</exception>
+        internal override object? Read(BinaryReader values, SavedTables tables)
+        {
+            int place = values.Read7BitEncodedInt();
+            if (place == 0)
+                return null;
+            object[] objects = tables.Objects;
+            if ((uint)(place - 1) >= (uint)objects.Length)
+                throw new InvalidDataException($"A packed {Type.FullName} reference names object {place - 1} of a table of {objects.Length}.");
+            object held = objects[place - 1];
+            return Type.IsInstanceOfType(held) ? held : throw new InvalidDataException(
+                $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: a saved packed {Type.FullName} reference holds {held.GetType().FullName}.");
         }
     }
 }

@@ -83,12 +83,9 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
         // Each cycle's shade names the step of the cycle it shows, whose colours it takes.
         foreach (PictureShade shade in SamusShades.HyperBeamSuit)
             shades.Add(Suit(shade, Colours(colour => HyperBeamSuit.Resolve(shade.Step, colour))));
+        // The Hyper shot's own copy of the glow shows the cycle step its shade names.
         foreach (PictureShade shade in SamusShades.HyperShot)
-        {
-            // The charge colours hold the Hyper shot's own copy of the glow in playback order, the cycle's last step first.
-            int playback = SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1 - shade.Step;
-            shades.Add(Suit(shade, Colours(colour => Charge.ResolveHyper(playback, colour))));
-        }
+            shades.Add(Suit(shade, Colours(colour => Charge.ResolveHyperStep(shade.Step, colour))));
         foreach (SamusFullBodyCycleShade palette in FullBodyCycles.Palettes)
             shades.Add(Suit(SamusShades.FullBodyCycle(palette), Colours(colour => FullBodyCycles.Resolve(palette, colour))));
         foreach (SamusHurtColorVariant variant in HurtShadeOrder)

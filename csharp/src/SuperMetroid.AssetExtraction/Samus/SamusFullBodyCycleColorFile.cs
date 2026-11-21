@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
@@ -32,13 +33,13 @@ public static class SamusFullBodyCycleColorFile
 
     /// <summary>Validates a family's three suits and four shades, then places RGB5 colors in their artwork rows.</summary>
     private static void AddFamily(Dictionary<SamusFullBodyCycleShade, RgbColor[]> destination,
-        SamusFullBodyCycleFamily family, PaletteRgb5[][][]? source)
+        SamusFullBodyCycleFamily family, Dictionary<string, PaletteRgb5[][]>? source)
     {
-        if (source is null || source.Length != SamusFullBodyCycleColorFormat.SuitCount)
-            throw new InvalidDataException($"{family} requires three suit palettes.");
-        for (int suit = 0; suit < source.Length; suit++)
+        if (source is null || source.Count != SamusSuitListLayout.Order.Length)
+            throw new InvalidDataException($"{family} requires three suit palettes, each keyed by its suit.");
+        foreach (SamusSuit suit in SamusSuitListLayout.Order)
         {
-            PaletteRgb5[][]? shades = source[suit];
+            PaletteRgb5[][]? shades = source.TryGetValue(suit.ToString(), out PaletteRgb5[][]? held) ? held : null;
             if (shades is null || shades.Length != SamusFullBodyCycleColorFormat.ShadesPerSuit)
                 throw new InvalidDataException($"{family} suit {suit} requires four shades.");
             for (int shade = 0; shade < shades.Length; shade++)
@@ -56,7 +57,7 @@ public static class SamusFullBodyCycleColorFile
                             $"{family} suit {suit}, shade {shade}, color {index} requires RGB5 channels 0..31.");
                     words[index] = rgb.ToRgbColor();
                 }
-                if (!destination.TryAdd(new(family, SamusSuitListLayout.AtPlace(suit), shade), words))
+                if (!destination.TryAdd(new(family, suit, shade), words))
                     throw new InvalidDataException($"Duplicate full-body palette {family} suit {suit}, shade {shade}.");
             }
         }

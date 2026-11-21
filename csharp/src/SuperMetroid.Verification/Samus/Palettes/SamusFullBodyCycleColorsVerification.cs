@@ -136,8 +136,8 @@ internal static class SamusFullBodyCycleColorsVerification
         // Samus binds no colour table (#1512): the installed cycles reach her only through the import's shades, which the
         // checks above resolve.
 
-        PaletteRgb5 originalColor = document.SpeedBooster[0][0][1];
-        document.SpeedBooster[0][0][1] = originalColor with { Blue = 32 };
+        PaletteRgb5 originalColor = document.SpeedBooster["Power"][0][1];
+        document.SpeedBooster["Power"][0][1] = originalColor with { Blue = 32 };
         byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         AssertThrows<InvalidDataException>(() => SamusFullBodyCycleColorFile.Read(
             new MemoryStream(malformed, writable: false)),

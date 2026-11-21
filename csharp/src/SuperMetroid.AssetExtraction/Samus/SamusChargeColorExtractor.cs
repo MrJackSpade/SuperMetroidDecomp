@@ -17,15 +17,10 @@ public static class SamusChargeColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var charged = new PaletteRgb5[SamusChargeColorFormat.SuitCount][][];
-        var pseudo = new PaletteRgb5[SamusChargeColorFormat.SuitCount][][];
-        for (int suit = 0; suit < SamusChargeColorFormat.SuitCount; suit++)
-        {
-            charged[suit] = ReadSixPhaseList(
-                SamusSourceDefinitions.BeamChargePointers.Value, suit);
-            pseudo[suit] = ReadSixPhaseList(
-                SamusSourceDefinitions.PseudoScrewPointers.Value, suit);
-        }
+        Dictionary<string, PaletteRgb5[][]> charged = SamusSuitListLayout.BySuit(place => ReadSixPhaseList(
+            SamusSourceDefinitions.BeamChargePointers.Value, place));
+        Dictionary<string, PaletteRgb5[][]> pseudo = SamusSuitListLayout.BySuit(place => ReadSixPhaseList(
+            SamusSourceDefinitions.PseudoScrewPointers.Value, place));
         var hyper = new PaletteRgb5[SamusChargeColorFormat.HyperFrameCount][];
         for (int frame = 0; frame < hyper.Length; frame++)
         {

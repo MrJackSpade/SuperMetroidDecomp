@@ -63,9 +63,6 @@ public readonly record struct FixedCoordinate
     /// </summary>
     public FixedCoordinate WithWrappedWhole(int whole) => WithWhole(CoordinateAxis.Wrap(whole));
 
-    /// <summary>Replaces only the fraction, 0 through 65535 65536ths of a pixel, keeping the whole pixel.</summary>
-    public FixedCoordinate WithFraction(int fraction) => this with { Fraction = checked((ushort)fraction) };
-
     /// <summary>
     /// This position moved by <paramref name="displacement"/>: the fraction carries into the whole pixel, and the whole
     /// pixel wraps around the coordinate range in either direction, so a mover pushed past either edge reappears at the

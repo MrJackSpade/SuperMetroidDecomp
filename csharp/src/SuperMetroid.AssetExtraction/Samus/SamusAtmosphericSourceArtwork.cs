@@ -30,21 +30,6 @@ public sealed class SamusAtmosphericSourceArtwork
         LavaAndDust = [.. lavaAndDust];
     }
 
-    /// <summary>SHA-256 of both selected atmospheric appearance lists.</summary>
-    /// <remarks>
-    /// The hash keeps the name of the runtime catalog that once held these lists, so an unchanged installation keeps its
-    /// identity.
-    /// </remarks>
-    public string ContentIdentity => SelectedPresentationHash.Create("InstalledSamusAtmosphericArtwork.v2", content =>
-    {
-        content.Append("type one", FootstepSplash.Count);
-        foreach (SpritePart part in FootstepSplash)
-            part.AppendIdentity(content);
-        content.Append("shared type four", LavaAndDust.Count);
-        foreach (SpritePart part in LavaAndDust)
-            part.AppendIdentity(content);
-    });
-
     /// <summary>Immutable four-frame view of AtmosphericGraphics_SpriteTileNumberAttributes_1_Footstep ($90:8C0F), indexed by frame 0..3.</summary>
     public IReadOnlyList<SpritePart> FootstepSplash { get; }
     /// <summary>Immutable four-frame view of AtmosphericGraphics_SpriteTileNumberAttribute_4_6_7_LavaDust ($90:8C17), shared by types 4, 6, and 7.</summary>

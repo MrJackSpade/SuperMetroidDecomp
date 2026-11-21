@@ -14,7 +14,6 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup;
 /// </summary>
 internal sealed class SourceEdits
 {
-    private readonly string _path;
     private readonly List<TextChange> _changes = [];
     private readonly List<TextSpan> _removals = [];
     private readonly List<TextSpan> _moved = [];
@@ -24,14 +23,14 @@ internal sealed class SourceEdits
     internal SourceEdits(SourceText text, string path)
     {
         Text = text;
-        _path = path;
+        FilePath = path;
     }
 
     /// <summary>The document's text before the edits.</summary>
     internal SourceText Text { get; }
 
     /// <summary>The document's path, which a failure names.</summary>
-    internal string FilePath => _path;
+    internal string FilePath { get; }
 
     /// <summary>Replaces <paramref name="span"/> with <paramref name="replacement"/>.</summary>
     internal void Replace(TextSpan span, string replacement) => _changes.Add(new TextChange(span, replacement));
@@ -100,12 +99,12 @@ internal sealed class SourceEdits
         for (int index = 1; index < changes.Count; index++)
         {
             if (changes[index].Span.Start < changes[index - 1].Span.End)
-                throw new InvalidOperationException($"{_path}: two cleanup edits overlap at {changes[index].Span.Start}.");
+                throw new InvalidOperationException($"{FilePath}: two cleanup edits overlap at {changes[index].Span.Start}.");
         }
         foreach (TextSpan removal in _removals)
         {
             if (Text.ToString(removal).Split('\n').Any(line => line.TrimStart().StartsWith("#", StringComparison.Ordinal)))
-                throw new InvalidOperationException($"{_path}: a cleanup edit would delete a preprocessor directive at {removal.Start}.");
+                throw new InvalidOperationException($"{FilePath}: a cleanup edit would delete a preprocessor directive at {removal.Start}.");
         }
         return Text.WithChanges(changes);
     }

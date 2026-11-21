@@ -17,7 +17,4 @@ public static class TorizoBellyPaletteFxColorDefinitions
 
     /// <summary>The Golden Torizo's belly glow.</summary>
     internal static TorizoBellyPaletteFxColorDefinition GoldenTorizoBelly { get; } = new(ColourEffectId.GoldenTorizoBelly, ColorsPerFrame);
-
-    /// <summary>The Bomb and Golden Torizo programs in palette-definition order.</summary>
-    public static IReadOnlyList<TorizoBellyPaletteFxColorDefinition> All { get; } = [BombTorizoBelly, GoldenTorizoBelly];
 }

@@ -59,9 +59,6 @@ internal sealed class CinematicAnimations<TAnimation, TFrame, TCue>
     /// <summary>The segments the family's animations play.</summary>
     internal AnimationSegments<TAnimation, TFrame, TCue> Segments { get; }
 
-    /// <summary>The animations an actor of the family can start, each by the animation it is named for.</summary>
-    internal IReadOnlyCollection<TAnimation> Starts => starts.Keys;
-
     /// <summary>The animation an actor starting <paramref name="animation"/> plays.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No actor of the family starts <paramref name="animation"/>.</exception>
     internal Animation<TAnimation> StartingWith(TAnimation animation) => starts.TryGetValue(animation, out Animation<TAnimation>? started)

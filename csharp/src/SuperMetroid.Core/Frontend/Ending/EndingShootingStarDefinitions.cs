@@ -11,8 +11,6 @@ internal static class EndingShootingStarDefinitions
 
     /// <summary>The colouring every star draws in.</summary>
     internal const EndingSpriteColouring Colouring = EndingSpriteColouring.ShootingStars;
-    /// <summary>The stars the shooting-star setup creates.</summary>
-    internal static int Count => stars.Length;
     /// <summary>Initialization and reset put both coordinates at the screen center.</summary>
     internal const int Origin = 128;
     /// <summary>The updates of the hidden lead-in each flight starts with, at the origin.</summary>

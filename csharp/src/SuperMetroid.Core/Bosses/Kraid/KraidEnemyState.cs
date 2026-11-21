@@ -88,11 +88,6 @@ public sealed class KraidEnemyState
     /// for the small form and <see cref="KraidArenaDefinitions.GrownEjectionLimitY"/> once growth raises the clamp.
     /// </summary>
     public int EjectionLimitY { get; internal set; }
-    /// <summary>
-    /// Whether his mouth's reopens are armed (#2400): a charged body hit that started his eye glow arms them, and only a
-    /// clear of his mouth disarms them.
-    /// </summary>
-    internal bool MouthReopenArmed => mouthReopens is not DisarmedReopens;
 
     /// <summary>
     /// Whether his mouth reopens as it closes (#2400): a mouth hit while the reopens are armed marks it, and a closing mouth

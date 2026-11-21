@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+﻿namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// The room effect the effect overlay shows (#1348, #1466, #1514, #1601): the effect whose artwork it shows, or none, in

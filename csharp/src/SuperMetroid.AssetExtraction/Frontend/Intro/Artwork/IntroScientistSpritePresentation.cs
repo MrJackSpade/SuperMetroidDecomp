@@ -18,9 +18,6 @@ public sealed class IntroScientistSpritePresentation : ICinematicSpriteFrames
     /// <inheritdoc/>
     IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
-    /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroScientistSpritePresentation), frames);
-
     /// <summary>Retains the six validated frames after JSON compilation.</summary>
     private IntroScientistSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;

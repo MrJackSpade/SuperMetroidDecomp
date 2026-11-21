@@ -10,7 +10,4 @@ public static class CinematicGlowPaletteFxColorDefinitions
 
     /// <summary>The gunship's one-color, five-frame glow.</summary>
     internal static CinematicGlowPaletteFxColorDefinition GunshipGlow { get; } = new(ColourEffectId.GunshipGlow, 1);
-
-    /// <summary>The old-Mother-Brain and gunship glow programs in definition order.</summary>
-    public static IReadOnlyList<CinematicGlowPaletteFxColorDefinition> All { get; } = [OldMotherBrainFightBackgroundLights, GunshipGlow];
 }

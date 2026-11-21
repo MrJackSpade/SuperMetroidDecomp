@@ -10,8 +10,6 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal sealed class AngledFlightState(TrigonometryAngle heading, FixedVector<RoomPixels> velocity)
     : EnemyProjectileState
 {
-    /// <summary>The direction the projectile flies in.</summary>
-    internal TrigonometryAngle Heading { get; } = heading;
 
     /// <summary>The projectile's velocity along its heading.</summary>
     private FixedVector<RoomPixels> Velocity { get; } = velocity;

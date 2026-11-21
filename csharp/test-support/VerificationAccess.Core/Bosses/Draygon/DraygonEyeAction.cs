@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Draygon;
+﻿namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>What the Draygon eye does each update.</summary>
 internal enum DraygonEyeAction

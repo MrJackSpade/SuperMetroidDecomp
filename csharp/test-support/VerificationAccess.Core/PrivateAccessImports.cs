@@ -99,7 +99,6 @@ global using static SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationFil
 global using static SuperMetroid.AssetExtraction.Frontend.Map.MapSaveMarkerFilePrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.Map.MapTileWordPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.Map.SceneColourFilesPrivateAccess;
-global using static SuperMetroid.AssetExtraction.Frontend.MapSpriteSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsSourcePresentationPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseBackdropPresentationPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseEquipmentBaseTilesPrivateAccess;

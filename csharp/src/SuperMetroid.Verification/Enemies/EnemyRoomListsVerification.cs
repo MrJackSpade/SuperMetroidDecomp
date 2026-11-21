@@ -24,8 +24,18 @@ internal static class EnemyRoomListsVerification
             .Select(state => RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation)).Distinct().Order().ToArray();
         ushort[] graphicsPointers = RoomStateDefinitions.All
             .Select(state => RoomEnemyGraphicsSetDefinitions.PointerOf(RoomEnemyGraphicsSetLists.Of(state))).Distinct().Order().ToArray();
-        AssertEqual(RoomEnemyPopulationDefinitions.Definitions.Length, populationPointers.Length,
+        // A population the cartridge reads from another's stored list (the Mother Brain room's once her area's boss is dead
+        // reads the Draygon room's empty one, #2574) is compiled as its own definition: the definitions address exactly the
+        // stored lists the room states name, and each holds what the list it reads holds.
+        AssertEqual(RoomEnemyPopulationDefinitions.Definitions.Select(RoomEnemyPopulationDefinitions.PointerOf).Distinct().Count(), populationPointers.Length,
             "all retail population identities are compiled");
+        foreach (RoomEnemyPopulationDefinition definition in RoomEnemyPopulationDefinitions.Definitions)
+        {
+            RoomEnemyPopulationDefinition stored = RoomEnemyPopulationDefinitions.Get(RoomEnemyPopulationDefinitions.PointerOf(definition));
+            AssertTrue(definition.GetType() == stored.GetType() && definition.Placements.Span.SequenceEqual(stored.Placements.Span) &&
+                    (definition is not PlacedRoomEnemyPopulationDefinition placed || placed.DeathQuota == ((PlacedRoomEnemyPopulationDefinition)stored).DeathQuota),
+                $"population {definition.Name} holds what its stored list holds");
+        }
         AssertEqual(RoomEnemyPopulationDefinitions.Definitions.Length,
             RoomEnemyPopulationDefinitions.Definitions.Select(list => list.Name).Distinct().Count(),
             "every compiled population has its own name");

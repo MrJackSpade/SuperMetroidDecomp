@@ -161,9 +161,9 @@ internal sealed class SpriteSheetLayout
         foreach (NamedFrameImage frame in frameImages)
             manifest.Add(frame.Name, frameDocuments[frame.Image]);
         RgbColor[] spriteColours = sources.SpriteColours;
-        ushort[] colours = new ushort[spriteColours.Length];
+        RgbColor[] colours = new RgbColor[spriteColours.Length];
         for (int ink = 0; ink < colours.Length; ink++)
-            colours[ink] = spriteColours[DrawnColourOf(ink)].ToWord();
+            colours[ink] = spriteColours[DrawnColourOf(ink)];
         return new SpriteSheetDocument
         {
             Palette = SpriteImageColours.Sprite, Colours = colours, PaletteBits = sources.PaletteBits,

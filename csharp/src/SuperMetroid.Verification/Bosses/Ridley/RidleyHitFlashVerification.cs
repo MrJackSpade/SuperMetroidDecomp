@@ -60,14 +60,14 @@ internal static class RidleyHitFlashVerification
 
         // Laid in the draw's order, the encounter's colours never show on a flashing frame.
         SpriteSheetShadeDocument start = shades[RidleyShades.NorfairStart.Key];
-        var shown = new Dictionary<int, ushort>();
+        var shown = new Dictionary<int, RgbColor>();
         foreach (SpriteSheetShadeDocument laid in new[] { start, flash })
         {
             for (int index = 0; index < laid.Inks.Length; index++)
                 shown[laid.Inks[index]] = laid.Colours[index];
         }
         foreach (int ink in painted)
-            AssertEqual(source.Sources.SpriteColours[ink].ToWord(), shown[ink], $"Flashing Ridley's ink {ink} shows its own row over his encounter's load");
+            AssertEqual(source.Sources.SpriteColours[ink], shown[ink], $"Flashing Ridley's ink {ink} shows its own row over his encounter's load");
         Console.WriteLine("Ridley hurt flash: the draw lays the flash after the encounter's shades, and the import's flash shade lists every painted ink in its own row's colours.");
         return 0;
     }

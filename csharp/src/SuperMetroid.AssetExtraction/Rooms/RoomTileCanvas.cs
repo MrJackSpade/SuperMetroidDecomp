@@ -189,7 +189,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
         SpriteImageColours kind, InstalledBackgroundSet[]? backgroundSets) => new()
         {
             Palette = kind,
-            Colours = [.. colours.Select(colour => colour.ToWord())],
+            Colours = [.. colours],
             BackgroundSets = backgroundSets,
             Frames = frames,
             Blank = blank,

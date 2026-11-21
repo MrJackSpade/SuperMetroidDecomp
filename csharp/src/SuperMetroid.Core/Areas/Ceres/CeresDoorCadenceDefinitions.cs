@@ -11,7 +11,7 @@ internal static class CeresDoorCadenceDefinitions
 
     /// <summary>
     /// The phase of the door's own update count that picks the elevator room's glow step: eight steps in turn, each held
-    /// for eight updates.
+    /// as long as the one before.
     /// </summary>
     internal static readonly UpdateCycle GlowStep = new(8, 8);
 }

@@ -638,10 +638,10 @@ internal sealed class EnemyProjectileEngine
         Ensure.NotNull(projectile);
         // Each centre must lie within its span (#1627): the redraw ends only on a draw at or past the centre, so a centre
         // past the span's last pixel would redraw for good.
-        RandomSampleField xRange = RandomSampleField.OneOf(scatter.XSpan);
-        int xCenter = Ensure.BetweenInclusive(0, scatter.XSpan - 1, scatter.Center.X);
-        RandomSampleField yRange = RandomSampleField.OneOf(scatter.YSpan);
-        int yCenter = Ensure.BetweenInclusive(0, scatter.YSpan - 1, scatter.Center.Y);
+        RandomSampleField xRange = RandomSampleField.OneOf(scatter.Span.X);
+        int xCenter = Ensure.BetweenInclusive(0, scatter.Span.X - 1, scatter.Center.X);
+        RandomSampleField yRange = RandomSampleField.OneOf(scatter.Span.Y);
+        int yCenter = Ensure.BetweenInclusive(0, scatter.Span.Y - 1, scatter.Center.Y);
         int signSample = _room.Random.Generate();
 
         int xOffset;

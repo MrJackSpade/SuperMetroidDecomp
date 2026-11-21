@@ -3,16 +3,21 @@ using SuperMetroid.Core.Frontend.GameOver;
 
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
+/// <summary>A Baby palette phase and its authored color-array identity (#2563).</summary>
+/// <param name="Phase">The palette phase.</param>
+/// <param name="Name">The identity the game-over document keys its colours by.</param>
+internal sealed record GameOverBabyPaletteName(GameOverBabyColouring Phase, string Name);
+
 /// <summary>Names the game-over document's Baby palettes, by which the import reads and writes their colours.</summary>
 internal static class GameOverBabyPaletteNames
 {
     /// <summary>Each compiled Baby palette phase with its authored color-array identity, in schema order.</summary>
-    private static readonly (GameOverBabyColouring Phase, string Name)[] Names =
+    private static readonly GameOverBabyPaletteName[] Names =
     [
-        (GameOverBabyColouring.Idle, "Baby.Idle"),
-        (GameOverBabyColouring.ClosedCry, "Baby.ClosedCry"),
-        (GameOverBabyColouring.MiddleCry, "Baby.MiddleCry"),
-        (GameOverBabyColouring.OpenCry, "Baby.OpenCry"),
+        new(GameOverBabyColouring.Idle, "Baby.Idle"),
+        new(GameOverBabyColouring.ClosedCry, "Baby.ClosedCry"),
+        new(GameOverBabyColouring.MiddleCry, "Baby.MiddleCry"),
+        new(GameOverBabyColouring.OpenCry, "Baby.OpenCry"),
     ];
 
     /// <summary>Maps a compiled Baby palette phase to its authored color-array identity.</summary>

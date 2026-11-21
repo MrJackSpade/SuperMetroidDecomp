@@ -63,7 +63,7 @@ internal static class MotherBrainRandomChancesVerification
         }
 
         for (int shake = short.MinValue; shake <= ushort.MaxValue; shake++)
-            AssertSameAt((shake & 6) >> 1, MotherBrainCadenceDefinitions.BrainShakeStep.Of(shake), "brain shake step", shake);
+            AssertSameAt((shake & 6) >> 1, MotherBrainCadenceDefinitions.BrainShakeStep.StepAt(shake), "brain shake step", shake);
 
         int smokePlaces = MotherBrainTubeCollapseDefinitions.SmokeXOffsets.Count;
         for (int smoke = 0; smoke < smokePlaces; smoke++)

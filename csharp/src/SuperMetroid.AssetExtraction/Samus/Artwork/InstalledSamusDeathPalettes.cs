@@ -47,7 +47,7 @@ public sealed class InstalledSamusDeathPalettes
             !deathSteps.Fits(suitless) ||
             whiteout.Length != SamusShadeDefinitions.Death.WhiteoutShadeCount ||
             explosionPaletteIndices.Length != SamusDeathSheetDefinitions.Explosion.Count ||
-            explosionPaletteIndices.Any(index => index < 0 || index >= SamusShadeDefinitions.Death.ExplosionShadeCount))
+            explosionPaletteIndices.Any(index => index is < 0 or >= SamusShadeDefinitions.Death.ExplosionShadeCount))
             throw new InvalidDataException("Samus death-palette artwork has an invalid shape or RGB5 color.");
         this.suited = [.. suited.Select(Copy)];
         this.suitless = Copy(suitless);

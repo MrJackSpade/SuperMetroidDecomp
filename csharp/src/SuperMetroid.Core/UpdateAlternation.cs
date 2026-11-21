@@ -3,7 +3,7 @@ namespace SuperMetroid.Core;
 /// <summary>
 /// An alternation paced by a count (#2563): a first half of <see cref="CountsEachWay"/> counts, then a second half of as
 /// many, then the first again. A catalog names the alternation each flash, flicker, sway or shake keeps, stated as its
-/// rhythm (white for two updates of every four, hidden on every second update); the count it is read on is the owner's
+/// rhythm (white for two updates of every four, hidden on alternate updates); the count it is read on is the owner's
 /// own update count, timer or tally.
 /// </summary>
 /// <remarks>

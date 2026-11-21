@@ -335,7 +335,7 @@ internal static class RoomBackgroundsFixtures
                 indices[pixel] = (byte)(twoBppRow * 4 + colour);
                 if (colour == 0)
                     continue;
-                image[pixel] = RgbColor.FromWord(standard[indices[pixel]]).ToRgbaPixel();
+                image[pixel] = standard[indices[pixel]].ToRgbaPixel();
                 continue;
             }
             if (random.Next(3) == 0)
@@ -343,7 +343,7 @@ internal static class RoomBackgroundsFixtures
             // A full-palette pixel names any of the 256 colours.
             int row = random.Next(fullPalette ? 16 : 8);
             indices[pixel] = (byte)(row * 16 + random.Next(1, 16));
-            image[pixel] = RgbColor.FromWord(standard[indices[pixel]]).ToRgbaPixel();
+            image[pixel] = standard[indices[pixel]].ToRgbaPixel();
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>();
         foreach ((string frame, Position16<ImagePixels> corner) in corners)

@@ -18,6 +18,11 @@ using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
+/// <summary>A frontend floor sheet and how it composes from the stock artwork (#2563).</summary>
+/// <param name="Sheet">The installed sheet.</param>
+/// <param name="Compose">How the sheet composes from the stock artwork.</param>
+internal sealed record FrontendFloor(SpriteSheetId Sheet, Func<ScreenTileSources, ComposedSpriteSheet> Compose);
+
 /// <summary>
 /// Composes the frontend's turning floors once (#1467): the title's floor and the Baby Metroid's poses drawn over it, the Ceres
 /// cinematics' floor in each of their shots, and each ending shot's floor. Each is the whole floor the cartridge's map and
@@ -40,18 +45,18 @@ internal static class FrontendFloorSheetComposer
     }
 
     /// <summary>The frontend floor sheets in installation order, each with how it composes from the stock artwork.</summary>
-    private static readonly (SpriteSheetId Sheet, Func<ScreenTileSources, ComposedSpriteSheet> Compose)[] Floors =
+    private static readonly FrontendFloor[] Floors =
     [
-        (SpriteSheetId.TitleFloor, sources => Title(sources.Maps.TitleGraphics, sources.Maps.TitlePalette)),
-        (SpriteSheetId.CeresFloor, sources => Ceres(sources.Intro, sources.Maps.RoomPaletteFx)),
-        (SpriteSheetId.EndingSideCloudEscapeFloor, sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.SideCloudEscape, EndingPaletteId.Escape), sources,
+        new(SpriteSheetId.TitleFloor, sources => Title(sources.Maps.TitleGraphics, sources.Maps.TitlePalette)),
+        new(SpriteSheetId.CeresFloor, sources => Ceres(sources.Intro, sources.Maps.RoomPaletteFx)),
+        new(SpriteSheetId.EndingSideCloudEscapeFloor, sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.SideCloudEscape, EndingPaletteId.Escape), sources,
             EndingFloorShot.SideCloudEscape)),
-        (SpriteSheetId.EndingTopAndBottomCloudEscapeFloor, sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.TopAndBottomCloudEscape, EndingPaletteId.Escape), sources,
+        new(SpriteSheetId.EndingTopAndBottomCloudEscapeFloor, sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.TopAndBottomCloudEscape, EndingPaletteId.Escape), sources,
             EndingFloorShot.TopAndBottomCloudEscape)),
-        (SpriteSheetId.EndingPlanetExplosionFloor, sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.PlanetExplosion, EndingPaletteId.Explosion), sources,
+        new(SpriteSheetId.EndingPlanetExplosionFloor, sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.PlanetExplosion, EndingPaletteId.Explosion), sources,
             EndingFloorShot.PlanetExplosion)),
-        (SpriteSheetId.EndingFlyawayFloor, sources => EndingShaded(Flyaway(sources.Intro.FlightCharacters, sources.EndingPalettes), sources, EndingFloorShot.Flyaway)),
-        (SpriteSheetId.EndingRewardIconFloor, sources => EndingShaded(RewardIcon(sources.EndingMode7, sources.EndingPalettes), sources, EndingFloorShot.RewardIcon)),
+        new(SpriteSheetId.EndingFlyawayFloor, sources => EndingShaded(Flyaway(sources.Intro.FlightCharacters, sources.EndingPalettes), sources, EndingFloorShot.Flyaway)),
+        new(SpriteSheetId.EndingRewardIconFloor, sources => EndingShaded(RewardIcon(sources.EndingMode7, sources.EndingPalettes), sources, EndingFloorShot.RewardIcon)),
     ];
 
     /// <summary>The installed sheets of frontend turning floors' pictures (#1392, #1467), in installation order.</summary>

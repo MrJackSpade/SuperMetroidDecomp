@@ -33,7 +33,7 @@ public static class MapLandmarkExtractor
                 int x = Read(boss + slot * 4);
                 if (x == MapSourceDefinitions.Landmarks.UnusedBossSlot)
                     continue;
-                if (shown >= markers.Length || markers[shown].Boss != MapSourceDefinitions.Landmarks.BossSlotFlags[slot])
+                if (shown >= markers.Length || AreaBossDefinitions.RecordedAs[markers[shown].Boss] != MapSourceDefinitions.Landmarks.BossSlotFlags[slot])
                     throw new InvalidDataException($"{area}'s boss slot {slot} differs from the named boss markers.");
                 points.Add(markers[shown].Id, Position16<MapPixels>.Of(x, Read(boss + slot * 4 + 2)));
                 shown++;

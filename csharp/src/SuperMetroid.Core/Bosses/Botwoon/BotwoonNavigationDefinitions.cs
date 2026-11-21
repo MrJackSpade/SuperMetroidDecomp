@@ -7,7 +7,7 @@ internal static class BotwoonNavigationDefinitions
     /// Whether Botwoon, leaving a hole at full speed after his first action, follows an authored path rather than spitting
     /// from the hole: three chances in eight.
     /// </summary>
-    internal static readonly RandomChance FollowsAuthoredPath = RandomChance.Lowest(3, new(1, 3));
+    internal static readonly RandomChance FollowsAuthoredPath = RandomChance.Lowest(3, BotwoonRandomRolls.PathChoice);
 
     /// <summary>Whether Botwoon starts its next path inside the hole (#2479): one path in two.</summary>
     internal static readonly RandomChance StartsInsideHole = RandomChance.Highest(1, RandomSampleField.OneOf(2));

@@ -55,5 +55,5 @@ internal static class EnemyRandomRolls
     /// <summary>
     /// The roll of two that sends a diving Norfair Rio down at its slower launch velocity: the number's third place.
     /// </summary>
-    internal static RandomSampleField NorfairRioSlowLaunch { get; } = new(2, 1);
+    internal static RandomSampleField RioSlowDive { get; } = new(2, 1);
 }

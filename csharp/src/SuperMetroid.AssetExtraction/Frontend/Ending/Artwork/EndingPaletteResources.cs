@@ -25,6 +25,6 @@ public static class EndingPaletteResources
     /// <param name="colours">The crossfade's colours.</param>
     internal static EndingPalette FromCrossfade(EndingLogoCrossfadeColours colours)
     {
-        return EndingPalette.LogoCrossfade(EndingLogoCrossfadeImage.Encode(colours));
+        return EndingPalette.LogoCrossfade([.. EndingLogoCrossfadeImage.Encode(colours)]);
     }
 }

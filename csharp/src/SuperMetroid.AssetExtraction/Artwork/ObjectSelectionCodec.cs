@@ -30,13 +30,10 @@ internal static class ObjectSelectionCodec
 
     /// <summary>The placement of the object characters, decoded from the selection byte (#2563).</summary>
     /// <param name="objectSelection">The object-selection byte, 0 through 255.</param>
-    /// <returns>
-    /// The first name table's base, in video words (bits 0-2 in $2000-word units), and the second name table's
-    /// displacement past it, in video words (bits 3-4 plus one, in $1000-word units).
-    /// </returns>
-    public static (int NameBaseWord, int SecondTableDisplacementWords) CharacterPlacement(int objectSelection)
+    /// <returns>The first name table's base (bits 0-2 in $2000-word units) and the second's displacement (bits 3-4 plus one, in $1000-word units).</returns>
+    public static ObjectCharacterPlacement CharacterPlacement(int objectSelection)
     {
         int selection = checked((byte)objectSelection);
-        return ((selection & 7) << 13, (((selection >> 3) & 3) + 1) << 12);
+        return new((selection & 7) << 13, (((selection >> 3) & 3) + 1) << 12);
     }
 }

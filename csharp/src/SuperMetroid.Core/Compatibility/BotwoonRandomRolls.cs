@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// The part of the shared random number Botwoon's walks read to choose the hole a walk leads to (#2563): neither the
+/// The parts of the shared random number Botwoon's walks read to choose a path and the hole it leads to (#2563): neither the
 /// number's ordinary roll, its second roll nor its range, but a roll of four from its fourth and fifth places.
 /// </summary>
 /// <remarks>
@@ -17,4 +17,10 @@ internal static class BotwoonRandomRolls
     /// the ordinary roll's lowest three places do not move it.
     /// </summary>
     internal static RandomSampleField WalkDestination { get; } = new(3, 2);
+
+    /// <summary>
+    /// The roll of eight that decides whether Botwoon, leaving a hole at full speed, follows an authored path: the number's
+    /// second through fourth places.
+    /// </summary>
+    internal static RandomSampleField PathChoice { get; } = new(1, 3);
 }

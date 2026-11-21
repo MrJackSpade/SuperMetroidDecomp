@@ -29,7 +29,7 @@ internal static class RioLaunchDefinitions
     /// The chance, taken by half the random numbers, that sends a diving Norfair Rio down at its slower launch velocity; the
     /// random number that let it attack decides it.
     /// </summary>
-    internal static readonly RandomChance SlowLaunch = RandomChance.Highest(1, EnemyRandomRolls.NorfairRioSlowLaunch);
+    internal static readonly RandomChance SlowLaunch = RandomChance.Highest(1, EnemyRandomRolls.RioSlowDive);
 
     /// <summary>
     /// The chance, taken by one random number in four, that a Norfair or Lower Norfair Rio waiting for Samus holds back from

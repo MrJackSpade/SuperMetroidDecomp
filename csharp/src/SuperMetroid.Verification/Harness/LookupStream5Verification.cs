@@ -443,7 +443,7 @@ internal static class LookupStream5Verification
             int first = ReadVerificationWord(rom, 0xa6c162) - GameplayVramLayout.Bg1TilemapWord;
             int count = ReadVerificationWord(rom, 0xa6c15d) / sizeof(ushort);
             // The getaway writes the title's picture by name (#1466); the words it stands for are the page's.
-            System.Collections.Immutable.ImmutableArray<int> shownWords = system.CeresEscape.FixtureWarning.Text.WordsIn(result);
+            System.Collections.Immutable.ImmutableArray<int> shownWords = system.CeresEscape.FixtureWarning.ShownText().WordsIn(result);
             AssertEqual(count, shownWords.Count(word => word != RoomWarningText.Unwritten), "Native emergency word extent");
             AssertEqual(source.Pages["emergency"].Length, count, "Emergency page keeps its native extent");
             for (int index = 0; index < count; index++)

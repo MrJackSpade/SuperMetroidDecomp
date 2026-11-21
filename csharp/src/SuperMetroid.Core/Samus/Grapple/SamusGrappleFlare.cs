@@ -13,7 +13,7 @@ internal sealed class SamusGrappleFlare
     private static readonly Animation<ChargeFlareSegment> MainFlare = ChargeFlareAnimationDefinitions.Animations[ChargeFlareComponent.MainFlare];
 
     /// <summary>The play of the main flare's animation, on its first picture with its wait spent until fired.</summary>
-    internal ShowingAnimationPlayer<ChargeFlareSegment, ChargeFlarePicture, NoAnimationCue> Player { get; } =
+    private ShowingAnimationPlayer<ChargeFlareSegment, ChargeFlarePicture, NoAnimationCue> Player { get; } =
         ShowingAnimationPlayer<ChargeFlareSegment, ChargeFlarePicture, NoAnimationCue>.StartShowing(
             ChargeFlareAnimationDefinitions.Segments, MainFlare, ChargeFlareAnimationDefinitions.ClearedPictureUpdates);
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -61,7 +62,7 @@ internal static class CeresSelfDestructWarningVerification
 
     /// <summary>Whether <paramref name="warning"/> shows any row of the Japanese subtitle.</summary>
     private static bool ShowsSubtitle(CeresEscape escape) =>
-        escape.FixtureWarning.Text.Pictures.Any(written => CeresEscapeWarningPictures.JapaneseSubtitle.Any(line => line.Picture == written.Picture));
+        escape.FixtureWarning.ShownText().Pictures.Any(written => CeresEscapeWarningPictures.JapaneseSubtitle.Any(line => line.Picture == written.Picture));
 
     /// <summary>Runs the Ceres self-destruct warning's wait check.</summary>
     [VerificationCommand("--ceres-self-destruct-warning")]

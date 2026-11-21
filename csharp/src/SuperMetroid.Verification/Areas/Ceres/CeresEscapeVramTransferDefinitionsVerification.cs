@@ -106,7 +106,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             for (int word = 0; word < expected.ByteCount / sizeof(ushort); word++)
                 written[first + word] = true;
         }
-        ImmutableArray<int> shownWords = escape.FixtureWarning.Text.WordsIn(overlay);
+        ImmutableArray<int> shownWords = escape.FixtureWarning.ShownText().WordsIn(overlay);
         for (int word = 0; word < written.Length; word++)
             AssertEqual(written[word], shownWords[word] != RoomWarningText.Unwritten,
                 $"Ceres Japanese overlay writes BG1 word {word} only inside its compiled records");

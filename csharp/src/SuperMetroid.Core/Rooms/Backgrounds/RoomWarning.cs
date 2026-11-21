@@ -26,7 +26,7 @@ public sealed class RoomWarning
     public RoomWarningDepth Depth { get; }
 
     /// <summary>What the warning has written, in the order written; nothing before its escape writes any.</summary>
-    public RoomWarningText Text { get; private set; } = RoomWarningText.Empty;
+    private RoomWarningText Text { get; set; } = RoomWarningText.Empty;
 
     /// <summary>The room's warning picture sheet.</summary>
     public WrittenPictureSheet Sheet => _pictures.Sheet;

@@ -114,8 +114,25 @@ internal static class CoreAccess
     {
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
         internal bool PageTransitionActive => pause.Transition is not null;
-        /// <summary>Map-space scroll point currently displayed by the pause menu.</summary>
-        internal Offset16<MapPixels> MapScroll => pause.MapScrollPosition;
+        /// <summary>
+        /// The map-space scroll the pause menu's map page shows (#2554), read from the scene it draws: the map grid's scroll
+        /// less the frame's, which places the frame's opening (<see cref="SuperMetroid.Core.Frontend.Map.MapFrameOpening"/>).
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The menu draws no map seen through the frame's opening.</exception>
+        internal Offset16<MapPixels> MapScroll
+        {
+            get
+            {
+                SuperMetroid.Core.Rendering.LayeredScene scene = pause.ComposeScene();
+                SuperMetroid.Core.Rendering.PictureGridLayer map = scene.Layers.ToArray()
+                    .OfType<SuperMetroid.Core.Rendering.PictureGridLayer>().Single();
+                if (map.Window is not { Shapes: [SuperMetroid.Core.Rendering.WindowRectangle opening] })
+                    throw new InvalidOperationException("The pause menu's map shows through no single frame opening.");
+                Position16<PlanePixels> corner = SuperMetroid.Core.Frontend.Map.MapFrameDefinitions.OpeningCorner;
+                return Offset16<MapPixels>.Wrapped(map.Scroll.X - (corner.X - opening.TopLeft.X),
+                    map.Scroll.Y - (corner.Y - opening.TopLeft.Y));
+            }
+        }
 
         /// <summary>The map cell the pause screen's map shows at <paramref name="cell"/>, in the shade it shows it in (#1513).</summary>
         internal ShownMapCell ReadDisplayedMapCell(Position16<MapTiles> cell) =>

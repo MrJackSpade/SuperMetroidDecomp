@@ -7,7 +7,6 @@ namespace SuperMetroid.Core;
 /// color words" or "this cache field no longer exists". It answers questions about declarations only and
 /// never reads, writes or invokes a member.
 /// </summary>
-[ReflectionAudit("metadata shape: member presence and declared member types, never member values")]
 internal static class MetadataShape
 {
     /// <summary>Whether <paramref name="type"/> declares or inherits a field named <paramref name="name"/> visible to <paramref name="flags"/>.</summary>

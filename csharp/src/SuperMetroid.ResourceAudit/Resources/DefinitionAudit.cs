@@ -21,7 +21,7 @@ internal static class DefinitionAudit
     public static ResourceIndex Collect(string root, AuditReport report)
     {
         ResourceIndex exports = CollectEnemyVisuals(root, report);
-        PaletteDefinitionAudit.Run(exports, report);
+        PaletteDefinitionAudit.Run(root, exports, report);
         MotherBrainRoomFlashAudit.Install(exports);
         report.Coverage.Add(new(ResourceDomains.SamusProjectile, 0, exports.Count(ResourceDomains.SamusProjectile)));
         return exports;

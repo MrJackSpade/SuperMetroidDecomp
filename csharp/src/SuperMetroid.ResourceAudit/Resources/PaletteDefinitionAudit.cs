@@ -22,14 +22,32 @@ namespace SuperMetroid.ResourceAudit.Resources;
 internal static class PaletteDefinitionAudit
 {
     /// <summary>
-    /// Installs the palette-FX colour identities the importer and loaders select, and records their coverage. No catalog
-    /// declares colour pointers of its own any more: the colour layouts moved to the import (#1583), so every referenced
-    /// colour is one the loaders select.
+    /// Checks every colour the palette-FX catalogs' programs write against the exported identities: each heat-pulse
+    /// program's frames and the title screen's two ambient owners' frames (#2602: the catalogs are named, not discovered by
+    /// their names through reflection).
     /// </summary>
-    public static void Run(ResourceIndex exports, AuditReport report)
+    public static void Run(string root, ResourceIndex exports, AuditReport report)
     {
         InstallColorIdentities(exports);
-        report.Coverage.Add(new(ResourceDomains.PaletteFx, 0, exports.Count(ResourceDomains.PaletteFx)));
+        int before = report.ReferenceCount;
+        string heatSource = FindSource(root, nameof(PaletteFxHeatPulseColorDefinitions));
+        foreach (PaletteFxHeatProgramDefinition heat in PaletteFxHeatPulseColorDefinitions.All)
+        {
+            for (int frame = 0; frame < heat.ColorFrames.FrameCount; frame++)
+            for (int color = 0; color < heat.ColorFrames.ColorsPerFrame; color++)
+                report.Require(ResourceDomains.PaletteFx, nameof(PaletteFxHeatPulseColorDefinitions),
+                    ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, PaletteFxRecordSources.ColorAddress(heat.ColorFrames.Color(frame, color))), heatSource, exports);
+        }
+        string ambientSource = FindSource(root, nameof(TitleScreenAmbientPaletteFxColorDefinitions));
+        foreach (TitleScreenAmbientPaletteFxColorDefinition ambient in TitleScreenAmbientPaletteOwners.All)
+        {
+            for (int frame = 0; frame < ambient.FrameCount; frame++)
+            for (int color = 0; color < ambient.ColorsPerFrame; color++)
+                report.Require(ResourceDomains.PaletteFx, nameof(TitleScreenAmbientPaletteFxColorDefinitions),
+                    ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, PaletteFxRecordSources.ColorAddress(ambient.Color(frame, color))), ambientSource, exports);
+        }
+        report.Coverage.Add(new(ResourceDomains.PaletteFx, report.ReferenceCount - before,
+            exports.Count(ResourceDomains.PaletteFx)));
     }
 
     /// <summary>Imports palette colors through a recording source and installs all loader-selected pointer identities.</summary>
@@ -49,6 +67,17 @@ internal static class PaletteDefinitionAudit
         }
         foreach (ushort pointer in room.ColorPointers.Concat(TitlePalettePresentationTooling.ColorPointers))
             exports.Add(ResourceDomains.PaletteFx, ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, pointer));
+    }
+
+    /// <summary>Locates a palette catalog's file, named for its type, in the import, Core or Tooling.</summary>
+    private static string FindSource(string root, string name)
+    {
+        string[] found = new[] { "csharp/src/SuperMetroid.AssetExtraction", "csharp/src/SuperMetroid.Core", "csharp/src/SuperMetroid.Tooling/Core" }
+            .SelectMany(directory => Directory.EnumerateFiles(Path.Combine(root, directory), name + ".cs", SearchOption.AllDirectories))
+            .ToArray();
+        return found.Length == 1
+            ? Path.GetRelativePath(root, found[0]).Replace('\\', '/')
+            : throw new FileNotFoundException($"Palette catalog {name} must be declared in exactly one import, Core or Tooling file; found {found.Length}.", name + ".cs");
     }
 
     /// <summary>Serves zero for every palette-FX bank or title initial-palette byte and records the read order.</summary>

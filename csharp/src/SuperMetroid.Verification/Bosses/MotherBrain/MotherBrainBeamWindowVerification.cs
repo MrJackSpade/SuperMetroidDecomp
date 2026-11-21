@@ -139,7 +139,6 @@ internal static class MotherBrainBeamWindowVerification
         Enumerable.Range(0, ScreenGeometry.ScreenWidthPixels).Where(x => drawn[line * ScreenGeometry.ScreenWidthPixels + x].R != 0).ToArray();
 
     /// <summary>Asserts that a simulation effect owner stores no per-scanline array.</summary>
-    [ReflectionAudit("metadata shape is the subject: a simulation effect owner must hold no per-scanline register table")]
     internal static void AssertOwnsNoScanlineTable(Type owner)
     {
         foreach (FieldInfo field in owner.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))

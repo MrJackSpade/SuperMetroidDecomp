@@ -40,7 +40,6 @@ internal sealed class PortStateDiff
     }
 
     /// <summary>Traverses matching graph nodes, summarizing primitive arrays and reporting differing leaves.</summary>
-    [ReflectionAudit("structural diff: every instance field of the port state graph is compared, so new state cannot escape")]
     private void Visit(string path, object? expected, object? actual)
     {
         if (excludePath(path))

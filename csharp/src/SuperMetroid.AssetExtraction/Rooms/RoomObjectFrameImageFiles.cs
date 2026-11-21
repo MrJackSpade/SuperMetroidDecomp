@@ -53,13 +53,9 @@ internal static class RoomObjectFrameImageFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         Ensure.NotNull(visualId);
         var layouts = new List<RoomObjectFamilyFrame<RoomObjectDraw>>();
-        var ids = new Dictionary<RoomObjectDraw, string>();
         foreach (RoomObjectDrawLists.DrawList frame in Ensure.NotNull(frames))
-        {
-            layouts.Add(new(frame.Draw, RoomObjectFrameLayout.Of(frame)));
-            ids.Add(frame.Draw, visualId(frame.Draw));
-        }
-        return new(fileName, name, layouts, ids);
+            layouts.Add(new(frame.Draw, RoomObjectFrameLayout.Of(frame), visualId(frame.Draw)));
+        return new(fileName, name, layouts);
     }
 
     /// <summary>Pictures every frame of <paramref name="family"/> from the cartridge and writes the installed document.</summary>
@@ -75,10 +71,10 @@ internal static class RoomObjectFrameImageFiles
         Ensure.NotNull(family);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         var frames = new List<FrameEntry>();
-        foreach ((TFrame frame, RoomObjectFrameLayout layout) in family.Frames)
+        foreach (RoomObjectFamilyFrame<TFrame> frame in family.Frames)
         {
-            RoomObjectFrameImage image = Picture(bus, family.Name, layout);
-            frames.Add(new FrameEntry(Id(family, frame), image.Cells
+            RoomObjectFrameImage image = Picture(bus, family.Name, frame.Layout);
+            frames.Add(new FrameEntry(frame.Id, image.Cells
                 .Select(cell => new FrameCell(cell.Key.X, cell.Key.Y, cell.Value.ShowsNothing ? null : cell.Value.Block,
                     cell.Value.Mirroring)).ToArray()));
         }
@@ -149,19 +145,19 @@ internal static class RoomObjectFrameImageFiles
     {
         if (document.Version != FormatVersion || document.Frames is null)
             throw new InvalidDataException("the document's format is not this importer's.");
-        var byId = family.Ids.ToDictionary(pair => pair.Value, pair => pair.Key, StringComparer.Ordinal);
+        var byId = family.Frames.ToDictionary(frame => frame.Id, StringComparer.Ordinal);
         var images = new Dictionary<TFrame, RoomObjectFrameImage>();
         foreach (FrameEntry entry in document.Frames)
         {
-            if (entry?.Id is null || !byId.TryGetValue(entry.Id, out TFrame? frame))
+            if (entry?.Id is null || !byId.TryGetValue(entry.Id, out RoomObjectFamilyFrame<TFrame>? frame))
                 throw new InvalidDataException($"frame {entry?.Id ?? "(unnamed)"} is not one of {family.Name}'s frames.");
-            if (images.ContainsKey(frame))
+            if (images.ContainsKey(frame.Frame))
                 throw new InvalidDataException($"frame {entry.Id} is pictured twice.");
-            images.Add(frame, Image(entry, Layout(family, frame).Cells()));
+            images.Add(frame.Frame, Image(entry, frame.Layout.Cells()));
         }
-        foreach ((TFrame drawn, _) in family.Frames)
-            if (!images.ContainsKey(drawn))
-                throw new InvalidDataException($"frame {Id(family, drawn)} is not pictured.");
+        foreach (RoomObjectFamilyFrame<TFrame> drawn in family.Frames)
+            if (!images.ContainsKey(drawn.Frame))
+                throw new InvalidDataException($"frame {drawn.Id} is not pictured.");
         return new RoomObjectFrameImages<TFrame>(images);
     }
 
@@ -196,17 +192,6 @@ internal static class RoomObjectFrameImageFiles
         return new RoomObjectFrameImage(cells);
     }
 
-    /// <summary>The geometry of <paramref name="frame"/>.</summary>
-    private static RoomObjectFrameLayout Layout<TFrame>(RoomObjectFrameFamily<TFrame> family, TFrame frame) where TFrame : notnull =>
-        family.Layouts.TryGetValue(frame, out RoomObjectFrameLayout layout)
-            ? layout
-            : throw new InvalidOperationException($"{family.Name} frame {frame} has no geometry.");
-
-    /// <summary>The published name of <paramref name="frame"/>.</summary>
-    private static string Id<TFrame>(RoomObjectFrameFamily<TFrame> family, TFrame frame) where TFrame : notnull =>
-        family.Ids.TryGetValue(frame, out string? id)
-            ? id
-            : throw new InvalidOperationException($"{family.Name} frame {frame} has no published name.");
 
     /// <summary>Reads and parses an installed document, naming its path in a rejection.</summary>
     private static FrameDocument Read(string path, string family)

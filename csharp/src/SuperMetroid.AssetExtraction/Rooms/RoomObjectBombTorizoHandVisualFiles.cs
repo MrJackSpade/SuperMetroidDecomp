@@ -14,11 +14,19 @@ public static class RoomObjectBombTorizoHandVisualFiles
     /// and the one right of it, the block left of it, the pair above and the three below; the cleared hand splits the
     /// hand's row into its right and left halves, then writes the rows below, at the top and above.
     /// </summary>
-    private static readonly Dictionary<BombTorizoHandDraw, RoomObjectStripRuns> Strips =
-        new Dictionary<BombTorizoHandDraw, RoomObjectStripRuns>
+    private static readonly Dictionary<BombTorizoHandDraw, RoomObjectShapeRun[]> Strips =
+        new Dictionary<BombTorizoHandDraw, RoomObjectShapeRun[]>
         {
-            [BombTorizoHandDraw.Intact] = new([new(0, 0), new(-1, 0), new(0, -1), new(-1, 1)], [2, 1, 2, 3]),
-            [BombTorizoHandDraw.Cleared] = new([new(0, 0), new(-2, 0), new(-2, 1), new(-2, -2), new(-2, -1)], [2, 2, 4, 4, 4]),
+            [BombTorizoHandDraw.Intact] =
+            [
+                RoomObjectShapeRun.Row(new(0, 0), 2), RoomObjectShapeRun.Row(new(-1, 0), 1),
+                RoomObjectShapeRun.Row(new(0, -1), 2), RoomObjectShapeRun.Row(new(-1, 1), 3),
+            ],
+            [BombTorizoHandDraw.Cleared] =
+            [
+                RoomObjectShapeRun.Row(new(0, 0), 2), RoomObjectShapeRun.Row(new(-2, 0), 2), RoomObjectShapeRun.Row(new(-2, 1), 4),
+                RoomObjectShapeRun.Row(new(-2, -2), 4), RoomObjectShapeRun.Row(new(-2, -1), 4),
+            ],
         };
 
     /// <summary>Editable Bomb Torizo hand PLM visual JSON filename.</summary>
@@ -68,10 +76,8 @@ public static class RoomObjectBombTorizoHandVisualFiles
             list = default;
             return false;
         }
-        RoomBlockShape shape = described;
-        (Offset16<RoomBlocks>[] starts, int[] counts) = Ensure.Listed(Strips, RoomObjectDrawIdentity.FrameOf<BombTorizoHandDraw>(request, "Bomb Torizo hand"));
-        list = RoomObjectDrawListExport.Strips(request, starts.Length, run => counts[run],
-            (run, cell) => shape.CollisionAt(starts[run] + new Offset16<RoomBlocks>(cell, 0)), run => starts[run]);
+        list = RoomObjectDrawListExport.Runs(request, described,
+            Ensure.Listed(Strips, RoomObjectDrawIdentity.FrameOf<BombTorizoHandDraw>(request, "Bomb Torizo hand")));
         return true;
     }
 

@@ -64,8 +64,7 @@ internal readonly record struct RoomObjectShapeRun(Offset16<RoomBlocks> Start, R
         }
         if (written.Count != shape.Cells.Count)
             throw new InvalidOperationException($"Frame {draw} leaves {shape.Cells.Count - written.Count} cells of its block shape unwritten.");
-        return RoomObjectDrawListExport.Runs(draw, runs.Length, run => runs[run].Count,
-            (run, cell) => shape.CollisionAt(runs[run].CellAt(cell)), run => runs[run].Direction, run => runs[run].Start);
+        return RoomObjectDrawListExport.Runs(draw, shape, runs);
     }
 
     /// <summary>

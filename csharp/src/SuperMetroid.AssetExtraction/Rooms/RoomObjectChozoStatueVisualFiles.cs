@@ -14,16 +14,19 @@ public static class RoomObjectChozoStatueVisualFiles
     /// The strips both slope-access frames are written as: the ledge, the fill five rows below it, and the step below the
     /// fill's sixth block, one row at a time.
     /// </summary>
-    private static readonly RoomObjectStripRuns SlopeAccessStrips =
-        new([new(0, 0), new(0, 5), new(5, 6), new(5, 7), new(5, 8)], [14, 9, 2, 1, 1]);
+    private static readonly RoomObjectShapeRun[] SlopeAccessStrips =
+    [
+        RoomObjectShapeRun.Row(new(0, 0), 14), RoomObjectShapeRun.Row(new(0, 5), 9), RoomObjectShapeRun.Row(new(5, 6), 2),
+        RoomObjectShapeRun.Row(new(5, 7), 1), RoomObjectShapeRun.Row(new(5, 8), 1),
+    ];
 
     /// <summary>Each statue frame's strips, where each starts and how many blocks long: the cleared hand is written as its one block.</summary>
-    private static readonly Dictionary<ChozoStatueDraw, RoomObjectStripRuns> Strips =
-        new Dictionary<ChozoStatueDraw, RoomObjectStripRuns>
+    private static readonly Dictionary<ChozoStatueDraw, RoomObjectShapeRun[]> Strips =
+        new Dictionary<ChozoStatueDraw, RoomObjectShapeRun[]>
         {
             [ChozoStatueDraw.ClearSlopeAccess] = SlopeAccessStrips,
             [ChozoStatueDraw.BlockSlopeAccess] = SlopeAccessStrips,
-            [ChozoStatueDraw.LowerNorfairClearedHand] = new([new(0, 0)], [1]),
+            [ChozoStatueDraw.LowerNorfairClearedHand] = [RoomObjectShapeRun.Row(new(0, 0), 1)],
         };
 
     /// <summary>JSON filename for the cleared Chozo hand and Wrecked Ship slope-access appearances.</summary>
@@ -83,10 +86,8 @@ public static class RoomObjectChozoStatueVisualFiles
             list = default;
             return false;
         }
-        RoomBlockShape shape = described;
-        (Offset16<RoomBlocks>[] starts, int[] counts) = Ensure.Listed(Strips, RoomObjectDrawIdentity.FrameOf<ChozoStatueDraw>(request, "Chozo statue"));
-        list = RoomObjectDrawListExport.Strips(request, starts.Length, run => counts[run],
-            (run, cell) => shape.CollisionAt(starts[run] + new Offset16<RoomBlocks>(cell, 0)), run => starts[run]);
+        list = RoomObjectDrawListExport.Runs(request, described,
+            Ensure.Listed(Strips, RoomObjectDrawIdentity.FrameOf<ChozoStatueDraw>(request, "Chozo statue")));
         return true;
     }
 

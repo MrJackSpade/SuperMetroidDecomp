@@ -86,7 +86,7 @@ internal static class DraygonHoldStandUpVerification
         {
             AssertEqual(SamusPoseId.DraygonHeldStandingUpLeftPose, samus.Pose, $"{where}, Up stands the Draygon-held ball up");
             AssertEqual(expectedCentreY, samus.Position.Y.Whole, $"{where}, the stand-up's collision places her");
-            AssertEqual(SamusPoseId.DraygonHeldStandingUpLeftPose, samus.AnimatedPose, $"{where}, the stand-up's animation runs");
+            AssertEqual(SamusPoseId.DraygonHeldStandingUpLeftPose, samus.Pose, $"{where}, the stand-up's animation runs");
             AssertEqual(SamusAnimationDelayDefinitions.DraygonHeldStandingUpLeftAnimation.Start, samus.AnimationFrame,
                 $"{where}, the stand-up's animation starts on its first frame");
             if (samus.AnimationStep is not SamusAnimationDelay firstDelay)

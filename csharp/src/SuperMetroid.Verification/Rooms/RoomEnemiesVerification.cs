@@ -558,7 +558,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         Console.WriteLine($"CONTACT health={samus.Health} pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} timer={samus.KnockbackHold.UpdatesLeft} invincibility={samus.InvincibilityTimer.RawValue} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose,
             "touch callback publishes request without changing the pre-movement pose");
-    AssertTrue(!samus.KnockbackActive && samus.KnockbackDirection == 0,
+    AssertTrue(!samus.KnockbackActive && samus.KnockbackDirection == null,
             "touch callback does not install the later hurt movement handler");
     AssertEqual(KnockbackHorizontalDirection.Right, samus.KnockbackXDirection, "contact publishes source-side word for later interruption");
     if (verifyDeferredContact) return;

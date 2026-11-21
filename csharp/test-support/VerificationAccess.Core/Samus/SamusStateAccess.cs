@@ -30,6 +30,23 @@ internal static class SamusStateAccess
             return self;
         }
 
+        /// <summary>Whether her bomb jump has begun, its movement starting on her next movement update.</summary>
+        internal bool BombJumpStarting => self.BombJumpPhase == SamusBombJumpPhase.Starting;
+
+        /// <summary>Whether her bomb jump carries her up.</summary>
+        internal bool BombJumpActive => self.BombJumpPhase == SamusBombJumpPhase.Rising;
+
+        /// <summary>Whether her knockback moves her: the knockback movement runs.</summary>
+        internal bool KnockbackActive => self.Knockback is SamusKnockback.Moving;
+
+        /// <summary>The direction her knockback holds, moving her or handed back; null with no knockback.</summary>
+        internal SamusKnockbackDirection? KnockbackDirection => self.Knockback switch
+        {
+            SamusKnockback.Moving moving => moving.Direction,
+            SamusKnockback.HandedBack handedBack => handedBack.Direction,
+            _ => null,
+        };
+
         /// <summary>Enables her Hyper Beam when <paramref name="enabled"/>, as the Baby's gift does, and returns her.</summary>
         internal SamusState WithHyperBeam(bool enabled)
         {

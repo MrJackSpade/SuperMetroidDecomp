@@ -91,8 +91,7 @@ internal static class SpikeDamageBoostVerification
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(UnsignedSixteenSixteen.Zero, SamusVerticalDirection.Down);
         samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(5, 0);
         samus.HorizontalSpeed.CalculateTotalSpeed(samus.HorizontalSpeed.BaseSpeed);
-        samus.KnockbackActive = false;
-        samus.KnockbackDirection = SamusKnockbackDirection.None;
+        samus.Knockback = SamusKnockback.None;
         samus.KnockbackHold = UpdateCountdown.Ended();
         runtime.PlayerActions.Latch((GameplayAction.Right | GameplayAction.Jump));
         runtime.StepFrame((ControllerButton.Right | ControllerButton.A));
@@ -110,8 +109,7 @@ internal static class SpikeDamageBoostVerification
         // extra speed; the next normal movement frame consumes that cancellation.
         level.SetTerrain(hazardBlock, OpenAir);
         samus.ChangePoseKeepingAnimation(SamusPoseId.SpinJumpRightPose);
-        samus.KnockbackActive = false;
-        samus.KnockbackDirection = SamusKnockbackDirection.None;
+        samus.Knockback = SamusKnockback.None;
         SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left, KnockbackTimer = 4 }, poseCollision: null);
         samus.Position = samus.Position.WithWholeX(131);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x6000);
@@ -138,9 +136,8 @@ internal static class SpikeDamageBoostVerification
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "hurt fallback cancels momentum flag");
         }
 
-        samus.KnockbackActive = false;
+        samus.Knockback = SamusKnockback.None;
         samus.KnockbackHold = UpdateCountdown.Ended();
-        samus.KnockbackDirection = SamusKnockbackDirection.None;
         samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         foreach (SamusPoseId retainedPose in new SamusPoseId[]
         {

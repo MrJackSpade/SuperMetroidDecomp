@@ -153,7 +153,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             runner.Ground = room.Ground;
             if (wetness == RoomGroundWetness.WetWhileRaining)
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
-            SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
+            runner.ChangePose(runner.Pose, runner.PoseFrameNumbered(2));
             AdvanceToFootContactTick(runner);
             runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: false);
             AssertEqual(wet ? "SurfaceSplash,SurfaceSplash" : "", ParticleKinds(runner),
@@ -251,7 +251,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             Ground = IntroCinematicDefinitions.Flashback.Ground,
         }.InPose(pose);
         runner.Presentation.PresentInCinematic();
-        SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
+        runner.ChangePose(runner.Pose, runner.PoseFrameNumbered(2));
         AdvanceToFootContactTick(runner);
         runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: false);
         AssertEqual("", ParticleKinds(runner), "the flashback's unboosted footstep raises nothing");

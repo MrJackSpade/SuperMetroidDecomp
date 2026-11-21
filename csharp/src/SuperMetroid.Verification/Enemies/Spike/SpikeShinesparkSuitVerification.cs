@@ -92,7 +92,7 @@ internal static class SpikeShinesparkSuitVerification
             "Reserve command zero freezes stored-shine palette progression");
         AssertEqual(frozenKnockbackTimer - 1, frozenSamus.KnockbackHold.UpdatesLeft,
             "global hurt timer continues while Reserve owns Samus");
-        AssertTrue(frozenSamus.KnockbackActive && frozenSamus.KnockbackDirection != 0,
+        AssertTrue(frozenSamus.KnockbackActive && frozenSamus.KnockbackDirection != null,
             "Reserve command zero retains the interrupted knockback movement owner");
 
         // With no Gravity Suit, a 60-point automatic refill creates the wider native

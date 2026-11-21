@@ -27,7 +27,7 @@ internal static class KnockbackShinesparkLaunchVerification
         SamusMovementHandOver.FromKnockback(samus);
         AssertEqual(ShinesparkPhase.Inactive, samus.Shinespark.Phase, "the knockback's end returned her movement to her pose, ending the windup");
 
-        SamusAerialPoseTransitions.ApplyShinesparkDirectionTransition(samus, SamusPoseId.ShinesparkHorizontalLeftPose);
+        SamusAerialPoseTransitions.ApplyShinesparkDirectionTransition(samus, ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkHorizontalLeftPose));
 
         AssertEqual(ShinesparkPhase.Horizontal, samus.Shinespark.Phase, "the left launch installs the horizontal handler");
         AssertEqual(SamusPoseId.ShinesparkHorizontalLeftPose, samus.Pose, "Samus takes the left launch pose");

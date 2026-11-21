@@ -62,7 +62,7 @@ internal static class EscapeRunningFootstepsVerification
             samus.ChangePoseKeepingAnimation(pose);
             samus.Control.Unlock();
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(8));
+            samus.ChangePose(samus.Pose, samus.PoseFrameNumbered(8));
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(8), 1);
             PrivateState.Set(samus.LiquidPhysics, nameof(SamusLiquidPhysicsState.FxType), RoomFxType.Acid);
             global::SuperMetroid.Core.PrivateState.Set(samus.LiquidPhysics, "LavaAcidSurfaceY", (int?)(0));

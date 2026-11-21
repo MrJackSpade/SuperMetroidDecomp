@@ -21,7 +21,7 @@ internal static class ShinesparkEnemyStopVerification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), Health = 399 };
             samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
             samus.Shinespark.BeginWindup(samus);
-            samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkVerticalLeftPose);
+            samus.Shinespark.BeginDirectionalLaunch(samus, ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkVerticalLeftPose));
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(ushort.MaxValue);
             var enemy = new SolidEnemyFixture();
             samus.Kinematics.InteractiveEnemies =

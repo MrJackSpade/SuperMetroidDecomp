@@ -168,7 +168,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         SamusPresentation.InitializeAnimation(directional);
         directional.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0));
         directional.Shinespark.BeginWindup(directional);
-        directional.Shinespark.BeginDirectionalLaunch(directional, targetPose);
+        directional.Shinespark.BeginDirectionalLaunch(directional, ShinesparkLaunchFixtures.Of(targetPose));
         AssertEqual(1, directional.AudioRequests.CountOf(RoomSound.Shinespark),
             $"pose ${(int)SamusPoseNumbers.Number(targetPose):X2} queues one launch sound");
         directional.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
@@ -210,7 +210,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     externallyReversedSpark.Shinespark.BeginWindup(externallyReversedSpark);
     externallyReversedSpark.Shinespark.BeginDirectionalLaunch(
         externallyReversedSpark,
-        SamusPoseId.ShinesparkVerticalRightPose);
+        ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkVerticalRightPose));
     externallyReversedSpark.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
     externallyReversedSpark.Kinematics.ExtraDisplacement = externallyReversedSpark.Kinematics.ExtraDisplacement.WithWholeY(8).WithFractionY(0);
     FixedCoordinate reversedSparkYBefore = externallyReversedSpark.Kinematics.Position.Y;
@@ -256,7 +256,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         SamusPresentation.InitializeAnimation(invincible);
         invincible.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
         invincible.Shinespark.BeginWindup(invincible);
-        invincible.Shinespark.BeginDirectionalLaunch(invincible, targetPose);
+        invincible.Shinespark.BeginDirectionalLaunch(invincible, ShinesparkLaunchFixtures.Of(targetPose));
         invincible.Shinespark.StepAndCommit(SamusTerrain.InRoom(directionLevel, SamusRoomObjectFixtures.Uninstalled), invincible, frameCounter: 0, projectiles: Shots(), samusCannotDie: true);
         AssertTrue(invincible.Shinespark.Phase is not ShinesparkPhase.Crash,
             $"invincible pose {(int)SamusPoseNumbers.Number(targetPose):X2} continues at {energy} energy");
@@ -280,7 +280,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     horizontal.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0));
     horizontal.Shinespark.BeginWindup(horizontal);
     horizontal.Shinespark.BeginDirectionalLaunch(
-        horizontal, SamusPoseId.ShinesparkHorizontalRightPose);
+        horizontal, ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkHorizontalRightPose));
     horizontal.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
     var horizontalShots = Shots();
     var shineBombObjects = RoomObjectFixtures.Unbound();
@@ -438,7 +438,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         fixture.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0));
         fixture.Shinespark.BeginWindup(fixture);
         fixture.Shinespark.BeginDirectionalLaunch(
-            fixture, SamusPoseId.ShinesparkHorizontalRightPose);
+            fixture, ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkHorizontalRightPose));
         fixture.Kinematics.YAcceleration = default;
         fixture.Shinespark.StepAndCommit(SamusTerrain.InRoom(fixtureLevel, SamusRoomObjectFixtures.Uninstalled), fixture, frameCounter: 0, projectiles: fixtureShots);
         for (ushort frame = 1; frame <= 71; frame++)
@@ -489,7 +489,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         var shots = Shots();
         samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
         samus.Shinespark.BeginWindup(samus);
-        samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
+        samus.Shinespark.BeginDirectionalLaunch(samus, ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkHorizontalRightPose));
         samus.Kinematics.YAcceleration = default;
 
         // Four short of the largest travel, so the first orbiting call wraps it to zero.

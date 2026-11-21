@@ -34,8 +34,7 @@ internal static class SamusImpulseDefinitionsVerification
             global::SuperMetroid.Core.PrivateState.Set(bomb.LiquidPhysics, "WaterSurfaceY", liquid == 1 ? surface : null);
             global::SuperMetroid.Core.PrivateState.Set(bomb.LiquidPhysics, "LavaAcidSurfaceY", liquid == 2 ? surface : null);
             bomb.BombJump = SamusBombJump.FromBlast(direction).Arm();
-            bomb.BombJumpStarting = true;
-            bomb.BombJumpActive = false;
+            bomb.BombJumpPhase = SuperMetroid.Core.Samus.Projectiles.SamusBombJumpPhase.Starting;
             bomb.Kinematics.YAcceleration = new UnsignedSixteenSixteen(7, 123);
             SamusBombJumpMovement.Start(bomb);
             int medium = gravity == 0 && raw < bombBottom ? liquid : 0;
@@ -65,8 +64,7 @@ internal static class SamusImpulseDefinitionsVerification
             global::SuperMetroid.Core.PrivateState.Set(hurt.LiquidPhysics, "LavaAcidSurfaceY", environment == 2 ? 0 : null);
             PrivateState.Set(hurt.LiquidPhysics, "IgnoresWaterSurface", environment == 3);
             hurt.BombJump = SamusBombJump.FromBlast(SamusBombJumpDirection.Left).Arm();
-            hurt.BombJumpStarting = true;
-            hurt.BombJumpActive = true;
+            hurt.BombJumpPhase = SuperMetroid.Core.Samus.Projectiles.SamusBombJumpPhase.Starting;
             hurt.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
             hurt.HorizontalSpeed.BodyAttack = SamusBodyAttack.SpeedBooster;
             AssertTrue(SamusKnockbackMovement.Start(hurt, input, new KnockbackLaunch { KnockbackXDirection = side == 0 ? KnockbackHorizontalDirection.Left : KnockbackHorizontalDirection.Right, KnockbackTimer = 11 }, poseCollision: null), "Native hurt branch admitted");

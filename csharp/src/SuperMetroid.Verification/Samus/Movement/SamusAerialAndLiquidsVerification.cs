@@ -650,7 +650,7 @@ SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), screwRepeat, Ga
     SamusState submergedSpin = CreateFallingSpin(
         SamusPoseId.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
     submergedSpin.BeamCharge.SetFlareCount(0x003c);
-    SamusPresentation.InitializeAnimation(submergedSpin, submergedSpin.PoseFrameNumbered(0));
+    submergedSpin.ChangePose(submergedSpin.Pose, submergedSpin.PoseFrameNumbered(0));
     for (int tick = 0; tick < 3; tick++)
     {
         submergedSpin.LiquidPhysics.BeginFrameSoundRequests();
@@ -1190,7 +1190,7 @@ internal static void VerifySamusAtmosphericEffects()
         Ground = RoomDefinitions.LandingSite.Ground,
     }.InPose(SamusPoseId.MovingRightNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(runner);
-    SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
+    runner.ChangePose(runner.Pose, runner.PoseFrameNumbered(2));
     // The native foot-contact gate checks the final tick of this frame. The
     // compiled running stream initializes frame two at two ticks, so stage its
     // final tick explicitly instead of relying on the old synthetic ROM delay.

@@ -523,7 +523,7 @@ internal static class RidleyFullMovieVerification
         samus.ChangePoseKeepingAnimation(SamusPoseId.SpringBallGroundRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         samus.Position = new(new(202, 0x8000), new(425, ushort.MaxValue));
-        samus.KnockbackActive = true; samus.KnockbackDirection = SamusKnockbackDirection.UpRight;
+        samus.Knockback = new SamusKnockback.Moving(SamusKnockbackDirection.UpRight);
         samus.KnockbackXDirection = KnockbackHorizontalDirection.Right; samus.KnockbackHold = UpdateCountdown.For(4);
         samus.InvincibilityTimer = WrappingCountdown.Start(95);
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed, SamusVerticalDirection.Up); samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithWhole(5)); samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithFraction(0));

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Boulder;

@@ -80,7 +80,7 @@ internal sealed class MotherBrainCombat
         int projectileDamage)
     {
         RoomEnemyPlace head = brain.Place;
-        SamusProjectile projectile = held.Projectile;
+        _ = held.Projectile;
         MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head);
         SamusProjectileFamily family = projectileType.Family;
         if (state.Form != MotherBrainForm.Glass)

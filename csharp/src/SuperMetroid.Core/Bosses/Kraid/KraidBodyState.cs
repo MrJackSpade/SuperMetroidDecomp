@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>

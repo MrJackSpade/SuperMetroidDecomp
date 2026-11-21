@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;

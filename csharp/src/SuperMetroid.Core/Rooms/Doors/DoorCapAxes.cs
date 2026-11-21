@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The axis a door cap's blocks stand along (#2560): a column for a cap on a left or right wall, a row for a cap on a ceiling or floor.</summary>

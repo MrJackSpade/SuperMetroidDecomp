@@ -179896,19 +179896,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Diagnostics.SaveStates.PackedElementLayout.EnumTables",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Diagnostics"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Diagnostics/SaveStates/PackedElementLayout.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Diagnostics.SaveStates.PackedElementLayout.Node",
       "kind": "class",
       "scope": "product",
@@ -179959,6 +179946,45 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.SaveStates.PackedElementLayout.ReferenceNode",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/SaveStates/PackedElementLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.SaveStates.PackedElementLayout.RunTables",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/SaveStates/PackedElementLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.SaveStates.PackedElementLayout.SavedTables",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/SaveStates/PackedElementLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Diagnostics.SaveStates.PackedElementLayout.SchemaSource",
@@ -183579,6 +183605,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.ReachabilityAudit.Analysis.EnumDefaults",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/EnumDefaults.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.ReachabilityAudit.Analysis.FrameworkDispatch",
@@ -220423,6 +220462,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Verification.Runtime.DebuggerStateLayoutVerification.HoldingElement",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Runtime/DebuggerStateLayoutVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Verification.Runtime.DebuggerStateLayoutVerification.NamedCounts",

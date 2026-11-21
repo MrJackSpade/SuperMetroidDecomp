@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Cleanup fixture (tools/cleanup/check-fixtures.ps1): built beside the repository's csharp/.editorconfig, with a
+       Directory.Build.props that imports csharp/Directory.Build.props. The project does not compile, and its
+       unnecessary usings are removed all the same (#2607). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>

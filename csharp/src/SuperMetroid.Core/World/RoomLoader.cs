@@ -178,7 +178,7 @@ internal sealed class RoomLoader
             room,
             station.Placement.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport,
-            new RoomEntry { LoadStation = station });
+            new RoomEntry.AtStation(station));
     }
 
     /// <summary>
@@ -213,7 +213,7 @@ internal sealed class RoomLoader
             room,
             station.Placement.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport,
-            new RoomEntry { LoadStation = station });
+            new RoomEntry.AtStation(station));
         // Loading at a save station locks that station until Samus leaves it, so standing on the pod does not reopen
         // its confirmation message.
         _room.LoadedScope.RoomObjects.Stations.LockSaveStationForCurrentRoomEntry();
@@ -332,7 +332,7 @@ internal sealed class RoomLoader
             room,
             station.Placement.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport,
-            new RoomEntry { GunshipScenario = GunshipLoadScenario.EscapingCeres, LoadStation = station });
+            new RoomEntry.AtStation(station, GunshipLoadScenario.EscapingCeres));
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
@@ -684,7 +684,7 @@ internal sealed class RoomLoader
             room,
             placement.CameraPosition,
             RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn,
-            new RoomEntry { RunDoorClosingObject = true, PreloadedAssets = assets });
+            new RoomEntry.ThroughDoor(assets));
 
         // After a door's fade to black, Samus shows her suit's colours again before the destination fades in, after the
         // room's and enemies' colours.
@@ -696,14 +696,23 @@ internal sealed class RoomLoader
         _player.GroundedSamusMovementEnabled = true;
     }
 
+    /// <summary>Loads the selected room, its state and its graphics, entered neither at a load station nor through a door's transition.</summary>
+    internal void LoadRoom(
+        DoorDefinition door,
+        SelectedRoom room,
+        Position16<RoomPixels> camera,
+        RoomViewportLoadMode viewportLoadMode) =>
+        LoadRoom(door, room, camera, viewportLoadMode, RoomEntry.Plain);
+
     /// <summary>Loads the selected room, its state and its graphics; shared by stations, doors and the attract demo.</summary>
     internal void LoadRoom(
         DoorDefinition door,
         SelectedRoom room,
         Position16<RoomPixels> camera,
         RoomViewportLoadMode viewportLoadMode,
-        RoomEntry entry = default)
+        RoomEntry entry)
     {
+        Ensure.NotNull(entry);
         DoorOpeningSourceView? doorOpeningSourceView = viewportLoadMode switch
         {
             RoomViewportLoadMode.DisplayInitialViewport => null,
@@ -879,7 +888,7 @@ internal sealed class RoomLoader
             System = _system,
         });
 
-        if (entry.RunDoorClosingObject)
+        if (entry.RunsDoorClosingObject)
         {
             // The door's closing object spawns after the destination's room objects, the door's and the room's setup
             // and the room's effects, and before the enemies initialize: every room object the room lists exists before

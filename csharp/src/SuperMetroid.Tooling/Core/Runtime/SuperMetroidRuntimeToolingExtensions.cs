@@ -120,7 +120,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 room,
                 camera,
                 RoomViewportLoadMode.DisplayInitialViewport,
-                new RoomEntry { RunDoorClosingObject = true });
+                new RoomEntry.ThroughDoor(Preloaded: null));
         }
 
     }

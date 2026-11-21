@@ -23,13 +23,7 @@ internal static class EyeDoorSweatSpanUnderflowVerification
             blocks[6 * width + x] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock); // floor at row 6; rows 0-5 are air
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(blocks, new RoomBlockBehavior[blocks.Length], new RoomBlockAppearance[blocks.Length]), RoomLevelData.NothingBeyondGrid(), []);
 
-<<<<<<< ours
-        var drop = global::SuperMetroid.Core.PrivateState.With<EnemyProjectile>(new EnemyProjectile(0, default, RoomEnemyProjectileKind.EyeDoorSweat, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still)
-||||||| base
-        var drop = global::SuperMetroid.Core.PrivateState.With<EnemyProjectile>(new EnemyProjectile(0, default, RoomEnemyProjectileKind.EyeDoorSweat)
-=======
-        var drop = global::SuperMetroid.Core.PrivateState.With<EnemyProjectile>(new EnemyProjectile(0, default, RoomEnemyProjectileKind.EyeDoorSweat, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance)
->>>>>>> theirs
+        var drop = global::SuperMetroid.Core.PrivateState.With<EnemyProjectile>(new EnemyProjectile(0, default, RoomEnemyProjectileKind.EyeDoorSweat, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0058, 0x0020)),
             Velocity = new(new SignedEightEight(0xffc0), new SignedEightEight(0x0200)),

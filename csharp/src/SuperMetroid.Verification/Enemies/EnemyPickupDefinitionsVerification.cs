@@ -35,13 +35,7 @@ internal static class EnemyPickupDefinitionsVerification
         for (int index = 1; index <= 5; index++)
         {
             EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
-<<<<<<< ours
-            var projectile = new EnemyProjectile(index, default, RoomEnemyProjectileKind.EnemyDeathPickup, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still)
-||||||| base
-            var projectile = new EnemyProjectile(index, default, RoomEnemyProjectileKind.EnemyDeathPickup)
-=======
-            var projectile = new EnemyProjectile(index, default, RoomEnemyProjectileKind.EnemyDeathPickup, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance)
->>>>>>> theirs
+            var projectile = new EnemyProjectile(index, default, RoomEnemyProjectileKind.EnemyDeathPickup, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance)
             {
                 FrameHold = WrappingCountdown.Start(0xffff),
 

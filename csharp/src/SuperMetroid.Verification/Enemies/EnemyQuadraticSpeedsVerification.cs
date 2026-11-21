@@ -37,13 +37,7 @@ internal static class EnemyQuadraticSpeedsVerification
         AssertThrows<InvalidDataException>(() => QuadraticSpeedCurve.AtMark(QuadraticSpeedCurveDefinitions.MarkCount), "quadratic row past the table");
         if (definitionsOnly) return;
         var addRock = new Action<EnemyProjectile, QuadraticSpeedCurvePlace, VerticalDirection>(PolypBehavior.AddPolypRockQuadraticStep);
-<<<<<<< ours
-        var rock = new EnemyProjectile(0, default, RoomEnemyProjectileKind.DustOrExplosion, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still);
-||||||| base
-        var rock = new EnemyProjectile(0, default, RoomEnemyProjectileKind.DustOrExplosion);
-=======
-        var rock = new EnemyProjectile(0, default, RoomEnemyProjectileKind.DustOrExplosion, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
->>>>>>> theirs
+        var rock = new EnemyProjectile(0, default, RoomEnemyProjectileKind.DustOrExplosion, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
         foreach (uint origin in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int index = 0; index < QuadraticSpeedCurveDefinitions.MarkCount; index++)
         foreach (VerticalDirection direction in directions)

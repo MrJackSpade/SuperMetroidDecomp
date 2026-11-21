@@ -166,13 +166,7 @@ internal static class BotwoonAnimationsVerification
 
         for (ushort selector = 0; selector < 64; selector += 2)
         {
-<<<<<<< ours
-            var projectile = new EnemyProjectile(0, default, RoomEnemyProjectileKind.BotwoonBody, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still);
-||||||| base
-            var projectile = new EnemyProjectile(0, default, RoomEnemyProjectileKind.BotwoonBody);
-=======
-            var projectile = new EnemyProjectile(0, default, RoomEnemyProjectileKind.BotwoonBody, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
->>>>>>> theirs
+            var projectile = new EnemyProjectile(0, default, RoomEnemyProjectileKind.BotwoonBody, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
             projectile.StartAnimation(new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(selector)));
             CompareBotwoonProjectile(rom, rom.ReadCartridgeWord((BotwoonSegmentListTable + selector)), projectile, Pass,
                 $"segment selector ${selector:X2}");
@@ -191,13 +185,7 @@ internal static class BotwoonAnimationsVerification
         head.SetSpeciesState(state);
         // A changed selector restarts the segment; an unchanged one keeps running.
         Action<EnemyProjectile, int> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
-<<<<<<< ours
-        var segment = new EnemyProjectile(1, default, RoomEnemyProjectileKind.BotwoonBody, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still);
-||||||| base
-        var segment = new EnemyProjectile(1, default, RoomEnemyProjectileKind.BotwoonBody);
-=======
-        var segment = new EnemyProjectile(1, default, RoomEnemyProjectileKind.BotwoonBody, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
->>>>>>> theirs
+        var segment = new EnemyProjectile(1, default, RoomEnemyProjectileKind.BotwoonBody, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
         var segmentAnimation = new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(0));
         enemies.BotwoonBehavior.Segments.Start(segment, new BotwoonSegmentState(head, head.RequireSpeciesState<BotwoonEnemyState>(), 1, segment, segmentAnimation));
         segment.StartAnimation(segmentAnimation);

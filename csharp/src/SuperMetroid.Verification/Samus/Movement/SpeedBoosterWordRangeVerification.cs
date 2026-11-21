@@ -43,13 +43,7 @@ internal static class SpeedBoosterWordRangeVerification
         var advancing = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(1, 1) };
         AssertTrue(advancing.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, GameplayAction.Dash,
             extraAnimationDelay: 0, out _, requestEchoSound: NoEcho), "cadence one expires and advances the stage");
-<<<<<<< ours
-        AssertEqual(new SamusSpeedBoostCounter(2, SamusRunningCadences.SpeedBoostCadence(2).CountdownAfterAdvance), advancing.SpeedBoostCounter,
-||||||| base
-        AssertEqual(new SamusSpeedBoostCounter(2, SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage2)), advancing.SpeedBoostCounter,
-=======
         AssertEqual(new SamusSpeedBoostCounter(2, SamusRunningCadences.StageCadence(2).CountdownAfterAdvance), advancing.SpeedBoostCounter,
->>>>>>> theirs
             "stage two with its reloaded cadence");
 
         var range = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());

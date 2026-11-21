@@ -10,7 +10,7 @@ internal static class ProjectileLaunchInheritanceAccess
     extension(ProjectileLaunchInheritance self)
     {
         /// <summary>The last distance recorded in <paramref name="direction"/>; zero once cleared.</summary>
-        internal SignedSixteenSixteen Distance(HorizontalDirection direction) => self._distances[direction switch
+        internal SignedSixteenSixteen Distance(HorizontalDirection direction) => self.distances[direction switch
         {
             HorizontalDirection.Left => 0,
             HorizontalDirection.Right => 1,

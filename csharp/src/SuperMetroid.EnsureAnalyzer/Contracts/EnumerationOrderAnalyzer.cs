@@ -130,10 +130,18 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static void AnalyzeBlock(OperationBlockAnalysisContext context, INamedTypeSymbol? enumType, IAssemblySymbol assembly, OrderFlows flows)
     {
-        // Code a source generator emits, such as a debugger state's writer of every field, orders nothing of the game (#2602).
-        if (context.OperationBlocks.FirstOrDefault()?.Syntax.SyntaxTree is { } tree && GeneratedSource.IsSourceGeneratorOutput(tree, context.CancellationToken))
-            return;
         IOperation[] operations = [.. context.OperationBlocks.SelectMany(block => block.DescendantsAndSelf())];
+        // Code a source generator emits, such as a debugger state's writer of every field, orders nothing of the game (#2602):
+        // it holds no source, and each of its reads is one that feeds no order, so a member only it reads feeds none.
+        if (context.OperationBlocks.FirstOrDefault()?.Syntax.SyntaxTree is { } tree && GeneratedSource.IsSourceGeneratorOutput(tree, context.CancellationToken))
+        {
+            foreach (IOperation operation in operations)
+            {
+                if (ReadOf(operation, assembly) is { } generatedRead)
+                    flows.Use(generatedRead, OrderVerdict.Free);
+            }
+            return;
+        }
         foreach (IOperation operation in operations)
         {
             if (SourceOf(operation, enumType) is not { } source)
@@ -154,19 +162,29 @@ public sealed class EnumerationOrderAnalyzer : DiagnosticAnalyzer
         }
         foreach (IOperation operation in operations)
         {
-            ISymbol? read = operation switch
-            {
-                IInvocationOperation invocation when IsTracked(invocation.Type) => Normalized(invocation.TargetMethod),
-                IPropertyReferenceOperation { Property.IsIndexer: false } property when IsTracked(property.Type) => Normalized(property.Property),
-                IFieldReferenceOperation field when IsTracked(field.Type) => field.Field.OriginalDefinition,
-                IParameterReferenceOperation parameter when IsTracked(parameter.Type) &&
-                    parameter.Parameter.ContainingSymbol is not IMethodSymbol { MethodKind: MethodKind.AnonymousFunction } => parameter.Parameter.OriginalDefinition,
-                _ => null,
-            };
-            if (read is null || !InAssembly(read, assembly) || operation.Parent is ISimpleAssignmentOperation assignment && assignment.Target == operation)
-                continue;
-            flows.Use(read, FeedsOrder(operation, operations, isSource: true, depth: 0, assembly));
+            if (ReadOf(operation, assembly) is { } read)
+                flows.Use(read, FeedsOrder(operation, operations, isSource: true, depth: 0, assembly));
         }
+    }
+
+    /// <summary>
+    /// The parameter, member or method result of <paramref name="assembly"/> holding a sequence that
+    /// <paramref name="operation"/> reads, or none: an assignment's target is written, not read.
+    /// </summary>
+    private static ISymbol? ReadOf(IOperation operation, IAssemblySymbol assembly)
+    {
+        ISymbol? read = operation switch
+        {
+            IInvocationOperation invocation when IsTracked(invocation.Type) => Normalized(invocation.TargetMethod),
+            IPropertyReferenceOperation { Property.IsIndexer: false } property when IsTracked(property.Type) => Normalized(property.Property),
+            IFieldReferenceOperation field when IsTracked(field.Type) => field.Field.OriginalDefinition,
+            IParameterReferenceOperation parameter when IsTracked(parameter.Type) &&
+                parameter.Parameter.ContainingSymbol is not IMethodSymbol { MethodKind: MethodKind.AnonymousFunction } => parameter.Parameter.OriginalDefinition,
+            _ => null,
+        };
+        return read is null || !InAssembly(read, assembly) || operation.Parent is ISimpleAssignmentOperation assignment && assignment.Target == operation
+            ? null
+            : read;
     }
 
     /// <summary>Whether a symbol is declared in source of <paramref name="assembly"/>.</summary>

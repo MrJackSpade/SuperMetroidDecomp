@@ -59,8 +59,8 @@ public sealed class UnreachableCodeCodeFixProvider : DocumentFixProvider
                     break;
             }
         }
-        foreach (StatementSyntax statement in removed.Where(statement => statement.Parent is GlobalStatementSyntax))
-            edits.Remove(statement.Parent!);
+        foreach (GlobalStatementSyntax global in removed.Select(statement => statement.Parent).OfType<GlobalStatementSyntax>())
+            edits.Remove(global);
         foreach (var group in removed
             .SelectMany(statement => statement.Parent is (BlockSyntax or SwitchSectionSyntax) and var parent
                 ? new[] { (Statement: statement, Parent: parent) } : Array.Empty<(StatementSyntax Statement, SyntaxNode Parent)>())

@@ -89,7 +89,7 @@ internal sealed partial class PauseMenuState : IMenuFrontendScreen, IComposedFro
     /// <summary>The equipment control the cursor rests on (#1772); its category is the column the cursor is in.</summary>
     internal PauseEquipmentControl SelectedControl { get; set; } = PauseEquipmentControls.ReserveMode;
     /// <summary>The map page's scroll, framed from the visible area cells when the map page is set up.</summary>
-    internal MapScroll? CurrentMapScroll { get; internal set; }
+    internal MapScroll? CurrentMapScroll { get; set; }
     /// <summary>The map page's scroll, which exists once the map page is set up.</summary>
     internal MapScroll ActiveMapScroll => CurrentMapScroll ??
         throw new InvalidOperationException("The pause map scroll has not been set up.");

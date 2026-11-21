@@ -340,8 +340,8 @@ internal sealed class StateGraphExposure(StateGraphRun run)
             {
                 INamedTypeSymbol outer = container.OriginalDefinition;
                 var outerArguments = new ITypeSymbol?[outer.TypeParameters.Length];
-                if (Unify(declaredBase, type, outer, outerArguments) && outerArguments.All(argument => argument is not null) &&
-                    outer.Construct([.. outerArguments.Select(argument => argument!)]).GetTypeMembers(definition.Name, 0).FirstOrDefault() is { } nested &&
+                if (Unify(declaredBase, type, outer, outerArguments) && Bound(outerArguments) is { } boundOuter &&
+                    outer.Construct(boundOuter).GetTypeMembers(definition.Name, 0).FirstOrDefault() is { } nested &&
                     Assignable(nested, type))
                     constructions.Add(nested);
             }
@@ -361,9 +361,9 @@ internal sealed class StateGraphExposure(StateGraphRun run)
     private IEnumerable<ITypeSymbol[]> Bindings(INamedTypeSymbol definition, ITypeSymbol?[] arguments, List<INamedTypeSymbol> patterns)
     {
         int boundCount = arguments.Count(argument => argument is not null);
-        if (boundCount == arguments.Length)
+        if (Bound(arguments) is { } all)
         {
-            yield return [.. arguments.Select(argument => argument!)];
+            yield return all;
             yield break;
         }
         foreach (INamedTypeSymbol pattern in patterns)
@@ -379,6 +379,19 @@ internal sealed class StateGraphExposure(StateGraphRun run)
                     yield return bound;
             }
         }
+    }
+
+    /// <summary>The type arguments when every one is bound, or none while one is not.</summary>
+    private static ITypeSymbol[]? Bound(ITypeSymbol?[] arguments)
+    {
+        var bound = new ITypeSymbol[arguments.Length];
+        for (int index = 0; index < arguments.Length; index++)
+        {
+            if (arguments[index] is not { } argument)
+                return null;
+            bound[index] = argument;
+        }
+        return bound;
     }
 
     private static List<INamedTypeSymbol> FieldPatterns(INamedTypeSymbol definition)

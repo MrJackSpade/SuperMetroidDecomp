@@ -14,7 +14,7 @@ internal static class SamusParticlesAccess
     extension(SamusParticles self)
     {
         /// <summary>The particles shown or waiting to show, oldest first.</summary>
-        internal IReadOnlyList<SamusParticle> All => self._particles;
+        internal IReadOnlyList<SamusParticle> All => self.particles;
     }
 
     /// <summary>Reads a particle as the original's step and countdown.</summary>

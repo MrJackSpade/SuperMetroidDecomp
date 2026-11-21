@@ -50,7 +50,7 @@ public sealed partial class ProjectileLaunchInheritance
     private const int RisingShareDivisor = 4;
 
     /// <summary>The four recorded distances: leftward, rightward, upward, downward.</summary>
-    internal readonly SignedSixteenSixteen[] _distances = new SignedSixteenSixteen[4];
+    internal readonly SignedSixteenSixteen[] distances = new SignedSixteenSixteen[4];
 
     /// <summary>
     /// The camera's vertical speed as it tracked Samus on its last update (#2555). The camera records it at the end of its
@@ -59,16 +59,16 @@ public sealed partial class ProjectileLaunchInheritance
     public SignedSixteenSixteen CameraVerticalSpeed { internal get; set; }
 
     /// <summary>Records one horizontal movement update's signed distance, replacing the last one in <paramref name="direction"/>.</summary>
-    public void Record(HorizontalDirection direction, SignedSixteenSixteen distance) => _distances[Place(direction)] = distance;
+    public void Record(HorizontalDirection direction, SignedSixteenSixteen distance) => distances[Place(direction)] = distance;
 
     /// <summary>Records one vertical movement update's signed distance, replacing the last one in <paramref name="direction"/>.</summary>
-    public void Record(VerticalDirection direction, SignedSixteenSixteen distance) => _distances[Place(direction)] = distance;
+    public void Record(VerticalDirection direction, SignedSixteenSixteen distance) => distances[Place(direction)] = distance;
 
     /// <summary>The last distance recorded in <paramref name="direction"/>; zero once cleared.</summary>
-    internal SignedSixteenSixteen Distance(VerticalDirection direction) => _distances[Place(direction)];
+    internal SignedSixteenSixteen Distance(VerticalDirection direction) => distances[Place(direction)];
 
     /// <summary>Clears the four recorded distances, keeping the camera's vertical speed.</summary>
-    public void ClearMovement() => Array.Clear(_distances);
+    public void ClearMovement() => Array.Clear(distances);
 
     /// <summary>The velocity a shot launched in <paramref name="direction"/> inherits, in 8.8 pixels per update.</summary>
     public SignedEightEight InheritedVelocity(HorizontalDirection direction) => InheritedVelocity(Place(direction));
@@ -97,8 +97,8 @@ public sealed partial class ProjectileLaunchInheritance
     /// </summary>
     private SignedEightEight InheritedVelocity(int place)
     {
-        int whole = WholePixelsInCycle(_distances[place]);
-        int precedingFraction = (place == 0 ? CameraVerticalSpeed : _distances[place - 1]).Fraction;
+        int whole = WholePixelsInCycle(distances[place]);
+        int precedingFraction = (place == 0 ? CameraVerticalSpeed : distances[place - 1]).Fraction;
         int fraction = precedingFraction / (FractionSteps / VelocityFractionSteps);
         return SignedEightEight.FromParts(whole, fraction);
     }

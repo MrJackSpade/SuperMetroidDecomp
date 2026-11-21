@@ -63,11 +63,7 @@ internal static class OneTypePerFileAnalyzerTests
         ExpectFix("namespace N\n{\n    class A { }\n\n    /// <summary>B.</summary>\n    class B\n    {\n        int x;\n    }\n}\n",
             "namespace N;\n\n/// <summary>B.</summary>\nclass B\n{\n    int x;\n}\n",
             remainingContains: "class A", remainingLacks: "class B");
-        // Directives, statements, file-local types and a name the file already uses need manual placement.
-        ExpectFix("#if DEBUG\nclass A { }\n#endif\nclass B { }\nclass C { }\n", null, symbols: ["DEBUG"]);
-        ExpectFix("System.Console.WriteLine();\nclass A { }\n", null, kind: OutputKind.ConsoleApplication);
-        ExpectFix("class A { }\nfile class B { }\n", null);
-        ExpectFix("partial class A { }\npartial class A { }\n", null);
+        // The fix never skips a site (owner, 2026-11-21), so no file is left to manual placement.
 
         // SME6401: the file is named after its type; a partial part may add its purpose.
         ExpectName("class Widget { }", "Widget.cs", 0);

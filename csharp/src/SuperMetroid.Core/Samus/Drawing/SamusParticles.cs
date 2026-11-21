@@ -18,10 +18,10 @@ namespace SuperMetroid.Core.Samus.Drawing;
 public sealed partial class SamusParticles
 {
     /// <summary>The particles, oldest first.</summary>
-    internal readonly List<SamusParticle> _particles = [];
+    internal readonly List<SamusParticle> particles = [];
 
 /// <summary>Removes every particle, as room and Samus initialization do.</summary>
-    public void Clear() => _particles.Clear();
+    public void Clear() => particles.Clear();
 
     /// <summary>Starts a particle on its first step; dust rises as it shows, and every other kind but lava spray stays put.</summary>
     /// <param name="kind">What it shows; lava spray starts through <see cref="SpawnLavaSpray"/>, which gives its drift.</param>
@@ -46,7 +46,7 @@ public sealed partial class SamusParticles
     private static SamusParticleKindDefinition Definition(SamusParticleKind kind) => Ensure.Listed(SamusParticleKindDefinitions.Kinds, kind);
 
     /// <summary>Adds a particle already under way, as a restored game does.</summary>
-    internal void Add(SamusParticle particle) => _particles.Add(Ensure.NotNull(particle));
+    internal void Add(SamusParticle particle) => particles.Add(Ensure.NotNull(particle));
 
     /// <summary>
     /// Runs every particle's update and draws those shown, the newest first, so a newer particle draws in front where
@@ -67,13 +67,13 @@ public sealed partial class SamusParticles
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(sheets);
-        for (int index = _particles.Count - 1; index >= 0; index--)
+        for (int index = particles.Count - 1; index >= 0; index--)
         {
-            SamusParticle particle = _particles[index];
+            SamusParticle particle = particles[index];
             particle.Advance();
             if (particle.IsFinished)
             {
-                _particles.RemoveAt(index);
+                particles.RemoveAt(index);
                 continue;
             }
             if (particle.IsHidden)

@@ -181,7 +181,7 @@ internal sealed partial class StateGraphRun
             code.AppendLine($"        for (int __index = 0; __index < {level.InlineLength}; __index++)");
             code.AppendLine("        {");
             code.AppendLine($"            __writer.Field(__StateElements_{s}[__index]);");
-            code.AppendLine("            " + WriteValue(level.InlineElement!, "this[__index]"));
+            code.AppendLine("            " + WriteValue(InlineElementOf(level), "this[__index]"));
             code.AppendLine("        }");
         }
         else
@@ -207,7 +207,7 @@ internal sealed partial class StateGraphRun
         code.AppendLine("    {");
         if (level.InlineLength > 0)
         {
-            if (HoldsReferences(level.InlineElement!, []))
+            if (level.InlineElement is { } inlineElement && HoldsReferences(inlineElement, []))
                 code.AppendLine($"        for (int __index = 0; __index < {level.InlineLength}; __index++) __visitor.Child(__StateElements_{s}[__index], this[__index]);");
         }
         else
@@ -286,7 +286,7 @@ internal sealed partial class StateGraphRun
             code.AppendLine($"        for (int __index = 0; __index < {level.InlineLength}; __index++)");
             code.AppendLine("        {");
             code.AppendLine($"            __reader.Field(__StateElements_{s}[__index]);");
-            code.AppendLine($"            this[__index] = {ReadValue(level.InlineElement!)};");
+            code.AppendLine($"            this[__index] = {ReadValue(InlineElementOf(level))};");
             code.AppendLine("        }");
         }
         else
@@ -537,6 +537,10 @@ internal sealed partial class StateGraphRun
                 return;
         }
     }
+
+    /// <summary>The element type of an inline array level, which every level with an inline length has.</summary>
+    private static ITypeSymbol InlineElementOf(Level level) =>
+        level.InlineElement ?? throw new InvalidOperationException($"{level.Declared} has an inline length but no element type.");
 
     /// <summary>The registration of an enum: its name, and whether its members compose as flags.</summary>
     private string EnumRegistration(INamedTypeSymbol named)

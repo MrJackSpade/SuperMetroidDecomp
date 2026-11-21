@@ -249,18 +249,18 @@ internal sealed partial class StateGraphRun
     }
 
     /// <summary>A node type's own fields and how it is built.</summary>
-    internal sealed class Level
+    internal sealed class Level(INamedTypeSymbol type, string suffix, string declared, List<Member> own)
     {
-        internal INamedTypeSymbol Type { get; init; } = null!;
-        internal string Suffix { get; init; } = null!;
-        internal string Declared { get; init; } = null!;
-        internal List<Member> Own { get; init; } = null!;
+        internal INamedTypeSymbol Type { get; } = type;
+        internal string Suffix { get; } = suffix;
+        internal string Declared { get; } = declared;
+        internal List<Member> Own { get; } = own;
         internal IMethodSymbol? Primary { get; init; }
         internal INamedTypeSymbol? Base { get; init; }
         internal int InlineLength { get; init; }
         internal ITypeSymbol? InlineElement { get; init; }
         /// <summary>For each primary constructor parameter, the expression reading what keeps its value, or null.</summary>
-        internal List<string?> Arguments { get; init; } = null!;
+        internal List<string?> Arguments { get; } = [];
         /// <summary>The own fields the primary constructor sets to exactly an argument, which its restore order does not write again.</summary>
         internal HashSet<string> Exact { get; } = new(StringComparer.Ordinal);
         /// <summary>The own fields the level's own restore reads after its constructor: every one but those set exactly by an argument.</summary>
@@ -328,17 +328,12 @@ internal sealed partial class StateGraphRun
             foreach (IParameterSymbol parameter in CapturedParameters(type, primary))
                 own.Add(new Member(parameter.Name, parameter.Type, MemberKind.Captured, isReadonly: false));
         }
-        var level = new Level
+        var level = new Level(type, Suffix(type), Declared(type), own)
         {
-            Type = type,
-            Suffix = Suffix(type),
-            Declared = Declared(type),
-            Own = own,
             Primary = primary,
             Base = baseType,
             InlineLength = inlineLength,
             InlineElement = inlineElement,
-            Arguments = [],
         };
         if (primary is not null)
         {
@@ -463,8 +458,10 @@ internal sealed partial class StateGraphRun
                 (string Name, EqualsValueClauseSyntax Initializer, ITypeSymbol Type)[] initialized = member switch
                 {
                     FieldDeclarationSyntax field when !field.Modifiers.Any(SyntaxKind.StaticKeyword) && !field.Modifiers.Any(SyntaxKind.ConstKeyword) =>
-                        [.. field.Declaration.Variables.Where(variable => variable.Initializer is not null && model.GetDeclaredSymbol(variable) is IFieldSymbol)
-                            .Select(variable => (variable.Identifier.ValueText, variable.Initializer!, ((IFieldSymbol)model.GetDeclaredSymbol(variable)!).Type))],
+                        [.. field.Declaration.Variables.SelectMany(variable =>
+                            variable.Initializer is { } value && model.GetDeclaredSymbol(variable) is IFieldSymbol declared
+                                ? new[] { (variable.Identifier.ValueText, value, declared.Type) }
+                                : [])],
                     PropertyDeclarationSyntax { Initializer: { } initializer } property when !property.Modifiers.Any(SyntaxKind.StaticKeyword) &&
                         model.GetDeclaredSymbol(property) is IPropertySymbol symbol => [(property.Identifier.ValueText, initializer, symbol.Type)],
                     _ => [],
@@ -570,17 +567,12 @@ internal sealed partial class StateGraphRun
     }
 
     /// <summary>A level of another assembly's node type, known only by the names of its members.</summary>
-    private static Level ForeignLevel(INamedTypeSymbol type) => new()
+    private static Level ForeignLevel(INamedTypeSymbol type) => new(type.OriginalDefinition, Suffix(type), Declared(type), [])
     {
-        Type = type.OriginalDefinition,
-        Suffix = Suffix(type),
-        Declared = Declared(type),
-        Own = [],
         Primary = null,
         Base = null,
         InlineLength = 0,
         InlineElement = null,
-        Arguments = [],
     };
 
     private INamedTypeSymbol? ForeignBase(INamedTypeSymbol type) =>

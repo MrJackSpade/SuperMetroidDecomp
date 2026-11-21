@@ -60,7 +60,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
     private DraygonTurrets Turrets { get; }
 
     /// <summary>Draygon's entrance: the opening delay and its dance.</summary>
-    private DraygonIntro Intro { get; }
+    internal DraygonIntro Intro { get; }
 
     /// <summary>Draygon's swoops across the room and its climb straight up.</summary>
     internal DraygonSwoops Swoops { get; }
@@ -69,16 +69,16 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
     internal DraygonMovement Movement { get; }
 
     /// <summary>Draygon's goop passes.</summary>
-    private DraygonGoop Goop { get; }
+    internal DraygonGoop Goop { get; }
 
     /// <summary>The goop and turret shots as projectiles.</summary>
     private DraygonShots Shots { get; }
 
     /// <summary>Draygon grabbing Samus: the chase, the spiral carry, the tail whips and the release.</summary>
-    private DraygonGrab Grab { get; }
+    internal DraygonGrab Grab { get; }
 
     /// <summary>Draygon's death: drifting to its burial point, the Evirs and sinking below the room.</summary>
-    private DraygonDeath Death { get; }
+    internal DraygonDeath Death { get; }
 
     /// <summary>Draygon's hitboxes, touch and hurt, and what Samus's weapons do to it.</summary>
     internal DraygonCombat Combat { get; }
@@ -116,93 +116,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
     /// <summary>Runs Draygon's body for one update.</summary>
     private void RunDraygonBodyMain(RoomEnemyPlace body, DraygonEnemyState state, SamusState samus, int frameCounter)
     {
-        switch (state.Phase)
-        {
-            case DraygonPhase.IntroInitialDelay:
-                Intro.RunDraygonIntroInitialDelay(state, samus, frameCounter);
-                break;
-            case DraygonPhase.IntroDance:
-                Intro.RunDraygonIntroDance(state, samus, frameCounter);
-                break;
-            case DraygonPhase.SwoopSetup when state.PassDirection == HorizontalDirection.Right:
-                Swoops.SetupDraygonRightSwoop(state, samus, frameCounter);
-                break;
-            // Every swoop after the rightward setup's flies the path that setup planned; the fight's first pass is a
-            // rightward swoop, so no other swoop phase is reached before one.
-            case DraygonPhase.SwoopSetup when state.SwoopPath is { } leftPath:
-                Swoops.SetupDraygonLeftSwoop(state, samus, frameCounter, leftPath);
-                break;
-            case DraygonPhase.SwoopDescending when state.SwoopPath is { } descending:
-                Swoops.DescendDraygonSwoop(state, samus, frameCounter, SwoopSideOf(state), descending);
-                break;
-            case DraygonPhase.SwoopApex when state.PassDirection == HorizontalDirection.Right && state.SwoopPath is { } rightApex:
-                Swoops.CrossDraygonRightSwoopApex(state, samus, frameCounter, rightApex);
-                break;
-            case DraygonPhase.SwoopApex when state.SwoopPath is { } leftApex:
-                Swoops.CrossDraygonLeftSwoopApex(state, samus, frameCounter, leftApex);
-                break;
-            case DraygonPhase.SwoopAscending when state.SwoopPath is { } ascending:
-                Swoops.AscendDraygonSwoop(state, samus, frameCounter, SwoopSideOf(state), ascending);
-                break;
-            case DraygonPhase.GoopSetup:
-                Goop.SetupDraygonGoopPass(state, state.PassDirection, samus, frameCounter);
-                break;
-            case DraygonPhase.GoopApproach:
-                Goop.ApproachSamusForDraygonGoop(state, samus, frameCounter);
-                break;
-            case DraygonPhase.GoopTail:
-                Goop.FireDraygonGoop(state, state.PassDirection, samus, frameCounter);
-                break;
-            case DraygonPhase.GoopRecovery:
-                Goop.ExitDraygonGoopPass(state, state.PassDirection, samus);
-                break;
-            case DraygonPhase.TryGrabSamus:
-                Grab.ChaseAndTryToGrabSamus(state, samus, frameCounter);
-                break;
-            case DraygonPhase.RepelGrapple:
-                DraygonGrab.RepelDraygonWithGrapple(state, samus);
-                break;
-            case DraygonPhase.CarrySamus:
-                Grab.CarrySamusToDraygonSpiral(state, samus);
-                break;
-            case DraygonPhase.FlailWithSamus:
-                Grab.CarrySamusInDraygonSpiral(state, samus);
-                break;
-            case DraygonPhase.BeginTailWhipWithSamus:
-                Grab.BeginDraygonTailWhip(state, samus);
-                break;
-            case DraygonPhase.TailWhipWithSamus:
-                Grab.RunDraygonTailWhip(state, samus);
-                break;
-            case DraygonPhase.FinalTailWhips:
-                Grab.BeginDraygonFinalTailWhips(state, samus);
-                break;
-            case DraygonPhase.FinalTailWhipsWait:
-                Grab.WaitForDraygonFinalTailWhips(state, samus);
-                break;
-            case DraygonPhase.ReleaseSamus:
-                Grab.ReleaseSamusFromDraygon(state, samus);
-                break;
-            case DraygonPhase.FlyStraightUp:
-                Swoops.FlyDraygonStraightUp(state, samus, frameCounter);
-                break;
-            case DraygonPhase.Dying:
-                Death.DriftDyingDraygonToBurialPoint(state);
-                break;
-            case DraygonPhase.DyingWaitForEvirs:
-                Death.WaitForDraygonBurialEvirs(state, frameCounter);
-                break;
-            case DraygonPhase.DyingFinish:
-                Death.SinkDraygonBelowTheRoom(state, frameCounter, samus);
-                break;
-            case DraygonPhase.SwoopSetup:
-            case DraygonPhase.SwoopDescending:
-            case DraygonPhase.SwoopApex:
-            case DraygonPhase.SwoopAscending:
-            default:
-                throw new InvalidDataException(
-                    $"Draygon body has no behaviour for phase {state.Phase}.");
-        }
+        state.Step.Run(this, state, samus, frameCounter);
 
         // His arms, tail and eye are placed at his body once his phase has moved it, before the eye and each part's
         // animation run this update.
@@ -229,7 +143,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
         DraygonSegment.ArmsFacingLeftIdle);
 
     /// <summary>The side of the swoop Draygon's pass flies (#2165).</summary>
-    private static DraygonSwoopSide SwoopSideOf(DraygonEnemyState state) =>
+    internal static DraygonSwoopSide SwoopSideOf(DraygonEnemyState state) =>
         state.PassDirection == HorizontalDirection.Right ? RightSwoop : LeftSwoop;
 
     /// <summary>Advances the typed animation of <paramref name="part"/>, one of Draygon's parts, in <paramref name="context"/>.</summary>

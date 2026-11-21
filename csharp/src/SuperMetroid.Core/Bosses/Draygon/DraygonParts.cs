@@ -62,10 +62,7 @@ internal sealed class DraygonParts
         _frameContext.RequestFullSweep();
         var draygon = new DraygonEnemyState(occupant, eye: Partner(body, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye),
             tail: Partner(body, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonTail),
-            arms: Partner(body, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonArms))
-        {
-            Phase = DraygonPhase.IntroInitialDelay,
-        };
+            arms: Partner(body, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonArms));
         // Draygon shows his body, eye and dying arms' frames on his body (#1354, #1466, #1515, #1540), nothing at first; the
         // room keeps showing it, hidden, once his body is deleted (#2194). The room's display reads only what he attaches;
         // his parts each hold the encounter from their own setup.
@@ -224,7 +221,7 @@ internal sealed class DraygonParts
                 state.Body.Contact = state.Body.Contact.With(EnemyContact.IgnoresSamus);
                 return;
             case DraygonCue.SetBodyPhase bodyPhase:
-                state.Phase = bodyPhase.Phase;
+                state.Step = bodyPhase.Step;
                 return;
             case DraygonCue.TailWhipHit:
                 ApplyDraygonTailWhipHit(state, samus);

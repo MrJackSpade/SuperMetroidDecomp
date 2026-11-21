@@ -39,7 +39,7 @@ internal abstract record DraygonCue
     }
 
     /// <summary>Gives the body a new phase.</summary>
-    internal sealed record SetBodyPhase(DraygonPhase Phase) : DraygonCue;
+    internal sealed record SetBodyPhase(DraygonPhaseStep Step) : DraygonCue;
 
     /// <summary>Applies a tail whip's hit to a grabbed Samus.</summary>
     internal sealed record TailWhipHit : DraygonCue

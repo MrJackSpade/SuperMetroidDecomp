@@ -1139,7 +1139,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         lockedSamus.Position.X.Whole == 105 && lockedSamus.Position.Y.Whole == 111,
         "held Shoot preserves special locked body without pendulum integration");
     GrappleMovementResult lockedCancelQueued = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = lockedLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, lockedSamus, controllerInput: 0, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
-    AssertTrue(lockedCancelQueued.Phase == GrapplePhase.CancelPending && lockedCancelQueued.OwnsMovement,
+    AssertTrue(lockedCancelQueued.Phase == GrapplePhase.CancelPendingFromConnectedPose && lockedCancelQueued.OwnsMovement,
         "locked release queues connected-pose cancellation");
     GrappleMovementResult lockedCancelled =
         SamusGrappleMovement.CompleteFiringCancellation(lockedLevel, lockedSamus);

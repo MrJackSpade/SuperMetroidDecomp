@@ -130,12 +130,9 @@ internal static class QuicksandVerification
                 new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() },
                 new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80 + index)),
                 axis: Axis.Vertical,
-                ref displacement,
-                out bool surfaceContact);
-            AssertEqual(SpecialAirCollisionOutcome.PassesThrough, outcome,
-                $"production quicksand collision row {index} remains non-solid");
-            AssertEqual(index < 3, surfaceContact,
-                $"production quicksand collision row {index} surface contact");
+                ref displacement);
+            AssertEqual(index < 3 ? SpecialAirCollisionOutcome.LandsOnSurface : SpecialAirCollisionOutcome.PassesThrough, outcome,
+                $"production quicksand collision row {index} remains non-solid, landing on the surface of rows 0-2");
             AssertEqual(index == 3 ? (ushort)0 : (ushort)4, body.VerticalVelocity.Speed.Whole,
                 $"production quicksand collision row {index} speed side effect");
             AssertEqual(index == 3 ? (ushort)0 : (ushort)0x1c00,
@@ -250,14 +247,13 @@ internal static class QuicksandVerification
                 VerticalVelocity = SamusVerticalVelocityConstants.Of(UnsignedSixteenSixteen.Zero, SamusVerticalDirection.None),
             };
             SignedSixteenSixteen displacement = SixteenSixteenWords.ToDisplacement(probe);
-            SamusInsideBlockReactions.ReactCollision(
+            SpecialAirCollisionOutcome outcome = SamusInsideBlockReactions.ReactCollision(
                 new(body, SamusBodyAttack.None),
                 new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() },
                 new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80)),
                 axis: Axis.Vertical,
-                ref displacement,
-                out bool surfaceContact);
-            AssertEqual(true, surfaceContact, $"stationary probe {probe:X8} touches the surface");
+                ref displacement);
+            AssertEqual(SpecialAirCollisionOutcome.LandsOnSurface, outcome, $"stationary probe {probe:X8} touches the surface");
             AssertEqual(expected, displacement.RawValue, $"stationary probe {probe:X8} is limited in 256ths, keeping its finest byte");
         }
     }

@@ -92,7 +92,7 @@ internal sealed class SamusFramePhases
                 room.Enemies.GrappleTargets.ResolveGrappleEndpoint));
             grappleOwnsMovement = frame.GrappleMovement is { OwnsMovement: true };
         }
-        else if (samus.Grapple.Phase == GrapplePhase.CancelPending)
+        else if (samus.Grapple.Phase is GrapplePhase.CancelPending or GrapplePhase.CancelPendingFromConnectedPose)
         {
             frame.Record(SamusGrappleMovement.CompleteFiringCancellation(room.LevelData, samus));
             grappleOwnsMovement = frame.GrappleMovement is { OwnsMovement: true };

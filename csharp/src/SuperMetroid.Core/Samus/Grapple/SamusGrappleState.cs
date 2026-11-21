@@ -176,12 +176,6 @@ public sealed class SamusGrappleState
     public UpdateCountdown WallJumpTimer { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
-    /// Distinguishes a cancel reached from a locked grappling pose from ordinary firing
-    /// cancellation, whose pre-existing movement and pose continue in the same frame.
-    /// </summary>
-    public bool CancelFromConnectedPose { get; set; }
-
-    /// <summary>
     /// How far the muzzle flare has come: firing marks it just fired, each connected-beam draw moves it on a stage, and
     /// teardown clears it before ordinary charge handling can resume.
     /// </summary>

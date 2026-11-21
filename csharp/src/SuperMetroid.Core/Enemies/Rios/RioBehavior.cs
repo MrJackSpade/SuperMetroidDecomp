@@ -10,6 +10,9 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rio];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new RioEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared enemy random number consumed on every Rio AI frame.</summary>

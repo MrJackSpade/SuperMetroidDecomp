@@ -11,6 +11,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactor
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWall, EnemyDefinitionId.PirateGreyWall, EnemyDefinitionId.PirateMagentaWall, EnemyDefinitionId.PirateSilverWall];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WallSpacePirateEntity(this, occupant, place, common, settings));
 
     /// <summary>Advances the shared random source when a climbing cue chooses a new direction.</summary>

@@ -14,6 +14,9 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CorpseTorizo];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new DeadTorizoEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared random seed.</summary>

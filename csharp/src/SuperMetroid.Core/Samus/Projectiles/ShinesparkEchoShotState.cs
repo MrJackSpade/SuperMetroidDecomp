@@ -8,6 +8,9 @@ internal sealed class ShinesparkEchoShotState(TrigonometryAngle angle, Abilities
     /// <summary>The echo's departure angle, in whole steps.</summary>
     internal TrigonometryAngle Angle { get; } = angle;
 
+    /// <summary>The crash's echo the shot carries.</summary>
+    internal Abilities.ShinesparkCrashEcho Echo { get; } = Ensure.NotNull(echo);
+
     /// <summary>The echo's expanding radius, in pixels: zero when it is released, growing each update.</summary>
     internal int Radius { get; set => field = Ensure.AtLeastZero(value); }
 

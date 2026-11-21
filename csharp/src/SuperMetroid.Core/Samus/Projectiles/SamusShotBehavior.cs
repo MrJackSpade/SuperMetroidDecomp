@@ -18,7 +18,7 @@ internal abstract class SamusShotBehavior : SamusShotFiring
 
     /// <summary>A fired beam shot runs this behaviour from its next update, keeping no state of its kind.</summary>
     /// <param name="held">The fired shot.</param>
-    internal sealed override void Fire(SamusProjectileOccupant held) => Ensure.NotNull(held).Install(this, kindState: null);
+    internal sealed override void Fire(SamusProjectileOccupant held) => Ensure.NotNull(held).Install(this);
 
     /// <summary>
     /// Whether the shot ends itself on its own next update once an enemy's collision marks it: a special attack particle

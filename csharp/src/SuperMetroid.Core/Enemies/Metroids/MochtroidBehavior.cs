@@ -11,6 +11,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemySpawnFactory<Enem
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mochtroid];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MochtroidEntity(this, occupant, place, common));
 
     /// <summary>Resolves axis movement against terrain in the order for each flight mode.</summary>

@@ -11,6 +11,9 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <param name="release">Which of the crash's two echoes this is.</param>
 public sealed class ShinesparkCrashEcho(ShinesparkCrashEchoRelease release)
 {
+    /// <summary>Which of the crash's two echoes this is.</summary>
+    internal ShinesparkCrashEchoRelease Release { get; } = release;
+
     /// <summary>Where the echo was last placed: Samus's position as it departed, then where its shot moved it.</summary>
     private Position16<RoomPixels> _position;
 

@@ -11,6 +11,9 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Polyp];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new PolypEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared room RNG and enemy state used by all Polyp actors.</summary>

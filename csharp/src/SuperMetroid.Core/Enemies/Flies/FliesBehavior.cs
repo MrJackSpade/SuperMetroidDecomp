@@ -11,6 +11,9 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mella, EnemyDefinitionId.Mellow, EnemyDefinitionId.MaridiaFly];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new FliesEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared room RNG whose advance is part of each fly AI update.</summary>

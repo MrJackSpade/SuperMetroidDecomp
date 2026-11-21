@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonSpawnSettings>
 {
 
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dragon];
+
     /// <summary>
     /// A Dragon's body, or the wing its placement names (#2175). A body offers the entry its room lists after it the
     /// creation that builds its wing with the wing state the body moves and animates (#2554); a wing no body was listed

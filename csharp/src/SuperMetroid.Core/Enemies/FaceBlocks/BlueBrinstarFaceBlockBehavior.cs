@@ -19,6 +19,9 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyLoade
         };
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FaceBlock];
+
+    /// <inheritdoc/>
     public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, FaceBlockSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new BlueBrinstarFaceBlockEntity(this, occupant, place, common, surroundings, settings));
 

@@ -13,6 +13,9 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal sealed class DachoraBehavior : IEnemySpecies, IEnemySpawnFactory<DachoraSpawnSettings>
 {
 
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dachora];
+
     /// <summary>
     /// A Dachora's body, or one of the speed-boost echoes its placement names (#2283). A body offers the entries its room
     /// lists after it the creation that makes each echo join its trail (#2554); an echo no body was listed before runs its

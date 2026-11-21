@@ -287,7 +287,7 @@ public sealed class SamusProjectileSystem
                     buttons.ControllerInput,
                     // Uncharged firing tests both current and prior new-input latches.
                     buttons.ControllerNewInput | buttons.ControllerPreviousNewInput,
-                    samusBombs).Request;
+                    samusBombs);
             }
             else if (samus.SelectedHudItem is HudItem.Missile or HudItem.SuperMissile)
             {

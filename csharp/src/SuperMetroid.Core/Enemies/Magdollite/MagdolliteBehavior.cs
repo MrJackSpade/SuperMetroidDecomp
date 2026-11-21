@@ -12,6 +12,9 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<MagdolliteSpawnSettings>, IRoomGlow
 {
 
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Magdollite];
+
     /// <summary>
     /// A Magdollite's head, which faces the loading Samus and offers the body and overlay its room lists right after it the
     /// creation that builds each of them in its Magdollite (#2342, #2474, #2554). Only the room's population load places a
@@ -520,40 +523,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
         }
     }
 
-    /// <summary>What <see cref="ApplyMagdolliteCue"/> does for each <see cref="MagdolliteCueKind"/> member, each member's own arm.</summary>
-    private IdentityTable<MagdolliteCueKind, Action<RoomEnemyOccupant, RoomEnemyPlace, MagdollitePartState>> ApplyMagdolliteCueForMagdolliteCueKind => field ??= new(new Dictionary<MagdolliteCueKind, Action<RoomEnemyOccupant, RoomEnemyPlace, MagdollitePartState>>
-    {
-        [MagdolliteCueKind.FinishSubmerge] = (_, place, state) => place.RequireSpeciesState<MagdolliteHeadState>().FinishSubmerge(),
-        [MagdolliteCueKind.FinishEmerge] = (_, place, state) => place.RequireSpeciesState<MagdolliteHeadState>().FinishEmerge(),
-        [MagdolliteCueKind.FinishThrow] = (_, place, state) => place.RequireSpeciesState<MagdolliteOverlayState>().FinishThrow(),
-        [MagdolliteCueKind.SinkAndShowParts] = (occupant, place, state) =>
-        {
-            (_, RoomEnemyPlace body, RoomEnemyPlace overlay) = RequireMagdolliteComposite(place);
-            int sunkY = state.OriginY + MagdolliteMotionDefinitions.SunkDepth;
-            place.Position = place.Position.WithWholeY(sunkY);
-            body.Position = body.Position.WithWholeY(sunkY);
-            body.Presence = body.Presence.Without(EnemyPresence.Hidden);
-            overlay.Presence = overlay.Presence.Without(EnemyPresence.Hidden);
-        },
-        [MagdolliteCueKind.RestoreOrigins] = (occupant, place, state) =>
-        {
-            (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(place);
-            place.Position = place.Position.WithWholeY(state.OriginY);
-            body.Position = body.Position.WithWholeY(state.OriginY);
-        },
-        [MagdolliteCueKind.SurfaceAndHideParts] = (occupant, place, state) =>
-        {
-            (_, RoomEnemyPlace body, RoomEnemyPlace overlay) = RequireMagdolliteComposite(place);
-            int surfacedY = state.OriginY + MagdolliteMotionDefinitions.SurfacedDepth;
-            place.Position = place.Position.WithWholeY(surfacedY);
-            body.Position = body.Position.WithWholeY(surfacedY);
-            body.Presence = body.Presence.With(EnemyPresence.Hidden);
-            overlay.Presence = overlay.Presence.With(EnemyPresence.Hidden);
-        },
-        [MagdolliteCueKind.SpawnLava] = (occupant, place, state) => SpawnMagdolliteLava(occupant, place, place.RequireSpeciesState<MagdolliteOverlayState>().ThrowDirection),
-        [MagdolliteCueKind.StartCooldown] = (_, place, state) => place.RequireSpeciesState<MagdolliteOverlayState>().AttackCooldown = UpdateCountdown.Lasting(MagdolliteMotionDefinitions.AttackCooldown),
-    });
-
     /// <summary>
     /// Carries out one cue of the head's animations: a move of the head or of the head with the body's pillar, or a signal
     /// (<see cref="MagdolliteHeadCueKind"/>). Every cue runs on to the next step, so none redirects.
@@ -646,35 +615,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
                 throw new InvalidOperationException($"Undefined {nameof(MagdolliteOverlayCue)} {cue}.");
         }
     }
-
-    /// <summary>What <see cref="ApplyMagdolliteCue"/> does on each <see cref="MagdolliteCue"/>, built once (#2553).</summary>
-    private static MagdolliteCueReactions<ApplyMagdolliteCueContext> ApplyMagdolliteCueReactions { get; } = new(
-        PlaySoundIfOnScreen: static (playSound, context) =>
-        {
-            if (EnemyView.Contains(context.Place.Position.Whole, context.Camera))
-                context.Owner._audio.QueueEnemySound(playSound.Sound, priority: SoundRequestPriority.Normal);
-        },
-        Move: static (move, context) => context.Place.Position += move.Offset,
-        MoveWithPillar: static (moveWithPillar, context) =>
-        {
-            // Only the head's submerge and emerge raise it, moving the head with the body's pillar.
-            (_, RoomEnemyPlace body, _) = context.Owner.RequireMagdolliteComposite(context.Place);
-            context.Place.Position += moveWithPillar.Offset;
-            body.Position += moveWithPillar.Offset;
-        },
-        ShiftFromThrowOrigin: static (shift, context) => context.Place.Position = context.Place.Position.WithWhole(context.Place.RequireSpeciesState<MagdolliteOverlayState>().ThrowOrigin + shift.Offset),
-        Signal: static (signal, context) =>
-        {
-            context.Owner.ApplyMagdolliteCueForMagdolliteCueKind[signal.Kind](context.Occupant, context.Place, context.State);
-        });
-
-    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Occupant">The occupant whose cue is carried out.</param>
-    /// <param name="Place">The place the cases read.</param>
-    /// <param name="Camera">The camera the cases read.</param>
-    /// <param name="State">The state the cases read.</param>
-    /// <param name="Owner">The <see cref="MagdolliteBehavior"/> reacting.</param>
-    private readonly record struct ApplyMagdolliteCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, Position16<RoomPixels> Camera, MagdollitePartState State, MagdolliteBehavior Owner);
 
     /// <summary>
     /// Passes a struck part's fate to the two enemies listed after it, once any hit's ordinary damage is done: a part

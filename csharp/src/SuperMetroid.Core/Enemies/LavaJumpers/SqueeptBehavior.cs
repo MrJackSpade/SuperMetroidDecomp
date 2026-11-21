@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyFollowerSpawnSettings>
 {
 
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Squeept];
+
     /// <summary>
     /// A parent, which offers the follower its room lists right after it the creation that builds that follower following
     /// it (#2164, #2554); a follower joins the parent listed before it, so the population may not place one first.

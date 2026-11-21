@@ -22,14 +22,14 @@ public static class SamusInsideBlockReactions
         void Visit(int y, SamusInsideBlockPoint point)
         {
             var block = terrain.Level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
-            if (block.Position is null || !terrain.Level.TryReachBlockStoodFor(ref block) ||
-                block.CollisionType != RoomCollisionType.SpecialAir)
+            if (block.Position is null || !terrain.Level.TryReachBlockStoodFor(ref block, out _) ||
+                block.CollisionType != RoomCollisionType.SpecialAir || block.Behavior.SpecialAir is not { } air)
                 return;
             // A scroll trigger wakes only from the inside-block sample at Samus's centre.
             // Feet/head contacts belong to the separate movement scans. Keeping
             // this center wake-up lets a lower trigger win after the torso clears
             // an upper trigger, without changing the room-object update order.
-            if (point == SamusInsideBlockPoint.Center && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger)
+            if (point == SamusInsideBlockPoint.Center && air == SpecialAirReaction.ScrollTrigger)
                 terrain.RoomObjects.Scrolls.NotifyScrollTouch(block.At);
             // The conveyors carry Samus the same in every area; the reactions the area gives meaning
             // own sand and plants. Both are visited in the same bottom/center/top order.
@@ -115,7 +115,7 @@ public static class SamusInsideBlockReactions
     internal static SpecialAirCollisionOutcome ReactCollision(
         SamusCollisionContact contact,
         RoomTerrain terrain,
-        RoomCollisionBlock block,
+        SpecialAirContact reached,
         Axis axis,
         ref SignedSixteenSixteen displacement,
         bool observes = false)

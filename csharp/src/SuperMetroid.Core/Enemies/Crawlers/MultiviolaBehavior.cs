@@ -10,6 +10,9 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySpawnFactory<Mul
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Multiviola];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, MultiviolaSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MultiviolaEntity(this, occupant, place, common, settings));
 
     /// <summary>Room collision mover used after each attempted Multiviola velocity component.</summary>

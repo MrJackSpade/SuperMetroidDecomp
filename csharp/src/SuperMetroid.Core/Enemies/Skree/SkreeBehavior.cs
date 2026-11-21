@@ -12,6 +12,9 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skree];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SkreeEntity(this, occupant, place, common));
 
     /// <summary>Queues the dive and floor-impact sound requests at their AI transitions.</summary>

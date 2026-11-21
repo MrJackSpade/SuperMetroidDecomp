@@ -98,21 +98,7 @@ internal sealed class KraidHead
         if (AdvanceKraidHeadAnimationToItsEnd(state, fight.Head))
         {
             SetupKraidFirstPhaseThinking(body, state, fight);
-            state.HoldClosedMouth();
-
-            // A hit on his mouth or body marks a reopen: the closing mouth then spends one pending reopen and, while any
-            // remain, waits to glow his eye again; otherwise every mark is forgotten.
-            if (state.MouthReopenMarked)
-            {
-                state.RemoveOneMouthReopen();
-                if (state.PendingMouthReopens != 0)
-                {
-                    fight.Phase = KraidFightPhase.WaitBeforeEyeGlow;
-                    state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.EyeGlowDelayUpdates);
-                    return;
-                }
-            }
-            state.ClearMouthReactions();
+            CloseKraidMouth(state, fight);
             return;
         }
 
@@ -208,13 +194,8 @@ internal sealed class KraidHead
         state.HoldClosedMouth();
         if (state.SpendMouthReopenAsMouthCloses())
         {
-            state.RemoveOneMouthReopen();
-            if (state.PendingMouthReopens != 0)
-            {
-                fight.Phase = KraidFightPhase.WaitBeforeEyeGlow;
-                state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.EyeGlowDelayUpdates);
-                return;
-            }
+            fight.Phase = KraidFightPhase.WaitBeforeEyeGlow;
+            state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.EyeGlowDelayUpdates);
         }
     }
 

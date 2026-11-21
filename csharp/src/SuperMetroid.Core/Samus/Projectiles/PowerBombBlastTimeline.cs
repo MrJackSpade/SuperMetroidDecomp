@@ -220,9 +220,11 @@ public sealed class PowerBombBlastTimeline
     /// <returns>Whether this update showed the stage's last oval, which ends it.</returns>
     private bool ShowNextOval()
     {
-        if (_ovals.StepToNewFrame() is { } radius)
-            RenderedOvalRadius = radius;
-        return _ovals.IsResting;
+        RenderedOvalRadius = _ovals.Radius;
+        if (_ovals.AfterShowing is not { } next)
+            return true;
+        _ovals = next;
+        return false;
     }
 
     /// <summary>

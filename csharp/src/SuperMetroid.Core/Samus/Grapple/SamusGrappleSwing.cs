@@ -477,7 +477,7 @@ public static class SamusGrappleSwing
         // edge-solid block (ContinuedBlocks); an extension that ends its chain behaves as air.
         if (level.GrappleBlockStoodFor(block) is not { } stoodFor)
             return false;
-        block = stoodFor;
+        block = stoodFor.Block;
         return IsSwingCollisionForRoomCollisionType[block.CollisionType](samus, block);
     }
 
@@ -500,12 +500,12 @@ public static class SamusGrappleSwing
 /// <summary>Applies behaviour-specific spike damage once per invincibility window and starts knockback.</summary>
     private static void ApplySwingSpikeDamage(
         SamusState samus,
-        SpikeReaction reaction,
+        SpikeReaction? reaction,
         SwingSpikeBlock block)
     {
         // Both steps return immediately while the invincibility timer is nonzero. This shared guard is observable
         // because one sweep can sample the same damaging block once for each of its points, yet only its first sample may publish
-        // damage. Every reaction other than the damaging ones deals none.
+        // damage. Every reaction other than the damaging ones, and a spike with no reaction, deals none.
         if (!samus.InvincibilityTimer.IsZero)
             return;
 
@@ -513,7 +513,7 @@ public static class SamusGrappleSwing
         IReadOnlyDictionary<SpikeReaction, int> damages = block == SwingSpikeBlock.Solid
             ? SamusGrappleSpikeDefinitions.SolidBlockSwingDamage
             : SamusGrappleSpikeDefinitions.PlainBlockSwingDamage;
-        if (!damages.TryGetValue(reaction, out int damage))
+        if (reaction is not { } spike || !damages.TryGetValue(spike, out int damage))
             return;
 
         samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(damage));

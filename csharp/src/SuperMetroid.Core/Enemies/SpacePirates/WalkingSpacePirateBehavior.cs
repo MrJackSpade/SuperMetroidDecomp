@@ -13,6 +13,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySpawnFac
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWalking, EnemyDefinitionId.PirateGreenWalking, EnemyDefinitionId.PirateGreyWalking, EnemyDefinitionId.PirateMagentaWalking, EnemyDefinitionId.PirateRedWalking, EnemyDefinitionId.PirateSilverWalking];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, WalkingSpacePirateSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WalkingSpacePirateEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies solid-ground and ledge probes for the patrol AI.</summary>

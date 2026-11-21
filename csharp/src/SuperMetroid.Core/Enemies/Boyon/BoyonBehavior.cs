@@ -15,6 +15,9 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySpawnFactory<BoyonSpa
     internal BoyonBehavior(EnemyAudioQueue audio) => _audio = audio;
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boyon];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, BoyonSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new BoyonEntity(this, occupant, place, common, settings));
 
     /// <summary>What <see cref="ApplyBoyonCue"/> does for each <see cref="BoyonCueKind"/> member, each member's own arm.</summary>

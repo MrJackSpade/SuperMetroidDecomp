@@ -189,9 +189,6 @@ internal sealed class KraidRise
                 // exposing the filler rectangle of Kraid's body layer above his head.
                 ShowKraidRoomBackdrop();
                 return;
-            FinishKraidGrowth(body, state);
-        },
-    });
 
             case KraidGrowthPhase.FadeInRoomBackground:
                 if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropSettledColours.KraidColours))

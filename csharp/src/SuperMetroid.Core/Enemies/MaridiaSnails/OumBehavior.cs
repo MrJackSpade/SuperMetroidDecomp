@@ -12,6 +12,9 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Oum];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new OumEntity(this, occupant, place, common));
 
     /// <summary>Resolves floor, ledge, and wall contact during bounce and roll phases.</summary>

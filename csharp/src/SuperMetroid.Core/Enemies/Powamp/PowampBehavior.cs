@@ -14,6 +14,9 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampSpawnSettings>
 {
 
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Powamp];
+
     /// <summary>
     /// A Powamp's body or balloon, as the placement's settings name the part it is (#2163). The balloon shares the body's
     /// definition; only its placement tells them apart.

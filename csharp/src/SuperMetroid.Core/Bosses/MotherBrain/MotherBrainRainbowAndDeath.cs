@@ -89,7 +89,7 @@ internal sealed class MotherBrainRainbowAndDeath
             state.BodyParts.Clear();
         }
         if (step.CorpseFadeImage is { } corpseFade)
-            state.Colours.ShowCorpseFade(corpseFade);
+            state.Colours.ShowFade(corpseFade);
         foreach (var dust in step.CorpseDustRequests)
         {
             _projectiles.SpawnDustOrExplosion(dust.Position, dust.Animation);

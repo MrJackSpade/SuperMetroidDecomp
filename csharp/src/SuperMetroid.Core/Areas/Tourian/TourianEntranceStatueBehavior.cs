@@ -16,6 +16,10 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySpawn
 {
 
     /// <inheritdoc/>
+    /// <remarks>Only the statue room can place these.</remarks>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.TourianStatue];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, TourianEntranceStatueSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.WithoutMainAi(new TourianEntranceStatueEntity(this, occupant, place, common, settings));
 
     /// <summary>Spawns the scene's decorations and its unlock effects.</summary>

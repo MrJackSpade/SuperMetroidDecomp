@@ -23,6 +23,9 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<E
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroid];
+
+    /// <inheritdoc/>
     public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new BabyMetroidEntity(this, occupant, place, common, surroundings));
 

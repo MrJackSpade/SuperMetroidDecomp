@@ -75,6 +75,9 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>Samus's touches, shots, bombs and power bombs against the room's enemies, and the enemies' reactions to them.</summary>
     internal EnemyCollision Collision { get; }
 
+    /// <summary>The room's enemy collision, which every species' shared participation reads once the system is built.</summary>
+    private EnemyCollision CollisionOfRoom() => Collision;
+
     /// <summary>Enemy deaths and their drops: the death explosions, the scattered pickups and Samus collecting them.</summary>
     private EnemyDeathsAndDrops DeathsAndDrops { get; }
 
@@ -290,7 +293,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         FrameContext = new EnemyFrameContext(session);
         Presentation = new EnemyPresentation(session, Ensure.NotNull(dependencies.Looks), compatibility.FadeStepCount);
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
-        Places = new EnemyPlaces(new EnemyCommonParticipation(() => Collision));
+        Places = new EnemyPlaces(new EnemyCommonParticipation(CollisionOfRoom));
         Audio = new EnemyAudioQueue(session.AudioRequests);
         ProcessingWindow = new EnemyProcessingWindow(FrameContext, Places);
         Lifecycle = new EnemyLifecycle(Room, Places, ProcessingWindow);

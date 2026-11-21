@@ -726,7 +726,7 @@ public static class SamusGrappleMovement
         // block (ContinuedBlocks); an extension that ends its chain behaves as air, which lets the beam pass.
         if (terrain.Level.GrappleBlockStoodFor(block) is not { } stoodFor)
             return GrappleBlockReaction.Passes;
-        block = stoodFor;
+        block = stoodFor.Block;
         return ReactAtEndpointForRoomCollisionType[block.CollisionType](terrain, samus, block);
     }
 

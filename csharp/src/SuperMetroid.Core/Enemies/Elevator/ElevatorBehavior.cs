@@ -14,6 +14,9 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyLoadedFactory<Elev
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Elevator];
+
+    /// <inheritdoc/>
     public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, ElevatorSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new ElevatorEntity(this, occupant, place, common, surroundings, settings));
 

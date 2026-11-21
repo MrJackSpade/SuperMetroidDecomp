@@ -17,6 +17,9 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemySpawnFactory<Metroi
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metroid];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, MetroidSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MetroidEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies room RNG for the scattered death drops and idle cries.</summary>

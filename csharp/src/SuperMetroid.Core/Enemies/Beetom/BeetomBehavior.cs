@@ -12,6 +12,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Beetom];
+
+    /// <inheritdoc/>
     public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new BeetomEntity(this, occupant, place, common, surroundings));
 

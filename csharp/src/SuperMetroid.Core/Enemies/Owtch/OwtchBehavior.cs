@@ -8,6 +8,9 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<OwtchSpa
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, OwtchSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new OwtchEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies the shared room random sequence used for burial and emergence.</summary>

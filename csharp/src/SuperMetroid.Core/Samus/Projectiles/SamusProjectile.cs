@@ -124,15 +124,8 @@ public sealed class SamusProjectile
     /// explosions keep no kind state and carry their fuse; a missile's explosion keeps its missile's.
     /// </summary>
     internal BeamFiredOverLastShot.ReplacedShot AsReplacedByBeam => Occupant is not { } held ? new BeamFiredOverLastShot.ReplacedShot.FreePlace()
-        : held.KindState is { } kind ? kind.ReplacedByBeam(ReflectionHeadStart)
+        : held.KindState is { } kind ? kind.ReplacedByBeam
         : new BeamFiredOverLastShot.ReplacedShot.Beam(held.BeamFuse.UpdatesLeft);
-
-    /// <summary>
-    /// The head start a reflection gives a missile toward the speed it re-ignites at: what that speed exceeds a fired
-    /// missile's by.
-    /// </summary>
-    private static SignedEightEight ReflectionHeadStart =>
-        SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed - SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
 
     /// <summary>Whether a projectile holds the place with an animation to play, which marks it drawn and updated.</summary>
     public bool IsActive => Occupant is { IsAnimated: true };

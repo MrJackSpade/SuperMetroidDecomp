@@ -875,40 +875,29 @@ public sealed class SamusBombProjectileSystem
 
         if (type is StandingCollisionType.BombableAir or StandingCollisionType.BombableBlock)
         {
-            // A bombed item block tells the item room object at it of the hit, and no other reaction runs.
-            if (reaction == ShootableReaction.CollectibleTrigger)
-                return NotifyCollectible();
-            if (block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
-                return NotifyResidentTrigger();
-
-            // The four ordinary blue-door cap orientations lead to the blue door setup whether the collision came from the
-            // shot or the bomb step. Normal bombs use the bomb projectile family and are accepted, so a bomb placed beside a
-            // blue door opens it; the Power Bomb family is rejected inside the shared setup.
-            if (block.Behavior.TryGetBlueDoorOrientation(out _))
+            // Both bombable-air and bombable-solid reactions use the bomb-block reactions; an inert block neither
+            // spawns a room object nor changes the terrain. Spawn is synchronous: an accepted bomb-block reaction applies
+            // its temporary solid-block or air collision before the bomb proceeds to its next border/cross member.
+            if (block.Behavior.Bombable is { } bombable && bombable != BombableReaction.Inert)
             {
-                roomObjects.DoorObjects.SpawnBlueDoorOpening(
-                    level,
+                terrain.RoomObjects.BlockReactions.SpawnBombReactionBlock(
+                    terrain.Level,
                     block.At,
-                    block.Behavior,
-                    BlockStrike.By(projectileType));
-                return true;
+                    bombable,
+                    projectileType);
             }
-            // Spawn is synchronous: an accepted bomb-block reaction applies its temporary solid-block
-            // or air collision before the bomb proceeds to its next border/cross member.
-            terrain.RoomObjects.BlockReactions.SpawnBombReactionBlock(
-                terrain.Level,
-                block.At,
-                reaction,
-                projectileType);
-            return true;
+            return;
         }
 
         // The special block, the one way a block stands that remains, spawns its bombed reaction.
-        terrain.RoomObjects.BlockReactions.SpawnBombedSpecialBlock(
-            terrain.Level,
-            block.At,
-            block.Behavior,
-            projectileType);
+        if (block.Behavior.Special is { } special)
+        {
+            terrain.RoomObjects.BlockReactions.SpawnBombedSpecialBlock(
+                terrain.Level,
+                block.At,
+                special,
+                projectileType);
+        }
     }
 
     /// <summary>

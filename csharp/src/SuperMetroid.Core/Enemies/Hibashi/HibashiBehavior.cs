@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<HibashiSpawnSettings>
 {
 
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Hibashi];
+
     /// <summary>The Hibashi's flame, or the collision part its placement names (#2342).</summary>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, HibashiSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         settings is HibashiFlameSpawnSettings flame
@@ -79,7 +82,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     }
 
     /// <summary>What <see cref="RunHibashiMain"/> does for each <see cref="HibashiAction"/> member, each member's own arm.</summary>
-    private IdentityTable<HibashiAction, Action<HibashiFlameSpawnSettings, RoomEnemyPlace, HibashiEnemyState>> RunHibashiMainForHibashiAction => field ??= new(new Dictionary<HibashiAction, Action<HibashiFlameSpawnSettings, RoomEnemyPlace, HibashiEnemyState>>
+    private static IdentityTable<HibashiAction, Action<HibashiFlameSpawnSettings, RoomEnemyPlace, HibashiEnemyState>> RunHibashiMainForHibashiAction => field ??= new(new Dictionary<HibashiAction, Action<HibashiFlameSpawnSettings, RoomEnemyPlace, HibashiEnemyState>>
     {
         [HibashiAction.Inactive] = (_, place, state) => RunHibashiInactive(place, state),
         [HibashiAction.Active] = (_, place, state) => { },

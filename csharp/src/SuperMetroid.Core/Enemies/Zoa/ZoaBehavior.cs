@@ -10,6 +10,9 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zoa];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ZoaEntity(occupant, place, common));
 
     /// <summary>Advances Zoa's typed animation (#641) in place of the shared enemy animation.</summary>

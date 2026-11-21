@@ -68,7 +68,7 @@ internal sealed class ShinesparkEchoProjectile
         held.Position = echo.Position.WithWhole(start);
         held.PicturedBeams = picturedBeams;
         BeamCombos.StartComboShot(held, shotKind);
-        var flight = new ShinesparkEchoShotState(angle.ToTrigonometryAngle());
+        var flight = new ShinesparkEchoShotState(angle.ToTrigonometryAngle(), released);
         held.Install(SamusShotBehaviors.ShinesparkEcho, flight);
         Ensure.NotNull(released).Depart(echo, flight, crashPosition);
     }

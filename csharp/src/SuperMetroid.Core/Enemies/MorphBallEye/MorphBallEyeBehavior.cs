@@ -16,6 +16,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
     /// <summary>Builds the species owner on the room's enemy audio queue.</summary>
     internal MorphBallEyeBehavior(EnemyAudioQueue audio) => _audio = audio;
 
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MorphBallEye];
+
     /// <summary>The eye's mount or its body, as the placement's settings name the part it is.</summary>
     /// <exception cref="InvalidOperationException">The placement names no part of the eye.</exception>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, MorphBallEyeSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>

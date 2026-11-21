@@ -11,6 +11,9 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySpawnFactory<
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.NuclearWaffle];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, NuclearWaffleSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new NuclearWaffleEntity(this, occupant, place, common, settings));
 
     /// <summary>Allocates the collidable links in the articulated body.</summary>

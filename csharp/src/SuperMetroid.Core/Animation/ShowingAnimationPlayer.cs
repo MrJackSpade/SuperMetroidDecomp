@@ -46,11 +46,10 @@ internal sealed class ShowingAnimationPlayer<TSegment, TFrame, TEvent>
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="firstFrameUpdates"/> is below one.</exception>
     /// <exception cref="InvalidOperationException">The animation raises an event or pauses before its first frame.</exception>
-    /// <exception cref="InvalidDataException">A beat of <paramref name="segments"/> hides the frame shown.</exception>
     internal static ShowingAnimationPlayer<TSegment, TFrame, TEvent> StartShowing(
         AnimationSegments<TSegment, TFrame, TEvent> segments, Animation<TSegment> animation, int firstFrameUpdates)
     {
-        var player = AnimationPlayer<TSegment, TFrame, TEvent>.Starting(Showable(segments), animation);
+        var player = AnimationPlayer<TSegment, TFrame, TEvent>.Starting(segments, animation);
         return new(player, player.Show(animation, firstFrameUpdates));
     }
 
@@ -59,11 +58,10 @@ internal sealed class ShowingAnimationPlayer<TSegment, TFrame, TEvent>
     /// <see cref="AnimationPlayer{TSegment, TFrame, TEvent}.StartShowing(AnimationSegments{TSegment, TFrame, TEvent}, Animation{TSegment})"/> does.
     /// </summary>
     /// <exception cref="InvalidOperationException">The animation raises an event or pauses before its first frame.</exception>
-    /// <exception cref="InvalidDataException">A beat of <paramref name="segments"/> hides the frame shown.</exception>
     internal static ShowingAnimationPlayer<TSegment, TFrame, TEvent> StartShowing(
         AnimationSegments<TSegment, TFrame, TEvent> segments, Animation<TSegment> animation)
     {
-        var player = AnimationPlayer<TSegment, TFrame, TEvent>.Starting(Showable(segments), animation);
+        var player = AnimationPlayer<TSegment, TFrame, TEvent>.Starting(segments, animation);
         return new(player, player.Show(animation));
     }
 
@@ -74,11 +72,10 @@ internal sealed class ShowingAnimationPlayer<TSegment, TFrame, TEvent>
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="firstFrameUpdates"/> is below one.</exception>
     /// <exception cref="InvalidOperationException">The animation raises an event or pauses before the frame.</exception>
-    /// <exception cref="InvalidDataException">A beat of <paramref name="segments"/> hides the frame shown.</exception>
     internal static ShowingAnimationPlayer<TSegment, TFrame, TEvent> StartShowingAt(
         AnimationSegments<TSegment, TFrame, TEvent> segments, Animation<TSegment> animation, AnimationPlace place, int firstFrameUpdates)
     {
-        var player = AnimationPlayer<TSegment, TFrame, TEvent>.Starting(Showable(segments), animation);
+        var player = AnimationPlayer<TSegment, TFrame, TEvent>.Starting(segments, animation);
         return new(player, player.ShowAt(animation, place, firstFrameUpdates));
     }
 
@@ -122,20 +119,15 @@ internal sealed class ShowingAnimationPlayer<TSegment, TFrame, TEvent>
     /// <exception cref="InvalidOperationException">The animation rests.</exception>
     internal void HoldShownFrameFor(int updates) => player.HoldShownFrameFor(updates);
 
+    /// <summary>A copy of the play as it stands, which plays on from here on its own (a count that takes the play over).</summary>
+    internal AnimationPlayer<TSegment, TFrame, TEvent> Copy() => player.Copy();
+
     /// <summary>
     /// Plays the animation's segments as <paramref name="rebound"/> holds them from now on, keeping where the play stands,
     /// as <see cref="AnimationPlayer{TSegment, TFrame, TEvent}.Rebind"/> does; the shown frame is the rebound one.
     /// </summary>
-    /// <exception cref="InvalidDataException">A beat of <paramref name="rebound"/> hides the frame shown.</exception>
     internal void Rebind(AnimationSegments<TSegment, TFrame, TEvent> rebound, Animation<TSegment> animation) =>
-        _ = Shown(player.Rebind(Showable(rebound), animation));
-
-    /// <summary>Checks no beat of <paramref name="segments"/> hides the frame shown, which this player always shows.</summary>
-    /// <exception cref="InvalidDataException">A beat hides the frame.</exception>
-    private static AnimationSegments<TSegment, TFrame, TEvent> Showable(AnimationSegments<TSegment, TFrame, TEvent> segments) =>
-        Ensure.NotNull(segments).HidesAFrame
-            ? throw new InvalidDataException("An animation that always shows a frame plays segments a beat of which hides it.")
-            : segments;
+        _ = Shown(player.Rebind(rebound, animation));
 
     /// <summary>Keeps <paramref name="shown"/> as the frame shown, when the play showed one anew, and returns it.</summary>
     private TFrame? Shown(TFrame? shown)

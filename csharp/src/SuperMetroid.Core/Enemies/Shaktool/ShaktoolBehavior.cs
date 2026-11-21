@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFactory<ShaktoolSpawnSettings>
 {
 
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Shaktool];
+
     /// <summary>
     /// A chain's leading saw, which starts its chain and offers the segments its room lists after it the creation that
     /// builds each of them in that chain (#2452, #2554); a later segment no leading saw was listed before is refused.

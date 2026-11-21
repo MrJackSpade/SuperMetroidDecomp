@@ -14,6 +14,9 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metaree];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MetareeEntity(this, occupant, place, common));
 
     /// <summary>Creates the debris burst during burrow and death reactions.</summary>

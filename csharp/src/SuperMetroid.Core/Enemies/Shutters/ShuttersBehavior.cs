@@ -132,9 +132,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     /// Waits one update for what the shutter's placement waits for, its timer (#2281) or Samus coming near, and grows it once
     /// the wait is over.
     /// </summary>
-    private void WaitToGrow(RoomEnemyOccupant occupant, RoomEnemyPlace place, GrowingShutterEnemyState state, SamusState samus, Position16<RoomPixels> camera)
+    private void WaitToGrow(GrowingShutterSpawnSettings settings, RoomEnemyPlace place, GrowingShutterEnemyState state, SamusState samus, Position16<RoomPixels> camera)
     {
-        if (occupant.SpawnSettings<GrowingShutterSpawnSettings>().Wait.Match(GrowingWaits, new ShutterWaitContext<GrowingShutterEnemyState>(place, state, samus)))
+        if (settings.Wait.Match(GrowingWaits, new ShutterWaitContext<GrowingShutterEnemyState>(place, state, samus)))
             ActivateGrowingShutter(place, state, camera);
     }
 
@@ -464,10 +464,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     /// Waits one update for what the shutter's placement is triggered by, its timer, which starts its wait over, or Samus
     /// coming near, and starts the shutter once it is.
     /// </summary>
-    private void WaitForTrigger(RoomEnemyOccupant occupant, RoomEnemyPlace place, VerticalShutterEnemyState state, SamusState samus, Position16<RoomPixels> camera)
+    private void WaitForTrigger(ShutterSpawnSettings settings, RoomEnemyPlace place, VerticalShutterEnemyState state, SamusState samus, Position16<RoomPixels> camera)
     {
-        if (occupant.SpawnSettings<ShutterSpawnSettings>().Trigger.Match(TriggerWaits, new ShutterWaitContext<VerticalShutterEnemyState>(place, state, samus)))
-            ActivateVerticalShutter(occupant, place, state, camera);
+        if (settings.Trigger.Match(TriggerWaits, new ShutterWaitContext<VerticalShutterEnemyState>(place, state, samus)))
+            ActivateVerticalShutter(settings, place, state, camera);
     }
 
     /// <summary>

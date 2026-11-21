@@ -13,6 +13,9 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawn
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kago];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, KagoSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new KagoEntity(this, occupant, place, common, settings));
 
     /// <summary>Provides the room's random number sampled by bug spawns and jumps without advancing the generator.</summary>

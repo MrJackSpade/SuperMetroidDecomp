@@ -67,7 +67,6 @@ public sealed class SaveSlotStore
     /// <exception cref="InvalidDataException">The slot holds no valid save.</exception>
     public SuperMetroidSaveSlot ReadSavedSlot(SaveSlot slot)
     {
-        RequireSlot(slot);
         return slots.TryGetValue(slot, out SuperMetroidSaveSlot? saved) ? Detached(saved, slot)
             : throw new InvalidDataException($"Save slot {slot} holds no valid save.");
     }

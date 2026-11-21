@@ -12,6 +12,9 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySpawnFactory<Co
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DeadTourianCorpseSpeciesDefinitions.Species.Keys];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, CorpseSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new DeadTourianEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies the room RNG used during decomposition.</summary>

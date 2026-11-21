@@ -10,6 +10,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemySpawnFactory<Skult
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skultera];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, SkulteraSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SkulteraEntity(this, occupant, place, common, settings));
 
     /// <summary>The room's blocks Skultera's horizontal and vertical swim steps meet.</summary>

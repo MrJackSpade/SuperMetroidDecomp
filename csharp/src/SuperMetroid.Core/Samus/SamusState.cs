@@ -578,7 +578,7 @@ public sealed class SamusState
     /// Whether the knockback moves Samus (<see cref="SamusMovementOwner.Knockback"/>). It is separate from
     /// the knockback movement type because the game also uses that type for crystal-flash art.
     /// </summary>
-    public bool KnockbackActive => Knockback.MovesSamus;
+    public bool KnockbackActive => Knockback is Movement.SamusKnockback.Moving;
 
     /// <summary>
     /// Whether a hit's knockback waits for her movement to admit it: its producer's countdown runs and no knockback holds a
@@ -586,15 +586,8 @@ public sealed class SamusState
     /// </summary>
     public bool KnockbackPending => KnockbackHold.IsRunning && Knockback == Movement.SamusKnockback.None;
 
-    /// <summary>
-    /// The pose the animation was last started for, whose animation <see cref="AnimationFrame"/> steps through; none before
-    /// the animation is first started. Changing the pose to one with another animation without restarting the animation
-    /// is a defect the next animation tick reports.
-    /// </summary>
-    public SamusPoseId? AnimatedPose { get; internal set; }
-
-    /// <summary>The step of the animation of <see cref="AnimationPose"/> that Samus's animation frame is on.</summary>
-    internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(AnimationPose, AnimationFrame, FramesBeyondAnimation);
+    /// <summary>The step of the animation of <see cref="Pose"/> that Samus's animation frame is on.</summary>
+    internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(Pose, AnimationFrame, FramesBeyondAnimation);
 
     /// <summary>
     /// What an animation frame past her pose's animation reads, the session's installed service, which decides the frames her

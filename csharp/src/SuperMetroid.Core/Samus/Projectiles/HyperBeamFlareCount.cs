@@ -43,7 +43,7 @@ internal sealed class HyperBeamFlareCount<TSegment, TPicture> : IHyperBeamFlareC
     /// stands. The ordinary flare's wait runs out on the update after it reaches zero, the backward count's on the update it
     /// reaches zero, so the picture keeps one update less of the wait it had left, and at least one.
     /// </summary>
-    internal static HyperBeamFlareCount<TSegment, TPicture> TakingOver(AnimationPlayer<TSegment, TPicture, NoAnimationCue> forward,
+    internal static HyperBeamFlareCount<TSegment, TPicture> TakingOver(ShowingAnimationPlayer<TSegment, TPicture, NoAnimationCue> forward,
         Func<HorizontalDirection, TPicture, ProjectileSpriteId> composition)
     {
         AnimationPlayer<TSegment, TPicture, NoAnimationCue> player = forward.Copy();

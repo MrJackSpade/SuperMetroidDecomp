@@ -12,6 +12,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Alcoon];
+
+    /// <inheritdoc/>
     public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new AlcoonEntity(this, occupant, place, common, surroundings));
 

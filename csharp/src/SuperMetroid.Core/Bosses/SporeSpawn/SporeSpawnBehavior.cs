@@ -17,6 +17,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SporeSpawn];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SporeSpawnEntity(this, occupant, place, common));
 
     /// <summary>Provides boss event state, installed colors, and the room RNG.</summary>

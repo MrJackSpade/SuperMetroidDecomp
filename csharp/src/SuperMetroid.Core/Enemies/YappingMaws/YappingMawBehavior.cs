@@ -18,6 +18,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
 {
 
     /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.YappingMaw];
+
+    /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, YappingMawSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new YappingMawEntity(this, occupant, place, common, settings));
 
     /// <summary>Creates the four auxiliary body-link projectiles.</summary>

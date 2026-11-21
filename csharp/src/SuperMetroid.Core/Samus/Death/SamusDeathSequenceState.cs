@@ -281,7 +281,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         internal static NotDyingStage Instance { get; } = new();
 
         /// <inheritdoc/>
-        internal override SamusDeathSequencePhase Phase => SamusDeathSequencePhase.Inactive;
+        internal override SamusDeathSequencePhase Phase { get; } = new SamusDeathSequencePhase.Inactive();
     }
 
     /// <summary>The wait before the flash, while the death pose animates.</summary>
@@ -291,7 +291,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         internal static PreFlashStage Instance { get; } = new();
 
         /// <inheritdoc/>
-        internal override SamusDeathSequencePhase Phase => SamusDeathSequencePhase.PreFlashing;
+        internal override SamusDeathSequencePhase Phase { get; } = new SamusDeathSequencePhase.Begun.PreFlashing();
 
         /// <inheritdoc/>
         internal override SamusDeathDraw Step(DeathUpdate update)
@@ -312,7 +312,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         internal static FlashStage Instance { get; } = new();
 
         /// <inheritdoc/>
-        internal override SamusDeathSequencePhase Phase => SamusDeathSequencePhase.Flashing;
+        internal override SamusDeathSequencePhase Phase { get; } = new SamusDeathSequencePhase.Begun.Flashing();
 
         /// <inheritdoc/>
         internal override SamusDeathDraw Step(DeathUpdate update)
@@ -347,7 +347,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         internal AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue> Explosion { get; } = explosion;
 
         /// <inheritdoc/>
-        internal override SamusDeathSequencePhase Phase => SamusDeathSequencePhase.SuitExplosion;
+        internal override SamusDeathSequencePhase Phase { get; } = new SamusDeathSequencePhase.Begun.SuitExplosion();
 
         /// <inheritdoc/>
         internal override SamusDeathDraw Step(DeathUpdate update)
@@ -366,6 +366,6 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         internal static CompleteStage Instance { get; } = new();
 
         /// <inheritdoc/>
-        internal override SamusDeathSequencePhase Phase => SamusDeathSequencePhase.Complete;
+        internal override SamusDeathSequencePhase Phase { get; } = new SamusDeathSequencePhase.Begun.Complete();
     }
 }

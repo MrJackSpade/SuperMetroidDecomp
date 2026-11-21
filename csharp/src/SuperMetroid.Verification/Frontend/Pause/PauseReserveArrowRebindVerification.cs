@@ -5,7 +5,7 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>
@@ -32,10 +32,9 @@ internal static class PauseReserveArrowRebindVerification
         AssertTrue(vram.SequenceEqual(menu.ShownVram(catalog)), "same-content rebind keeps the reserve arrow tilemap");
         AssertTrue(pixels.SequenceEqual(menu.Render()), "same-content rebind keeps exact reserve page pixels");
 
-        using var state = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(state, menu);
-        state.Position = 0;
-        var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state);
+        // A debugger state binds the installed content rather than writing it, as the debugger's store does, so the round
+        // trip carries only the pause session's own state.
+        PauseMenuState restored = GraphDigestVerification.RoundTrip(menu);
         restored.BindFixtureArtwork(catalog);
         AssertTrue(pixels.SequenceEqual(restored.Render()), "restore plus rebind keeps exact reserve page pixels");
         Console.WriteLine("Reserve arrow rebind: same-content rebind and restore keep the arrow and exact pixels.");

@@ -308,6 +308,8 @@ internal static class EnemySpeciesCapabilitiesVerification
                 return;
             }
             AssertEqual(EnemyDefinitionId.CeresRidleyRoomDoor, definition, "only Ceres Ridley's room door is built as it");
+            // The overlay shows while Ridley is in his room, which draws under the graphics set his room loads.
+            SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
             foreach (CeresRidleyRoomDoorLook look in new[] { CeresRidleyRoomDoorLook.Actor, CeresRidleyRoomDoorLook.Overlay })
             {
                 door.State.Look = look;
@@ -346,37 +348,52 @@ internal static class EnemySpeciesCapabilitiesVerification
     }
 
     /// <summary>
-    /// A new room's enemies with the entries of <paramref name="population"/> through the one at <paramref name="last"/> set
-    /// up by the population load, in an open room holding every one of their places.
+    /// A new room's enemies drawing from <paramref name="population"/>'s artwork, with its entries through the one at
+    /// <paramref name="last"/> set up by the population load, in a walled room holding every one of their places.
     /// </summary>
     private static RoomEnemySystem LoadThrough(RoomEnemyPopulationDefinition population, int last)
     {
         RoomEnemyPlacement[] placements = population.Placements.Span[..(last + 1)].ToArray();
         RoomEnemySystem enemies = NewRoomEnemies();
+        // The room's enemies draw from its whole population's artwork, as its load has them.
+        enemies.Presentation.DrawPopulation(population);
         enemies.PopulationLoader.LoadPopulation(enemies.Species, CompiledRoomEnemyDefinitions.Instance,
             new PlacedRoomEnemyPopulationDefinition(population.Name, placements, deathQuota: 0),
-            new EnemyPopulationSurroundings(OpenRoomHolding(placements), RoomEnemyFrameFixtures.StandaloneSamus(), GameplayAction.None,
+            new EnemyPopulationSurroundings(WalledRoomHolding(placements), RoomEnemyFrameFixtures.StandaloneSamus(), GameplayAction.None,
                 Position16<RoomPixels>.Zero));
         return enemies;
     }
 
     /// <summary>
-    /// A room with no terrain, at least four screens each way, that holds a screen past every place
-    /// <paramref name="placements"/> put their enemies at inside the room; a place counted back from the far end of the
-    /// room's coordinates lies before the room (<see cref="OffRoomPlaces"/>).
+    /// A room walled by solid blocks on every side with nothing inside, its far wall and floor a few blocks past the
+    /// furthest place <paramref name="placements"/> put their enemies at inside the room, as a room's floor lies under its
+    /// enemies, so an enemy whose setup drops it to the floor or sends it to a wall meets one before it can fall through
+    /// it; a place counted back from the far end of the room's coordinates lies before the room (<see cref="OffRoomPlaces"/>).
     /// </summary>
-    private static RoomLevelData OpenRoomHolding(RoomEnemyPlacement[] placements)
+    private static RoomLevelData WalledRoomHolding(RoomEnemyPlacement[] placements)
     {
-        int columns = RoomGridConversions.BlocksPerScreen * 4, rows = RoomGridConversions.BlocksPerScreen * 4;
+        int columns = RoomGridConversions.BlocksPerScreen, rows = RoomGridConversions.BlocksPerScreen;
         foreach (RoomEnemyPlacement placement in placements)
         {
             if (placement.Placing is not EnemyPlacedAt { Position: var at } || CoordinateAxis.AsSigned(at.X) < 0 || CoordinateAxis.AsSigned(at.Y) < 0)
                 continue;
-            columns = Math.Max(columns, RoomGridConversions.PixelToBlock(at.X) + RoomGridConversions.BlocksPerScreen);
-            rows = Math.Max(rows, RoomGridConversions.PixelToBlock(at.Y) + RoomGridConversions.BlocksPerScreen);
+            columns = Math.Max(columns, RoomGridConversions.PixelToBlock(at.X) + WallDistance);
+            rows = Math.Max(rows, RoomGridConversions.PixelToBlock(at.Y) + WallDistance);
         }
-        return RoomEnemyFrameFixtures.OpenRoom(new(columns, rows));
+        var collision = new RoomCollisionType[columns * rows];
+        for (int row = 0; row < rows; row++)
+        {
+            for (int column = 0; column < columns; column++)
+            {
+                bool edge = row == 0 || row == rows - 1 || column == 0 || column == columns - 1;
+                collision[row * columns + column] = edge ? RoomCollisionType.SolidBlock : RoomCollisionType.Air;
+            }
+        }
+        return RoomLevelData.CollisionOnly(new(columns, rows), collision);
     }
+
+    /// <summary>The blocks from the furthest enemy's block to the room's far wall and floor, the far one included.</summary>
+    private const int WallDistance = 4;
 
     /// <summary>
     /// A new room's enemies, in a room that can place any enemy, in a new game: no boss, mini-boss or Torizo of its area is
@@ -394,6 +411,8 @@ internal static class EnemySpeciesCapabilitiesVerification
             SetRoomScrollState = (_, _) => { },
             NextRandom = () => 0,
             ReadRandom = () => 0,
+            SeedRandom = _ => { },
+            SetControlsLocked = _ => { },
         };
         return EnemySystemFixtures.PlacingAnyEnemy(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: services);

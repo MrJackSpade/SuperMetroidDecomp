@@ -156,16 +156,13 @@ internal static class NoobTubeObjectVerification
             .OrderBy(field => field.MetadataToken).ToArray();
         AssertTrue(fields.Any(field => field.Name == "<Control>k__BackingField"),
             "the installed handler pair is serialized with Samus");
-        using (var saved = new MemoryStream())
-        {
-            SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, samus);
-            saved.Position = 0;
-            var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SamusState>(saved);
-            AssertTrue(restored.Control.InputLocked && restored.Control.Mode.Movement == SamusMovementMode.ScriptLocked,
-                "mid-script state retains input and animation ownership");
-            restored.Control.Unlock();
-            AssertTrue(restored.Control.Mode.Movement != SamusMovementMode.ScriptLocked, "generic unlock clears stale stationary ownership");
-        }
+        // A debugger state binds the installed content rather than writing it, as the debugger's store does, so the round
+        // trip carries only Samus's own state.
+        SamusState restored = GraphDigestVerification.RoundTrip(samus);
+        AssertTrue(restored.Control.InputLocked && restored.Control.Mode.Movement == SamusMovementMode.ScriptLocked,
+            "mid-script state retains input and animation ownership");
+        restored.Control.Unlock();
+        AssertTrue(restored.Control.Mode.Movement != SamusMovementMode.ScriptLocked, "generic unlock clears stale stationary ownership");
         AssertEqual(1, projectiles.Count, "break sequence initially spawns only the crack");
         AssertEqual(NoobTubeProjectileDefinition.Crack, projectiles[0].Piece.Definition,
             "first spawned actor is the n00b-tube crack");

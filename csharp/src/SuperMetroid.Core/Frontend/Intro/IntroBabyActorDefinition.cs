@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// One cinematic-actor definition together with the fixed position and
 /// colouring its initialization draws it in (#1512).
 /// </summary>
-internal readonly record struct IntroBabyActorDefinition(
+internal readonly partial record struct IntroBabyActorDefinition(
     IntroBabyAnimation Animation,
     Offset16<ScreenPixels> Position,
     IntroSpriteColouring Colouring);

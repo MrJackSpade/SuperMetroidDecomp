@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The installed Samus full-body cycle colours, every palette's colours kept as installed. The catalog never chooses
 /// a suit, cycle phase, or animation delay.
 /// </summary>
-public sealed class InstalledSamusFullBodyCycleColors
+public sealed partial class InstalledSamusFullBodyCycleColors
 {
     /// <summary>Every installed cycle palette's colours, by the shade they show.</summary>
     internal readonly Dictionary<SamusFullBodyCycleShade, RgbColor[]> palettes;

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>The immutable Puyo hop definitions, independent of animation artwork.</summary>
-internal static class PuyoHopDefinitions
+internal static partial class PuyoHopDefinitions
 {
     /// <summary>
     /// Each hop's height, whole pixels moved across each update, launch search step, speed-curve step, airborne behaviour and the speed its drop falls at when a

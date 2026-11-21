@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 /// <summary>The installed Torizo character pages: each page's size and file; where it comes from in the cartridge is extraction's knowledge.</summary>
-internal static class TorizoSwapArtworkDefinitions
+internal static partial class TorizoSwapArtworkDefinitions
 {
     /// <summary>Shared death/recovery characters at $AA:B0A5.</summary>
     internal static readonly TorizoTileSheet SharedDeath =

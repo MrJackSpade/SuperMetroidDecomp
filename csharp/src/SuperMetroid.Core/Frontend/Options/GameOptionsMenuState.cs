@@ -10,7 +10,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Options;
 
 /// <summary>Complete options-menu owner, including both secondary pages.</summary>
-public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
+public sealed partial class GameOptionsMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]

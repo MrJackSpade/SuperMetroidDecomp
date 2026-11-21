@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// uploaded sound driver. These are addresses in the game's own APU program, not host policy.
 /// </summary>
 [EncodingOwner("sound driver audio RAM locations and protocol values")]
-internal static class SpcDriverDefinitions
+internal static partial class SpcDriverDefinitions
 {
     /// <summary>Complete sixteen-bit APU address range available to the uploaded driver.</summary>
     internal const int ApuRamSize = 0x10000;
@@ -17,7 +17,7 @@ internal static class SpcDriverDefinitions
     internal const int MaximumFastForwardTicks = 0x10000;
 
     /// <summary>Native SPC-RAM regions used for driver work state, sound pointers, and instrument records.</summary>
-    internal static class Ram
+    internal static partial class Ram
     {
         /// <summary>Start of the first uploaded-driver work area in SPC RAM.</summary>
         internal const int FirstWorkRegion = 0x0500;
@@ -52,7 +52,7 @@ internal static class SpcDriverDefinitions
     }
 
     /// <summary>Native echo buffer sizing, write control, and FIR filter layout.</summary>
-    internal static class Echo
+    internal static partial class Echo
     {
         /// <summary>Initial echo delay register value before music effects reconfigure the buffer.</summary>
         internal const byte InitialDelay = 1;
@@ -76,7 +76,7 @@ internal static class SpcDriverDefinitions
     }
 
     /// <summary>Track stream markers, startup timing, and default mixer values.</summary>
-    internal static class Music
+    internal static partial class Music
     {
         /// <summary>The seven bits of a note byte or pitch whole byte that hold the note number; bit 7 is not part of it.</summary>
         internal const byte NoteNumberMask = 0x7f;
@@ -125,7 +125,7 @@ internal static class SpcDriverDefinitions
     }
 
     /// <summary>Instrument source-byte encoding shared by sampled and noise voices.</summary>
-    internal static class Instruments
+    internal static partial class Instruments
     {
         /// <summary>High bit selecting a DSP noise rate instead of a BRR source number.</summary>
         internal const byte NoiseMarker = 0x80;
@@ -136,7 +136,7 @@ internal static class SpcDriverDefinitions
     }
 
     /// <summary>Three native sound-effect libraries and their voice allocation limits.</summary>
-    internal static class SoundEffects
+    internal static partial class SoundEffects
     {
         /// <summary>Four simultaneous effect channels allocated to library one.</summary>
         internal const int LibraryOneChannelCount = 4;

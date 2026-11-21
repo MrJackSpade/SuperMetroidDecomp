@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rendering;
 /// such as a scene's own fade under the session's screen fade, they are combined into that one brightness where the
 /// frame is made, by <see cref="Combine"/>. Fades step it by whole steps (<see cref="Brighter"/>, <see cref="Darker"/>).
 /// </summary>
-public readonly record struct DisplayBrightness
+public readonly partial record struct DisplayBrightness
 {
     /// <summary>The steps of the fade from black to full light.</summary>
     private const int StepsToFull = 15;

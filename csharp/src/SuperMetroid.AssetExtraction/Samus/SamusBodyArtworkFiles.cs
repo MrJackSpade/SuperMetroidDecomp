@@ -20,7 +20,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Unused tiles are zero. Transfer sizes and what each pose frame shows live in the decoded JSON;
 /// no game mechanics or animation delay bytes are represented here.
 /// </remarks>
-public static class SamusBodyArtworkFiles
+public static partial class SamusBodyArtworkFiles
 {
     /// <summary>
     /// Installed body JSON filename (#1638): each pose's art origin and every body frame the body sheet pictures, with where
@@ -296,7 +296,7 @@ public static class SamusBodyArtworkFiles
     /// </summary>
     /// <param name="Version">The body JSON's revision.</param>
     /// <param name="Poses">Each pose with a record's art origin and pictured frames, keyed by the pose's name.</param>
-    internal sealed record GameManifest(int Version, Dictionary<SamusPoseId, PoseFrames> Poses);
+    internal sealed partial record GameManifest(int Version, Dictionary<SamusPoseId, PoseFrames> Poses);
 
     /// <summary>One pose's art origin, the body frames the body sheet pictures of it and the frames it shows.</summary>
     /// <param name="ArtOrigin">
@@ -310,7 +310,7 @@ public static class SamusBodyArtworkFiles
     /// <param name="Shows">
     /// Each animation frame the pose shows, by its name in the pose's animation, with the name of the picture frame it draws.
     /// </param>
-    internal sealed record PoseFrames(int ArtOrigin, Dictionary<string, int> Frames, Dictionary<string, string> Shows);
+    internal sealed partial record PoseFrames(int ArtOrigin, Dictionary<string, int> Frames, Dictionary<string, string> Shows);
 
     /// <summary>
     /// The decoded body, import data (#1638, #2556): each pose's art origin and what each of its picture frames shows, the
@@ -325,7 +325,7 @@ public static class SamusBodyArtworkFiles
     /// <param name="Explosion">The composition each suit-explosion sheet frame shows, or none, by the sheet frame's name.</param>
     /// <param name="Atmosphere">The composition each diving-splash and bubbles sheet frame shows, or none, by the sheet frame's name.</param>
     /// <param name="Hashes">Each half picture image's SHA-256, by file name.</param>
-    internal sealed record Manifest(int Version, string SourceCartridgeSha256,
+    internal sealed partial record Manifest(int Version, string SourceCartridgeSha256,
         Dictionary<SamusPoseId, int> ArtOrigins,
         Dictionary<SamusPoseId, Dictionary<string, FrameEntry>> Poses,
         Dictionary<string, PictureEntry> Pictures,
@@ -340,10 +340,10 @@ public static class SamusBodyArtworkFiles
     /// <param name="Bottom">The name of the bottom half picture the frame selects, or none.</param>
     /// <param name="TopComposition">The name of the composition the top half shows, or none.</param>
     /// <param name="BottomComposition">The name of the composition the bottom half shows, or none.</param>
-    internal sealed record FrameEntry(int OriginRise, string Top, string? Bottom, string? TopComposition, string? BottomComposition);
+    internal sealed partial record FrameEntry(int OriginRise, string Top, string? Bottom, string? TopComposition, string? BottomComposition);
 
     /// <summary>The two transfer lengths of one half picture, which share its image's slot.</summary>
-    internal sealed record PictureEntry(int FirstSize, int SecondSize)
+    internal sealed partial record PictureEntry(int FirstSize, int SecondSize)
     {
         /// <summary>The first transfer's byte count, 0 through 65535 (a DMA size).</summary>
         public int FirstSize { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, FirstSize);

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>
 /// The state of Fake Kraid, the small Kraid in the room before Kraid's.
 /// </summary>
-public sealed class FakeKraidEnemyState
+public sealed partial class FakeKraidEnemyState
 {
     /// <summary>Fake Kraid's animation and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FakeKraidSegment> Playback { get; set; }

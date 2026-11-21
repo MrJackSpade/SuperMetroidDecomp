@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of Spore Spawn's four ceiling frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectSporeSpawnCeilingVisualFiles
+public static partial class RoomObjectSporeSpawnCeilingVisualFiles
 {
     /// <summary>Editable Spore Spawn ceiling visual JSON filename.</summary>
     internal const string VisualFileName = "spore-spawn-ceiling.json";

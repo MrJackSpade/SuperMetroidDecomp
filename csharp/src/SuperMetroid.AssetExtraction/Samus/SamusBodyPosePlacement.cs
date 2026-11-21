@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// origin; a frame past the list has no placement and is not installed. Null when every frame is placed by
 /// <paramref name="ArtOrigin"/>.
 /// </param>
-public sealed record SamusBodyPosePlacement(
+public sealed partial record SamusBodyPosePlacement(
     int ArtOrigin,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int[]? FrameRises = null)
 {

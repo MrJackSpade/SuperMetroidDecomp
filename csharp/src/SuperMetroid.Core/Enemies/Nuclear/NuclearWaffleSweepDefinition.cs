@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// </param>
 /// <param name="RisingTurnThreshold">Rising joint-turn threshold.</param>
 /// <param name="FallingTurnThreshold">Falling joint-turn threshold.</param>
-internal readonly record struct NuclearWaffleSweepDefinition(
+internal readonly partial record struct NuclearWaffleSweepDefinition(
     NuclearWaffleSweepAngle StartAngle,
     NuclearWaffleSweepAngle EndAngle,
     int SegmentSpacing,

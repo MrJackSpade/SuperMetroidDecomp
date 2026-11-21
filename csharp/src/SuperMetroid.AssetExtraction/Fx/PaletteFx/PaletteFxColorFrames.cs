@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// <param name="FirstRecord">The record shown as the family's first frame.</param>
 /// <param name="FrameCount">The family's frames.</param>
 /// <param name="ColorsPerFrame">The colours each frame writes.</param>
-public readonly record struct PaletteFxColorFrames(int FirstRecord, int FrameCount, int ColorsPerFrame)
+public readonly partial record struct PaletteFxColorFrames(int FirstRecord, int FrameCount, int ColorsPerFrame)
 {
     /// <summary>
     /// The frames <paramref name="effect"/> shows (#1739, #1982): the consecutive records of its frames, in the order it shows

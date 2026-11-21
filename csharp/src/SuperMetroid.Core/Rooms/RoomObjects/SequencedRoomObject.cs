@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <typeparam name="TSegment">The object's segment identity.</typeparam>
 /// <typeparam name="TFrame">What one of its frames draws.</typeparam>
 /// <typeparam name="TEvent">What the object does as its animation passes an event.</typeparam>
-internal abstract class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObjectBehaviour
+internal abstract partial class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObjectBehaviour
     where TSegment : struct
     where TFrame : struct
     where TEvent : notnull

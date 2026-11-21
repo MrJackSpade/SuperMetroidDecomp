@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>The three suits' loading records and the colours each writes, for the import.</summary>
-public static class SamusLoadingSuitPaletteFxColorDefinitions
+public static partial class SamusLoadingSuitPaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes sixteen live colours.</summary>

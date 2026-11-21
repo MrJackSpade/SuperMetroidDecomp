@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Transfer records of the escape-timer character pages.</summary>
-public static class EscapeTimerTilePages
+public static partial class EscapeTimerTilePages
 {
     /// <summary>The typed tile asset installed for the page.</summary>
     public static InstalledArtworkId AssetOf(EscapeTimerTilePage page) => page switch

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Extracts the compositions of the burst Samus's hit shows at an enemy it hurts (#1713), one of her weapon effects, whose
 /// pictures her projectile sheets hold.
 /// </summary>
-public static class HitBurstSpriteExtractor
+public static partial class HitBurstSpriteExtractor
 {
     /// <summary>Import-data filename for the burst's compositions, separate from the projectile and flare compositions.</summary>
     public const string FileName = "hit-burst-compositions.json";

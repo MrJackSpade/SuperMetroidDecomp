@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// The Shaktool's saw-hand, arm and head animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="ShaktoolCue"/> naming what it does.
 /// </summary>
-internal static class ShaktoolAnimations
+internal static partial class ShaktoolAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<ShaktoolSegment, EnemyFrameId, ShaktoolCue> Segments { get; } = new(

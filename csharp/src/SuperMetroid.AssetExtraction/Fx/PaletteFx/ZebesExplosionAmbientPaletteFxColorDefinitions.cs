@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// The afterglow's colours rise and fall back through the same authored rows; the lava's single red colour dims and
 /// brightens again. Both describe the authored colours, not arithmetic the game performs.
 /// </remarks>
-public static class ZebesExplosionAmbientPaletteFxColorDefinitions
+public static partial class ZebesExplosionAmbientPaletteFxColorDefinitions
 {
     /// <summary>The planet's afterglow.</summary>
     internal static ZebesExplosionAmbientPaletteFxColorDefinition ZebesExplosionPlanetAfterglow { get; } = new(ColourEffectId.ZebesExplosionPlanetAfterglow, 8);

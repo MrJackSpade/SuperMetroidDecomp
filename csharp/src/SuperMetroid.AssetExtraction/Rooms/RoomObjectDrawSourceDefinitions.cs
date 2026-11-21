@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// a draw's level words when its artwork is extracted. Core identifies draws only semantically.
 /// </summary>
 [EncodingOwner("bank-$84 addresses of the PLM draws")]
-internal static class RoomObjectDrawSourceDefinitions
+internal static partial class RoomObjectDrawSourceDefinitions
 {
     /// <summary>Bank $84, where every PLM draw is stored.</summary>
     private const byte Bank = 0x84;

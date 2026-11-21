@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's second-phase walks: where he walks next from where he stands, and how long he then thinks.</summary>
-public static class KraidMovementChoices
+public static partial class KraidMovementChoices
 {
     /// <summary>The starting destination: where Kraid's grown body walks first, once he has reached his start.</summary>
     internal static int StartingX => KraidMovementDefinitions.StartingX;

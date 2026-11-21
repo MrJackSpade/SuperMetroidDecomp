@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The order the import walks the Samus projectiles' animation frames in (#1301, #1517): the frame bindings file, the sprite
 /// locations and the cartridge's record table each list every frame in this order.
 /// </summary>
-internal static class SamusProjectileFrameOrder
+internal static partial class SamusProjectileFrameOrder
 {
     /// <summary>
     /// Every projectile segment in the order the import walks them (#2567): the frame bindings, the sprite locations and the

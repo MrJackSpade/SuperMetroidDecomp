@@ -42,7 +42,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("room objects update in the order of the forty places they hold; a spawn takes the first free place in that order, a spawn into a full room is lost, and an escape room or the Wrecked Ship attic holds one place for good with an object that does nothing")]
-public static class RoomObjectPlaces
+public static partial class RoomObjectPlaces
 {
     /// <summary>How many room objects the room holds at once; a spawn while every place is held takes none.</summary>
     public const int PlaceCount = 40;

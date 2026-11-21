@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// The credits roll's staff lines (#1467, #1601): each line's picture and where its top lies on the roll, in pixels, laid
 /// out from the roles' order, styles and spacing; the roll ends the trailing space after its last line.
 /// </summary>
-public static class CreditsRollLines
+public static partial class CreditsRollLines
 {
     /// <summary>Each staff line, in roll order.</summary>
     public static ImmutableArray<CreditsRollLine> Lines { get; } = Layout();

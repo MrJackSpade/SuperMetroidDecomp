@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 /// from. A door keeps the timer's colours one, two, four and thirteen, as <c>GameState_A_LoadingNextRoom</c>'s third copy
 /// into its fade's target keeps them.
 /// </summary>
-internal static class EscapeTimerDoorFadeShades
+internal static partial class EscapeTimerDoorFadeShades
 {
     /// <summary>Colours in the timer's sprite row.</summary>
     private const int RowColours = 16;

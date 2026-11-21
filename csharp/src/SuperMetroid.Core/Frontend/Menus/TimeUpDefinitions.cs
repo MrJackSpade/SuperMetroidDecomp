@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>How an expired escape countdown whites out the screen.</summary>
-internal static class TimeUpDefinitions
+internal static partial class TimeUpDefinitions
 {
     /// <summary>
     /// The parts the whiteout moves the screen toward white in, one for each of its own steps after its first; the step

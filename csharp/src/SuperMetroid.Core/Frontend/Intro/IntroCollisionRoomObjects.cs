@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// blocks, so neither the flashback Samus's movement nor her shots ever touch a block whose reaction reaches a room
 /// object; reaching one fails, naming what was reached.
 /// </summary>
-internal sealed class IntroCollisionRoomObjects : ISamusRoomObjects
+internal sealed partial class IntroCollisionRoomObjects : ISamusRoomObjects
 {
     /// <summary>The one set of room objects every intro collision room shares: none.</summary>
     internal static IntroCollisionRoomObjects Instance { get; } = new();

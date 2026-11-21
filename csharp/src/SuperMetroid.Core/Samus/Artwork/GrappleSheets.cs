@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Samus.Artwork.GrappleSheetDefinitions;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>The grapple sheet's endpoint and rope frames.</summary>
-public static class GrappleSheets
+public static partial class GrappleSheets
 {
     /// <summary>The endpoint showing <paramref name="frame"/>.</summary>
     [InstalledKey]

@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// each map's rows from the top listing its runs of blending pixels from the left, each by its first pixel and its length,
 /// in order and apart.
 /// </summary>
-internal static class BlendMapFile
+internal static partial class BlendMapFile
 {
     /// <summary>
     /// The map format's revision: 1 held one page's map; 2 holds every map the pictures are shown with, each once by its tag,
@@ -124,10 +124,10 @@ internal static class BlendMapFile
     /// <summary>The map file.</summary>
     /// <param name="Version">The format revision.</param>
     /// <param name="Maps">Every map, by tag.</param>
-    internal sealed record Document(int Version, Dictionary<string, MapDocument> Maps);
+    internal sealed partial record Document(int Version, Dictionary<string, MapDocument> Maps);
 
     /// <summary>One map.</summary>
     /// <param name="Size">The width and height of the picture it is for.</param>
     /// <param name="Rows">Each row's runs of blending pixels, first pixel then length.</param>
-    internal sealed record MapDocument(Extent16<ImagePixels> Size, int[][] Rows);
+    internal sealed partial record MapDocument(Extent16<ImagePixels> Size, int[][] Rows);
 }

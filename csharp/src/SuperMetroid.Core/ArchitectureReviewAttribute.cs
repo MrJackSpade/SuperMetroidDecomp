@@ -9,7 +9,7 @@ namespace SuperMetroid.Core;
 /// many other sites is not a justification; the shape is fixed instead.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true, Inherited = false)]
-public sealed class ArchitectureReviewAttribute : Attribute
+public sealed partial class ArchitectureReviewAttribute : Attribute
 {
     /// <summary>Records which finding this type justifies and why that finding does not apply to it.</summary>
     public ArchitectureReviewAttribute(string finding, string reason)

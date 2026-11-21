@@ -4,7 +4,7 @@
 /// The room's enemy places, in <see cref="EnemyPlaceOrder"/>, with the extent of the places the population and later
 /// spawns have filled.
 /// </summary>
-internal sealed class EnemyPlaces
+internal sealed partial class EnemyPlaces
 {
     /// <summary>The places, each created once with its ordinal.</summary>
     private readonly RoomEnemyPlace[] _places = new RoomEnemyPlace[EnemyPlaceOrder.Capacity];

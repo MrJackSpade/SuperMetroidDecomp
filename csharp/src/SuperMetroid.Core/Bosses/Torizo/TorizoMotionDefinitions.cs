@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>The fixed speeds, offsets and turns Torizo's body and projectile motions use.</summary>
-internal static class TorizoMotionDefinitions
+internal static partial class TorizoMotionDefinitions
 {
     /// <summary>
     /// A speed a projectile that reaches it has run away at (#1945). Each projectile tested for it starts below it and

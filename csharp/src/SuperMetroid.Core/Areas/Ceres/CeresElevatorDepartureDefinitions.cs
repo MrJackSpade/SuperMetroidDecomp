@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// lie just outside it and whose right and top edges lie inside it, as the elevator's trigger tests them; and how long she
 /// waits on it before the station fades out.
 /// </summary>
-internal static class CeresElevatorDepartureDefinitions
+internal static partial class CeresElevatorDepartureDefinitions
 {
     /// <summary>The updates Samus holds on the elevator once she reaches it, before the station fades to black.</summary>
     internal const int DepartureHoldFrames = 60;

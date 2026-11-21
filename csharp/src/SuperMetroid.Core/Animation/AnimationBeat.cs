@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Animation;
 /// </summary>
 /// <typeparam name="TFrame">The frame identity.</typeparam>
 /// <typeparam name="TEvent">The events the owner reacts to.</typeparam>
-internal abstract record AnimationBeat<TFrame, TEvent>
+internal abstract partial record AnimationBeat<TFrame, TEvent>
     where TFrame : struct
     where TEvent : notnull
 {
@@ -18,28 +18,28 @@ internal abstract record AnimationBeat<TFrame, TEvent>
     /// <summary>A frame shown for <paramref name="Duration"/> updates.</summary>
     /// <param name="Shown">The frame.</param>
     /// <param name="Duration">The updates it shows for.</param>
-    internal sealed record Frame(TFrame Shown, int Duration) : AnimationBeat<TFrame, TEvent>;
+    internal sealed partial record Frame(TFrame Shown, int Duration) : AnimationBeat<TFrame, TEvent>;
 
     /// <summary>
     /// A frame shown from now on (#1607): the animation rests on it until its owner plays another, so it ends its segment.
     /// </summary>
     /// <param name="Shown">The frame.</param>
-    internal sealed record HeldFrame(TFrame Shown) : AnimationBeat<TFrame, TEvent>;
+    internal sealed partial record HeldFrame(TFrame Shown) : AnimationBeat<TFrame, TEvent>;
 
     /// <summary>A pause of <paramref name="Duration"/> updates that shows no new frame: the last one stays.</summary>
     /// <param name="Duration">The updates it lasts.</param>
-    internal sealed record Pause(int Duration) : AnimationBeat<TFrame, TEvent>;
+    internal sealed partial record Pause(int Duration) : AnimationBeat<TFrame, TEvent>;
 
     /// <summary>
     /// Shows nothing for <paramref name="Duration"/> updates (#2558): the owner is hidden, holding no shown frame, until the
     /// play shows its next frame.
     /// </summary>
     /// <param name="Duration">The updates the owner stays hidden.</param>
-    internal sealed record Hidden(int Duration) : AnimationBeat<TFrame, TEvent>;
+    internal sealed partial record Hidden(int Duration) : AnimationBeat<TFrame, TEvent>;
 
     /// <summary>An event the owner reacts to as the animation reaches it, before the next frame shows.</summary>
     /// <param name="Raised">The event.</param>
-    internal sealed record Event(TEvent Raised) : AnimationBeat<TFrame, TEvent>;
+    internal sealed partial record Event(TEvent Raised) : AnimationBeat<TFrame, TEvent>;
 
     /// <summary>
     /// A moment of the animation its owner reacts to as it reaches it, before the next frame shows, as it does to an
@@ -48,7 +48,7 @@ internal abstract record AnimationBeat<TFrame, TEvent>
     /// frames shown and their timing are the beats' around it.
     /// </summary>
     /// <param name="Raised">The moment, raised as the owner's event.</param>
-    internal sealed record Marker(TEvent Raised) : AnimationBeat<TFrame, TEvent>;
+    internal sealed partial record Marker(TEvent Raised) : AnimationBeat<TFrame, TEvent>;
 
     /// <summary>The frame the beat shows: a frame's or a held frame's; none for a pause or an event.</summary>
     internal TFrame? ShownFrame => this switch

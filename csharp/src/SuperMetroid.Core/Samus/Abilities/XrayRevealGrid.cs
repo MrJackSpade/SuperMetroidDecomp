@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// reveals, or nothing where its block lies beyond the room. The reveal and its overlays write whole blocks, and a block
 /// written beyond the grid's places shows nowhere.
 /// </summary>
-public sealed class XrayRevealGrid
+public sealed partial class XrayRevealGrid
 {
     /// <summary>The grid's columns and rows of blocks.</summary>
     public static Extent16<RoomBlocks> Size => XrayRevealDefinitions.GridSize;

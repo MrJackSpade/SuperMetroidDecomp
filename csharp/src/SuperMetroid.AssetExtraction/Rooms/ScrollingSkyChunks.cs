@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// repeat them from its first. The ocean sky's own chunks (<see cref="OceanChunks"/>) show its pages in order, skipping
 /// <see cref="OceanSkippedPage"/>, and its later chunks repeat them from its first.
 /// </remarks>
-internal static class ScrollingSkyChunks
+internal static partial class ScrollingSkyChunks
 {
     /// <summary>The chunks down the sky's span before the span repeats.</summary>
     internal const int ChunkCount = 8;

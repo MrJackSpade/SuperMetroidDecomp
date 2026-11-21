@@ -5,7 +5,7 @@ namespace SuperMetroid.Core;
 /// place, which returns to the first value after the last. A rumble's rhythm of delays is one.
 /// </summary>
 /// <typeparam name="T">The values taken in turn.</typeparam>
-internal readonly record struct CyclingSequence<T>
+internal readonly partial record struct CyclingSequence<T>
 {
     /// <summary>The values, in the order they are taken.</summary>
     private readonly IReadOnlyList<T> values;

@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Schema revision, native block geometry, logical character coordinates, and editable file identities for room metatile tables.</summary>
-public static class RoomMetatileFormat
+public static partial class RoomMetatileFormat
 {
     /// <summary>Supported JSON schema revision for editable room block composition.</summary>
     public const int Version = 1;

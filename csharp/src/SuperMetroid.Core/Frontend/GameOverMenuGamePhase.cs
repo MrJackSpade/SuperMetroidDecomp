@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The Continue-or-title menu after death.</summary>
 /// <param name="session">The frontend session the menu runs against.</param>
-internal sealed class GameOverMenuGamePhase(FrontendSession session) : IGamePhase
+internal sealed partial class GameOverMenuGamePhase(FrontendSession session) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.GameOverMenu;

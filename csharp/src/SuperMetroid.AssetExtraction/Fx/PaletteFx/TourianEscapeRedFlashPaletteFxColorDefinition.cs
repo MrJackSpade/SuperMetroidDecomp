@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>One early Tourian escape red flash's records and the colours each writes.</summary>
-public sealed class TourianEscapeRedFlashPaletteFxColorDefinition
+public sealed partial class TourianEscapeRedFlashPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions: the records <paramref name="effect"/> shows, each writing <paramref name="colorsPerFrame"/> colours.</summary>
     /// <param name="effect">The colour effect whose records the program holds.</param>

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Saves;
 /// Gameplay, menus, checkpoints and JSON read and write it directly by <see cref="SaveSlot"/>; a slot's number and the
 /// raw save image are only the save files' formats (#2083, #2140).
 /// </summary>
-public sealed class SaveSlotStore
+public sealed partial class SaveSlotStore
 {
     /// <summary>Each saved slot's decoded record; a slot with no entry is empty or invalid.</summary>
     private readonly Dictionary<SaveSlot, SuperMetroidSaveSlot> slots = [];

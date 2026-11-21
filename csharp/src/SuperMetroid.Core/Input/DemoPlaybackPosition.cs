@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Input;
 
 /// <summary>Where a demo's playback stands (#1600): the recording, and the input it plays next.</summary>
-public readonly record struct DemoPlaybackPosition
+public readonly partial record struct DemoPlaybackPosition
 {
     /// <summary>A value of its parts; only its own operations make one.</summary>
     /// <param name="recording">The recording playing.</param>

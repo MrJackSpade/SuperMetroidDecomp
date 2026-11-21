@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// shot and intro egg motion checks decode that data from the player's game and compare it with the services held here.
 /// </remarks>
 [CompatibilityService("Kraid's fingernails, Crocomire's volley and the intro egg shell read what lies past their authored data")]
-public sealed class BossAndIntroOverreadServices
+public sealed partial class BossAndIntroOverreadServices
 {
     /// <summary>Keeps every decoded service.</summary>
     /// <param name="kraidNailPastLedges">Where Kraid's body pushes back a fingernail higher than his contour ledges.</param>

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>One of the six authored shell fragments spawned when the egg hatches.</summary>
-internal sealed class IntroEggParticle
+internal sealed partial class IntroEggParticle
 {
     /// <summary>The cinematic sprite showing the fragment: its position and animation.</summary>
     internal readonly CinematicActor<IntroEggShellFragment, CinematicSpritePose, NoAnimationCue> sprite;

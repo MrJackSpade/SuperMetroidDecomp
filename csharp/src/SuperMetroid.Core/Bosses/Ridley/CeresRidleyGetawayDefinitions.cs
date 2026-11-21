@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ceres Ridley's getaway: its zoom and drift curves, how it turns the floor and when it shoves Samus (#2247).</summary>
-public static class CeresRidleyGetawayDefinitions
+public static partial class CeresRidleyGetawayDefinitions
 {
     /// <summary>The floor's zoom as the getaway sets it up, before its first update.</summary>
     internal static FloorZoom InitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(8);

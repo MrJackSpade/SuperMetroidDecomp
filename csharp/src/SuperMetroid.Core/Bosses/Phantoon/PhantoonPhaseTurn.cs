@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="State">His encounter.</param>
 /// <param name="Samus">Samus, whom his eye and swoops follow.</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal readonly record struct PhantoonPhaseTurn(PhantoonBehavior Phantoon, PhantoonEnemyState State, SamusState Samus);
+internal readonly partial record struct PhantoonPhaseTurn(PhantoonBehavior Phantoon, PhantoonEnemyState State, SamusState Samus);

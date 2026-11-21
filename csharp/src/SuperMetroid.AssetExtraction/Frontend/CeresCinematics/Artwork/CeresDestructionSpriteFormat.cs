@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Installed filename and supported schema revision for the selected Ceres-destruction and Zebes-reveal OAM compositions.</summary>
-public static class CeresDestructionSpriteFormat
+public static partial class CeresDestructionSpriteFormat
 {
     /// <summary>
     /// Supported composition schema revision, two, requiring the complete 24-name frame set with the Japanese PLANET ZEBES

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Installed file identity for the three intro Mother Brain visual frames.</summary>
-public static class IntroMotherBrainSpriteFormat
+public static partial class IntroMotherBrainSpriteFormat
 {
     /// <summary>Supported JSON visual-schema revision; does not control the flashback actor's instruction timing or behavior.</summary>
     public const int Version = 1;

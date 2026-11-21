@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// which the set's sheets are coloured in. Each member's sixteen colours are loaded into the row its record names, record
 /// after record, so a later record loading a row overwrites an earlier one, as on the cartridge.
 /// </summary>
-internal sealed class LoadedSetColours
+internal sealed partial class LoadedSetColours
 {
     /// <summary>The colours in one sprite palette row.</summary>
     internal const int RowColours = 16;

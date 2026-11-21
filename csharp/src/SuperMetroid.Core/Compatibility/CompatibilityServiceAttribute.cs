@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// (a recording or the game's code) that established it (#1401).
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface, Inherited = false)]
-public sealed class CompatibilityServiceAttribute : Attribute
+public sealed partial class CompatibilityServiceAttribute : Attribute
 {
     /// <summary>
     /// Marks a compatibility service. The behaviour argument exists only for the analyzers, which read it from the

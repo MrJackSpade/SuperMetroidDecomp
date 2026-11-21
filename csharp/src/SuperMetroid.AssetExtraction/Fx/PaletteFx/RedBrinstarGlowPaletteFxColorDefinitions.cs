@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>The records of Red Brinstar's background glow and the colours each writes, for the import.</summary>
-public static class RedBrinstarGlowPaletteFxColorDefinitions
+public static partial class RedBrinstarGlowPaletteFxColorDefinitions
 {
 
     /// <summary>Eight BGR555 colors are presentation-owned by each timed record.</summary>

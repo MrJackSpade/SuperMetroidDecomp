@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Cartridge-checked, strictly visual-only installed n00b-tube artwork.</summary>
-public static class RoomObjectNoobTubeVisualFiles
+public static partial class RoomObjectNoobTubeVisualFiles
 {
     /// <summary>Editable n00b-tube visual JSON filename.</summary>
     internal const string VisualFileName = "noob-tube.json";

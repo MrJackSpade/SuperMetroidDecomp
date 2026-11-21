@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <typeparam name="TFrame">The family's frame: an enum of its frames, or a record of what varies between them.</typeparam>
 /// <param name="Family">The family the frame belongs to, which draws it.</param>
 /// <param name="Frame">The frame.</param>
-internal sealed record RoomObjectFrameDraw<TFrame>(RoomObjectDrawFamily<TFrame> Family, TFrame Frame) : RoomObjectDraw
+internal sealed partial record RoomObjectFrameDraw<TFrame>(RoomObjectDrawFamily<TFrame> Family, TFrame Frame) : RoomObjectDraw
     where TFrame : struct
 {
     /// <inheritdoc/>

@@ -29,7 +29,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The enemy placement lists of the Norfair rooms.</summary>
 [NumberedIdentities("Each numbered member is the enemy population of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); nothing indexes the populations by number.")]
-internal static class NorfairRoomEnemyPopulationDefinitions
+internal static partial class NorfairRoomEnemyPopulationDefinitions
 {
     /// <summary>The enemy population of the Grapple Tutorial 3 room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition GrappleTutorial3 { get; } = new("GrappleTutorial3",

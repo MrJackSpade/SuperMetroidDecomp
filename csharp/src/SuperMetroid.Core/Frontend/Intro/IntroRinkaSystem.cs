@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The Rinkas are a list in spawn order with no cap (#1625): only the first one launched touches Samus, so the order the
 /// others step and draw in is not observable.
 /// </remarks>
-internal sealed class IntroRinkaSystem
+internal sealed partial class IntroRinkaSystem
 {
     /// <summary>The live Rinkas, in spawn order; a deleted Rinka leaves the list at the end of the pass that deletes it.</summary>
     internal readonly List<IntroRinka> rinkas = [];

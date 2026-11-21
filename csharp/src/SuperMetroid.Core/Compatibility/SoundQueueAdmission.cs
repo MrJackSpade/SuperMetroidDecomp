@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// depend on it (the Ridley full movie and the 13% movie) confirm the occupancy.
 /// </remarks>
 [CompatibilityService("whether a sound request joins its library's queue, and how full the queue was")]
-public readonly record struct SoundQueueAdmission
+public readonly partial record struct SoundQueueAdmission
 {
     /// <summary>The most waiting requests one library's queue holds.</summary>
     public const int MaximumOccupancy = 15;

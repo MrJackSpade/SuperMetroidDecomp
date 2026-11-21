@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// enemies' walks.
 /// </remarks>
 [CompatibilityService("an enemy keeps what a terrain probe away from it moved that the original's way back does not undo: a work robot the fractions its ledge probe left, a crawling Yard its lookahead probe's move toward its surface")]
-public static class ProbeMovementKept
+public static partial class ProbeMovementKept
 {
     /// <summary>
     /// Where a work robot stands after its ledge probe: its own whole pixels, with the fractions of a pixel the probe's

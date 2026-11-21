@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// Loading checks the index's format, contained paths and every file's size; <see cref="InstalledClipFiles"/> checks
 /// each clip's encoding and rate as it reads it.
 /// </summary>
-public static class InstalledAudioClips
+public static partial class InstalledAudioClips
 {
     /// <summary>The clip index's file name in the audio root.</summary>
     public const string ManifestFileName = "audio-clips.json";

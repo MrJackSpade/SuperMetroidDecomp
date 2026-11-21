@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// clamp differently, which a <see cref="RotationAngle"/> that wraps at a full turn cannot tell apart. Only the orbit
 /// reads the direction within the turn (<see cref="ToRotationAngle"/>).
 /// </summary>
-public readonly record struct NuclearWaffleSweepAngle : IComparable<NuclearWaffleSweepAngle>
+public readonly partial record struct NuclearWaffleSweepAngle : IComparable<NuclearWaffleSweepAngle>
 {
     /// <summary>Number of fractions in one step.</summary>
     private const int FractionsPerStep = 256;

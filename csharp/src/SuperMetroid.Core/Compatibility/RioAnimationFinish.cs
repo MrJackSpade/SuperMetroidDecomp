@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// carries through the rebound (#2450).
 /// </remarks>
 [CompatibilityService("a Rio's animation finish waits for its main AI to move on")]
-public sealed class RioAnimationFinish
+public sealed partial class RioAnimationFinish
 {
     /// <summary>Whether a finish waits for the Rio's main AI.</summary>
     internal bool IsRaised { get; set; }

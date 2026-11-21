@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// cap plays, the closing every coloured and grey cap plays behind Samus, and the blue cap's opening, closing and closed
 /// image. A hit's flash is one shared run played over (<see cref="FlashesPerHit"/>); the red cap sounds before it.
 /// </summary>
-internal static class DoorCapSequenceDefinitions
+internal static partial class DoorCapSequenceDefinitions
 {
     /// <summary>The sound a cap makes as it starts to open.</summary>
     internal static readonly SoundEffectId OpenSound = RoomSound.DoorOpened;

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 /// <param name="Pose">The pose the body shows.</param>
 /// <param name="PictureFrame">The pose's picture frame the body shows.</param>
-public readonly record struct SamusBodyFrame(SamusPoseId Pose, SamusAnimationFrame PictureFrame)
+public readonly partial record struct SamusBodyFrame(SamusPoseId Pose, SamusAnimationFrame PictureFrame)
 {
     /// <summary>
     /// The picture's name on the body sheet: its pose and its frame's name in the pose's animation, the segment and the frame

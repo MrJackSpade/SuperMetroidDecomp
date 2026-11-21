@@ -7,4 +7,4 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <param name="Owner">The boss.</param>
 /// <param name="Sheet">The pictures.</param>
 /// <param name="Frames">Each frame, by name.</param>
-internal sealed record ComposedBossBodySheet(BossBodyOwner Owner, ComposedSpriteSheet Sheet, IReadOnlyDictionary<string, ComposedBossBodyFrame> Frames);
+internal sealed partial record ComposedBossBodySheet(BossBodyOwner Owner, ComposedSpriteSheet Sheet, IReadOnlyDictionary<string, ComposedBossBodyFrame> Frames);

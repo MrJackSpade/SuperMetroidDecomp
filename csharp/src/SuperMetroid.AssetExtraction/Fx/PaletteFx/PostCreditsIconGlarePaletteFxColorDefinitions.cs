@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>The records of the post-credits Super Metroid icon glare and the colours each writes, for the import.</summary>
-public static class PostCreditsIconGlarePaletteFxColorDefinitions
+public static partial class PostCreditsIconGlarePaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes sixteen live colours.</summary>

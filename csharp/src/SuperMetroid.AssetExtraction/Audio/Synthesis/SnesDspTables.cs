@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// prevents register and envelope code from accumulating unexplained numeric literals.
 /// </summary>
 [EncodingOwner("audio renderer rate and interpolation tables")]
-internal static class SnesDspTables
+internal static partial class SnesDspTables
 {
     /// <summary>
     /// Number of native DSP sample cycles between envelope or noise updates for each five-bit

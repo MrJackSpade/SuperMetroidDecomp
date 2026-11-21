@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Menus;
 namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>Selects the selection missile's spritemap for each animation frame (<see cref="MenuMissileAnimationDefinitions"/>).</summary>
-public static class MenuMissileSpritemaps
+public static partial class MenuMissileSpritemaps
 {
     /// <summary>
     /// Returns the $82:BAB2 Draw_Menu_Selection_Missile spritemap ID for <paramref name="frame"/>, by its place in the roll.

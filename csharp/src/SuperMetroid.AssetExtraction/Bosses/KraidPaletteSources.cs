@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Bosses.Kraid;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Where the cartridge keeps each of Kraid's named palettes (#1412).</summary>
-internal static class KraidPaletteSources
+internal static partial class KraidPaletteSources
 {
     /// <summary>
     /// The cartridge source of the named palette: the operand of the palette load in Kraid's code, independently checked

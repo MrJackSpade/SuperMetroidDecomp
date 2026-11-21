@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// number names a different song in each set.
 /// </summary>
 [EncodingOwner("track numbers of the sound driver's music data sets")]
-internal static class MusicTrackNumbers
+internal static partial class MusicTrackNumbers
 {
     /// <summary>The track number the sound driver stops the music for: zero, which names no song.</summary>
     internal const byte Silence = 0;

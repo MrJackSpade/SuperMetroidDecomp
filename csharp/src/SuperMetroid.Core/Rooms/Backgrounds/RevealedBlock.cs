@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// </summary>
 /// <param name="Picture">The block or collectible picture drawn.</param>
 /// <param name="Arrangement">How its picture is laid out.</param>
-public readonly record struct RevealedBlock(RoomCellPicture Picture, RevealedBlockArrangement Arrangement);
+public readonly partial record struct RevealedBlock(RoomCellPicture Picture, RevealedBlockArrangement Arrangement);

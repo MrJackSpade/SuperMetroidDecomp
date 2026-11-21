@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// The shades the import pre-colours Samus's sheets in (#1512), one for each colouring her suit, visor, beams and
 /// suitless body take. Her colour state names them; which inks each recolours, and to what, is the import's.
 /// </summary>
-public static class SamusShades
+public static partial class SamusShades
 {
     /// <summary>
     /// Each suit's name in its shades' installed names (#2511), written out so renaming a suit's identity never changes a

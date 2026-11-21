@@ -9,7 +9,7 @@ using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Reads and writes the installed opening palette document.</summary>
-public static class IntroCinematicPaletteFile
+public static partial class IntroCinematicPaletteFile
 {
     /// <summary>Supported revision of the complete 256-color RGB5 opening-palette schema.</summary>
     public const int Version = 1;

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// testing whether the place still holds a projectile, and a cleared place's word is zero, an uncharged Power beam's.
 /// </remarks>
 [CompatibilityService("a shot cleared during its own update strikes the blocks its update goes on to reach as an uncharged Power beam")]
-public static class ClearedShotPlaceType
+public static partial class ClearedShotPlaceType
 {
     /// <summary>
     /// The type a shot strikes with: the type of the shot <paramref name="holder"/> while one holds the place, otherwise

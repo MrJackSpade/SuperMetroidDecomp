@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// bands each show one, and Ceres Ridley shows two of the same installed colourings as his accepted hits mount, so
 /// editing one changes both encounters.
 /// </summary>
-public sealed class RidleyHealthShade
+public sealed partial class RidleyHealthShade
 {
     /// <summary>Defines a colouring.</summary>
     /// <param name="key">The colouring's name in its shade's name.</param>

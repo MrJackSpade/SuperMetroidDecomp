@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// documentation; raw cell primitives are constructed only from these descriptors. The repository
 /// inventory and alias-coherence checks enumerate them.
 /// </summary>
-public sealed record CpuBusCell
+public sealed partial record CpuBusCell
 {
     /// <summary>A cell of its parts; only its own operations make one.</summary>
     /// <param name="name">The semantic identity, unique within its declaring catalog.</param>

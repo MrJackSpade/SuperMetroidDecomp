@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 /// <param name="Effect">The colour effect, named for what it shows in the game.</param>
 /// <param name="Step">The effect's step, from zero; a one-step effect is step zero.</param>
-public readonly record struct PictureShade([InstalledKey] string Effect, int Step)
+public readonly partial record struct PictureShade([InstalledKey] string Effect, int Step)
 {
     /// <summary>The shade's installed key, which the sheet manifest stores.</summary>
     public string Key => $"{Effect}/{Step}";

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus;
 /// weapon firing and forces a held charge to release; the shot then leaves in its own direction rather than the
 /// direction of the pose Samus is in by then.
 /// </summary>
-public readonly record struct SamusTransitionShot
+public readonly partial record struct SamusTransitionShot
 {
     /// <summary>Hands over the shot of a pose aiming in <paramref name="aim"/>.</summary>
     internal SamusTransitionShot(SamusProjectileDirection aim) => Aim = aim;

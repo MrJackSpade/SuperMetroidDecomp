@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Where Botwoon's wall object is spawned, and the terrain change of each wall mutation.</summary>
-internal static class BotwoonWallMutationDefinitions
+internal static partial class BotwoonWallMutationDefinitions
 {
     /// <summary>The room block both wall mutations are spawned at: the wall's top block.</summary>
     internal static readonly Position16<RoomBlocks> Block = new(15, 4);

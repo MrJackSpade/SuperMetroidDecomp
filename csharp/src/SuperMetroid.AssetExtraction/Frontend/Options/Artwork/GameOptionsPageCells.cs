@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 /// controller label's box, the language-label rows and the toggle choice boxes the cartridge recolours, which the import
 /// pictures from its import data; the installation holds the pictures. The game never addresses a page cell.
 /// </summary>
-public static class GameOptionsPageCells
+public static partial class GameOptionsPageCells
 {
 
     /// <summary>One of a language label's two rows.</summary>

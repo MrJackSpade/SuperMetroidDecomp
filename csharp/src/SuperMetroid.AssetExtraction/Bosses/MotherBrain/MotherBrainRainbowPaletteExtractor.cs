@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// copying native control tables; only the import reads them, to pre-colour her pictures. The beam backdrop's colours the
 /// game works with are installed by purpose (<see cref="MotherBrainBeamColourExtractor"/>).
 /// </summary>
-internal static class MotherBrainRainbowPaletteExtractor
+internal static partial class MotherBrainRainbowPaletteExtractor
 {
     /// <summary>Imports rainbow, drained, revival, fake-death and restoration colors
     /// into RGB5 sequences while checking native table terminators.</summary>

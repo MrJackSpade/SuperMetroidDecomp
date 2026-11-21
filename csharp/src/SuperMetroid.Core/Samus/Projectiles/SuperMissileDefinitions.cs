@@ -3,7 +3,7 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>When Samus can fire a Super Missile, and the quakes its impacts start.</summary>
-public static class SuperMissileDefinitions
+public static partial class SuperMissileDefinitions
 {
     /// <summary>Super Missile admission: reject at this many live projectiles, reserving the last place for the collision link.</summary>
     public const int AdmissionLimit = 4;

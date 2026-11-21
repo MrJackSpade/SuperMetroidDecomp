@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Samus's body as the import reads it (#633, #1465, #2556): each pose's art origin and what each of its picture frames
 /// shows, decoded once from the cartridge's tables, with the compositions and the dependent artwork catalogs.
 /// </summary>
-public sealed record SamusBodyArtworkParts
+public sealed partial record SamusBodyArtworkParts
 {
     /// <summary>Each pose with a record's art origin.</summary>
     public required IReadOnlyDictionary<SamusPoseId, int> ArtOrigins { get; init; }

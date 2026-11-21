@@ -6,7 +6,7 @@ using SuperMetroid.Core.World;
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>The collaborators a <see cref="DeathSequenceRunner"/> is constructed with, built once by the owner that creates it (#621).</summary>
-internal sealed record DeathSequenceRunnerDependencies
+internal sealed partial record DeathSequenceRunnerDependencies
 {
     /// <summary>The display state, which supplies the active turning floor's transform for Samus's death draws.</summary>
     public required GameplayDisplayState Display { get; init; }

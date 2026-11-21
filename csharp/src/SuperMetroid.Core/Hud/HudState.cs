@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Hud;
 /// (the corner above a sloped hallway) takes its explored shade on the next update. Nothing else of what the HUD drew
 /// before is kept: every image is chosen from these values whenever the HUD is shown.
 /// </remarks>
-public sealed class HudState
+public sealed partial class HudState
 {
     /// <summary>The HUD's icons in the order the HUD lists them (#2567).</summary>
     private static readonly IReadOnlyList<HudIcon> IconOrder = Ensure.EveryMemberOnce<HudIcon>(

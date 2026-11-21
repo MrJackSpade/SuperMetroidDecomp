@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// the import's room-FX atlas so the import composes room sheets and the Tourian statues' pictures from them
 /// (#1527). The game draws the composed sheets and never reads these characters.
 /// </summary>
-public sealed class RoomFxBlockAnimationAtlas
+public sealed partial class RoomFxBlockAnimationAtlas
 {
     /// <summary>Concatenated edited tile bytes in segment order.</summary>
     internal readonly byte[] characters;

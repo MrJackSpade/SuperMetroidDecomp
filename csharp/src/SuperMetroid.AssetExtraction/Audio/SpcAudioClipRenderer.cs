@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// S-DSP's native 32.04-kHz output before the host resample. Requests queued before a frame apply
 /// at that frame's start, exactly as one game update's audio requests do.
 /// </summary>
-internal sealed class SpcAudioClipRenderer
+internal sealed partial class SpcAudioClipRenderer
 {
     /// <summary>Interleaved left/right samples in one native 60-Hz frame (534 stereo frames).</summary>
     internal const int NativeSamplesPerFrame = ManagedSnesDsp.NativeStereoFramesPerVideoFrame * 2;

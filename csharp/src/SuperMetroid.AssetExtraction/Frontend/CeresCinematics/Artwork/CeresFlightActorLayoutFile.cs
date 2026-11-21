@@ -5,7 +5,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Reads and writes the installed rear-view Ceres approach actor layout.</summary>
-public static class CeresFlightActorLayoutFile
+public static partial class CeresFlightActorLayoutFile
 {
     /// <summary>Loads the supported layout schema, requiring one placement for each of the five rear-view roles at signed screen-pixel starting coordinates.</summary>
     /// <param name="json">Readable JSON stream, left open after deserialization.</param>

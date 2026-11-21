@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// stands, how far it is zoomed and turned. Each scene sets it up at its start and moves it by its own operations; nothing
 /// else writes it.
 /// </summary>
-internal sealed class EndingTurningFloor
+internal sealed partial class EndingTurningFloor
 {
     /// <summary>Where the floor stands: it moves across the screen by fractions of a pixel and up and down by whole pixels.</summary>
     internal FixedVector<FloorPixels> Position { get; set; }

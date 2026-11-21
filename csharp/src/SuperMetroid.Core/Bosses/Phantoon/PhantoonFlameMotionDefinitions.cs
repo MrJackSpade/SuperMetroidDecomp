@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>How Phantoon's enraged and spiral flames move and sound.</summary>
-internal static class PhantoonFlameMotionDefinitions
+internal static partial class PhantoonFlameMotionDefinitions
 {
     /// <summary>The turn an enraged flame makes round the body each update, clockwise or counterclockwise.</summary>
     internal static readonly TrigonometryAngle RageTurnPerUpdate = new(2);

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// compare the random value and every outcome it drives on every update.
 /// </remarks>
 [CompatibilityService("which part of the shared random number each of the Torizos' random choices reads, exactly as the game read it")]
-internal static class TorizoRandomRolls
+internal static partial class TorizoRandomRolls
 {
     /// <summary>
     /// Bomb Torizo drools while hurt when the number's second, seventh, ninth and sixteenth places all read zero: one time

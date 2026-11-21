@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// already selected a jump, which then supersedes it; an unsuperseded transition also latches the pending auto-jump input.
 /// </summary>
 /// <param name="Pose">The pose the turn or landing ends in.</param>
-internal sealed record SamusAnimationTurnTransition(SamusPoseId Pose) : SamusAnimationCue
+internal sealed partial record SamusAnimationTurnTransition(SamusPoseId Pose) : SamusAnimationCue
 {
     /// <inheritdoc/>
     internal override IReadOnlyList<SamusPoseId> PublishedPoses => [Pose];

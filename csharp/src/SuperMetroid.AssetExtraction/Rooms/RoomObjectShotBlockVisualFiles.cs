@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the nineteen ordinary shot-block frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectShotBlockVisualFiles
+public static partial class RoomObjectShotBlockVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for all nineteen ordinary shot-block breakup and restoration draws.</summary>
     internal const string VisualFileName = "shot-blocks.json";

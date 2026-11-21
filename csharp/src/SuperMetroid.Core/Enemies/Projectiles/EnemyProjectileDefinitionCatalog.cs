@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// Every enemy projectile kind's definition: its size, its damage to Samus and its behaviours. How a kind moves itself
 /// is its behaviour's (#1843).
 /// </summary>
-internal static class EnemyProjectileDefinitionCatalog
+internal static partial class EnemyProjectileDefinitionCatalog
 {
     /// <summary>The complete definition of each enemy projectile identity.</summary>
     internal static readonly Dictionary<RoomEnemyProjectileKind, EnemyProjectileDefinition> Definitions = new()

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Defines all six editable opening-narration pages.</summary>
-public sealed record IntroNarrationDocument
+public sealed partial record IntroNarrationDocument
 {
     /// <summary>Narration document schema revision checked before page compilation.</summary>
     public required int Version { get; init; }

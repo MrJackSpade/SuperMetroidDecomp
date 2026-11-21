@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The collaborators a <see cref="NorfairRidleyCombat"/> is constructed with, built once by its owner.</summary>
 [RoomLifetime]
-internal sealed record NorfairRidleyCombatDependencies
+internal sealed partial record NorfairRidleyCombatDependencies
 {
     /// <summary>Room services, level state, and RNG for the Norfair fight.</summary>
     public required EnemyRoomBinding Room { get; init; }

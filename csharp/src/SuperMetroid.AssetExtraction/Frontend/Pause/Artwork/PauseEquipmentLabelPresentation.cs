@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Editable label artwork and placement for the pause equipment page, kept as installed (#1615).</summary>
-public sealed class PauseEquipmentLabelPresentation
+public sealed partial class PauseEquipmentLabelPresentation
 {
     /// <summary>Each label's installed placement and tiles.</summary>
     private readonly Dictionary<PauseEquipmentLabelId, CompiledLabel> labels;
@@ -153,7 +153,7 @@ public sealed class PauseEquipmentLabelPresentation
     /// <summary>One label's installed placement and tiles.</summary>
     /// <param name="pageCell">The equipment-page cell the label's first tile shows in.</param>
     /// <param name="tiles">The label's installed tiles, first to last.</param>
-    private sealed class CompiledLabel(int pageCell, BackgroundTile[] tiles)
+    private sealed partial class CompiledLabel(int pageCell, BackgroundTile[] tiles)
     {
         /// <summary>The installed equipment-page cell of the label's first tile.</summary>
         internal int PageCell => pageCell;

@@ -1,18 +1,26 @@
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>One Kago occupant: its own AI, with the shared reactions.</summary>
-/// <param name="species">The Kago species owner.</param>
-/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
-/// <param name="place">The place the enemy occupies.</param>
-/// <param name="common">The shared participation.</param>
-internal sealed class KagoEntity(KagoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+internal sealed partial class KagoEntity
+    : CommonParticipationEnemyEntity, IEnemyInitialization, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>Creates a <see cref="KagoEntity"/>.</summary>
+    /// <param name="species">The Kago species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    public KagoEntity(KagoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+        : base(occupant, place, common)
+    {
+        this.ownShot = species.KagoShotReaction(occupant);
+        this.ownBomb = species.KagoBombReaction(occupant);
+    }
+
     /// <summary>The Kago's own shot reaction, built for this occupant.</summary>
-    private readonly EnemyShotReaction ownShot = species.KagoShotReaction(occupant);
+    private readonly EnemyShotReaction ownShot;
 
     /// <summary>The Kago's own stages around common bomb damage, built for this occupant.</summary>
-    private readonly EnemyBombReaction ownBomb = species.KagoBombReaction(occupant);
+    private readonly EnemyBombReaction ownBomb;
 
     /// <inheritdoc/>
     public void Initialize() => KagoBehavior.InitializeKago(Place);

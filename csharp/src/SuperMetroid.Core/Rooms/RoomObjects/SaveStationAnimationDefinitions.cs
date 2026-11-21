@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The save station's animation: how many times its electricity plays before the game is saved.</summary>
-internal static class SaveStationAnimationDefinitions
+internal static partial class SaveStationAnimationDefinitions
 {
     /// <summary>
     /// The number of alternating electricity loops the save animation plays before displaying the saved-game

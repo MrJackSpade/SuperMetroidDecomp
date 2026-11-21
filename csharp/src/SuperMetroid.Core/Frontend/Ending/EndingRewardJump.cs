@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Reward jump/landing actor owner, ending at the screen-shot request.</summary>
-internal sealed class EndingRewardJump
+internal sealed partial class EndingRewardJump
 {
     /// <summary>
     /// The animation Samus's body falls by once she passes above the screen. A suited jump's head flies ahead of the body

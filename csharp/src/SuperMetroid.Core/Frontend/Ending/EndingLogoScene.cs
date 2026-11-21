@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 /// <param name="logo">The logo's actor.</param>
 /// <param name="phase">The phase the scene runs: the logo's own, or the item percentage's move down below it.</param>
-internal sealed class EndingLogoScene(EndingLogo logo, EndingCreditsPhase phase) : EndingScene
+internal sealed partial class EndingLogoScene(EndingLogo logo, EndingCreditsPhase phase) : EndingScene
 {
     /// <summary>The logo's actor.</summary>
     internal EndingLogo Logo { get; } = Ensure.NotNull(logo);

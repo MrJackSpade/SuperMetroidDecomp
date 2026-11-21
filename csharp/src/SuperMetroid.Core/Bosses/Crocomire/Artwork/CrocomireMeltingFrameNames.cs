@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// composes with these, and Crocomire draws them by them. Each name is the installed sheet's own key, written out, so
 /// renaming an illustration's identity never changes a key on disk.
 /// </summary>
-internal static class CrocomireMeltingFrameNames
+internal static partial class CrocomireMeltingFrameNames
 {
     /// <summary>Each melt image's installed body sheet frame.</summary>
     private static readonly FrozenDictionary<CrocomireMeltingIllustration, string> Keys =

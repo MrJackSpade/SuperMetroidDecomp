@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Where each firing direction's projectile leaves the arm cannon.</summary>
-internal static class SamusMuzzleOrigins
+internal static partial class SamusMuzzleOrigins
 {
     /// <summary>
     /// Where the arm cannon's muzzle lies from Samus for a shot fired in <paramref name="direction"/>, one of the ten

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// A component shows only its own pictures. One the Hyper Beam's backward count has stepped back past its first picture
 /// shows nothing (<see cref="ChargeFlareComponentState"/>): it never draws the neighbouring run's picture.
 /// </remarks>
-public static class ChargeFlarePictures
+public static partial class ChargeFlarePictures
 {
     /// <summary>The composition <paramref name="component"/> shows for <paramref name="picture"/> facing left or right.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="picture"/> is not one of the component's pictures.</exception>

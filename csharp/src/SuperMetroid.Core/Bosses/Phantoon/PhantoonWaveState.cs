@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// the amplitude runs, and its phase step. <see cref="PhantoonBodyWaveEffect"/> draws the wave from these; each phase that
 /// starts a wave sets them first.
 /// </summary>
-public sealed class PhantoonWaveState
+public sealed partial class PhantoonWaveState
 {
     /// <summary>The wave's length, which the wave reads every update. The wave's setup sets it.</summary>
     public PhantoonWaveLength Length { get; private set; }

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Fx;
 /// as that room (#2053, #2367).
 /// </summary>
 [RoomLifetime]
-public sealed class FirefleaFxState
+public sealed partial class FirefleaFxState
 {
     /// <summary>Where the flash plays on from while the darkness holds it: its brightest look.</summary>
     private static readonly AnimationPlace HeldFlash = FirefleaFlashAnimations.Segments.PlaceOfFrame(

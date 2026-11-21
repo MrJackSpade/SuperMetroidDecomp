@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// its blocks' mirroring as one character per block (<see cref="MirroringCodes"/>: unmirrored, horizontal, vertical,
 /// both).
 /// </remarks>
-public static class RoomVisualLayoutFiles
+public static partial class RoomVisualLayoutFiles
 {
     /// <summary>
     /// Schema revision of the per-level layout documents; version 3 holds block numbers and mirroring instead of level words,
@@ -70,7 +70,7 @@ public static class RoomVisualLayoutFiles
     /// <summary>A retail room state's level and its room's area.</summary>
     /// <param name="Level">The level the state uses.</param>
     /// <param name="Area">The area of the state's room.</param>
-    private sealed record LevelUse(RoomLevelId Level, AreaId Area);
+    private sealed partial record LevelUse(RoomLevelId Level, AreaId Area);
 
     /// <summary>Formats the stable per-level installed JSON filename without validating the level.</summary>
     /// <param name="level">The level, shared by all room states using it; membership validation occurs during loading.</param>
@@ -193,7 +193,7 @@ public static class RoomVisualLayoutFiles
 
     /// <summary>Editable initial foreground and background appearances with fixed level identity and block dimensions.</summary>
     [SpatialComponents("External format: per-level room-layout JSON stores widthInBlocks/heightInBlocks.")]
-    internal sealed record RoomVisualLayoutDocument(int FormatVersion, string Level,
+    internal sealed partial record RoomVisualLayoutDocument(int FormatVersion, string Level,
         int WidthInBlocks, int HeightInBlocks, RoomLayoutPlaneDocument Foreground,
         RoomLayoutPlaneDocument Background)
     {
@@ -202,5 +202,5 @@ public static class RoomVisualLayoutFiles
         public Extent16<RoomBlocks> Size => new(checked((ushort)WidthInBlocks), checked((ushort)HeightInBlocks));
     }
     /// <summary>One plane of a layout document: each block's number, row by row, and one mirroring code per block.</summary>
-    internal sealed record RoomLayoutPlaneDocument(int?[] Blocks, string Mirroring);
+    internal sealed partial record RoomLayoutPlaneDocument(int?[] Blocks, string Mirroring);
 }

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// her still in the aerial moves that test for one. A rise that gravity slows past rest wraps to a speed that reads as
 /// having passed its apex (<see cref="HasPassedApex"/>, <see cref="SamusSpeedMagnitude.HasPassedZero"/>).
 /// </summary>
-public readonly record struct SamusVerticalVelocity
+public readonly partial record struct SamusVerticalVelocity
 {
     /// <summary>The velocity of <paramref name="speed"/> heading <paramref name="direction"/>.</summary>
     internal SamusVerticalVelocity(UnsignedSixteenSixteen speed, SamusVerticalDirection direction)

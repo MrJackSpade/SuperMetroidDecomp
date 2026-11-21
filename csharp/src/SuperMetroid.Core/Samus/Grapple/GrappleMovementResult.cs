@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// <param name="PendingConnection">Optional deferred pose and geometry for a new connection.</param>
 /// <param name="PendingReleasePose">Optional pose requested after releasing a swing.</param>
 [IndependentFlag("independent outcomes of one grapple step")]
-public readonly record struct GrappleMovementResult(
+public readonly partial record struct GrappleMovementResult(
     GrapplePhase Phase,
     bool Fired = false,
     bool OwnsMovement = true,

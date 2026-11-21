@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// an <see cref="EnemyProjectileFrameId"/> shows, bound to the installed schema by frame name, which the spawned-object
 /// sheet composer composes each frame's picture from. Gameplay draws those pictures by the frame's identity.
 /// </summary>
-internal static class EnemyProjectileFrames
+internal static partial class EnemyProjectileFrames
 {
     /// <summary>The frames that draw an installed bank-$8D composition, including the blank one, rather than a program frame.</summary>
     internal static HashSet<EnemyProjectileFrameId> Compositions { get; } =

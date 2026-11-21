@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// updates and the transition's own updates until the destination loads, and a room left behind takes both with it.
 /// </summary>
 [RoomLifetime]
-internal sealed class RoomDoorContacts
+internal sealed partial class RoomDoorContacts
 {
     /// <summary>
     /// Samus's stand at the elevator's door, which waits for the elevator. Every gameplay update runs the enemies before

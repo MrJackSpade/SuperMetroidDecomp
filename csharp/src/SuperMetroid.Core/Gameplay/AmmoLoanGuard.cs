@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// update replaces: a saved game's load, a game's Ceres start, the arrival on Zebes and the attract demo's scenes set up a
 /// new Samus between updates.
 /// </remarks>
-internal sealed class AmmoLoanGuard
+internal sealed partial class AmmoLoanGuard
 {
     /// <summary>
     /// The loan not yet returned: lent by <see cref="Begin"/> while the assist is on, and returned once by the first
@@ -49,7 +49,7 @@ internal sealed class AmmoLoanGuard
     }
 
     /// <summary>The rounds one update lent the Samus it began with.</summary>
-    private sealed class AmmoLoan
+    private sealed partial class AmmoLoan
     {
         /// <summary>
         /// The ammunition counts the guard keeps from zero, in the order it prepares and returns them (#2557): missiles, Super
@@ -132,6 +132,6 @@ internal sealed class AmmoLoanGuard
         /// <param name="Current">The count she carries.</param>
         /// <param name="Maximum">Her maximum, zero while the ammunition is locked.</param>
         /// <param name="Set">Writes the count she carries.</param>
-        private sealed record AmmoCount(Func<SamusState, int> Current, Func<SamusState, int> Maximum, Action<SamusState, int> Set);
+        private sealed partial record AmmoCount(Func<SamusState, int> Current, Func<SamusState, int> Maximum, Action<SamusState, int> Set);
     }
 }

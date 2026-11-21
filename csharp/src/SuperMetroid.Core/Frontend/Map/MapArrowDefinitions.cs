@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>Named bindings between map directions and their fixed menu arrow shapes.</summary>
-public static class MapArrowDefinitions
+public static partial class MapArrowDefinitions
 {
     /// <summary>Each scroll direction's arrow picture.</summary>
     internal static readonly IReadOnlyDictionary<MapScrollDirection, MapSpriteId> ArrowPictures =

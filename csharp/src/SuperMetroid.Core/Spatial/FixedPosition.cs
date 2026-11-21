@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Spatial;
 /// next whole pixel. Only <see cref="FromWhole"/> and the fraction writes clear or set them.
 /// </remarks>
 [SpatialComponents("Spatial value type: owns its X and Y axes, each a whole pixel and its fraction.")]
-public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoordinate Y)
+public readonly partial record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoordinate Y)
     where TSpace : ISpatialSpace
 {
     /// <summary>The origin, with no fraction of a pixel.</summary>

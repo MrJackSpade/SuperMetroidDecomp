@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <see cref="EndingTypewriterDefinitions.PercentageHoldFrames"/>, then its completion, resting on the whole text. The
 /// text's characters are installed, so its typing is built for the text it types.
 /// </summary>
-internal static class EndingTypewriterAnimations
+internal static partial class EndingTypewriterAnimations
 {
     /// <summary>The typing of <paramref name="sequence"/>, which has <paramref name="characters"/> installed characters.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="characters"/> is negative.</exception>

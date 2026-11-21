@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Lower Norfair Ridley's arena targets by the way he faces (#2335).</summary>
-internal static class RidleyMovementTargets
+internal static partial class RidleyMovementTargets
 {
     /// <summary>The wall sweep's point ahead of Ridley: successive 64-pixel quarter-arena points by facing.</summary>
     internal static RidleyFacedX WallAhead { get; } = new(FacingLeft: 64, Turning: 128, FacingRight: 192);

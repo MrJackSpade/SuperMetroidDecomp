@@ -3,7 +3,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>Editable JSON schema for selected-save marker drawing anchors; station identities, load destinations, and initial scrolling remain application-owned.</summary>
-public sealed record MapSaveMarkerDocument
+public sealed partial record MapSaveMarkerDocument
 {
     /// <summary>Schema revision, which loading requires to equal <see cref="MapSaveMarkerFormat.Version"/>.</summary>
     public required int Version { get; init; }

@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Reads and writes the installed Phantoon colour document.</summary>
-public static class PhantoonColorFile
+public static partial class PhantoonColorFile
 {
     /// <summary>Loads and validates Phantoon's health, fade-out, and ship-power RGB5 sources.</summary>
     /// <param name="json">Caller-owned stream containing the color document.</param>

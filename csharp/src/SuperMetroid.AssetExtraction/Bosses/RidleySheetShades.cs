@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// container's and Baby's rows, Ridley's own row, and the room's tile groups the retreat, floor zoom and Norfair's reveal
 /// recolour; and the colours and alarm of the self-destruct warning's own written pictures (#1544).
 /// </summary>
-internal static class RidleySheetShades
+internal static partial class RidleySheetShades
 {
     /// <summary>The Baby's shades in the order Ceres Ridley's sheet lists them (#2567).</summary>
     private static readonly IReadOnlyList<CeresBabyShade> BabyShadeOrder = Ensure.EveryMemberOnce<CeresBabyShade>(

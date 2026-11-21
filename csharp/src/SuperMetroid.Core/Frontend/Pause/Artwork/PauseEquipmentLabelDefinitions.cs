@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Each of the equipment screen's item labels (#1467).</summary>
-internal static class PauseEquipmentLabelDefinitions
+internal static partial class PauseEquipmentLabelDefinitions
 {
     /// <summary>An ordinary beam label: a beam strip, which the Hyper label replaces.</summary>
     private static readonly PauseEquipmentLabelDefinition OrdinaryBeam =

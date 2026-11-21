@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// extracted arm cannon whose tile selections name them (#1638). The overlay sheet is composed from them; the installation
 /// never holds them, and gameplay reads only the layout (<see cref="SamusArmCannonLayout"/>).
 /// </summary>
-public sealed class SamusArmCannonCoverCharacters
+public sealed partial class SamusArmCannonCoverCharacters
 {
     /// <summary>Each cover picture's character.</summary>
     private readonly FrozenDictionary<SamusArmCannonCoverTile, ReadOnlyMemory<byte>> tiles;
@@ -23,7 +23,7 @@ public sealed class SamusArmCannonCoverCharacters
 
     /// <summary>A cover's characters, distinguished by the cover picture they show: its orientation and how far open it is.</summary>
     /// <param name="Tile">The cover picture.</param>
-    private sealed record CoverVariant(SamusArmCannonCoverTile Tile) : SpriteArtworkVariant;
+    private sealed partial record CoverVariant(SamusArmCannonCoverTile Tile) : SpriteArtworkVariant;
 
     /// <summary>Binds the cover characters <paramref name="tiles"/> to the extracted arm cannon <paramref name="cannon"/>.</summary>
     /// <exception cref="InvalidDataException">The characters are not the twelve cover tiles.</exception>

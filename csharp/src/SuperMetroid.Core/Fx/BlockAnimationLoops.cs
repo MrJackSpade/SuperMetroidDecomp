@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Fx;
 /// the first still image look plausible while discarding the game's cadence and preventing replacement graphics from
 /// following the same frames.
 /// </remarks>
-public static class BlockAnimationLoops
+public static partial class BlockAnimationLoops
 {
     /// <summary>The idle segments of every animation with a loop.</summary>
     internal static AnimationSegments<BlockAnimation, ArtworkFrame, NoAnimationCue> Segments { get; } =

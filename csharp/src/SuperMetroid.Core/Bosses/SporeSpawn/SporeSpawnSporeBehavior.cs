@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// deletes itself.
 /// </summary>
 /// <param name="deathsAndDrops">The killed sound and the drop a shot spore leaves.</param>
-internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops)
+internal sealed partial class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops)
     : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving), IEnemyProjectileCues<SporeSpawnProjectileCue>
 {
     /// <summary>The way each spore drifts and its step along its path, given as its spawner releases it.</summary>

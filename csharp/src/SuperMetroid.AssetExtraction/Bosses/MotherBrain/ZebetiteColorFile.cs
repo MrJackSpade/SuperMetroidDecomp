@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Assets;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads and writes the installed Zebetite colour document.</summary>
-public static class ZebetiteColorFile
+public static partial class ZebetiteColorFile
 {
     /// <summary>Asset filename for the editable Zebetite barrier pulse colors.</summary>
     public const string FileName = "zebetite-colors.json";

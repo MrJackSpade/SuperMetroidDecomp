@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// Fune and Namihe's fireball animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
-internal static class FuneNamiheFireballAnimations
+internal static partial class FuneNamiheFireballAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<FuneNamiheFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(

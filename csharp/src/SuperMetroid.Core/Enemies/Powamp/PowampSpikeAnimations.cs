@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// The Powamp spike's animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
-internal static class PowampSpikeAnimations
+internal static partial class PowampSpikeAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<PowampSpikeSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(

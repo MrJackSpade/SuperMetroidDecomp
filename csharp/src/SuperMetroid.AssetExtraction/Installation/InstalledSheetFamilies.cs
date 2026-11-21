@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// thread it runs, and the picture store then takes them in one fixed order, so the store's pages and every manifest are
 /// the same bytes whichever family finishes first.
 /// </summary>
-internal sealed class InstalledSheetFamilies
+internal sealed partial class InstalledSheetFamilies
 {
     /// <summary>The order the store writes the families in, by directory name: sprite, room-block, boss-body, enemy.</summary>
     private static readonly string[] WritingOrder =

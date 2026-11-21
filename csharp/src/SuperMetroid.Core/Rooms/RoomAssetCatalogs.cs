@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>The installed catalogs one room's block pictures, layout, grid and scroll cells are built from.</summary>
-public sealed record RoomAssetCatalogs
+public sealed partial record RoomAssetCatalogs
 {
     /// <summary>Groups the complete installed catalogs required to build a room state without reading game data.</summary>
     /// <param name="visualLayouts">The rooms' replaceable initial block appearances, selected by level.</param>

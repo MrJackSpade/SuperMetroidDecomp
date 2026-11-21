@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// these numbers.
 /// </summary>
 [EncodingOwner("story event numbering")]
-public static class StoryEventNumbers
+public static partial class StoryEventNumbers
 {
     /// <summary>How many numbers the event table holds, 0 through 63.</summary>
     public const int NumberCount = 64;

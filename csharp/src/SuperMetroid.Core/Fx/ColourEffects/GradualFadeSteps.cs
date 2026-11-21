@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// from, each later step moves one more of its parts, and once it completes it shows its goal. A fade started on a counter
 /// another fade advanced completes sooner and shows its goal from the step it completes on.
 /// </summary>
-internal sealed class GradualFadeSteps
+internal sealed partial class GradualFadeSteps
 {
     /// <summary>The shared step counter this fade reads and advances.</summary>
     private readonly SharedFadeStepCount counter;

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>Powamp balloon motion and clockwise spike acceleration.</summary>
-internal static class PowampMotionDefinitions
+internal static partial class PowampMotionDefinitions
 {
     /// <summary>
     /// The wiggle's twelve sideways offsets in the order the Powamp takes them (<see cref="PowampWiggle"/>), a signed

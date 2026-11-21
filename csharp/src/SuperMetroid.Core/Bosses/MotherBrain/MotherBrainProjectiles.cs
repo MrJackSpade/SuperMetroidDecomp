@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainProjectiles
+internal sealed partial class MotherBrainProjectiles
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -60,7 +60,7 @@ internal sealed class MotherBrainProjectiles
     /// A room turret's bullet: it flies, flickering its vulnerability, until it meets a solid block, and handles its turret
     /// animation's cues. It needs nothing of the encounter.
     /// </summary>
-    internal sealed class TurretBulletBehavior()
+    internal sealed partial class TurretBulletBehavior()
         : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving), IEnemyProjectileCues<MotherBrainTurretCue>
     {
         /// <inheritdoc/>
@@ -103,7 +103,7 @@ internal sealed class MotherBrainProjectiles
     /// <param name="turretBullet">The behaviour the bullets a turret fires run.</param>
     /// <param name="spawned">The behaviour the sparkles and hand beams these spawn run; null for this behaviour itself.</param>
     /// <param name="touch">Where the effect touching Samus starts begins, or null when the kind has no touch animation of its own.</param>
-    internal sealed class MotherBrainProjectileBehavior(
+    internal sealed partial class MotherBrainProjectileBehavior(
         MotherBrainProjectileDependencies dependencies,
         TurretBulletBehavior turretBullet,
         MotherBrainProjectileBehavior? spawned = null,

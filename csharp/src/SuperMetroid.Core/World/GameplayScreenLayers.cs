@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.World;
 /// The room's layers and the actors gameplay shows (#1407): chosen on each update, shown from the accepted frame
 /// that latches them. An update without a frame boundary leaves the shown layers in place.
 /// </summary>
-internal sealed class GameplayScreenLayers
+internal sealed partial class GameplayScreenLayers
 {
     /// <summary>The layers an ordinary room shows: both backgrounds and the sprites.</summary>
     private const ScreenLayers OrdinaryLayers = ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.BossBody | ScreenLayers.Sprites;

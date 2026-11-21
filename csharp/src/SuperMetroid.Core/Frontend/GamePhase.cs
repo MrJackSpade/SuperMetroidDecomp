@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="randomStep">The random generator's step before the sequence runs.</param>
 /// <param name="step">One update of the sequence.</param>
 /// <param name="name">The current status.</param>
-internal sealed class GamePhase(
+internal sealed partial class GamePhase(
     SuperMetroidGameState state,
     PhaseRandomStep randomStep,
     Action<ControllerButton> step,

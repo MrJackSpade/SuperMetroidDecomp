@@ -8,7 +8,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Reads and writes the installed map palette document.</summary>
-public static class MapStaticPalettesFile
+public static partial class MapStaticPalettesFile
 {
     /// <summary>Loads and validates the pause, file-select, and six world-map palettes from JSON.</summary>
     /// <param name="json">Stream containing the map-palette document.</param>

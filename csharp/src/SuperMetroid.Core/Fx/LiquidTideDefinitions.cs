@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>How far and how fast a tidal liquid surface rises and falls (#1415), one motion per tide (#2557).</summary>
-public static class LiquidTideDefinitions
+public static partial class LiquidTideDefinitions
 {
     /// <summary>
     /// Each moving tide's motion; a surface with no tide stays on its base line and has none. A small tide swings the surface

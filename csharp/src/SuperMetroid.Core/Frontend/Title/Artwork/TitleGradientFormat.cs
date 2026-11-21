@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
 /// <summary>The title's gradients: how many there are and the zoom range each covers.</summary>
-public static class TitleGradientFormat
+public static partial class TitleGradientFormat
 {
     /// <summary>Sixteen gradients, one for each zoom range, in order of zoom from no zoom up.</summary>
     public const int VariantCount = 16;

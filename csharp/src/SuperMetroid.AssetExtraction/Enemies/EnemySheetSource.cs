@@ -9,5 +9,5 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="Sources">Its sheet's sources, the names of its frames' finished pictures that show nothing among them (#1538).</param>
 /// <param name="LookChanges">How encounters' looks change each of its frames they change, by frame name (#1538).</param>
 /// <param name="CorpsePictures">Where a rotting corpse lies in each of its frames that shows one, by frame name (#1539).</param>
-internal sealed record EnemySheetSource(EnemyDefinitionId Enemy, SpriteSheetSources Sources,
+internal sealed partial record EnemySheetSource(EnemyDefinitionId Enemy, SpriteSheetSources Sources,
     IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> LookChanges, IReadOnlyDictionary<string, CorpsePicturePlacement> CorpsePictures);

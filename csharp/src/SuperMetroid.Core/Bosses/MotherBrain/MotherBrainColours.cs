@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// fade over her body; her room's grey and then its lights over her room; the Baby's arrival and then its fade over the
 /// Baby. A later effect shows over the earlier ones where it colours the same part of her.
 /// </summary>
-internal sealed class MotherBrainColours : IGameplayShadingSource
+internal sealed partial class MotherBrainColours : IGameplayShadingSource
 {
     /// <summary>Her brain's image of the fake death's fade to grey or of its revival, or null before the fake death.</summary>
     private MotherBrainFadeImage? fakeDeathFade;

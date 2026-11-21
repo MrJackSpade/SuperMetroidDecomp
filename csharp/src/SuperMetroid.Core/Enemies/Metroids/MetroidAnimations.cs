@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// The Metroid's chasing and draining pulse loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="MetroidCue"/> naming what it does.
 /// </summary>
-internal static class MetroidAnimations
+internal static partial class MetroidAnimations
 {
     /// <summary>How many pulses a chasing Metroid's nuclei make between its cries.</summary>
     private const int PulsesBetweenCries = 4;

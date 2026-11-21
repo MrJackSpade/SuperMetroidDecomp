@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// gravity (<see cref="FallAcceleration"/>); each later bounce's gravity grows with the bounce number, up to a cap. The bomb
 /// expires once it lands from its last bounce.
 /// </summary>
-internal static class MotherBrainBombBounceDefinitions
+internal static partial class MotherBrainBombBounceDefinitions
 {
     /// <summary>The ordinary fall gravity, used before the first bounce.</summary>
     internal static readonly SignedEightEight FallAcceleration = SignedEightEight.FromPixelFraction(7, 256);

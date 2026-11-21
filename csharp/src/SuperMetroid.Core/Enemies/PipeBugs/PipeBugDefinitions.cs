@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// centred on the leader's (<see cref="LeaderRole"/>), each place above or below it a fixed number of updates later or sooner. Also the Brinstar Pipe Bug's flight speed
 /// (#2076), and when and how each kind of bug emerges and flies (#2156).
 /// </summary>
-internal static class PipeBugDefinitions
+internal static partial class PipeBugDefinitions
 {
     /// <summary>How far a Brinstar Pipe Bug flies sideways each update, in pixels.</summary>
     internal const int BrinstarFlightStep = 2;

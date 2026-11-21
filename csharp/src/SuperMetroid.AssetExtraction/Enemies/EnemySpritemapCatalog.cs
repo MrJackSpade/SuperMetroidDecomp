@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Installed enemy OAM compositions keyed by native visual identity, which the import pipeline composes the enemy sheets'
 /// pictures from (#1463).
 /// </summary>
-public sealed class EnemySpritemapCatalog
+public sealed partial class EnemySpritemapCatalog
 {
 
     /// <summary>The compiled frame compositions and display selections.</summary>

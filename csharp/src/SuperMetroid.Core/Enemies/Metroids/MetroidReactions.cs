@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// The ordinary Metroid's own reactions: those its definition names for Samus's touch and for her shots and bombs
 /// (#2558), which its entity answers, and how it flees when bombed off Samus.
 /// </summary>
-internal static class MetroidReactions
+internal static partial class MetroidReactions
 {
     /// <summary>The Metroid's own reaction to Samus's touch, which its entity answers.</summary>
     internal static EnemyReaction Touch { get; } = EnemyReaction.OfSpecies("Metroid.Touch");

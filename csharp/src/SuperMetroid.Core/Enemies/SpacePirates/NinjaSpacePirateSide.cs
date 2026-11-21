@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="KickChambered">Its kick chambered.</param>
 /// <param name="KickExtending">Its kick extending.</param>
 /// <param name="KickExtended">Its kick extended.</param>
-internal sealed record NinjaSpacePirateSide(
+internal sealed partial record NinjaSpacePirateSide(
     NinjaSpacePirateClawPoses Claw, F[] Spinning, F ReadyFeetClose, F ReadyFeetApart, F ReadyFeetWide, F Flinch, F LeapCrouch,
     F TuckedJump, F DiveKick, F[] Running, F LookingAtViewer, F Standing, F LookingAway, F KickChambered, F KickExtending,
     F KickExtended)

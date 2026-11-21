@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The downward gate's column, sounds and the placement and travel of its gate projectile.</summary>
-internal static class DownwardGateDefinitions
+internal static partial class DownwardGateDefinitions
 {
     /// <summary>The room blocks marked solid while the closed gate occupies its column.</summary>
     public const int GateHeightInBlocks = 5;

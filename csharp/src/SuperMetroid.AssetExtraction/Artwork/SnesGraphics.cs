@@ -4,7 +4,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Decoders for the native color and tile formats consumed by the SNES PPU.</summary>
-public static class SnesGraphics
+public static partial class SnesGraphics
 {
 
     /// <summary>

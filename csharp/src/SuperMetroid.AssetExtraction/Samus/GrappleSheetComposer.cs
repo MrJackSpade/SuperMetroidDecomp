@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// the orientation's characters, coloured as a room load leaves the sprite rows. Each picture is centred on its frame's
 /// origin, since the beam places its endpoint and every rope picture by its centre (#1588).
 /// </summary>
-internal static class GrappleSheetComposer
+internal static partial class GrappleSheetComposer
 {
     /// <summary>Every rope-direction mirroring a segment is drawn with.</summary>
     internal static IReadOnlyList<SpriteMirror> RopeMirrors { get; } =

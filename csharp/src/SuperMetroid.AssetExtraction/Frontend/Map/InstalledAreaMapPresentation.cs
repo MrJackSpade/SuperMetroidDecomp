@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// documents only the import pictures are import data the installation never holds, which the import reads with
 /// <see cref="ImportAreaMapPresentation"/>.
 /// </summary>
-public class InstalledAreaMapPresentation
+public partial class InstalledAreaMapPresentation
 {
     /// <summary>Takes the catalog the game binds.</summary>
     internal InstalledAreaMapPresentation(InstalledScreenContent game) => Game = Ensure.NotNull(game);

@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// pan/FIR tables only through its typed APU-RAM views (#632); addresses, byte order and 16-bit
 /// wrapping are confined there.
 /// </summary>
-public sealed class ManagedSpcPlayer
+public sealed partial class ManagedSpcPlayer
 {
 
     /// <summary>Zeroes the driver work regions the native reset clears.</summary>

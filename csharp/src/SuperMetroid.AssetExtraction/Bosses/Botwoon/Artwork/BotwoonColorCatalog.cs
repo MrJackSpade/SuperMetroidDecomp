@@ -5,7 +5,7 @@ using SuperMetroid.Core.Bosses.Botwoon;
 namespace SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 
 /// <summary>Botwoon's installed health-band colours for its sprite palette, every band kept as installed.</summary>
-public sealed class BotwoonColorCatalog
+public sealed partial class BotwoonColorCatalog
 {
     /// <summary>The installed health-band colours selected by Botwoon's health.</summary>
     private readonly InstalledKeyedColourRows<BotwoonHealthBand> health;

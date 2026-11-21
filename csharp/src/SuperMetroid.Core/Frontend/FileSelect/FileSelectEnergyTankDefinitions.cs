@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>Where file select shows a slot's energy tanks, in rows (<see cref="TanksPerRow"/>), in steps of one tank.</summary>
-internal static class FileSelectEnergyTankDefinitions
+internal static partial class FileSelectEnergyTankDefinitions
 {
     /// <summary>Pixels across and down one tank: each tank is shown this far right of the one before, each row this far above the one before.</summary>
     internal const int TankPixels = 8;

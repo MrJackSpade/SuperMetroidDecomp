@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's hitboxes, touch, projectiles and hurt flash, and what Samus's weapons do to it.</summary>
 [RoomLifetime]
-internal sealed class CrocomireCombat
+internal sealed partial class CrocomireCombat
 {
     /// <summary>Spawns Crocomire's attacks, dust, smoke, and post-death drops.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -68,7 +68,7 @@ internal sealed class CrocomireCombat
     /// <param name="deathsAndDrops">The drops a shot mouth shot leaves.</param>
     /// <param name="access">Crocomire's last shot's gradient and his sounds.</param>
     /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
-    internal sealed class CrocomireProjectileBehavior(
+    internal sealed partial class CrocomireProjectileBehavior(
         EnemyProjectileEngine projectiles,
         EnemyDeathsAndDrops deathsAndDrops,
         CrocomireEncounterAccess access,

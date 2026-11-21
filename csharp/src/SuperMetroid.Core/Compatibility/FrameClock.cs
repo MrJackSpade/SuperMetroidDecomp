@@ -18,7 +18,7 @@
 /// counter on every update of a door transition.
 /// </remarks>
 [CompatibilityService("the two frame counters, which return to zero at the ends of their periods, count the frames a door's music load takes and are restarted by a door's scroll")]
-internal sealed class FrameClock
+internal sealed partial class FrameClock
 {
     /// <summary>How many frames <see cref="Counter"/> counts before it returns to zero.</summary>
     internal const int CounterPeriod = 65536;

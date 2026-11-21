@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// has revived. She is in the highest band whose <see cref="MinimumHealth"/> her health reaches, and in
 /// <see cref="MotherBrainHealthBandDefinitions.NearlyDead"/> below them all.
 /// </summary>
-public sealed class MotherBrainHealthBand
+public sealed partial class MotherBrainHealthBand
 {
     /// <summary>Defines a band.</summary>
     /// <param name="minimumHealth">The least health in the band: zero for the lowest band, which holds all the health below the others.</param>

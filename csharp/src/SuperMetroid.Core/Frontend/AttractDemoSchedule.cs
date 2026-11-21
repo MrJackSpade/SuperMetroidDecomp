@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend;
 /// Where the attract demos are: the set the title plays and how far into it the next demonstration is, the loading and
 /// playback countdowns of the scene running, and how it ended.
 /// </summary>
-internal sealed class AttractDemoSchedule
+internal sealed partial class AttractDemoSchedule
 {
     /// <summary>The demo set the title plays.</summary>
     internal AttractDemoSet Set { get; set; } = StockAttractDemoScenes.FirstSet;
@@ -138,22 +138,22 @@ internal sealed class AttractDemoSchedule
     }
 
     /// <summary>Where a scene stands (#2560), one value: each case carries only its own countdown.</summary>
-    internal abstract record SceneState
+    internal abstract partial record SceneState
     {
         /// <summary>The scene's runtime has yet to be created.</summary>
-        internal sealed record Awaiting : SceneState;
+        internal sealed partial record Awaiting : SceneState;
 
         /// <summary>The scene's runtime exists and the screen stays black (#1627).</summary>
         /// <param name="Waits">The blank enemy-setup waits (<see cref="GameLoadingDefinitions.EnemySetupWaits"/>) left before the scene shows.</param>
         /// <param name="Duration">How long the scene's scripted input lasts once it plays.</param>
-        internal sealed record Loading(UpdateCountdown Waits, int Duration) : SceneState;
+        internal sealed partial record Loading(UpdateCountdown Waits, int Duration) : SceneState;
 
         /// <summary>The scene plays its scripted input.</summary>
         /// <param name="Playback">The scripted input left, counted once each scripted update.</param>
-        internal sealed record Playing(UpdateCountdown Playback) : SceneState;
+        internal sealed partial record Playing(UpdateCountdown Playback) : SceneState;
 
         /// <summary>The scripted input has run out and the final image holds.</summary>
         /// <param name="Hold">The still-frame hold left.</param>
-        internal sealed record Holding(UpdateCountdown Hold) : SceneState;
+        internal sealed partial record Holding(UpdateCountdown Hold) : SceneState;
     }
 }

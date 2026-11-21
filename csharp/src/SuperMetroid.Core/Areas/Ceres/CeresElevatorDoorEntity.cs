@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="place">The place the door occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="floor">The room's turning floor, whose elevator platform the door cycles (#2382).</param>
-internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, RoomFloor floor)
+internal sealed partial class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, RoomFloor floor)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>How many updates the door's destruction lasts, the last the one it ends on (#2281).</summary>

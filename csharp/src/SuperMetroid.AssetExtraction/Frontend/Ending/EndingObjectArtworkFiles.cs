@@ -20,7 +20,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// packed tile and sprite placements (#1638), and their manifest (#1693), into the component's import data, which only the
 /// import reads; the installation holds only the pictures composed from them.
 /// </summary>
-public static class EndingObjectArtworkFiles
+public static partial class EndingObjectArtworkFiles
 {
     /// <summary>Creates ending/reward PNG transports, BG2 map JSON, sprite-composition JSON, and a hashed manifest.</summary>
     /// <param name="bus">Cartridge import source for compressed character/map streams and native cloud, explosion, text, reward, and logo spritemaps.</param>
@@ -280,6 +280,6 @@ public static class EndingObjectArtworkFiles
     };
 
     /// <summary>Records schema and source-ROM identity plus SHA-256 digests for every installed stock artwork file.</summary>
-    internal sealed record Manifest(int Version, string SourceCartridgeSha256,
+    internal sealed partial record Manifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> StockSha256);
 }

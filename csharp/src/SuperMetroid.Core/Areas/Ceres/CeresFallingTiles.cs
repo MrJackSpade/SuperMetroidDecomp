@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// and their fall under gravity until each strikes the room, where it raises dust and sounds its fall.
 /// </summary>
 [RoomLifetime]
-internal sealed class CeresFallingTiles
+internal sealed partial class CeresFallingTiles
 {
     /// <summary>The room's enemy projectiles, which hold the tiles and the dust they raise.</summary>
     private readonly EnemyProjectileEngine _projectiles;

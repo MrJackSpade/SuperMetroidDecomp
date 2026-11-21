@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The tracking of Draygon's eye, which his encounter keeps (#2298).</summary>
-internal sealed class DraygonEyeState
+internal sealed partial class DraygonEyeState
 {
     /// <summary>
     /// The way the eye faces while it tracks Samus, Draygon's (#2165); null while it is inert, which faces no way (#2560).

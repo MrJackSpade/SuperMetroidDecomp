@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// (<see cref="RoomObjectFrameDraw{TFrame}"/>).
 /// </summary>
 /// <typeparam name="TFrame">The family's frame: an enum of its frames, or a record of what varies between them.</typeparam>
-internal class RoomObjectDrawFamily<TFrame> where TFrame : struct
+internal partial class RoomObjectDrawFamily<TFrame> where TFrame : struct
 {
     /// <summary>The block shape of each frame.</summary>
     private readonly Func<TFrame, RoomBlockShape> _shape;

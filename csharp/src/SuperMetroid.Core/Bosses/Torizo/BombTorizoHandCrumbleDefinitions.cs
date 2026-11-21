@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// has Bombs; woken, it holds, then drops eight fragments at quickening intervals before the cleared hand and the boss
 /// music. The fragments show their own installed pictures (#1406).
 /// </summary>
-internal static class BombTorizoHandCrumbleDefinitions
+internal static partial class BombTorizoHandCrumbleDefinitions
 {
     /// <summary>How long the woken hand holds before it crumbles.</summary>
     internal const int CrumbleDelay = 120;

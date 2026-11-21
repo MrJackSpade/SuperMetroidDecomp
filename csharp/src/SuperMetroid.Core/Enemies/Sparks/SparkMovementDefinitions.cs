@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>The three animation and behaviour pairs a Wrecked Ship Spark's placement can start it with.</summary>
-internal static class SparkMovementDefinitions
+internal static partial class SparkMovementDefinitions
 {
     /// <summary>An active spark that stays active.</summary>
     internal static readonly SparkMovementDefinition AlwaysActive = new(SparkSegment.Active, SparkAction.AlwaysActive);

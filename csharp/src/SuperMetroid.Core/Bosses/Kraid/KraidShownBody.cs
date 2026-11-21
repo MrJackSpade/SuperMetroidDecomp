@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="Head">The head pose shown over it, or null before his head showed one.</param>
 /// <param name="Sheet">The body sheet it was drawn from.</param>
 /// <param name="Layer">The body published.</param>
-internal sealed record KraidShownBody(KraidBodyAppearance Appearance, KraidHeadFrame? Head, BossBodySheet Sheet, BossBodyLayer Layer);
+internal sealed partial record KraidShownBody(KraidBodyAppearance Appearance, KraidHeadFrame? Head, BossBodySheet Sheet, BossBodyLayer Layer);

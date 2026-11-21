@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Reads and writes the installed Norfair Ridley colour document.</summary>
-public static class NorfairRidleyColorFile
+public static partial class NorfairRidleyColorFile
 {
     /// <summary>Uses stable camel-case JSON and rejects unknown authoring properties.</summary>
     private static readonly JsonSerializerOptions Options = new()

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// generator names (<see cref="SpawnedObjectFrameDefinitions.Common"/>): the PLMs, room mains and setups that run it, and the enemies whose
 /// code calls it. A set's shared sheet holds a spawner's objects only when the set's rooms run it.
 /// </summary>
-internal static class CommonSpawnerPresenceDefinitions
+internal static partial class CommonSpawnerPresenceDefinitions
 {
     /// <summary>The eye doors, whose eyes fire, sweat and smoke.</summary>
     private static readonly RoomObjectKind[] EyeDoors =

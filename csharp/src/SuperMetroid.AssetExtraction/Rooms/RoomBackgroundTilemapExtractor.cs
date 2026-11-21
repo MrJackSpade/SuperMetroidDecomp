@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Exports compressed library-background tilemaps as editable ordered tile references.</summary>
-public static class RoomBackgroundTilemapExtractor
+public static partial class RoomBackgroundTilemapExtractor
 {
     /// <summary>Decompresses every background tilemap and exports its ordered BG tilemap pages.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying the compressed background tilemaps.</param>

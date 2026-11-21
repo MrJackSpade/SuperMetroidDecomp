@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// samples and chunk checksums.
 /// </summary>
 [EncodingOwner("RGBA PNG file")]
-public static class RgbaPng
+public static partial class RgbaPng
 {
     /// <summary>The eight-byte PNG signature.</summary>
     private static ReadOnlySpan<byte> Signature => [137, 80, 78, 71, 13, 10, 26, 10];

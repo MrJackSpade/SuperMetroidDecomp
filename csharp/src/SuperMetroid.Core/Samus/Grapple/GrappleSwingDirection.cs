@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// numbered from zero at the angle zero, each an equal share of the turn on from the last; an angle halfway between two
 /// takes the later one, and the last half share before a full turn belongs to direction zero.
 /// </summary>
-public readonly record struct GrappleSwingDirection
+public readonly partial record struct GrappleSwingDirection
 {
     /// <summary>The directions one full turn of the rope holds.</summary>
     public const int Count = 32;

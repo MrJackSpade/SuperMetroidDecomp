@@ -19,7 +19,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 /// (<see cref="GameOptionsLayoutFile"/>), and the pages, labels, highlight regions and the heading and cursor compositions
 /// the options sheets are composed from, which the game never receives (#1616).
 /// </summary>
-public sealed class GameOptionsSourcePresentation
+public sealed partial class GameOptionsSourcePresentation
 {
     /// <summary>Each menu layout's heading sprite.</summary>
     internal readonly Dictionary<GameOptionsPage, SpriteComposition> headingSprites;
@@ -367,11 +367,11 @@ public sealed class GameOptionsSourcePresentation
     /// <param name="Pages">Each named page's tiles.</param>
     /// <param name="Background">The common BG2 background's tiles.</param>
     /// <param name="ControllerLabels">Each assignable button's glyph.</param>
-    private sealed record GameOptionsPages(Dictionary<GameOptionsScreen, BackgroundTile[]> Pages, BackgroundTile[] Background,
+    private sealed partial record GameOptionsPages(Dictionary<GameOptionsScreen, BackgroundTile[]> Pages, BackgroundTile[] Background,
         Dictionary<ControllerButton, BackgroundTile[]> ControllerLabels);
 
     /// <summary>The compiled heading and cursor compositions.</summary>
     /// <param name="Headings">Each menu layout's heading composition.</param>
     /// <param name="Cursors">The missile cursor's composition by animation frame.</param>
-    private sealed record GameOptionsSprites(Dictionary<GameOptionsPage, SpriteComposition> Headings, Dictionary<MenuMissileFrame, SpriteComposition> Cursors);
+    private sealed partial record GameOptionsSprites(Dictionary<GameOptionsPage, SpriteComposition> Headings, Dictionary<MenuMissileFrame, SpriteComposition> Cursors);
 }

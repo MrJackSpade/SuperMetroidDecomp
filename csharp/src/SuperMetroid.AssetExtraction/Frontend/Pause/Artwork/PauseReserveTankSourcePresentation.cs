@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// (<see cref="PauseReserveTankLayoutFile"/>), and the reserve visuals' compositions the pause sheet is composed from, which
 /// the game never receives (#1616).
 /// </summary>
-public sealed class PauseReserveTankSourcePresentation
+public sealed partial class PauseReserveTankSourcePresentation
 {
     /// <summary>The installed composition of each of the ten reserve visual roles.</summary>
     private readonly Dictionary<PauseReserveTankVisual, SpriteComposition> frames;

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core;
 /// argument names the encoding the type owns.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = false)]
-public sealed class EncodingOwnerAttribute : Attribute
+public sealed partial class EncodingOwnerAttribute : Attribute
 {
     /// <summary>Marks the single owner of <paramref name="format"/>.</summary>
     /// <param name="format">The file or stored form the type owns, named for the game.</param>

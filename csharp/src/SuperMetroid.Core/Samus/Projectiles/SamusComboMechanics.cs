@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The kind, Power Bomb cost and spread of each charged beam combo.</summary>
-internal static class SamusComboMechanics
+internal static partial class SamusComboMechanics
 {
     /// <summary>
     /// The special beam attack a combination fires, or null when it fires none: only

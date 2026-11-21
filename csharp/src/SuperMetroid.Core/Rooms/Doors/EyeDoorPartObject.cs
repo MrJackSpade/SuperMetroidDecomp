@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// (<see cref="EyeDoorBottomObject"/>) stands in no door (#2493). A part only draws its poses: its animations raise
 /// nothing (#2481).
 /// </summary>
-internal abstract class EyeDoorPartObject
+internal abstract partial class EyeDoorPartObject
     : SequencedRoomObject<EyeDoorPartSegment, EyeDoorPartPose, NoAnimationCue>
 {
     /// <summary>A part of <paramref name="part"/>'s kind and facing, just placed in <paramref name="door"/>.</summary>

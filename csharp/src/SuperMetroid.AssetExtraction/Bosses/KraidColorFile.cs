@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Bosses.Kraid;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Reads and writes the installed Kraid colour document.</summary>
-public static class KraidColorFile
+public static partial class KraidColorFile
 {
     /// <summary>Validates all five Kraid RGB5 sources and keeps them as installed, leaving health-band selection and fade timing to the boss mechanics.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open; property names are matched case-insensitively.</param>

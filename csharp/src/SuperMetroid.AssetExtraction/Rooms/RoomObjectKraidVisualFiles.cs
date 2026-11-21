@@ -7,7 +7,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Installed, replaceable Kraid ceiling and spike visual blocks, and the editable identities that name them.</summary>
-public static class RoomObjectKraidVisualFiles
+public static partial class RoomObjectKraidVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for Kraid's ten ceiling and spike layouts, including the fifteen- and twenty-two-block clears.</summary>
     internal const string VisualFileName = "kraid-room.json";

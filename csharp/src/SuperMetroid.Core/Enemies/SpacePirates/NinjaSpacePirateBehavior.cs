@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The ninja space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
@@ -565,7 +565,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     internal ClawBehavior Claw { get; } = new();
 
     /// <summary>A thrown claw: it flies out and back along its throw, once its animation throws it (#2278).</summary>
-    internal sealed class ClawBehavior()
+    internal sealed partial class ClawBehavior()
         : EnemyProjectileMotionBehavior<SingleMotion>(initial: null), IEnemyProjectileCues<SpacePirateProjectileCue>
     {
         /// <summary>Each claw's throw and its speed along it, given as its pirate throws it.</summary>

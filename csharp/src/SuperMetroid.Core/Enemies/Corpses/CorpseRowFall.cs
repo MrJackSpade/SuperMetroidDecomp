@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// How far one pixel row of a rotting corpse has fallen (#1472): the pixel row it moves next, the rot updates it still waits
 /// before it starts falling, and whether it has fallen out of the corpse.
 /// </summary>
-internal sealed class CorpseRowFall
+internal sealed partial class CorpseRowFall
 {
     /// <summary>Starts a row waiting <paramref name="delayUpdates"/> rot updates at pixel row <paramref name="pixelRow"/>.</summary>
     internal CorpseRowFall(int pixelRow, int delayUpdates)

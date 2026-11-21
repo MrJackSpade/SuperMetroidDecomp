@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Samus hurt colour document.</summary>
-public static class SamusHurtColorFile
+public static partial class SamusHurtColorFile
 {
     /// <summary>Supported schema version, requiring both complete sixteen-color RGB5 arrays.</summary>
     public const int Version = 1;

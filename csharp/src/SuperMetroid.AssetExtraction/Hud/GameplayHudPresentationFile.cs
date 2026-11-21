@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// mirroring decoded once into the tiles the HUD's artwork draws, its anchors validated against the HUD's rows and each
 /// other, and the minimap's shades named from the cartridge's HUD attributes.
 /// </summary>
-public static class GameplayHudPresentationFile
+public static partial class GameplayHudPresentationFile
 {
     /// <summary>Characters across the HUD's picture page: a cell's column and row name its picture.</summary>
     private const int PictureColumns = 32;

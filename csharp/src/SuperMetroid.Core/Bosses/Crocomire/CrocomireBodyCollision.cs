@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Finds the physical components of Crocomire's body for the frame it shows, living or defeated.</summary>
-internal static class CrocomireBodyCollision
+internal static partial class CrocomireBodyCollision
 {
     /// <summary>Accepts a living-body frame or delegates defeated-body frames to the corpse collision.</summary>
     internal static bool HasFrame(EnemyFrameId? frame) => CrocomireBodyCollisionDefinitions.Frames.Contains(frame) ||

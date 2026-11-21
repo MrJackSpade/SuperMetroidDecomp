@@ -20,7 +20,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 /// helmet compositions the file-select sheets are composed from, read from the import-data artwork document, which the game
 /// never receives (#1616).
 /// </summary>
-public sealed class FileSelectSourcePresentation
+public sealed partial class FileSelectSourcePresentation
 {
     /// <summary>Each bordered heading's sprite.</summary>
     internal readonly Dictionary<FileSelectBorder, SpriteComposition> borderSprites;
@@ -441,19 +441,19 @@ public sealed class FileSelectSourcePresentation
     /// <param name="Foreground">Each foreground page's tiles.</param>
     /// <param name="Background">The common BG2 background's tiles.</param>
     /// <param name="Patches">Each slot-field patch.</param>
-    private sealed record FileSelectPages(Dictionary<FileSelectPage, BackgroundTile[]> Foreground, BackgroundTile[] Background,
+    private sealed partial record FileSelectPages(Dictionary<FileSelectPage, BackgroundTile[]> Foreground, BackgroundTile[] Background,
         Dictionary<FileSelectPatch, FileSelectCompiledPatch> Patches);
 
     /// <summary>The compiled digit and slot-letter glyphs.</summary>
     /// <param name="Digits">The ten digit glyphs.</param>
     /// <param name="SlotLetters">The three slot-letter glyphs.</param>
-    private sealed record FileSelectGlyphs(BackgroundTile[] Digits, IReadOnlyDictionary<SaveSlot, BackgroundTile> SlotLetters);
+    private sealed partial record FileSelectGlyphs(BackgroundTile[] Digits, IReadOnlyDictionary<SaveSlot, BackgroundTile> SlotLetters);
 
     /// <summary>The compiled bordered headings, cursor frames and helmet frames.</summary>
     /// <param name="Borders">Each bordered heading's composition.</param>
     /// <param name="Cursors">The missile cursor's composition of each of its pictures.</param>
     /// <param name="Helmets">The helmet's composition of each of its pictures.</param>
-    private sealed record FileSelectSprites(
+    private sealed partial record FileSelectSprites(
         Dictionary<FileSelectBorder, SpriteComposition> Borders,
         Dictionary<MenuMissileFrame, SpriteComposition> Cursors,
         Dictionary<FileSelectHelmetFrame, SpriteComposition> Helmets);

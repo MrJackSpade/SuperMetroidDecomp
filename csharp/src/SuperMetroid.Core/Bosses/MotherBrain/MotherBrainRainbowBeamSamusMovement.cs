@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Each move pushes Samus by its speed: a fraction past a whole pixel carries into the whole pixels, and her current
 /// and previous positions both take the result.
 /// </remarks>
-public sealed class MotherBrainRainbowBeamSamusMovement
+public sealed partial class MotherBrainRainbowBeamSamusMovement
 {
     /// <summary>The velocity the beam forces on Samus.</summary>
     internal PixelVelocity<RoomPixels> CustomVelocity { get; set; }

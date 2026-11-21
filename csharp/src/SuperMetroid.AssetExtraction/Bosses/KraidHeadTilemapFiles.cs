@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Writes one of Kraid's cartridge head frames as its editable head-tilemap document.</summary>
-internal static class KraidHeadTilemapFiles
+internal static partial class KraidHeadTilemapFiles
 {
     /// <summary>Converts one native head frame to indented camel-case UTF-8 JSON.</summary>
     /// <param name="tilemap">Exactly 704 bytes containing 352 little-endian cartridge tilemap entries in 32-column row-major order.</param>

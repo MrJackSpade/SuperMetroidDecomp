@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>What one of Spore Spawn's spores keeps: the way it first drifts, and how far along its drift path it is.</summary>
 /// <param name="drift">The way the spore first drifts, its emitter's.</param>
-internal sealed class SporeSpawnSporeState(HorizontalDirection drift) : EnemyProjectileState
+internal sealed partial class SporeSpawnSporeState(HorizontalDirection drift) : EnemyProjectileState
 {
     /// <summary>The way the spore first drifts: right along its drift path as authored, left along it mirrored.</summary>
     internal HorizontalDirection Drift { get; } = drift;

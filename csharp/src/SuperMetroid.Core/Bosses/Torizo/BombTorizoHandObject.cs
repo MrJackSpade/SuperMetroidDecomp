@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 /// <param name="owner">The room's hand owner, which drops the fragments, queues the music and reads Samus.</param>
 [RoomLifetime]
-internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomObjectBehaviour
+internal sealed partial class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomObjectBehaviour
 {
     /// <summary>The room's hand owner.</summary>
     private readonly BombTorizoHandObjects _owner = Ensure.NotNull(owner);

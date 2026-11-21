@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// on which the Baby's hit area reaches Mother Brain's brain, so a smooth curve that looks the same would change it.
 /// </remarks>
 [ArchitectureReview("back-reference", "The Baby of Mother Brain's late fight (#2471): the late fight makes and owns its Baby for the rest of the room, and the Baby's steps move the late fight that made it on, so the two share one lifetime.")]
-public sealed class BabyMetroidCutsceneState
+public sealed partial class BabyMetroidCutsceneState
 {
     /// <summary>
     /// Makes the Baby of <paramref name="lateFight"/> in <paramref name="place"/>, the place the final beam's spawn gave it,

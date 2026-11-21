@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// The content identities of every installed artwork domain in a bound <see cref="GameArtwork"/> set: room, Samus,
 /// room PLM, gameplay, ending, intro and enemy art. Hosts append these to the map, audio and projectile identities.
 /// </summary>
-public static class InstalledArtworkIdentity
+public static partial class InstalledArtworkIdentity
 {
     /// <summary>
     /// Fingerprints the bound content (#1616, #1693): the artwork set the host bound, the enemy directory and the Samus body

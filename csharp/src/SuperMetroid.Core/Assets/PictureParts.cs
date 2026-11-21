@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Assets;
 /// so the draw that chooses it draws nothing, and a picture the sheet neither installs nor names is missing
 /// (<see cref="SpriteSheet.HoldsPicture"/>, <see cref="SpriteSheet.Picture"/>).
 /// </summary>
-public static class PictureParts
+public static partial class PictureParts
 {
     /// <summary>The mark that ends the name of a picture's in-front part.</summary>
     private const string InFrontMark = "^front";

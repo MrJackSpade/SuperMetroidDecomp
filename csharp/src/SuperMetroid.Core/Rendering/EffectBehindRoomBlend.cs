@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Rendering;
 /// everywhere on the screen.
 /// </summary>
 /// <param name="Effect">How the room's effect, lying behind the room, blends.</param>
-public sealed record EffectBehindRoomBlend(OverlayBehindRoomBlend Effect) : GameplayBlend;
+public sealed partial record EffectBehindRoomBlend(OverlayBehindRoomBlend Effect) : GameplayBlend;

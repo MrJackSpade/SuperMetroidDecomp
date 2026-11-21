@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Checks the compiled retail enemy graphics sets.</summary>
-internal static class RoomEnemyGraphicsSets
+internal static partial class RoomEnemyGraphicsSets
 {
     /// <summary>Returns <paramref name="sets"/> after rejecting missing, duplicate or misordered retail records.</summary>
     /// <exception cref="InvalidDataException">The counts changed, a set or a name repeats, or a set is the session start's.</exception>

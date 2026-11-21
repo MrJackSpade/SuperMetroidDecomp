@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The seal of the Ceres elevator room's door during the escape (#2494): where the room object that seals it stands and
 /// what its setup makes of the door's blocks.
 /// </summary>
-internal static class CeresElevatorDoorSealDefinitions
+internal static partial class CeresElevatorDoorSealDefinitions
 {
     /// <summary>The door's top block, which the seal stands at; the door's blocks run down from it.</summary>
     internal static readonly Position16<RoomBlocks> DoorTop = new(15, 38);

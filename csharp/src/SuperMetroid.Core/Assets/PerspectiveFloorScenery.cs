@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Assets;
 /// <param name="Picture">The installed picture, whose frame origin lands on <paramref name="Point"/>.</param>
 /// <param name="Point">The room point the picture is placed at.</param>
 /// <param name="Shading">The shades and colour effects the picture shows.</param>
-public sealed record PerspectiveFloorScenery(SpriteSheetFrame Picture, Position16<RoomPixels> Point, PictureShading Shading);
+public sealed partial record PerspectiveFloorScenery(SpriteSheetFrame Picture, Position16<RoomPixels> Point, PictureShading Shading);

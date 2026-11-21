@@ -7,7 +7,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>Saved-station marker and its pulse.</summary>
-public sealed class FileSelectStationMarker
+public sealed partial class FileSelectStationMarker
 {
     /// <summary>The marker's pulse (<see cref="PauseMapIndicatorAnimation"/>).</summary>
     private readonly MapIndicatorPulse pulse = new();

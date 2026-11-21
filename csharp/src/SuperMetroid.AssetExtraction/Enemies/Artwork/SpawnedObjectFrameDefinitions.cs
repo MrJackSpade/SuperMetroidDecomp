@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// Generated from the source by tools/frame-definitions-generator; regenerate rather than edit.
 /// </summary>
 [ArchitectureReview("large", "Generated data: the projectile frames and effect-actor kinds each enemy definition spawns; it holds no logic, and splitting it by family would only scatter one table the sheet composer reads as a whole.")]
-internal static class SpawnedObjectFrameDefinitions
+internal static partial class SpawnedObjectFrameDefinitions
 {
     /// <summary>The projectile frames <c>Bosses/Botwoon/BotwoonBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] BotwoonProjectiles =

@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable staff-credit text compiled into the cartridge's fixed row cadence.</summary>
-public sealed class CreditsPresentation
+public sealed partial class CreditsPresentation
 {
     /// <summary>Each roll line with its validated editable text, in roll order, rendered on demand at the fixed cartridge cadence.</summary>
     private readonly RollLineText[] lines;
@@ -164,7 +164,7 @@ public sealed class CreditsPresentation
     /// <summary>One staff line on the roll with its editable text.</summary>
     /// <param name="Placed">The line's role and where it lies on the roll.</param>
     /// <param name="Text">The line's validated editable text, column and colour.</param>
-    private sealed record RollLineText(CreditsRollLine Placed, CreditsLineDocument Text);
+    private sealed partial record RollLineText(CreditsRollLine Placed, CreditsLineDocument Text);
 
     /// <summary>Allocates a 32-tile row filled with the credits' compiled blank tile.</summary>
     private static BackgroundTile[] BlankRow() =>

@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// Import validates mapped source addresses and bounded termination; these values themselves perform no reads or validation.
 /// </remarks>
 [EncodingOwner("cartridge addresses of the SPC upload streams")]
-public static class AudioUploadSourceDefinitions
+public static partial class AudioUploadSourceDefinitions
 {
     /// <summary><c>SPC_Engine</c> at <c>$CF:8000</c>; common upload containing the resident driver, sound-effect programs, and shared samples, catalog data selector $00.</summary>
     public static readonly SnesAddress SpcEngine = new(0xCF, 0x8000);

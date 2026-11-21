@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the twenty-three eye-door frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectEyeDoorVisualFiles
+public static partial class RoomObjectEyeDoorVisualFiles
 {
     /// <summary>JSON filename for editable eye-door eye, middle, bottom, and shared clearing frames.</summary>
     internal const string VisualFileName = "eye-doors.json";

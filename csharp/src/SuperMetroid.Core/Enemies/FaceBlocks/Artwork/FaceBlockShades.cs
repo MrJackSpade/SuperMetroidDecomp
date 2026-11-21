@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
 /// eyes cycle through once Samus has the Morph Ball, which the cycle's steps showing that level share (#2477). The import
 /// colours each from the installed face-block glow colours.
 /// </summary>
-internal static class FaceBlockShades
+internal static partial class FaceBlockShades
 {
     /// <summary>
     /// The installed name of each glow level's shade (#2511), written out so renaming a level's identity never changes a name

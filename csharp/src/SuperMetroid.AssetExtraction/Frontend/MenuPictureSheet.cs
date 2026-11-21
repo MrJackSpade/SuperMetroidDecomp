@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// on and pre-coloured under the file-select palette over the world foreground and map characters the menus load. The game
 /// places each by its frame name; no menu keeps a tilemap.
 /// </summary>
-internal static class MenuPictureSheet
+internal static partial class MenuPictureSheet
 {
     /// <summary>Every picture the sheet holds, in sheet order.</summary>
     internal static IReadOnlyList<ScreenPictureSubject> Subjects(ImportAreaMapPresentation maps)

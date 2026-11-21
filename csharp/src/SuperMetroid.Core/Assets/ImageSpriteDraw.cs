@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// frame's depth among the room's layers (#1514). Every draw a frame shows is one; a draw shown in Samus's colours is
 /// made one when the frame publishes, in the shading her colours show then (#2505).
 /// </summary>
-public sealed record ImageSpriteDraw : SpriteDraw
+public sealed partial record ImageSpriteDraw : SpriteDraw
 {
     /// <summary>Places a sheet frame.</summary>
     /// <param name="source">The actor or display element shown.</param>

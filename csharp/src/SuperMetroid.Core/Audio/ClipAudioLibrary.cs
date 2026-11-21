@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Audio;
 /// <see cref="ReadClip"/> checks each clip's length as it is read, so a host reads only the clips it plays. The manifest
 /// itself and the audio's identity are the import's (#1616).
 /// </summary>
-public sealed class ClipAudioLibrary
+public sealed partial class ClipAudioLibrary
 {
     /// <summary>Supplies each clip's samples.</summary>
     private readonly IAudioClipSource source;

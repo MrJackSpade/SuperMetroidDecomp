@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// Other projectiles' strikes stay unread until a missile's replaces them.
 /// </summary>
 [RoomLifetime]
-internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomObject
+internal sealed partial class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomObject
 {
     /// <summary>Sets up a cannon facing <paramref name="orientation"/> that controls <paramref name="cannon"/>.</summary>
     /// <param name="cannons">The room's cannons, through which a destroyed cannon stops Draygon's firing of its wall cannon.</param>

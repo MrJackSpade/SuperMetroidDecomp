@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Installed, replaceable bomb and contact-crumble restore visuals, and the editable identities that name them.</summary>
-public static class RoomObjectLinkedRestoreVisualFiles
+public static partial class RoomObjectLinkedRestoreVisualFiles
 {
     /// <summary>Family-relative JSON filename for the six bomb/contact-crumble horizontal, vertical, and square restoration layouts.</summary>
     internal const string VisualFileName = "linked-restores.json";

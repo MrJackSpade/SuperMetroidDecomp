@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Spatial;
 /// </summary>
 /// <typeparam name="TSpace">The coordinate space the velocity is measured in.</typeparam>
 [SpatialComponents("Spatial value type: owns its X and Y velocity axes.")]
-public readonly record struct PixelVelocity<TSpace>(SignedEightEight X, SignedEightEight Y)
+public readonly partial record struct PixelVelocity<TSpace>(SignedEightEight X, SignedEightEight Y)
     where TSpace : ISpatialSpace
 {
     /// <summary>No velocity on either axis.</summary>

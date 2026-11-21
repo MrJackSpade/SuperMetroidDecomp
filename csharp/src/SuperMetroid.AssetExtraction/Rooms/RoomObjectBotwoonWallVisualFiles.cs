@@ -6,7 +6,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Installed, replaceable Botwoon wall-clear visual blocks, and the editable identity that names them.</summary>
-public static class RoomObjectBotwoonWallVisualFiles
+public static partial class RoomObjectBotwoonWallVisualFiles
 {
     /// <summary>Editable Botwoon wall-clear visual JSON filename.</summary>
     internal const string VisualFileName = "botwoon-wall.json";

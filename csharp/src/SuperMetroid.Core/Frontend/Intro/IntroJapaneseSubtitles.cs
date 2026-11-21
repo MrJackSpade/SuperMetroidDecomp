@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// the frame after it begins. Each of a subtitle's steps takes one update (#2488), so a step is taken on every update
 /// the subtitle shows.
 /// </remarks>
-internal sealed class IntroJapaneseSubtitles
+internal sealed partial class IntroJapaneseSubtitles
 {
     /// <summary>Frames the second subtitle holds a page's input wait.</summary>
     public const int SecondSubtitleHoldFrames = 60;

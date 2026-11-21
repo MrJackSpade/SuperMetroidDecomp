@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="place">The place the tentacles occupy.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class PhantoonTentaclesEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+internal sealed partial class PhantoonTentaclesEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : PhantoonEntity(species, occupant, place, common, bossArtwork)
 {
     /// <inheritdoc/>

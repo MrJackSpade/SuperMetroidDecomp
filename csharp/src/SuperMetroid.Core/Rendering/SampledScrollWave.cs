@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="Phase">The sample screen line zero reaches, 0 through the period less one.</param>
 /// <param name="FirstLine">The first screen line the wave moves, 0 through the screen's height.</param>
 /// <param name="EndLine">The screen line after the last the wave moves, <paramref name="FirstLine"/> through the screen's height.</param>
-public sealed record SampledScrollWave(int BaseScroll, ImmutableArray<int> Samples, int Phase, int FirstLine, int EndLine)
+public sealed partial record SampledScrollWave(int BaseScroll, ImmutableArray<int> Samples, int Phase, int FirstLine, int EndLine)
     : LineScroll
 {
     /// <summary>One period of the waveform, at least one sample.</summary>

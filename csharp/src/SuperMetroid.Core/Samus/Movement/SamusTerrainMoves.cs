@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// order, and the grounding probe a movement with no vertical speed runs. Grounded, knockback, posture and Morph Ball
 /// movement each move Samus through them over the terrain their update moves through.
 /// </summary>
-internal static class SamusTerrainMoves
+internal static partial class SamusTerrainMoves
 {
     /// <summary>
     /// Moves Samus by <paramref name="requested"/> through <paramref name="terrain"/>; a wall she meets stops her horizontal

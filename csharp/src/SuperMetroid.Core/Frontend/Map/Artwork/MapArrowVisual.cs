@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// Provides one map arrow's screen anchor, as installed (#1596). The arrow is a still picture (#2359): it shows the same
 /// picture for as long as the map can scroll its way.
 /// </summary>
-public sealed class MapArrowVisual
+public sealed partial class MapArrowVisual
 {
     /// <summary>Keeps the installed anchor.</summary>
     /// <param name="position">The arrow's screen-pixel anchor.</param>

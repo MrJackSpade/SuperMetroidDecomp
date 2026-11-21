@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Installed, replaceable Maridia elevatube PLM visual block, and the editable identity that names it.</summary>
-public static class RoomObjectMaridiaElevatubeVisualFiles
+public static partial class RoomObjectMaridiaElevatubeVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for the Maridia elevatube's single visual block, separate from Kraid's use of the same native draw.</summary>
     internal const string VisualFileName = "maridia-elevatube.json";

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Mother Brain's corpse rotting away after her final death: her corpse's own rot schedule and the corpse's own rows as
 /// the rot has left them, which her corpse's frame is drawn whole through (#1539).
 /// </summary>
-public sealed class MotherBrainCorpseRottingState
+public sealed partial class MotherBrainCorpseRottingState
 {
     /// <summary>The corpse's visible pixel rows, each of which the rot schedule drops.</summary>
     internal const int RowCount = MotherBrainCorpseArtworkDefinitions.PixelRowCount;

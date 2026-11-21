@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The installed key of each <see cref="ProjectileTrailFrame"/> (#2520), written out so renaming a member never changes
 /// a name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class ProjectileTrailFrameKeys
+internal static partial class ProjectileTrailFrameKeys
 {
     /// <summary>Each ProjectileTrailFrame member's installed key.</summary>
     internal static InstalledKeys<ProjectileTrailFrame> Installed { get; } = new(new Dictionary<ProjectileTrailFrame, string>

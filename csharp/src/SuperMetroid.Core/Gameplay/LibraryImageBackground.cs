@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>The room's library background drawn from its image (#1392, #1649), where the background shows the picture it loaded.</summary>
-public sealed record LibraryImageBackground : ShownRoomBackground
+public sealed partial record LibraryImageBackground : ShownRoomBackground
 {
     /// <summary>Keeps the image, repeated across and down.</summary>
     /// <param name="image">The image, repeated across and down.</param>

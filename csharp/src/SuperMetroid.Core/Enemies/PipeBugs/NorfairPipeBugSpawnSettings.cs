@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// settings of their own (#2536), so only the leader carries the width Samus must come within.
 /// </summary>
 /// <param name="Speed">The speed at which it flies across the room.</param>
-internal abstract record NorfairPipeBugSpawnSettings(SignedSixteenSixteen Speed) : EnemySpawnSettings;
+internal abstract partial record NorfairPipeBugSpawnSettings(SignedSixteenSixteen Speed) : EnemySpawnSettings;

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Colours;
 
 /// <summary>Which suit Samus shows.</summary>
-public static class SamusSuits
+public static partial class SamusSuits
 {
     /// <summary>
     /// The suit whose colours Samus shows with <paramref name="equippedItems"/>. Gravity wins when both suits are

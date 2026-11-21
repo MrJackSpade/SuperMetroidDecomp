@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The room-object kind each family's setup places, for the families whose setup carries what tells its kinds apart: a
 /// placement names its object once, by its setup, and its kind follows from it (#2557).
 /// </summary>
-internal static class RoomObjectKindDefinitions
+internal static partial class RoomObjectKindDefinitions
 {
     /// <summary>The coloured-door kind each cap colour and facing places.</summary>
     internal static FrozenDictionary<ColoredDoorVariant, RoomObjectKind> ColoredDoors { get; } = new Dictionary<ColoredDoorVariant, RoomObjectKind>

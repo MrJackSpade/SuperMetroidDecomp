@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// pictures it places (#1467), each in the colours the import pre-coloured it in (#1512). It publishes these; the capture
 /// composes them, so no menu composes a screen of its own.
 /// </summary>
-internal sealed class MenuScreen
+internal sealed partial class MenuScreen
 {
     /// <summary>Installs the screen's backdrop and the sheets its backgrounds draw from.</summary>
     /// <param name="backdrop">The solid colour the screen shows where nothing is drawn (#1512).</param>

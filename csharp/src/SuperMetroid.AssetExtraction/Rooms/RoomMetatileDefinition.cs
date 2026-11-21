@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>One 16x16 visual block composed of four independently attributed 8x8 background tiles.</summary>
-public sealed record RoomMetatileDefinition
+public sealed partial record RoomMetatileDefinition
 {
     /// <summary>The 8x8 tile at local pixel (0, 0), encoded as the first native tilemap word.</summary>
     public required RoomMetatileCell TopLeft { get; init; }

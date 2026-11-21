@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Fixed launch definitions for Fake Kraid's spit and body-spike projectiles.</summary>
-internal static class FakeKraidProjectileDefinitions
+internal static partial class FakeKraidProjectileDefinitions
 {
     /// <summary>The spit shots in the order a spit launches them: the near shot, then the far one.</summary>
     internal static IReadOnlyList<FakeKraidSpit> SpitsInLaunchOrder { get; } = [FakeKraidSpit.Near, FakeKraidSpit.Far];

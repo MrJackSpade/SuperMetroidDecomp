@@ -30,7 +30,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("the Wrecked Ship ghost's brightening carries a channel passing full into the next, and its fades step all sixteen of its colours a level at a time, so when each ends decides when its AI moves on")]
-public readonly struct WreckedShipGhostFade
+public readonly partial struct WreckedShipGhostFade
 {
     /// <summary>The colours the ghost's fades move: the fifteen its pictures draw and colour zero, which none draws.</summary>
     internal const int ColourCount = 16;

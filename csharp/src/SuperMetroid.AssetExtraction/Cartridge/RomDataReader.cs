@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// headers have been parsed. Keeping that traversal here prevents every cinematic, room, and
 /// menu loader from inventing a compressed byte count beside the real ROM address.
 /// </remarks>
-public static class RomDataReader
+public static partial class RomDataReader
 {
     /// <summary>
     /// Copies a fixed-length cartridge range without crossing into the bank's mutable

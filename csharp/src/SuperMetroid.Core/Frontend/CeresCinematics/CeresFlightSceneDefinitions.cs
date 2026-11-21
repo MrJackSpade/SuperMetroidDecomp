@@ -4,7 +4,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>The opening flight toward Ceres: its music, colour effects, floor views, caption timing and fade.</summary>
-internal static class CeresFlightSceneDefinitions
+internal static partial class CeresFlightSceneDefinitions
 {
     /// <summary>The front approach's starting horizontal floor scroll, in pixels.</summary>
     internal const int FrontInitialFloorScrollX = -72;

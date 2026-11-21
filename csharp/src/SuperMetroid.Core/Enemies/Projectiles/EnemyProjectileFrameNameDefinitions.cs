@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// The name each enemy projectile frame has in the installed spawned-object sheets (#2370), which gives its installed
 /// sheet key (<see cref="EnemyProjectileFrameSheetKeys"/>).
 /// </summary>
-internal static class EnemyProjectileFrameNameDefinitions
+internal static partial class EnemyProjectileFrameNameDefinitions
 {
     /// <summary>Each projectile frame's document name.</summary>
     internal static FrozenDictionary<EnemyProjectileFrameId, string> Names { get; } = new Dictionary<EnemyProjectileFrameId, string>

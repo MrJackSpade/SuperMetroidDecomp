@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Going through a door: reaching it, beginning the transition, then loading and showing the next room.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGamePhase
+internal sealed partial class DoorTransitionGameSequence(FrontendSession session) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.DoorTransition;

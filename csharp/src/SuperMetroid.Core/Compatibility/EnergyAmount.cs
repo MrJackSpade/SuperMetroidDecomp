@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 [EncodingOwner("periodic damage energy amount: whole energy and a sixteen-bit fraction of one energy")]
 [CompatibilityService("periodic damage counts Samus's energy in whole energy and a fraction of one, which fractions together passing a whole energy add to")]
-public readonly record struct EnergyAmount
+public readonly partial record struct EnergyAmount
 {
     /// <summary>Keeps the amount at the precision periodic damage counts it, whole energy above its fraction.</summary>
     private EnergyAmount(UnsignedSixteenSixteen amount) => _amount = amount;

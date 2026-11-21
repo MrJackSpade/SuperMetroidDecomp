@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The block shape each mutation of the Baby Metroid's invisible wall gives its wall column (#1608).</summary>
-internal static class BabyMetroidWallMutationDefinitions
+internal static partial class BabyMetroidWallMutationDefinitions
 {
     /// <summary>How many blocks tall the wall column is.</summary>
     private const int WallHeight = 10;

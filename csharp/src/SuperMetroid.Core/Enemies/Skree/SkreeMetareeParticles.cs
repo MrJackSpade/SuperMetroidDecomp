@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// The particles a Skree or Metaree bursts into as it burrows or dies: their spawn into the room's enemy projectiles and
 /// their flight under gravity until they leave the camera.
 /// </summary>
-internal static class SkreeMetareeParticles
+internal static partial class SkreeMetareeParticles
 {
 
     /// <summary>A Skree's or Metaree's burst particle (#1760): it flies under gravity until it leaves the camera.</summary>

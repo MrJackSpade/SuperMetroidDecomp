@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <see cref="LeftBeamStartFromLastShot"/>'s, and, for a beam fired with every place held over the shot in the last place,
 /// the count that shot leaves (<see cref="BeamFiredOverLastShot"/>).
 /// </summary>
-public sealed class SamusProjectile
+public sealed partial class SamusProjectile
 {
     /// <summary>Creates the free <paramref name="place"/> of the shot pool.</summary>
     internal SamusProjectile(int place) => Place = place;

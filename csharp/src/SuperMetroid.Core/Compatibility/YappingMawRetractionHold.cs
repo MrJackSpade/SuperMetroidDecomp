@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// check compares every reach and bite direction with those branches through the production retraction.
 /// </remarks>
 [CompatibilityService("a Yapping Maw that finishes retracting carries the Samus it holds to its mouth on that update only when it reaches down and bit straight right or left")]
-internal static class YappingMawRetractionHold
+internal static partial class YappingMawRetractionHold
 {
     /// <summary>
     /// Whether a maw reaching <paramref name="reach"/> carries the Samus it holds to its mouth on the update it finishes

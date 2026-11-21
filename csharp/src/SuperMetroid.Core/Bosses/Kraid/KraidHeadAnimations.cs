@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// growth resumes the roar on one of its poses so (#2399). Collision takes its mouth shapes from the step the head has just
 /// passed (<see cref="KraidMouthTrailsHead"/>), growth chooses where the roar resumes by the step the head shows next.
 /// </summary>
-internal static class KraidHeadAnimations
+internal static partial class KraidHeadAnimations
 {
     /// <summary>How long each of the attack roar's opening and closing poses lasts, in updates.</summary>
     private const int RoarPoseDuration = 10;

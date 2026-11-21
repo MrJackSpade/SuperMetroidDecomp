@@ -6,7 +6,7 @@ using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 
 /// <summary>Reads Kraid's installed colour sources: one colour of a named source, and the identity of all five.</summary>
-internal static class KraidColors
+internal static partial class KraidColors
 {
     /// <summary>
     /// Selects one of five named editable sources directly. Each source keeps its

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;namespace SuperMetroid.Core.Enemies.MorphBallEye
 /// The eye beam's room-global state: its lifetime, the eye that casts it, its angular half-width and the colour it
 /// adds. It describes a colour-addition reveal, not an enemy projectile or damage source.
 /// </summary>
-public sealed class MorphBallEyeBeamState : IDisplayLatch
+public sealed partial class MorphBallEyeBeamState : IDisplayLatch
 {
     /// <summary>The beam's lifetime, advanced before enemy AI and separate from the eye's own AI action.</summary>
     public MorphBallEyeBeamPhase Phase { get; internal set; }

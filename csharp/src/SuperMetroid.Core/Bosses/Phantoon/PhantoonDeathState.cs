@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// Phantoon's death (#1933): his dying fades, his death explosions and his body's pixelation as it dissolves. Each stage
 /// sets what it reads when it starts.
 /// </summary>
-public sealed class PhantoonDeathState
+public sealed partial class PhantoonDeathState
 {
     /// <summary>The dying fades in and out he has completed.</summary>
     public int FadeCycles { get; internal set => field = Ensure.AtLeastZero(value); }

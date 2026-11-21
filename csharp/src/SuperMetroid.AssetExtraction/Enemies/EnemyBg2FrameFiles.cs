@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// tilemap writes enter JSON; component hitbox pointers remain cartridge-derived
 /// engine data and must never be interpreted as appearance overrides.
 /// </summary>
-internal static class EnemyBg2FrameFiles
+internal static partial class EnemyBg2FrameFiles
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>
     private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };

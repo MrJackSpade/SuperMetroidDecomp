@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The state of the escape Etecoon.</summary>
-public sealed class EscapeEtecoonEnemyState
+public sealed partial class EscapeEtecoonEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal EscapeEtecoonEnemyState(EscapeEtecoonAction action) => Action = action;

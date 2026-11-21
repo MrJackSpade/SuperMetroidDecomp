@@ -9,5 +9,5 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// <param name="Role">The actor the placement places.</param>
 /// <param name="FirstOperand">The bank-$8B address of its horizontal immediate.</param>
 /// <param name="SecondOperand">The bank-$8B address of its vertical immediate.</param>
-internal readonly record struct CinematicPlacementImmediates<TRole>(TRole Role, int FirstOperand, int SecondOperand)
+internal readonly partial record struct CinematicPlacementImmediates<TRole>(TRole Role, int FirstOperand, int SecondOperand)
     where TRole : struct, Enum;

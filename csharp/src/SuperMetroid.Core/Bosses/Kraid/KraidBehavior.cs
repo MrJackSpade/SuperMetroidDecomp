@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The Kraid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
 
     /// <inheritdoc/>
@@ -137,7 +137,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>One projectile one of Kraid's shot passes tests (#2400): a shot of Samus's, or her first bomb.</summary>
-    internal abstract record KraidPassProjectile
+    internal abstract partial record KraidPassProjectile
     {
         /// <summary>Closes the hierarchy to the shot and the bomb.</summary>
         private KraidPassProjectile()
@@ -156,7 +156,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         public abstract KraidHeldPassProjectile? Held { get; }
 
         /// <summary>A shot the passes test, in one of Samus's shot places.</summary>
-        internal sealed record Shot : KraidPassProjectile
+        internal sealed partial record Shot : KraidPassProjectile
         {
             /// <summary>The shot the passes test.</summary>
             private readonly SamusProjectile _shot;
@@ -172,7 +172,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         /// <summary>The bomb the passes test past the last shot place: Samus's first bomb.</summary>
-        internal sealed record Bomb : KraidPassProjectile
+        internal sealed partial record Bomb : KraidPassProjectile
         {
             /// <summary>The bomb the passes test.</summary>
             private readonly SamusBomb _bomb;
@@ -194,12 +194,12 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="Type">The projectile's type: its family, beams and charge.</param>
     /// <param name="Damage">The projectile's damage before Kraid's vulnerability multiplier; a copy of the place's non-negative damage.</param>
     /// <param name="IsPlacedBomb">Whether the projectile is a placed bomb or Power Bomb rather than a fired or spread one.</param>
-    internal readonly record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileType Type, int Damage, bool IsPlacedBomb);
+    internal readonly partial record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileType Type, int Damage, bool IsPlacedBomb);
 
     /// <summary>The projectile holding a place one of Kraid's passes tests, and the marking of its collision with him.</summary>
     /// <param name="Shot">Its position, radius, type and damage.</param>
     /// <param name="MarkCollision">Marks the projectile holding the place as having collided with Kraid.</param>
-    internal readonly record struct KraidHeldPassProjectile(KraidCollisionShot Shot, Action MarkCollision);
+    internal readonly partial record struct KraidHeldPassProjectile(KraidCollisionShot Shot, Action MarkCollision);
 
 
     /// <summary>Runs the phase of the stage the body is in: his rise, his fight, his growth or his death.</summary>

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// message closes or the answer is no. The pod and its flash each play on the shared animation player (#2480).
 /// </summary>
 /// <param name="savedAt">The load station the station saves at, as its placement named it.</param>
-internal sealed class SaveStationObject(LoadStation savedAt) : RoomObjectBehaviour
+internal sealed partial class SaveStationObject(LoadStation savedAt) : RoomObjectBehaviour
 {
     /// <summary>The load station the station saves at, which its activation events carry.</summary>
     internal LoadStation SavedAt { get; } = Ensure.NotNull(savedAt);

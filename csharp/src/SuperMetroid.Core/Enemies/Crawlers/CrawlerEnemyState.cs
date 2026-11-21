@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <summary>
 /// The shared wall-crawler state used by Zoomer, Zeela, Sova, Viola, Sciser, Zero, and their variants.
 /// </summary>
-public sealed class CrawlerEnemyState
+public sealed partial class CrawlerEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal CrawlerEnemyState(CrawlerAction action)

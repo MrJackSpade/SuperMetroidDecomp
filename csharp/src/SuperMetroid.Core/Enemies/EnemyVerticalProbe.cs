@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>One vertical enemy terrain probe: the target center and edge, direction, and the block of the span it tests (#633).</summary>
-internal readonly record struct EnemyVerticalProbe
+internal readonly partial record struct EnemyVerticalProbe
 {
     /// <summary>
     /// The enemy's center after the move: its current column and the moved row, wrapping around the room as the

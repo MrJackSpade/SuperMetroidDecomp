@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles.Artwork;
 /// destroyed projectile shows in place of itself: a shot Kago bug's and Kraid's shot spat rock's spark and flare, the
 /// onion ring's impact fire, and a wall turret's bullet's smoke. The import installs each on the room's shared sheet.
 /// </summary>
-internal static class EnemyProjectileRoomPictureDefinitions
+internal static partial class EnemyProjectileRoomPictureDefinitions
 {
     /// <summary>The frames drawn from the room's shared sheet in their standard colours.</summary>
     internal static readonly HashSet<EnemyProjectileFrameId> RoomPictures =

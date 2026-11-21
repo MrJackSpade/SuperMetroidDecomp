@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// The installed key of each <see cref="RoomGraphicsSet"/> (#2520), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class RoomGraphicsSetKeys
+internal static partial class RoomGraphicsSetKeys
 {
     /// <summary>Each RoomGraphicsSet member's installed key.</summary>
     internal static InstalledKeys<RoomGraphicsSet> Installed { get; } = new(new Dictionary<RoomGraphicsSet, string>

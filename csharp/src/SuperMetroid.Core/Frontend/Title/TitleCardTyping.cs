@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// </summary>
 /// <param name="Card">The card typed.</param>
 /// <param name="Letters">How many of the card's letters are typed, from one to the length of its text.</param>
-public readonly record struct TitleCardTyping(TitleCard Card, int Letters);
+public readonly partial record struct TitleCardTyping(TitleCard Card, int Letters);

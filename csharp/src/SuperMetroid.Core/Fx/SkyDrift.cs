@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// the same offset and the sky keeps one phase per drift.
 /// </summary>
 /// <param name="speed">How far the drift's bands slide each frame.</param>
-public sealed class SkyDrift(SignedSixteenSixteen speed)
+public sealed partial class SkyDrift(SignedSixteenSixteen speed)
 {
     /// <summary>How far the drift's bands slide each frame.</summary>
     public SignedSixteenSixteen Speed { get; } = speed;

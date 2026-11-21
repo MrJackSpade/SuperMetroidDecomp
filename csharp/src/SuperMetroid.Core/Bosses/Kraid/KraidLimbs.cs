@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's arm and foot: their setup, animations, lunges, retreats and walks.</summary>
 [RoomLifetime]
-internal sealed class KraidLimbs
+internal sealed partial class KraidLimbs
 {
     /// <summary>Room services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;

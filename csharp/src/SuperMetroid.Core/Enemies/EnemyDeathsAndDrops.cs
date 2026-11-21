@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies;
 /// (#1801): it runs the projectiles it spawns.
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyDeathsAndDrops
+internal sealed partial class EnemyDeathsAndDrops
     : EnemyProjectileMotionBehavior<SingleMotion>, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>
 {
     /// <summary>The enemy each death explosion came from and that enemy's definition, given as the enemy dies.</summary>

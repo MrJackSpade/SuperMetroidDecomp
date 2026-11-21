@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Spatial;
 /// zoom shows it larger. The scenes' thresholds, starting zooms and per-update steps all lie on that fraction, so the
 /// zoom keeps them exactly; it is never negative.
 /// </summary>
-public readonly record struct FloorZoom : IComparable<FloorZoom>
+public readonly partial record struct FloorZoom : IComparable<FloorZoom>
 {
     /// <summary>The 256ths one floor pixel per screen pixel counts.</summary>
     private const int TwoHundredFiftySixthsPerFloorPixel = 256;

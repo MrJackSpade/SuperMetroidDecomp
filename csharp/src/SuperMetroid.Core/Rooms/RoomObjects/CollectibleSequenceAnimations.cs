@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// empty for <see cref="CollectibleTimingDefinitions.CollectedShotBlockEmptyUpdates"/>, then grows back from dust to rock, each image for <see cref="CollectibleTimingDefinitions.RespawnImageUpdates"/>, before its saved
 /// block returns. A picked-up item's empty block shows for one update before the item leaves.
 /// </summary>
-internal static class CollectibleSequenceAnimations
+internal static partial class CollectibleSequenceAnimations
 {
     /// <summary>Each run's images and how long each shows; a revealed item's last look marks the block starting to form again.</summary>
     internal static AnimationSegments<CollectibleSequence, CollectibleImage, CollectiblePhase> Segments { get; } = new(

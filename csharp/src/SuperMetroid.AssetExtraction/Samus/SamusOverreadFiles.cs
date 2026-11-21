@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Extracts what Samus's glitch paths read past their data, decoded from the player's cartridge into each read's domain
 /// result (owner question 3, #1474), and loads it as the Samus overread services.
 /// </summary>
-public static class SamusOverreadFiles
+public static partial class SamusOverreadFiles
 {
     /// <summary>
     /// Decodes every glitch read and writes the results as JSON. No manifest is written (#1693): the document names its own

@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// 100% movie's landing on a frozen Rinka in Mother Brain's room needs the doubled step.
 /// </remarks>
 [CompatibilityService("Samus's solid-enemy probe tests one pixel past her reach inside a pixel, two past it when the reach's fraction crosses a pixel's edge, but pixel 0 itself when the crossing lands there")]
-public static class SolidEnemyProbeReach
+public static partial class SolidEnemyProbeReach
 {
     /// <summary>The step to the next pixel toward larger coordinates, which a probe moving back takes the other way.</summary>
     private const int NextPixelForward = 1;

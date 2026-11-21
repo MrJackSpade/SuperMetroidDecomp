@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// them, the formation hanging from the middle of the ceiling, the pillar standing on the floor below it and the ledge
 /// at the right wall, the pillar's and the ledge's tops being slopes. Rows are counted from the room's top.
 /// </summary>
-internal static class IntroMotherBrainCollisionDefinitions
+internal static partial class IntroMotherBrainCollisionDefinitions
 {
     /// <summary>The room's width in blocks.</summary>
     internal const int Columns = 16;

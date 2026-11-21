@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// (<see cref="RidleyBody"/>); none runs through Lower Norfair Ridley's encounter.
 /// </summary>
 [RoomLifetime]
-internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleyState>
+internal sealed partial class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleyState>
 {
     /// <summary>The room's view of Ridley and the station's escape progress, which gates his movement and the Baby.</summary>
     private readonly RidleyEncounter _ridleyEncounter;

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Where the beam and trail characters sit on the OBJ page their uploads place them in.</summary>
-internal static class ProjectileObjectPageDefinitions
+internal static partial class ProjectileObjectPageDefinitions
 {
     /// <summary>OBJ character $30: the first of the eight beam characters `$90:AC8D` copies.</summary>
     public const int BeamFirstCharacter = 48;

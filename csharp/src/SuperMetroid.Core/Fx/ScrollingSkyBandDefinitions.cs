@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx;
 /// slides sideways with. Most bands alternate between the slow and the fast drift; two bands share the fastest drift,
 /// one has the slowest, and the sky's bottom rows stand still.
 /// </summary>
-public static class ScrollingSkyBandDefinitions
+public static partial class ScrollingSkyBandDefinitions
 {
     /// <summary>The drift of the sky's bottom rows, which never move.</summary>
     public static SkyDrift Still { get; } = new(SignedSixteenSixteen.Zero);

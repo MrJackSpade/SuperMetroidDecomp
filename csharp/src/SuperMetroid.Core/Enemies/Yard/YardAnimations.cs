@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// The Yard's crawl, turn, hiding and airborne animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="YardCue"/> with the values it acts on.
 /// </summary>
-internal static class YardAnimations
+internal static partial class YardAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<YardSegment, EnemyFrameId, YardCue> Segments { get; } = new(

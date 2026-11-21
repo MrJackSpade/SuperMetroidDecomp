@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's sound effects, queued by its animations at normal priority.</summary>
-internal static class DraygonSoundDefinitions
+internal static partial class DraygonSoundDefinitions
 {
     /// <summary>The big explosion: the dying explosions and each tail-whip impact.</summary>
     internal static SoundEffectId Explosion { get; } = EnemySound.BigExplosion;

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// shows with his arm drawn into them, and his eyes' glow. His body on the background and his parts show the import's shade of
 /// them; his eyes show the glow's colours over his band's.
 /// </summary>
-internal sealed class KraidColours : IGameplayShadingSource
+internal sealed partial class KraidColours : IGameplayShadingSource
 {
     /// <summary>
     /// What his body shows (#2297, #2560): his room's own colours, a health band's or the hurt flash's shade, or his death
@@ -94,13 +94,13 @@ internal sealed class KraidColours : IGameplayShadingSource
 
     /// <summary>What his body shows (#2560), each case with the shade his parts show.</summary>
     /// <param name="PartsShade">The shade his parts show: the last band's or hurt flash's, or null before any.</param>
-    internal abstract record BodyShown(PictureShade? PartsShade);
+    internal abstract partial record BodyShown(PictureShade? PartsShade);
 
     /// <summary>His room's own colours, before any band or hurt flash.</summary>
-    private sealed record RoomColours() : BodyShown((PictureShade?)null);
+    private sealed partial record RoomColours() : BodyShown((PictureShade?)null);
 
     /// <summary>A health band's or the hurt flash's shade, on his body and his parts.</summary>
-    private sealed record BandShade : BodyShown
+    private sealed partial record BandShade : BodyShown
     {
         /// <summary>Shows <paramref name="shade"/> on his body and his parts.</summary>
         /// <param name="shade">The band's or hurt flash's shade.</param>
@@ -112,5 +112,5 @@ internal sealed class KraidColours : IGameplayShadingSource
 
     /// <summary>His death colours on his body; his parts keep the last shade shown.</summary>
     /// <param name="PartsShade">The shade his parts show.</param>
-    internal sealed record DeathColours(PictureShade? PartsShade) : BodyShown(PartsShade);
+    internal sealed partial record DeathColours(PictureShade? PartsShade) : BodyShown(PartsShade);
 }

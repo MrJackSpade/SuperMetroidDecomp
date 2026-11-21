@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.Artwork;
 
 /// <summary>The frame counts of Ridley's, Draygon's and Spore Spawn's assembled sprite frames.</summary>
-internal static class BossSpriteFrameDefinitions
+internal static partial class BossSpriteFrameDefinitions
 {
     /// <summary>Side-facing Ridley body frames in this visual catalog.</summary>
     internal const int RidleyFrameCount = 11;

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>One named cinematic actor's initial whole-pixel screen position; animation, colouring, sliding, and deletion are the game's own.</summary>
 [SpatialComponents("External format: the actor layout JSON stores each spawn position as signed x/y screen pixels.")]
-public sealed record CeresRevealActorPlacement
+public sealed partial record CeresRevealActorPlacement
 {
     /// <summary>The validated spawn position as one screen-pixel value.</summary>
     [System.Text.Json.Serialization.JsonIgnore]

@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// so two layouts with one identity paint the same sheet and the second need not be painted (#1490); the pictures are
 /// composed and packed only when the sheet's size or paint is first asked for.
 /// </summary>
-internal sealed class SpriteSheetLayout
+internal sealed partial class SpriteSheetLayout
 {
     /// <summary>Colours in one sprite palette row.</summary>
     private const int RowColours = 16;
@@ -295,7 +295,7 @@ internal sealed class SpriteSheetLayout
     /// <param name="Inks">Each pixel's ink, row by row from the top, <see cref="ComposedInk.None"/> where no part shows one.</param>
     /// <param name="Groups">The colour groups it is coloured from.</param>
     /// <param name="Depth">The depth its gameplay draws sit at; none for a frame showing no pixel.</param>
-    private sealed record FramePicture(FrameBounds Bounds, ComposedInk[] Inks, ImageColourGroups Groups, ActorDepth? Depth)
+    private sealed partial record FramePicture(FrameBounds Bounds, ComposedInk[] Inks, ImageColourGroups Groups, ActorDepth? Depth)
     {
         /// <summary>The picture spelled for telling pictures apart: its size and every pixel's ink.</summary>
         internal string Key => $"{Bounds.Size.X.ToString(CultureInfo.InvariantCulture)}x{Bounds.Size.Y.ToString(CultureInfo.InvariantCulture)} {string.Join(' ', Inks.Select(ink => $"{ink.Group.ToString(CultureInfo.InvariantCulture)}.{ink.Colour.ToString(CultureInfo.InvariantCulture)}"))}";
@@ -305,18 +305,18 @@ internal sealed class SpriteSheetLayout
     /// <param name="Size">The sheet's width and height.</param>
     /// <param name="ByFrame">Each laid composition's picture and the distinct picture's place it shows, by its frame.</param>
     /// <param name="Distinct">The distinct pictures in order, each where it is held on the sheet.</param>
-    private sealed record LaidPictures(Extent16<ImagePixels> Size, Dictionary<SheetFrameSource, LaidComposition> ByFrame,
+    private sealed partial record LaidPictures(Extent16<ImagePixels> Size, Dictionary<SheetFrameSource, LaidComposition> ByFrame,
         IReadOnlyList<PackedPicture<FramePicture>> Distinct);
 
     /// <summary>One laid composition's picture and the distinct picture on the sheet it shows.</summary>
     /// <param name="Composed">The composition's picture.</param>
     /// <param name="Placed">The distinct picture that shows it, with its corner on the sheet.</param>
-    private sealed record LaidComposition(FramePicture Composed, PackedPicture<FramePicture> Placed);
+    private sealed partial record LaidComposition(FramePicture Composed, PackedPicture<FramePicture> Placed);
 
     /// <summary>One row shade with what each recorded ink shows under it.</summary>
     /// <param name="Shade">The row shade.</param>
     /// <param name="Inks">The colour each recorded ink shows under the shade, and whether its draw takes it from another row.</param>
-    private sealed record ShadedRowInks(SheetRowShade Shade, Dictionary<int, RowShadedInk> Inks);
+    private sealed partial record ShadedRowInks(SheetRowShade Shade, Dictionary<int, RowShadedInk> Inks);
 
     /// <summary>
     /// The depth a frame whose shown pixels hold <paramref name="shownDepths"/> (none for a pixel no part shows) is drawn
@@ -483,10 +483,10 @@ internal sealed class SpriteSheetLayout
     /// <summary>A frame of the sources and the laid frame composition it shows.</summary>
     /// <param name="Name">The frame's installed name.</param>
     /// <param name="Image">The laid frame composition it shows, which frames painting alike share.</param>
-    private readonly record struct NamedFrameImage(string Name, SheetFrameSource Image);
+    private readonly partial record struct NamedFrameImage(string Name, SheetFrameSource Image);
 
     /// <summary>A frame's cover relative to its origin.</summary>
     /// <param name="TopLeft">The cover's top-left corner, from the origin.</param>
     /// <param name="Size">The cover's size.</param>
-    private readonly record struct FrameBounds(Offset16<ImagePixels> TopLeft, Extent16<ImagePixels> Size);
+    private readonly partial record struct FrameBounds(Offset16<ImagePixels> TopLeft, Extent16<ImagePixels> Size);
 }

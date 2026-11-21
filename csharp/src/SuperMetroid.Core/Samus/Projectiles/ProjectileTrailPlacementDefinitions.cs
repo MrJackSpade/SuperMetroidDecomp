@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// Where projectile trails start: the family each group gives a beam combination, the list each family gives a
 /// direction, and each list's placements by the frame the shot shows.
 /// </summary>
-internal static class ProjectileTrailPlacementDefinitions
+internal static partial class ProjectileTrailPlacementDefinitions
 {
     /// <summary>The wave centre frames, in every direction they are drawn in, which each trail list naming them gives one placement.</summary>
     private static readonly F[] WaveCentreFrames =

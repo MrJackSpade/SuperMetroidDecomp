@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// after the ordinary touch pass, and his body, tail and wings show the hurt flash.
 /// </summary>
 [RoomLifetime]
-internal sealed class RidleyBodyContact
+internal sealed partial class RidleyBodyContact
 {
     /// <summary>Performs Samus's touch response against Ridley's extended body.</summary>
     private readonly EnemyCollision _collision;

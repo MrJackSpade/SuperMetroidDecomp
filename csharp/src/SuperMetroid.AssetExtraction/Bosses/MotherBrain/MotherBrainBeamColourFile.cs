@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// Reads and writes the installed colours of Mother Brain's rainbow beam backdrop (#1637): the only colours of her rainbow
 /// attack the game works with, named by what they colour, without the colour groups and places the cartridge kept them at.
 /// </summary>
-public static class MotherBrainBeamColourFile
+public static partial class MotherBrainBeamColourFile
 {
     /// <summary>The installed document's file name, beside the map presentation.</summary>
     public const string FileName = "mother-brain-beam-colours.json";

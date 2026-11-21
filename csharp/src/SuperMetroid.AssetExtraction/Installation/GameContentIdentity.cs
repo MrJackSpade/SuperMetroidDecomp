@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// compiled engine build, and replaceable presentation are deliberately separate so future
 /// replay/state compatibility can distinguish a mechanics change from an art or audio edit.
 /// </summary>
-public sealed record GameContentIdentity(
+public sealed partial record GameContentIdentity(
     int FormatVersion,
     string SourceCartridgeSha256,
     Guid CompiledDefinitionsBuildId,

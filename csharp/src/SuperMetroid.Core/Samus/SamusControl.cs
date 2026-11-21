@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus;
 /// scripted control setups and through the direct mode installs elsewhere. Every change to who controls Samus goes through one of these
 /// operations; gates read <see cref="Mode"/>.
 /// </summary>
-internal sealed class SamusControl : IRoomSamusControl
+internal sealed partial class SamusControl : IRoomSamusControl
 {
     /// <summary>The installed input and movement modes.</summary>
     public SamusControlMode Mode { get; private set; } = SamusControlMode.Normal;

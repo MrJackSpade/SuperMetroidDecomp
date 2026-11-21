@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>What the frontend plays when Samus dies.</summary>
-internal static class SamusDeathDefinitions
+internal static partial class SamusDeathDefinitions
 {
     /// <summary>The death fanfare, selected after every sound and the current music stop.</summary>
     public const MusicTrack FanfareTrack = MusicTrack.SamusDeath;

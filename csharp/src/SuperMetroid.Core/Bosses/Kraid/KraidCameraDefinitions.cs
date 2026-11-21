@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The scroll state each screen of Kraid's room, two columns by two rows, takes before and after Kraid grows.</summary>
-internal static class KraidCameraDefinitions
+internal static partial class KraidCameraDefinitions
 {
     /// <summary>The room's four screens as Kraid's setup writes them, row by row: only the lower-left screen is open.</summary>
     public static readonly ScreenScrollChange[] InitialScrolls =

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The Ceres falling debris's typed animations (#641, #2424): each piece shows its one picture for good while the
 /// per-update movement moves it.
 /// </summary>
-internal static class CeresFallingDebrisAnimations
+internal static partial class CeresFallingDebrisAnimations
 {
     /// <summary>Both pieces' animations.</summary>
     internal static AnimationSegments<P, F, NoAnimationCue> Segments { get; } = new(

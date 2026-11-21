@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// The Y sample sequence of Samus's inside-block handling. Every inside
 /// reaction pass walks this one sequence so the row-skip rules stay in one place.
 /// </summary>
-public static class SamusInsideBlockSamplePoints
+public static partial class SamusInsideBlockSamplePoints
 {
     /// <summary>
     /// Invokes <paramref name="visit"/> for each sampled point in order: the bottom, the centre when it lies on another

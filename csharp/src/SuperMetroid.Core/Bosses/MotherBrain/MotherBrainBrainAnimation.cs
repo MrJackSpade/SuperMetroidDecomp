@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// animation playback on its own clock, each beat showing for the updates it states, stepped at her brain's draw as her
 /// brain's cadence has it (<see cref="MotherBrainBrainCadence"/>).
 /// </summary>
-public sealed class MotherBrainBrainAnimation
+public sealed partial class MotherBrainBrainAnimation
 {
     /// <summary>The brain's playing animation and where it stands, or null while her brain is not live and not drawn.</summary>
     internal AnimationPlayback<MotherBrainHeadSegment>? Playback { get; set; }

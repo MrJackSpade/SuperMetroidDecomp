@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// background colours, then its sprite colours: the floors' inks, and the background pictures' inks below the sprite colours;
 /// a sprite colour less the background colours is the sprite sheets' ink for an own-palette part.
 /// </summary>
-internal static class EndingScreenInks
+internal static partial class EndingScreenInks
 {
     /// <summary>The colours of one colour group.</summary>
     internal const int GroupColours = 16;

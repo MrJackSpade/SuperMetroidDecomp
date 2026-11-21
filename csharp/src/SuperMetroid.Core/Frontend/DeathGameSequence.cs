@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Samus's death, from the final gameplay pass to the final black-out before the game-over menu.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
+internal sealed partial class DeathGameSequence(FrontendSession session) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.DeathSequence;

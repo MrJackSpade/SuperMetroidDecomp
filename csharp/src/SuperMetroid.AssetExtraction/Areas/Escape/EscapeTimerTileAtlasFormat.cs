@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Indexed-PNG and OBJ transfer geometry for editable escape-timer characters.</summary>
-public static class EscapeTimerTileAtlasFormat
+public static partial class EscapeTimerTileAtlasFormat
 {
     /// <summary>Indexed-PNG resource filename for the shared Ceres and Zebes escape-timer digit, separator, and TIME-label characters.</summary>
     public const string FileName = "escape-timer-tiles.png";

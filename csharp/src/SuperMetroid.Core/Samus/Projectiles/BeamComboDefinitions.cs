@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The special beam attacks' sizes, speeds, turns, lifetimes and sounds.</summary>
-public static class BeamComboDefinitions
+public static partial class BeamComboDefinitions
 {
     /// <summary>The Plasma special beam attack's expansion/contraction step in pixels.</summary>
     public const int PlasmaRadiusStep = 4;

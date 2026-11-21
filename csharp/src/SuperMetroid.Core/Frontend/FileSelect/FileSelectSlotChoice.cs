@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// The slots a file-select copy or clear has chosen so far (#1467): none yet, a source, or a copy's source and target.
 /// The pages after a choice read the slots it made; a page that names a slot not yet chosen is a defect.
 /// </summary>
-internal abstract record FileSelectSlotChoice
+internal abstract partial record FileSelectSlotChoice
 {
     /// <summary>A copy or clear that has chosen no slot yet.</summary>
     internal static FileSelectSlotChoice Unchosen { get; } = new FileSelectNothingChosen();
@@ -24,5 +24,5 @@ internal abstract record FileSelectSlotChoice
         : throw new InvalidOperationException("File select names no copy target yet.");
 
     /// <summary>A copy or clear that has chosen no slot yet.</summary>
-    private sealed record FileSelectNothingChosen : FileSelectSlotChoice;
+    private sealed partial record FileSelectNothingChosen : FileSelectSlotChoice;
 }

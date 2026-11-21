@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>Chooses a Waver's animation by its facing and spinning.</summary>
-internal static class WaverAnimationChoices
+internal static partial class WaverAnimationChoices
 {
     /// <summary>The steady animation facing <paramref name="facing"/>.</summary>
     internal static WaverSegment Steady(HorizontalDirection facing) => facing switch

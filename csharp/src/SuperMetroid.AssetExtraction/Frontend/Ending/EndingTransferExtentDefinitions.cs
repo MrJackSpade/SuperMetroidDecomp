@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>The byte extents of the ending's character and map transfers the import executes to compose its pictures and sheets (#1467).</summary>
-internal static class EndingTransferExtentDefinitions
+internal static partial class EndingTransferExtentDefinitions
 {
     /// <summary>The bytes of the explosion and flyaway sprite sheet.</summary>
     internal const int ExplosionObjectBytes = 24576;

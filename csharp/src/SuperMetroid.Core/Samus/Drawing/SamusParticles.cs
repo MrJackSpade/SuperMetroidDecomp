@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// random draw and the bubble and spray sounds) is not read from here: Samus's liquid state keeps it in
 /// <see cref="BreathBubbleAndLavaSprayWaits"/>.
 /// </remarks>
-public sealed class SamusParticles
+public sealed partial class SamusParticles
 {
     /// <summary>The particles, oldest first.</summary>
     private readonly List<SamusParticle> _particles = [];

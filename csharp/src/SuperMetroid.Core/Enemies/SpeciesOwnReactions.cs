@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// definitions so the definitions reach no boss or area: each species' reaction class names the same reaction, and its
 /// entity answers it.
 /// </summary>
-internal static class SpeciesOwnReactions
+internal static partial class SpeciesOwnReactions
 {
     /// <summary>The reaction of the Baby Metroid's own to Samus's touch in Mother Brain's cutscene, which its entity answers.</summary>
     internal static EnemyReaction BabyMetroidCutsceneTouch { get; } = EnemyReaction.OfSpecies("BabyMetroid.CutsceneTouch");

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// How the debris falling in Ceres's pre-elevator hall during the escape chooses its piece, from the current random
 /// sample read without drawing (#1548), where each piece falls from and how it falls.
 /// </summary>
-internal static class CeresFallingDebrisDefinitions
+internal static partial class CeresFallingDebrisDefinitions
 {
     /// <summary>
     /// Whether a falling piece is dark rather than light (#2479): one piece in two is dark.

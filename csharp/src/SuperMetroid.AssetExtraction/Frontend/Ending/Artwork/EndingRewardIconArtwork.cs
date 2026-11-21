@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// atmospheric scenes, and how many Mode 7 characters its artwork holds. The installed reward icon sheet pictures the
 /// characters; their pixels belong to the import pipeline that reads the installed artwork.
 /// </summary>
-public class EndingRewardIconArtwork
+public partial class EndingRewardIconArtwork
 {
     /// <summary>Retains the validated full map and the installed characters' count.</summary>
     /// <param name="map">The row-ordered tile indices of the full 128x128 map.</param>

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.Xray;
 namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 
 /// <summary>Installed tank and room-specific X-ray presentation, independent of room object state.</summary>
-public sealed class InstalledXrayOverlays
+public sealed partial class InstalledXrayOverlays
 {
     /// <summary>The installed block the X-ray reveal shows for each tank kind.</summary>
     /// <remarks>

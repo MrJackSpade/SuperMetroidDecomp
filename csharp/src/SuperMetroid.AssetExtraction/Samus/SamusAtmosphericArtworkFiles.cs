@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// (#1638): their entries are packed sprite attributes only the atmosphere sheet is composed from, so the installation
 /// holds the sheet's pictures and none of the lists.
 /// </summary>
-public static class SamusAtmosphericArtworkFiles
+public static partial class SamusAtmosphericArtworkFiles
 {
     /// <summary>Import-data JSON filename for the four-frame footstep list and shared four-frame lava/dust direct-OBJ list.</summary>
     internal const string ArtworkFileName = "samus-atmosphere.json";
@@ -123,7 +123,7 @@ public static class SamusAtmosphericArtworkFiles
     }
 
     /// <summary>The extracted single small pieces for footsteps and the shared lava/dust effect.</summary>
-    internal sealed record ArtworkDocument(int Version, SpriteVisualPart[] FootstepSplash, SpriteVisualPart[] LavaAndDust);
+    internal sealed partial record ArtworkDocument(int Version, SpriteVisualPart[] FootstepSplash, SpriteVisualPart[] LavaAndDust);
     /// <summary>The extracted artwork's source revision.</summary>
-    internal sealed record ArtworkManifest(int Version, string SourceCartridgeSha256);
+    internal sealed partial record ArtworkManifest(int Version, string SourceCartridgeSha256);
 }

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// and wings, in Ceres the Baby he carries and the door overlay his scene draws, and the dead Torizo's hook of sand. Each graphics set's character-zero
 /// spawned-object sheet holds those of the enemies it draws.
 /// </summary>
-internal static class EncounterFrameDefinitions
+internal static partial class EncounterFrameDefinitions
 {
     /// <summary>Ridley's tail tip, tail segments and wings.</summary>
     private static readonly EnemyFrameId[] RidleySupplements =

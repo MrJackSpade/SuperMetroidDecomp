@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="RoomEnemySystem"/> is constructed with, built once by the room load that creates it (#621).</summary>
 [RoomLifetime]
-internal sealed record RoomEnemySystemDependencies
+internal sealed partial record RoomEnemySystemDependencies
 {
     /// <summary>The enemy state and installed artwork that outlive each room.</summary>
     public required EnemySession Session { get; init; }

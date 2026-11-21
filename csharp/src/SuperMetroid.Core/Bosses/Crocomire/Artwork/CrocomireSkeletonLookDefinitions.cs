@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// Crocomire's skeleton look (#1406, #1538): how long his death spends baring the skeleton behind the wall before it shows,
 /// and the look it shows.
 /// </summary>
-internal static class CrocomireSkeletonLookDefinitions
+internal static partial class CrocomireSkeletonLookDefinitions
 {
     /// <summary>
     /// The updates his death spends baring the skeleton while it waits behind the wall: his frames show the skeleton look

@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// coloured as file select loads the menu palette, with a shade for each colouring the map sprites draw in on each map
 /// screen and for each frame of the highlight cycle (#1512).
 /// </summary>
-internal static class MapSpriteSheetComposer
+internal static partial class MapSpriteSheetComposer
 {
     /// <summary>The map sprite colourings in the order the sheet lists their shades (#2567).</summary>
     private static readonly IReadOnlyList<MapSpriteColouring> Colourings = Ensure.EveryMemberOnce<MapSpriteColouring>(

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// The map screens' framing (#1975): how file select and the pause screen each frame the area map, and the rules both
 /// share, in map and screen pixels.
 /// </summary>
-public static class MapFramingDefinitions
+public static partial class MapFramingDefinitions
 {
     /// <summary>
     /// File select's room map: the revealed rows centred higher on the screen than the pause screen's, and the up arrow's

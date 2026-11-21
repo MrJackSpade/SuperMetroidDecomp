@@ -6,5 +6,5 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// <param name="Name">Stable JSON key for a backdrop or numbered blast frame.</param>
 /// <param name="Pose">The cinematic sprite pose that shows this composition.</param>
 /// <param name="StockPartCount">Number of ordered five-byte sprite parts in the original record, excluding its two-byte count header.</param>
-public readonly record struct CeresDestructionSpriteFrameDefinition(
+public readonly partial record struct CeresDestructionSpriteFrameDefinition(
     string Name, CinematicSpritePose Pose, int StockPartCount);

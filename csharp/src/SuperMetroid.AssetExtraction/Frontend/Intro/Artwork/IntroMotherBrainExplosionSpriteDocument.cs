@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable JSON schema for the opening flashback's fourth-hit explosion compositions.</summary>
-public sealed record IntroMotherBrainExplosionSpriteDocument
+public sealed partial record IntroMotherBrainExplosionSpriteDocument
 {
     /// <summary>Must match <see cref="IntroMotherBrainExplosionSpriteFormat.Version"/> before any frame is accepted.</summary>
     public required int Version { get; init; }

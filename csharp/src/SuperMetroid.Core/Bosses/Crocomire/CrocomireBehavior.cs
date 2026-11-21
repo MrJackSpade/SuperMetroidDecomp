@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The Crocomire species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 {
 
     /// <inheritdoc/>

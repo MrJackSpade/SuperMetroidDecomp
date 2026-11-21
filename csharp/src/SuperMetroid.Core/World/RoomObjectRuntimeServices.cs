@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.World;
 /// The runtime's Samus, room shake and enemy pool as the services resident room objects call (#633). Every member
 /// reads the runtime when called, never a load-time snapshot.
 /// </summary>
-internal sealed class RoomObjectRuntimeServices(
+internal sealed partial class RoomObjectRuntimeServices(
     RoomScopeConstruction destination,
     SamusFrameState player,
     SharedGameState system) :

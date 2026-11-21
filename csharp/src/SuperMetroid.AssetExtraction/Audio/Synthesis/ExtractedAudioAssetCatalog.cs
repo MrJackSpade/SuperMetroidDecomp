@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// The audio's import data (#1693): the manifest names each upload by its cartridge address; loading maps it to the
 /// bank identity once. Only the clip export and its checks read it; the installation holds the clips rendered from it.
 /// </summary>
-public sealed class ExtractedAudioAssetCatalog
+public sealed partial class ExtractedAudioAssetCatalog
 {
     /// <summary>JSON manifest filename beneath the audio's import-data root, identifying upload streams, canonical WAV samples, and authored bank/SFX definitions.</summary>
     public const string ManifestFileName = "audio-manifest.json";
@@ -182,7 +182,7 @@ public sealed class ExtractedAudioAssetCatalog
     }
 
     /// <summary>A write-only stream that appends every byte to an incremental hash.</summary>
-    private sealed class HashingWriteStream(IncrementalHash hash) : Stream
+    private sealed partial class HashingWriteStream(IncrementalHash hash) : Stream
     {
         /// <summary>Canonical manifest hashing never reads the bytes it receives.</summary>
         public override bool CanRead => false;

@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 /// The accelerating updates after which its rising or sinking speed stops growing: each accelerating update takes the
 /// next step of the shared quadratic speed curve until this many steps are taken.
 /// </param>
-internal sealed record PlatformSpawnSettings(HorizontalDirection Movement, SignedSixteenSixteen Speed, int VerticalAccelerationUpdates) : EnemySpawnSettings;
+internal sealed partial record PlatformSpawnSettings(HorizontalDirection Movement, SignedSixteenSixteen Speed, int VerticalAccelerationUpdates) : EnemySpawnSettings;

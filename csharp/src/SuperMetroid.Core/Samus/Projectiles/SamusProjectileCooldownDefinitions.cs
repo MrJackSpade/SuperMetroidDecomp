@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Firing delays, independent of projectile presentation assets.</summary>
-internal static class SamusProjectileCooldownDefinitions
+internal static partial class SamusProjectileCooldownDefinitions
 {
     /// <summary>Cooldown that Samus's shot cooldown holds while time is frozen.</summary>
     internal const int FrozenTime = 32;

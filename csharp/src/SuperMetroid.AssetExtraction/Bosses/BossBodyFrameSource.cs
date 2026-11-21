@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <summary>One frame a boss draws on its body layer as the cartridge writes it (#1466): the tile each layer cell receives.</summary>
 /// <param name="Name">The frame's name in the boss's body sheet.</param>
 /// <param name="Cells">The tile written at each layer cell, by cell in reading order.</param>
-internal sealed record BossBodyFrameSource(string Name, SortedDictionary<int, BackgroundTile> Cells)
+internal sealed partial record BossBodyFrameSource(string Name, SortedDictionary<int, BackgroundTile> Cells)
 {
     /// <summary>
     /// The frame each room animation whose characters the frame reads shows while the frame is shown, by animation (#1513):

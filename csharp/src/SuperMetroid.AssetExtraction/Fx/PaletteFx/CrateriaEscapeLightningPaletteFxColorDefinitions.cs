@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>The records of Crateria's two escape lightning effects and the colours each writes, for the import.</summary>
-public static class CrateriaEscapeLightningPaletteFxColorDefinitions
+public static partial class CrateriaEscapeLightningPaletteFxColorDefinitions
 {
 
     /// <summary>The yellow-lightning program targets eleven colors from colour byte $A2.</summary>

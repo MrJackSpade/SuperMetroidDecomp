@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Spatial;
 /// (<see cref="Trigonometry"/>); <see cref="RotationAngle"/> is the form with a fraction, whose whole steps are this value.
 /// </summary>
 [EncodingOwner("sine-table byte angle")]
-public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
+public readonly partial record struct TrigonometryAngle : IComparable<TrigonometryAngle>
 {
     /// <summary>Orders angles by how far they lie through the turn from zero.</summary>
     public int CompareTo(TrigonometryAngle other) => RawValue.CompareTo(other.RawValue);

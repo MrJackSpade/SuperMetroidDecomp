@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>The Evir species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
@@ -112,7 +112,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What an Evir body's first half-cycle reads of a room's enemy place (<see cref="EvirBorrowedFirstHalfCycle"/>).</summary>
-    private sealed class PlaceLender : IEvirHalfCycleLender<RoomEnemyPlace>
+    private sealed partial class PlaceLender : IEvirHalfCycleLender<RoomEnemyPlace>
     {
         /// <summary>The one reader every body uses.</summary>
         internal static PlaceLender Instance { get; } = new();

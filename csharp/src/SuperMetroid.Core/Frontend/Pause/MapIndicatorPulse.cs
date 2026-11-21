@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// A map marker's pulse (<see cref="PauseMapIndicatorAnimation"/>, #2359), played by the shared animation player. The pulse
 /// starts on its smallest picture, one update from its next, so the marker's first update shows its middle picture.
 /// </summary>
-internal sealed class MapIndicatorPulse
+internal sealed partial class MapIndicatorPulse
 {
     /// <summary>The pulse as it plays.</summary>
     internal readonly AnimationPlayer<MapIndicatorSegment, MapSpriteId, MapIndicatorCue> player =

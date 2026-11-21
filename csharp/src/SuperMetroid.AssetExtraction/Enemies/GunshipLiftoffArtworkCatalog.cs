@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Five installed, palette-indexed takeoff frames resolved at accepted NMI.</summary>
-public sealed class GunshipLiftoffArtworkCatalog
+public sealed partial class GunshipLiftoffArtworkCatalog
 {
 
     /// <summary>Owned five-frame character atlases, each keyed by the takeoff transfer that uploads it.</summary>

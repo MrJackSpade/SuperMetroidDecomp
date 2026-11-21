@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health colours.</summary>
 [RoomLifetime]
-internal sealed class KraidHead
+internal sealed partial class KraidHead
 {
     /// <summary>Room services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;

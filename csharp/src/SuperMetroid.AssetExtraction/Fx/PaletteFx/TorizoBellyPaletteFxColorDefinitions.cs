@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// <remarks>
 /// The two bellies show the same records in different colours.
 /// </remarks>
-public static class TorizoBellyPaletteFxColorDefinitions
+public static partial class TorizoBellyPaletteFxColorDefinitions
 {
 
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>

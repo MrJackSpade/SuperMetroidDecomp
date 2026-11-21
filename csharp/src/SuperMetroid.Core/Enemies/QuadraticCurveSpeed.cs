@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// (<see cref="CoarseRise"/>), the speed kept to a 256th of a pixel: Beetom's and the hoppers'
 /// climbs, <see cref="QuadraticCurveClimb"/>, Puyo's hop estimate, and Ki-Hunter wing orbits.
 /// </remarks>
-public readonly record struct QuadraticCurveSpeed(SignedSixteenSixteen Speed)
+public readonly partial record struct QuadraticCurveSpeed(SignedSixteenSixteen Speed)
 {
     /// <summary>The speed toward increasing coordinates: rightward or downward.</summary>
     internal SignedSixteenSixteen Positive => Speed;

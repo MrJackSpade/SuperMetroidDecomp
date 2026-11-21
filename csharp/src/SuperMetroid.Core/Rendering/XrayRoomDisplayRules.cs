@@ -5,7 +5,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>How the X-ray beam shows each room: which of its blends (<see cref="XrayRoomBlendMode"/>) the room takes.</summary>
-public static class XrayRoomDisplayRules
+public static partial class XrayRoomDisplayRules
 {
     /// <summary>A room with Fireflea darkness takes its own blend before the ordinary room and boss exclusions apply.</summary>
     /// <param name="room">The room the X-ray shows.</param>

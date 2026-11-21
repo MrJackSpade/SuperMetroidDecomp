@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Shared pause/file-select character atlas geometry and fixed installed filename.</summary>
-public static class MapTileAtlasFormat
+public static partial class MapTileAtlasFormat
 {
     /// <summary>Asset filename for the shared pause/file-select map character artwork.</summary>
     public const string FileName = "map-tiles.png";

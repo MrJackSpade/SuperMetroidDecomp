@@ -34,7 +34,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// arena, Ridley's looks over what the arena loads under its blocks (#1791); and the collectibles its rooms place, each pictured as its kind
 /// alone (#1513, #1538), never under the room's other blocks.
 /// </summary>
-internal static class RoomBlockUploads
+internal static partial class RoomBlockUploads
 {
     /// <summary>Crocomire's melting illustrations in the order their bands are bound (#2567).</summary>
     private static readonly IReadOnlyList<CrocomireMeltingIllustration> MeltingOrder = Ensure.EveryMemberOnce<CrocomireMeltingIllustration>(
@@ -447,7 +447,7 @@ internal static class RoomBlockUploads
     /// <summary>What one tileset's rooms show over their characters.</summary>
     /// <param name="ceres">Whether the tileset's rooms are Ceres rooms, which load no common room elements.</param>
     /// <param name="inputs">The installed artwork the uploads are drawn from.</param>
-    internal sealed class TilesetUploads(bool ceres, RoomBlockSheetInputs inputs)
+    internal sealed partial class TilesetUploads(bool ceres, RoomBlockSheetInputs inputs)
     {
         /// <summary>What the rooms show over their tile characters after loading, collectibles aside, each once.</summary>
         private readonly List<AppearanceOption> options = [];
@@ -620,7 +620,7 @@ internal static class RoomBlockUploads
     /// hold one tilemap, otherwise its two pages as the room shows them (#1617); or the sky's rows.
     /// </param>
     /// <param name="Content">The bindings the room's load leaves.</param>
-    internal sealed record RoomBackgroundMap(string Name, ushort[] Words, BgArtworkBindings Content)
+    internal sealed partial record RoomBackgroundMap(string Name, ushort[] Words, BgArtworkBindings Content)
     {
         /// <summary>Tiles across one row of <see cref="Words"/>: a page, or one period across of a page that repeats (#1675).</summary>
         internal int WidthTiles { get; init; } = RoomBackgroundImageGeometry.PageTiles;
@@ -629,7 +629,7 @@ internal static class RoomBlockUploads
     /// <summary>What an OBJ character table holds at one place: the artwork and the character it starts at.</summary>
     /// <param name="Identity">The artwork.</param>
     /// <param name="FirstCharacter">The character it starts at.</param>
-    private readonly record struct PagePlacement(BgArtworkIdentity Identity, int FirstCharacter)
+    private readonly partial record struct PagePlacement(BgArtworkIdentity Identity, int FirstCharacter)
     {
         /// <summary>Where <paramref name="placement"/> places its artwork.</summary>
         internal static PagePlacement Of(BgCharacterUpload placement) => new(placement.Identity, placement.FirstCharacter);

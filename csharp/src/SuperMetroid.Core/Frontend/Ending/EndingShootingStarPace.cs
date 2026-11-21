@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// pictures after the lead-in each hold for its period until the full star, and a still star keeps its first visible
 /// picture.
 /// </summary>
-internal readonly record struct EndingShootingStarPace
+internal readonly partial record struct EndingShootingStarPace
 {
     /// <summary>The updates each picture of an animated star holds; a still star has none.</summary>
     private readonly int period;

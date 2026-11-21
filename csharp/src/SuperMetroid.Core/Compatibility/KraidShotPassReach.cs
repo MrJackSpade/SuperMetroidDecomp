@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// the first bomb's.
 /// </remarks>
 [CompatibilityService("Kraid's shot passes count from Samus's shot count, so they test the place past her counted shots and, with every place counted, her first bomb")]
-public static class KraidShotPassReach
+public static partial class KraidShotPassReach
 {
     /// <summary>The projectiles each of Kraid's shot passes tests, in the order it tests them.</summary>
     /// <typeparam name="TProjectile">A projectile a pass tests: a shot place's or the first bomb's.</typeparam>

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// its last launch took, which its sibling reads.
 /// </summary>
 [ArchitectureReview("back-reference", "A part of Kraid's encounter (#2218): the encounter owns this part's state for the room and the part reads the encounter it joined at setup, so the two share one lifetime.")]
-public sealed class KraidNailState : KraidAnimatedPartState
+public sealed partial class KraidNailState : KraidAnimatedPartState
 {
     /// <summary>Makes a fingernail of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the fingernail is part of.</param>

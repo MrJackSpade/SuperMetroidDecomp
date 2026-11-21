@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Reads enemy frames out of the cartridge by where <see cref="EnemyFrameCartridgeLocationDefinitions"/> says it stores them.</summary>
-internal static class EnemyFrameCartridgeLookup
+internal static partial class EnemyFrameCartridgeLookup
 {
     /// <summary>The bank and bank-local word of <paramref name="frame"/>'s record.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The cartridge stores no composition for <paramref name="frame"/>.</exception>

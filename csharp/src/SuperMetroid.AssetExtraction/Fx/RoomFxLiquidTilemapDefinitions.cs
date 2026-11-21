@@ -6,7 +6,7 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Calculated stock liquid BG3 layouts at $8A:8000,8840,9080.</summary>
-public static class RoomFxLiquidTilemapDefinitions
+public static partial class RoomFxLiquidTilemapDefinitions
 {
     /// <summary>
     /// Returns the cell at <paramref name="index"/> of a 32x33 lava, acid or water page. Lava's first row

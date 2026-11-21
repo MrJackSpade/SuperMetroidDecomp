@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>Chooses a Brinstar Pipe Bug's animation by its strength, facing and shooting (#1810).</summary>
-internal static class PipeBugAnimationChoices
+internal static partial class PipeBugAnimationChoices
 {
     /// <summary>The rising animation of a <paramref name="kind"/> Pipe Bug, the ordinary Zeb or strong Zebbo, facing <paramref name="facing"/>.</summary>
     internal static PipeBugSegment Rising(BrinstarPipeBugKind kind, HorizontalDirection facing) => kind switch

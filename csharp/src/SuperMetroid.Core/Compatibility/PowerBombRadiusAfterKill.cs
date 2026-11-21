@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// working value the sweep at <c>$A0:A306</c> keeps its horizontal radius in, and the sweep never reloads it.
 /// </remarks>
 [CompatibilityService("a kill inside a power bomb's sweep shrinks its horizontal reach to nothing, or widens it to the whole room after a respawning enemy")]
-public sealed class PowerBombRadiusAfterKill
+public sealed partial class PowerBombRadiusAfterKill
 {
     /// <summary>The horizontal radius after killing an enemy that respawns.</summary>
     private const int AfterRespawningKill = 1 << 14;

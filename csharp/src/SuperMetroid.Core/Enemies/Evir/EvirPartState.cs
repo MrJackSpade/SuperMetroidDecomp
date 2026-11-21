@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// from three consecutive enemies, a body (<see cref="EvirBodyState"/>), its arms (<see cref="EvirArmsState"/>) and a
 /// reusable aimed spit (<see cref="EvirSpitState"/>), each with the state of its own part.
 /// </summary>
-public abstract class EvirPartState
+public abstract partial class EvirPartState
 {
     /// <summary>Closes the hierarchy to the three parts declared here.</summary>
     private protected EvirPartState()

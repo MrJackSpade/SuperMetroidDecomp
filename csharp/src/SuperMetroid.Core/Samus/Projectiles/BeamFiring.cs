@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Firing beams, missiles and the Hyper Beam: charge cancellation, spawn position and velocity, the interaction-immunity timer, and the charged and combo launch paths.</summary>
 [RoomLifetime]
-internal sealed class BeamFiring
+internal sealed partial class BeamFiring
 {
     /// <summary>Tracks held Shoot duration, charge effects, the charge flare and Hyper Beam glow.</summary>
     private readonly BeamChargeState _charge;

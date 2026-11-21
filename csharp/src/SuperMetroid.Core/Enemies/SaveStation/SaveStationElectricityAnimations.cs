@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.SaveStation;
 /// (<see cref="EnemyProjectileFrameId.SaveStationElectricityBand"/>) is drawn from its origin (#2557), and each cue is an
 /// <see cref="EnemyProjectileCommonCue"/>.
 /// </summary>
-internal static class SaveStationElectricityAnimations
+internal static partial class SaveStationElectricityAnimations
 {
     /// <summary>Every segment's beats: the cycle sweeps the band down the station, one place an update.</summary>
     internal static AnimationSegments<SaveStationElectricitySegment, Offset16<RoomPixels>, EnemyProjectileCommonCue> Segments { get; } = new(

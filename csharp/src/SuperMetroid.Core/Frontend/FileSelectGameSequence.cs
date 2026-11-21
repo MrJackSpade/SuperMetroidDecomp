@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Choosing a game: the save slots, the selected game's options and a saved game's area map.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePhase
+internal sealed partial class FileSelectGameSequence(FrontendSession session) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.FileSelect;

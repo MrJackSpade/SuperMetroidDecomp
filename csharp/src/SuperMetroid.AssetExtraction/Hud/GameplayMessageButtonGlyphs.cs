@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>The button glyph a message panel's words show for a binding, and where in the panel it goes (#1416, #1466).</summary>
-public static class GameplayMessageButtonGlyphs
+public static partial class GameplayMessageButtonGlyphs
 {
     /// <summary>The glyph for <paramref name="binding"/>: that of the button <see cref="GameplayMessageButtons.Shown"/> chooses.</summary>
     public static BackgroundTile ResolveGlyph(ControllerButton binding) =>

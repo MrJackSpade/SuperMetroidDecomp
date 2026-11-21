@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Flies;
 /// The shared Mellow, Mella and Memu flight loop as a typed animation (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class FlyAnimations
+internal static partial class FlyAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<FlySegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(

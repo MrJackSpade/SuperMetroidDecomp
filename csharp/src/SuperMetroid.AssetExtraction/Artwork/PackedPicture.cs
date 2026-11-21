@@ -6,4 +6,4 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <typeparam name="TPicture">The picture packed.</typeparam>
 /// <param name="Picture">The picture.</param>
 /// <param name="Corner">Its rectangle's top-left corner on the sheet; the sheet's corner for an empty picture.</param>
-internal sealed record PackedPicture<TPicture>(TPicture Picture, Position16<ImagePixels> Corner);
+internal sealed partial record PackedPicture<TPicture>(TPicture Picture, Position16<ImagePixels> Corner);

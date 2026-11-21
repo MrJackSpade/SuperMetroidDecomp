@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>Stable identifiers of the human-readable game-save envelope.</summary>
-public static class GameSaveJsonFormat
+public static partial class GameSaveJsonFormat
 {
     /// <summary>
     /// Schema seventeen keys the slots and the selected slot by the slot's name, not by its place in the file select's list

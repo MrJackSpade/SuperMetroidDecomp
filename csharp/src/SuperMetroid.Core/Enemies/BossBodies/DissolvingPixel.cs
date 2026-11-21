@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// </summary>
 /// <param name="Band">The band of the dissolve that shows the pixel, counted from zero.</param>
 /// <param name="ErasedAfterSteps">The steps of the dissolve after which the pixel is erased, one or more.</param>
-public readonly record struct DissolvingPixel(int Band, int ErasedAfterSteps);
+public readonly partial record struct DissolvingPixel(int Band, int ErasedAfterSteps);

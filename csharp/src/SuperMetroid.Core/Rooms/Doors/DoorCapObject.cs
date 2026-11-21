@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 /// <param name="orientation">The cap's facing.</param>
 /// <param name="paint">The paint its closed images show.</param>
-internal abstract class DoorCapObject(ColoredDoorOrientation orientation, DoorCapPaint paint)
+internal abstract partial class DoorCapObject(ColoredDoorOrientation orientation, DoorCapPaint paint)
     : SequencedRoomObject<DoorCapSegment, DoorCapShown, SoundEffectId>(DoorCapSequenceDefinitions.Segments), IDoorBehindSamus
 {
     /// <inheritdoc/>

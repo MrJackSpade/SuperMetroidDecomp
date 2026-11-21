@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Reads and writes the installed room palette document.</summary>
-public static class RoomStaticPaletteFile
+public static partial class RoomStaticPaletteFile
 {
     /// <summary>
     /// Loads one room graphics-set palette from a JSON document containing exactly 128 RGB5 colors.

@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Crystal Flash colour document.</summary>
-public static class CrystalFlashColorFile
+public static partial class CrystalFlashColorFile
 {
     /// <summary>Supported JSON schema revision one, checked before palette compilation.</summary>
     public const int Version = 1;

@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>The six bytes consumed by the SPC driver's set-instrument command.</summary>
-public sealed record AudioInstrumentMetadata(
+public sealed partial record AudioInstrumentMetadata(
     int Instrument,
     bool UsesNoise,
     int SourceOrNoiseRate,

@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// rotting corpse's frame is pictured once per look, with where the corpse lies in it, and the game draws the whole picture
 /// through the corpse's own rows as its rot leaves them (#1539).
 /// </summary>
-internal sealed class SetCharacters
+internal sealed partial class SetCharacters
 {
     /// <summary>The OBJ character table as the room load leaves it.</summary>
     private readonly byte[] table;
@@ -229,10 +229,10 @@ internal sealed class SetCharacters
     /// <param name="Encounter">The encounter and what its looks copy.</param>
     /// <param name="Looks">The looks the frame is pictured in.</param>
     /// <param name="ShownAs">The encounter gameplay shows, whose looks name the frame's pictures; none for a part that pictures the frame in one look.</param>
-    internal sealed record FrameLookPart(EncounterLookSteps Encounter, IReadOnlyList<ComposedLook> Looks, EncounterArtwork? ShownAs);
+    internal sealed partial record FrameLookPart(EncounterLookSteps Encounter, IReadOnlyList<ComposedLook> Looks, EncounterArtwork? ShownAs);
 
     /// <summary>One part of a frame with the look a combination shows it in.</summary>
     /// <param name="Part">The part.</param>
     /// <param name="Look">The look of the part's encounter shown.</param>
-    internal readonly record struct PartLook(FrameLookPart Part, ComposedLook Look);
+    internal readonly partial record struct PartLook(FrameLookPart Part, ComposedLook Look);
 }

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>The escape timer's editable layout: where its label and digit pairs sit and how far apart a pair's digits are.</summary>
-public sealed class EscapeTimerPresentation
+public sealed partial class EscapeTimerPresentation
 {
     /// <summary>The base of the decimal digits each pair shows.</summary>
     private const int DigitBase = 10;

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// direction- and frame-specific picture separately at the pose's placement (#1463).
 /// Keeping this independent from pose art preserves its before/after-body priority.
 /// </remarks>
-public sealed class SamusArmCannonState
+public sealed partial class SamusArmCannonState
 {
     /// <summary>Previous HUD selection used to delay cover transitions until the choice stabilizes.</summary>
     internal HudItem PreviousSelectedHudItem { get; set; }

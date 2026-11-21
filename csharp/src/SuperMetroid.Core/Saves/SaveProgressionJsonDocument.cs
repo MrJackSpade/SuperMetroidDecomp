@@ -4,7 +4,7 @@ using SuperMetroid.Core.Map;
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>A save slot's persistent progress, each set listed by its own identities (schema three, #1475).</summary>
-public sealed record SaveProgressionJsonDocument
+public sealed partial record SaveProgressionJsonDocument
 {
     /// <summary>
     /// The story events that have happened, by name (schema six, #1553), written in the order the save lists them and read

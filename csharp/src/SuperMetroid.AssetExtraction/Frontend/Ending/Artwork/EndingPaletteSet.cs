@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>The ending's colour resources the import decodes from the cartridge and pre-colours the ending's sheets in (#1544).</summary>
 [ArchitectureReview("context-bag", "Seven decoded ending colour resources selected by id; every member is immutable color data, not a service.")]
-public sealed class EndingPaletteSet
+public sealed partial class EndingPaletteSet
 {
     /// <summary>Escape and cloud-scene color image.</summary>
     internal readonly EndingPalette escape;

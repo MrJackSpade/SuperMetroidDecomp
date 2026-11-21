@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// from that step, and a fade toward his health band reads the band afresh at every step. Each step's goal and starting step are
 /// therefore state the fight carries across fades, which a fade of installed images started by its phase would not keep.
 /// </remarks>
-public sealed class PhantoonFadeProgress
+public sealed partial class PhantoonFadeProgress
 {
     /// <summary>The steps the fade has taken since it last completed, which is the next step's place in the fade.</summary>
     internal int Steps { get; set => field = Ensure.AtLeastZero(value); }

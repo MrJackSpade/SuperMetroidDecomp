@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Maridia quicksand's reaction objects and physical definition data.</summary>
-public static class QuicksandDefinitions
+public static partial class QuicksandDefinitions
 {
     /// <summary>Without Gravity: 2-pixel moving and 1.125-pixel stationary displacement, 2.5-pixel upward speed cap.</summary>
     internal static readonly QuicksandSurfacePhysics WithoutGravitySuit =

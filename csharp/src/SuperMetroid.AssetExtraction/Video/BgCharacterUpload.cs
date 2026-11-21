@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// <param name="Set">The characters it shows over.</param>
 /// <param name="FirstCharacter">The first character it shows at.</param>
 /// <param name="Bytes">Its bytes, whole characters of the set.</param>
-internal sealed record BgCharacterUpload(BgArtworkIdentity Identity, BgCharacterSet Set, int FirstCharacter, ReadOnlyMemory<byte> Bytes)
+internal sealed partial record BgCharacterUpload(BgArtworkIdentity Identity, BgCharacterSet Set, int FirstCharacter, ReadOnlyMemory<byte> Bytes)
 {
     /// <summary>The characters the artwork covers.</summary>
     /// <exception cref="InvalidDataException">The bytes are not whole characters of the set.</exception>

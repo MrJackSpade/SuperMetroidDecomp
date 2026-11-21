@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <param name="owner">The room's glass owner, which throws the shards and holds the boss and event state.</param>
 [RoomLifetime]
-internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : RoomObjectBehaviour, IShootableRoomObject
+internal sealed partial class MotherBrainGlassObject(MotherBrainGlassObjects owner) : RoomObjectBehaviour, IShootableRoomObject
 {
     /// <summary>The room's glass owner.</summary>
     private readonly MotherBrainGlassObjects _owner = Ensure.NotNull(owner);

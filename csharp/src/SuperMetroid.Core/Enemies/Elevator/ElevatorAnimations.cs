@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 /// The elevator's two-frame animation loop as a typed animation (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class ElevatorAnimations
+internal static partial class ElevatorAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<ElevatorSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(

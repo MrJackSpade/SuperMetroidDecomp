@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// so the import walks that program and pre-colours each record it shows there, and the glowing colours in each colouring
 /// a fade runs toward. A fade between colourings is a typed fade between these shades, never pre-coloured.
 /// </summary>
-internal static class TorizoSheetShades
+internal static partial class TorizoSheetShades
 {
     /// <summary>The first ink of a Torizo's body and belly: the first of the two rows they draw in.</summary>
     private const int BodyFirstInk = 1 * LoadedSetColours.RowColours;

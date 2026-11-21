@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// game's shot reaction occupies in the collision sequence; a reaction sets only the stages it has. The species' entity
 /// decides when it applies (<see cref="IEnemyShotReaction.ShotReaction"/>).
 /// </summary>
-internal sealed class EnemyShotReaction
+internal sealed partial class EnemyShotReaction
 {
     /// <summary>Whether bomb, power-bomb and beam-explosion families reach this reaction (the ordinary shot reaction never sees them).</summary>
     internal bool AdmitsBombFamilies { get; init; }

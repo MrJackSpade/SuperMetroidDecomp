@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// layout holds for the game (<see cref="PauseSelectorLayoutFile"/>), and each named frame's composition the pause sheet is
 /// composed from, which the game never receives (#1616).
 /// </summary>
-public sealed class PauseSelectorSourcePresentation
+public sealed partial class PauseSelectorSourcePresentation
 {
     /// <summary>Each named frame's composition, as the import reads it.</summary>
     private readonly Dictionary<string, SpriteComposition> visuals;

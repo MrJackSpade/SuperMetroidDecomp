@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// at one colour of her suit and runs to the suit's last, as the palette-FX handler writes a record over her suit's
 /// colours; she lays the record's shade over her suit through her colour state.
 /// </summary>
-internal static class PaletteFxSamusShades
+internal static partial class PaletteFxSamusShades
 {
     /// <summary>The heat pulses' suits in the order Samus's sheets list their shades (#2567).</summary>
     private static readonly IReadOnlyList<ColourEffectHeatSuit> HeatSuitOrder = Ensure.EveryMemberOnce<ColourEffectHeatSuit>(

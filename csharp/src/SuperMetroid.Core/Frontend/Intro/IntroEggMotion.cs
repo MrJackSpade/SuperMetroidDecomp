@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// Moves the hatching egg's shell pieces (<see cref="IntroEggMotionDefinitions"/>): where each starts, how fast it flies
 /// sideways, and its vertical speed along <see cref="IntroEggMotionDefinitions.ShellFall"/> and past it.
 /// </summary>
-internal static class IntroEggMotion
+internal static partial class IntroEggMotion
 {
     /// <summary>
     /// A shell piece's vertical speed on the update after it has flown <paramref name="updatesFlown"/> updates: along the

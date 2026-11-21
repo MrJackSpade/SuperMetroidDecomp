@@ -5,14 +5,14 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// that holds its height or a follower's move to its place.
 /// </summary>
 /// <param name="StaggerTarget">The formation count at which the member departs.</param>
-internal abstract record NorfairPipeBugRole(int StaggerTarget)
+internal abstract partial record NorfairPipeBugRole(int StaggerTarget)
 {
     /// <summary>The stagger the member runs once it has risen past Samus.</summary>
     internal abstract NorfairPipeBugAction PostRiseAction { get; }
 
     /// <summary>The leader, which holds its height and only counts.</summary>
     /// <param name="StaggerTarget">The formation count at which the leader departs.</param>
-    internal sealed record Leader(int StaggerTarget) : NorfairPipeBugRole(StaggerTarget)
+    internal sealed partial record Leader(int StaggerTarget) : NorfairPipeBugRole(StaggerTarget)
     {
         /// <inheritdoc/>
         internal override NorfairPipeBugAction PostRiseAction => NorfairPipeBugAction.LeaderStagger;
@@ -23,7 +23,7 @@ internal abstract record NorfairPipeBugRole(int StaggerTarget)
     /// <param name="Stagger">
     /// The move its <see cref="NorfairPipeBugAction.Stagger"/> makes from where its rise ended (#2071, #2473).
     /// </param>
-    internal sealed record Follower(int StaggerTarget, NorfairPipeBugStagger Stagger) : NorfairPipeBugRole(StaggerTarget)
+    internal sealed partial record Follower(int StaggerTarget, NorfairPipeBugStagger Stagger) : NorfairPipeBugRole(StaggerTarget)
     {
         /// <inheritdoc/>
         internal override NorfairPipeBugAction PostRiseAction => NorfairPipeBugAction.Stagger;

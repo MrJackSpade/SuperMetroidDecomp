@@ -3,7 +3,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>Builds the one run of a room object's authored frames (<see cref="RoomObjectFrameRun"/>, #2480).</summary>
-internal static class RoomObjectFrameRuns
+internal static partial class RoomObjectFrameRuns
 {
     /// <summary>The run of <paramref name="frames"/>, each shown for the updates <paramref name="updates"/> gives it.</summary>
     internal static AnimationSegments<RoomObjectFrameRun, TFrame, NoAnimationCue> Of<TFrame>(IReadOnlyList<TFrame> frames, Func<TFrame, int> updates)

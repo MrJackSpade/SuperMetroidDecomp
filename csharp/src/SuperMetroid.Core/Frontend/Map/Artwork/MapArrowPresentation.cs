@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Immutable map-arrow anchors; no controller bindings.</summary>
-public sealed class MapArrowPresentation
+public sealed partial class MapArrowPresentation
 {
     /// <summary>Four validated direction entries, with no neutral arrow selection.</summary>
     private readonly MapArrowVisual left, right, up, down;

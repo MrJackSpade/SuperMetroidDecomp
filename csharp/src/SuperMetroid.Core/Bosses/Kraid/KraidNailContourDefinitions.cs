@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <remarks>
 /// A nail above all four ledges is pushed back where <see cref="KraidNailPastLedges"/> places it (#1500).
 /// </remarks>
-internal static class KraidNailContourDefinitions
+internal static partial class KraidNailContourDefinitions
 {
     /// <summary>
     /// The ledges, from his feet up (#2400). Their left offsets advance evenly outward; the lower ledges' bounds are

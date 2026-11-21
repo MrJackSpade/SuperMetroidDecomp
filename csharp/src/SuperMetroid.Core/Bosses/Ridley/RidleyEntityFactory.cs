@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="ceres">Ceres Ridley's encounter behaviour.</param>
 /// <param name="escape">The station's escape progress, which ends Ceres Ridley's touch and drawing.</param>
 [RoomLifetime]
-internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRidleyBehavior ceres, ICeresEscapeStatus escape) : IEnemyEntityFactory
+internal sealed partial class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRidleyBehavior ceres, ICeresEscapeStatus escape) : IEnemyEntityFactory
 {
     /// <summary>Lower Norfair Ridley's encounter behaviour.</summary>
     internal NorfairRidleyBehavior Norfair { get; } = norfair;

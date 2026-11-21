@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>One quarter of a square slope block, in the slope shape's own unmirrored frame: its column half and row half.</summary>
-public readonly record struct SquareSlopeQuadrant
+public readonly partial record struct SquareSlopeQuadrant
 {
     /// <summary>A value of its parts; only its own operations make one.</summary>
     /// <param name="column">The quarter's column half.</param>

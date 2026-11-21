@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>The ending typewriter's cadence: how long it waits before typing, between characters and after the percentage (#1467).</summary>
-public static class EndingTypewriterDefinitions
+public static partial class EndingTypewriterDefinitions
 {
     /// <summary>Updates held before a typewriter sequence begins.</summary>
     public const int InitialDelayFrames = 64;

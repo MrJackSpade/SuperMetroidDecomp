@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// addition.
 /// </remarks>
 [CompatibilityService("a leftward jitter of Ceres Ridley's fireball hover point lifts it one pixel less than it moves it left")]
-internal static class CeresRidleyFireballTarget
+internal static partial class CeresRidleyFireballTarget
 {
     /// <summary>The largest jitter either way, in pixels.</summary>
     internal const int LargestJitter = 7;

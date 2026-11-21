@@ -5,7 +5,7 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>The input Samus's input and movement phases see: the filtered held and new input of the previous draw, the auto-jump timer and pending jump, and the pose input locks for Shinespark and Crystal Flash.</summary>
-internal sealed class SamusInputSnapshot
+internal sealed partial class SamusInputSnapshot
 {
     /// <summary>
     /// Whether Samus holds a stored shine as the footstep sound, her body's draw and the jump into a shinespark windup

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Finds where a projectile's trail starts: its placement list and the placement the list gives its frame.</summary>
-internal static class ProjectileTrailPlacements
+internal static partial class ProjectileTrailPlacements
 {
     /// <summary>
     /// The list a trail of <paramref name="beams"/> from selector <paramref name="group"/> reads for a shot fired in

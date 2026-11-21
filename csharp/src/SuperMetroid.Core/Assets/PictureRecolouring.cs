@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// <see cref="ColourKey"/> of the pixels it recolours. Pixels whose key it does not name keep the colour they show without
 /// it. A shade recolours by the colour a pixel holds, never by where the colour came from.
 /// </summary>
-public sealed record PictureRecolouring
+public sealed partial record PictureRecolouring
 {
     /// <summary>Creates the recolouring that shows each key of <paramref name="substitutions"/> in its colour.</summary>
     /// <exception cref="ArgumentException">Two substitutions name the same key.</exception>

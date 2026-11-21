@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// Dragon's idle, wing and attack animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="DragonCue"/> naming what it does.
 /// </summary>
-internal static class DragonAnimations
+internal static partial class DragonAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<DragonSegment, EnemyFrameId, DragonCue> Segments { get; } = new(

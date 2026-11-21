@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// The state of a powered Work Robot (#2179): the way it faces, its laser cooldown and its fall. An unpowered robot keeps
 /// <see cref="UnpoweredWorkRobotEnemyState"/> instead.
 /// </summary>
-public sealed class WorkRobotEnemyState
+public sealed partial class WorkRobotEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<WorkRobotSegment> Playback { get; set; }

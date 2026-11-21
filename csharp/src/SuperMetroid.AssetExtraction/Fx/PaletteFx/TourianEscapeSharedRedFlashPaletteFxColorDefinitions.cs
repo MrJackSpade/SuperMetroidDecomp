@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// <remarks>
 /// The two effects write different colours of the screen but share one run of records.
 /// </remarks>
-public static class TourianEscapeSharedRedFlashPaletteFxColorDefinitions
+public static partial class TourianEscapeSharedRedFlashPaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes seven live BGR555 colors.</summary>

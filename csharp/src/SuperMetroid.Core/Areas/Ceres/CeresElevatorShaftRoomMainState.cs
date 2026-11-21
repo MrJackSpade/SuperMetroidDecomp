@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// inherits: the pre-elevator hall reads it as its first wait for falling debris (<see cref="ShaftTurnSetsDebrisWait"/>).
 /// </remarks>
 [RoomLifetime]
-public sealed class CeresElevatorShaftRoomMainState
+public sealed partial class CeresElevatorShaftRoomMainState
 {
     /// <summary>The last tilt of the forward sweep, one step short of the full clockwise tilt; the turn reverses after it.</summary>
     private static readonly CeresShaftTilt LastForwardTilt = CeresShaftTilt.FullClockwise.OneStepAnticlockwise;

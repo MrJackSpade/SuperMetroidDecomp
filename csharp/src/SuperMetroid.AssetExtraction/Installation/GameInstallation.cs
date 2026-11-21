@@ -35,7 +35,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// installed formats. Missing files, unreadable paths, and malformed installed content
 /// propagate the corresponding I/O or invalid-data exception to the caller.
 /// </remarks>
-public sealed record GameInstallation(string Root)
+public sealed partial record GameInstallation(string Root)
 {
     /// <summary>Replaceable stock-content tree published by the installer beneath the installation root.</summary>
     public string ContentDirectory => Path.Combine(Root, GameInstallationLayout.ContentDirectoryName);

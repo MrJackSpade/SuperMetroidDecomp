@@ -7,7 +7,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Reads an installed sprite sheet's frame manifest and cuts its frames from the sheet image (#1502, #1633, #1635).</summary>
-public static class SpriteSheetFile
+public static partial class SpriteSheetFile
 {
     /// <summary>
     /// The manifest schema revision this reader reads: 13 marks no pixel as lying in a front tile, a picture of a layer's

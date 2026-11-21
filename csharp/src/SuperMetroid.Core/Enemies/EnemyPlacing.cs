@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Where a population entry places its enemy as the room spawns it (#2558): at a room position, or by its species'
 /// setup, as a Zebetite's setup places it where its generation stands. No position stands for an entry its setup places.
 /// </summary>
-public abstract record EnemyPlacing
+public abstract partial record EnemyPlacing
 {
     /// <summary>Only the placings below exist.</summary>
     private protected EnemyPlacing()

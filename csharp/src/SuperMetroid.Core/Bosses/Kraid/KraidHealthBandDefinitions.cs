@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// Kraid's eight health bands (#2297), each an eighth of the health he initialized with wide, the highest holding his
 /// whole health and the lowest everything below a quarter of it; each lower band shows him more hurt.
 /// </summary>
-public static class KraidHealthBandDefinitions
+public static partial class KraidHealthBandDefinitions
 {
     /// <summary>Kraid at his whole health: his own colours.</summary>
     public static KraidHealthBand Unhurt { get; } = new(8, "unhurt");

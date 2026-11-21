@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// arrival), over the encounter whose body, brain, phase, neck and flags every late-fight phase reads and writes in place
 /// (#2209): the encounter is their one owner, so nothing is copied in before a step or published after it.
 /// </summary>
-internal sealed class MotherBrainLateFightState
+internal sealed partial class MotherBrainLateFightState
 {
     /// <summary>Builds the late fight's own state over <paramref name="encounter"/>.</summary>
     internal MotherBrainLateFightState(MotherBrainEnemyState encounter)

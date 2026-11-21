@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// normal movement returns on a direction cancellation, downward turn, or collision.
 /// The retained pose can be morphed, humanoid, or damaged rather than always a ball.
 /// </remarks>
-public static class SamusBombJumpMovement
+public static partial class SamusBombJumpMovement
 {
     /// <summary>Runs the bomb jump's setup, which initializes velocity but deliberately moves zero pixels.</summary>
     public static BombJumpMovementResult Start(SamusState samus)

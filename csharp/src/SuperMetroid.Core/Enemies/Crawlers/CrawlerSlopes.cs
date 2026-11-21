@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>Scales a crawler's or Yard's tangent speed along the slope it moves on.</summary>
-public static class CrawlerSlopes
+public static partial class CrawlerSlopes
 {
     /// <summary>
     /// Converts the crawler's speed along the surface into its displacement along <paramref name="shape"/>, by

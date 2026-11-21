@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// its playback from its setup.
 /// </summary>
 [ArchitectureReview("back-reference", "A part of Phantoon's encounter (#2252): the encounter makes and owns its four parts for the room, and each part's entity reads the encounter it joined at setup through its part, so the two share one lifetime.")]
-public sealed class PhantoonPart
+public sealed partial class PhantoonPart
 {
     /// <summary>
     /// Makes <paramref name="phantoon"/>'s part occupying <paramref name="place"/>, playing the animation its setup starts

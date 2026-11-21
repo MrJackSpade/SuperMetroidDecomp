@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// the menu object palette, and each file-copy arrow in its own palette, coloured as the screen loads the menu palette,
 /// with a shade for each step of the arrows' colour rotation (#1512).
 /// </summary>
-internal static class FileSelectSheetComposer
+internal static partial class FileSelectSheetComposer
 {
     /// <summary>CGRAM's first sprite colour.</summary>
     private const int SpriteColours = ImageColourGroup.HalfColours;

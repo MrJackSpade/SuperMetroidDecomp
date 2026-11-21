@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// holds in the room's object order, which sets where the room's later objects update and how soon the room fills
 /// (<see cref="RoomObjectPlaces"/>). It stays in the room for good and does nothing on any update.
 /// </summary>
-internal sealed class OffRoomDoorHeldPlaceObject : RoomObjectBehaviour
+internal sealed partial class OffRoomDoorHeldPlaceObject : RoomObjectBehaviour
 {
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context) => Ensure.NotNull(place);

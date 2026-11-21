@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// the room's top-left corner, where the escape warning written over the background lies.
 /// </param>
 /// <param name="Shown">The body's parts' pictures as the frame shows them (#2573), resolved once as the frame boundary latches it.</param>
-public sealed record GameplayLatchedBossBody(
+public sealed partial record GameplayLatchedBossBody(
     BossBodyLayer Body,
     Position16<RoomPixels>? Placement,
     ShownBossBody Shown)

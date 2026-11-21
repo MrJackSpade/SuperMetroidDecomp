@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <see cref="AssetExtractionJsonContext"/>, so the options keep their naming, converters and layout and no type is
 /// serialized by reflection. A type the context does not register fails as its metadata is asked for.
 /// </summary>
-internal static class AssetExtractionJson
+internal static partial class AssetExtractionJson
 {
     /// <summary>Each caller's options, bound to the context, made the first time each is used.</summary>
     private static readonly ConditionalWeakTable<JsonSerializerOptions, JsonSerializerOptions> Bound = [];

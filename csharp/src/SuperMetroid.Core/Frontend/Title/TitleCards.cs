@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// ending's typed texts are: its blank opening when it has one, each letter typed for <see cref="TitleCardDefinitions.LetterFrames"/>, the last held for the
 /// card's hold, then its ending cue and its removal.
 /// </summary>
-internal static class TitleCards
+internal static partial class TitleCards
 {
     /// <summary>The four cards, in the order the title shows them.</summary>
     internal static IReadOnlyList<TitleCardDefinition> All { get; } =

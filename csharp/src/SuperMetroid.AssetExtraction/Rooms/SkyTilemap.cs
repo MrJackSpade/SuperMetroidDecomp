@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// into a circular BG2 tilemap (<c>$88:AFA3</c>); each visible row holds the row its sky's chunk shows at that
 /// position, so the sky is drawn from the rows directly and nothing is streamed.
 /// </summary>
-public sealed class SkyTilemap
+public sealed partial class SkyTilemap
 {
     /// <summary>Tile columns in a row; the sky repeats every 256 pixels across.</summary>
     public const int Columns = 32;

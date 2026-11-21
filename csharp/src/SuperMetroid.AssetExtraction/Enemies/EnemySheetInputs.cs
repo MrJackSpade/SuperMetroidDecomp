@@ -21,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The members each graphics set loads, by set (#1527), which the set's sheets compose from: the retail catalogue for an
 /// installation's sets.
 /// </param>
-internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSourceArtwork Bosses, AreaSourceArtwork Areas,
+internal sealed partial record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSourceArtwork Bosses, AreaSourceArtwork Areas,
     ReadOnlyMemory<byte> StandardObjects, GameplayBasePalette Palettes, EscapeTimerCharacters EscapeTimer,
     IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, RoomEnemyGraphicsSetMembers> SetMembers)
     : IInstalledEncounterArtwork

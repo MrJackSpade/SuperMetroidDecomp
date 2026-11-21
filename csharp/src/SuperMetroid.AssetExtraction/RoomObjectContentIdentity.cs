@@ -10,7 +10,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>The installed content identities of the room objects' visual catalogs, which only the import pipeline and its diagnostics compare (#1502).</summary>
-internal static class RoomObjectContentIdentity
+internal static partial class RoomObjectContentIdentity
 {
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectSetupBlocks"/>.</summary>
     extension(InstalledRoomObjectSetupBlocks blocks)

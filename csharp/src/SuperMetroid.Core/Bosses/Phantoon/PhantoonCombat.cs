@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's flames as projectiles, its hitboxes and body touch, and what Samus's weapons do to it.</summary>
 [RoomLifetime]
-internal sealed class PhantoonCombat
+internal sealed partial class PhantoonCombat
 {
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -73,7 +73,7 @@ internal sealed class PhantoonCombat
     /// <param name="deathsAndDrops">The drops a shot destroyable flame leaves.</param>
     /// <param name="initial">Picks the behaviour's motion the flame starts with.</param>
     /// <param name="shot">Where the animation a destroying shot starts begins.</param>
-    internal sealed class PhantoonFlameBehavior(
+    internal sealed partial class PhantoonFlameBehavior(
         EnemyAudioQueue audio,
         EnemyDeathsAndDrops deathsAndDrops,
         Func<PhantoonFlameBehavior, EnemyProjectileOwnedMotion> initial,

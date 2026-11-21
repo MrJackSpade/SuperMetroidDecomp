@@ -15,16 +15,47 @@ namespace SuperMetroid.Core.World;
 /// the room the services are built for (#2486), and the control lock acts on the introduced Samus.
 /// </summary>
 [RoomLifetime]
-internal sealed class RoomEnemyRuntimeServices(
+internal sealed partial class RoomEnemyRuntimeServices : IRoomEnemyServices,
+    IEnemyRandomNumbers, IRoomScrollZoneAccess, ISamusControlLock,
+    IMotherBrainRoomEffects, IRoomObjectPresence
+{
+    /// <summary>system</summary>
+    private readonly SharedGameState system;
+
+    /// <summary>scrolls</summary>
+    private readonly RoomScrollGrid scrolls;
+
+    /// <summary>player</summary>
+    private readonly SamusFrameState player;
+
+    /// <summary>roomObjects</summary>
+    private readonly RoomObjectSystem roomObjects;
+
+    /// <summary>progress</summary>
+    private readonly RoomAreaProgress progress;
+
+    /// <summary>Creates a <see cref="RoomEnemyRuntimeServices"/>.</summary>
+    /// <param name="system">system</param>
+    /// <param name="scrolls">scrolls</param>
+    /// <param name="player">player</param>
+    /// <param name="roomObjects">roomObjects</param>
+    /// <param name="display">display</param>
+    /// <param name="progress">progress</param>
+    public RoomEnemyRuntimeServices(
     SharedGameState system,
     RoomScrollGrid scrolls,
     SamusFrameState player,
     RoomObjectSystem roomObjects,
     GameplayDisplayState display,
-    RoomAreaProgress progress) : IRoomEnemyServices,
-    IEnemyRandomNumbers, IRoomScrollZoneAccess, ISamusControlLock,
-    IMotherBrainRoomEffects, IRoomObjectPresence
-{
+    RoomAreaProgress progress)
+    {
+        this.system = system;
+        this.scrolls = scrolls;
+        this.player = player;
+        this.roomObjects = roomObjects;
+        this.progress = progress;
+    }
+
     /// <summary>Exposes the system-owned RNG to enemy AI without a raw system-state dependency.</summary>
     public IEnemyRandomNumbers Random => this;
     /// <summary>The story events that have happened, which the enemies read and mark.</summary>

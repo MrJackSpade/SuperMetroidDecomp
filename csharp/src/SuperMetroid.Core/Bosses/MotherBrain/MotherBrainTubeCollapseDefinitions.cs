@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// waits for, the waits between its steps, the blocks each step clears, where the ceiling tubes start falling, how the
 /// tubes fall, and how the main tube carries her head down and lands her.
 /// </summary>
-internal static class MotherBrainTubeCollapseDefinitions
+internal static partial class MotherBrainTubeCollapseDefinitions
 {
     /// <summary>The free enemy projectiles the collapse waits for before it starts.</summary>
     internal const int FreeProjectilesNeeded = 4;

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rendering;
 /// scroll and the same scroll a whole number of plane lengths on show the same lines.
 /// </param>
 /// <param name="Bands">The bands from the top of the screen down, each beginning below the one before.</param>
-public sealed record ScrollBands(int BaseScroll, ImmutableArray<ScrollBand> Bands) : LineScroll
+public sealed partial record ScrollBands(int BaseScroll, ImmutableArray<ScrollBand> Bands) : LineScroll
 {
     /// <summary>The bands from the top of the screen down; empty when every line shows the base scroll.</summary>
     /// <exception cref="ArgumentException">A band does not begin below the one before it.</exception>

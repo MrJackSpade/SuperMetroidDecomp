@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// the pause's wait, the rumble its first step and the skeleton its speed. Only a hop's sink carries on from the stage before
 /// it, continuing the rise's speed and acceleration. A rise starts from no acceleration (#1476).
 /// </remarks>
-public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
+public sealed partial class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
     /// <inheritdoc />
     Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => Body.Position.Whole;

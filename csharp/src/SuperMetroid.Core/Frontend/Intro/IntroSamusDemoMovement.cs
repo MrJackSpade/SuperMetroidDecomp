@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// commit the prospective/fallback pose—without pulling the unrelated HUD, enemy, FX, and
 /// camera owners from the full gameplay runtime into a cinematic.
 /// </remarks>
-internal static class IntroSamusDemoMovement
+internal static partial class IntroSamusDemoMovement
 {
     /// <summary>Runs the left-facing intro demo's input and movement phases, then animation and prospective-pose commit in gameplay order.</summary>
     public static void StepGroundedLeft(

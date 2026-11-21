@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// How long Mother Brain's waits last through her fake death, her rise, her second phase's laser and her finishing Samus
 /// off (#2311): each is the updates it lasts, its last being the update it runs out on (<see cref="BossCountdown.LastFor"/>).
 /// </summary>
-internal static class MotherBrainWaitDefinitions
+internal static partial class MotherBrainWaitDefinitions
 {
     /// <summary>The updates her fake death waits once her first phase ends before it locks Samus in the arena.</summary>
     internal const int BeforeLockUpdates = 65;

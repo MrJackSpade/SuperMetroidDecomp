@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// colours in the middle of the fade that follows the hit, which restarts that fade from the colouring written, over the
 /// steps it has left. A fade toward another goal while one runs starts from the running fade as it shows.
 /// </remarks>
-internal sealed class PhantoonColours : IGameplayShadingSource
+internal sealed partial class PhantoonColours : IGameplayShadingSource
 {
     /// <summary>
     /// What his body shows (#2560): his room's own colours before he shows any colouring, a colouring settled whole, or a
@@ -112,7 +112,7 @@ internal sealed class PhantoonColours : IGameplayShadingSource
     /// <param name="StartedAt">The place of the fade's first step.</param>
     /// <param name="Step">The place of its latest step.</param>
     /// <param name="Length">The fade's length in steps.</param>
-    private sealed record RunningBodyFade(PictureShading From, PhantoonBodyLook To, int StartedAt, int Step, int Length)
+    private sealed partial record RunningBodyFade(PictureShading From, PhantoonBodyLook To, int StartedAt, int Step, int Length)
     {
         /// <summary>The typed fade his body shows.</summary>
         internal PictureShadeFade Shown
@@ -131,26 +131,26 @@ internal sealed class PhantoonColours : IGameplayShadingSource
     }
 
     /// <summary>What his body shows (#2560).</summary>
-    private abstract record BodyColouring;
+    private abstract partial record BodyColouring;
 
     /// <summary>His room's own colours, before he shows any colouring.</summary>
-    private sealed record UnshownBody : BodyColouring;
+    private sealed partial record UnshownBody : BodyColouring;
 
     /// <summary>A colouring shown whole, from which a fade starts.</summary>
     /// <param name="Look">The colouring.</param>
-    private sealed record SettledBody(PhantoonBodyLook Look) : BodyColouring;
+    private sealed partial record SettledBody(PhantoonBodyLook Look) : BodyColouring;
 
     /// <summary>A fade running from what his body showed as it started.</summary>
     /// <param name="Fade">The running fade.</param>
-    private sealed record FadingBody(RunningBodyFade Fade) : BodyColouring;
+    private sealed partial record FadingBody(RunningBodyFade Fade) : BodyColouring;
 
     /// <summary>The Wrecked Ship's power once it starts coming on (#2560).</summary>
-    private abstract record PowerColouring;
+    private abstract partial record PowerColouring;
 
     /// <summary>The power coming on, at the place of its latest step.</summary>
     /// <param name="Step">The latest step's place.</param>
-    private sealed record PowerComingOnColouring(int Step) : PowerColouring;
+    private sealed partial record PowerComingOnColouring(int Step) : PowerColouring;
 
     /// <summary>The power on: the room shows its powered colours.</summary>
-    private sealed record PoweredColouring : PowerColouring;
+    private sealed partial record PoweredColouring : PowerColouring;
 }

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 /// <see cref="NoobTubeProjectileFrame"/>, and a shard's its mirror image on alternate updates; each cue is a
 /// <see cref="NoobTubeProjectileCue"/>.
 /// </summary>
-internal static class NoobTubeProjectileAnimations
+internal static partial class NoobTubeProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments { get; } = new(

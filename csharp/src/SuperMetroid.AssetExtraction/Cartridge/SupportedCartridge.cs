@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>The supported Japan/USA NTSC v1.0 cartridge identity, independent of a user's filename.</summary>
-public static class SupportedCartridge
+public static partial class SupportedCartridge
 {
     /// <summary>Unheadered retail image: 96 physical LoROM banks, 3 MiB total.</summary>
     internal const int RomByteCount = CartridgeImportAddressSpace.RetailRomByteCount;

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>The room's background plane (#1346), refreshed from its level data as the background scrolls.</summary>
-public sealed record RoomPlaneBackground : ShownRoomBackground
+public sealed partial record RoomPlaneBackground : ShownRoomBackground
 {
     /// <summary>Keeps the background plane with its pictures.</summary>
     /// <param name="plane">The background plane with its pictures.</param>

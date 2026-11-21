@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Escape;
 /// (<see cref="EscapeTimerCadence"/>). Counting below zero stops at zero. An expired countdown is only drawn
 /// until the time-up stops it (#2499).
 /// </remarks>
-public sealed class EscapeTimer
+public sealed partial class EscapeTimer
 {
     /// <summary>The countdown a pending start installs.</summary>
     private int _pendingDuration;

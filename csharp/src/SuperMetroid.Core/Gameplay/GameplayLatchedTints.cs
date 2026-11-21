@@ -8,6 +8,6 @@ namespace SuperMetroid.Core.Gameplay;
 /// </summary>
 /// <param name="PowerBomb">The power-bomb explosion's colour.</param>
 /// <param name="SuitPickup">The suit pickup light beam's colour.</param>
-public readonly record struct GameplayLatchedTints(
+public readonly partial record struct GameplayLatchedTints(
     RgbColor PowerBomb,
     RgbColor SuitPickup);

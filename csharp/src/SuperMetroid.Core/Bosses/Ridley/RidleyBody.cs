@@ -14,6 +14,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="Drawing">The drawing of his tail and wings.</param>
 /// <param name="Tail">His tail.</param>
 [RoomLifetime]
-internal sealed record RidleyBody(
+internal sealed partial record RidleyBody(
     RidleyFlight Flight, RidleyReveal Reveal, RidleyBodyAnimation Animation, RidleyBodyContact Contact, RidleyDrawing Drawing,
     RidleyTail Tail);

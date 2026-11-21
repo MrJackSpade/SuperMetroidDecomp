@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// the body draws its picture by pose and picture frame from the pre-coloured sheet. The tables, compositions,
 /// source artwork and appearances the import composed the sheets from stay in the import.
 /// </remarks>
-public sealed class InstalledSamusBodyArtwork
+public sealed partial class InstalledSamusBodyArtwork
 {
     /// <summary>Each pose's art origin, independent of physical collision offsets.</summary>
     private readonly Dictionary<SamusPoseId, int> artOrigins;

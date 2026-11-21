@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// A projectile family's typed animation (#641).
 /// The projectile's frame hold times each frame, so each frame lasts exactly its duration.
 /// </summary>
-internal abstract class EnemyProjectileAnimation
+internal abstract partial class EnemyProjectileAnimation
 {
     /// <summary>
     /// Advances one projectile pass: the frame expires on the update its timer would. A cue published

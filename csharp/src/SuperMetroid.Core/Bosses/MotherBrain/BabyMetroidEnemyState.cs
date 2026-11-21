@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Baby Metroid's own state: its animation, motion, colours and what it does next.</summary>
-public sealed class BabyMetroidEnemyState
+public sealed partial class BabyMetroidEnemyState
 {
     /// <summary>The Baby Metroid's animation and where it stands (#641, #1600).</summary>
     internal AnimationPlayback<BabyMetroidSegment> Playback { get; set; }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// Where each part of the ending's reward Samus starts and the colouring it draws in (#2205), stated once for the idle,
 /// gesture and jump casts that show it.
 /// </summary>
-internal static class EndingRewardStartDefinitions
+internal static partial class EndingRewardStartDefinitions
 {
     /// <summary>The suitless Samus, body and legs alike, standing near the screen's centre in the suitless colours.</summary>
     internal static readonly EndingRewardStart Suitless = new(new(120, 136), EndingSpriteColouring.SuitlessSamus);

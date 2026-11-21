@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// the cycles a Metroid's electricity and shell loop after their first pass. Its beats are
 /// <see cref="RoomEffectActorAnimations"/>.
 /// </summary>
-internal readonly record struct RoomEffectActorSegment
+internal readonly partial record struct RoomEffectActorSegment
 {
     /// <summary>The run <paramref name="actor"/> starts with.</summary>
     private RoomEffectActorSegment(RoomEffectActorKind actor) => Actor = actor;

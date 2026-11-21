@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses;
 /// encounter it joined.
 /// </summary>
 [RoomLifetime]
-internal sealed class RoomBossEncounters
+internal sealed partial class RoomBossEncounters
 {
     /// <summary>The room's Crocomire, once his body has set up; none in a room without him.</summary>
     internal CrocomireEnemyState? Crocomire { get; private set; }

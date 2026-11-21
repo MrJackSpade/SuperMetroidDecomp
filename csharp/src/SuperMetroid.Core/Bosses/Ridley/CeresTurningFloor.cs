@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// The turning floor Ceres Ridley's getaway flies over (#2228): whether it shows, the update of the getaway the next update
 /// flies, how far it has turned and zoomed, the point it turns about and the capsule's and wings' pictures on it.
 /// </summary>
-public sealed class CeresTurningFloor
+public sealed partial class CeresTurningFloor
 {
     /// <summary>
     /// The getaway's flight along its curves, counted once each getaway update: its age is the update of the getaway the

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rendering;
 /// The sprite layer, one of the scene's layers, whose sprites the glow covers where they show, or null for none.
 /// </param>
 /// <param name="VerticalScroll">The plane line shown on the screen's top line, every line's.</param>
-public sealed record AddedPicturedPlaneLayer(PicturedPlane Plane, PicturedPlaneLayer? GlowsOver = null,
+public sealed partial record AddedPicturedPlaneLayer(PicturedPlane Plane, PicturedPlaneLayer? GlowsOver = null,
     SpritesLayer? GlowsOverSprites = null, int VerticalScroll = 0) : DisplayLayer
 {
     /// <summary>The glowing plane's pictures.</summary>

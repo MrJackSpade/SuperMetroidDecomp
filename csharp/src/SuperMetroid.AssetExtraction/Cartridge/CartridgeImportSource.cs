@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// <summary>
 /// Import-only cartridge contract, unavailable to gameplay code.
 /// </summary>
-public static class CartridgeImportSource
+public static partial class CartridgeImportSource
 {
     /// <summary>Requires an address space that exposes the import-only cartridge capability used by extraction code.</summary>
     /// <param name="bus">Address space supplied to an import boundary.</param>

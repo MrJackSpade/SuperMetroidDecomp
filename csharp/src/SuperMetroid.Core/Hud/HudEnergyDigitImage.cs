@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Hud;
 
 /// <summary>One numeral of the energy count (#1466).</summary>
 /// <param name="Numeral">The numeral shown, zero through nine.</param>
-public sealed record HudEnergyDigitImage(int Numeral) : HudImage
+public sealed partial record HudEnergyDigitImage(int Numeral) : HudImage
 {
     /// <summary>The numeral shown, zero through nine.</summary>
     public int Numeral { get; } = Ensure.BetweenInclusive(0, GameplayHudDefinitions.Numerals - 1, Numeral);

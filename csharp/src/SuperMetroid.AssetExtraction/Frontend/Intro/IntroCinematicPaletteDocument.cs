@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Editable full-CGRAM color schema for opening narration, portrait, object, and cross-fade inks; scene phases and fade timing are not document content.</summary>
-public sealed record IntroCinematicPaletteDocument
+public sealed partial record IntroCinematicPaletteDocument
 {
     /// <summary>Schema revision required to equal <see cref="IntroCinematicPaletteFile.Version"/>.</summary>
     public required int Version { get; init; }

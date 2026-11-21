@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the three Chozo statue terrain frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectChozoStatueVisualFiles
+public static partial class RoomObjectChozoStatueVisualFiles
 {
     /// <summary>
     /// The strips both slope-access frames are written as: the ledge, the fill five rows below it, and the step below the

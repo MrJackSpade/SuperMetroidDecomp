@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// never through a boss's species.
 /// </summary>
 [Rooms.RoomLifetime]
-internal sealed class BossShadings
+internal sealed partial class BossShadings
 {
     /// <summary>The layers in the order their colour effects are laid over each other: a later one wins where they overlap.</summary>
     private static readonly BossShadingLayer[] Order =

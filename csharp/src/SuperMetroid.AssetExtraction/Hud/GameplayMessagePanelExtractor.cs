@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Extracts the seven large item-instruction panels as editable presentation data.</summary>
-public static class GameplayMessagePanelExtractor
+public static partial class GameplayMessagePanelExtractor
 {
     /// <summary>Imports the seven large item-instruction panels with their raw templates, decoded titles, and shared border.</summary>
     /// <param name="bus">Non-null cartridge address space supplying message definitions and the four-row panel tilemaps.</param>

@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// and colour groups its loads write: her brain's, attack's, legs' and the Baby's rows, her body layer's colours and her
 /// room's. Each owner names only its own shades: her body layer's are not her room's.
 /// </summary>
-internal static class MotherBrainSheetShades
+internal static partial class MotherBrainSheetShades
 {
     /// <summary>
     /// The row each enemy whose shades this places draws in, as Mother Brain's encounter writes it: her brain's, her body's

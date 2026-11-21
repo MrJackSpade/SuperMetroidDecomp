@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Title;
 namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>Schema, dimensions, filenames, and validation limits for editable title graphics.</summary>
-public static class TitleGraphicsFormat
+public static partial class TitleGraphicsFormat
 {
     /// <summary>
     /// Current title-graphics document schema version; version three keys sprite frames by composition name, version four

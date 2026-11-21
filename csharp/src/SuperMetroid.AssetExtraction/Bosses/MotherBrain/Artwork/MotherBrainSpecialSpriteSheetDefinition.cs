@@ -6,4 +6,4 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// </summary>
 /// <param name="FileName">The installed sheet's file name.</param>
 /// <param name="PageCount">The sheet's pages.</param>
-public readonly record struct MotherBrainSpecialSpriteSheetDefinition(string FileName, int PageCount);
+public readonly partial record struct MotherBrainSpecialSpriteSheetDefinition(string FileName, int PageCount);

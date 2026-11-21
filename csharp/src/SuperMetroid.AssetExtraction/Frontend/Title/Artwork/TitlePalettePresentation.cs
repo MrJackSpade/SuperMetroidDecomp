@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 /// from them once, into the scene colours the game reads (#1544); the game loads no palette document. Animation programs and
 /// destination selection remain compiled engine behaviour.
 /// </summary>
-public sealed class TitlePalettePresentation : IPaletteFxColorSource
+public sealed partial class TitlePalettePresentation : IPaletteFxColorSource
 {
     /// <summary>The selected initial colours: the background colours, then the sprite colours, in the cartridge's order.</summary>
     internal readonly ImmutableArray<RgbColor> colours;

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// radius step of each sequence. The import resolves every entry; the explosion selects one by its radius and fades
 /// it in its own state.
 /// </summary>
-public sealed class InstalledPowerBombGlowColors
+public sealed partial class InstalledPowerBombGlowColors
 {
     /// <summary>The pre-explosion flash's colours, indexed by its radius step.</summary>
     private readonly RgbColor[] preExplosion;

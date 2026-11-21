@@ -7,4 +7,4 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// </summary>
 /// <param name="Key">The key the program's frames are stored under in the document.</param>
 /// <param name="Runs">The record runs the stored frames give colours to, each named as a failure names it; extraction reads the first.</param>
-internal sealed record RoomPaletteFxProgram(string Key, IReadOnlyList<RoomPaletteFxRun> Runs);
+internal sealed partial record RoomPaletteFxProgram(string Key, IReadOnlyList<RoomPaletteFxRun> Runs);

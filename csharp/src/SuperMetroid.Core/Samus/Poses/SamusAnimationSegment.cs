@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <param name="Name">What the segment is for, unique within its animation.</param>
 /// <param name="Delays">Each frame's delay, in ticks, in frame order.</param>
 /// <param name="End">The cue the frame after the delays runs; null for a lead, which ends in no cue of its own.</param>
-internal sealed record SamusAnimationSegment(SamusAnimationSegmentName Name, IReadOnlyList<int> Delays, SamusAnimationCue? End)
+internal sealed partial record SamusAnimationSegment(SamusAnimationSegmentName Name, IReadOnlyList<int> Delays, SamusAnimationCue? End)
 {
     /// <summary>A lead named <paramref name="name"/>: frames held for <paramref name="delays"/> that play on into the next segment.</summary>
     internal SamusAnimationSegment(SamusAnimationSegmentName name, IReadOnlyList<int> delays) : this(name, delays, null)

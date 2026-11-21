@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// Editable equipment-page base art, independent of live inventory and reserve patches, kept as installed (#1615): all
 /// 1024 cells.
 /// </summary>
-public sealed class PauseEquipmentBasePresentation
+public sealed partial class PauseEquipmentBasePresentation
 {
     /// <summary>The installed page's every cell, in row-major order.</summary>
     private readonly BackgroundTile[] tilemap;

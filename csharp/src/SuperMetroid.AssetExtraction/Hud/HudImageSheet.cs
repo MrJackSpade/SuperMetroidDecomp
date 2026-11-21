@@ -20,7 +20,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// can show, each its own frame named by the image. Each room tileset's BG3 sheet pictures them under its palette; the
 /// pause HUD sheet pictures them under the pause palette.
 /// </summary>
-internal static class HudImageSheet
+internal static partial class HudImageSheet
 {
     /// <summary>The energy tank looks in the order the HUD sheet holds them (#2567).</summary>
     private static readonly IReadOnlyList<HudEnergyTank> EnergyTankOrder = Ensure.EveryMemberOnce<HudEnergyTank>(

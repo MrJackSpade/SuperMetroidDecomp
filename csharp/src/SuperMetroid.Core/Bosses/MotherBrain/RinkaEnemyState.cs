@@ -3,7 +3,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The state of a Rinka.</summary>
-public sealed class RinkaEnemyState
+public sealed partial class RinkaEnemyState
 {
     /// <summary>The typed animation (#641, #1600) and where it stands.</summary>
     internal AnimationPlayback<RinkaSegment> Playback { get; set; }

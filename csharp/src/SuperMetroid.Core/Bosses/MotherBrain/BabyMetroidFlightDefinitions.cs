@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// distance to the point by (a larger divisor is a gentler pull), the extra push a reversal takes while it is off
 /// screen, the push a spin-jumping Samus gives it and how it closes on a latch.
 /// </summary>
-internal static class BabyMetroidFlightDefinitions
+internal static partial class BabyMetroidFlightDefinitions
 {
     /// <summary>The pull of a rush (to the middle of the room, onto its Sidehopper and onto Samus): the whole distance.</summary>
     internal const int RushDivisor = 1;

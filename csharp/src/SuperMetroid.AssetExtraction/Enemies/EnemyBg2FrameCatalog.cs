@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Validated, named extended-enemy BG2 presentation shared by Phantoon and
 /// Draygon. The native instruction selector still determines the frame identity.
 /// </summary>
-internal sealed class EnemyBg2FrameCatalog
+internal sealed partial class EnemyBg2FrameCatalog
 {
 
     /// <summary>Validated ordered BG2 writes keyed by the extended frame that selects them.</summary>

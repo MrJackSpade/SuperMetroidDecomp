@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// reveal copy lays its blocks out as they are defined. A reveal is one closed choice of its copy shape (#2560), each
 /// holding exactly the blocks it copies: one block, a wide pair, a tall pair or a square of four.
 /// </summary>
-public abstract record XrayRevealVisualBlocks
+public abstract partial record XrayRevealVisualBlocks
 {
     /// <summary>Only the four copy shapes below are reveal blocks.</summary>
     private XrayRevealVisualBlocks()
@@ -62,7 +62,7 @@ public abstract record XrayRevealVisualBlocks
 
     /// <summary>The one block a single-block copy shows.</summary>
     /// <param name="Block">The block.</param>
-    public sealed record OneBlock(RoomCellPicture Block) : XrayRevealVisualBlocks
+    public sealed partial record OneBlock(RoomCellPicture Block) : XrayRevealVisualBlocks
     {
         /// <inheritdoc/>
         public override RoomCellPicture TopLeft => Block;
@@ -74,7 +74,7 @@ public abstract record XrayRevealVisualBlocks
     /// <summary>The two blocks side by side a wide copy shows.</summary>
     /// <param name="Left">The block at the reveal's place.</param>
     /// <param name="Right">The block to its right.</param>
-    public sealed record WidePair(RoomCellPicture Left, RoomCellPicture Right) : XrayRevealVisualBlocks
+    public sealed partial record WidePair(RoomCellPicture Left, RoomCellPicture Right) : XrayRevealVisualBlocks
     {
         /// <inheritdoc/>
         public override RoomCellPicture TopLeft => Left;
@@ -86,7 +86,7 @@ public abstract record XrayRevealVisualBlocks
     /// <summary>The two blocks one above the other a tall copy shows.</summary>
     /// <param name="Top">The block at the reveal's place.</param>
     /// <param name="Bottom">The block below it.</param>
-    public sealed record TallPair(RoomCellPicture Top, RoomCellPicture Bottom) : XrayRevealVisualBlocks
+    public sealed partial record TallPair(RoomCellPicture Top, RoomCellPicture Bottom) : XrayRevealVisualBlocks
     {
         /// <inheritdoc/>
         public override RoomCellPicture TopLeft => Top;
@@ -100,7 +100,7 @@ public abstract record XrayRevealVisualBlocks
     /// <param name="UpperRight">The block to its right.</param>
     /// <param name="LowerLeft">The block below it.</param>
     /// <param name="LowerRight">The diagonal block.</param>
-    public sealed record SquareOfFour(RoomCellPicture UpperLeft, RoomCellPicture UpperRight, RoomCellPicture LowerLeft,
+    public sealed partial record SquareOfFour(RoomCellPicture UpperLeft, RoomCellPicture UpperRight, RoomCellPicture LowerLeft,
         RoomCellPicture LowerRight) : XrayRevealVisualBlocks
     {
         /// <inheritdoc/>

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// its phase (#2541).
 /// </summary>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class EndingCreditsRoll
+internal sealed partial class EndingCreditsRoll
 {
     /// <summary>Collected-item snapshot displayed with the final result.</summary>
     private readonly EndingInventorySnapshot inventory;

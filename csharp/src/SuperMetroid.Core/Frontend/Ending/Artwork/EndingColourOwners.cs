@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// <see cref="EndingColourOwnerDefinitions"/> lists them: the screen names only an actor's or a background picture's or
 /// floor's own shades over its pictures, and the import pre-colours each in those alone.
 /// </summary>
-internal static class EndingColourOwners
+internal static partial class EndingColourOwners
 {
     /// <summary>What each shade family is authored for, by the family's name.</summary>
     private static readonly FrozenDictionary<string, ShadeOwners> ByEffect = Listed();
@@ -80,5 +80,5 @@ internal static class EndingColourOwners
     /// <summary>The actors and scenery one shade family is authored for, as sets.</summary>
     /// <param name="Actors">The colourings of the actors that show it.</param>
     /// <param name="Scenery">The background pictures and floors that show it.</param>
-    private sealed record ShadeOwners(FrozenSet<EndingSpriteColouring> Actors, FrozenSet<EndingScenery> Scenery);
+    private sealed partial record ShadeOwners(FrozenSet<EndingSpriteColouring> Actors, FrozenSet<EndingScenery> Scenery);
 }

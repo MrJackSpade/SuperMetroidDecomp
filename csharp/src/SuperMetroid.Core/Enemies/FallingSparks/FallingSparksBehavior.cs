@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 
 /// <summary>The falling sparks: each drops under gravity, bounces on the floor and leaves a trail.</summary>
 [RoomLifetime]
-internal sealed class FallingSparksBehavior
+internal sealed partial class FallingSparksBehavior
 {
     /// <summary>Room RNG used to choose the spark's horizontal launch delta.</summary>
     private readonly EnemyRoomBinding _room;

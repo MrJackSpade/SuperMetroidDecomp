@@ -3,7 +3,7 @@ using SuperMetroid.Core.Saves;
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>What one save slot's field shows (#1467): its health, its maximum, and its game time, each as the field shows it.</summary>
-internal sealed record ShownFileSelectSave
+internal sealed partial record ShownFileSelectSave
 {
     /// <summary>A value of its parts; only its own operations make one.</summary>
     /// <param name="health">The slot's health.</param>

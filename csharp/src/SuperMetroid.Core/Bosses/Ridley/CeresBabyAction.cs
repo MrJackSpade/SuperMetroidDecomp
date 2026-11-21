@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// each update. The Baby starts in his arms (#2228); Ridley lets it fall through <see cref="CeresBaby.Drop"/>, and its own
 /// update then sets up its fall and falls on.
 /// </summary>
-public sealed class CeresBabyAction
+public sealed partial class CeresBabyAction
 {
     /// <summary>The action's name, for diagnostics.</summary>
     private readonly string _name;

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// The Holtz's (Holtz's) idle, swoop and cooldown animations and its flames' animation as typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="HoltzCue"/> naming what it does.
 /// </summary>
-internal static class HoltzAnimations
+internal static partial class HoltzAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<HoltzSegment, EnemyFrameId, HoltzCue> Segments { get; } = new(

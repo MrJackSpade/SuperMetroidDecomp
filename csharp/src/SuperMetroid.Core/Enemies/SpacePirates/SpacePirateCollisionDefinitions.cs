@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// hitboxes mirror another's facing, and frames that show the same hitboxes name one shared list (#2557). A Pirate's touch and shots
 /// take the reaction of the first hitbox they overlap, in each frame's listed order.
 /// </remarks>
-internal static class SpacePirateCollisionDefinitions
+internal static partial class SpacePirateCollisionDefinitions
 {
     /// <summary>How long a Pirate that reflects a shot stays invincible, in updates.</summary>
     internal const int ReflectInvincibility = 10;

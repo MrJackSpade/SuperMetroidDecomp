@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// The state of an Owtch: its patrol state and bounds and how deep it is buried. It reads its patrol speed from its spawn
 /// settings as it walks (#2439).
 /// </summary>
-public sealed class OwtchEnemyState
+public sealed partial class OwtchEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<OwtchSegment> Playback { get; set; }

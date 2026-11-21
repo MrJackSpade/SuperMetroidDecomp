@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Editable JSON schema for Lower Norfair Ridley's initial OBJ palette and ordered arena-background reveal colors; reveal timing and the terminating step are not asset data.</summary>
-public sealed record NorfairRidleyColorDocument
+public sealed partial record NorfairRidleyColorDocument
 {
     /// <summary>Schema version, which must equal <see cref="NorfairRidleyColorFormat.Version"/>.</summary>
     public required int Version { get; init; }

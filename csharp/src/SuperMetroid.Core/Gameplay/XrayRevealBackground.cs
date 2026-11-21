@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>The X-ray's reveal (#1392, #1514), which the background shows in place of the room's own background inside the cone.</summary>
-public sealed record XrayRevealBackground : ShownRoomBackground
+public sealed partial record XrayRevealBackground : ShownRoomBackground
 {
     /// <summary>Keeps the revealed blocks, drawn from the room's block pictures.</summary>
     /// <param name="reveal">The revealed blocks, drawn from the room's block pictures.</param>

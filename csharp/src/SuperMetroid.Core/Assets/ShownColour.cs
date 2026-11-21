@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// itself, as the opening's backdrop shows under its crossfade and a white wash as it fades. The simulation names it; the
 /// backend shows it, blending any fade (<see cref="ShownWith"/>).
 /// </summary>
-public abstract record ShownColour
+public abstract partial record ShownColour
 {
     /// <summary>Only the cases below name a shown colour.</summary>
     private ShownColour()
@@ -27,7 +27,7 @@ public abstract record ShownColour
 
     /// <summary>One plain colour.</summary>
     /// <param name="Colour">The colour shown.</param>
-    public sealed record Plain(RgbColor Colour) : ShownColour
+    public sealed partial record Plain(RgbColor Colour) : ShownColour
     {
         /// <inheritdoc />
         public override RgbColor ShownWith(IColourBlend blend) => Colour;
@@ -37,7 +37,7 @@ public abstract record ShownColour
     /// <param name="Picture">The picture naming the colour.</param>
     /// <param name="Key">The picture's colour key shown.</param>
     /// <param name="Shading">The shading the picture shows in.</param>
-    public sealed record OfPicture(SpriteImage Picture, ColourKey Key, PictureShading Shading) : ShownColour
+    public sealed partial record OfPicture(SpriteImage Picture, ColourKey Key, PictureShading Shading) : ShownColour
     {
         /// <inheritdoc />
         public override RgbColor ShownWith(IColourBlend blend) => Shading.Shown(Picture, Key, blend);
@@ -46,7 +46,7 @@ public abstract record ShownColour
     /// <summary>A colour shown at a level of a fade between black and itself.</summary>
     /// <param name="Colour">The colour at its whole level.</param>
     /// <param name="Level">How far up from black it shows.</param>
-    public sealed record Faded(RgbColor Colour, FadeLevel Level) : ShownColour
+    public sealed partial record Faded(RgbColor Colour, FadeLevel Level) : ShownColour
     {
         /// <inheritdoc />
         public override RgbColor ShownWith(IColourBlend blend) => Ensure.NotNull(blend).AtLevel(Colour, Level);

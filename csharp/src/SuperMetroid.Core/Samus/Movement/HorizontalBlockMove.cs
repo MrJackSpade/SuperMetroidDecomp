@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>One horizontal block move: the displacement and which collision side effects it publishes (#633).</summary>
-public sealed record HorizontalBlockMove
+public sealed partial record HorizontalBlockMove
 {
     /// <summary>Signed horizontal displacement; negative moves Samus left, and zero or more moves or probes her
     /// rightward.</summary>

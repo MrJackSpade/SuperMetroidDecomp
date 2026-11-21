@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>The twelve OAM compositions selected by the fourth-hit explosion loops: six small, then six large.</summary>
-internal static class IntroMotherBrainExplosionSpriteDefinitions
+internal static partial class IntroMotherBrainExplosionSpriteDefinitions
 {
     /// <summary>Six small explosion frames (two one-part, then four-part), then six large (one one-part, then four-part).</summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =

@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// effects for the room; Ridley's state plays no part once he is hidden.
 /// </summary>
 [RoomLifetime]
-internal sealed class CeresEscape : IGameplayShadingSource
+internal sealed partial class CeresEscape : IGameplayShadingSource
 {
     /// <summary>The enemy pass's results, which the self-destruct writes.</summary>
     private readonly EnemyPassEvents _passEvents;

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>The state of the Blue Brinstar face block.</summary>
-public sealed class BlueBrinstarFaceBlockEnemyState
+public sealed partial class BlueBrinstarFaceBlockEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BlueBrinstarFaceBlockSegment> Playback { get; set; }

@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Assets;
 
 /// <summary>Turns an identity's name into the lower-case, hyphenated form installed file names use.</summary>
-internal static class InstalledArtworkNames
+internal static partial class InstalledArtworkNames
 {
     /// <summary>The hyphenated form of a PascalCase name: <c>RedBrinstarKraid</c> becomes <c>red-brinstar-kraid</c>.</summary>
     [InstalledKey]

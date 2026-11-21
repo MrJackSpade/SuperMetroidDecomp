@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 /// <param name="jump">The landed jump's actors, which keep running.</param>
 /// <param name="shot">The shot's picture, fades and hold.</param>
-internal sealed class EndingPostShotScene(EndingRewardJump jump, EndingPostShot shot) : EndingScene
+internal sealed partial class EndingPostShotScene(EndingRewardJump jump, EndingPostShot shot) : EndingScene
 {
     /// <summary>The landed jump's actors.</summary>
     internal EndingRewardJump Jump { get; } = Ensure.NotNull(jump);

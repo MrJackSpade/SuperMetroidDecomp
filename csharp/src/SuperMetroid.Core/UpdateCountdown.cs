@@ -13,7 +13,7 @@ namespace SuperMetroid.Core;
 /// an over wait (counting one is a defect and throws), <see cref="Step"/> for an owner that asks every update whether the
 /// wait is over, and <see cref="StepEnds"/> for an owner that acts only on the update the wait ends.
 /// </remarks>
-public sealed class UpdateCountdown
+public sealed partial class UpdateCountdown
 {
     /// <summary>A wait lasting <paramref name="updates"/> updates with all of them left.</summary>
     private UpdateCountdown(int updates)

@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// square with that mask.
 /// </remarks>
 [CompatibilityService("a shot meets an enemy projectile only when both stand in the same 32-pixel square of the room, whatever their sizes")]
-internal static class ShotAndProjectileSquares
+internal static partial class ShotAndProjectileSquares
 {
     /// <summary>The pixels along each side of a square a shot and an enemy projectile meet in.</summary>
     private const int SquarePixels = 32;

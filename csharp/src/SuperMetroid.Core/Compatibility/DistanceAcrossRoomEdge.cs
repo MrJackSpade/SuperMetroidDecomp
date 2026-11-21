@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// their difference; the Draygon, Phantoon, Mother Brain and Ridley recorded movies replay those tests on every update.
 /// </remarks>
 [CompatibilityService("distances and side tests between two places are taken the short way across the ends of the room's coordinates, so an actor past the room's top or left lies a short distance from one inside, on its own side")]
-public static class DistanceAcrossRoomEdge
+public static partial class DistanceAcrossRoomEdge
 {
     /// <summary>
     /// How far <paramref name="to"/> lies past <paramref name="from"/>, -32768 through 32767 pixels: negative when it lies

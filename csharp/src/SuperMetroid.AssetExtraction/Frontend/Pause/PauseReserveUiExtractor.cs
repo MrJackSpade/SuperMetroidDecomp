@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Resolves reserve-screen presentation once without exposing its mode or energy mechanics.</summary>
-public static class PauseReserveUiExtractor
+public static partial class PauseReserveUiExtractor
 {
     /// <summary>Resolves reserve labels, decimal digit cells, arrow positions, palettes, and animation colors into a versioned presentation document.</summary>
     /// <param name="bus">Supported-cartridge address space containing reserve-screen label pointers, tilemaps, and arrow color tables.</param>

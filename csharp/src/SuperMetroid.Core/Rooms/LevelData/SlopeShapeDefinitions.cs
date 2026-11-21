@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// surface below it. Both are distances the collision arithmetic subtracts from and compares like any other height, not
 /// markers standing for a missing surface (#2558). The coefficients are the game's authored tuning (#1165).
 /// </summary>
-public static class SlopeShapeDefinitions
+public static partial class SlopeShapeDefinitions
 {
     /// <summary>A square shape whose bottom half is solid.</summary>
     public static SlopeShape SquareBottomHalf { get; } = new("SquareBottomHalf", SlopeShapeKind.Square,

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 /// projectile left there, in this room or the room before (<see cref="EnemyProjectilePlaceLeftovers"/>), which a spawn
 /// that does not set them starts from.
 /// </summary>
-public sealed class EnemyProjectile
+public sealed partial class EnemyProjectile
 {
     /// <summary>
     /// Starts a projectile of <paramref name="kind"/> holding <paramref name="place"/>, from what the place's previous

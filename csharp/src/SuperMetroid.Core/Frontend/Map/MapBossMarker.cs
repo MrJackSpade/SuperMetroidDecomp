@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// </summary>
 /// <param name="Id">The landmark identity naming the marker's installed position.</param>
 /// <param name="Boss">The boss whose defeat the marker shows.</param>
-public readonly record struct MapBossMarker(string Id, AreaBoss Boss);
+public readonly partial record struct MapBossMarker(string Id, AreaBoss Boss);

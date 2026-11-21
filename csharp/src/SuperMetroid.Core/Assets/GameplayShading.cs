@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// display, if one runs. A backend colours each picture from <see cref="Of"/> alone; no picture shows another group's
 /// colours.
 /// </summary>
-public sealed record GameplayShading
+public sealed partial record GameplayShading
 {
     /// <summary>Each group's own shading, before the display's fade.</summary>
     private readonly ImmutableDictionary<GameplayPictures, PictureShading> shadings;

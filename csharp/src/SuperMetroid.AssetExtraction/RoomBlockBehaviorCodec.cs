@@ -26,7 +26,7 @@ namespace SuperMetroid.AssetExtraction;
 /// their reactions' names (#1709, #1722), so nothing the game loads holds the byte.
 /// </summary>
 [EncodingOwner("room block behaviour byte")]
-public static class RoomBlockBehaviorCodec
+public static partial class RoomBlockBehaviorCodec
 {
     /// <summary>The number of behaviour bytes.</summary>
     public const int ByteCount = 256;
@@ -289,7 +289,7 @@ public static class RoomBlockBehaviorCodec
     /// <summary>One entry of an area's own dispatch table.</summary>
     /// <param name="Area">The room's area.</param>
     /// <param name="Index">The entry, 0 through 127.</param>
-    private readonly record struct AreaEntry(AreaId Area, int Index);
+    private readonly partial record struct AreaEntry(AreaId Area, int Index);
 
     /// <summary>
     /// The spike dispatchers' entry for a spike block or spike air, or none past the enemy's spike table, which reads both
@@ -313,7 +313,7 @@ public static class RoomBlockBehaviorCodec
     /// <summary>One entry of a reacting kind's dispatch tables: the common or the area's table, and the entry in it.</summary>
     /// <param name="Area">Whether the entry is of the area's table.</param>
     /// <param name="Index">The entry, 0 through 127.</param>
-    private readonly record struct TableEntry(bool Area, int Index);
+    private readonly partial record struct TableEntry(bool Area, int Index);
 
     /// <summary>The grapple dispatcher's entry for a grapple block, or none past its table.</summary>
     private static GrappleReaction? GrappleOf(bool area, int entry) => new TableEntry(area, entry) switch

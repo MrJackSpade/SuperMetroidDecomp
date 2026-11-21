@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// jumps, including the equipped vertical bonus. Terrain and solid/frozen-enemy wall jumps
 /// plus all three liquid launches are distinct results.
 /// </remarks>
-public static class SamusAerialMovement
+public static partial class SamusAerialMovement
 {
     /// <summary>
     /// Starts a jump through every environment/equipment path.

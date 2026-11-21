@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Assets;
 /// its endpoint, its direction and how far it has come (<see cref="FadeLevel"/>), and the backend blends the two colours
 /// (<see cref="IColourBlend"/>). A door's fades, the death fade and the time-up whiteout show the whole display so.
 /// </summary>
-public sealed record ColourFade : ColourEffect
+public sealed partial record ColourFade : ColourEffect
 {
     /// <summary>Keeps the fade's endpoint colour, direction and progress.</summary>
     /// <param name="endpoint">The endpoint colour: the one faded toward, or the one faded in from.</param>

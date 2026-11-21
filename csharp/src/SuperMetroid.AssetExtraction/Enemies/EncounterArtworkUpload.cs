@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 /// <param name="FirstCharacter">The sprite character the copy lands from.</param>
 /// <param name="Characters">The bytes it copies.</param>
-internal sealed record EncounterArtworkUpload(int FirstCharacter, ReadOnlyMemory<byte> Characters)
+internal sealed partial record EncounterArtworkUpload(int FirstCharacter, ReadOnlyMemory<byte> Characters)
 {
     /// <summary>The sprite character the copy lands from.</summary>
     internal int FirstCharacter { get; } = Ensure.BetweenInclusive(0, SpriteCharacterTableLayout.CharacterCount - 1, FirstCharacter);

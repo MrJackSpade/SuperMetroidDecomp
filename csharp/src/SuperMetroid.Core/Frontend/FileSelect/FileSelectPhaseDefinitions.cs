@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>What each of the file-select menu's phases shows and leads to (<see cref="FileSelectMenuState"/>).</summary>
-internal static class FileSelectPhaseDefinitions
+internal static partial class FileSelectPhaseDefinitions
 {
     /// <summary>
     /// The phases that show the selected helmet's turn: the turn itself and the fade out to the options it leads to, through

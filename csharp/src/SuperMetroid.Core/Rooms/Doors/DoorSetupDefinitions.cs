@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// by that column and row, a row past the room's marked as below the room; a setup changes its screens in the order
 /// listed.
 /// </summary>
-public static class DoorSetupDefinitions
+public static partial class DoorSetupDefinitions
 {
     /// <summary>Opens screens (0, 6) and (0, 7), as more than one room's setup does.</summary>
     private static readonly ScreenScrollChange[] OpensScreens0x6And0x7 =

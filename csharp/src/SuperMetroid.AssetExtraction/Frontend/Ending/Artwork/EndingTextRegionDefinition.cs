@@ -7,5 +7,5 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// <param name="Column">Zero-based destination tile column.</param>
 /// <param name="Width">Field width in glyphs.</param>
 /// <param name="Style">Font layout and attributes used by the field.</param>
-public readonly record struct EndingTextRegionDefinition(
+public readonly partial record struct EndingTextRegionDefinition(
     int Row, int Column, int Width, EndingTextStyle Style);

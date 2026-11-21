@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Equipment-page base artwork and the compiled footprints owned by live menu state.</summary>
-public static class PauseEquipmentBaseDefinitions
+public static partial class PauseEquipmentBaseDefinitions
 {
     /// <summary>The supported editable equipment-page base schema version.</summary>
     public const int Version = 1;

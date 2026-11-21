@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Exports the cutscene Baby's initial and displayed fade-to-black RGB5 images.</summary>
-public static class BabyMetroidCutsceneColorExtractor
+public static partial class BabyMetroidCutsceneColorExtractor
 {
     /// <summary>Reads the initial Baby palette and every authored fade row, rejects colors with the native high bit set, and serializes the versioned RGB5 document.</summary>
     /// <param name="bus">Supported-cartridge address space containing the compiled cutscene palette tables.</param>

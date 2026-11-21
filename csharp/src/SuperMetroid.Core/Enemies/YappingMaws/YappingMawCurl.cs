@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// Each update the curl moves by the shared quadratic curve's speed at its place, the speed's pixels counting as the
 /// curl's angle units, out to the largest curl and back; its whole units choose how its links bend.
 /// </summary>
-public readonly record struct YappingMawCurl
+public readonly partial record struct YappingMawCurl
 {
     /// <summary>Keeps the curl in angle units, fraction included, at the precision the curve's speeds add in.</summary>
     internal YappingMawCurl(SignedSixteenSixteen units) => Units = units;

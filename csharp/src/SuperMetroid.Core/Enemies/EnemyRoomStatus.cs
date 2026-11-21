@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Room-wide enemy publications read by the runtime: kill count, boss identity, Japanese text and Fireflea
 /// darkness.
 /// </summary>
-internal sealed class EnemyRoomStatus
+internal sealed partial class EnemyRoomStatus
 {
     /// <summary>Binds the room's status to the session that holds the language flag.</summary>
     /// <param name="session">The enemy state that outlives each room.</param>

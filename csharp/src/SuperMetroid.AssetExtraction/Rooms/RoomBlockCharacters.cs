@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// artwork. Extraction pictures each block over what each appearance input can show at its runs; the room names the
 /// picture by the inputs alone.
 /// </summary>
-public sealed class RoomBlockCharacters
+public sealed partial class RoomBlockCharacters
 {
     /// <summary>The runs each block reads, by block.</summary>
     private readonly ImmutableArray<RoomBlockCharacterRun>[] blocks;

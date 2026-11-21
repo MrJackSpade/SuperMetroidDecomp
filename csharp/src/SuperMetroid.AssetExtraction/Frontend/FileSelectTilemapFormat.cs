@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>Control words in the bank-$81 file-select tilemap stream format.</summary>
 [EncodingOwner("bank-$81 file-select tilemap stream control words")]
-internal static class FileSelectTilemapFormat
+internal static partial class FileSelectTilemapFormat
 {
     /// <summary>Bank containing the file-select text streams.</summary>
     public const int Bank = MapSourceDefinitions.Menu.TilemapTextBank;

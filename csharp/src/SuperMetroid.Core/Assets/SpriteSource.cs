@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Assets;
 /// what they show, where and in which order they are drawn.
 /// </summary>
 /// <param name="Kind">The kind of actor or display element.</param>
-public readonly record struct SpriteSource(SpriteSourceKind Kind);
+public readonly partial record struct SpriteSource(SpriteSourceKind Kind);

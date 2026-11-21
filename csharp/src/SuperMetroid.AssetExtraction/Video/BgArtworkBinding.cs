@@ -8,4 +8,4 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// <param name="Set">The characters it shows over.</param>
 /// <param name="FirstCharacter">The first character the artwork shows at.</param>
 /// <param name="CharacterCount">The characters of the artwork shown, from its first.</param>
-public sealed record BgArtworkBinding(BgArtworkIdentity Identity, BgCharacterSet Set, int FirstCharacter, int CharacterCount);
+public sealed partial record BgArtworkBinding(BgArtworkIdentity Identity, BgCharacterSet Set, int FirstCharacter, int CharacterCount);

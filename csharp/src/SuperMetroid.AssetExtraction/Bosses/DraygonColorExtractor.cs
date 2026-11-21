@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Bosses.Draygon;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Extracts Draygon's four transfer images and eight health-band color records.</summary>
-public static class DraygonColorExtractor
+public static partial class DraygonColorExtractor
 {
     /// <summary>Imports Draygon's intro, background, sprite, and white-flash palettes and eight ordered health-band color records.</summary>
     /// <param name="bus">Non-null cartridge import address space containing the native Draygon palette sources.</param>

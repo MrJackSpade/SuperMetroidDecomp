@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// then ignites: its velocity is rebuilt from its ignition speed and Samus's inherited motion, and only then do the
 /// missile accelerations and a Super Missile's collision link begin. The ignited missile keeps the speed it ignited at.
 /// </summary>
-public abstract record SamusMissileIgnition
+public abstract partial record SamusMissileIgnition
 {
     /// <summary>Closes the hierarchy to the stages declared here.</summary>
     private SamusMissileIgnition()
@@ -16,12 +16,12 @@ public abstract record SamusMissileIgnition
     public bool HasIgnited => this is Ignited;
 
     /// <summary>Fired and not yet ignited; it ignites at <see cref="SamusProjectileMotionDefinitions.MissileIgnitionSpeed"/>.</summary>
-    public sealed record Pending : SamusMissileIgnition;
+    public sealed partial record Pending : SamusMissileIgnition;
 
     /// <summary>Reflected by an enemy and not yet re-ignited; it re-ignites with the reflection's head start.</summary>
-    public sealed record PendingAfterReflection : SamusMissileIgnition;
+    public sealed partial record PendingAfterReflection : SamusMissileIgnition;
 
     /// <summary>Ignited at <paramref name="Speed"/>.</summary>
     /// <param name="Speed">The base speed it ignited at: <see cref="SamusProjectileMotionDefinitions.MissileIgnitionSpeed"/>, or <see cref="SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed"/> after a reflection's head start.</param>
-    public sealed record Ignited(SignedEightEight Speed) : SamusMissileIgnition;
+    public sealed partial record Ignited(SignedEightEight Speed) : SamusMissileIgnition;
 }

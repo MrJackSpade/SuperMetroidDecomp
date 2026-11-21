@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Reads and writes the installed Spore Spawn colour document.</summary>
-public static class SporeSpawnColorFile
+public static partial class SporeSpawnColorFile
 {
     /// <summary>Loads version-1 <c>spore-spawn-colors.json</c>, validating exact palette-row dimensions and RGB5 channels from 0 through 31 while keeping health thresholds and death timing in boss code.</summary>
     /// <param name="json">Caller-owned stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>

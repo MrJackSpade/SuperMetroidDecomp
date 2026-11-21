@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The one shared instance of each behaviour Samus's shots run (#1923).</summary>
-internal static class SamusShotBehaviors
+internal static partial class SamusShotBehaviors
 {
     /// <summary>A beam without the Wave Beam: it stops at the first block it meets.</summary>
     internal static SamusShotBehavior Beam { get; } = new BeamFlight();

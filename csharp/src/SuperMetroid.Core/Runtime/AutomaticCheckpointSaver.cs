@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Runtime;
 /// The game's automatic saves: the gameplay events that write the game's ordinary save without a save station's
 /// prompt.
 /// </summary>
-internal static class AutomaticCheckpointSaver
+internal static partial class AutomaticCheckpointSaver
 {
     /// <summary>
     /// The Ceres opening publishes its checkpoint game state before saving the initial Ceres checkpoint.

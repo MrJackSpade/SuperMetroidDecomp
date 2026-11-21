@@ -7,7 +7,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="RoomObjectFramePhase"/> is constructed with, built once by the owner that creates it (#621).</summary>
-internal sealed record RoomObjectFramePhaseDependencies
+internal sealed partial record RoomObjectFramePhaseDependencies
 {
     /// <summary>The player's gameplay actions as the frame boundary latched them.</summary>
     public required GameplayActionInput PlayerActions { get; init; }

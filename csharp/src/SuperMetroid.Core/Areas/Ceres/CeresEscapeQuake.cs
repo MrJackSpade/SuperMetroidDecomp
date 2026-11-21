@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="earthquake">Receives the shake and its length.</param>
 /// <param name="escape">Supplies how far the station's escape has gone.</param>
 [RoomLifetime]
-internal sealed class CeresEscapeQuake(EnemyRoomBinding room, RoomEarthquake earthquake, ICeresEscapeStatus escape)
+internal sealed partial class CeresEscapeQuake(EnemyRoomBinding room, RoomEarthquake earthquake, ICeresEscapeStatus escape)
 {
     /// <summary>
     /// Starts the next diagonal shake, reaching <paramref name="reach"/>, once the station is self-destructing and the room

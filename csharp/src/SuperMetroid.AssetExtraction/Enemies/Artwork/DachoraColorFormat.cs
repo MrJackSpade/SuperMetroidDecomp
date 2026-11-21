@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Installed resource identity and supported schema version for Dachora's default and animated RGB5 palettes.</summary>
-public static class DachoraColorFormat
+public static partial class DachoraColorFormat
 {
     /// <summary>Installed palette resource, <c>dachora-colors.json</c>.</summary>
     public const string FileName = "dachora-colors.json";

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 /// (<see cref="PacedFadeSteps"/>, #2488); the scene that shows the wash owns it. The wash shows white at the level of its
 /// fade the steps left reach (<see cref="FadeLevel"/>), which the backend shows in the game's colour steps (#2563).
 /// </summary>
-internal sealed class WhiteWash
+internal sealed partial class WhiteWash
 {
     /// <summary>The steps of a white wash from full white to none: one a step of a colour channel.</summary>
     internal const int Steps = FadeLevelColour.FullLevel;

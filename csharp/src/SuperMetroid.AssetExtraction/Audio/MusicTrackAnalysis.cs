@@ -21,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// </param>
 /// <param name="StartSample">The driver tick that started the track (the music port took the track number).</param>
 /// <param name="TempoChanges">The tempo's whole byte after the start tick and after every tick that changed it, by tick sample.</param>
-internal sealed record MusicTrackAnalysis(
+internal sealed partial record MusicTrackAnalysis(
     AudioBank Bank,
     int Track,
     MusicTrackShape Shape,
@@ -87,7 +87,7 @@ internal sealed record MusicTrackAnalysis(
         renderer ?? throw new InvalidOperationException("The observer was not attached to its renderer.");
 
     /// <summary>Records phrase-start states, the track's start and end, and its tempo timeline.</summary>
-    private sealed class LoopObserver : ISpcDriverObserver
+    private sealed partial class LoopObserver : ISpcDriverObserver
     {
         /// <summary>First arrival of each phrase state (tempo phase excluded), by state key.</summary>
         private readonly Dictionary<string, long> arrivals = [];

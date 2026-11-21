@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// </summary>
 /// <param name="root">The audio root the manifest's paths are relative to.</param>
 /// <param name="sampleRate">The manifest's clip rate.</param>
-internal sealed class InstalledClipFiles(string root, int sampleRate)
+internal sealed partial class InstalledClipFiles(string root, int sampleRate)
     : IAudioClipSource
 {
     /// <summary>Bytes of the minimal RIFF/WAVE header the exporter writes before the samples.</summary>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>What each way of colouring a sheet's pixels draws its characters in (<see cref="SpriteImageColours"/>).</summary>
-internal static class SpriteImageColourDefinitions
+internal static partial class SpriteImageColourDefinitions
 {
     /// <summary>The colours one set of a two-bit sheet holds.</summary>
     private const int TwoBitSetColours = SuperMetroid.AssetExtraction.Rooms.RoomTileCanvas.TwoBppRowColours;

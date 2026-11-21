@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Assets;
 /// Minimal RGBA PNG encoder used to keep the reverse-engineering tools dependency-free.
 /// Supporting one predictable format also makes generated assets deterministic.
 /// </summary>
-public static class PngWriter
+public static partial class PngWriter
 {
 
     /// <summary>Writes a PNG chunk in network byte order with CRC over its four-byte type and payload, excluding length.</summary>

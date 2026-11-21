@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Areas.Maridia;
 /// (<see cref="ElevatubeInheritedFraction"/>).
 /// </summary>
 [RoomLifetime]
-public sealed class MaridiaElevatubeRoomMainState
+public sealed partial class MaridiaElevatubeRoomMainState
 {
     /// <summary>
     /// The tube's tracked room height (#2016): the room Y its ride moves by the velocity each update, with its fraction.

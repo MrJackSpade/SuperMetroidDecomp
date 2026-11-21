@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>The updates on which a Beetom latched onto Samus drains her and sounds the drain (#1606).</summary>
-internal static class BeetomCadenceDefinitions
+internal static partial class BeetomCadenceDefinitions
 {
     /// <summary>
     /// The enemy passes on which a latched Beetom queues the energy-drain sound: the last place of each period of the

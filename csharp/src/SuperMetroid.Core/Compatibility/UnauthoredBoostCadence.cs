@@ -26,7 +26,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// echo meets a full sound queue.
 /// </remarks>
 [CompatibilityService("bounded over-read: a full sound queue sends the Speed Booster run onto a cadence the game never authored, timed by what Ceres Ridley's getaway left behind")]
-public sealed class UnauthoredBoostCadence
+public sealed partial class UnauthoredBoostCadence
 {
     /// <summary>The running frames the cadence times; the run's loop closes after the last.</summary>
     public const int FrameCount = 10;

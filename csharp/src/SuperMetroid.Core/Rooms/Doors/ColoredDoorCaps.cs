@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// The yellow, green and red door caps: each colour's cap closed and sliding aside per facing, and the block shape each
 /// draws from <see cref="ColoredDoorObjectDrawDefinitions"/> (#1862, #1994).
 /// </summary>
-internal static class ColoredDoorCaps
+internal static partial class ColoredDoorCaps
 {
     /// <summary>The block shape of each coloured-cap draw: its four blocks down its column or along its row.</summary>
     private static readonly Dictionary<Draw, RoomBlockShape> Shapes = ColoredDoorObjectDrawDefinitions.Collisions
@@ -16,7 +16,7 @@ internal static class ColoredDoorCaps
     /// <param name="Color">The cap's colour.</param>
     /// <param name="Orientation">The cap's facing.</param>
     /// <param name="Look">The cap closed or sliding aside.</param>
-    internal readonly record struct Draw(ColoredDoorColor Color, ColoredDoorOrientation Orientation, DoorCapLook Look)
+    internal readonly partial record struct Draw(ColoredDoorColor Color, ColoredDoorOrientation Orientation, DoorCapLook Look)
     {
         /// <summary>The axis this cap's four blocks stand along: a column for a left or right cap's, a row otherwise (#2560).</summary>
         internal Axis LineAxis => DoorCapAxes.Of(Orientation);

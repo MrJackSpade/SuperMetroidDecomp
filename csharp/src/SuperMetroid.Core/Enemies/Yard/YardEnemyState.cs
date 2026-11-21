@@ -3,7 +3,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>The state of a Yard. Names follow what each value does.</summary>
-public sealed class YardEnemyState
+public sealed partial class YardEnemyState
 {
     /// <summary>Starts the Yard in <paramref name="movement"/>.</summary>
     internal YardEnemyState(YardMovement movement) => Movement = movement;

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// elevator's door and so arms the elevator, or she only brushes the elevator's door. The elevator's door leads to no room,
 /// so it stops her as a solid block does whatever her pose; a door she enters lets her into the doorway.
 /// </summary>
-internal abstract record DoorContact
+internal abstract partial record DoorContact
 {
     /// <summary>Only this type's own cases exist.</summary>
     private DoorContact()
@@ -35,14 +35,14 @@ internal abstract record DoorContact
 
     /// <summary>Samus enters <paramref name="Door"/>, which the door transition then goes through.</summary>
     /// <param name="Door">The door the block leads through.</param>
-    internal sealed record EntersDoor(DoorDefinition Door) : DoorContact
+    internal sealed partial record EntersDoor(DoorDefinition Door) : DoorContact
     {
         /// <inheritdoc/>
         public override bool Blocks => false;
     }
 
     /// <summary>Samus stands at the elevator's door, which arms the elevator.</summary>
-    internal sealed record StandsAtElevator : DoorContact
+    internal sealed partial record StandsAtElevator : DoorContact
     {
         /// <summary>The one stand at the elevator's door.</summary>
         internal static StandsAtElevator Instance { get; } = new();
@@ -52,7 +52,7 @@ internal abstract record DoorContact
     }
 
     /// <summary>Samus meets the elevator's door in a pose other than standing, which stops her and arms nothing.</summary>
-    internal sealed record BrushesElevator : DoorContact
+    internal sealed partial record BrushesElevator : DoorContact
     {
         /// <summary>The one brush of the elevator's door.</summary>
         internal static BrushesElevator Instance { get; } = new();

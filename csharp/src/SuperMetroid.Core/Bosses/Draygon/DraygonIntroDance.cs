@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Bosses.Draygon.DraygonIntroDanceDefinitions;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's opening Evir dance: the step of the traced path each Evir takes.</summary>
-internal static class DraygonIntroDance
+internal static partial class DraygonIntroDance
 {
 
     /// <summary>

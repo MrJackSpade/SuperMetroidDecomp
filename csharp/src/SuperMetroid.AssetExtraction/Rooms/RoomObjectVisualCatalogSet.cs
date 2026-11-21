@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Every room PLM visual catalog whose contents form the PLM presentation identity (#633).</summary>
-public sealed record RoomObjectVisualCatalogSet
+public sealed partial record RoomObjectVisualCatalogSet
 {
     /// <summary>Shot block.</summary>
     public required InstalledRoomObjectPictures ShotBlock { get; init; }

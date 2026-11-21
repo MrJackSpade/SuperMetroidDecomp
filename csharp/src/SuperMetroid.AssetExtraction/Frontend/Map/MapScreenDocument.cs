@@ -2,7 +2,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Layout-only content: tile-sheet coordinates, palette selectors, priority and flips; the import's alone (#1467).</summary>
-public sealed record MapScreenDocument
+public sealed partial record MapScreenDocument
 {
     /// <summary>Gets the map-screen schema revision.</summary>
     public required int Version { get; init; }

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// The installed RGB5 target images for the two Chozo statues and n00b-tube cracks, kept as installed.
 /// Statue variant selection, PLM placement and tube behavior remain compiled.
 /// </summary>
-public sealed class ChozoAndTubeColorCatalog
+public sealed partial class ChozoAndTubeColorCatalog
 {
     /// <summary>The installed tube-crack colours.</summary>
     private readonly InstalledColourRows tubeCracks;

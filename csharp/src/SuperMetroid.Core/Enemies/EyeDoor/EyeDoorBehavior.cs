@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>The eye doors' projectiles: the shots the eye fires, the sweat it drips and the smoke it leaves.</summary>
 [RoomLifetime]
-internal sealed class EyeDoorBehavior
+internal sealed partial class EyeDoorBehavior
 {
     /// <summary>Provides the loaded room and random seed for smoke placement.</summary>
     private readonly EnemyRoomBinding _room;
@@ -97,11 +97,21 @@ internal sealed class EyeDoorBehavior
     /// An eye door's shot or sweat: the shot's flight, which its animation starts, the sweat's fall, which its spawn starts,
     /// and their animations' cues.
     /// </summary>
-    /// <param name="initial">The motion the projectile starts with: the sweat's fall, or none for the shot.</param>
-    /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
-    internal sealed class EyeDoorProjectileBehavior(EyeDoorProjectileMotion? initial, EyeDoorProjectileSegment? shot = null)
-        : EnemyProjectileMotionBehavior<EyeDoorProjectileMotion>(initial), IEnemyProjectileCues<EyeDoorProjectileCue>
+    internal sealed partial class EyeDoorProjectileBehavior
+        : EnemyProjectileMotionBehavior<EyeDoorProjectileMotion>, IEnemyProjectileCues<EyeDoorProjectileCue>
     {
+        /// <summary>Where the animation a destroying shot starts begins, or null for the shared delete animation.</summary>
+        private readonly EyeDoorProjectileSegment? shot;
+
+        /// <summary>Creates an <see cref="EyeDoorProjectileBehavior"/>.</summary>
+        /// <param name="initial">The motion the projectile starts with: the sweat's fall, or none for the shot.</param>
+        /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
+        public EyeDoorProjectileBehavior(EyeDoorProjectileMotion? initial, EyeDoorProjectileSegment? shot = null)
+            : base(initial)
+        {
+            this.shot = shot;
+        }
+
         /// <summary>Each shot's door, the game state that records its opening and its heading, given as its eye fires it.</summary>
         internal EnemyProjectileStates<EyeDoorShotState> Shots { get; } = new();
 

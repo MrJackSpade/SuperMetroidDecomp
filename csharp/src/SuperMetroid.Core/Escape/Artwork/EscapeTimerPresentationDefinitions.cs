@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Stable sheet frame names for the escape timer presentation.</summary>
-public static class EscapeTimerPresentationDefinitions
+public static partial class EscapeTimerPresentationDefinitions
 {
     /// <summary>The sheet frame name of the TIME label and both separators.</summary>
     public const string LabelFrame = "Label";

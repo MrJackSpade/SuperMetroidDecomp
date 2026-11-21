@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon grabbing Samus: the chase, the spiral carry, the tail whips and the release.</summary>
 [RoomLifetime]
-internal sealed class DraygonGrab
+internal sealed partial class DraygonGrab
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;

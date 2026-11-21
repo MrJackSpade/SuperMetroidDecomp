@@ -3,7 +3,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Editable text and placement for a single escape-warning line.</summary>
-public sealed record EscapeTypewriterLineDocument
+public sealed partial record EscapeTypewriterLineDocument
 {
     /// <summary>
     /// The layer pixel the line's first glyph's upper-left corner shows at, from the layer's upper-left corner; at least

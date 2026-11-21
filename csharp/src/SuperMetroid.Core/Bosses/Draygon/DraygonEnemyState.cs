@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// enemy made with the encounter by his body's setup and keeping its own animation (#2298); the eye's tracking lives in
 /// <see cref="EyeTracking"/>.
 /// </summary>
-public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
+public sealed partial class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
     /// <inheritdoc />
     Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => BodyPlacement;

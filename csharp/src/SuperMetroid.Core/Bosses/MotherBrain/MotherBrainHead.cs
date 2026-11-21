@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's head and brain: their setup, neck, animations, cues and drawing.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainHead
+internal sealed partial class MotherBrainHead
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -247,7 +247,7 @@ internal sealed class MotherBrainHead
     /// <summary>A picture her brain's draw shows and whether her brain's shake counted one of its updates off for it.</summary>
     /// <param name="Frame">The picture.</param>
     /// <param name="Shook">Whether her brain's shake was still shaking when the picture counted an update off it.</param>
-    private readonly record struct MotherBrainBrainPicture(EnemyFrameId Frame, bool Shook);
+    private readonly partial record struct MotherBrainBrainPicture(EnemyFrameId Frame, bool Shook);
 
     /// <summary>
     /// Carries out one event of a brain animation in her late fight: the cues of her attacks on the Baby act on

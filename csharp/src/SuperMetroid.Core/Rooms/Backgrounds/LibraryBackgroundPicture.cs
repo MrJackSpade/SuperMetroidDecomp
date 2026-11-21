@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// Which picture of a library background a room shows (#2558): the background's ordinary picture, or the picture of the
 /// entry door that shows one of its own (<see cref="LibraryBackground.PictureDoors"/>).
 /// </summary>
-public abstract record LibraryBackgroundPicture
+public abstract partial record LibraryBackgroundPicture
 {
     /// <summary>Limits the pictures to the ordinary one and a door's.</summary>
     private LibraryBackgroundPicture()
@@ -20,9 +20,9 @@ public abstract record LibraryBackgroundPicture
     public static LibraryBackgroundPicture Of(DoorDefinition door) => new DoorPicture(Ensure.NotNull(door));
 
     /// <summary>The background's ordinary picture.</summary>
-    public sealed record OrdinaryPicture : LibraryBackgroundPicture;
+    public sealed partial record OrdinaryPicture : LibraryBackgroundPicture;
 
     /// <summary>The picture a room entered through <paramref name="Door"/> shows.</summary>
     /// <param name="Door">The entry door that shows its own picture.</param>
-    public sealed record DoorPicture(DoorDefinition Door) : LibraryBackgroundPicture;
+    public sealed partial record DoorPicture(DoorDefinition Door) : LibraryBackgroundPicture;
 }

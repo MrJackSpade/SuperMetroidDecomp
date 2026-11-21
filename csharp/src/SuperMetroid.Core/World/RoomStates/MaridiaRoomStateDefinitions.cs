@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The initialization settings of each Maridia room state, named for their rooms.</summary>
-public static class MaridiaRoomStateDefinitions
+public static partial class MaridiaRoomStateDefinitions
 {
 
     /// <summary>The Glass Tunnel Save room's state.</summary>

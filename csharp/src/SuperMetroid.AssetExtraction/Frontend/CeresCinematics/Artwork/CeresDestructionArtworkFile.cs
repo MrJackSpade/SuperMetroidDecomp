@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Reads the installed actor layouts unique to the destruction of Ceres and the following Zebes reveal.</summary>
-public static class CeresDestructionArtworkFile
+public static partial class CeresDestructionArtworkFile
 {
     /// <summary>Loads the destruction's actor layouts, validating each.</summary>
     /// <param name="revealActorsJson">The initial Zebes-reveal placements, one for each reveal role.</param>

@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// <param name="Wings">The wing pose shown.</param>
 /// <param name="FlameOffset">How far the flames sit from the Geruta, in pixels.</param>
 /// <param name="Flames">Which way the flames burn.</param>
-internal readonly record struct GerutaSwoopWing(EnemyFrameId Wings, int FlameOffset, GerutaFlames Flames);
+internal readonly partial record struct GerutaSwoopWing(EnemyFrameId Wings, int FlameOffset, GerutaFlames Flames);

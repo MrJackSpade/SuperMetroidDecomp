@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// probe every frame. Keeping those calls makes ledges, slopes, and conveyors meet
 /// the same seam as standing movement.
 /// </remarks>
-public static class SamusPostureMovement
+public static partial class SamusPostureMovement
 {
     /// <summary>
     /// Runs crouching movement for the complete equal-radius crouch family,

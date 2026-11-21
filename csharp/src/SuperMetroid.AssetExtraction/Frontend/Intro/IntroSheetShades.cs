@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// crossfaded scene over the scene pictures and the actors, each actor colouring, and each narration letter colour
 /// variant. A level shows each colour scaled by the level and rounded down, as the opening's crossfade shows it.
 /// </summary>
-internal static class IntroSheetShades
+internal static partial class IntroSheetShades
 {
     /// <summary>The crossfaded scenes in the order the sheets list their shades, each listed once (#2567).</summary>
     private static readonly IReadOnlyList<IntroCrossfadeScene> ShadedScenes = Ensure.EveryMemberOnce(IntroCinematicDefinitions.Crossfade.ShadedScenes);

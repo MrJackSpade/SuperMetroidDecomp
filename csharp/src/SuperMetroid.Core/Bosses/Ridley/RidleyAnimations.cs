@@ -6,7 +6,7 @@ using P = SuperMetroid.Core.Bosses.Ridley.RidleyBodySegment;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ridley's typed body animations (#641, #1600), shared by Ceres and Lower Norfair.</summary>
-internal static class RidleyAnimations
+internal static partial class RidleyAnimations
 {
     /// <summary>How long the standing pose lasts before the animation rests.</summary>
     private const int StandingDuration = 12;
@@ -85,7 +85,7 @@ internal static class RidleyAnimations
     internal static Animation<RidleyBodySegment> StartingWith(RidleyBodySegment segment) => StartingAt[segment];
 
     /// <summary>The poses of one facing.</summary>
-    private readonly record struct Side(F Standing, F MouthHalfOpen, F MouthOpen, F LegsHalfExtended, F LegsExtended)
+    private readonly partial record struct Side(F Standing, F MouthHalfOpen, F MouthOpen, F LegsHalfExtended, F LegsExtended)
     {
         /// <summary>The left-facing poses.</summary>
         internal static Side Left { get; } = new(F.RidleyBodyLeft, F.RidleyBodyLeftMouthHalfOpen, F.RidleyBodyLeftMouthOpen, F.RidleyBodyLeftLegsHalfExtended, F.RidleyBodyLeftLegsExtended);

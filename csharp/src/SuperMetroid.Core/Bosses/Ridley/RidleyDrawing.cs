@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Draws both Ridleys' tail and wings before the common enemy drawing draws his body (#2229).</summary>
 [RoomLifetime]
-internal sealed class RidleyDrawing
+internal sealed partial class RidleyDrawing
 {
     /// <summary>Publishes his drawn parts' frames.</summary>
     private readonly EnemyPresentation _presentation;

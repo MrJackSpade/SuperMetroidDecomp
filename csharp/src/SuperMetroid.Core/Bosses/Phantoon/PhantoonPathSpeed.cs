@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// between updates, zero or more forward and zero or less backward. Each update he takes the speed's whole places along
 /// the path; the fraction only decides on which update a speed change reaches the next whole place.
 /// </summary>
-public readonly record struct PhantoonPathSpeed
+public readonly partial record struct PhantoonPathSpeed
 {
     /// <summary>Keeps the speed in places an update, fraction included, at the precision the game steps it in.</summary>
     internal PhantoonPathSpeed(SignedSixteenSixteen places) => Places = places;

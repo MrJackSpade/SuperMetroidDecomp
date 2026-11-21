@@ -4,7 +4,7 @@ using SuperMetroid.Core.Runtime;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Everything the session hands a new gameplay runtime at its start boundary.</summary>
-internal sealed record GameplayRuntimeStart
+internal sealed partial record GameplayRuntimeStart
 {
     /// <summary>Why the runtime is created; a selected game carries <see cref="Selected"/>, an attract demo does not.</summary>
     public required GameplayRuntimePurpose Purpose { get; init; }

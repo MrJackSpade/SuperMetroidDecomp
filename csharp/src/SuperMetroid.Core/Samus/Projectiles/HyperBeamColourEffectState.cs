@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The effect plays the beams' colour cycle through the shared animation player (#2458), which counts each shade's
 /// updates; the installed colours change only what each shade looks like, never when it shows.
 /// </remarks>
-public sealed class HyperBeamColourEffectState
+public sealed partial class HyperBeamColourEffectState
 {
     /// <summary>
     /// The play of the Hyper Beam's colour cycle: the shade it shows and the updates that shade has left. No colour is

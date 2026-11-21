@@ -5,7 +5,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Decode-only rule source: stock artwork is read before its authored reveal masks are attached.</summary>
-internal sealed class AreaMapDecodeRules(AreaId area) : IAreaMapView
+internal sealed partial class AreaMapDecodeRules(AreaId area) : IAreaMapView
 {
     /// <summary>Preserves the area identity while stock tile artwork is still being decoded.</summary>
     public AreaId Area => area;

@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// One step of a Samus animation: a picture held for a delay (<see cref="SamusAnimationDelay"/>), or
 /// a cue the animation runs when it reaches the frame (<see cref="SamusAnimationCue"/>).
 /// </summary>
-internal abstract record SamusPoseAnimationStep;
+internal abstract partial record SamusPoseAnimationStep;

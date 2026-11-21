@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// steps that show one place show it in one colouring (#2393). Cadence and ownership of the robot's colours stay the
 /// glow's (<see cref="WorkRobotGlowDefinitions"/>).
 /// </summary>
-public sealed class WorkRobotPaletteCycle
+public sealed partial class WorkRobotPaletteCycle
 {
     /// <summary>The first of the robot's sheet inks the glow recolours: the glow's colours replace that ink and the three after it.</summary>
     private const int FirstGlowInk = 9;

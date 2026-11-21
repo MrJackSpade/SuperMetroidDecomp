@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// </summary>
 /// <param name="samus">Samus as the room reads her.</param>
 /// <param name="events">The game's event flags.</param>
-internal sealed class ShaktoolRoomControllerObject(IRoomSamusAccess samus, IStoryEvents events) : RoomObjectBehaviour
+internal sealed partial class ShaktoolRoomControllerObject(IRoomSamusAccess samus, IStoryEvents events) : RoomObjectBehaviour
 {
     /// <summary>Samus as the room reads her.</summary>
     private readonly IRoomSamusAccess _samus = samus;

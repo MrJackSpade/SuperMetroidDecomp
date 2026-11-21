@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// The miscellaneous dust clouds and explosions (#1760): each holds where it was raised while its animation plays and
 /// leaves once outside the camera. Their spawners start the animation they choose.
 /// </summary>
-internal sealed class DustExplosionProjectileBehavior : SingleMotionProjectileBehavior
+internal sealed partial class DustExplosionProjectileBehavior : SingleMotionProjectileBehavior
 {
     /// <summary>The one dust behaviour; it keeps no state.</summary>
     internal static DustExplosionProjectileBehavior Instance { get; } = new();

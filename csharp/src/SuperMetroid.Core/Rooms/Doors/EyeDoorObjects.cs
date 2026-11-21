@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// (<see cref="EyeDoorEyeObject"/>) and its body and bottom (<see cref="EyeDoorPartObject"/>) are typed room objects.
 /// </summary>
 [RoomLifetime]
-internal sealed class EyeDoorObjects
+internal sealed partial class EyeDoorObjects
 {
     /// <summary>The room's system and event state.</summary>
     private readonly SharedGameState _system;

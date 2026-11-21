@@ -8,13 +8,13 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// (#1415): the import pipeline's private knowledge of the cartridge, decoded once into the installed Ceres documents.
 /// </summary>
 [EncodingOwner("cartridge addresses of the Ceres door, escape and floor animation tables")]
-internal static class CeresSourceDefinitions
+internal static partial class CeresSourceDefinitions
 {
     /// <summary>The bytes of one RGB5 colour word.</summary>
     internal const int ColorWordBytes = sizeof(ushort);
 
     /// <summary>The Ceres door actor's sources, read by its initialization at $A6:F6C5 and its animation at $A6:F850.</summary>
-    internal static class Door
+    internal static partial class Door
     {
         /// <summary>$B0:C400, the four-bit characters the door's second variant copies over the sprite characters.</summary>
         internal const int Characters = 0xb0c400;
@@ -33,7 +33,7 @@ internal static class CeresSourceDefinitions
     }
 
     /// <summary>The bank-$A6 words of the Ceres escape warning's overlay pages.</summary>
-    internal static class EscapeOverlay
+    internal static partial class EscapeOverlay
     {
         /// <summary>$A6:C164: the English EMERGENCY title's words.</summary>
         internal static readonly SnesAddress Emergency = new(0xa6, 0xc164);
@@ -49,7 +49,7 @@ internal static class CeresSourceDefinitions
     /// byte after the last descriptor; the frame's upload ($80:8BBA) clears only the queue's first word, so the rest
     /// outlives the update.
     /// </summary>
-    internal static class FloorAnimation
+    internal static partial class FloorAnimation
     {
         /// <summary>$A6:ACE2, $A6:ACF5 and $A6:AD08: the Baby capsule's three frames, two descriptors each.</summary>
         internal static readonly SnesAddress[] CapsuleFrames = [new(0xa6, 0xace2), new(0xa6, 0xacf5), new(0xa6, 0xad08)];

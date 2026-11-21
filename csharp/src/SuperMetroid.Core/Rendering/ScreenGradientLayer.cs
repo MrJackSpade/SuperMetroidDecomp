@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rendering;
 /// darkens the floor and the backdrop, or brightens them and the frontmost sprites that take part in blends, as the stop's
 /// blend says, each channel held within none and full.
 /// </summary>
-public sealed record ScreenGradientLayer : DisplayLayer
+public sealed partial record ScreenGradientLayer : DisplayLayer
 {
     /// <summary>The gradient the layer draws.</summary>
     public ScreenGradient Gradient { get; }

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// band whose <see cref="MinimumHits"/> his count reaches, and in <see cref="CeresRidleyHealthBandDefinitions.Unhurt"/>
 /// below them all.
 /// </summary>
-public sealed class CeresRidleyHealthBand
+public sealed partial class CeresRidleyHealthBand
 {
     /// <summary>Defines a band.</summary>
     /// <param name="minimumHits">The fewest accepted hits in the band: none for the band he starts in.</param>

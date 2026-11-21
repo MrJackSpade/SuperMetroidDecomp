@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Installed, replaceable Speed Booster bomb-reveal visual block, and the editable identity that names it.</summary>
-public static class RoomObjectSpeedBoosterVisualFiles
+public static partial class RoomObjectSpeedBoosterVisualFiles
 {
     /// <summary>Editable Speed Booster bomb-reveal visual JSON filename.</summary>
     internal const string VisualFileName = "speed-booster.json";

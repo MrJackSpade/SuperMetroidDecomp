@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>After the shot: rotate the shot graphic, fade Samus, and hold before the white flash.</summary>
-internal sealed class EndingPostShot
+internal sealed partial class EndingPostShot
 {
     /// <summary>The shot picture's fade out (#2541): a step on each of the shot's updates from its first.</summary>
     private readonly PacedFadeSteps shotFade = new(EndingPostShotDefinitions.FadeSteps, EndingPostShotDefinitions.FadeUpdatesPerStep,

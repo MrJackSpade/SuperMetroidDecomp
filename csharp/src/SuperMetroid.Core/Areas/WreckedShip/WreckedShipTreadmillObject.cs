@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.WreckedShip;
 /// </summary>
 /// <param name="direction">The belt's push direction.</param>
 /// <param name="areaBossDefeated">Whether Phantoon was defeated when the treadmill spawned.</param>
-internal sealed class WreckedShipTreadmillObject(WreckedShipTreadmillDirection direction, bool areaBossDefeated) : RoomObjectBehaviour
+internal sealed partial class WreckedShipTreadmillObject(WreckedShipTreadmillDirection direction, bool areaBossDefeated) : RoomObjectBehaviour
 {
     /// <summary>The belt's push direction.</summary>
     internal WreckedShipTreadmillDirection Direction { get; } = direction;

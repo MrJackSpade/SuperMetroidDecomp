@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// The import's room-FX blend document's rules (<see cref="RoomFxPaletteBlendDefinitions"/>): the eight retail blends in
 /// document order and each blend's document key, which <see cref="RoomEffectTintKeys"/> writes out.
 /// </summary>
-public static class RoomFxPaletteBlendDocumentRules
+public static partial class RoomFxPaletteBlendDocumentRules
 {
     /// <summary>The eight named retail blend resources in document order, without stored identities.</summary>
     public static IEnumerable<RoomEffectTint> Ids

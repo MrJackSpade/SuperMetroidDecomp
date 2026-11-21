@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// The Ki-Hunter's acid-spit animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="KiHunterAcidSpitCue"/>.
 /// </summary>
-internal static class KiHunterAcidSpitAnimations
+internal static partial class KiHunterAcidSpitAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<KiHunterAcidSpitSegment, EnemyProjectileFrameId, KiHunterAcidSpitCue> Segments { get; } = new(

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 /// colours them from the installed Tourian statue colours, on the statue's sprites and, for the statues drawn in the
 /// room's background, on those pictures.
 /// </summary>
-public static class TourianStatueShades
+public static partial class TourianStatueShades
 {
     /// <summary>The statue scene's own colours, which its initialization installs.</summary>
     public static PictureShade Entrance { get; } = new("tourian-statue-entrance", 0);

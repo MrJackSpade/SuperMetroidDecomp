@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 /// <summary>The frames Phantoon shows as his body's pictures (#1466): his body and eye, gaze, tentacle and mouth
 /// poses.</summary>
-internal static class PhantoonBodyLayerFrameDefinitions
+internal static partial class PhantoonBodyLayerFrameDefinitions
 {
     /// <summary>The frames Phantoon draws on his body layer, each a frame of his installed body sheet.</summary>
     internal static IReadOnlySet<EnemyFrameId> Frames { get; } = new HashSet<EnemyFrameId>

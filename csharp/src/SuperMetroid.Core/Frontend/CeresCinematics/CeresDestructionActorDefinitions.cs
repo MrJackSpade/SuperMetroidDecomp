@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>Fixed actor metadata and physical motion for Ceres destruction and Zebes reveal.</summary>
-internal static class CeresDestructionActorDefinitions
+internal static partial class CeresDestructionActorDefinitions
 {
     /// <summary>
     /// The persistent actors behind the explosion in the order the destruction's setup spawns them, which is the order

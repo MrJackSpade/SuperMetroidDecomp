@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// profile, and the solid, door, spike, special, shootable and bombable blocks are walls. Air of every kind and grapple
 /// blocks let it pass.
 /// </summary>
-internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockCollision
+internal sealed partial class EnemyProjectileTerrainCollision : EnemyProjectileBlockCollision
 {
     /// <summary>The collision every enemy projectile without one of its own moves with.</summary>
     internal static EnemyProjectileTerrainCollision Rule { get; } = new();

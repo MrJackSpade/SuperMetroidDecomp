@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.World;
 /// <summary>The Maridia elevatube's main (#2287): the ride its doors start, after gameplay drawing and before the room shakes.</summary>
 /// <param name="tube">The tube's ride.</param>
 [RoomLifetime]
-internal sealed class MaridiaElevatubeMain(MaridiaElevatubeRoomMainState tube) : IRoomMain
+internal sealed partial class MaridiaElevatubeMain(MaridiaElevatubeRoomMainState tube) : IRoomMain
 {
     /// <summary>The tube's ride, which the main steps and checks read.</summary>
     internal readonly MaridiaElevatubeRoomMainState tube = tube;

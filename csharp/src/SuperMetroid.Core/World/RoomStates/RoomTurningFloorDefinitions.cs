@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>What each turning floor does to its room's screen (<see cref="RoomTurningFloor"/>).</summary>
-public static class RoomTurningFloorDefinitions
+public static partial class RoomTurningFloorDefinitions
 {
     /// <summary>
     /// The turning floors that are their screen alone, drawing none of their level's blocks (#1647): the elevator shaft's.

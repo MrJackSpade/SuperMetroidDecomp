@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// tracked Samus on both axes, before anything reads where it stands.
 /// </summary>
 [RoomLifetime]
-public sealed class RoomCameraFloor
+public sealed partial class RoomCameraFloor
 {
     /// <summary>The lowest Y, in room pixels, the camera's top edge may take, or null while nothing holds the camera.</summary>
     public int? LowestY { get; private set; }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// whole pixel. Every effect overlay picture repeats across and down at a size dividing <see cref="RepeatPixels"/>, so
 /// a texture moved a whole repeat further shows the same picture, and the drift keeps only where it lies within one.
 /// </summary>
-internal readonly record struct TextureDrift
+internal readonly partial record struct TextureDrift
 {
     /// <summary>
     /// The pixels across and down after which every effect overlay picture shows the same again: each picture's width and

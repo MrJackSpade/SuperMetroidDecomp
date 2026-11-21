@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable explosion OAM art, independent of native placement and timing.</summary>
-public sealed class IntroMotherBrainExplosionSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroMotherBrainExplosionSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated fourth-hit compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;

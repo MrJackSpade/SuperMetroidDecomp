@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// Mochtroid's free-flight and attached pulse loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class MochtroidAnimations
+internal static partial class MochtroidAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<MochtroidSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(

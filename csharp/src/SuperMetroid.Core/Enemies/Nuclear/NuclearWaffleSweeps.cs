@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>Chooses a Nuclear Waffle's sweep.</summary>
-internal static class NuclearWaffleSweeps
+internal static partial class NuclearWaffleSweeps
 {
     /// <summary>The sweep, with its endpoints, link spacing and turn thresholds, that runs in <paramref name="direction"/>.</summary>
     internal static NuclearWaffleSweepDefinition Sweep(NuclearWaffleSweepDirection direction) => direction switch

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 /// whose colour variant, mirroring and priority every glyph it types takes, and how a character steps from it. Only the
 /// import reads them, to picture each typed glyph; gameplay writes the glyph's picture by name.
 /// </summary>
-internal static class EscapeTypewriterTileDefinitions
+internal static partial class EscapeTypewriterTileDefinitions
 {
     /// <summary>The tile of the letter A Ceres's warning typewriter types from.</summary>
     internal static BackgroundTile CeresTileBase { get; } = new(386, 5, highPriority: true);

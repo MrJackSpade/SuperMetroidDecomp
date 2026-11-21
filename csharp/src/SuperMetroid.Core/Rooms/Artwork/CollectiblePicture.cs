@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// </summary>
 /// <param name="Kind">The collectible kind, one that shows its own picture.</param>
 /// <param name="Look">Which of its two alternating looks the picture shows.</param>
-public readonly record struct CollectiblePicture(InWorldCollectibleKind Kind, CollectibleLook Look)
+public readonly partial record struct CollectiblePicture(InWorldCollectibleKind Kind, CollectibleLook Look)
 {
     /// <summary>The collectible kinds in the order their own pictures are listed (#2567).</summary>
     private static readonly IReadOnlyList<InWorldCollectibleKind> KindOrder = Ensure.EveryMemberOnce<InWorldCollectibleKind>(

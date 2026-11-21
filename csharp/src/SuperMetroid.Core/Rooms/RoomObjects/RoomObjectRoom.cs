@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// and the area.
 /// </summary>
 [RoomLifetime]
-public sealed record RoomObjectRoom
+public sealed partial record RoomObjectRoom
 {
     /// <summary>Creates the room binding; every member is required.</summary>
     public RoomObjectRoom(RoomLevelData level, SharedGameState system, AreaId area)

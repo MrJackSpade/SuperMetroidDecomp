@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// post-Ceres and escape lift-offs, with the frame events it publishes.
 /// </summary>
 [RoomLifetime]
-internal sealed class GunshipBehavior : IEnemyEntityFactory
+internal sealed partial class GunshipBehavior : IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;

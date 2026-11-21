@@ -27,7 +27,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// page, and the colour transition into the Mother Brain gameplay flashback.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own flashback level, Samus projectiles and colour effects for the scene's lifetime; no gameplay room is loaded.")]
-public sealed class IntroCinematicState : IFrontendScreen
+public sealed partial class IntroCinematicState : IFrontendScreen
 {
     /// <inheritdoc/>
     void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)

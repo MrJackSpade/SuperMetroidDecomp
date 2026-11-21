@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// in the palette its draw selects, coloured as the screen loads the menu palette with the Baby idle, and with a shade
 /// for each of the Baby's colourings (#1512).
 /// </summary>
-internal static class GameOverSheetComposer
+internal static partial class GameOverSheetComposer
 {
     /// <summary>The Baby's frames in the sheet's and the document's order (#2567): closed, middle, open.</summary>
     internal static readonly IReadOnlyList<GameOverBabyFrame> BabyFrames = Ensure.EveryMemberOnce<GameOverBabyFrame>(

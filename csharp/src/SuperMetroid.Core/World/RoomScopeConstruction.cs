@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.World;
 /// every required part. The load runs within one host call, so no frame observes a partial construction.
 /// </summary>
 [RoomLifetime]
-internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
+internal sealed partial class RoomScopeConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
     LoadStation? loadStation, RoomMainHandOvers handOvers) : IDoorEventLoad
 {
     /// <summary>What the previous room's main handed on, each hand-over given only to the main that carries it.</summary>

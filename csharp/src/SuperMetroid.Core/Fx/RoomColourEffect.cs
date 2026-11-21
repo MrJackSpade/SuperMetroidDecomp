@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx;
 /// frames on (#2544), and the animation it plays on the shared animation player (#2488). Its definitions are <see cref="ColourEffectAnimations"/>; the
 /// <see cref="ColourEffectSystem"/> that started it gives it its turn.
 /// </summary>
-internal sealed class RoomColourEffect
+internal sealed partial class RoomColourEffect
 {
     /// <summary>
     /// Starts <paramref name="effect"/> playing the animation of <paramref name="framesOf"/> in that effect's frames, due on

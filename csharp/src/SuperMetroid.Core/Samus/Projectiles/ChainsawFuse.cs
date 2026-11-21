@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// leaves (<see cref="BeamFiredOverLastShot"/>, #2468): it counts that down, moves its animation at the fast stage
 /// (<see cref="ChainsawFuseAnimationShift{TCursor}"/>) and starts the Power Bomb blast when it runs out.
 /// </remarks>
-internal sealed class ChainsawFuse
+internal sealed partial class ChainsawFuse
 {
     /// <summary>Projectile animation owner used when the fuse ends the shot.</summary>
     private readonly ProjectileAnimation _animation;

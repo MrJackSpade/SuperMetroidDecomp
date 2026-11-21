@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// other 48 poses are sprite compositions among the extended frames. Hitboxes and animation timing are not part of this
 /// visual catalog.
 /// </summary>
-internal static class DraygonBg2FrameDefinitions
+internal static partial class DraygonBg2FrameDefinitions
 {
     /// <summary>Schema revision accepted by the installed Draygon BG2 frame document; revision 3 names each frame for its pose (#1465), 4 for the animation that first shows it (#1623), 5 for what its picture shows (#2069), 6 without the shut jaw's second frame (#2268).</summary>
     internal const int Version = 6;

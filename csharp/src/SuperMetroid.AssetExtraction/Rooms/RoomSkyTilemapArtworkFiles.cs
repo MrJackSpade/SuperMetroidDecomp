@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// sky's pictures, and the game reads none of them, so the pages and their manifest go to the shared background component's
 /// import-data directory (<see cref="ImportDataDirectory.Of"/>), which the installer deletes before it publishes.
 /// </summary>
-public static class RoomSkyTilemapArtworkFiles
+public static partial class RoomSkyTilemapArtworkFiles
 {
     /// <summary>
     /// Schema version recorded with the extracted sky-page manifest; 2 names each page by its place rather than its cartridge
@@ -97,6 +97,6 @@ public static class RoomSkyTilemapArtworkFiles
     };
 
     /// <summary>Source cartridge identity and hashes for all seven stock sky-page files.</summary>
-    internal sealed record RoomSkyFileManifest(int Version, string SourceCartridgeSha256,
+    internal sealed partial record RoomSkyFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> Sha256);
 }

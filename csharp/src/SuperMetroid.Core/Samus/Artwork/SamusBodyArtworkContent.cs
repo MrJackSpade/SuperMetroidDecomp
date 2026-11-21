@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// What an installed Samus body holds for the game (#1465, #1517, #1585, #1616): where each pose's installed animation
 /// frames place the body, each pose's art origin, her death steps and the arm cannon's placements.
 /// </summary>
-public sealed record SamusBodyArtworkContent
+public sealed partial record SamusBodyArtworkContent
 {
     /// <summary>
     /// The installed animation frames of each pose with a record, by frame of the pose's animation: how many pixels above

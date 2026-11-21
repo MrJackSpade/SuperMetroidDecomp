@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus;
 /// The suits' damage division: Gravity quarters the damage Samus takes and Varia halves it. Ordinary enemy, projectile
 /// and boss hits take it through <see cref="Hurt"/>; periodic damage takes it through <see cref="ReducePeriodic"/>.
 /// </summary>
-public static class SamusSuitDamage
+public static partial class SamusSuitDamage
 {
     /// <summary>
     /// Gravity takes precedence over Varia; halving discards fractions. The damage is any amount of energy, zero or more

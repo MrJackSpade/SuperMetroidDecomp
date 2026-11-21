@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>The angles a shinespark crash's two echoes depart at, by the pose the crash finishes in.</summary>
-public static class ShinesparkEchoDefinitions
+public static partial class ShinesparkEchoDefinitions
 {
     /// <summary>The angles a crash finishing in each of the six crash poses sends its echoes out at.</summary>
     internal static readonly IReadOnlyDictionary<SamusPoseId, ShinesparkDepartureAngles> DepartureAngleTable = new Dictionary<SamusPoseId, ShinesparkDepartureAngles>

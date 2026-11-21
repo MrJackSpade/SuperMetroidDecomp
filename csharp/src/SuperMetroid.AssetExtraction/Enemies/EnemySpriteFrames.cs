@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// word and the palette bits are ORed in. Frames are shared per composition, tile base and palette, so a steady
 /// animation publishes the same frames.
 /// </summary>
-internal static class EnemySpriteFrames
+internal static partial class EnemySpriteFrames
 {
     /// <summary>Frames per composition owner, keyed by the composition's range, tile base and palette bits.</summary>
     private static readonly ConditionalWeakTable<object, ConcurrentDictionary<EnemySpriteFrameRange, SpriteFrame>> Frames = new();

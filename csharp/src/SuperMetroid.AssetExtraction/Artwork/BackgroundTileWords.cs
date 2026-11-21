@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// imported file or a content identity keeps the cartridge's words. Like the tiles themselves, it belongs to the import
 /// pipeline (#1422, #1467).
 /// </summary>
-public static class BackgroundTileWords
+public static partial class BackgroundTileWords
 {
     /// <summary>The tile a packed tilemap entry places.</summary>
     public static BackgroundTile ToTile(int word)

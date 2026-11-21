@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Bosses.Torizo.BombTorizoAttackDefinitions;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Places Bomb Torizo's low-health explosions from their cue's site and Torizo's facing.</summary>
-internal static class BombTorizoAttacks
+internal static partial class BombTorizoAttacks
 {
     /// <summary>The placement of a low-health explosion at the gut or the face, for the facing Torizo has.</summary>
     /// <param name="site">Where the explosion bursts.</param>

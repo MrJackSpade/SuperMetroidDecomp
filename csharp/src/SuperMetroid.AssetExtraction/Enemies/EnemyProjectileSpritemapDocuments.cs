@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// and timed program frames the projectile sheets are composed from. Gameplay draws the composed sheets and never reads
 /// this document.
 /// </summary>
-public static class EnemyProjectileSpritemapDocuments
+public static partial class EnemyProjectileSpritemapDocuments
 {
     /// <summary>
     /// The document schema revision extraction writes and loading accepts; 17 keys every program frame by what its picture

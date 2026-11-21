@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.World;
 /// effects, statues, enemies and bombs, what one room leaves the next, and the layers the door transition shows.
 /// </summary>
 [RoomScopeBoundary("Holds the loaded room and the room under construction.")]
-internal sealed class ActiveRoomState
+internal sealed partial class ActiveRoomState
 {
 
     /// <summary>

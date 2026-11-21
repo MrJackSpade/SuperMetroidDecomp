@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// and every fraction with whole words either side of the cap, of no speed and at both ends, with that addition.
 /// </remarks>
 [CompatibilityService("a Yard in the air gains an eighth of a pixel an update of downward speed, but an addition that would reach four pixels or more down keeps the whole pixels it had while the fraction counts on, so its fall speed cycles below four pixels")]
-internal static class YardFallAcceleration
+internal static partial class YardFallAcceleration
 {
     /// <summary>The downward speed each update adds: an eighth of a pixel an update.</summary>
     private static readonly SignedSixteenSixteen Gravity = SignedSixteenSixteen.FromPixelFraction(1, 8);

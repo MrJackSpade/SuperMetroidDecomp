@@ -3,7 +3,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Lays out Mother Brain's corpse sheet: where each page begins, and which part of each corpse row rots where it shows.</summary>
-public static class MotherBrainCorpseSheet
+public static partial class MotherBrainCorpseSheet
 {
     /// <summary>3072 bytes, covering every corpse page.</summary>
     public const int ByteCount = 3072;

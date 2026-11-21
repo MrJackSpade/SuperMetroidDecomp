@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// One colour an installed shade shows (#1633): the pixels of <see cref="Colour"/> in recolour region <see cref="Region"/>
 /// show <see cref="Shows"/>.
 /// </summary>
-public sealed record InstalledColourSubstitutionDocument
+public sealed partial record InstalledColourSubstitutionDocument
 {
     /// <summary>The colour the recoloured pixels hold, as <c>#rrggbb</c>.</summary>
     public required string Colour { get; init; }

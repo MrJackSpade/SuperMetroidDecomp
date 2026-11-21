@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// Where the cartridge keeps each ending palette role's colours (#1416: moved from Core's palette definitions and
 /// logo palette pointer catalog, which no longer name a cartridge source).
 /// </summary>
-internal static class EndingPaletteSources
+internal static partial class EndingPaletteSources
 {
     /// <summary>The bytes of one sixteen-colour palette.</summary>
     private const int PaletteBytes = 16 * sizeof(ushort);

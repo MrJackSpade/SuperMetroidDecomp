@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>The intro Rinkas: their actor, the two waves of launches, and their drift.</summary>
-internal static class IntroRinkaDefinitions
+internal static partial class IntroRinkaDefinitions
 {
     /// <summary>The intro Rinka's actor: the Rinka animation. The Rinka holds still until the animation starts it moving.</summary>
     /// <remarks>

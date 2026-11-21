@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// its resting and expressive cutscene loops. The baby squishes through horizontal, round and vertical poses;
 /// while it moves, the expressive loop also pulses its colours and cries.
 /// </summary>
-internal static class CeresBabyAnimations
+internal static partial class CeresBabyAnimations
 {
     /// <summary>How many times the resting loop checks for motion and squishes before the expressive loop.</summary>
     private const int IdleSquishPlays = 2;

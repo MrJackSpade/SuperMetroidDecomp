@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Presentation identities for the endpoint and four timed rope records.</summary>
-public static class GrappleSpriteDefinitions
+public static partial class GrappleSpriteDefinitions
 {
     /// <summary>Editable JSON filename for Grapple's endpoint and four rope-segment OBJ attribute selections, excluding segment timing and beam mechanics.</summary>
     public const string FileName = "grapple-sprites.json";

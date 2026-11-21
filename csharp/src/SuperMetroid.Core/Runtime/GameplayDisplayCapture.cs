@@ -13,7 +13,7 @@ using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>Resolution of one published gameplay display frame into the layered scene the backend draws.</summary>
-public static class GameplayDisplayCapture
+public static partial class GameplayDisplayCapture
 {
     /// <summary>
     /// Captures the full gameplay composition, including the HUD band above the room,

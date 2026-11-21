@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>
 /// Kraid's encounter state, which all of his parts share, and the room's effects that belong to no one part of him.
 /// </summary>
-public sealed class KraidEnemyState
+public sealed partial class KraidEnemyState
 {
     /// <summary>
     /// Begins an encounter whose parts each hold it from their setup (#2218): each part's state knows the place that joins
@@ -227,10 +227,10 @@ public sealed class KraidEnemyState
 
     /// <summary>His mouth's reopening (#2560): a closed choice of disarmed, armed and marked, the last two with the reopens left.</summary>
     /// <param name="Left">The mouth reopens still pending.</param>
-    private abstract record MouthReopens(int Left);
+    private abstract partial record MouthReopens(int Left);
 
     /// <summary>No reopen is armed.</summary>
-    private sealed record DisarmedReopens() : MouthReopens(0)
+    private sealed partial record DisarmedReopens() : MouthReopens(0)
     {
         /// <summary>The one disarmed mouth.</summary>
         internal static DisarmedReopens Instance { get; } = new();
@@ -238,11 +238,11 @@ public sealed class KraidEnemyState
 
     /// <summary>A charged body hit armed reopens, and no mouth hit has marked one yet.</summary>
     /// <param name="Left">The reopens left.</param>
-    private sealed record ArmedReopens(int Left) : MouthReopens(Left);
+    private sealed partial record ArmedReopens(int Left) : MouthReopens(Left);
 
     /// <summary>A mouth hit marked his armed mouth: each closing spends one reopen until none is left.</summary>
     /// <param name="Left">The reopens left.</param>
-    private sealed record MarkedReopens(int Left) : MouthReopens(Left);
+    private sealed partial record MarkedReopens(int Left) : MouthReopens(Left);
 
 
     /// <summary>

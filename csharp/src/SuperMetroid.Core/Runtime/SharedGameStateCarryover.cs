@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Runtime;
 /// power-on earthquake rumble delay and the live and stored explored maps, which the runtime's
 /// <see cref="SharedGameState"/> reads and advances and the session keeps across games and demos.
 /// </summary>
-internal sealed record SharedGameStateCarryover
+internal sealed partial record SharedGameStateCarryover
 {
     /// <summary>The session's random number generator, which the runtime's system state reads and advances.</summary>
     public required SharedRandom Random { get; init; }

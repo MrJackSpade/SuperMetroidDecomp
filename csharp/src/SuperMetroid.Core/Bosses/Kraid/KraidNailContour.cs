@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Pushes Kraid's fingernails along his contour: the ledge a nail is level with selects its left offset.</summary>
-internal static class KraidNailContour
+internal static partial class KraidNailContour
 {
     /// <summary>
     /// The left offset of the ledge a nail <paramref name="relativeY"/> pixels below Kraid's body is level with: the first

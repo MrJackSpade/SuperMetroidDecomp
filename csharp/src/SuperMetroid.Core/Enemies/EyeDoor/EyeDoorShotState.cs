@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 /// </summary>
 /// <param name="door">The eye's door; the shot bursts once that door has been opened.</param>
 /// <param name="doors">The game state that records the opened doors, the shot's spawn's.</param>
-internal sealed class EyeDoorShotState(LockedDoor door, SharedGameState doors) : EnemyProjectileState
+internal sealed partial class EyeDoorShotState(LockedDoor door, SharedGameState doors) : EnemyProjectileState
 {
     /// <summary>The eye's door; the shot bursts once that door has been opened.</summary>
     internal LockedDoor Door { get; } = Ensure.NotNull(door);

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>Where the shared menu screen's artwork sits among each of its layers' tile numbers (#1404).</summary>
-internal static class MenuTileSetDefinitions
+internal static partial class MenuTileSetDefinitions
 {
     /// <summary>The tile number of the world map's first foreground character on the menu planes and the area map's foreground.</summary>
     internal const int WorldForegroundFirstTile = 0;

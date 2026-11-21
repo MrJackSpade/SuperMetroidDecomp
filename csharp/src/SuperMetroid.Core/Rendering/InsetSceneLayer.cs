@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Replaces a rectangular pixel region with another owned scene, including its backdrop.</summary>
 /// <remarks>Edges are half-open. Child scenes cannot contain scene insertions, bounding evaluation depth.</remarks>
-public sealed record InsetSceneLayer : DisplayLayer
+public sealed partial record InsetSceneLayer : DisplayLayer
 {
     /// <summary>The inset scene, with its own paint and layers; within the rectangle its pixels, backdrop included, replace the parent's.</summary>
     public LayeredScene Scene { get; }

@@ -11,4 +11,4 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="TitleBackdrop">The title's backdrop.</param>
 /// <param name="Menus">Each menu screen's backdrop.</param>
 /// <param name="CeresHaze">The Ceres haze's two tints.</param>
-public sealed record SceneColours(RgbColor TitleBackdrop, MenuBackdrops Menus, CeresHazeTints CeresHaze);
+public sealed partial record SceneColours(RgbColor TitleBackdrop, MenuBackdrops Menus, CeresHazeTints CeresHaze);

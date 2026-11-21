@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads only the authored Hyper Beam palette-FX color words from the validated cartridge.</summary>
-public static class HyperBeamFxColorExtractor
+public static partial class HyperBeamFxColorExtractor
 {
     /// <summary>Exports the ten eight-color payloads of Hyper Beam palette-FX program $8D:D900, skipping each duration and terminator word.</summary>
     /// <param name="bus">Cartridge source for RGB5 operands beginning at $8D:D906 with a twenty-byte frame stride.</param>

@@ -6,7 +6,7 @@ using static SuperMetroid.Core.Bosses.Kraid.KraidArmCollisionDefinitions;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The collision of Kraid's arm: each rectangle's reactions, and the components of the frame shown.</summary>
-internal static class KraidArmCollision
+internal static partial class KraidArmCollision
 {
     /// <summary>The components of Kraid-arm frame <paramref name="frame"/>, when it is one.</summary>
     internal static bool TryGetComponents(EnemyFrameId? frame, out ImmutableArray<KraidCollisionComponent> components)

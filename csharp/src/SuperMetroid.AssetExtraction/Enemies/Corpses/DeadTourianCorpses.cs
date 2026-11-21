@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// and each variant has its own configuration and row upload list. The variant numbers are the import's knowledge; the
 /// game knows each corpse by how it lies, and variants that show the same picture are one corpse.
 /// </summary>
-internal static class DeadTourianCorpses
+internal static partial class DeadTourianCorpses
 {
     /// <summary>The corpse each of a species' variants lies as, by variant number.</summary>
     private static readonly Dictionary<DeadTourianCorpseSpecies, DeadTourianCorpseDefinition[]> CorpseByVariant = new()

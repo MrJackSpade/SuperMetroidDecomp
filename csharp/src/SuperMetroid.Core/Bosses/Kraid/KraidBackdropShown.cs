@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// What Kraid's room backdrop shows (#1512, #2215): colours it has settled on, or a fade partway from what it showed when
 /// the fade started toward the colours the fade ends on. A fade started during another starts from that fade partway.
 /// </summary>
-internal abstract record KraidBackdropShown
+internal abstract partial record KraidBackdropShown
 {
     /// <summary>Closes the hierarchy to the kinds declared here.</summary>
     private KraidBackdropShown()
@@ -33,7 +33,7 @@ internal abstract record KraidBackdropShown
 
     /// <summary>Colours the backdrop has settled on.</summary>
     /// <param name="Colours">The colours shown.</param>
-    internal sealed record Settled(KraidBackdropSettledColours Colours) : KraidBackdropShown;
+    internal sealed partial record Settled(KraidBackdropSettledColours Colours) : KraidBackdropShown;
 
     /// <summary>
     /// A fade partway: from <paramref name="From"/> toward <paramref name="Goal"/>, <paramref name="Progress"/> of the way.
@@ -42,5 +42,5 @@ internal abstract record KraidBackdropShown
     /// <param name="From">What the backdrop showed when the fade started.</param>
     /// <param name="Goal">The colours the fade ends on.</param>
     /// <param name="Progress">How far the fade has come, neither none nor the whole way.</param>
-    internal sealed record Fading(KraidBackdropShown From, KraidBackdropSettledColours Goal, StepCountedFadeProgress Progress) : KraidBackdropShown;
+    internal sealed partial record Fading(KraidBackdropShown From, KraidBackdropSettledColours Goal, StepCountedFadeProgress Progress) : KraidBackdropShown;
 }

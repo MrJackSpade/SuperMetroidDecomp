@@ -9,7 +9,7 @@
 /// sound starts only at a clock step that checks the requests and finds a changed request, never when the game asked.
 /// Backends follow the events and never re-derive the clock.
 /// </remarks>
-public abstract record AudioEvent
+public abstract partial record AudioEvent
 {
     /// <summary>Closes the hierarchy to the events declared here.</summary>
     private AudioEvent()
@@ -18,7 +18,7 @@ public abstract record AudioEvent
 
     /// <summary>Switches to <see cref="DataSet"/>'s clip set before the update's clock steps run; the song stops.</summary>
     /// <param name="DataSet">The music data set switched to, or null for only the shared sounds.</param>
-    public sealed record ChangeMusicDataSet(MusicDataSet? DataSet) : AudioEvent
+    public sealed partial record ChangeMusicDataSet(MusicDataSet? DataSet) : AudioEvent
     {
         /// <inheritdoc />
         public override string ToString() => $"data set:{DataSet?.ToString() ?? "shared"}";
@@ -28,14 +28,14 @@ public abstract record AudioEvent
     /// Selects <see cref="Track"/> before the update's clock steps run; the song changes on the music's next beat.
     /// </summary>
     /// <param name="Track">The track selected.</param>
-    public sealed record SelectMusicTrack(MusicTrack Track) : AudioEvent
+    public sealed partial record SelectMusicTrack(MusicTrack Track) : AudioEvent
     {
         /// <inheritdoc />
         public override string ToString() => $"music:{Track}";
     }
 
     /// <summary>Stops the music before the update's clock steps run, on the music's next beat.</summary>
-    public sealed record StopMusic : AudioEvent
+    public sealed partial record StopMusic : AudioEvent
     {
         /// <inheritdoc />
         public override string ToString() => "music:stop";
@@ -45,7 +45,7 @@ public abstract record AudioEvent
     /// <param name="SampleOffset">Sound samples (<see cref="AudioSession.SampleRate"/> per second) from the update's start at which the step runs.</param>
     /// <param name="Steps">Elapsed step periods the step accounts for.</param>
     /// <param name="ChecksRequests">Whether the step also checks the three sound libraries' requests.</param>
-    public sealed record ClockStep(int SampleOffset, int Steps, bool ChecksRequests) : AudioEvent
+    public sealed partial record ClockStep(int SampleOffset, int Steps, bool ChecksRequests) : AudioEvent
     {
         /// <inheritdoc />
         public override string ToString() => $"step@{SampleOffset}x{Steps}{(ChecksRequests ? "+check" : "")}";
@@ -54,7 +54,7 @@ public abstract record AudioEvent
     /// <summary>Starts <see cref="SoundEffect"/> at the request check of the clock step at <see cref="SampleOffset"/>.</summary>
     /// <param name="SoundEffect">The sound effect started.</param>
     /// <param name="SampleOffset">Sound samples from the update's start of the checking step.</param>
-    public sealed record StartSoundEffect(SoundEffectId SoundEffect, int SampleOffset) : AudioEvent
+    public sealed partial record StartSoundEffect(SoundEffectId SoundEffect, int SampleOffset) : AudioEvent
     {
         /// <inheritdoc />
         public override string ToString() => $"start@{SampleOffset}:{SoundEffect}";

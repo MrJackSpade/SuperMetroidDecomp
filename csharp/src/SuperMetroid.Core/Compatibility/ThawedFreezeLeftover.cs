@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// frozen-pass comment in <c>RoomEnemySystem</c> records.
 /// </remarks>
 [CompatibilityService("a thawing enemy is left one freeze update while grappled and two while hurt instead of none")]
-public static class ThawedFreezeLeftover
+public static partial class ThawedFreezeLeftover
 {
     /// <summary>The freeze updates left while the grapple beam holds the thawing enemy.</summary>
     private const int WhileGrappled = 1;

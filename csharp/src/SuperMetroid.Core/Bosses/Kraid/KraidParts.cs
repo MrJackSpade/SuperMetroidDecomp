@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// (<see cref="RoomEnemyPlace.FoundState{T}"/>).
 /// </summary>
 [RoomLifetime]
-internal sealed class KraidParts
+internal sealed partial class KraidParts
 {
     /// <summary>His body's reference, which runs first.</summary>
     internal KraidPartReference BodyReference { get; } = new("body");

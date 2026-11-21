@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// decide the body halves each composition's picture shows. The import decoded them once from the cartridge's tables; the
 /// body sheet holds one whole picture per pose and picture frame, composed from them (#1585).
 /// </summary>
-public sealed class SamusSpritemapSources
+public sealed partial class SamusSpritemapSources
 {
     /// <summary>The largest number of parts one composition may hold.</summary>
     private const int MaxParts = 128;

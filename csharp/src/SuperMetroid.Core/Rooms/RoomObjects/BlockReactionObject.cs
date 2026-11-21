@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// last image. Each image it shows tells the room's block reactions whether its block now stands broken open. The
 /// reaction plays on the shared animation player (#2480).
 /// </summary>
-internal class BlockReactionObject : RoomObjectBehaviour
+internal partial class BlockReactionObject : RoomObjectBehaviour
 {
     /// <summary>A reaction of <paramref name="change"/>'s timing whose setup saved no terrain, so none of its images restores a block.</summary>
     internal BlockReactionObject(BlockReactionChange change)

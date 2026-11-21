@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// <param name="OrbitRadius">Its orbit radius in pixels.</param>
 /// <param name="Direction">The way it sweeps.</param>
 /// <param name="WaitTime">The updates it waits between sweeps.</param>
-internal sealed record NuclearWaffleSpawnSettings(AngularSpeed AngularSpeed, int OrbitRadius, NuclearWaffleSweepDirection Direction, int WaitTime) : EnemySpawnSettings
+internal sealed partial record NuclearWaffleSpawnSettings(AngularSpeed AngularSpeed, int OrbitRadius, NuclearWaffleSweepDirection Direction, int WaitTime) : EnemySpawnSettings
 {
     /// <summary>
     /// The sweep its <see cref="Direction"/> runs (#2474): its start and end angles, the spacing of its links and the

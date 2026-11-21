@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// blacked-out arrival and his arena's reveal, and the self-destruct warning's alarm, which only the warning's own
 /// written pictures show (#1544).
 /// </summary>
-public static class RidleyShades
+public static partial class RidleyShades
 {
     /// <summary>
     /// The installed name of each of the Ceres Baby's shades (#2409), written out so renaming a shade's identity never

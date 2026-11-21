@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The initialization settings of each Brinstar room state, named for their rooms.</summary>
-public static class BrinstarRoomStateDefinitions
+public static partial class BrinstarRoomStateDefinitions
 {
 
     /// <summary>The Green Brinstar Main Shaft room's state.</summary>

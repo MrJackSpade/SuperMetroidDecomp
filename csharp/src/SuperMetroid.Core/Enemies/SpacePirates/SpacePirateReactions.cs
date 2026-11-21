@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// The Space Pirates' own reactions, which their frames' hitboxes name (#1759). Only the Pirates' own responses tell them
 /// apart; a definition names only the engine's shared reactions.
 /// </summary>
-internal static class SpacePirateReactions
+internal static partial class SpacePirateReactions
 {
     /// <summary>The Pirates' touch reaction.</summary>
     internal static EnemyReaction Touch { get; } = EnemyReaction.OfSpecies("SpacePirate.Touch");

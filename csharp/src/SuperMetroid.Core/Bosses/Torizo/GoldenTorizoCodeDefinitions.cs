@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>The loadout Golden Torizo grants as he appears when the player holds his secret chord.</summary>
-internal static class GoldenTorizoCodeDefinitions
+internal static partial class GoldenTorizoCodeDefinitions
 {
     /// <summary>The secret chord: exactly Jump, Dash, Shoot and item cancel held, with no other action.</summary>
     internal const GameplayAction ControllerChord = GameplayAction.Jump | GameplayAction.Dash | GameplayAction.Shoot | GameplayAction.ItemCancel;

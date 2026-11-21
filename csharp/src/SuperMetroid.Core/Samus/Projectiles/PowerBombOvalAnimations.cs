@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The Power Bomb blast's oval stages (#2529), played by the shared animation player: each stage shows its authored ovals'
 /// horizontal radii in pixels, one each update, and rests on its last, the update after which the blast moves on.
 /// </summary>
-internal static class PowerBombOvalAnimations
+internal static partial class PowerBombOvalAnimations
 {
     /// <summary>The updates each authored oval shows for.</summary>
     private const int OvalUpdates = 1;

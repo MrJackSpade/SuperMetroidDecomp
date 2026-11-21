@@ -29,7 +29,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Magdollite part's, with the places one and two after the part.
 /// </remarks>
 [CompatibilityService("a composite enemy's follow-up to a hit reaches the enemies placed after the part that was hit, so a power bomb hitting a trailing part carries it to the next enemies")]
-public static class FollowUpAfterStruckPart
+public static partial class FollowUpAfterStruckPart
 {
     /// <summary>The <paramref name="reach"/> enemies placed directly after a Dragon, Evir or Magdollite part, nearest first.</summary>
     /// <typeparam name="TEnemy">An enemy place.</typeparam>

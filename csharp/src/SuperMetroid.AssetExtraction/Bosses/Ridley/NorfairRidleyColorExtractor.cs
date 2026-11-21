@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Copies Ridley's authored RGB5 images while retaining the native reveal pointer order.</summary>
-public static class NorfairRidleyColorExtractor
+public static partial class NorfairRidleyColorExtractor
 {
     /// <summary>Reads Ridley's initial palette and zero-terminated native reveal-pointer sequence, preserving authored row order and rejecting invalid pointers or high-bit colors.</summary>
     /// <param name="bus">Supported-cartridge address space containing the Norfair Ridley palette data and reveal pointer table.</param>

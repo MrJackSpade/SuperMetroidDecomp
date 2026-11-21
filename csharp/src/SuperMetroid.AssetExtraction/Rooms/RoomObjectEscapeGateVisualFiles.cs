@@ -6,7 +6,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the open, half-closed and closed frames of Mother Brain's escape gate (#1557).</summary>
-public static class RoomObjectEscapeGateVisualFiles
+public static partial class RoomObjectEscapeGateVisualFiles
 {
     /// <summary>The installed file holding the gate frames' pictures.</summary>
     internal const string VisualFileName = "escape-gate.json";

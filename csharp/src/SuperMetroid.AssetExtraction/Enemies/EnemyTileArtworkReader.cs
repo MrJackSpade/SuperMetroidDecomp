@@ -35,7 +35,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// component's files. The game's read (<see cref="EnemyTileArtworkFiles.Load"/>) opens no manifest and reads only the
 /// documents it binds.
 /// </summary>
-internal sealed class EnemyTileArtworkReader
+internal sealed partial class EnemyTileArtworkReader
 {
     /// <summary>The checked manifest of the import data.</summary>
     private readonly EnemyTileArtworkFiles.EnemyTileManifest manifest;

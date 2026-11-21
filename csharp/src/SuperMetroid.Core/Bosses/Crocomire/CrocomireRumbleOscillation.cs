@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="ExtremeOffset">The offset each swing reaches, in pixels; negative is up.</param>
 /// <param name="Repeats">How many more swings follow the first before the next oscillation starts.</param>
 /// <param name="Speed">The pixels the offset moves each update toward the offset it is heading for.</param>
-internal readonly record struct CrocomireRumbleOscillation(int ReturnOffset, int ExtremeOffset, int Repeats, int Speed);
+internal readonly partial record struct CrocomireRumbleOscillation(int ReturnOffset, int ExtremeOffset, int Repeats, int Speed);

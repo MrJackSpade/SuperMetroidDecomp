@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="Amplitude">The wave's peak displacement.</param>
 /// <param name="Phase">The wave's angle at the screen's first line.</param>
 /// <param name="Period">The screen lines of one whole cycle, as the wave's length selects.</param>
-public sealed record PhantoonWave(UnsignedSixteenSixteen Amplitude, TrigonometryAngle Phase, int Period);
+public sealed partial record PhantoonWave(UnsignedSixteenSixteen Amplitude, TrigonometryAngle Phase, int Period);

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// The discovery cells of the map stations, each named for the room its station stands in (#1975): the name its
 /// editable marker position is installed under.
 /// </summary>
-public static class MapStationDiscoveryRules
+public static partial class MapStationDiscoveryRules
 {
     /// <summary>The Brinstar and Maridia missile station cells.</summary>
     private static readonly MapStationDiscoveryRule[] missile =

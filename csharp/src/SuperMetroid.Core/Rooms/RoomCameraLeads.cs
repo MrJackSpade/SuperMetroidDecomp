@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>The camera leads rooms share; a room that names none takes <see cref="Standard"/>.</summary>
-public static class RoomCameraLeads
+public static partial class RoomCameraLeads
 {
     /// <summary>The lead nearly every room uses: the camera's top 112 pixels above Samus as she falls and 160 as she rises.</summary>
     public static RoomCameraLead Standard { get; } = new(112, 160);

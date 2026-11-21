@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.GameOver;
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 /// <summary>Names the game-over document's Baby palettes, by which the import reads and writes their colours.</summary>
-internal static class GameOverBabyPaletteNames
+internal static partial class GameOverBabyPaletteNames
 {
     /// <summary>Each compiled Baby palette phase with its authored color-array identity, in schema order.</summary>
     private static readonly GameOverBabyPaletteName[] Names =

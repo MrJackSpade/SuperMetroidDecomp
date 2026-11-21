@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Extracts all three bank-$AA Chozo/tube target sprite-palette pairs.</summary>
-public static class ChozoAndTubeColorExtractor
+public static partial class ChozoAndTubeColorExtractor
 {
     /// <summary>Reads the tube-crack, Wrecked Ship, and Lower Norfair native target palettes, rejects high-bit colors, and serializes their RGB5 components.</summary>
     /// <param name="bus">Supported-cartridge address space containing the three bank-$AA palette pairs.</param>

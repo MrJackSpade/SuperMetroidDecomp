@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>The changes the room objects that clear or crumble the Tourian access floor make.</summary>
-internal static class TourianAccessObjectDefinitions
+internal static partial class TourianAccessObjectDefinitions
 {
     /// <summary>The block the access floor's clearing or crumbling room object stands at, where the crumble starts down.</summary>
     internal static readonly Position16<RoomBlocks> FloorBlock = new(6, 12);

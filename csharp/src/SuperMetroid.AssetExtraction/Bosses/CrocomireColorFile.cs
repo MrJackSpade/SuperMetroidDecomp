@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Reads and writes the installed Crocomire colour document.</summary>
-public static class CrocomireColorFile
+public static partial class CrocomireColorFile
 {
     /// <summary>Loads version-1 <c>crocomire-colors.json</c>, validating the five native transfer lengths and RGB5 channel bounds while keeping hurt-flash and death transitions in actor code.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>

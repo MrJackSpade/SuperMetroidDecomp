@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Immutable visual muzzle offsets, as installed (#1596); never used for projectile physics or Grapple connection.</summary>
-public sealed class ChargeFlarePlacements
+public sealed partial class ChargeFlarePlacements
 {
     /// <summary>The projectile directions in the order the flare placements are listed (#2567).</summary>
     private static readonly IReadOnlyList<SamusProjectileDirection> DirectionOrder = Ensure.EveryMemberOnce<SamusProjectileDirection>(

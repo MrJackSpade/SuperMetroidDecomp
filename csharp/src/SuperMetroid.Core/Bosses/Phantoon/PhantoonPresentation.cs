@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's fades, health colors, wave amplitude and animations, shared by every phase of the fight.</summary>
 [RoomLifetime]
-internal sealed class PhantoonPresentation
+internal sealed partial class PhantoonPresentation
 {
     /// <summary>The current enemy pass's clocks and flags.</summary>
     private readonly EnemyFrameContext _frameContext;

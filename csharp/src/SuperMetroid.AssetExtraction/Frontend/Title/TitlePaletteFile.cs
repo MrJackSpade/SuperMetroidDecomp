@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Reads and writes the import's title palette document.</summary>
-public static class TitlePaletteFile
+public static partial class TitlePaletteFile
 {
     /// <summary>Validates the import's initial, ambient-animation and skip-only RGB5 colours and keeps every one.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>

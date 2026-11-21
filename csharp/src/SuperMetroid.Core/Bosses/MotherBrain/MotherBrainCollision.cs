@@ -5,7 +5,7 @@ using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainCollisionDefinition
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Finds the collision components of the Mother Brain frame shown.</summary>
-internal static class MotherBrainCollision
+internal static partial class MotherBrainCollision
 {
     /// <summary>The collision components of Mother Brain body frame <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Mother Brain's body frames.</exception>

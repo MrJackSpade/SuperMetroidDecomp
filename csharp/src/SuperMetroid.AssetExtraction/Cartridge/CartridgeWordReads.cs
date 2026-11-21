@@ -20,7 +20,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// The two read the same bytes everywhere else.
 /// </remarks>
 [EncodingOwner("cartridge little-endian words and longs")]
-public static class CartridgeWordReads
+public static partial class CartridgeWordReads
 {
     /// <summary>
     /// The signed value of a cartridge word (#1521): its sixteen bits read as two's complement, so a word from 32768 up

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// The Etecoon's look, run, wall-jump, hop and flex animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class EtecoonAnimations
+internal static partial class EtecoonAnimations
 {
     /// <summary>
     /// A hop's arm poses in the order it shows them, facing as its poses do: <paramref name="raising"/>, <paramref name="up"/>,

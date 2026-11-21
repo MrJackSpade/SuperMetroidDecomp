@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// The Beetom's crawl, hop and drain animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="BeetomCue"/> naming what it does.
 /// </summary>
-internal static class BeetomAnimations
+internal static partial class BeetomAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<BeetomSegment, EnemyFrameId, BeetomCue> Segments { get; } = new(

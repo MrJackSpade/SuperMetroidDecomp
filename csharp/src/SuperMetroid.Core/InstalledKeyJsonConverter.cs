@@ -12,7 +12,7 @@ namespace SuperMetroid.Core;
 /// </summary>
 /// <typeparam name="TIdentity">The identity the converter reads and writes.</typeparam>
 /// <param name="keys">The identity's written-out keys.</param>
-public abstract class InstalledKeyJsonConverter<TIdentity>(InstalledKeys<TIdentity> keys) : JsonConverter<TIdentity>
+public abstract partial class InstalledKeyJsonConverter<TIdentity>(InstalledKeys<TIdentity> keys) : JsonConverter<TIdentity>
     where TIdentity : struct, Enum
 {
     /// <summary>The identity's written-out keys.</summary>

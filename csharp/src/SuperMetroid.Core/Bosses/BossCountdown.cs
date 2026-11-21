@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses;
 /// step runs it out again. Every such wait of theirs is one of these, apart from the waits that hold once they run out
 /// (<see cref="HeldBossCountdown"/>).
 /// </summary>
-public sealed class BossCountdown
+public sealed partial class BossCountdown
 {
     /// <summary>
     /// The wait, over once the countdown has run out; a step of an over wait leaves it over. A countdown never started

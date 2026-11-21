@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// has none. The palette load copies exactly sixteen colours from the selected pointer; out-of-range beam selections are
 /// physical pointer-table reads, not extra colour runs.
 /// </remarks>
-public static class BeamPaletteFile
+public static partial class BeamPaletteFile
 {
     /// <summary>Twelve legal beam-combination pointers precede the palette data: one palette per retail combination.</summary>
     public const int SelectionCount = 12;

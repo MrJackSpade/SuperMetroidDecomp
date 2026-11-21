@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// its direction.
 /// </summary>
 [EncodingOwner("projectile aim index")]
-internal static class SamusProjectileDirectionCodec
+internal static partial class SamusProjectileDirectionCodec
 {
     /// <summary>The number of directions the aim index names.</summary>
     internal const int Count = 10;

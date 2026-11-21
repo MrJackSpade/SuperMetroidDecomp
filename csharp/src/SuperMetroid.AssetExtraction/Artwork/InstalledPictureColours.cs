@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// image. Nothing of it is installed: an installed picture is only its colours, and Core never addresses a colour by these
 /// indices.
 /// </summary>
-public static class InstalledPictureColours
+public static partial class InstalledPictureColours
 {
     /// <summary>
     /// The sets a gameplay background sheet installed from the cartridge's background colours names, group after group:

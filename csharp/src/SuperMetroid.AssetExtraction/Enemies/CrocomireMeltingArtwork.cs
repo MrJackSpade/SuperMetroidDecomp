@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Indexed four-bit artwork for Crocomire's two melting images and the tilemaps that lay them out. The extraction pictures
 /// each band of an image at every dissolve step; the death sequence selects which picture each band shows.
 /// </summary>
-public sealed class CrocomireMeltingArtwork
+public sealed partial class CrocomireMeltingArtwork
 {
 
     /// <summary>The import data's planar character data for the flesh's overlapping melt pass.</summary>

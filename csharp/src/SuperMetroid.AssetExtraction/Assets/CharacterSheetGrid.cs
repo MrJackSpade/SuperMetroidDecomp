@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Assets;
 /// The layout of an artwork's character sheet: characters run sixteen to a row, so a character's number is its row times
 /// sixteen plus its column. Artwork that picks characters out of a sheet names them by row and column.
 /// </summary>
-public static class CharacterSheetGrid
+public static partial class CharacterSheetGrid
 {
     /// <summary>The characters in one sheet row.</summary>
     public const int CharactersPerRow = 16;

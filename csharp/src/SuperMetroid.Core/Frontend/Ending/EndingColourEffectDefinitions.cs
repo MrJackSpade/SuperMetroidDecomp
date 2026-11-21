@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The colour effects the ending's scenes start.</summary>
-internal static class EndingColourEffectDefinitions
+internal static partial class EndingColourEffectDefinitions
 {
     /// <summary>Fades the zoomed-out exploding Zebes.</summary>
     public const ColourEffectId FadePlanet = ColourEffectId.FadeOutZoomedOutExplodingZebes;

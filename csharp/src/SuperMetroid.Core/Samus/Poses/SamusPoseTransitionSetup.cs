@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// update installs the chosen pose by it directly.
 /// Each setup runs itself through the pose phase (#2571), so no switch over setup identities picks what it does.
 /// </summary>
-public sealed class SamusPoseTransitionSetup
+public sealed partial class SamusPoseTransitionSetup
 {
     /// <summary>The setup's name, for diagnostics.</summary>
     private readonly string _name;

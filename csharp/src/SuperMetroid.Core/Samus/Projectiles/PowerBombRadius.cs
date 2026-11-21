@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// stages refuse when it would pass the range: the compatibility rule
 /// <see cref="PowerBombGrowthHold"/>.
 /// </remarks>
-public readonly record struct PowerBombRadius : IComparable<PowerBombRadius>
+public readonly partial record struct PowerBombRadius : IComparable<PowerBombRadius>
 {
     /// <summary>The fractions of a pixel in one pixel.</summary>
     internal const int FractionsPerPixel = 256;

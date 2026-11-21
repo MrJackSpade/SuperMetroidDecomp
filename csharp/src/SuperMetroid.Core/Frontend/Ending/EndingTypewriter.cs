@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// animation player (<see cref="EndingTypewriterAnimations"/>, #2488), and shows what it has typed so far as glyph pictures
 /// at their screen places; nothing is written to a page.
 /// </summary>
-internal sealed class EndingTypewriter
+internal sealed partial class EndingTypewriter
 {
     /// <summary>Collected ammo and item counts used for the item percentage.</summary>
     private readonly EndingInventorySnapshot inventory;

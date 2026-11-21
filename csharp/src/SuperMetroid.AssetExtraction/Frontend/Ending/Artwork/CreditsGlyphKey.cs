@@ -6,4 +6,4 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// <param name="Style">The style.</param>
 /// <param name="Character">The character.</param>
 /// <param name="Bottom">The bottom.</param>
-internal readonly record struct CreditsGlyphKey(CreditsLineStyle Style, char Character, bool Bottom);
+internal readonly partial record struct CreditsGlyphKey(CreditsLineStyle Style, char Character, bool Bottom);

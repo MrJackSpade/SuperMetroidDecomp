@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// the pictures use. A picture painted for one sheet and laid on this one is drawn as it was, because the colouring agrees
 /// with its own sheet's over those groups.
 /// </summary>
-internal sealed class PictureSheetLayout
+internal sealed partial class PictureSheetLayout
 {
     /// <summary>The pictures in order, each with the frame names that show it and the rectangle it is laid in.</summary>
     private readonly LaidSheetPicture[] pictures;
@@ -84,5 +84,5 @@ internal sealed class PictureSheetLayout
     /// <summary>One of the sheet's pictures with the rectangle it is laid in, which pictures painting alike share.</summary>
     /// <param name="Named">The picture with the frame names that show it.</param>
     /// <param name="Rectangle">The rectangle its pixels are painted in.</param>
-    private sealed record LaidSheetPicture(NamedSheetPicture Named, PackedPicture<SheetPicture> Rectangle);
+    private sealed partial record LaidSheetPicture(NamedSheetPicture Named, PackedPicture<SheetPicture> Rectangle);
 }

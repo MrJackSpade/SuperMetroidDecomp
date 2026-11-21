@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>The charge/Hyper flare and its directional sparks: each composition is named by the picture it shows (#1762).</summary>
-public static class ChargeFlareSpriteDefinitions
+public static partial class ChargeFlareSpriteDefinitions
 {
     /// <summary>The main flare's pictures, in the order the flare shows them; both facings show the same.</summary>
     internal static readonly ChargeFlarePicture[] MainPictures =

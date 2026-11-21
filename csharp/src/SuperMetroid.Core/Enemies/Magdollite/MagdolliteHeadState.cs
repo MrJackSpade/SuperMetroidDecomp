@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>A Magdollite head's state: what it is doing. The speed its arm moves at is its spawn settings' (#2474).</summary>
-public sealed class MagdolliteHeadState : MagdollitePartState
+public sealed partial class MagdolliteHeadState : MagdollitePartState
 {
     /// <summary>Creates the head's state, starting in <paramref name="action"/>.</summary>
     internal MagdolliteHeadState(MagdolliteHeadAction action)

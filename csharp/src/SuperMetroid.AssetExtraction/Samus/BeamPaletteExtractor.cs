@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts ordinary beam color selections from the supported cartridge, not charge animation rules.</summary>
-public static class BeamPaletteExtractor
+public static partial class BeamPaletteExtractor
 {
     /// <summary>Follows each legal native beam-selection palette pointer and serializes its complete RGB5 color row without charge-animation rules.</summary>
     /// <param name="bus">Supported-cartridge address space containing the beam palette pointer table and color words.</param>

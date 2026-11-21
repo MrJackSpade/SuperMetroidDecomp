@@ -26,7 +26,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// each animation a frame shows are pictured again over every frame of that animation. The tilemap words the cartridge
 /// writes are read here, once, and nowhere else.
 /// </summary>
-internal static class BossBodySheetComposer
+internal static partial class BossBodySheetComposer
 {
     /// <summary>The boss bodies in the order their sheets are composed and listed (#2567).</summary>
     private static readonly BossBodyOwner[] OwnerOrder = [.. Ensure.EveryMemberOnce<BossBodyOwner>(

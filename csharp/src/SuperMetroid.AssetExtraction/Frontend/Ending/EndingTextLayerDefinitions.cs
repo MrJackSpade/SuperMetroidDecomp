@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// Where the ending's character loads sit among each post-credits background layer's character numbers (#1404), which
 /// the import reads its maps against when it composes the ending's pictures (#1467).
 /// </summary>
-internal static class EndingTextLayerDefinitions
+internal static partial class EndingTextLayerDefinitions
 {
     /// <summary>The credits font's first character on the post-credits text layer.</summary>
     internal const int FontFirstCharacter = 0;

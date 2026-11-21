@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// Each picture is installed as its two parts (#1634, <see cref="PictureParts"/>): what of it lies behind the actors passing
 /// in front of the room's back tiles and what lies in front of them.
 /// </summary>
-public sealed class WrittenPictureSheet
+public sealed partial class WrittenPictureSheet
 {
     /// <summary>The inputs each picture depends on, by the name its pictures begin with; empty for one that depends on none.</summary>
     internal readonly Dictionary<string, ImmutableArray<AppearanceInput>> inputs;

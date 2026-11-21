@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 /// actor timing remains engine-owned, and the elevator platform's strips are pictures of the room's floor (#1467).
 /// Every colour is kept as installed.
 /// </summary>
-public sealed class CeresDoorVisuals
+public sealed partial class CeresDoorVisuals
 {
     /// <summary>The fifteen installed normal setup colours.</summary>
     private readonly RgbColor[] normal;

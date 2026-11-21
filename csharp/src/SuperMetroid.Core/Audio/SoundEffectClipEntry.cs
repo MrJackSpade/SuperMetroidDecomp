@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Audio;
 /// <param name="Sound">The sound effect, whose library plays it.</param>
 /// <param name="Policy">How the library accepts and starts the request.</param>
 /// <param name="Shape">Whether the effect is a one-shot that ends or a never-ending loop, with the clips each plays (#2560).</param>
-public sealed record SoundEffectClipEntry(
+public sealed partial record SoundEffectClipEntry(
     SoundEffectId Sound,
     SoundEffectClipPolicy Policy,
     SoundEffectClipShape Shape);

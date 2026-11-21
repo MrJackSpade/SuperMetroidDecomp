@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 /// <param name="Samus">The services reproducing Samus's glitch reads.</param>
 /// <param name="ShellFall">The steps the egg's shell fragments fall by past their gravity curve.</param>
-public sealed record IntroCinematicOverreads(SamusOverreadServices Samus, ShellFragmentFallPastCurve ShellFall);
+public sealed partial record IntroCinematicOverreads(SamusOverreadServices Samus, ShellFragmentFallPastCurve ShellFall);

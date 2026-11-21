@@ -11,17 +11,17 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// never-ending effect renders one looping layer per channel, each with only its own voice in the
 /// mix, because the channels loop independently and their joint period can run for minutes.
 /// </summary>
-internal static class SoundEffectRendering
+internal static partial class SoundEffectRendering
 {
     /// <summary>A rendered one-shot effect: its clip through the release and its logical end.</summary>
     /// <param name="Clip">Interleaved stereo PCM from the start, ending at the last nonzero frame; empty for a silent effect.</param>
     /// <param name="ActiveFrames">Frames from the start to the library's logical end.</param>
-    internal sealed record OneShot(short[] Clip, long ActiveFrames);
+    internal sealed partial record OneShot(short[] Clip, long ActiveFrames);
 
     /// <summary>One channel of a never-ending effect: its clip through its second state repeat and its loop.</summary>
     /// <param name="Clip">Interleaved stereo PCM of the channel's voice from the start to its E2.</param>
     /// <param name="LoopStart">The channel's E1: the clip repeats [E1, E2).</param>
-    internal sealed record LoopingLayer(short[] Clip, long LoopStart);
+    internal sealed partial record LoopingLayer(short[] Clip, long LoopStart);
 
     /// <summary>
     /// Creates a renderer, attached to <paramref name="observer"/>, that has uploaded the common and

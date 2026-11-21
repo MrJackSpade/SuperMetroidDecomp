@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable OAM compositions for the eight final assembling-logo frames.</summary>
-public sealed class EndingLogoSpritePresentation : ICinematicSpriteFrames
+public sealed partial class EndingLogoSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled compositions indexed by the poses that show them.</summary>
     internal readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;

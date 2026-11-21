@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 /// frame shown, and a frame held for good or a hold rests where it stands, its clock stopped (#2454). Owners keep the
 /// playback and perform its events: <c>if (place.AnimationClock.Expire()) { ...; Play(...); }</c>.
 /// </summary>
-internal static class EnemyAnimationPlayback
+internal static partial class EnemyAnimationPlayback
 {
     /// <summary>
     /// Starts <paramref name="animation"/> on <paramref name="place"/> (#1624): its first step plays on the next update, from

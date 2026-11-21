@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>A graphics-set record loading an enemy's artwork (#2560).</summary>
 /// <param name="DefinitionId">The member enemy, which selects its installed sheets and its spawned objects' sheet.</param>
-internal sealed record GraphicsSetEnemy(EnemyDefinitionId DefinitionId) : RoomEnemyGraphicsSetSource
+internal sealed partial record GraphicsSetEnemy(EnemyDefinitionId DefinitionId) : RoomEnemyGraphicsSetSource
 {
     /// <inheritdoc/>
     internal override string Name => DefinitionId.ToString();

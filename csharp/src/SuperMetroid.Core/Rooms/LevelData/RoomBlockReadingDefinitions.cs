@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// area gives holds neither reading, and each area's meaning is its own reaction (<see cref="InAreas"/>, #1805).
 /// Regenerate with <c>SuperMetroid.DebugRunner --generate-room-block-readings</c> from the import codec.
 /// </summary>
-internal static class RoomBlockReadingDefinitions
+internal static partial class RoomBlockReadingDefinitions
 {
     /// <summary>The behaviour a write of each shootable reaction keeps.</summary>
     internal static readonly IReadOnlyDictionary<ShootableReaction, RoomBlockReadings> Shootable = new Dictionary<ShootableReaction, RoomBlockReadings>

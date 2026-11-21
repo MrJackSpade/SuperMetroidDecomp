@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 /// <summary>
 /// Lists the map screen's pages (<see cref="MapScreenDefinitions"/>) and accepts only Zebes areas for them.
 /// </summary>
-public static class MapScreens
+public static partial class MapScreens
 {
     /// <summary>Returns <paramref name="area"/> when it is a playable Zebes area, rejecting menu or other non-area identities.</summary>
     internal static AreaId RequireZebesArea(AreaId area) => AreaIds.IsZebes(area)

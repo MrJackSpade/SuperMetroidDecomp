@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// source (#1596). The strip is drawn from the installed pause sheet, whose reserve compositions belong to the import
 /// pipeline that reads the installed presentation and never reach the game (#1463, #1616).
 /// </summary>
-public sealed class PauseReserveTankPresentation
+public sealed partial class PauseReserveTankPresentation
 {
     /// <summary>
     /// The installed anchor of each place of the strip, in strip order. A place has no role of its own: Samus's reserve tanks

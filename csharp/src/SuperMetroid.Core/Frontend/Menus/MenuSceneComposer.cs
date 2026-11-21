@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>Captures the shared menu compositor without retaining menu state.</summary>
-internal static class MenuSceneComposer
+internal static partial class MenuSceneComposer
 {
     /// <summary>
     /// Captures a menu screen showing pictures (#1467): its backdrop page, its page scrolled over it, then its sprites, with

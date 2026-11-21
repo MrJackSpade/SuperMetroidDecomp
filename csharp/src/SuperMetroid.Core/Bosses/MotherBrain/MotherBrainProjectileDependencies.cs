@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <see cref="MotherBrainProjectiles"/>, which creates it (#1801).
 /// </summary>
 [RoomLifetime]
-internal sealed record MotherBrainProjectileDependencies
+internal sealed partial record MotherBrainProjectileDependencies
 {
     /// <summary>The loaded room, whose random numbers scatter the glass and the hand beams and time the turrets.</summary>
     public required EnemyRoomBinding Room { get; init; }

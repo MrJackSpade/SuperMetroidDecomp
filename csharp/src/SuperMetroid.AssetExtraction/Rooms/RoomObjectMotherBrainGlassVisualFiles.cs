@@ -8,7 +8,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the eleven frames of Mother Brain's glass (#1557).</summary>
-public static class RoomObjectMotherBrainGlassVisualFiles
+public static partial class RoomObjectMotherBrainGlassVisualFiles
 {
     /// <summary>The installed file holding the initial, damaged, shifted, shattering and cleared glass frames' pictures.</summary>
     internal const string VisualFileName = "mother-brain-glass.json";

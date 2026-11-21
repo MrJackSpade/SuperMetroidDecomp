@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// of the same register byte: the control bits are bits 5-7 and the noise rate bits 0-4.
 /// </summary>
 /// <param name="Value">The complete FLG byte.</param>
-internal readonly record struct DspFlags(int Value)
+internal readonly partial record struct DspFlags(int Value)
 {
     /// <summary>The complete FLG byte, 0 through 255; the register file stores it at its own width.</summary>
     public int Value { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Value);

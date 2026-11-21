@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// colour order of the import data's starting image (<see cref="GameplayBasePaletteFiles"/>) is read. Only the import reads
 /// it, to pre-colour the sheets that show those colours; the installation holds none of it (#1637).
 /// </summary>
-public static class GameplayColourImage
+public static partial class GameplayColourImage
 {
     /// <summary>The starting colours, by owner, that <paramref name="image"/>, a whole 256-colour image, holds.</summary>
     /// <exception cref="ArgumentException"><paramref name="image"/> does not hold 256 colours.</exception>

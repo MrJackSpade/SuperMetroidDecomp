@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Shard">Which way the shard flies, selecting its emitter on the glass.</param>
 /// <param name="RoomObjectBlock">The glass room object's block, the origin of the emitters.</param>
 /// <param name="Spawner">The room's enemy projectiles, among which the shard spawns.</param>
-internal sealed record MotherBrainGlassProjectileRequest(
+internal sealed partial record MotherBrainGlassProjectileRequest(
     MotherBrainGlassShard Shard,
     Position16<RoomBlocks> RoomObjectBlock,
     IMotherBrainGlassShardSpawner Spawner) : RoomObjectProjectileRequest(RoomObjectBlock)

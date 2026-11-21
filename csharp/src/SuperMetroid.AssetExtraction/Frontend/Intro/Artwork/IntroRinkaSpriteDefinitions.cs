@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>The three four-quadrant Rinka frames selected by the intro list.</summary>
-internal static class IntroRinkaSpriteDefinitions
+internal static partial class IntroRinkaSpriteDefinitions
 {
     /// <summary>The three intro Rinka compositions.</summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =

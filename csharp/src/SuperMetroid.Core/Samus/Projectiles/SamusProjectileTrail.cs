@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// One trail a shot leaves behind it: a pair of sparkles, each running its own animation, shown in the pictures of the
 /// beams of the shot that left it. It lasts until both sparkles' animations have ended.
 /// </summary>
-public sealed class SamusProjectileTrail
+public sealed partial class SamusProjectileTrail
 {
     /// <summary>Starts a trail of two sparkles that have run no animation yet.</summary>
     /// <param name="picturedBeams">The beam combination whose pictures both sparkles show (#1586).</param>

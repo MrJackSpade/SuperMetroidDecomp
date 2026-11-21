@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// opened for good, stops the shots and opens the cap, which then leaves the room. A cap closing behind Samus plays the
 /// shared closing, then looks at its door again.
 /// </summary>
-internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
+internal sealed partial class ColoredDoorObject : DoorCapObject, IShootableRoomObject
 {
     /// <summary>A cap of <paramref name="variant"/>'s colour and facing, just placed in <paramref name="door"/>.</summary>
     internal ColoredDoorObject(ColoredDoorVariant variant, PlacedDoor door)

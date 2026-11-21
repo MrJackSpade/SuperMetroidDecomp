@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// steps itself and draws its own actors and, when it has one, its own screen (#2571), so neither the state nor the
 /// presentation switches over scene types.
 /// </summary>
-internal abstract class EndingScene
+internal abstract partial class EndingScene
 {
     /// <summary>Only the ending's scenes derive from it.</summary>
     private protected EndingScene()

@@ -7,7 +7,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="EnemyFramePhase"/> is constructed with, built once by the owner that creates it (#621).</summary>
-internal sealed record EnemyFramePhaseDependencies
+internal sealed partial record EnemyFramePhaseDependencies
 {
     /// <summary>Where the layers stand: the foreground position follows the camera X an enemy moves the view to.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Death;
 /// explosion sequence. It is apart from knockback, though the death-sequence poses have the knockback movement type:
 /// the death stops Samus's normal input and movement and runs this sequence instead.
 /// </summary>
-public sealed class SamusDeathSequenceState : IGameplayShadingSource
+public sealed partial class SamusDeathSequenceState : IGameplayShadingSource
 {
     /// <summary>The game-state-owned phase corresponding to the pre-flash, flashing and suit-explosion states.</summary>
     public SamusDeathSequencePhase Phase { get; private set; }

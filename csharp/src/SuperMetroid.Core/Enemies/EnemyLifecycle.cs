@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 /// through each place's entity, spawns into the first free place, and the places Samus can touch this frame.
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyLifecycle : IEnemyLifecycle
+internal sealed partial class EnemyLifecycle : IEnemyLifecycle
 {
     /// <summary>The room whose definitions spawns read.</summary>
     private readonly EnemyRoomBinding _room;

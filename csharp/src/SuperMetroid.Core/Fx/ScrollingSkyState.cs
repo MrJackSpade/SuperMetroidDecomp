@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Fx;
 /// <param name="sky">The land or ocean sky the room main selects.</param>
 /// <param name="hasBands">Whether the sky's effect or setup made the sky's bands drift.</param>
 [RoomLifetime]
-public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
+public sealed partial class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
 {
     /// <summary>Whether the sky's bands drift: only the sky's effect or setup starts them; the room-main behaviour alone does not.</summary>
     public bool HasBands { get; } = hasBands;

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>
 /// Names and draws the ending shooting star's sheet frames (<see cref="EndingShootingStarDefinitions"/>).
 /// </summary>
-internal static class EndingShootingStarFrames
+internal static partial class EndingShootingStarFrames
 {
     /// <summary>The sheet frame showing <paramref name="look"/> (#1392).</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="look"/> is the hidden lead-in, which shows no picture.</exception>

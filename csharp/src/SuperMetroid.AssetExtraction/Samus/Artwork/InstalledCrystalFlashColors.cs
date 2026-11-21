@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// The installed Crystal Flash body and bubble colours, every frame of both kept as installed. Timers, frame cursors,
 /// and completion still belong to <see cref="SamusCrystalFlashState"/>.
 /// </summary>
-public sealed class InstalledCrystalFlashColors
+public sealed partial class InstalledCrystalFlashColors
 {
     /// <summary>Every installed body frame's colours, in playback order.</summary>
     private readonly RgbColor[][] body;

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The animations of the intro's Metroid egg and Baby Metroid (#641, #1600, #2196, #2197): the discovery scene's egg and
 /// confused Baby, and the laboratory scenes' delivered and examined Baby, each scene's with the cues its owner carries out.
 /// </summary>
-internal static class IntroBabyAnimations
+internal static partial class IntroBabyAnimations
 {
     /// <summary>The discovery scene's egg and confused Baby; the hatching egg rocks left and right four times before it cracks.</summary>
     internal static CinematicAnimations<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> Discovery { get; } = new(

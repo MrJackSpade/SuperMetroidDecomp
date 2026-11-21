@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// The holds of the Work Robot's glow (#2380). The colours each place shows are the import's shades (#1512); the order of the
 /// steps is <see cref="WorkRobotGlowAnimations"/>.
 /// </summary>
-internal static class WorkRobotGlowDefinitions
+internal static partial class WorkRobotGlowDefinitions
 {
     /// <summary>The updates the glow rests at either end of its run.</summary>
     internal const int EndHold = 64;

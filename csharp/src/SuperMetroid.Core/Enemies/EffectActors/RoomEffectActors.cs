@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// limit on how many are live at once.
 /// </summary>
 [RoomLifetime]
-internal sealed class RoomEffectActors
+internal sealed partial class RoomEffectActors
 {
     /// <summary>Publishes the objects from the room's enemy artwork.</summary>
     private readonly EnemyPresentation _presentation;

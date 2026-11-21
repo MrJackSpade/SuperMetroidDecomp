@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Where the cartridge stores each Samus projectile and charge-flare composition: its bank-$93 layout of composition
 /// groups, extraction's knowledge, which the game never reads.
 /// </summary>
-internal static class ProjectileSpriteLocations
+internal static partial class ProjectileSpriteLocations
 {
     /// <summary>
     /// The bank-$93 projectile composition groups in storage order, each with where its records lie: from the group's start,

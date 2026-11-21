@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>
 /// The Samus-library sound each beam combination fires with, uncharged and charged, and the missile sounds.
 /// </summary>
-public static class SamusProjectileSoundRoutingDefinitions
+public static partial class SamusProjectileSoundRoutingDefinitions
 {
     /// <summary>The missile firing sound.</summary>
     internal static readonly SoundEffectId MissileRequest = SamusSound.Missile;

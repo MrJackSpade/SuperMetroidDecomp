@@ -29,7 +29,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("a Yard kicked by Samus flies sideways at the distance the camera last measured her moving, plus one pixel, and upward at the speed that distance's whole pixels select")]
-public sealed class YardKickTrackingDistance
+public sealed partial class YardKickTrackingDistance
 {
     /// <summary>
     /// How far the camera last measured Samus moving sideways, plus one pixel: the kicked shell's sideways speed in pixels

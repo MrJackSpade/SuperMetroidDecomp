@@ -6,10 +6,10 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 namespace SuperMetroid.Core.Frontend.Title;
 
 /// <summary>The title sequence's definitions: its console lights, music, cards, floor scenes, sprite placement, installed graphics extents and timing.</summary>
-public static class TitleSequenceDefinitions
+public static partial class TitleSequenceDefinitions
 {
     /// <summary>The console lights title setup and the skip path start.</summary>
-    public static class ConsoleColourEffects
+    public static partial class ConsoleColourEffects
     {
         /// <summary>The Baby Metroid tube's slow light.</summary>
         public const ColourEffectId SlowLights = ColourEffectId.TitleScreenBabyMetroidTubeLight;
@@ -19,7 +19,7 @@ public static class TitleSequenceDefinitions
     }
 
     /// <summary>The colour effects that fade the logo and the copyright in from black as each first shows (#1714).</summary>
-    public static class Fades
+    public static partial class Fades
     {
         /// <summary>The logo's fade, started on the update the final zoom completes and the logo first shows.</summary>
         public const ColourEffectId Logo = ColourEffectId.FadeInSuperMetroidTitleLogo;
@@ -29,7 +29,7 @@ public static class TitleSequenceDefinitions
     }
 
     /// <summary>The tracks the normal and skip paths select.</summary>
-    public static class Music
+    public static partial class Music
     {
         /// <summary>The title music's song for the normal opening sequence.</summary>
         public const MusicTrack OpeningTrack = MusicTrack.TitleOpening;
@@ -38,7 +38,7 @@ public static class TitleSequenceDefinitions
     }
 
     /// <summary>The four title cards: each draws at the cards' one origin in the text colouring.</summary>
-    public static class TextSequences
+    public static partial class TextSequences
     {
         /// <summary>Where every card draws, in screen pixels.</summary>
         private static readonly Offset16<ScreenPixels> CardOrigin = new(129, 112);
@@ -58,7 +58,7 @@ public static class TitleSequenceDefinitions
     }
 
     /// <summary>The floor scenes' starting transforms, motion and completion thresholds.</summary>
-    public static class Scenes
+    public static partial class Scenes
     {
         /// <summary>The lower pan, zoomed in on the lower part of the background.</summary>
         public static readonly TitleFloorSceneDefinition LowerPan =
@@ -94,7 +94,7 @@ public static class TitleSequenceDefinitions
     }
 
     /// <summary>Where the logo and copyright draw and in which colourings.</summary>
-    public static class Sprites
+    public static partial class Sprites
     {
         /// <summary>The title logo's origin in screen pixels.</summary>
         public static Offset16<ScreenPixels> LogoOrigin => new(128, 48);
@@ -118,7 +118,7 @@ public static class TitleSequenceDefinitions
     }
 
     /// <summary>The title's animated artwork.</summary>
-    public static class Graphics
+    public static partial class Graphics
     {
         /// <summary>The poses the Baby Metroid lying on the floor pulses through, one each animation frame, in turn.</summary>
         public static IReadOnlyList<TitleBabyPose> BabyAnimation { get; } =
@@ -126,7 +126,7 @@ public static class TitleSequenceDefinitions
     }
 
     /// <summary>Holds, fades and the buttons that skip.</summary>
-    public static class Timing
+    public static partial class Timing
     {
         /// <summary>Brightness change per update for the skip's fade-out and the title's fade-in.</summary>
         public const int SkipFadeBrightnessStep = 2;

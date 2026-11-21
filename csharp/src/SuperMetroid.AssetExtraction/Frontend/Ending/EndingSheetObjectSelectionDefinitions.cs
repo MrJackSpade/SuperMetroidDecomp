@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// compositions use, which the ending's sheets are composed in (#1463, #1626).
 /// </summary>
 [EncodingOwner("object-selection register values of the ending sprite pages")]
-internal static class EndingSheetObjectSelectionDefinitions
+internal static partial class EndingSheetObjectSelectionDefinitions
 {
     /// <summary>The sprite-sheet selection of the escape and explosion scenes.</summary>
     private const byte EscapeObjectSelection = 2;

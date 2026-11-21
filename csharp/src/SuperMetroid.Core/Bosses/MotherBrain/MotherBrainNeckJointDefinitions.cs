@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Mother Brain's articulated neck (#2314): its lower joints hang from her body on the lower-neck angle, and its upper
 /// joints hang from the last lower joint on the upper-neck angle; her brain sits on the last upper joint.
 /// </summary>
-internal static class MotherBrainNeckJointDefinitions
+internal static partial class MotherBrainNeckJointDefinitions
 {
     /// <summary>
     /// Where the lower joints hang from: thirty-two pixels right of and fifty above her body's position.

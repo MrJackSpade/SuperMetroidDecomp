@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The setups the pose update runs when Samus's input chooses no new pose from a pose that names one of its own (#2506,
 /// #2558). A pose absent here takes the setup of the movement in force (<see cref="SamusNoTransitionSetups"/>).
 /// </summary>
-internal static class SamusPoseNoTransitionSetupDefinitions
+internal static partial class SamusPoseNoTransitionSetupDefinitions
 {
     /// <summary>Each pose's own setup, for the poses that name one.</summary>
     internal static IReadOnlyDictionary<SamusPoseId, SamusNoTransitionSetup> Own { get; } =

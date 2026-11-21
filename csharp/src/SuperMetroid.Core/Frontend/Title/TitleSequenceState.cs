@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// Runs the title's scenes in order, showing the installed pictures, colours and gradient.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene<FloorScene>
+public sealed partial class TitleSequenceState : IFrontendScreen, IComposedFrontendScene<FloorScene>
 {
     /// <inheritdoc/>
     void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>How each kind of Samus's particles moves and is placed (<see cref="SamusParticles"/>).</summary>
-internal static class SamusParticleKindDefinitions
+internal static partial class SamusParticleKindDefinitions
 {
     /// <summary>
     /// Each kind: dust rises as it shows, lava spray rises and drifts to the side its spawn gives, and the other kinds stay

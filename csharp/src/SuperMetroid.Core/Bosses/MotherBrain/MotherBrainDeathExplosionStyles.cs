@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>What each style of Mother Brain's death explosions does.</summary>
-internal static class MotherBrainDeathExplosionStyles
+internal static partial class MotherBrainDeathExplosionStyles
 {
     /// <summary>
     /// Each style: the smoky style bursts a group's smoky pair in smoke at its own interval; the mixed style bursts the

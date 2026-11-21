@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// only cause: Samus alternates between the Speed Booster glow and the normal suit, one per update, until the
 /// Metroid releases her (<see cref="SamusState.MetroidAttachmentShade"/>).
 /// </summary>
-public static class SamusMetroidAttachmentFlash
+public static partial class SamusMetroidAttachmentFlash
 {
     /// <returns>True when the alternation owned—and wrote—the visible Samus shade.</returns>
     public static bool Update(

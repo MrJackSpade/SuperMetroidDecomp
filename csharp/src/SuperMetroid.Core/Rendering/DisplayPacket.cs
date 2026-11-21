@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rendering;
 /// One displayed frame, closed and immutable: its scene (a layered scene, a turning-floor scene or a solid colour, #2505),
 /// shown at the scene's brightness. It holds neither game objects nor the display's resources.
 /// </summary>
-public sealed class DisplayPacket
+public sealed partial class DisplayPacket
 {
     /// <summary>The number of the game update this frame shows, counted as the game counts its updates.</summary>
     public int FrameNumber { get; }

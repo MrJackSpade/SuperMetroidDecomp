@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 /// <param name="TopRow">The first room row the band covers.</param>
 /// <param name="Drift">The drift the band's rows move with.</param>
-public sealed record SkyBand(int TopRow, SkyDrift Drift);
+public sealed partial record SkyBand(int TopRow, SkyDrift Drift);

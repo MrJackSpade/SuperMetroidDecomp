@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Escape;
 /// horizontal shake turns diagonal and for how long, where the explosions go off and which one, and the blocks outdoor
 /// explosions skip.
 /// </summary>
-public static class ZebesEscapeDefinitions
+public static partial class ZebesEscapeDefinitions
 {
     /// <summary>The updates a temporary diagonal shake lasts before the room returns to its horizontal shake.</summary>
     public const int DiagonalFrames = 42;

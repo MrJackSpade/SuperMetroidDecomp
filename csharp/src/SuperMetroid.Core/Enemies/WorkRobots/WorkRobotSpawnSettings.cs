@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// The unpowered pose it holds: <see cref="WorkRobotSegment.NoPowerNeutral"/>, <see cref="WorkRobotSegment.NoPowerLeaningLeft"/>
 /// or <see cref="WorkRobotSegment.NoPowerLeaningRight"/>.
 /// </param>
-internal sealed record WorkRobotSpawnSettings(WorkRobotSegment Pose) : EnemySpawnSettings;
+internal sealed partial record WorkRobotSpawnSettings(WorkRobotSegment Pose) : EnemySpawnSettings;

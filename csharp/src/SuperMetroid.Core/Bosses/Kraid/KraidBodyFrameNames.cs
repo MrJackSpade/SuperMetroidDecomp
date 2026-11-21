@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// picture each, drawn behind the sprites or, once he has grown, in front of them (#1634). The import names the frames it
 /// composes with these, and Kraid shows them by them.
 /// </summary>
-internal static class KraidBodyFrameNames
+internal static partial class KraidBodyFrameNames
 {
     /// <summary>The frame of Kraid's body below his head.</summary>
     internal const string Body = "Body";

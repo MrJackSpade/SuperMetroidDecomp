@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// its characters, coloured with its standard palette rows, at the place its <see cref="SpriteSheetLayout"/> gives it:
 /// one complete image per distinct frame, drawn as it is (#1513).
 /// </summary>
-internal static class SpriteSheetComposer
+internal static partial class SpriteSheetComposer
 {
     /// <summary>Composes a sheet's distinct frame images in order onto one sheet.</summary>
     /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the

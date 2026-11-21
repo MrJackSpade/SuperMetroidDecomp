@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// positions; a reaction sets only the stages it has. The species' entity decides when it applies
 /// (<see cref="IEnemyPowerBombReaction.PowerBombReaction"/>).
 /// </summary>
-internal sealed class EnemyPowerBombReaction
+internal sealed partial class EnemyPowerBombReaction
 {
     /// <summary>Whether the enemy is skipped before its reaction is examined.</summary>
     internal Func<RoomEnemyPlace, bool>? SkipsEnemy { get; init; }

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// runs it.
 /// </summary>
 /// <param name="runs">What the shot runs, completing "The shot runs ...".</param>
-internal sealed class ShotRefusedWhenRun(string runs) : SamusShotBehavior
+internal sealed partial class ShotRefusedWhenRun(string runs) : SamusShotBehavior
 {
     /// <summary>What the shot runs, completing "The shot runs ...".</summary>
     internal string Runs { get; } = Ensure.NotNull(runs);

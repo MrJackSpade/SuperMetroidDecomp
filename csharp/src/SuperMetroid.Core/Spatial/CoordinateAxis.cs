@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Spatial;
 /// clamp cameras and despawn actors. Every axis computation that the game wraps states it here, once.
 /// </remarks>
 [EncodingOwner("sixteen-bit wrapping coordinate axis")]
-public static class CoordinateAxis
+public static partial class CoordinateAxis
 {
     /// <summary>
     /// The coordinate a computation lands on: a result past either end of the sixteen-bit space continues from the

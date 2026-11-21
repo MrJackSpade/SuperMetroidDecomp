@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// flights and cues spawn the rest of the chain this spawns.
 /// </summary>
 [RoomLifetime]
-internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFireballMotion>, IEnemyProjectileCues<RidleyFireballCue>
+internal sealed partial class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFireballMotion>, IEnemyProjectileCues<RidleyFireballCue>
 {
     /// <summary>How many afterburns each fireball and afterburn has left to raise, given as it spawns.</summary>
     internal EnemyProjectileStates<RidleyAfterburnChainState> Afterburns { get; } = new();

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// the rectangle its runs span. A cell of that rectangle no run writes keeps the map's tile, which nothing else writes, so
 /// the picture replaces exactly what the frame's write changes.
 /// </summary>
-internal static class CeresFloorDrawings
+internal static partial class CeresFloorDrawings
 {
     /// <summary>The floor's animation frames in the order the floor sheet holds their pictures (#2567).</summary>
     private static readonly IReadOnlyList<CeresFloorActorPicture> FrameOrder = Ensure.EveryMemberOnce<CeresFloorActorPicture>(

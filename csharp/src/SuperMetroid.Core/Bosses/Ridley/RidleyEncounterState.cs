@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// as his body holds it from its initialization (#2228, #2231): the flight and tail both encounters share, his colours,
 /// the reveal both open with and the phase timer every phase counts on.
 /// </summary>
-public abstract class RidleyEncounterState
+public abstract partial class RidleyEncounterState
 {
     /// <summary>Begins an encounter whose body and tail start as given.</summary>
     /// <param name="flight">His body in flight.</param>
@@ -87,16 +87,16 @@ public abstract class RidleyEncounterState
         step = new EncounterStep.InFight<TPhase>(phase);
 
     /// <summary>The part of the encounter Ridley is in with its phase (#2560), one value.</summary>
-    private abstract record EncounterStep
+    private abstract partial record EncounterStep
     {
         /// <summary>The reveal both encounters open with.</summary>
         /// <param name="Phase">The reveal's phase he runs.</param>
-        internal sealed record InReveal(RidleyRevealPhase Phase) : EncounterStep;
+        internal sealed partial record InReveal(RidleyRevealPhase Phase) : EncounterStep;
 
         /// <summary>The encounter's own fight, from his lift-off.</summary>
         /// <typeparam name="TPhase">The encounter's phases.</typeparam>
         /// <param name="Phase">The phase he runs.</param>
-        internal sealed record InFight<TPhase>(TPhase Phase) : EncounterStep
+        internal sealed partial record InFight<TPhase>(TPhase Phase) : EncounterStep
             where TPhase : notnull;
     }
 

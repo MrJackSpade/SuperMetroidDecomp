@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// the Tourian statues' OBJ pictures from them. Pictures are found by their place in the atlas's segment order, and the
 /// statues' pictures as windows of the shared statue strip (<see cref="TourianStatueTileStripDefinitions"/>).
 /// </summary>
-internal static class RoomFxBlockAnimationPictures
+internal static partial class RoomFxBlockAnimationPictures
 {
     /// <summary>The Tourian statues' pictures in the order the strip holds their windows (#2567).</summary>
     private static readonly IReadOnlyList<TourianStatueBlockPicture> StatuePictureOrder = Ensure.EveryMemberOnce<TourianStatueBlockPicture>(

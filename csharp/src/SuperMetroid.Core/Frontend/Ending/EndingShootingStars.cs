@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The post-credits shooting stars, independent of the explosion's stars.</summary>
-internal sealed class EndingShootingStars
+internal sealed partial class EndingShootingStars
 {
     /// <summary>Each authored star's flight, each holding its own definition (#2541), retained across scene updates.</summary>
     internal readonly EndingShootingStar[] stars;

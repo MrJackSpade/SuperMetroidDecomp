@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// (#1513), and whether the shooting stars cross the scene. The sheet pictures exactly these poses, each once in its first
 /// colouring.
 /// </summary>
-internal sealed class EndingSheetDraws
+internal sealed partial class EndingSheetDraws
 {
     /// <summary>Each family's drawn poses, with their colourings in the order first drawn.</summary>
     private readonly Dictionary<CinematicSpriteFamily, Dictionary<CinematicSpritePose, List<EndingSpriteColouring>>> families = [];

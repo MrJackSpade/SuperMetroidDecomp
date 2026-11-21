@@ -5,7 +5,7 @@ using SuperMetroid.Core.Audio;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>What the extraction uploads into the SPC's memory: instruments, sound effects, music and raw blocks.</summary>
-internal sealed class SpcDefinitionUploads
+internal sealed partial class SpcDefinitionUploads
 {
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
     private readonly SpcRam ram;

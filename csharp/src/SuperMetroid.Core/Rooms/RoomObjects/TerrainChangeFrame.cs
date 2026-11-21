@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Updates">The updates the frame stays before the next frame draws, or before the change ends.</param>
 /// <param name="MoveBefore">The blocks the change's origin moves before the frame draws; zero for none.</param>
 /// <param name="SoundBefore">The sound requested as the frame draws; null for none.</param>
-internal readonly record struct TerrainChangeFrame(
+internal readonly partial record struct TerrainChangeFrame(
     RoomObjectDraw Draw,
     int Updates,
     Offset16<RoomBlocks> MoveBefore = default,

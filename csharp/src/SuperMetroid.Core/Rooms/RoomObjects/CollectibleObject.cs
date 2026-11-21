@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="phase">The phase the item's setup leaves it in.</param>
 /// <param name="location">Where the item lies in the game's item record, as its placement named it.</param>
 /// <param name="savedTerrain">The block the item's setup left at its place, which a shot block's return restores.</param>
-internal sealed class CollectibleObject(
+internal sealed partial class CollectibleObject(
     InWorldCollectibleKind kind,
     CollectiblePresentation presentation,
     CollectibleTerrain terrain,

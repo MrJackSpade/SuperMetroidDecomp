@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// every colour of its hue cycle, as installed (#1557). Her rainbow, drain, revival and restoration colours are the
 /// import's, which pre-colours her pictures in them (#1512, #1527, #1616).
 /// </summary>
-public sealed class MotherBrainRainbowBeamColours
+public sealed partial class MotherBrainRainbowBeamColours
 {
     /// <summary>Keeps the beam backdrop's colours.</summary>
     /// <param name="beamInitial">The beam backdrop's first colour.</param>

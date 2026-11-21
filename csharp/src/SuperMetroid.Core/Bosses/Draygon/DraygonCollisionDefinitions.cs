@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// pictures these frames show are independently replaceable;
 /// editing their artwork cannot move a hitbox or change a reaction.
 /// </summary>
-internal static class DraygonCollisionDefinitions
+internal static partial class DraygonCollisionDefinitions
 {
     /// <summary>Left-facing body rectangles: one shootable eye and three touch-only regions.</summary>
     internal static readonly EnemyCollisionHitbox[] FacingLeftBodyHitboxes =

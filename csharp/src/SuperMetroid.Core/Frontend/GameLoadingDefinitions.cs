@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend;
 /// The authored waits after a game load: the updates the game holds a black screen, running no phase, before the
 /// gameplay fade begins. How long loading takes decides which update gameplay resumes on.
 /// </summary>
-internal static class GameLoadingDefinitions
+internal static partial class GameLoadingDefinitions
 {
     /// <summary>
     /// The updates starting gameplay lets the music queue settle, over its several settles.

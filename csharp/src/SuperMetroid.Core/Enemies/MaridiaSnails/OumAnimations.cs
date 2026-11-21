@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// Oum's idle, attacking and rolling animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="OumCue"/> naming what it does.
 /// </summary>
-internal static class OumAnimations
+internal static partial class OumAnimations
 {
     /// <summary>An Oum facing left's roll: its vent open and each eighth of a turn round from it.</summary>
     private static readonly EnemyFrameId[] LeftTurns = [EnemyFrameId.OumFacingLeftVentOpen, EnemyFrameId.OumFacingLeftTurned45, EnemyFrameId.OumFacingLeftTurned90, EnemyFrameId.OumFacingLeftTurned135, EnemyFrameId.OumFacingLeftTurned180, EnemyFrameId.OumFacingLeftTurned225, EnemyFrameId.OumFacingLeftTurned270, EnemyFrameId.OumFacingLeftTurned315];

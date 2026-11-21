@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// <c>PaletteFXObject_Handler</c> writes the frame's record's colours from the object's colour pointer, skipping those it
 /// skips. The room's, the screens', Samus's, the sprites' and the bosses' shades differ only in where a group's inks lie.
 /// </summary>
-internal static class PaletteFxRecordShades
+internal static partial class PaletteFxRecordShades
 {
     /// <summary>
     /// Every colour group and frame <paramref name="objects"/> can show, each once, ordered by group, then by effect and

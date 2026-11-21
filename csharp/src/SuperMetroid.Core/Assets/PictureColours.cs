@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// What an installed sheet image's colours do (#1633): the shades it is pre-coloured in and the colour its scene shows
 /// where nothing is drawn. Its own colours are its pixels'.
 /// </summary>
-public sealed record PictureColours
+public sealed partial record PictureColours
 {
 
     /// <summary>Each shade the image is pre-coloured in, by the shade that names it.</summary>

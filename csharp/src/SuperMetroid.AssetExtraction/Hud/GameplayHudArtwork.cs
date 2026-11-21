@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// the import pictures every image the game can place from them, and verification compares them with the cartridge's. The
 /// game receives only the layout (<see cref="Presentation"/>), never the tiles (#1616).
 /// </summary>
-public sealed class GameplayHudArtwork
+public sealed partial class GameplayHudArtwork
 {
     /// <summary>The decoded tiles and layout.</summary>
     private readonly GameplayHudArtworkParts parts;

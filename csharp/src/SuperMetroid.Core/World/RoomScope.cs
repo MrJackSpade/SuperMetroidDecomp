@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.World;
 /// travel through <see cref="RoomTransitionCarryOver"/> instead (#1329).
 /// </summary>
 [RoomLifetime]
-internal sealed record RoomScope
+internal sealed partial record RoomScope
 {
     /// <summary>The door whose destination this room is, or the load station's synthetic door.</summary>
     public required DoorDefinition Door { get; init; }

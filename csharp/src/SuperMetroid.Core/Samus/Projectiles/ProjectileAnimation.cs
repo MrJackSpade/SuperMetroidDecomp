@@ -10,7 +10,7 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The projectile animation player and drawing: shot animation and endings, live projectile sprites, and the charge flare's components, advanced and drawn.</summary>
-internal sealed class ProjectileAnimation
+internal sealed partial class ProjectileAnimation
 {
     /// <summary>The charge flare, whose components' pictures and waits the animation steps.</summary>
     private readonly BeamChargeState _charge;

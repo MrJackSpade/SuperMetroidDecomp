@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.World;
 /// changes of the Torizos and Mother Brain, the effects of Mother Brain's death, and the downward gates' projectile
 /// requests. Each lands in the room it is handed (<see cref="EnemyRoomEffectSite"/>, #2382).
 /// </summary>
-internal sealed class EnemyRoomEffects
+internal sealed partial class EnemyRoomEffects
 {
     /// <summary>Starts the escape countdown on Mother Brain's requested frame.</summary>
     private readonly EscapeTimer _escapeTimer;

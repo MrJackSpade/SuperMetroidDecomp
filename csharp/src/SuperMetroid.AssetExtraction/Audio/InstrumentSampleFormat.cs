@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>Physical-format limits for the stock and user-replaceable instrument sample assets the import renders from.</summary>
-public static class InstrumentSampleFormat
+public static partial class InstrumentSampleFormat
 {
     /// <summary>Rate of the extracted stock instrument samples.</summary>
     public const int StockSampleRate = 32_000;

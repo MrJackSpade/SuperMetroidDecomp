@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses;
 /// entries after and before it when the walk cycles, the first following the last.
 /// </summary>
 /// <typeparam name="T">The list's entries.</typeparam>
-public readonly record struct ListStep<T>
+public readonly partial record struct ListStep<T>
 {
     /// <summary>The list walked.</summary>
     private readonly IReadOnlyList<T> _list;

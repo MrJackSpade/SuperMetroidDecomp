@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Reads and writes the installed Chozo statue and tube colour document.</summary>
-public static class ChozoAndTubeColorFile
+public static partial class ChozoAndTubeColorFile
 {
     /// <summary>Loads version-1 <c>chozo-and-tube-colors.json</c>, requiring three independent 32-color images and RGB5 channels from 0 through 31.</summary>
     /// <param name="json">Caller-owned stream consumed from its current position and left open; unknown and duplicate JSON properties are rejected.</param>

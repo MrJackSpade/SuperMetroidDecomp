@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The Samus projectiles' frames' hitboxes (#1301, #2124, #2274): each frame's radii. What a frame pictures is installed only
 /// (#1596), and where a trail starts from a frame is <see cref="ProjectileTrailPlacementDefinitions"/>.
 /// </summary>
-internal static class SamusProjectileFrameDefinitions
+internal static partial class SamusProjectileFrameDefinitions
 {
     /// <summary>Each frame's hitbox radii.</summary>
     internal static readonly IReadOnlyDictionary<SamusProjectileFrameId, Extent16<RoomPixels>> Radii =

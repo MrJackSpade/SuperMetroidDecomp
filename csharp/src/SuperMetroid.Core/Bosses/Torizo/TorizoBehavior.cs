@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>The Torizo species owner, Bomb and Golden Torizo alike: their per-room state, behaviour and the interactions they register.</summary>
 [RoomLifetime]
-internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];

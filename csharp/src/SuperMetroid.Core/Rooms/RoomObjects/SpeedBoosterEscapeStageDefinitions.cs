@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The lava rises of the Speed Booster escape, in the order Samus reaches them while escaping left.</summary>
-internal static class SpeedBoosterEscapeStageDefinitions
+internal static partial class SpeedBoosterEscapeStageDefinitions
 {
     /// <summary>Eastern checkpoint action, reached first while escaping left.</summary>
     internal static readonly SpeedBoosterEscapeStageDefinition EasternCheckpoint = new(1835, 447, SignedEightEight.FromPixelFraction(-11, 16));

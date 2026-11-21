@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Validated decoding of top-level music track control words.</summary>
 [EncodingOwner("music track control words")]
-internal static class MusicTrackControls
+internal static partial class MusicTrackControls
 {
     /// <summary>The track word naming each control.</summary>
     private static readonly Dictionary<int, MusicTrackControl> controls = new()

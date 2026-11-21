@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The turrets' and bullets' typed animations (#641, #1600, #2011), each beat the installed
 /// <see cref="EnemyProjectileFrameId"/> it shows.
 /// </summary>
-internal static class MotherBrainTurretAnimations
+internal static partial class MotherBrainTurretAnimations
 {
     /// <summary>Every turret segment: each turret and bullet pose by direction, and the impact smoke.</summary>
     private static readonly MotherBrainTurretPose[] Poses =

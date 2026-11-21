@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The trails Samus's shots leave (#1625): presentation particles, each a pair of sparkles running its own animations until
 /// both end. A new trail never displaces one already shown, and nothing in gameplay reads a trail.
 /// </summary>
-internal sealed class ProjectileTrails
+internal sealed partial class ProjectileTrails
 {
     /// <summary>
     /// The trail lists a shot picks by its beam's charge (#2560): the one declared map between the projectile type's charge

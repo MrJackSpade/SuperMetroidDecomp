@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// phase of the earthquake's frame count, as authored, how the door's own earthquake chooses its strength and how its
 /// destruction's explosions choose their animation.
 /// </summary>
-internal static class CeresDoorQuakeDefinitions
+internal static partial class CeresDoorQuakeDefinitions
 {
     /// <summary>
     /// The door's earthquake strength, read from the current random number without drawing (#1619): one roll in 32

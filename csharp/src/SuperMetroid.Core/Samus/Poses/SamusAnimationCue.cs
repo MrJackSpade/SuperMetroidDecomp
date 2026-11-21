@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The cue that closes a run of delays in a Samus animation: where the animation goes next, or which
 /// transitional pose it publishes. Each kind is its own record; the animation acts on the kind.
 /// </summary>
-internal abstract record SamusAnimationCue : SamusPoseAnimationStep
+internal abstract partial record SamusAnimationCue : SamusPoseAnimationStep
 {
     /// <summary>
     /// Whether the animation can go on from the cue to the frame after it, the first frame of the next segment: a hold, the

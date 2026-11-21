@@ -11,5 +11,5 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The composition the frame's bottom half shows, or none when the bottom half draws nothing or the frame's top half is
 /// the complete body.
 /// </param>
-public sealed record SamusBodyDecodedFrame(SamusBodyFramePictures Pictures, int OriginRise,
+public sealed partial record SamusBodyDecodedFrame(SamusBodyFramePictures Pictures, int OriginRise,
     SamusSpritemapId? TopComposition, SamusSpritemapId? BottomComposition);

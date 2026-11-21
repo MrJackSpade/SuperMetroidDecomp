@@ -34,7 +34,7 @@ namespace SuperMetroid.Core.World;
 /// enemies and room objects of the loaded room.
 /// </summary>
 [RoomScopeBoundary("Builds each room's scope in the game's load order.")]
-internal sealed class RoomLoader
+internal sealed partial class RoomLoader
 {
     /// <summary>Supplies decoded graphics and colour assets for the room being entered.</summary>
     private readonly RuntimeArtwork _artwork;

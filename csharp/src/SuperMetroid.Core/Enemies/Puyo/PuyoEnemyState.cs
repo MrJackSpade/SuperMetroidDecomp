@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>The state of one Puyo.</summary>
-public sealed class PuyoEnemyState
+public sealed partial class PuyoEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal PuyoEnemyState(PuyoAction action) => Action = action;

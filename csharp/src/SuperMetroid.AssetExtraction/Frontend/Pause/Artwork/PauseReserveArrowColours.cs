@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// it pre-colours the arrow's pictures in the pause sheet in a shade for the solid colours and one for each pulse phase,
 /// which the pause screen names.
 /// </summary>
-public sealed class PauseReserveArrowColours
+public sealed partial class PauseReserveArrowColours
 {
     /// <summary>The background colour group the arrow's bevel colours lie in on the pause screen.</summary>
     private const int BevelGroup = 6;

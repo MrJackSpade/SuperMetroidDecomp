@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// pipeline's knowledge of how it is built. Each such background has one list; the cleared background and the boss's body
 /// are left by several lists the import never runs (#2546).
 /// </summary>
-public static class LibraryBackgroundPrograms
+public static partial class LibraryBackgroundPrograms
 {
     /// <summary>Each pictured background's program.</summary>
     private static readonly Dictionary<LibraryBackground, LibraryBackgroundProgram> ByBackground =

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Audio;
 /// states are game state, so the host plays only what the queues release and invents no
 /// gameplay-specific sounds.
 /// </remarks>
-public sealed class AudioQueues
+public sealed partial class AudioQueues
 {
     /// <summary>
     /// The music requests waiting on the music queue, oldest first, each with its delay. The request the queue fetched

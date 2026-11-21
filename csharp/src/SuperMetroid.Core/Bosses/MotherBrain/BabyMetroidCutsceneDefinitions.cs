@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// final charge and for the last volley, and how long each of its waits lasts, in the updates it lasts, its last being the
 /// update it runs out on (#2311).
 /// </summary>
-internal static class BabyMetroidCutsceneDefinitions
+internal static partial class BabyMetroidCutsceneDefinitions
 {
     /// <summary>The Baby's health as it arrives; Mother Brain's onion rings wear it down while it shields Samus.</summary>
     internal const int ArrivalHealth = 3200;

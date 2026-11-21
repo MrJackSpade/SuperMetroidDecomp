@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// One of Samus's particles: what it shows, where, and its animation (#2388), played once through the shared animation
 /// player after any hidden wait.
 /// </summary>
-public sealed class SamusParticle
+public sealed partial class SamusParticle
 {
     /// <summary>Starts a particle at <paramref name="from"/> in its animation.</summary>
     /// <param name="kind">What it shows.</param>

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// among the room's room objects.
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyTerrain
+internal sealed partial class EnemyTerrain
 {
     /// <summary>The room's room objects that show its enemy-breakable blocks breaking, which the room's enemies break into.</summary>
     private readonly EnemyBreakableTerrainObjects _breakableTerrain;

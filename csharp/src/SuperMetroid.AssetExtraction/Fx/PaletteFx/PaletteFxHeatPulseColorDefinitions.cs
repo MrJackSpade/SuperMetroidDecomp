@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// <summary>
 /// The three suits' heat-pulse records and the colours each writes, for the import.
 /// </summary>
-public static class PaletteFxHeatPulseColorDefinitions
+public static partial class PaletteFxHeatPulseColorDefinitions
 {
     /// <summary>The Power Suit's heat-pulse records and colours.</summary>
     private static readonly PaletteFxHeatProgramDefinition Power = new()

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rendering;
 /// The message box's text as the overlay shows it (#1392, #1555): the pre-coloured picture of the message it shows, placed
 /// in screen pixels centred across the screen and on the window, shown only on the reveal window's screen lines.
 /// </summary>
-public sealed record MessageBoxLayer : DisplayLayer
+public sealed partial record MessageBoxLayer : DisplayLayer
 {
     /// <summary>Checks the picture fits the screen and the fully open window, and the reveal radius.</summary>
     /// <param name="picture">The picture of the message.</param>

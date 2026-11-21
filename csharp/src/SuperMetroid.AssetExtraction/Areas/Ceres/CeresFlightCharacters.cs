@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// (<see cref="ImportIntroCinematicArtwork.FlightPalette"/>); the game keeps their backdrop, which the opening's backdrop
 /// document names (#1544).
 /// </summary>
-public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
+public sealed partial class CeresFlightCharacters : CeresFlightSourceArtwork
 {
     /// <summary>Retains compiled characters and maps with the installed documents they are drawn by.</summary>
     /// <param name="floorCharacters">The chunky Mode 7 floor characters.</param>

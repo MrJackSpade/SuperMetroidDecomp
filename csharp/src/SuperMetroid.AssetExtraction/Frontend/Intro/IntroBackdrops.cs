@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// The installed opening backdrops as the game reads them (#1544): colours the opening shows that no picture holds. The
 /// game loads no palette document for them; every picture the opening draws is pre-coloured by the import.
 /// </summary>
-public sealed class IntroBackdrops
+public sealed partial class IntroBackdrops
 {
     /// <summary>Keeps both backdrops.</summary>
     /// <param name="opening">The opening narration's backdrop.</param>

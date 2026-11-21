@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 /// <remarks>Each list is the room's own door list. Fourteen lists hold the elevator ride, which consumes no
 /// physical door record.</remarks>
-internal static class RoomDoorListDefinitions
+internal static partial class RoomDoorListDefinitions
 {
     /// <summary>Each retail room's door list, in its authored list order.</summary>
     internal static IReadOnlyDictionary<RoomDefinition, IReadOnlyList<DoorBlockExit>> ByRoom { get; } =

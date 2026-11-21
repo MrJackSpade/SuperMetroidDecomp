@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>Appearance geometry, colours and visibility timing for Wrecked Ship ghost appearances.</summary>
-public static class WreckedShipGhostAppearanceDefinitions
+public static partial class WreckedShipGhostAppearanceDefinitions
 {
     /// <summary>
     /// Where the ghost appears around Samus for each way she has been moving: 64 pixels the way she moved on each

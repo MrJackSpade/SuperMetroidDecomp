@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// (#2031), which names the sheets (#1693), and the dissolve map of each picture a dissolve erases, apart from the pictures
 /// (<see cref="BossBodyDissolveMapFile"/>, #2478). A player edits a sheet's installed files in place.
 /// </summary>
-public static class BossBodySheetFiles
+public static partial class BossBodySheetFiles
 {
     /// <summary>The manifest naming each boss's frames.</summary>
     internal const string ManifestFileName = "boss-bodies.json";
@@ -146,18 +146,18 @@ public static class BossBodySheetFiles
     /// <summary>The manifest: each boss's sheet, by boss.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Sheets">Each boss's frames, by boss name.</param>
-    internal sealed record Manifest(int Version, Dictionary<string, SheetDocument?> Sheets);
+    internal sealed partial record Manifest(int Version, Dictionary<string, SheetDocument?> Sheets);
 
     /// <summary>One boss's frames.</summary>
     /// <param name="Frames">Each frame, by frame name.</param>
-    internal sealed record SheetDocument(Dictionary<string, FrameDocument?>? Frames);
+    internal sealed partial record SheetDocument(Dictionary<string, FrameDocument?>? Frames);
 
     /// <summary>One frame: its whole picture, where it lies and the depth it is drawn at.</summary>
     /// <param name="Picture">The sheet frame of its picture, or null for a frame that paints nothing.</param>
     /// <param name="Anchor">Where its picture's top-left corner lies from its boss's position (#2031).</param>
     /// <param name="Depth">The depth its picture is drawn at, by name (#1634), or null for a frame that paints nothing.</param>
     /// <param name="Dissolve">The tag of the dissolve map its picture dissolves by (#2478), or null for a frame no dissolve erases.</param>
-    internal sealed record FrameDocument(string? Picture, Offset16<RoomPixels>? Anchor,
+    internal sealed partial record FrameDocument(string? Picture, Offset16<RoomPixels>? Anchor,
         [property: JsonConverter(typeof(BossBodyDepthJsonConverter))]
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] BossBodyDepth? Depth,
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)][InstalledKey] string? Dissolve = null);

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The stages of Mother Brain's drained stagger, forward and back in turn, each pair sharing its timing.</summary>
-internal static class MotherBrainPainfulWalkingDefinitions
+internal static partial class MotherBrainPainfulWalkingDefinitions
 {
     /// <summary>Her fastest stagger forward: the neck turns five steps an update, then she pauses, the shortest of her pauses.</summary>
     private static readonly MotherBrainStaggerStage FastestForward = new(MotherBrainWalkSpeed.ReallyFast, RotationAngle.FromSteps(5), 16, MotherBrainStaggerDirection.Forward);

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// Names the pause frame's pictures (#1467): each area's backdrop without its button rows, the button rows without their
 /// labels, and each label lit or dim; and says which labels each highlight lights.
 /// </summary>
-internal static class PauseFramePictures
+internal static partial class PauseFramePictures
 {
     /// <summary>The frame name of <paramref name="area"/>'s backdrop, its area lettering included, without the button rows.</summary>
     [InstalledKey]

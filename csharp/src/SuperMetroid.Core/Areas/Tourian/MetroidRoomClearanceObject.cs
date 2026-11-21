@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// first, marks its room's cleared event once the room's enemy deaths reach the room's kill quota.
 /// </summary>
 /// <param name="cleared">The event the watch marks.</param>
-internal sealed class MetroidRoomClearanceObject(StoryEvent cleared) : RoomObjectBehaviour
+internal sealed partial class MetroidRoomClearanceObject(StoryEvent cleared) : RoomObjectBehaviour
 {
     /// <summary>The event the watch marks once the quota is met.</summary>
     internal StoryEvent Cleared { get; } = cleared;

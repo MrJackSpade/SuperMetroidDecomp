@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// frames select them. The body sheets are composed from these at installation; gameplay draws the sheets and never reads
 /// these characters.
 /// </summary>
-public sealed class SamusBodyCharacterArtwork
+public sealed partial class SamusBodyCharacterArtwork
 {
     /// <summary>Maximum tile count represented by one definition slot.</summary>
     public const int TilesPerDefinition = 16;
@@ -27,7 +27,7 @@ public sealed class SamusBodyCharacterArtwork
     /// <summary>A composed body sheet, distinguished by the top and bottom half pictures it composes.</summary>
     /// <param name="Top">The top half picture, or none.</param>
     /// <param name="Bottom">The bottom half picture, or none.</param>
-    private sealed record BodyHalvesVariant(SamusBodyPicture? Top, SamusBodyPicture? Bottom) : SpriteArtworkVariant;
+    private sealed partial record BodyHalvesVariant(SamusBodyPicture? Top, SamusBodyPicture? Bottom) : SpriteArtworkVariant;
 
     /// <summary>The body whose frames select these characters.</summary>
     public SamusBodySources Body { get; }

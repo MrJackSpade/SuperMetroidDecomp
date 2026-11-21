@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// coordinates are measured the short way across the room's space (<see cref="DistanceAcrossRoomEdge"/>), so an enemy that lies just past
 /// the room's edge from Samus is still close to her, and the gaps are distances either way across that space.
 /// </remarks>
-public static class SamusSolidEnemyCollision
+public static partial class SamusSolidEnemyCollision
 {
     /// <summary>
     /// Runs one directional probe without moving Samus.

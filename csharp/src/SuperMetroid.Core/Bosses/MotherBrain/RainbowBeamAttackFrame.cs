@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// sequence, the Power Bomb, the escape's text and the room's earthquake. Every member is the update's own; none has a
 /// default.
 /// </summary>
-public sealed record RainbowBeamAttackFrame
+public sealed partial record RainbowBeamAttackFrame
 {
     /// <summary>The enemy frame counter's current count; its place in a short repeating cycle paces the beam's colour cadence.</summary>
     public required int EnemyFrameCounter { get; init; }

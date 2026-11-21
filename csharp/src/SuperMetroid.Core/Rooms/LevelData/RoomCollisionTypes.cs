@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Reads of the collision kinds' definitions (<see cref="RoomCollisionTypeDefinitions"/>).</summary>
-internal static class RoomCollisionTypes
+internal static partial class RoomCollisionTypes
 {
     /// <summary>The definition of <paramref name="kind"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="kind"/> is undefined.</exception>

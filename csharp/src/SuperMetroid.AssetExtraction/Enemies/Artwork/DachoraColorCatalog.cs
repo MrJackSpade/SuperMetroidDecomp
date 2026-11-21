@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// Dachora's installed default, speed, and shine RGB5 images, kept as installed. Speed/shine timers and their
 /// frame-index arithmetic remain compiled enemy behavior.
 /// </summary>
-public sealed class DachoraColorCatalog
+public sealed partial class DachoraColorCatalog
 {
     /// <summary>The installed default palette.</summary>
     private readonly InstalledColourRows normal;

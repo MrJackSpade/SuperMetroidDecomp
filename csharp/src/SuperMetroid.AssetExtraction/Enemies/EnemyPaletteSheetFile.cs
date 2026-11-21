@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Reads and writes an enemy's colour document, import data only the import pre-colours the enemy's sheet from (#1637).</summary>
-public static class EnemyPaletteSheetFile
+public static partial class EnemyPaletteSheetFile
 {
     /// <summary>The colours of the cartridge's enemy palette the import decodes: a complete four-bit OBJ palette, colour zero included.</summary>
     public const int ColorCount = 16;

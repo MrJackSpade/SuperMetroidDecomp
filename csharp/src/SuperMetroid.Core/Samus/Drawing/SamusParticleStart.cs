@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// How one of Samus's particles begins: shown at once for a number of updates on its current animation step, or hidden for
 /// a number of updates and then shown, on the last of them, for its step's full duration.
 /// </summary>
-public abstract record SamusParticleStart
+public abstract partial record SamusParticleStart
 {
     /// <summary>Only the two starts derive from it (#2560).</summary>
     private SamusParticleStart()
@@ -27,9 +27,9 @@ public abstract record SamusParticleStart
 
     /// <summary>A particle shown at once.</summary>
     /// <param name="StepUpdates">The updates its current step shows.</param>
-    public sealed record ShownAtOnce(int StepUpdates) : SamusParticleStart;
+    public sealed partial record ShownAtOnce(int StepUpdates) : SamusParticleStart;
 
     /// <summary>A particle that waits hidden before it shows.</summary>
     /// <param name="Updates">The updates it waits, counting the update it first shows on.</param>
-    public sealed record HiddenFirst(int Updates) : SamusParticleStart;
+    public sealed partial record HiddenFirst(int Updates) : SamusParticleStart;
 }

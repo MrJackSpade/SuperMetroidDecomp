@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// room object (<see cref="CollectibleObject"/>) that holds and advances its own state.
 /// </summary>
 [RoomLifetime]
-internal sealed class CollectibleObjects
+internal sealed partial class CollectibleObjects
 {
 
     /// <summary>The room's system and event state.</summary>
@@ -55,7 +55,7 @@ internal sealed class CollectibleObjects
     /// Whether its message's close starts the room's lava rising (#2562): the Speed Booster in its Chozo orb, whose pickup
     /// leaves the lava's motion to the message's close. The last item collected before the close decides.
     /// </param>
-    private readonly record struct AwaitingPickup(RoomObjectPlace Place, CollectibleObject Item, bool RaisesLava);
+    private readonly partial record struct AwaitingPickup(RoomObjectPlace Place, CollectibleObject Item, bool RaisesLava);
 
     /// <summary>Whether the room objects' step is waiting for its synchronous pickup message.</summary>
     internal bool HasPendingCollectibleMessage => _awaitingMessage.Count != 0;

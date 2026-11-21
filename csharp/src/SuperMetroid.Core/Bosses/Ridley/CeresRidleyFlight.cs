@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ceres Ridley's flight: liftoff, hovering, fireballs, lunges, swoops, the fake retreat and taking the baby, and the movement integration they share.</summary>
 [RoomLifetime]
-internal sealed class CeresRidleyFlight
+internal sealed partial class CeresRidleyFlight
 {
     /// <summary>Sets up the enemies Ridley's flight spawns and runs their initialization.</summary>
     private readonly IEnemyLifecycle _lifecycle;

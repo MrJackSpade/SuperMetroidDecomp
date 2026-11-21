@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// move outward by the area's speeds on each update, each stopping at the screen's edge; returning, they start just inside
 /// the screen and move back inward by the same speeds, for fewer updates. The rectangle is not a scale of either scene.
 /// </summary>
-public sealed class FileSelectMapWindow
+public sealed partial class FileSelectMapWindow
 {
     /// <summary>The area's edge speeds and the updates the edges move on.</summary>
     private readonly FileSelectMapWindowMotion motion;

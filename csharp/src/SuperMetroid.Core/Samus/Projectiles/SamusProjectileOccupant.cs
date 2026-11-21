@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// and the Super Missile's link among them, change what it holds.
 /// </summary>
 [ArchitectureReview("back-reference", "The shot holding a place and the place it holds (#2558): the place's taking creates the occupant, and the place's queries (the type it strikes blocks with, what a beam fired over it finds) read the occupant, so the two share the shot's lifetime.")]
-public sealed class SamusProjectileOccupant
+public sealed partial class SamusProjectileOccupant
 {
     /// <summary>
     /// The projectile of <paramref name="type"/> dealing <paramref name="damage"/> taking <paramref name="projectile"/>'s place,

@@ -30,7 +30,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TStates">The species states one enemy owns; a new set holds none.</typeparam>
 [CompatibilityService("an enemy removed from its place leaves its state there for its neighbours: as it left it after a deletion, cleared after a kill")]
-public sealed class RemovedEnemyLeftovers<TStates> where TStates : class, new()
+public sealed partial class RemovedEnemyLeftovers<TStates> where TStates : class, new()
 {
     /// <summary>
     /// What the place's last removal left (#2560): nothing yet, a deleted enemy's states, or the cleared states a kill left;
@@ -68,13 +68,13 @@ public sealed class RemovedEnemyLeftovers<TStates> where TStates : class, new()
 
     /// <summary>The states a removal left in the place (#2560).</summary>
     /// <param name="States">The states left.</param>
-    private abstract record Leftover(TStates States);
+    private abstract partial record Leftover(TStates States);
 
     /// <summary>A deleted enemy's states, as it left them.</summary>
     /// <param name="States">The states left.</param>
-    private sealed record DeletedLeftover(TStates States) : Leftover(States);
+    private sealed partial record DeletedLeftover(TStates States) : Leftover(States);
 
     /// <summary>The cleared states a kill left.</summary>
     /// <param name="States">The cleared states.</param>
-    private sealed record KilledLeftover(TStates States) : Leftover(States);
+    private sealed partial record KilledLeftover(TStates States) : Leftover(States);
 }

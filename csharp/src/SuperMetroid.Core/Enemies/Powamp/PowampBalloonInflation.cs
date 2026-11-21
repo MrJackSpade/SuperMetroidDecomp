@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// </summary>
 /// <param name="Sequence">Which way the balloon goes through its poses.</param>
 /// <param name="PosesShown">How many of the sequence's poses it has shown, zero through three.</param>
-public readonly record struct PowampBalloonInflation(PowampBalloonSequence Sequence, int PosesShown)
+public readonly partial record struct PowampBalloonInflation(PowampBalloonSequence Sequence, int PosesShown)
 {
     /// <summary>
     /// The pose whose height the balloon sits at: the latest it has shown, or the sequence's first before it shows one.

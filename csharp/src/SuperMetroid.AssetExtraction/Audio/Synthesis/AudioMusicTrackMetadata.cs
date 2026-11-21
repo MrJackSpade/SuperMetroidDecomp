@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// <param name="Address">The track's audio-RAM address.</param>
 /// <param name="ByteCapacity">The bytes its slot holds.</param>
 /// <param name="Instructions">Its phrase flow, its end last.</param>
-public sealed record AudioMusicTrackMetadata(
+public sealed partial record AudioMusicTrackMetadata(
     MusicTrack Song,
     int Address,
     int ByteCapacity,

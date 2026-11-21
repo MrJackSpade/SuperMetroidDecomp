@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.World;
 /// The escape rooms' mains' shared work (#2287): their explosions and the diagonal turns of their shaking. Each room's
 /// setup starts its own quake (<see cref="RoomStates.RoomSetupBehavior"/>).
 /// </summary>
-internal sealed class EscapeRoomEffects
+internal sealed partial class EscapeRoomEffects
 {
     /// <summary>Suppresses explosion generation while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;

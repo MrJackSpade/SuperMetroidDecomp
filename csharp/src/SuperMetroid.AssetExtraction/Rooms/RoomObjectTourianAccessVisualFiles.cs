@@ -7,7 +7,7 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Installed, replaceable Tourian entrance access-floor visuals.</summary>
-public static class RoomObjectTourianAccessVisualFiles
+public static partial class RoomObjectTourianAccessVisualFiles
 {
     /// <summary>Editable Tourian entrance access-floor visual JSON filename.</summary>
     internal const string VisualFileName = "tourian-access.json";

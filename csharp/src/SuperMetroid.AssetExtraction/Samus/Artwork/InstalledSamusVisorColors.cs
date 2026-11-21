@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>The installed visor colours shared by X-ray and room palette cycling, every shade kept as installed.</summary>
-public sealed class InstalledSamusVisorColors
+public sealed partial class InstalledSamusVisorColors
 {
     /// <summary>The installed visor shades, in cycle order.</summary>
     internal readonly RgbColor[] colors;

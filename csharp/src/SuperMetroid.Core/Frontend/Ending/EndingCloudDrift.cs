@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// An escape cloud's drift (#2489): the cloud waits until the turning floor's zoom releases it, then from its next update
 /// on drifts by a fixed step every update without testing the zoom again.
 /// </summary>
-internal sealed class EndingCloudDrift : EndingActorMotion
+internal sealed partial class EndingCloudDrift : EndingActorMotion
 {
     /// <summary>How far the cloud drifts each update once released.</summary>
     private readonly Offset16<ScreenPixels> step;

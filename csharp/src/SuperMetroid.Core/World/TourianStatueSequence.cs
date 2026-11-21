@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.World;
 /// events stay separate: visiting the room plays each release before opening the elevator route.
 /// </summary>
 [RoomLifetime]
-public sealed class TourianStatueSequence : IDisplayLatch
+public sealed partial class TourianStatueSequence : IDisplayLatch
 {
 
     /// <summary>The room's earthquake, which the descent shakes.</summary>
@@ -72,7 +72,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
     }
 
     /// <summary>One spawned statue's definition and its animation, played on the shared animation player (#2487).</summary>
-    internal sealed class StatueBlockAnimation
+    internal sealed partial class StatueBlockAnimation
     {
         /// <summary>
         /// Starts the statue of <paramref name="definition"/> at its entry animation, showing nothing until its first update,
@@ -196,7 +196,7 @@ public sealed class TourianStatueSequence : IDisplayLatch
     /// <param name="sequence">The statue sequence.</param>
     /// <param name="definition">The statue's definition.</param>
     /// <param name="animations">The statue's animations.</param>
-    private sealed class StatueCueTarget(TourianStatueSequence sequence, TourianStatueAnimationDefinition definition,
+    private sealed partial class StatueCueTarget(TourianStatueSequence sequence, TourianStatueAnimationDefinition definition,
         TourianStatueBlockAnimations animations) : ITourianStatueCueTarget
     {
         /// <inheritdoc/>

@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// floor places, by <see cref="CeresElevatorDoorFactory"/>.
 /// </summary>
 [RoomLifetime]
-internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
+internal sealed partial class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
 {
 
     /// <summary>Captures the room systems the Ceres doors and walls use.</summary>

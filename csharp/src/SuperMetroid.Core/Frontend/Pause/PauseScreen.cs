@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// the import pre-coloured it in (#1512), its backdrop and its sprites. It publishes these; the capture composes
 /// them, so pause composes no screen of its own.
 /// </summary>
-internal sealed class PauseScreen
+internal sealed partial class PauseScreen
 {
     /// <summary>The menu buttons' labels in the order the screen shows them (#2567).</summary>
     private static readonly IReadOnlyList<PauseButtonLabel> ButtonLabelOrder = Ensure.EveryMemberOnce<PauseButtonLabel>(

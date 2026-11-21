@@ -10,11 +10,21 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// frame starts, and the object leaves on the update after the last. The change plays on the shared animation player
 /// (#2480).
 /// </summary>
-/// <param name="change">The change's authored timing.</param>
-internal class TerrainChangeObject(TerrainChange change) : RoomObjectBehaviour
+internal partial class TerrainChangeObject : RoomObjectBehaviour
 {
+    /// <summary>The change's authored timing.</summary>
+    private readonly TerrainChange change;
+
+    /// <summary>Creates a <see cref="TerrainChangeObject"/>.</summary>
+    /// <param name="change">The change's authored timing.</param>
+    public TerrainChangeObject(TerrainChange change)
+    {
+        this.change = change;
+        this.Frames = Playing(change);
+    }
+
     /// <summary>The change's frames playing, from its first delay; none shown before its first frame draws.</summary>
-    internal AnimationPlayer<RoomObjectFrameRun, TerrainChangeFrame, NoAnimationCue> Frames { get; private set; } = Playing(change);
+    internal AnimationPlayer<RoomObjectFrameRun, TerrainChangeFrame, NoAnimationCue> Frames { get; private set; }
 
     /// <inheritdoc/>
     internal sealed override void Update(RoomObjectPlace place, RoomObjectStepContext context)

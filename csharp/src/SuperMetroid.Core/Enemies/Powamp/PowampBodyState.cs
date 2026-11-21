@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// The state of a Powamp's body (#1845), the half that moves: it rests underground, inflates its balloon and rises with a
 /// wiggle, deflates and sinks back, and carries both halves through death.
 /// </summary>
-public sealed class PowampBodyState
+public sealed partial class PowampBodyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal PowampBodyState(PowampAction action) => Action = action;

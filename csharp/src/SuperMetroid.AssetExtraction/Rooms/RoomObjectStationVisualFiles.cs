@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the twenty station frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectStationVisualFiles
+public static partial class RoomObjectStationVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for twenty map, refill, save, and station-access draw layouts.</summary>
     internal const string VisualFileName = "stations.json";

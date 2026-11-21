@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// One of the four steps of the landed gunship's idle bob (#2343), in the order the ship takes them: each holds for its
 /// updates and moves the ship by its offset; the last is followed by the first.
 /// </summary>
-public readonly record struct GunshipIdleBob
+public readonly partial record struct GunshipIdleBob
 {
     /// <summary>The step at <paramref name="place"/> of the bob's authored cycle.</summary>
     private GunshipIdleBob(int place) => Place = place;

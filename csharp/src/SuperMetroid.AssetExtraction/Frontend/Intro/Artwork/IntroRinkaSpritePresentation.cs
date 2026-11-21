@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable intro Rinka OAM art, without movement or hit behavior.</summary>
-public sealed class IntroRinkaSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroRinkaSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Three compiled OAM compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;

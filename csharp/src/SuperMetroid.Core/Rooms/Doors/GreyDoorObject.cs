@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// for that room (#2486).
 /// </summary>
 [RoomLifetime]
-internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
+internal sealed partial class GreyDoorObject : DoorCapObject, IShootableRoomObject
 {
     /// <summary>A grey cap of <paramref name="variant"/>, locked by <paramref name="doorLock"/>, just placed in <paramref name="door"/>.</summary>
     internal GreyDoorObject(GreyDoorVariant variant, GreyDoorLock doorLock, PlacedDoor door)

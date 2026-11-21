@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// Where the room lists an Evir's parts: its arms and its spit in a row after its body, and the enemies a part's
 /// follow-up to a hit reaches.
 /// </summary>
-internal static class EvirPartListingDefinitions
+internal static partial class EvirPartListingDefinitions
 {
     /// <summary>The body, then its arms, then its spit.</summary>
     internal static EnemyComposite<EvirMember> Listing { get; } = new([EvirMember.Body, EvirMember.Arms, EvirMember.Spit]);

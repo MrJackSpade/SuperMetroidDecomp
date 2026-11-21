@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// Botwoon's head animation (#2400): moving or spitting facing a way, or hidden inside the wall, which faces no way. Only
 /// the animations its factories make exist.
 /// </summary>
-internal readonly record struct BotwoonHeadAnimationSegment
+internal readonly partial record struct BotwoonHeadAnimationSegment
 {
     /// <summary>The head doing <paramref name="kind"/> facing <paramref name="facing"/>, or no way for the hidden head.</summary>
     private BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind kind, CompassDirection? facing)

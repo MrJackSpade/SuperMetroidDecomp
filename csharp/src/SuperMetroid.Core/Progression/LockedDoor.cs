@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Progression;
 /// <see cref="LockedDoorDefinitions"/>; the game keeps whether each door whose opening persists has been opened for good
 /// (<see cref="PersistentProgress.OpenedDoors"/>).
 /// </summary>
-public sealed class LockedDoor
+public sealed partial class LockedDoor
 {
     /// <summary>Creates the door named <paramref name="name"/>.</summary>
     internal LockedDoor([InstalledKey] string name) => Name = Ensure.NotNull(name);

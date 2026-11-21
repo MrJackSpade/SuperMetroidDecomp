@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 /// collision and behaviour lookup, copy dimensions, extension traversal and Brinstar-only condition are the game's own; there
 /// is no other copy of the blocks (#1596). An extension chain leaving the room shows no block of its own (#1792).
 /// </summary>
-public sealed class InstalledXrayReveals
+public sealed partial class InstalledXrayReveals
 {
     /// <summary>Installed reveal blocks keyed by collision kind and reaction.</summary>
     /// <remarks>

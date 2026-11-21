@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// One enemy's sixteen colours as the cartridge stores them (#1637), import data only the import pre-colours the enemy's
 /// sheet from; the installation holds the pre-coloured sheet.
 /// </summary>
-public sealed record EnemyPaletteSheetDocument
+public sealed partial record EnemyPaletteSheetDocument
 {
     /// <summary>Schema revision, which must be 1 for this loader.</summary>
     public required int Version { get; init; }

@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Fx;
 /// with the effect's picture under the effect's own freeze (<see cref="RoomFxOverlayState.Step"/>).
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomBlockAnimations
+public sealed partial class RoomBlockAnimations
 {
     /// <summary>The loops the room effect lists, in the effect's order.</summary>
     internal readonly List<AnimationPlayer<BlockAnimation, ArtworkFrame, NoAnimationCue>> effectAnimations = [];

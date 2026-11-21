@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Spawns the Baby Metroid's invisible-wall room object in the room's shared room-object places.</summary>
 /// <param name="places">The room's room-object places, which the wall contends for with every other room object.</param>
-internal sealed class BabyMetroidWallObjects(RoomObjectPlaceList places)
+internal sealed partial class BabyMetroidWallObjects(RoomObjectPlaceList places)
 {
     /// <summary>
     /// Spawns the wall room object performing the request's mutation at its block. The setup runs as it is spawned: it

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// The shading the scene shows a draw named in a colouring's drawn shade in: that shade with the frame of any colour effect
 /// animating the colouring (#1733).
 /// </param>
-internal sealed class CeresSceneSpriteSheet(SpriteSheet sheet, Func<PictureShade, PictureShading> shading) : IIntroCinematicSpritePresentation
+internal sealed partial class CeresSceneSpriteSheet(SpriteSheet sheet, Func<PictureShade, PictureShading> shading) : IIntroCinematicSpritePresentation
 {
     /// <summary>The poses the destruction family shows; the scene's other poses are the Ceres flight's.</summary>
     private static readonly HashSet<CinematicSpritePose> DestructionPoses =

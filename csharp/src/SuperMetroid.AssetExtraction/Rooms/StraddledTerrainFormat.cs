@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Defines the installed straddled-terrain file (#1612).</summary>
-internal static class StraddledTerrainFormat
+internal static partial class StraddledTerrainFormat
 {
     /// <summary>
     /// Supported straddled-terrain schema revision. Revision one holds, for every block a Wave shot's scan can land halfway

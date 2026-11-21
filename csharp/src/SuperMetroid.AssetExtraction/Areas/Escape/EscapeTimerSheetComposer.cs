@@ -9,7 +9,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Composes the escape timer's pre-coloured sheet from the cartridge's timer spritemaps, characters and colours.</summary>
-internal static class EscapeTimerSheetComposer
+internal static partial class EscapeTimerSheetComposer
 {
     /// <summary>The OBJ palette row the timer is drawn with.</summary>
     internal const int PaletteRow = 5;

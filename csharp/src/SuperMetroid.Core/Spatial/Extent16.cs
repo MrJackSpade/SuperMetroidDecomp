@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Spatial;
 /// <typeparam name="TSpace">The coordinate space the extent is measured in.</typeparam>
 [SpatialComponents("Spatial value type: owns its X and Y extents.")]
 [EncodingOwner("sixteen-bit wrapping size")]
-public readonly record struct Extent16<TSpace>
+public readonly partial record struct Extent16<TSpace>
     where TSpace : ISpatialSpace
 {
     /// <summary>The extent of two sizes that must already lie in 0 through 65535.</summary>

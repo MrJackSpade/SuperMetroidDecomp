@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Which explosion picture each part of the ending's Zebes explosion shows, by the part it plays (#1626).</summary>
-internal static class EndingExplosionDisplayDefinitions
+internal static partial class EndingExplosionDisplayDefinitions
 {
     /// <summary>The planet's explosion, shown over the stars from the explosion's start until the finale replaces it.</summary>
     public const EndingExplosionPicture PlanetExplosion = EndingExplosionPicture.WideExplosion;

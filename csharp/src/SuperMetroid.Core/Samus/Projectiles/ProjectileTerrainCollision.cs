@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Projectile movement against room terrain: the initial beam collision, horizontal and vertical block scans, shot-block reactions (including wave beams through door bands) and killing a beam or missile on contact.</summary>
 [RoomLifetime]
-internal sealed class ProjectileTerrainCollision
+internal sealed partial class ProjectileTerrainCollision
 {
     /// <summary>Ends shots when the kill step rejects an already converted family.</summary>
     private readonly ProjectileAnimation _animation;
@@ -195,7 +195,7 @@ internal sealed class ProjectileTerrainCollision
     /// </summary>
     /// <param name="Place">Where the block lies in the span: the only block, or its first (top or left), a middle or its last.</param>
     /// <param name="TargetBoundary">The coordinate of the shot's leading edge, in room pixels.</param>
-    private readonly record struct ShotSpan(SpanPlace Place, int TargetBoundary)
+    private readonly partial record struct ShotSpan(SpanPlace Place, int TargetBoundary)
     {
         /// <summary>
         /// The block <paramref name="index"/> blocks into a span whose last block is <paramref name="lastIndex"/> blocks

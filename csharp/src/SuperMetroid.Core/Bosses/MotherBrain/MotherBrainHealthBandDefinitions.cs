@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's four health bands (#2259), each lower one showing her more damaged colours.</summary>
-public static class MotherBrainHealthBandDefinitions
+public static partial class MotherBrainHealthBandDefinitions
 {
     /// <summary>Mother Brain at 9000 health or more, shown undamaged.</summary>
     public static MotherBrainHealthBand Unhurt { get; } = new(9000, "unhurt");

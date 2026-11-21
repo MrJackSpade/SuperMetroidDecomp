@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>How a powered WorkRobot walks and falls (#2156).</summary>
-internal static class WorkRobotMotionDefinitions
+internal static partial class WorkRobotMotionDefinitions
 {
     /// <summary>How long a powered WorkRobot waits before its animation's first step, in updates (#2182).</summary>
     internal const int FirstStepDelay = 4;

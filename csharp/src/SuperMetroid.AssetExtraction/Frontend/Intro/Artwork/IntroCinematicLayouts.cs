@@ -17,6 +17,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// <param name="EyeFrames">Samus portrait eye rectangles, independent of blink timing.</param>
 /// <param name="ZebesRevealMap">The Zebes reveal's tilemap, which the planet's picture is composed from with the reveal's characters.</param>
 /// <param name="CeresDestructionMaps">The destruction's Mode 7 maps, which the Ceres floor's shots are composed from.</param>
-public sealed record IntroCinematicLayouts(IReadOnlyList<RoomBackgroundTilemapAtlas> BackgroundPages,
+public sealed partial record IntroCinematicLayouts(IReadOnlyList<RoomBackgroundTilemapAtlas> BackgroundPages,
     RoomBackgroundTilemapAtlas PortraitTilemap, RoomBackgroundTilemapAtlas InitialNarrationTilemap, IntroFinalLineTilemap FinalLine,
     IntroEyeTilemapPresentation EyeFrames, RoomBackgroundTilemapAtlas ZebesRevealMap, CeresDestructionMaps CeresDestructionMaps);

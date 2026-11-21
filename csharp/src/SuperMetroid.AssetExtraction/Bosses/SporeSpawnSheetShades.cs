@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// pictures in: his spores' colours over the row his initialization loads them in, his body's health stages and death
 /// fade over the row he draws in, and his death fade over the room's level and background colour groups.
 /// </summary>
-internal static class SporeSpawnSheetShades
+internal static partial class SporeSpawnSheetShades
 {
     /// <summary>The sprite row his body and the objects he spawns draw in.</summary>
     private const int BodyRow = 1;

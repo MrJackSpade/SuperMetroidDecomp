@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// wing frame's floor update leaves where the unauthored cadence reads, so Core holds no floor update or queue position.
 /// The capsule's frames leave nothing the cadence reads.
 /// </summary>
-public sealed class CeresRidleyGetawayBoostDelays
+public sealed partial class CeresRidleyGetawayBoostDelays
 {
     /// <summary>The ten delays each wing frame leaves behind, by running frame, keyed by the wing frame.</summary>
     private readonly IReadOnlyDictionary<CeresFloorActorPicture, IReadOnlyList<int>> leftByWing;

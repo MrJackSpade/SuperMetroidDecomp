@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// The counter cadences and phases of both Ridley fights (#1606): Norfair Ridley's thinking, his breakup's flicker,
 /// Ceres Ridley's hurt flash length and the getaway's capsule, wings and self-destruct alarm.
 /// </summary>
-internal static class RidleyCadenceDefinitions
+internal static partial class RidleyCadenceDefinitions
 {
     /// <summary>
     /// The updates on which Norfair Ridley runs his fight, counted on his body's own update count at the period's even

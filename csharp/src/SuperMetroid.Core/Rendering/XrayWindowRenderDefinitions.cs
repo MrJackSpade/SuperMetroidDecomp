@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Where the X-ray beam starts relative to Samus, its tint and the backdrop it shows.</summary>
-public static class XrayWindowRenderDefinitions
+public static partial class XrayWindowRenderDefinitions
 {
     /// <summary>The grey tint the X-ray blends a revealable room with.</summary>
     public static FadeLevelColour RevealTint { get; } = new(7, 7, 7);

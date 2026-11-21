@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// A complete installed colour table (#1615): every row of an authored colour set (a frame, health band, pose or step)
 /// with every one of its colours, kept as installed. A table missing a row or a colour is rejected when built.
 /// </summary>
-internal sealed class InstalledColourRows
+internal sealed partial class InstalledColourRows
 {
     /// <summary>The installed rows, each holding <see cref="ColoursPerRow"/> colours.</summary>
     private readonly RgbColor[][] rows;

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend;
     "runs the session it was made for, so the two share one lifetime; the set keeps no reference to the session itself.")]
 [ArchitectureReview("context-bag", "The game's phases, one typed member per sequence, not services handed around: a " +
     "sequence that hands over names the phase it enters here, so no update looks a phase up by the game-state word.")]
-internal sealed class GamePhases
+internal sealed partial class GamePhases
 {
     /// <summary>Builds every sequence's phase for <paramref name="session"/>.</summary>
     /// <param name="session">The session the phases run.</param>

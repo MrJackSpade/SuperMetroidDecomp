@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The state of the elevator room's blocked door (#1953).</summary>
-internal sealed class CeresElevatorDoorState
+internal sealed partial class CeresElevatorDoorState
 {
     /// <summary>Where the door stands in its destruction.</summary>
     public CeresElevatorDoorPhase Phase { get; internal set; }

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rendering;
 /// the floor's tiles, and the floor hides them only by its band; drawing them by depth would show her legs over the floor,
 /// which the game never shows.
 /// </remarks>
-internal static class MotherBrainAscentDisplay
+internal static partial class MotherBrainAscentDisplay
 {
     /// <summary>
     /// The three bands below the HUD: the ceiling's band shows the room and the actors without her body, the middle band

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// Selects the Ceres destruction's and the Zebes reveal's actor definitions (<see cref="CeresDestructionActorDefinitions"/>)
 /// by role.
 /// </summary>
-internal static class CeresDestructionActors
+internal static partial class CeresDestructionActors
 {
     /// <summary>Selects the definition of the persistent destruction actor that shows <paramref name="role"/>.</summary>
     /// <remarks>

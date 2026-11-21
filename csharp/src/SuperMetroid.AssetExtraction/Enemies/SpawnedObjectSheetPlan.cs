@@ -20,6 +20,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The other owners the game names this sheet by: on the shared sheet, each enemy drawn under the set that has no
 /// spawned objects of its own.
 /// </param>
-internal sealed record SpawnedObjectSheetPlan(SpawnedObjectOwner Owner, int ProjectileCharacters, int ObjectCharacters, int Palette,
+internal sealed partial record SpawnedObjectSheetPlan(SpawnedObjectOwner Owner, int ProjectileCharacters, int ObjectCharacters, int Palette,
     List<EnemyDefinitionId> Spawners, List<EnemyDefinitionId> SharedSpawners, IReadOnlyList<CommonSpawnedObjects> Common,
     List<SpawnedObjectOwner> AlsoOwnedBy);

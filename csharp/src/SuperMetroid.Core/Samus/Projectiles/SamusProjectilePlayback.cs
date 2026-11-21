@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// projectile animation plays them: each frame shows for its duration, a still picture is kept for good (#2347), and an
 /// animation that ends deletes the projectile.
 /// </summary>
-internal static class SamusProjectilePlayback
+internal static partial class SamusProjectilePlayback
 {
     /// <summary>
     /// A player of the animation starting at <paramref name="segment"/>, showing nothing until its first update shows its

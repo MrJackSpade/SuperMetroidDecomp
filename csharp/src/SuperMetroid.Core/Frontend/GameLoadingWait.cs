@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>
 /// The waiting updates still owed after the current game load, and the state the game enters once they have passed.
 /// </summary>
-internal sealed class GameLoadingWait
+internal sealed partial class GameLoadingWait
 {
     /// <summary>The load's black wait, counted once each waiting update.</summary>
     internal UpdateCountdown Wait { get; private set; } = UpdateCountdown.Ended();

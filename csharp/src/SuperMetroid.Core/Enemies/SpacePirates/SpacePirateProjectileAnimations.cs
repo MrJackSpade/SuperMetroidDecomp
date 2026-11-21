@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.SpacePirates.SpacePirateProjectileSegment;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The Pirate/Mother Brain laser and Ninja Pirate claw animations (#641).</summary>
-internal static class SpacePirateProjectileAnimations
+internal static partial class SpacePirateProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<SpacePirateProjectileSegment, EnemyProjectileFrameId, SpacePirateProjectileCue> Segments { get; } = new(

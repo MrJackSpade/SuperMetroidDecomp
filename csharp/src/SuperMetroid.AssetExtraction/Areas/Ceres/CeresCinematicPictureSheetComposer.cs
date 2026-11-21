@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// caption over the flight's object characters, and the Zebes planet over the characters the destruction leaves once the
 /// reveal loads its own, all under the flight's palette, each installed whole (#1634).
 /// </summary>
-internal static class CeresCinematicPictureSheetComposer
+internal static partial class CeresCinematicPictureSheetComposer
 {
     /// <summary>The katakana caption's width in characters: an eight-by-two block below SPACE COLONY.</summary>
     internal const int JapaneseWidth = 8;

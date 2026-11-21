@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>How fast Cacatac spikes fly.</summary>
-internal static class CacatacProjectileDefinitions
+internal static partial class CacatacProjectileDefinitions
 {
     /// <summary>The speed a sideways or straight spike flies at along its one axis: two pixels per update.</summary>
     internal static readonly SignedEightEight CardinalSpeed = SignedEightEight.FromPixels(2);

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// session keeps across rooms. His parts hold their own encounter from their initialization and never read it here.
 /// </summary>
 [RoomLifetime]
-internal sealed class RidleyEncounter : ICeresEscapeStatus
+internal sealed partial class RidleyEncounter : ICeresEscapeStatus
 {
     /// <summary>Starts the room's view of Ridley's encounters; his body and Ceres's door attach as they initialize.</summary>
     /// <param name="session">The session that holds Ceres's escape progress across rooms.</param>

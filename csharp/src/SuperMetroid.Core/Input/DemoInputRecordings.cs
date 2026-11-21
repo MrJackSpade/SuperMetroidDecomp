@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Input;
 /// inputs for their durations, then ends as <see cref="DemoRecording.End"/> says. Consecutive identical inputs are one input
 /// lasting their durations together (#2557), which plays every update exactly as the run of them did.
 /// </summary>
-public static class DemoInputRecordings
+public static partial class DemoInputRecordings
 {
     /// <summary>Every recording.</summary>
     internal static IReadOnlyDictionary<DemoInputRecordingId, DemoRecording> All { get; } = new Dictionary<DemoInputRecordingId, DemoRecording>

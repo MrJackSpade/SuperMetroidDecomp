@@ -35,7 +35,7 @@ namespace SuperMetroid.Core.Runtime;
 /// input and advances the frame counters; the update's gameplay then runs. Tools and viewers
 /// step one update at a time through the same boundary.
 /// </remarks>
-internal sealed class SuperMetroidRuntime
+internal sealed partial class SuperMetroidRuntime
 {
     /// <summary>The liquid wave and statue descent each update advances before its random number is drawn.</summary>
     internal LiquidWaveAndStatueDescent LiquidWaveAndStatueDescent { get; }
@@ -1192,7 +1192,7 @@ internal sealed class SuperMetroidRuntime
     /// <param name="Mode">The frame's installed input and movement modes.</param>
     /// <param name="PreviousCameraPoint">Samus's camera point carried to the rest of the update.</param>
     /// <param name="DeathStep">The frame's death-sequence step, which the tail draws, or null when death does not own Samus.</param>
-    internal readonly record struct SuspendedGameplayFrameTail(
+    internal readonly partial record struct SuspendedGameplayFrameTail(
         SamusControlMode Mode,
         FixedPosition<RoomPixels> PreviousCameraPoint,
         SamusDeathSequenceStepResult? DeathStep);
@@ -1212,7 +1212,7 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     /// <param name="MessageBox">The message the box open as the update began shows, or null when none was open.</param>
     /// <param name="SamusInputLocked">Whether Samus's input was locked as the update's steps began.</param>
-    internal readonly record struct GameplayUpdateStart(GameplayMessageId? MessageBox, bool SamusInputLocked);
+    internal readonly partial record struct GameplayUpdateStart(GameplayMessageId? MessageBox, bool SamusInputLocked);
 
     /// <summary>
     /// Changes the assists in the middle of play without rebuilding any game state: a newly granted loadout reaches the

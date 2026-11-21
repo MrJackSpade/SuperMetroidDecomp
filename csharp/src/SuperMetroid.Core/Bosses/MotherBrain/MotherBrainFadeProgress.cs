@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// lights' recovery. The phase that runs a fade waits on its end: the update after its last image's hold, which shows no
 /// new colours.
 /// </summary>
-public sealed class MotherBrainFadeProgress
+public sealed partial class MotherBrainFadeProgress
 {
     /// <summary>The player showing the fade's images.</summary>
     internal AnimationPlayer<MotherBrainFadeSegment, MotherBrainFadeImage, NoAnimationCue> Player { get; private set; }

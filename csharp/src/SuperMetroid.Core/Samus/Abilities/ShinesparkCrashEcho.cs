@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// where its shot last placed it for as long as the shot carries it, and on Samus on the update it departs, before its
 /// shot first moves.
 /// </summary>
-public sealed class ShinesparkCrashEcho
+public sealed partial class ShinesparkCrashEcho
 {
     /// <summary>Where the echo was last placed: Samus's position as it departed, then where its shot moved it.</summary>
     private Position16<RoomPixels> _position;

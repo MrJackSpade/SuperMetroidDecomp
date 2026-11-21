@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 /// The game-over Baby's four installed sixteen-colour phases, kept as installed: the animation shows one phase's colours
 /// with one of the three fixed Baby images, and the import pre-colours the Baby's shades in them (#1512).
 /// </summary>
-internal sealed class GameOverBabyPaint
+internal sealed partial class GameOverBabyPaint
 {
     /// <summary>The colours the Baby shows in each phase.</summary>
     private readonly Dictionary<GameOverBabyColouring, RgbColor[]> palettes;

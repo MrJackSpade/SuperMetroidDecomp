@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// tileset's standard colours and the actors' colours as a room load leaves them; the pictures of one actor share its place,
 /// and no two actors overlap. A tileset whose rooms show no turning floor installs none.
 /// </summary>
-public sealed class RoomFloorSheet
+public sealed partial class RoomFloorSheet
 {
     /// <summary>The frame picturing the whole floor a room starts from.</summary>
     public const string FloorFrameName = "floor";

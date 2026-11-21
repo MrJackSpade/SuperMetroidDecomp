@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// condition it watches, the phases it plays, each a whole run played a number of times, and whether it then stops or
 /// loops. Effects that show alike play one run, each in its own colours.
 /// </summary>
-internal static class ColourEffectAnimations
+internal static partial class ColourEffectAnimations
 {
 
     /// <summary>The updates the Power Suit's heat pulse shows its last heat phase's look for, cut short from the pulse's.</summary>

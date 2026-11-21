@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// nothing recovers a family from an untyped enum. Two reactions are equal exactly when they are the same family's same
 /// reaction.
 /// </summary>
-public abstract record BlockReaction
+public abstract partial record BlockReaction
 {
     /// <summary>Only the families' reactions below derive from it.</summary>
     private protected BlockReaction()
@@ -52,7 +52,7 @@ public abstract record BlockReaction
 
     /// <summary>A shootable block's or shootable air's reaction.</summary>
     /// <param name="Reaction">The reaction.</param>
-    private sealed record ShootableBlockReaction(ShootableReaction Reaction) : BlockReaction
+    private sealed partial record ShootableBlockReaction(ShootableReaction Reaction) : BlockReaction
     {
         /// <inheritdoc/>
         public override BlockReactionFamily Family => BlockReactionFamily.Shootable;
@@ -67,7 +67,7 @@ public abstract record BlockReaction
 
     /// <summary>A bombable block's or bombable air's reaction.</summary>
     /// <param name="Reaction">The reaction.</param>
-    private sealed record BombableBlockReaction(BombableReaction Reaction) : BlockReaction
+    private sealed partial record BombableBlockReaction(BombableReaction Reaction) : BlockReaction
     {
         /// <inheritdoc/>
         public override BlockReactionFamily Family => BlockReactionFamily.Bombable;
@@ -82,7 +82,7 @@ public abstract record BlockReaction
 
     /// <summary>A special block's reaction.</summary>
     /// <param name="Reaction">The reaction.</param>
-    private sealed record SpecialBlockBlockReaction(SpecialBlockReaction Reaction) : BlockReaction
+    private sealed partial record SpecialBlockBlockReaction(SpecialBlockReaction Reaction) : BlockReaction
     {
         /// <inheritdoc/>
         public override BlockReactionFamily Family => BlockReactionFamily.Special;
@@ -97,7 +97,7 @@ public abstract record BlockReaction
 
     /// <summary>A special-air block's reaction.</summary>
     /// <param name="Reaction">The reaction.</param>
-    private sealed record SpecialAirBlockReaction(SpecialAirReaction Reaction) : BlockReaction
+    private sealed partial record SpecialAirBlockReaction(SpecialAirReaction Reaction) : BlockReaction
     {
         /// <inheritdoc/>
         public override BlockReactionFamily Family => BlockReactionFamily.SpecialAir;
@@ -112,7 +112,7 @@ public abstract record BlockReaction
 
     /// <summary>A spike block's or spike air's reaction.</summary>
     /// <param name="Reaction">The reaction.</param>
-    private sealed record SpikeBlockReaction(SpikeReaction Reaction) : BlockReaction
+    private sealed partial record SpikeBlockReaction(SpikeReaction Reaction) : BlockReaction
     {
         /// <inheritdoc/>
         public override BlockReactionFamily Family => BlockReactionFamily.Spike;
@@ -127,7 +127,7 @@ public abstract record BlockReaction
 
     /// <summary>A grapple block's reaction.</summary>
     /// <param name="Reaction">The reaction.</param>
-    private sealed record GrappleBlockReaction(GrappleReaction Reaction) : BlockReaction
+    private sealed partial record GrappleBlockReaction(GrappleReaction Reaction) : BlockReaction
     {
         /// <inheritdoc/>
         public override BlockReactionFamily Family => BlockReactionFamily.Grapple;

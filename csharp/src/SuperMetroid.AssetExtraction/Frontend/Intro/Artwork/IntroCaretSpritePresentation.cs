@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable visible OAM composition of the intro caret, independent of its blink script.</summary>
-public sealed class IntroCaretSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroCaretSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled visible composition keyed by the pose that shows it.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;

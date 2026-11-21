@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>The state of one Waver: its horizontal velocity, wave phase and animation selection.</summary>
-public sealed class WaverEnemyState
+public sealed partial class WaverEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<WaverSegment> Playback { get; set; }

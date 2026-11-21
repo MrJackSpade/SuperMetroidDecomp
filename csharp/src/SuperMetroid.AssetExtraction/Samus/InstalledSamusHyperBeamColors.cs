@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The installed ten-frame full-body Hyper Beam colour cycle, every frame's colours kept as installed.</summary>
-public sealed class InstalledSamusHyperBeamColors
+public sealed partial class InstalledSamusHyperBeamColors
 {
     /// <summary>Every installed cycle frame's sixteen colours, in cycle order.</summary>
     internal readonly RgbColor[][] frames;

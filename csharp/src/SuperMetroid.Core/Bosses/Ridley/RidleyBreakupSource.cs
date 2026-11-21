@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 /// <param name="Ridley">His encounter.</param>
 /// <param name="Body">Where his body stood as it broke up.</param>
-internal sealed record RidleyBreakupSource(NorfairRidleyState Ridley, Position16<RoomPixels> Body);
+internal sealed partial record RidleyBreakupSource(NorfairRidleyState Ridley, Position16<RoomPixels> Body);

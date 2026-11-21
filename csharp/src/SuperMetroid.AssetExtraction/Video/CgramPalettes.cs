@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// background and OBJ banks and their 16-colour rows. Domain code reaches its own named ranges
 /// through its catalog's view instead.
 /// </summary>
-public readonly struct CgramPalettes(IPaletteColors cgram)
+public readonly partial struct CgramPalettes(IPaletteColors cgram)
 {
     /// <summary>Colours in a complete CGRAM image.</summary>
     public const int ColorCount = SnesCgram.ColorCount;

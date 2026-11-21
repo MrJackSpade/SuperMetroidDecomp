@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Animation;
 
 /// <summary>How an animation ends once its last phase has played (#1600).</summary>
-internal abstract record AnimationEnd
+internal abstract partial record AnimationEnd
 {
     /// <summary>Allows only the endings below.</summary>
     private AnimationEnd()
@@ -15,13 +15,13 @@ internal abstract record AnimationEnd
     internal static AnimationEnd Holds { get; } = new Hold();
 
     /// <summary>The animation is over.</summary>
-    internal sealed record Stop : AnimationEnd;
+    internal sealed partial record Stop : AnimationEnd;
 
     /// <summary>
     /// The animation plays on from <see cref="Phase"/>: the first phase of its cycle, which
     /// <see cref="Animation{TSegment}.LeadingInto"/> places after the lead, so no definition names it by its place (#2414).
     /// </summary>
-    internal sealed record Loop : AnimationEnd
+    internal sealed partial record Loop : AnimationEnd
     {
         /// <summary>Plays on from <paramref name="phase"/>.</summary>
         /// <param name="phase">The phase it plays on from.</param>
@@ -33,5 +33,5 @@ internal abstract record AnimationEnd
     }
 
     /// <summary>The animation rests on its last frame until its owner plays another.</summary>
-    internal sealed record Hold : AnimationEnd;
+    internal sealed partial record Hold : AnimationEnd;
 }

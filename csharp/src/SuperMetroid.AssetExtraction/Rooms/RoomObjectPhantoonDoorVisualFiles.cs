@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of Phantoon's door frames (#1678): the fight's door and the restored door frame.</summary>
-public static class RoomObjectPhantoonDoorVisualFiles
+public static partial class RoomObjectPhantoonDoorVisualFiles
 {
     /// <summary>The installed file holding the door frames' pictures.</summary>
     public const string VisualFileName = "phantoon-door.json";

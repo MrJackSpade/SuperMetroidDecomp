@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>File-copy arrow placement, glow rotation and sheet frames; the arrows' compositions belong to the import pipeline (#1463).</summary>
-public static class FileCopyArrowDefinitions
+public static partial class FileCopyArrowDefinitions
 {
     /// <summary>The delay before the arrows' glow first moves on a colour.</summary>
     public const int InitialGlowDelay = 8;

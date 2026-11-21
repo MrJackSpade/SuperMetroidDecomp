@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable OAM compositions for the 56 completion-message glyph frames.</summary>
-public sealed class EndingCompletionTextSpritePresentation : ICinematicSpriteFrames
+public sealed partial class EndingCompletionTextSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled digits and colon keyed by the poses that show them.</summary>
     internal readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;

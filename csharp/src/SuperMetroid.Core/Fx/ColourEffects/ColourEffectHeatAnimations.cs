@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// (<see cref="ColourEffectAnimations.HeatPulses"/>), whose frames are the heat phases' looks, played as that pulse plays,
 /// and the place in that pulse the shimmer restarts at when the heated room's glow publishes a new heat phase.
 /// </summary>
-public static class ColourEffectHeatAnimations
+public static partial class ColourEffectHeatAnimations
 {
     /// <summary>The heat pulse the shimmer for <paramref name="suit"/> plays, in whose frames it shows.</summary>
     internal static ColourEffectId Pulse(ColourEffectHeatSuit suit) =>

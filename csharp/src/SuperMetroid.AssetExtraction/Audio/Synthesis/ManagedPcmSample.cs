@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// Replaceable mono PCM source consumed by a managed S-DSP voice. The sample rate controls
 /// pitch normalization; loop position is expressed in decoded PCM frames, not BRR bytes.
 /// </summary>
-public sealed class ManagedPcmSample
+public sealed partial class ManagedPcmSample
 {
     /// <summary>Private copy of signed mono frames so caller edits cannot change an installed sample.</summary>
     private readonly short[] samples;

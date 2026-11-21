@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// recording shows through its own <see cref="IRoomLoadProgress"/>.
 /// </remarks>
 [CompatibilityService("a room loads completely within the first door-scroll update")]
-public sealed class InstantRoomLoad : IRoomLoadProgress
+public sealed partial class InstantRoomLoad : IRoomLoadProgress
 {
     /// <summary>The shared, stateless instance every session uses.</summary>
     public static InstantRoomLoad Instance { get; } = new();

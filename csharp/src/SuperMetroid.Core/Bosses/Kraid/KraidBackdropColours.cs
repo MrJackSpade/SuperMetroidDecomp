@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// fade shows its goal. The backdrop's colours never reach gameplay; only when a fade completes does, through the shared
 /// counter.
 /// </summary>
-internal sealed class KraidBackdropColours : IGameplayShadingSource
+internal sealed partial class KraidBackdropColours : IGameplayShadingSource
 {
     /// <summary>What the backdrop showed when no fade was running, or when the running fade started.</summary>
     private KraidBackdropShown StartedFrom { get; set; } = new KraidBackdropShown.Settled(KraidBackdropSettledColours.RoomColours);
@@ -106,5 +106,5 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     /// <summary>The fade that took the backdrop's latest step.</summary>
     /// <param name="Goal">The colours it ends on.</param>
     /// <param name="Progress">How far it has come.</param>
-    private sealed record RunningKraidBackdropFade(KraidBackdropSettledColours Goal, StepCountedFadeProgress Progress);
+    private sealed partial record RunningKraidBackdropFade(KraidBackdropSettledColours Goal, StepCountedFadeProgress Progress);
 }

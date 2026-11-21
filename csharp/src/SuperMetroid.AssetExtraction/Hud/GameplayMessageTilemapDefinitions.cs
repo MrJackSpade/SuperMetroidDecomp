@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// selection row, and the button glyphs an item panel's words show and where they go. The import composes each message
 /// form's image from them; the game names the form it shows.
 /// </summary>
-public static class GameplayMessageTilemapDefinitions
+public static partial class GameplayMessageTilemapDefinitions
 {
     /// <summary>Width of a message in tile cells.</summary>
     public const int TilemapWidth = 32;

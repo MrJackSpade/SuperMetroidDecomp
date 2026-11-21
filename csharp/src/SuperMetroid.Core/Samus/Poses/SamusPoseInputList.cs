@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// transitions share a list. Each list holds its own ordered chords and reads them itself (#2571), so no switch over
 /// list identities picks the chords a pose reads.
 /// </summary>
-internal sealed class SamusPoseInputList
+internal sealed partial class SamusPoseInputList
 {
     /// <summary>The list's name, for diagnostics.</summary>
     private readonly string _name;

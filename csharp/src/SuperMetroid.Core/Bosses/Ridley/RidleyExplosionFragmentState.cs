@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The state of one fragment of Norfair Ridley's breakup.</summary>
-internal sealed class RidleyExplosionFragmentState
+internal sealed partial class RidleyExplosionFragmentState
 {
     /// <summary>Velocity in pixels per update: X, which drag slows toward zero, and Y, which gravity increases.</summary>
     public PixelVelocity<RoomPixels> Velocity { get; internal set; }

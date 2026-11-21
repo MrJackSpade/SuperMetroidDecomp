@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// animation, the typewriter narration typing the installed text's letters, the text caret, and the Japanese text's
 /// next-page arrow at each page's input wait.
 /// </summary>
-internal sealed class IntroNarrationActors
+internal sealed partial class IntroNarrationActors
 {
     /// <summary>Queues the alternating non-space typewriter sounds.</summary>
     private readonly AudioQueues audio;

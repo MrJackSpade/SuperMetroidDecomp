@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// (<see cref="FadeLevelColour"/>): a glow steps on them, and the backend blends a fade in them (<see cref="IColourBlend"/>),
 /// so the colour itself holds no steps, no stored form and no colour arithmetic of its own.
 /// </summary>
-public readonly record struct RgbColor
+public readonly partial record struct RgbColor
 {
     /// <summary>A channel at full strength.</summary>
     public const int FullChannel = 255;

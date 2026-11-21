@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction;
 /// content (#1502).
 /// </summary>
 [EncodingOwner("length-framed bytes of a selected-presentation content identity")]
-internal sealed class SelectedPresentationHash
+internal sealed partial class SelectedPresentationHash
 {
     /// <summary>The running SHA-256 digest of length-framed selected content.</summary>
     private readonly IncrementalHash hash;

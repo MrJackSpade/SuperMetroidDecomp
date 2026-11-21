@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="EnemyDrawList"/> is constructed with, built once by the owner that creates it (#621).</summary>
 [RoomLifetime]
-internal sealed record EnemyDrawListDependencies
+internal sealed partial record EnemyDrawListDependencies
 {
     /// <summary>The encounters' sprites drawn after every queued enemy, in their order (#2571).</summary>
     public required IReadOnlyList<IEnemyLateDraw> LateDraws { get; init; }

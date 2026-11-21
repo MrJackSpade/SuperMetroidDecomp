@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// cartridge window (#629). Native data stores 16-bit pointers whose bank is implied by the
 /// table that owns them; codecs name that bank through a <see cref="CpuBusCell"/>.
 /// </summary>
-internal static class CartridgeBankWindow
+internal static partial class CartridgeBankWindow
 {
     /// <summary>The CPU address of bank-local <paramref name="offset"/> in the bank holding <paramref name="window"/>.</summary>
     internal static int At(CpuBusCell window, int offset) => (SnesAddressMath.BankBase(window.Address)) | offset;

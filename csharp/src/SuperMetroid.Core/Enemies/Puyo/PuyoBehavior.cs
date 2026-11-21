@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>The Puyo species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>Whether a hop is one of the three ordinary hops that proximity and chance choose between.</summary>
     private static bool IsNormalHop(PuyoHopType type) => PuyoHopDefinitions.NormalHops.Contains(type);

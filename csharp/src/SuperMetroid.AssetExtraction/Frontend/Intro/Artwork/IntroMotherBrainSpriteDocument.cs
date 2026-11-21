@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Mutable JSON authoring data for the intro flashback's Mother Brain, distinct from boss gameplay and the separate explosion sprites.</summary>
-public sealed record IntroMotherBrainSpriteDocument
+public sealed partial record IntroMotherBrainSpriteDocument
 {
     /// <summary>Gets the schema revision, which must equal <see cref="IntroMotherBrainSpriteFormat.Version"/> when loaded or written.</summary>
     public required int Version { get; init; }

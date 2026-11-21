@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// The state of the Morph Ball eye's body. Its beam mount shares the definition and keeps a
 /// <see cref="MorphBallEyeMountState"/> of its own (#2164).
 /// </summary>
-public sealed class MorphBallEyeEnemyState
+public sealed partial class MorphBallEyeEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal MorphBallEyeEnemyState(MorphBallEyeAction action) => Action = action;

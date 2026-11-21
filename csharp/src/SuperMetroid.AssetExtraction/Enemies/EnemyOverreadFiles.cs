@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Extracts what enemies read past their authored data, decoded from the player's cartridge into each read's domain
 /// result (#1500), and loads it as the enemy overread services.
 /// </summary>
-public static class EnemyOverreadFiles
+public static partial class EnemyOverreadFiles
 {
     /// <summary>
     /// Decodes every enemy over-read and writes the results as JSON. No manifest is written (#1693): the document names its

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// Editable bounded text regions for station-completion and save-confirmation notices.
 /// Confirmation input, timing and save behavior remain compiled.
 /// </summary>
-public sealed class GameplayMessageNoticePresentation
+public sealed partial class GameplayMessageNoticePresentation
 {
     /// <summary>Validated templates and bounded text overlays indexed by supported message ID.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledNotice> notices;
@@ -207,7 +207,7 @@ public sealed class GameplayMessageNoticePresentation
                 "The gameplay-message notice catalog does not own this message.");
 
     /// <summary>Validated tilemap content with optional fixed save-selection variants.</summary>
-    private sealed record CompiledNotice(
+    private sealed partial record CompiledNotice(
         int RowCount,
         BackgroundTile[] Template,
         CompiledTextRegion[] Text,
@@ -215,7 +215,7 @@ public sealed class GameplayMessageNoticePresentation
         BackgroundTile[]? NoSelection);
 
     /// <summary>A nonoverlapping text span whose position, width, glyphs, palette, and alignment have been checked.</summary>
-    private sealed record CompiledTextRegion(
+    private sealed partial record CompiledTextRegion(
         int Row,
         int Column,
         int Width,

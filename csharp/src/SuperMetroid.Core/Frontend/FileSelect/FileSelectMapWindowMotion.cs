@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <param name="Right">The right edge's speed per update; positive moves it right.</param>
 /// <param name="Top">The top edge's speed per update; negative moves it up.</param>
 /// <param name="Bottom">The bottom edge's speed per update; positive moves it down.</param>
-internal readonly record struct FileSelectMapWindowMotion(
+internal readonly partial record struct FileSelectMapWindowMotion(
     int MovingUpdates,
     SignedSixteenSixteen Left,
     SignedSixteenSixteen Right,

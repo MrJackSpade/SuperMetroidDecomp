@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// Botwoon's wall clear and its block shape (#1608): the nine open blocks down the wall's column from its top block. The
 /// crumble's frames are shot-block breakup draws. What the clear shows is its installed picture (#1557).
 /// </summary>
-internal static class BotwoonWallObjectDrawDefinitions
+internal static partial class BotwoonWallObjectDrawDefinitions
 {
     /// <summary>The nine cleared wall blocks of an already-defeated room; the crumble frames are shot-block breakup draws.</summary>
     internal static RoomObjectFrameDraw<BotwoonWallDraw> Clear { get; } = BotwoonWallObjectDraws.Family.Of(BotwoonWallDraw.Clear);

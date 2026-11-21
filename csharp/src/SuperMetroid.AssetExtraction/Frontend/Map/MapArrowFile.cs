@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Reads and writes the installed map-arrow document.</summary>
-public static class MapArrowFile
+public static partial class MapArrowFile
 {
     /// <summary>Loads and validates the four directional map-arrow visuals.</summary>
     /// <param name="json">Caller-owned stream containing the map-arrow document.</param>

@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The eight palette selector bytes and 256 raw 4bpp character bytes consumed by
 /// bank-$84 instruction <c>$8764</c> for one permanent-item kind.
 /// </summary>
-public sealed record RoomObjectDynamicCollectibleGraphic(
+public sealed partial record RoomObjectDynamicCollectibleGraphic(
     InWorldCollectibleKind Kind,
     ReadOnlyMemory<byte> PaletteOffsets,
     ReadOnlyMemory<byte> Tiles);

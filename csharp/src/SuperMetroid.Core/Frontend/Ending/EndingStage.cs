@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>What every ending scene draws on: brightness, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class EndingStage
+internal sealed partial class EndingStage
 {
     /// <summary>Saved clear-time hours, as the game clock or the configured override supplies them, used to select the post-credits reward.</summary>
     private readonly int gameTimeHours;

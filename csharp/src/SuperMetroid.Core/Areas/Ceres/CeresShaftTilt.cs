@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// shows each tilt as the turn whose sine is its steps in 256ths, so the full tilt (<see cref="FullTiltSteps"/>) leans
 /// the shaft only a few degrees.
 /// </remarks>
-public readonly record struct CeresShaftTilt
+public readonly partial record struct CeresShaftTilt
 {
     /// <summary>Holds a tilt of <paramref name="stepsFromLevel"/>, within the shaft's full tilt either way.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="stepsFromLevel"/> lies past the shaft's full tilt.</exception>

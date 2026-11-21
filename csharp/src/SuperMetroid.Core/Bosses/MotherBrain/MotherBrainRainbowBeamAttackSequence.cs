@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// and moves her, spends Samus's energy, times her waits, plays her animations and holds Samus itself.
 /// </remarks>
 [ArchitectureReview("back-reference", "Mother Brain's late fight (#2471): her encounter begins and owns it for the rest of the room once her phase-two health runs out, and its phases read and write that encounter in place (#2209), so the two share one lifetime.")]
-public sealed class MotherBrainRainbowBeamAttackSequence
+public sealed partial class MotherBrainRainbowBeamAttackSequence
 {
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();

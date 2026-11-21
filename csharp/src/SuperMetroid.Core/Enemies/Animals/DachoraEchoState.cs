@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// The state of one of a Dachora's speed-boost echoes (#2147): an afterimage its body places along the shinespark's
 /// trail, which flickers on its updates' parity for a short life and is hidden otherwise.
 /// </summary>
-public sealed class DachoraEchoState
+public sealed partial class DachoraEchoState
 {
     /// <summary>The animation the echo plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<DachoraSegment> Playback { get; set; }

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// other room starts the cycle again on every update, so the first update in an animating room shows its first shade at
 /// once.
 /// </remarks>
-public sealed class SamusVisorShadeState
+public sealed partial class SamusVisorShadeState
 {
     /// <summary>The steady visor cycle as the room plays it: its first shade shows on the update after it starts.</summary>
     internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Cycle { get; } =

@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Keeping each surface here lets each liquid check reproduce its own
 /// comparison instead of sharing a convenient but incorrect single boolean.
 /// </remarks>
-public sealed class SamusLiquidPhysicsState
+public sealed partial class SamusLiquidPhysicsState
 {
     /// <summary>
     /// Takes the room's selected effect into Samus's liquid state, so what the room shows and how Samus moves read one

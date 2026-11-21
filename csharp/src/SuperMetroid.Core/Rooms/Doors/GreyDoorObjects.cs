@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// room's enemy quota, the Tourian statue finished, the critters escaped, or never.
 /// </summary>
 [RoomLifetime]
-internal sealed class GreyDoorObjects
+internal sealed partial class GreyDoorObjects
 {
     /// <summary>The room's system and event state.</summary>
     private readonly SharedGameState _system;

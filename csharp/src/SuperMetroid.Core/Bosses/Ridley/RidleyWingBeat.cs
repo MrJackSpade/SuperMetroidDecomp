@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// counts down at the pace his flight speed sets. Once the countdown runs below zero the wings take the beat's next pose,
 /// the first after the last, and the countdown starts again.
 /// </summary>
-public sealed class RidleyWingBeat
+public sealed partial class RidleyWingBeat
 {
     /// <summary>Begins the beat showing <paramref name="firstPose"/>, with the countdown at zero.</summary>
     /// <param name="firstPose">The pose the wings show first; the beat shows it once.</param>

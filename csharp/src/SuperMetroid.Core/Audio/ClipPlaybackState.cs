@@ -6,9 +6,15 @@ namespace SuperMetroid.Core.Audio;
 /// (#1725), each sound library's sound, priority and low-health mode, and the clips still fading out. Positions are
 /// absolute clip frames since the session's first update. Presentation only: no gameplay update reads it.
 /// </summary>
-/// <param name="initialBeat">How long the music's beat lasts before any song has played: the clip set's <see cref="ClipAudioLibrary.InitialBeat"/>.</param>
-public sealed class ClipPlaybackState(BeatLength initialBeat)
+public sealed partial class ClipPlaybackState
 {
+    /// <summary>Creates a <see cref="ClipPlaybackState"/>.</summary>
+    /// <param name="initialBeat">How long the music's beat lasts before any song has played: the clip set's <see cref="ClipAudioLibrary.InitialBeat"/>.</param>
+    public ClipPlaybackState(BeatLength initialBeat)
+    {
+        this.Beat = new(initialBeat);
+    }
+
     /// <summary>Each sound library's clip playback, kept by its library (#1755).</summary>
     internal readonly Dictionary<SoundEffectLibrary, ClipLibraryState> Libraries =
         SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new ClipLibraryState());
@@ -35,7 +41,7 @@ public sealed class ClipPlaybackState(BeatLength initialBeat)
     internal SongChangeAtBeat<SongChange> SongChange { get; } = new();
 
     /// <summary>The music's beat: how much of it has played, and how long it lasts while no song plays.</summary>
-    internal MusicBeat Beat { get; } = new(initialBeat);
+    internal MusicBeat Beat { get; }
 
     /// <summary>Records that playback has reached absolute frame <paramref name="sample"/>.</summary>
     internal void RenderedTo(long sample) => Sample = sample;

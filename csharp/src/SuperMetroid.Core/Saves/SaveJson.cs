@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Saves;
 /// source-generated <see cref="SaveJsonContext"/>, so the options keep their naming, converters and layout. A type the
 /// context does not register fails as its metadata is asked for.
 /// </summary>
-internal static class SaveJson
+internal static partial class SaveJson
 {
     /// <summary>Each set of options, bound to the context, made the first time it is used.</summary>
     private static readonly ConditionalWeakTable<JsonSerializerOptions, JsonSerializerOptions> Bound = [];

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// The compositions shown by the fourteen fixed bank-$8B ending completion-text lists. Counts preserve the cartridge's
 /// progressively revealed two-part-per-letter compositions without treating those visuals as timing data.
 /// </summary>
-public static class EndingCompletionTextSpriteDefinitions
+public static partial class EndingCompletionTextSpriteDefinitions
 {
     /// <summary>
     /// Fifteen THE OPERATION WAS steps, 21 COMPLETED SUCCESSFULLY steps and nine CLEAR TIME steps, each revealing one more

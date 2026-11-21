@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// Definitions for the old Tourian escape shaft fake wall room object that the room's
 /// setup spawns in the Climb during the escape.
 /// </summary>
-internal static class OldTourianEscapeShaftWallObjectDefinitions
+internal static partial class OldTourianEscapeShaftWallObjectDefinitions
 {
     /// <summary>The column of the block the room object is spawned at.</summary>
     internal const int BlockX = 16;

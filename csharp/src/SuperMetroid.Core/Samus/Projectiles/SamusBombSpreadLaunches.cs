@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The fuse and launch of each bomb of a Bomb Spread.</summary>
-internal static class SamusBombSpreadLaunches
+internal static partial class SamusBombSpreadLaunches
 {
     /// <summary>
     /// The flight a bomb authored to launch on <paramref name="launch"/> launches on after Down was held <paramref name="heldDownUpdates"/>

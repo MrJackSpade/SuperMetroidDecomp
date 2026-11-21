@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Map;
 /// <remarks>
 /// Saving and loading keep only the Zebes areas' exploration.
 /// </remarks>
-public static class ExploredMapStorage
+public static partial class ExploredMapStorage
 {
     /// <summary>
     /// The exploration a save of <paramref name="progress"/> keeps: the Zebes areas' explored cells in runs the stock map

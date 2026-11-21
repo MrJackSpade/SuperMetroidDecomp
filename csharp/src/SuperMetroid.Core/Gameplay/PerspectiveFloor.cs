@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Gameplay;
 /// </summary>
 /// <param name="Transform">How the floor appears on the screen before room shake.</param>
 /// <param name="Scenery">The pictures fixed in the room behind the floor, in drawing order; none when default or empty.</param>
-public readonly record struct PerspectiveFloor(FloorView Transform, ImmutableArray<PerspectiveFloorScenery> Scenery = default);
+public readonly partial record struct PerspectiveFloor(FloorView Transform, ImmutableArray<PerspectiveFloorScenery> Scenery = default);

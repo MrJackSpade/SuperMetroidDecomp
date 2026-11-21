@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Where Phantoon's flames start: the rage waves' and the spiral's circles, the intro's flames and the rain columns.</summary>
-public static class PhantoonFlameSpawns
+public static partial class PhantoonFlameSpawns
 {
     /// <summary>The flames of an even rage wave, in the order they spawn.</summary>
     internal static IReadOnlyList<PhantoonRageFlameStart> EvenRageWave => PhantoonFlameSpawnDefinitions.EvenRageWave;

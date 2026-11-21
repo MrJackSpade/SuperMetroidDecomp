@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// rectangle, so an edit to the picture changes it wherever it shows; frames showing it with different maps name different
 /// maps, and frames showing it at different places in their rectangles name different places.
 /// </summary>
-public sealed record InstalledPictureReferenceDocument
+public sealed partial record InstalledPictureReferenceDocument
 {
     /// <summary>
     /// The picture's tag, unique in the installation (#1639): <c>P</c>, its page, a hyphen and its place in the page's write

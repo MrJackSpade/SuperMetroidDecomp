@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The Pirate-specific shot reactions of Pirate hitboxes.</summary>
-internal static class PirateHitboxShotActions
+internal static partial class PirateHitboxShotActions
 {
     /// <summary>
     /// Fails for a reaction no Pirate hitbox names. The empty frame still has a real point hitbox for a pirate, whose

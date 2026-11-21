@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// validity and displayed energy/time are read from the saves themselves
 /// rather than from separately authored metadata.
 /// </remarks>
-public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
+public sealed partial class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <summary>The buttons that confirm a choice throughout the menu: Start or A.</summary>
     private const ControllerButton ConfirmButtons = ControllerButton.Start | ControllerButton.A;

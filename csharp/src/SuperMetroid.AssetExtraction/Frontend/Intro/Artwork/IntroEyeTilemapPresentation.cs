@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Four editable 3x2 Samus-eye BG2 rectangles; blink timing stays in code.</summary>
-public sealed class IntroEyeTilemapPresentation
+public sealed partial class IntroEyeTilemapPresentation
 {
     /// <summary>The four installed 3-by-2 eye patches, each its six row-major tiles, by the look it shows.</summary>
     internal readonly Dictionary<IntroEyeFrame, BackgroundTile[]> frames;

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>Where the Baby Metroid's living victim, the sidehopper it drains, stands and hops in its room.</summary>
-internal static class DeadSidehopperVictimDefinitions
+internal static partial class DeadSidehopperVictimDefinitions
 {
     /// <summary>The height of the floor the victim stands on and lands its scripted hops on.</summary>
     internal const int FloorY = 184;

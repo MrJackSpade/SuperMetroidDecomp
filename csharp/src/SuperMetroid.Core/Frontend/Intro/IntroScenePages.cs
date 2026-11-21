@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Which scene page each part of the opening cinematic shows (#1404).</summary>
-internal static class IntroScenePages
+internal static partial class IntroScenePages
 {
     /// <summary>The laboratory page <paramref name="scene"/> shows.</summary>
     internal static IntroScenePage Laboratory(IntroLaboratoryScene scene) => scene switch

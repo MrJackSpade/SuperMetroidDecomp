@@ -26,7 +26,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="ShotHitboxScan">Whether shots and bombs are tested against the enemy's extended hitboxes or withheld.</param>
 /// <param name="Drops">What the enemy's death drops: nothing, or a pickup its chances roll for.</param>
 /// <param name="Vulnerability">The enemy's vulnerabilities, the standard ones (<see cref="EnemyVulnerabilityDefinitions.Standard"/>) or its own.</param>
-public readonly record struct RoomEnemyDefinition(
+public readonly partial record struct RoomEnemyDefinition(
     int Health,
     int Damage,
     Extent16<RoomPixels> Radius,

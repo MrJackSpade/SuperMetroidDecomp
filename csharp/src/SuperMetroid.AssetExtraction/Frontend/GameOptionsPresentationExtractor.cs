@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// Imports the five options pages, shared background, dynamic labels and menu actors.
 /// Input handling, binding swaps, page transitions and option semantics remain compiled.
 /// </summary>
-public static class GameOptionsPresentationExtractor
+public static partial class GameOptionsPresentationExtractor
 {
     /// <summary>Imports the five options pages, shared background, controller labels, highlight regions, headings, and animated menu cursor.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying compressed options tilemaps and menu artwork.</param>

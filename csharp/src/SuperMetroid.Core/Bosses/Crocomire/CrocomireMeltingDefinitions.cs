@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// The shape of Crocomire's dissolve: how many steps each pass takes, the bands of the melt image that show them, and the
 /// distortion each pass stretches his body through.
 /// </summary>
-internal static class CrocomireMeltingDefinitions
+internal static partial class CrocomireMeltingDefinitions
 {
     /// <summary>
     /// Steps each dissolve pass takes: one column of the melt image is erased per step, in a fixed order over all its

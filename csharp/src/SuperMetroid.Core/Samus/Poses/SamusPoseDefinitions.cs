@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The drained poses' shots would start below her centre (#1928); they cannot shoot or fire the Grapple, so
 /// nothing fired from them reads it.
 /// </remarks>
-internal static class SamusPoseDefinitions
+internal static partial class SamusPoseDefinitions
 {
     /// <summary>Each authored pose's definition.</summary>
     internal static IReadOnlyDictionary<SamusPoseId, SamusPoseDefinition> Poses { get; } =

@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Assets;
 /// each colour <see cref="Level"/> of the way up from black, which the backend shows (<see cref="IColourBlend.AtLevel"/>).
 /// </summary>
 /// <param name="Level">How far up from black the colour shows.</param>
-public sealed record ColourLevel(FadeLevel Level) : ColourEffect;
+public sealed partial record ColourLevel(FadeLevel Level) : ColourEffect;

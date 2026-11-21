@@ -10,12 +10,12 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// show in, and so where each corpse lies in its pictures (#1539).
 /// </summary>
 [EncodingOwner("bank-$A9 dead-monster row upload lists")]
-internal static class DeadMonsterRowUploadDefinitions
+internal static partial class DeadMonsterRowUploadDefinitions
 {
     /// <summary>Where the cartridge holds a list: the species whose lists hold it and its variant among them.</summary>
     /// <param name="Species">The species whose lists hold it.</param>
     /// <param name="Variant">Its place among the species' lists, the species' corpse variant that names it.</param>
-    internal readonly record struct NativeList(RottingCorpseSpecies Species, int Variant);
+    internal readonly partial record struct NativeList(RottingCorpseSpecies Species, int Variant);
 
     /// <summary>Each list's place among the cartridge's lists.</summary>
     private static readonly FrozenDictionary<CorpseRowUploadList, NativeList> NativeLists = new Dictionary<CorpseRowUploadList, NativeList>

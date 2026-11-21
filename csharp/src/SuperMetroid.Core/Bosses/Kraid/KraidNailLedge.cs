@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// already holds it.
 /// </param>
 /// <param name="Left">How far right of his body the ledge's edge lies, which a nail level with it is pushed back from.</param>
-internal readonly record struct KraidNailLedge(int Top, int Left);
+internal readonly partial record struct KraidNailLedge(int Top, int Left);

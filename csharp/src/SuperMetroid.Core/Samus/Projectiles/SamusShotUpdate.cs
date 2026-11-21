@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// startup route on and off in (<see cref="SpacetimeShotOverwrite"/>).
 /// </param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal readonly record struct SamusShotUpdate(
+internal readonly partial record struct SamusShotUpdate(
     SamusProjectileOccupant Held,
     SamusProjectileSystem Shots,
     SamusTerrain Terrain,

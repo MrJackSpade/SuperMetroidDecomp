@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// The Kago bugs' landing, falling, jumping and shot animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="KagoBugProjectileCue"/> naming what it does.
 /// </summary>
-internal static class KagoBugProjectileAnimations
+internal static partial class KagoBugProjectileAnimations
 {
     /// <summary>
     /// How long a landed bug idles, 32767 updates (just over nine minutes), before its animation starts the landing again

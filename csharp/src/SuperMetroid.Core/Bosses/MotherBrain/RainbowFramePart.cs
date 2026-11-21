@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// toward the next time her rainbow's glow is held longer. Each update adds <see cref="PartsPerUpdate"/> of the <see cref="PartsPerFrame"/> parts a frame is counted in; a sum that completes a
 /// whole frame holds the glow longer and keeps the remainder.
 /// </summary>
-public readonly record struct RainbowFramePart
+public readonly partial record struct RainbowFramePart
 {
     /// <summary>The parts one whole rainbow frame is counted in.</summary>
     private const int PartsPerFrame = 256;

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.World;
 /// The enemy phase of a gameplay frame: preparing the enemy frame, running the enemies, and applying what their pass
 /// produced.
 /// </summary>
-internal sealed class EnemyFramePhase
+internal sealed partial class EnemyFramePhase
 {
     /// <summary>Where the layers stand: the foreground position follows the camera X an enemy moves the view to.</summary>
     private readonly BackgroundScrollState _backgroundScroll;

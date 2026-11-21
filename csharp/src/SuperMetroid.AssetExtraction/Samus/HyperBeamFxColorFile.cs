@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Hyper Beam effect colour document.</summary>
-public static class HyperBeamFxColorFile
+public static partial class HyperBeamFxColorFile
 {
     /// <summary>Strict camel-case JSON settings for the editable Hyper Beam FX palette.</summary>
     private static readonly JsonSerializerOptions Options = new()

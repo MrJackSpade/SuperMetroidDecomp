@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>The blends the room effects show (#1545), each the description a room's effect names.</summary>
-public static class RoomEffectBlendDefinitions
+public static partial class RoomEffectBlendDefinitions
 {
     /// <summary>The overlay lies over the room and brightens it: lava, acid, clear water, the fog and the rain.</summary>
     public static RoomEffectBlend OverlayBrightens { get; } = new OverlayOverRoomBlend { Operation = BlendOperation.Add };

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 /// The state of a Zoa, with its launch speed stage. “Shooting” is the game's name for the creature launching itself
 /// horizontally; it does not create a separate enemy projectile.
 /// </summary>
-public sealed class ZoaEnemyState
+public sealed partial class ZoaEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal ZoaEnemyState(ZoaAction action) => Action = action;

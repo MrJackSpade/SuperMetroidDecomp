@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// The installed key of each <see cref="ShownReserveArrow"/> (#2520), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class ShownReserveArrowKeys
+internal static partial class ShownReserveArrowKeys
 {
     /// <summary>Each ShownReserveArrow member's installed key.</summary>
     internal static InstalledKeys<ShownReserveArrow> Installed { get; } = new(new Dictionary<ShownReserveArrow, string>

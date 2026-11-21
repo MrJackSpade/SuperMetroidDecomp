@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Spatial;
 /// enemy, boss, projectile and screen effect computes them. These are engine math definitions, not editable
 /// presentation assets.
 /// </summary>
-public static class Trigonometry
+public static partial class Trigonometry
 {
 
     /// <summary>The fine sine's steps in each step of its coarse reading (<see cref="CoarseSizeOfFineSine"/>).</summary>

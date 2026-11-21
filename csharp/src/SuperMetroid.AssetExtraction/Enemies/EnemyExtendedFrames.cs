@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The installed extended enemy frames as the import pipeline holds them: a frame's draw components, the components
 /// displayed for the frame gameplay shows, and their identity.
 /// </summary>
-internal static class EnemyExtendedFrames
+internal static partial class EnemyExtendedFrames
 {
 
     /// <summary>

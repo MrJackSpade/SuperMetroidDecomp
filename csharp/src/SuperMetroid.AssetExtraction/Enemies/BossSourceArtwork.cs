@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Draygon's, Crocomire's and Mother Brain's body-layer frames, Crocomire's melts), and the identity of the whole selected
 /// boss presentation.
 /// </summary>
-public sealed record BossSourceArtwork
+public sealed partial record BossSourceArtwork
 {
     /// <summary>Five editable Crocomire transfer images, which the import pre-colours Crocomire's sheets in (#1512); fight and death phases stay compiled.</summary>
     public CrocomireColorCatalog? CrocomireColors { get; init; }

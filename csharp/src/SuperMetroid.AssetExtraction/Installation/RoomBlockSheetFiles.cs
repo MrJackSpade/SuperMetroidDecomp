@@ -20,7 +20,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// floor of each tileset whose rooms show one (#1467, #1649); the tilesets and those manifests name the sheets (#1693). A
 /// player edits a sheet's or image's installed file in place.
 /// </summary>
-public static class RoomBlockSheetFiles
+public static partial class RoomBlockSheetFiles
 {
     /// <summary>The manifest naming each background image, its size and its changing cells.</summary>
     public const string BackgroundManifestFileName = "room-backgrounds.json";
@@ -213,34 +213,34 @@ public static class RoomBlockSheetFiles
     /// <param name="Version">The schema revision.</param>
     /// <param name="Sizes">Each image's width and height, which a part of its picture that shows nothing does not record (#1634): one period of what it shows (#1651), laid out as its room shows it (#1617).</param>
     /// <param name="Cells">Each image's cells whose pictures change with appearance inputs.</param>
-    internal sealed record BackgroundManifest(int Version, Dictionary<string, Extent16<ImagePixels>> Sizes, Dictionary<string, CellDocument[]> Cells);
+    internal sealed partial record BackgroundManifest(int Version, Dictionary<string, Extent16<ImagePixels>> Sizes, Dictionary<string, CellDocument[]> Cells);
 
     /// <summary>One cell of a background image whose picture changes with appearance inputs.</summary>
     /// <param name="Cell">The cell.</param>
     /// <param name="Picture">The name its pictures in the block sheet begin with.</param>
     /// <param name="Inputs">The inputs it depends on, as their tokens spell them.</param>
-    internal sealed record CellDocument(int Cell, string? Picture, string[]? Inputs);
+    internal sealed partial record CellDocument(int Cell, string? Picture, string[]? Inputs);
 
     /// <summary>The floor manifest: the Ceres tilesets whose turning floors are installed.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Tilesets">Each tileset's installed name.</param>
-    internal sealed record FloorManifest(int Version, string[]? Tilesets);
+    internal sealed partial record FloorManifest(int Version, string[]? Tilesets);
 
     /// <summary>The written picture manifest: each written picture sheet and the inputs each of its pictures depends on.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Sheets">The sheets.</param>
-    internal sealed record WrittenManifest(int Version, WrittenSheetDocument[] Sheets);
+    internal sealed partial record WrittenManifest(int Version, WrittenSheetDocument[] Sheets);
 
     /// <summary>One written picture sheet.</summary>
     /// <param name="Layer">The display layer the pictures show on, by its name.</param>
     /// <param name="Tileset">The installed name of the tileset whose rooms the pictures are written in.</param>
     /// <param name="Pictures">Each picture the sheet holds and the inputs it depends on.</param>
-    internal sealed record WrittenSheetDocument(WrittenPictureLayer Layer, string Tileset, WrittenPictureDocument[]? Pictures);
+    internal sealed partial record WrittenSheetDocument(WrittenPictureLayer Layer, string Tileset, WrittenPictureDocument[]? Pictures);
 
     /// <summary>One picture a written picture sheet holds, by the name its frames begin with.</summary>
     /// <param name="Picture">The name.</param>
     /// <param name="Inputs">The inputs it depends on, as their tokens spell them.</param>
-    internal sealed record WrittenPictureDocument(string? Picture, string[]? Inputs);
+    internal sealed partial record WrittenPictureDocument(string? Picture, string[]? Inputs);
 
     /// <summary>Stable camel-case manifest fields; a written picture sheet's layer is named, never numbered (#1731).</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

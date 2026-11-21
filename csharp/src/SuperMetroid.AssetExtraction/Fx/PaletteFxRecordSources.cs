@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Where each palette-FX record and colour lives in bank $8D: the import pipeline's map from keys to the cartridge.</summary>
-internal static class PaletteFxRecordSources
+internal static partial class PaletteFxRecordSources
 {
     /// <summary>Each record's timer-word address, by record.</summary>
     internal static readonly Dictionary<PaletteFxRecord, ushort> Addresses = PaletteFxRecordSourceDefinitions.ByAddress.ToDictionary(pair => pair.Value, pair => pair.Key);

@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Reads and writes the installed Tourian statue colour document.</summary>
-public static class TourianStatueColorFile
+public static partial class TourianStatueColorFile
 {
     /// <summary>Writes camel-case resource JSON and rejects unknown members on load.</summary>
     private static readonly JsonSerializerOptions Options = new()

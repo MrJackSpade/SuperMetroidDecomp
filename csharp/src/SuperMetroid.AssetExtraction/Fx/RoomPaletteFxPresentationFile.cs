@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Reads and writes the installed room palette-effect colour document.</summary>
-public static class RoomPaletteFxPresentationFile
+public static partial class RoomPaletteFxPresentationFile
 {
     /// <summary>Validates the installed palette-FX frames and keeps every RGB5 colour as installed, by the record colour it is.</summary>
     /// <param name="json">The UTF-8 JSON presentation stream with the required frame counts and RGB components from zero through thirty-one.</param>

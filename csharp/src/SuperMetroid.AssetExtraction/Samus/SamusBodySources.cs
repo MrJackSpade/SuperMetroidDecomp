@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// composes the whole picture of each pose frame from them (#1585), and decides once which frames the body sheet pictures,
 /// which the installation holds with where each places the body (<see cref="InstalledBody"/>); gameplay receives only that.
 /// </summary>
-public sealed class SamusBodySources
+public sealed partial class SamusBodySources
 {
     /// <summary>Each pose's art origin.</summary>
     private readonly Dictionary<SamusPoseId, int> artOrigins;

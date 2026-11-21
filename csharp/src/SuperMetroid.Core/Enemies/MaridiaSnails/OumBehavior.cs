@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>The Oum species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class OumBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Oum];

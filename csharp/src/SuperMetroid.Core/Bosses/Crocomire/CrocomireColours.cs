@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// Crocomire's colours (#1512): whether his body on the background shows its fight colours or its white hurt flash, and the
 /// colours his skeleton's death adds to his sprites, the arm's and then the wall spikes'.
 /// </summary>
-internal sealed class CrocomireColours : IGameplayShadingSource
+internal sealed partial class CrocomireColours : IGameplayShadingSource
 {
     /// <summary>The shading his wall and the bridge's fragments draw in.</summary>
     internal static PictureShading WallShading { get; } = PictureShading.Shaded(CrocomireShades.Wall);

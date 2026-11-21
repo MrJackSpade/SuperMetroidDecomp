@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// revealed columns and the top pixels of its top and bottom revealed rows. A map screen frames the map from these and
 /// scrolls it only while the reach still runs past the screen's edges (<see cref="MapFraming"/>).
 /// </summary>
-public readonly record struct MapScrollLimits
+public readonly partial record struct MapScrollLimits
 {
     /// <summary>A value of its parts; only its own operations make one.</summary>
     /// <param name="left">The leftmost revealed column's left pixel.</param>

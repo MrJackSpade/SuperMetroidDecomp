@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Block reactions spawned by Samus and her weapons: grapple, bomb, crumble, Speed Booster, shot and bombed special blocks.</summary>
 [RoomLifetime]
-internal sealed class BlockReactionObjects
+internal sealed partial class BlockReactionObjects
 {
     /// <summary>Frees the animals a shot block holds in when a shot that breaks it hits.</summary>
     private readonly ICrittersEscapeReaction _escapeAnimals;

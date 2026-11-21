@@ -5,7 +5,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>One frame in an installed sprite sheet manifest (#1544, #1633, #1635, #1644).</summary>
-public sealed record InstalledSheetFrameDocument
+public sealed partial record InstalledSheetFrameDocument
 {
     /// <summary>The frame rectangle's top-left pixel on the sheet.</summary>
     public required Position16<ImagePixels> Corner { get; init; }

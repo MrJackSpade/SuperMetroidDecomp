@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// How long a moving shutter rests at an end before it moves again (#1818): a number of AI updates, or for good, when it
 /// stays where it stopped until a reaction starts it again.
 /// </summary>
-public readonly record struct ShutterRest
+public readonly partial record struct ShutterRest
 {
     /// <summary>The updates a timed rest lasts; null for a permanent rest.</summary>
     private readonly int? _updates;

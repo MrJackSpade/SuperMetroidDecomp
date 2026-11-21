@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 /// Where the game-over screen places the Baby, the egg and the missile cursor and how long the cursor holds each frame:
 /// the part of the installed game-over presentation the game reads (#1502).
 /// </summary>
-public sealed record GameOverPlacements
+public sealed partial record GameOverPlacements
 {
     /// <summary>Shared Baby and egg drawing origin on the screen, in pixels.</summary>
     public required Offset16<ScreenPixels> BabyAnchor { get; init; }

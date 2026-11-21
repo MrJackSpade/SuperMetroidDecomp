@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <param name="Cell">The cell, counted row by row across the image's picture.</param>
 /// <param name="Picture">The name the block sheet's pictures of the cell begin with.</param>
 /// <param name="Inputs">The inputs the cell's picture depends on.</param>
-public sealed record RoomBackgroundCell(int Cell, string Picture, ImmutableArray<AppearanceInput> Inputs);
+public sealed partial record RoomBackgroundCell(int Cell, string Picture, ImmutableArray<AppearanceInput> Inputs);

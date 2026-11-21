@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The authored timing of the block reactions (#1554), change for change: the reaction sound, the breakup
 /// images with their durations, the respawn and the restored block. A change ends on the update after its last image.
 /// </summary>
-internal static class BlockReactionChangeDefinitions
+internal static partial class BlockReactionChangeDefinitions
 {
     /// <summary>The updates a contact crumble waits, once Samus stands on it, before its first image.</summary>
     internal const int ContactCrumbleDelay = 4;

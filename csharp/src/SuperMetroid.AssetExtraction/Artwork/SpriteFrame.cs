@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// One whole, named sprite frame: the ordered parts that together show an actor in one pose or glyph.
 /// Earlier parts are in front of later ones. It holds no position, collision or animation state.
 /// </summary>
-public sealed class SpriteFrame
+public sealed partial class SpriteFrame
 {
     /// <summary>Validates and keeps an immutable part sequence.</summary>
     /// <param name="name">The frame's identity within its family, such as <c>Digit.3</c>.</param>

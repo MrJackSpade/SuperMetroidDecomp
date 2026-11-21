@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// One of the options menu's screens (#2560): a page, and for a settings page the language its labels are written in. The
 /// primary page is one screen whichever language is chosen; it shows the choice in its language rows.
 /// </summary>
-public sealed record GameOptionsScreen
+public sealed partial record GameOptionsScreen
 {
     /// <summary>Holds the screen's page and language.</summary>
     private GameOptionsScreen(GameOptionsPage page, TextLanguage? language)

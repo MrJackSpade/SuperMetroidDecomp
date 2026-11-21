@@ -7,4 +7,4 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// <param name="Row">The corpse row, from the top.</param>
 /// <param name="FirstColumn">The first column of the right-hand corpse frame the part shows.</param>
 /// <param name="ColumnCount">The columns it shows.</param>
-public readonly record struct MotherBrainCorpseRotRow(int Row, int FirstColumn, int ColumnCount);
+public readonly partial record struct MotherBrainCorpseRotRow(int Row, int FirstColumn, int ColumnCount);

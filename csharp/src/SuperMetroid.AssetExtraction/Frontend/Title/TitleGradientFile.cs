@@ -10,7 +10,7 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Reads and writes the installed title gradient: sixteen zoom variants, each described by its stops (#1468).</summary>
-public static class TitleGradientFile
+public static partial class TitleGradientFile
 {
     /// <summary>Installed JSON filename selected by the title presentation catalog.</summary>
     public const string FileName = "title-gradient.json";

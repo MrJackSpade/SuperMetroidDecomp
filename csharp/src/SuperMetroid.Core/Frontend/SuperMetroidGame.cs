@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Frontend;
 /// Every sequence owns its own steps, logic and display, and a transition always names the sequence and step it enters,
 /// so an undefined step stops the game with its name instead of continuing somewhere arbitrary.
 /// </remarks>
-public sealed class SuperMetroidGame
+public sealed partial class SuperMetroidGame
 {
     /// <summary>The state and owners every phase runs against (<see cref="FrontendSession"/>).</summary>
     internal FrontendSession Session { get; }

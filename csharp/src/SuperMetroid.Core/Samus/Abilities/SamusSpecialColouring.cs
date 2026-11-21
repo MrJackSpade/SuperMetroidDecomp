@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// the X-ray visor share it: starting one takes the suit from whichever held it, and each lets it go only while it
 /// still holds it, so no colouring can end another's.
 /// </summary>
-public sealed class SamusSpecialColouring
+public sealed partial class SamusSpecialColouring
 {
     /// <summary>The colouring holding Samus's suit, or <see cref="SamusSpecialColouringKind.None"/>.</summary>
     public SamusSpecialColouringKind Holder { get; private set; }

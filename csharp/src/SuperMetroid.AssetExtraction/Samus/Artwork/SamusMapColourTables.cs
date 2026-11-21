@@ -11,6 +11,6 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// <param name="Charge">Her charged-beam and pseudo-Screw-Attack colours.</param>
 /// <param name="HyperBeam">Her Hyper Beam cycle colours.</param>
 /// <param name="CrystalFlash">Her Crystal Flash body and bubble colours.</param>
-public sealed record SamusMapColourTables(InstalledSamusVisorColors Visor, InstalledSamusHurtColors Hurt,
+public sealed partial record SamusMapColourTables(InstalledSamusVisorColors Visor, InstalledSamusHurtColors Hurt,
     InstalledSamusSuitColors Suits, SamusFullBodyCycleColours FullBodyCycles, SamusChargeColours Charge,
     SamusHyperBeamColours HyperBeam, InstalledCrystalFlashColors CrystalFlash);

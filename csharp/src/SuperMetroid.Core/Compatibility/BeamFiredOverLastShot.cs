@@ -31,7 +31,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// and a special attack's particles, which keep their own words, hold only the first four places.
 /// </remarks>
 [CompatibilityService("a beam fired with every shot place held takes the last place over the shot holding it and starts its Power Bomb fuse from the count that shot leaves")]
-public static class BeamFiredOverLastShot
+public static partial class BeamFiredOverLastShot
 {
     /// <summary>
     /// The step between the fractions an ignited Super Missile's count holds for successive link places: a 128th of a pixel
@@ -83,7 +83,7 @@ public static class BeamFiredOverLastShot
     /// into the Power Bomb fuse the beam starts with: a free place, or the kind of shot holding it with the facts of that
     /// shot the count it leaves depends on.
     /// </summary>
-    public abstract record ReplacedShot
+    public abstract partial record ReplacedShot
     {
         /// <summary>Closes the hierarchy to the holdings declared here.</summary>
         private ReplacedShot()
@@ -91,19 +91,19 @@ public static class BeamFiredOverLastShot
         }
 
         /// <summary>A place no shot holds.</summary>
-        public sealed record FreePlace : ReplacedShot;
+        public sealed partial record FreePlace : ReplacedShot;
 
         /// <summary>
         /// A missile or Super Missile fired and not yet ignited, or a Super Missile's invisible link, which never ignites.
         /// </summary>
-        public sealed record UnignitedMissile : ReplacedShot;
+        public sealed partial record UnignitedMissile : ReplacedShot;
 
         /// <summary>A missile or Super Missile an enemy reflected, waiting to re-ignite.</summary>
         /// <param name="HeadStart">The head start its reflection gave it toward the speed it re-ignites at.</param>
-        public sealed record ReflectedMissile(SignedEightEight HeadStart) : ReplacedShot;
+        public sealed partial record ReflectedMissile(SignedEightEight HeadStart) : ReplacedShot;
 
         /// <summary>An ignited missile or Super Missile, or the explosion of one.</summary>
-        public sealed record IgnitedMissile : ReplacedShot
+        public sealed partial record IgnitedMissile : ReplacedShot
         {
             /// <summary>An ignited missile that ignited at <paramref name="ignitionSpeed"/>, naming <paramref name="linkPlace"/>.</summary>
             /// <param name="ignitionSpeed">The speed it ignited at.</param>
@@ -124,10 +124,10 @@ public static class BeamFiredOverLastShot
 
         /// <summary>A shinespark crash echo flying out from Samus.</summary>
         /// <param name="DepartureAngle">The angle it was released at.</param>
-        public sealed record CrashEcho(TrigonometryAngle DepartureAngle) : ReplacedShot;
+        public sealed partial record CrashEcho(TrigonometryAngle DepartureAngle) : ReplacedShot;
 
         /// <summary>A beam or the Hyper Beam's shot, or the explosion of either.</summary>
-        public sealed record Beam : ReplacedShot
+        public sealed partial record Beam : ReplacedShot
         {
             /// <summary>A beam carrying <paramref name="carriedFuse"/>.</summary>
             /// <param name="carriedFuse">The Power Bomb fuse it carries, in updates.</param>
@@ -139,6 +139,6 @@ public static class BeamFiredOverLastShot
         }
 
         /// <summary>One of a special attack's particles.</summary>
-        public sealed record SpecialAttackParticle : ReplacedShot;
+        public sealed partial record SpecialAttackParticle : ReplacedShot;
     }
 }

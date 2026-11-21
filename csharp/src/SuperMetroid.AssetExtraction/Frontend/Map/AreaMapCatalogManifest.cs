@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Stock content provenance, separate from a catalog's selected replacement identity.</summary>
-public sealed record AreaMapCatalogManifest
+public sealed partial record AreaMapCatalogManifest
 {
     /// <summary>Catalog schema version that must equal <see cref="AreaMapCatalogFormat.Version"/> when stock content is loaded.</summary>
     public required int Version { get; init; }

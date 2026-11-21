@@ -9,7 +9,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Reads of Samus's pose definitions (<see cref="SamusPoseDefinitions"/>): collision radii, facing and movement, and the per-pose facts her movement consults, including the bomb-jump direction publication.</summary>
-internal static class SamusPoseMetadata
+internal static partial class SamusPoseMetadata
 {
     /// <summary>The shinespark flights, from <see cref="SamusPoseFamilyDefinitions.ShinesparkPoses"/>.</summary>
     private static readonly FrozenSet<SamusPoseId> ShinesparkPoses = SamusPoseFamilyDefinitions.ShinesparkPoses.ToFrozenSet();

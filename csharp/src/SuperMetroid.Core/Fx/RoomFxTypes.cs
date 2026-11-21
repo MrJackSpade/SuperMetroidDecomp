@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Rules shared by room effects of several types (#1415: the effect's kind is decoded at import).</summary>
-public static class RoomFxTypes
+public static partial class RoomFxTypes
 {
     /// <summary>
     /// Water and the statue effect show the same water; the statue effect starts the ordinary effect overlay

@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// Turns a decoded character grid's cells into the pixels the game places pictures at: a cell's corner lies one
 /// character's width per column right of the grid's origin and one character's height per row below it.
 /// </summary>
-public static class CharacterCellConversions
+public static partial class CharacterCellConversions
 {
     /// <summary>Pixels across and down one character.</summary>
     public const int CellPixels = 8;

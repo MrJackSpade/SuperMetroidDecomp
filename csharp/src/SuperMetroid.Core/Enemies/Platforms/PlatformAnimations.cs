@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 /// The Tripper's and the suspensor platform's vertically moving and still platform loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="PlatformCue"/> naming what it does.
 /// </summary>
-internal static class PlatformAnimations
+internal static partial class PlatformAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<PlatformSegment, EnemyFrameId, PlatformCue> Segments { get; } = new(

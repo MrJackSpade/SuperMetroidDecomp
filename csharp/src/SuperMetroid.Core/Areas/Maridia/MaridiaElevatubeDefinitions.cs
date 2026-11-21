@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Areas.Maridia;
 /// The Maridia elevatube's ride (#1415): where it holds Samus, where each entry starts her, how fast she starts and
 /// accelerates, and the fastest she may travel.
 /// </summary>
-internal static class MaridiaElevatubeDefinitions
+internal static partial class MaridiaElevatubeDefinitions
 {
     /// <summary>The room X, in whole pixels, the tube holds Samus at on every update.</summary>
     internal const int SamusCenterX = 128;

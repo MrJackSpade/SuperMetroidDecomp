@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// bomb-jump scan alone runs from the first place up, so the last overlapping bomb in place order decides Samus's launch.
 /// </remarks>
 [RoomLifetime]
-public sealed class SamusBombProjectileSystem
+public sealed partial class SamusBombProjectileSystem
 {
     /// <summary>The Samus artwork whose installed projectile frames each bomb's frames draw.</summary>
     private readonly SamusArtworkBinding _artwork;

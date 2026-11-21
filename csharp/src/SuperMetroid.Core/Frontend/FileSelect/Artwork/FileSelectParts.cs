@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 /// Names the file-select document's parts (<see cref="FileSelectPresentationDefinitions"/>): its pages, patches,
 /// each bordered heading's sprite, and the menus' pictures of its pages and fields (#1467).
 /// </summary>
-public static class FileSelectParts
+public static partial class FileSelectParts
 {
     /// <summary>The JSON name of a foreground page.</summary>
     public static string PageName(FileSelectPage page) =>

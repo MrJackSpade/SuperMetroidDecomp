@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// The Work Robot's laser animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
-internal static class WorkRobotLaserAnimations
+internal static partial class WorkRobotLaserAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<WorkRobotLaserSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(

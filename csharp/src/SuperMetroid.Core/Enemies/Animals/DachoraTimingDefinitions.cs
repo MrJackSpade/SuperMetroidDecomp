@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>How long a Dachora's warning and charge last, and how its speed-boost echoes trail it (#2279).</summary>
-internal static class DachoraTimingDefinitions
+internal static partial class DachoraTimingDefinitions
 {
     /// <summary>How long a woken Dachora blinks before its first run, in updates.</summary>
     internal const int BlinkDuration = 120;

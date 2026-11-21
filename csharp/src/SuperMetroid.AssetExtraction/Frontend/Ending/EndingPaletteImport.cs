@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// each scene's backdrop from. Nothing installs them as a colour table: the game draws the pre-coloured sheets and shows
 /// the installed backdrops.
 /// </summary>
-internal static class EndingPaletteImport
+internal static partial class EndingPaletteImport
 {
     /// <summary>Decodes all seven ending colour resources, recognising the logo's calculated crossfade.</summary>
     /// <param name="bus">Cartridge import source for the colour words and the logo crossfade's pointer-selected backward copies.</param>

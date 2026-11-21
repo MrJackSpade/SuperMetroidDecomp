@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>The random length of an Alcoon's walk.</summary>
-internal static class AlcoonWalkDefinitions
+internal static partial class AlcoonWalkDefinitions
 {
     /// <summary>
     /// How many walk cycles an Alcoon starting to walk takes before its next volley, chosen from four rolls (#2510): a roll

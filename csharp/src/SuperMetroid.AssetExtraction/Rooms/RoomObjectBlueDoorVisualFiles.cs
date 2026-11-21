@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the sixteen blue-door cap frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectBlueDoorVisualFiles
+public static partial class RoomObjectBlueDoorVisualFiles
 {
     /// <summary>
     /// The looks that show another look's artwork, with the look whose artwork each shows: the closed cap drawn solid shows

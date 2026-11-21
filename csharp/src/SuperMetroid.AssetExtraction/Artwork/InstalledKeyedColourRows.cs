@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// band or frame, never by a row number standing for it.
 /// </summary>
 /// <typeparam name="T">The identity each row colours.</typeparam>
-internal sealed class InstalledKeyedColourRows<T>
+internal sealed partial class InstalledKeyedColourRows<T>
     where T : notnull
 {
     /// <summary>Each identity's installed row.</summary>

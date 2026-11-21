@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 /// display, menus and compatibility services) lives until the host restarts it or replaces it with another game; a gameplay
 /// runtime lives inside it from a game or demo start to title, game over or soft reset (<see cref="GameplayRuntimeFactory"/>).
 /// </summary>
-public static class GameSessionComposer
+public static partial class GameSessionComposer
 {
     /// <summary>Creates a game running on its own timing, with its installed content bound before the first frame.</summary>
     /// <param name="saves">The saves the session owns.</param>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Earthquakes;
 /// How each part of an <see cref="EarthquakeShake"/> displaces the room: the pixels each strength throws, the axes each
 /// direction moves and what each reach shakes. Together they give the displacement of every earthquake the game shows.
 /// </summary>
-public static class EarthquakeShakeDefinitions
+public static partial class EarthquakeShakeDefinitions
 {
     /// <summary>The pixels each strength throws what it shakes along every axis it moves.</summary>
     public static IReadOnlyDictionary<EarthquakeStrength, int> Pixels { get; } = new Dictionary<EarthquakeStrength, int>

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// Multiviola's spinning flight loop as a typed animation (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class MultiviolaAnimations
+internal static partial class MultiviolaAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<MultiviolaSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(

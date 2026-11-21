@@ -11,4 +11,4 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// The recording the playback switches to on its first step that plays, the diagonal shinespark's release (#2190); null for a
 /// demonstration that plays its one recording to the end.
 /// </param>
-public readonly record struct AttractDemoInputDefinition(DemoInputRecordingId Recording, DemoInputRecordingId? Continuation = null);
+public readonly partial record struct AttractDemoInputDefinition(DemoInputRecordingId Recording, DemoInputRecordingId? Continuation = null);

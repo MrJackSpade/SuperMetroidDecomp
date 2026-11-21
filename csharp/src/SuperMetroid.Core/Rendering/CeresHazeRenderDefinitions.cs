@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>How the Ceres haze's colour bands are laid out down the screen.</summary>
-internal static class CeresHazeRenderDefinitions
+internal static partial class CeresHazeRenderDefinitions
 {
     /// <summary>The screen line that starts the brightening colour bands, after the flat, uncoloured region at the top.</summary>
     internal const int RampFirstLine = 64;

@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// import-data directory (<see cref="ImportDataDirectory.Of"/>), which the installer deletes before it publishes. A room's
 /// background changes through its pictures in the installed block sheets.
 /// </summary>
-public static class RoomBackgroundTilemapArtworkFiles
+public static partial class RoomBackgroundTilemapArtworkFiles
 {
     /// <summary>Import-data manifest filename recording every background tilemap, its length, and its JSON hash.</summary>
     internal const string ManifestFileName = "room-backgrounds.json";
@@ -117,8 +117,8 @@ public static class RoomBackgroundTilemapArtworkFiles
     };
 
     /// <summary>One stock tilemap's name, decompressed length in bytes, and JSON digest.</summary>
-    internal sealed record RoomBackgroundFileEntry([InstalledKey] string Tilemap, int ByteCount, string Sha256);
+    internal sealed partial record RoomBackgroundFileEntry([InstalledKey] string Tilemap, int ByteCount, string Sha256);
     /// <summary>Records cartridge provenance and complete stock background tilemap coverage.</summary>
-    internal sealed record RoomBackgroundFileManifest(int Version, string SourceCartridgeSha256,
+    internal sealed partial record RoomBackgroundFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomBackgroundFileEntry> Entries);
 }

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// Mother Brain's special sprite sheets for legs, Baby, attack restoration and the exploded door: their installed
 /// validation, lookup and the character each page shows from.
 /// </summary>
-public static class MotherBrainSpecialSprites
+public static partial class MotherBrainSpecialSprites
 {
     /// <summary>Every page holds sixteen characters, $200 bytes.</summary>
     private const int SheetPageByteCount = 512;

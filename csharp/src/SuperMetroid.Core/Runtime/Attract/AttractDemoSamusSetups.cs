@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Runtime.Attract;
 
 /// <summary>The ways the title demonstrations stage Samus (#2500).</summary>
-public static class AttractDemoSamusSetups
+public static partial class AttractDemoSamusSetups
 {
     /// <summary>Facing forward, as she stands on arriving at the Landing Site.</summary>
     public static AttractDemoSamusSetup.ForwardFacing LandingSite { get; } = new();

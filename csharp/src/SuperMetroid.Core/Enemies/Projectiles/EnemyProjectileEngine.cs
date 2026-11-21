@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </para>
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyProjectileEngine
+internal sealed partial class EnemyProjectileEngine
 {
     /// <summary>Carries out one shared cue of a typed projectile animation, for every kind whose animations publish them.</summary>
     internal void ApplyCommonCue(EnemyProjectile projectile, EnemyProjectileCommonCue cue)
@@ -89,7 +89,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>A place the room holds and the hold that counts it.</summary>
     /// <param name="Place">The zero-based enemy-projectile place.</param>
     /// <param name="Hold">The hold, which frees the place on the update after it runs out.</param>
-    private sealed record HeldPlace(int Place, PrePhantoonRoomHeldProjectilePlace Hold);
+    private sealed partial record HeldPlace(int Place, PrePhantoonRoomHeldProjectilePlace Hold);
 
     /// <summary>Whether <paramref name="place"/> is free for a spawn: no live projectile and no hold of the room's holds it.</summary>
     internal bool IsFree(int place) => ProjectilesInPlaces[place] is not { IsActive: true } && _heldPlace?.Place != place;

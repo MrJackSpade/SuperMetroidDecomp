@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// reflection index the shots by it without testing it.
 /// </remarks>
 [CompatibilityService("a Super Missile with no collision link of its own treats the projectile in Samus's first shot place as its link")]
-public static class UnlinkedSuperMissileLink
+public static partial class UnlinkedSuperMissileLink
 {
     /// <summary>The zero-based shot place an unlinked Super Missile names as its link.</summary>
     public const int Place = 0;

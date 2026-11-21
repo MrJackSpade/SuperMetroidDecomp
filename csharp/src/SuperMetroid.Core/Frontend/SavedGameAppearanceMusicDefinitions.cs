@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The music a saved game's appearance schedules as it loads (#2057).</summary>
-internal static class SavedGameAppearanceMusicDefinitions
+internal static partial class SavedGameAppearanceMusicDefinitions
 {
     /// <summary>How long Samus's fanfare waits on the music queue: fourteen passes.</summary>
     internal static MusicQueueDelay FanfareDelay { get; } = new(14);

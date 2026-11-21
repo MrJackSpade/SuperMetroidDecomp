@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 
 /// <summary>Sprite composition roots for Crocomire's falling, collapsing, stable and river skeleton.</summary>
-internal static class CrocomireSkeletonVisualDefinitions
+internal static partial class CrocomireSkeletonVisualDefinitions
 {
     /// <summary>Thirty-three corpse roots selected by the compiled programs.</summary>
     internal const int FrameCount = 33;

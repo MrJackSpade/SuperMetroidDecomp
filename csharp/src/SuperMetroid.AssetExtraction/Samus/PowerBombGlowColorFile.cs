@@ -8,7 +8,7 @@ using SuperMetroid.Core.Samus.Colours;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Power Bomb glow colour document.</summary>
-public static class PowerBombGlowColorFile
+public static partial class PowerBombGlowColorFile
 {
     /// <summary>
     /// Supported schema revision, fixing the sixteen- and thirty-two-entry sequence dimensions; 2 names the file for the

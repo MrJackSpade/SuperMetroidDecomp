@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Compression;
 
 /// <summary>Bit layout and bounds shared by every command in the cartridge format.</summary>
 [EncodingOwner("compressed asset command header bits")]
-public static class SmCompressionCodes
+public static partial class SmCompressionCodes
 {
     /// <summary><c>$FF</c>: ends a compressed stream; this value takes precedence over the long-header marker.</summary>
     public const byte Terminator = 0xff;

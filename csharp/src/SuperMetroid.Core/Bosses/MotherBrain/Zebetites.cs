@@ -5,7 +5,7 @@ using static SuperMetroid.Core.Bosses.MotherBrain.ZebetiteDefinitions;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Tourian's Zebetites: each active generation's barriers, the placement each half spawns from, and where each half stands.</summary>
-internal static class Zebetites
+internal static partial class Zebetites
 {
     /// <summary>The barrier generation that stands once <paramref name="destroyed"/> Zebetites have been destroyed.</summary>
     /// <exception cref="InvalidDataException">Every barrier has been destroyed, or the count is negative.</exception>

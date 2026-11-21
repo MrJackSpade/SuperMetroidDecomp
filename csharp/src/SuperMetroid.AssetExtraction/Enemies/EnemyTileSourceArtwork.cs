@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// sheets from, and the identity of the whole selected presentation. The runtime receives none of it: gameplay is given
 /// only every installed frame's display (<see cref="FrameDisplays"/>) and the composed sheets.
 /// </summary>
-public sealed class EnemyTileSourceArtwork
+public sealed partial class EnemyTileSourceArtwork
 {
     /// <summary>Each enemy's installed characters, by definition.</summary>
     internal readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;

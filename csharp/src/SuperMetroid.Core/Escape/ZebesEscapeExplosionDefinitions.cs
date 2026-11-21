@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Core.Escape;
 
 /// <summary>The Zebes escape's explosions: the ones a random draw names, and the kinds a draw that names none leaves to the explosion's place.</summary>
-internal static class ZebesEscapeExplosionDefinitions
+internal static partial class ZebesEscapeExplosionDefinitions
 {
     /// <summary>The small-explosion choice's sound, the shared small-explosion sound.</summary>
     private static readonly SoundEffectId SmallExplosionSound = EnemySound.SmallExplosion;

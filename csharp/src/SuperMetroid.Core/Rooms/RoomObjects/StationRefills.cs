@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>What a refill station does to Samus's resource (#2484): tests whether it is full, and fills it.</summary>
-internal static class StationRefills
+internal static partial class StationRefills
 {
     /// <summary>Whether Samus's resource that <paramref name="refill"/> refills is already at its current maximum.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="refill"/> is undefined.</exception>

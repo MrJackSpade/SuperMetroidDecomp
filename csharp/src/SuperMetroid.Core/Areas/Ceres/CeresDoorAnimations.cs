@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The Ceres doors' and walls' typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="CeresDoorCue"/> with the values it acts on.
 /// </summary>
-internal static class CeresDoorAnimations
+internal static partial class CeresDoorAnimations
 {
     /// <summary>A right-facing door's slide, from open to closed, which the door of Ridley's room shows too.</summary>
     private static CeresDoorPoses RightFacing { get; } = new(EnemyFrameId.CeresDoorFacingRightOpen, EnemyFrameId.CeresDoorFacingRightThreeQuartersOpen,

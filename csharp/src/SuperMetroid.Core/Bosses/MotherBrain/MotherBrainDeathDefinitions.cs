@@ -6,7 +6,7 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The definition data of Mother Brain's death and the escape it starts: the escape door and the subtitle.</summary>
-public static class MotherBrainDeathDefinitions
+public static partial class MotherBrainDeathDefinitions
 {
     /// <summary>The escape's song, played once the escape's data set has loaded.</summary>
     public const MusicTrack EscapeMusicTrack = MusicTrack.Escape;

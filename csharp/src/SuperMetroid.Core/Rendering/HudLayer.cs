@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rendering;
 /// rather than what lies behind. Gameplay's HUD band is drawn opaque; the pause screen's HUD is see-through.
 /// </param>
 [IndependentFlag("whether the layer is drawn opaque, an independent setting")]
-public sealed record HudLayer(PicturedHud Hud, bool DrawsOpaque) : DisplayLayer
+public sealed partial record HudLayer(PicturedHud Hud, bool DrawsOpaque) : DisplayLayer
 {
     /// <summary>The HUD's placed pictures.</summary>
     public PicturedHud Hud { get; init; } = Ensure.NotNull(Hud);

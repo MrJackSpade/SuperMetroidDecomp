@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// Shows an area map as the map screens draw it (#1467): a picture grid of the map's cells, each the installed picture of
 /// the cell (#1513) in the shade the screen shows it in.
 /// </summary>
-internal static class AreaMapPictures
+internal static partial class AreaMapPictures
 {
     /// <summary>The frame name of the picture of <paramref name="shown"/>'s cell in its shade.</summary>
     [InstalledKey]

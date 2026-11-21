@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="Centre">The blast's centre in the room.</param>
 /// <param name="Radii">The oval's horizontal and vertical radii in whole pixels; an oval with no height shows nothing.</param>
 /// <param name="Colour">The colour the oval adds to the scene.</param>
-public readonly record struct PowerBombBlastOval(Position16<RoomPixels> Centre, Extent16<RoomPixels> Radii, RgbColor Colour)
+public readonly partial record struct PowerBombBlastOval(Position16<RoomPixels> Centre, Extent16<RoomPixels> Radii, RgbColor Colour)
 {
     /// <summary>
     /// The oval <paramref name="horizontalRadius"/> pixels wide either side of <paramref name="centre"/>, its height that

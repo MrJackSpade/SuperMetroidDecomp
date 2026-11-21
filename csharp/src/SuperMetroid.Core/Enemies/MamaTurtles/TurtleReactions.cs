@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// The reactions of a turtle's own (#2558) that its definition names where it shares none of the engine's: the
 /// reaction that runs when Samus or her weapons meet it, which its entity answers.
 /// </summary>
-internal static class TurtleReactions
+internal static partial class TurtleReactions
 {
     /// <summary>The reaction of a turtle's own to Samus's touch, which its entity answers.</summary>
     internal static EnemyReaction Touch { get; } = EnemyReaction.OfSpecies("Turtle.Touch");

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// runs, one per run the running animation completes, to the next stage. How a run counted off an empty countdown takes
 /// the boost down a stage is <see cref="BoostRestartAfterEcho"/>'s.
 /// </summary>
-public readonly record struct SamusSpeedBoostCounter
+public readonly partial record struct SamusSpeedBoostCounter
 {
     /// <summary>The full boost stage: active boosting for blocks, contact and the echo, and enough to store a shinespark.</summary>
     internal const int FullStage = 4;

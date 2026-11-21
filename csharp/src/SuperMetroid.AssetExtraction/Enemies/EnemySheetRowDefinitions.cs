@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// shared colours, and which enemies' initialization draws them in another enemy's or a shared row than their graphics
 /// set's. Gameplay names none of them.
 /// </summary>
-internal static class EnemySheetRowDefinitions
+internal static partial class EnemySheetRowDefinitions
 {
     /// <summary>The row of the common sprite colours a room load fills, which a hit flash shows.</summary>
     internal const int Common = 0;

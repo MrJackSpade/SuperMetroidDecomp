@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// The block shape each Chozo statue room-object frame draws (#1622), around the object's block. The crumble plug shares
 /// the shot-block breakup frames. What each frame shows is its installed picture (#1557).
 /// </summary>
-internal static class ChozoStatueObjectDrawDefinitions
+internal static partial class ChozoStatueObjectDrawDefinitions
 {
     /// <summary>Lower Norfair's cleared hand: the hand's block, open.</summary>
     private static readonly RoomBlockShape LowerNorfairClearedHand = new([new(new(0, 0), RoomCollisionType.Air)]);

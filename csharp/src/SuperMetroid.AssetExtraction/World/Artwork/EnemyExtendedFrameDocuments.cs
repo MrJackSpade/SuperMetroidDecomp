@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// Reads the extended enemy frame documents against the enemy-bank frame schema (#1395): import data whose parts are the
 /// original's packed sprite placements (#1638), which only the import composes the enemy sheets from.
 /// </summary>
-public static class EnemyExtendedFrameDocuments
+public static partial class EnemyExtendedFrameDocuments
 {
     /// <summary>Validates named frames and compiles visual-only OAM pieces.</summary>
     /// <exception cref="InvalidDataException">The schema, complete named-frame set, components, or display bindings are invalid.</exception>

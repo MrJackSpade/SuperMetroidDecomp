@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Immutable single-piece appearance keyed by native trail frame; no timing or movement fields.</summary>
-public sealed class InstalledProjectileTrails
+public sealed partial class InstalledProjectileTrails
 {
     /// <summary>The installed appearance of every trail frame (#1596).</summary>
     private readonly Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, SpritePart> attributes;

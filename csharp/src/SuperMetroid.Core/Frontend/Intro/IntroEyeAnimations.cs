@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The animations of Samus's eye on the narration pages' portrait: each step shows one <see cref="IntroEyeFrame"/> for
 /// its duration in cinematic updates.
 /// </summary>
-internal static class IntroEyeAnimations
+internal static partial class IntroEyeAnimations
 {
     /// <summary>Every portrait-eye animation.</summary>
     internal static AnimationSegments<IntroEyeSegment, IntroEyeFrame, NoAnimationCue> Segments { get; } = new(

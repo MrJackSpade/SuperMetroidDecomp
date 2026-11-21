@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// the tileset runs that shows any (<see cref="RoomFxOverlayState.ShowsOnOverlay"/>): a liquid's surface strip and body under
 /// <see cref="SurfaceName"/> and <see cref="BodyName"/>, an atmosphere's picture under <see cref="AtmosphereName"/>.
 /// </summary>
-public static class RoomEffectPictures
+public static partial class RoomEffectPictures
 {
     /// <summary>The name, in a room's effect overlay picture sheet, of the surface strip of liquid effect <paramref name="type"/>.</summary>
     [InstalledKey]

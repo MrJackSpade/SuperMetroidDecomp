@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads and writes the installed Mother Brain death colour document.</summary>
-public static class MotherBrainDeathColorFile
+public static partial class MotherBrainDeathColorFile
 {
     /// <summary>The body and leg fade images, shown in order before the body is cleared.</summary>
     public const int BodyFadeFrameCount = 16;

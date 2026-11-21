@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Zero-based destination tile-cell coordinates on a 32-by-32 pause equipment page, distinct from character-atlas coordinates.</summary>
-public sealed record PauseGridPoint
+public sealed partial record PauseGridPoint
 {
     /// <summary>Destination column in tile cells, zero through 31.</summary>
     public required int Column { get; init; }

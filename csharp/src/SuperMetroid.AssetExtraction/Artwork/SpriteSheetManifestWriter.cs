@@ -4,7 +4,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Writes installed sprite-sheet manifests with the settings the game reads them with.</summary>
-public static class SpriteSheetManifestWriter
+public static partial class SpriteSheetManifestWriter
 {
     /// <summary>Serializes an installed sheet manifest.</summary>
     public static byte[] Write(InstalledSheetDocument document) =>

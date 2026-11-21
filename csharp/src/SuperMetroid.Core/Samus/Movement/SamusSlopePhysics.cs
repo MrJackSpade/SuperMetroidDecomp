@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// displacement. The profiles and multipliers give the exact discrete geometry and whole-pixel
 /// movement.
 /// </remarks>
-public static class SamusSlopePhysics
+public static partial class SamusSlopePhysics
 {
     /// <summary>
     /// Reacts to a non-square slope during horizontal block collision.

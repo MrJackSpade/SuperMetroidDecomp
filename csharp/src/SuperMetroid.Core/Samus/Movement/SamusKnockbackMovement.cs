@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// A knockback sends Samus away from what hurt her, from the side it lay on, for the knockback's time, and she leaves
 /// it by its pose's own input.
 /// </remarks>
-public static class SamusKnockbackMovement
+public static partial class SamusKnockbackMovement
 {
     /// <summary>
     /// Consumes the damage request that terrain collision publishes before the

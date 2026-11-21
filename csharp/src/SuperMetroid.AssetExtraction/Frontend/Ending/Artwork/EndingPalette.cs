@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// import pre-colours the ending's sheets in them (#1512) and installs each scene's backdrop as a colour; the game loads
 /// none of them.
 /// </summary>
-public sealed class EndingPalette
+public sealed partial class EndingPalette
 {
     /// <summary>The colours of the logo crossfade's layers at one step.</summary>
     internal const int CrossfadeLayerColours = 16;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// What enemy drops are: each pickup's animation, what it restores (#2156), how long it lasts and how near a grapple
 /// collects it.
 /// </summary>
-internal static class EnemyPickupDefinitions
+internal static partial class EnemyPickupDefinitions
 {
     /// <summary>
     /// Each pickup kind's drop animation. A roll that drops nothing shows none; the dormant pickup path handles it.

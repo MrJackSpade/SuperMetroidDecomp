@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// and the starburst <see cref="StarburstPlays"/> times. Each spark ring draws in from its widest to its narrowest and
 /// starts again.
 /// </summary>
-internal static class ChargeFlareAnimationDefinitions
+internal static partial class ChargeFlareAnimationDefinitions
 {
     /// <summary>The flare count from which a charging beam's main flare is drawn.</summary>
     internal const int MainFlareShownFrom = 15;

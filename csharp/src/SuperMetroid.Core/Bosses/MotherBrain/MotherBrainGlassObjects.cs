@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's glass: its setup, its shatter projectiles and the hit count it keeps after the glass is gone.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainGlassObjects
+internal sealed partial class MotherBrainGlassObjects
 {
     /// <summary>The area's boss-defeat flags.</summary>
     private readonly IDefeatedBossesReader _bosses;

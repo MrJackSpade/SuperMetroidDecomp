@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The red hand beam's typed animation (#641, #1600, #2011), each beat the installed <see cref="EnemyProjectileFrameId"/> it
 /// shows.
 /// </summary>
-internal static class MotherBrainHandBeamAnimations
+internal static partial class MotherBrainHandBeamAnimations
 {
     /// <summary>How many stages the beam plays before it deletes itself.</summary>
     private const int Stages = 3;

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <param name="Page">The page.</param>
 /// <param name="Slots">Each slot's field, or none where the slot holds no save.</param>
 /// <param name="SlotChoice">The slots the copy or clear has chosen, which its prompts name.</param>
-internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDictionary<SaveSlot, ShownFileSelectSave?> Slots, FileSelectSlotChoice SlotChoice)
+internal sealed partial record ShownFileSelectPage(FileSelectPage Page, ImmutableDictionary<SaveSlot, ShownFileSelectSave?> Slots, FileSelectSlotChoice SlotChoice)
 {
     /// <summary>Whether the page lays its slots out as the main menu does, rather than as copy and clear do.</summary>
     internal bool Main => Page is FileSelectPage.MainWithData or FileSelectPage.MainEmpty;

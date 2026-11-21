@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// options presentation.
 /// </summary>
 [EncodingOwner("cartridge addresses of the options screen pages, labels, headings and anchors")]
-internal static class GameOptionsSourceDefinitions
+internal static partial class GameOptionsSourceDefinitions
 {
     /// <summary>Bytes of one stored options page: its tilemap of two-byte cells.</summary>
     internal const int TilemapByteCount =

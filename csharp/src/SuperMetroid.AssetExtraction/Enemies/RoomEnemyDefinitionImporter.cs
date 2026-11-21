@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Reads native 64-byte bank-$A0 enemy headers during cartridge import.</summary>
 [EncodingOwner("cartridge enemy header words")]
-public static class RoomEnemyDefinitionImporter
+public static partial class RoomEnemyDefinitionImporter
 {
 
     /// <summary>The tile set the bank-$A0 header at <paramref name="headerPointer"/> names.</summary>

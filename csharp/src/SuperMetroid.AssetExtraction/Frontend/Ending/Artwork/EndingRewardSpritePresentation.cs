@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable OAM compositions for the 37 post-credits Samus reward frames.</summary>
-public sealed class EndingRewardSpritePresentation : ICinematicSpriteFrames
+public sealed partial class EndingRewardSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated editable OAM compositions keyed by the poses that show them.</summary>
     internal readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;

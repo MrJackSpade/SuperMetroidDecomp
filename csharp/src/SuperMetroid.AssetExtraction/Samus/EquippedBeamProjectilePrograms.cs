@@ -25,7 +25,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// fuse over the shot from a stopped fuse, which the fuse leaves stopped, so the shot never reaches the fast stage whose
 /// move would land its animation in another list (<see cref="SuperMetroid.Core.Compatibility.ChainsawFuseAnimationShift{TCursor}"/>).
 /// </summary>
-internal static class EquippedBeamProjectilePrograms
+internal static partial class EquippedBeamProjectilePrograms
 {
     /// <summary>The beam echoes in the order their programs are listed (#2567).</summary>
     private static readonly IReadOnlyList<SamusBeamEcho> EchoOrder = Ensure.EveryMemberOnce<SamusBeamEcho>(

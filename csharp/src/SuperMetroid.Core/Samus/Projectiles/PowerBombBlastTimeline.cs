@@ -15,7 +15,7 @@ using SuperMetroid.Core.Assets;namespace SuperMetroid.Core.Samus.Projectiles;
 /// (<see cref="PowerBombRadius"/>), and the oval stages' growth holds short of the radius's range
 /// (<see cref="PowerBombGrowthHold"/>). Crystal Flash's smaller blast burns through the same radii, speed and glow.
 /// </remarks>
-public sealed class PowerBombBlastTimeline
+public sealed partial class PowerBombBlastTimeline
 {
     /// <summary>The pre-explosion flash's radius.</summary>
     internal PowerBombRadius PreExplosionRadius { get; set; }

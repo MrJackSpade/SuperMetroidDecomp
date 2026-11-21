@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// within a few hundred pixels of the area map (the framing starts there and a step is taken only while an arrow
 /// allows it), so the offset never wraps and the arrows' tests compare plain differences.
 /// </remarks>
-public sealed class MapScroll
+public sealed partial class MapScroll
 {
     /// <summary>The scroll at <paramref name="scroll"/> on a screen framed by <paramref name="framing"/>.</summary>
     /// <param name="framing">How the screen frames the map.</param>

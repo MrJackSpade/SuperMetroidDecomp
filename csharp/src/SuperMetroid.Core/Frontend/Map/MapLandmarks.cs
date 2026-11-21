@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// Lists each area's map landmarks (<see cref="MapLandmarkDefinitions"/>): its boss markers, each naming the boss it shows,
 /// its elevator labels with their destinations, and the sprite each destination's elevator shows.
 /// </summary>
-public static class MapLandmarks
+public static partial class MapLandmarks
 {
     /// <summary>Whether <paramref name="area"/>'s map shows the gunship, where it landed.</summary>
     public static bool ShowsGunship(AreaId area) => MapLandmarkDefinitions.GunshipAreas.Contains(area);

@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Editable reserve-label, digit and arrow presentation sources and dimensions; the arrow's pulse length is <see cref="PauseReserveArrowDefinitions"/>.</summary>
-public static class PauseReserveUiDefinitions
+public static partial class PauseReserveUiDefinitions
 {
     /// <summary>Supported reserve UI document schema revision.</summary>
     public const int Version = 1;

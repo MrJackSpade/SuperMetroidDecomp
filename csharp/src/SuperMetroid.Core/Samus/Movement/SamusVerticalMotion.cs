@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Samus.Movement.SamusVerticalMotionDefinitions;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Samus's launch speeds and gravity in each medium.</summary>
-internal static class SamusVerticalMotion
+internal static partial class SamusVerticalMotion
 {
     /// <summary>The bomb-jump launch speed in <paramref name="medium"/>.</summary>
     internal static UnsignedSixteenSixteen BombJump(SamusLiquidMedium medium) => InMedium(BombJumpSpeeds, medium);

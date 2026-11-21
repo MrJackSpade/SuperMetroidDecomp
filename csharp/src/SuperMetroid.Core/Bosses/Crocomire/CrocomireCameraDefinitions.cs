@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// The screens of Crocomire's room, one row of eight, whose scroll states his fight and death sequence change, and the
 /// Samus position the bridge's scroll setup tests.
 /// </summary>
-internal static class CrocomireCameraDefinitions
+internal static partial class CrocomireCameraDefinitions
 {
     /// <summary>The screen immediately left of the melting viewport, which the bridge's scroll setup writes.</summary>
     internal static readonly Position16<RoomScreens> BridgeLeftScreen = new(4, 0);

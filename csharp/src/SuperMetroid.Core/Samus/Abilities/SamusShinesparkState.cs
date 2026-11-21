@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// Samus's full-body cycle shades. Block collision uses the shared step; solid enemies stop a sideways spark through it,
 /// and an upward spark tests them before its block move.
 /// </remarks>
-public sealed class SamusShinesparkState
+public sealed partial class SamusShinesparkState
 {
     /// <summary>The update's audio requests the spark's sounds join as they are made: Samus's (#2057).</summary>
     internal GameplaySoundRequests AudioRequests { get; }

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// statues' colours and the Ceres escape's warning-text and door character pages, which the pre-coloured sheets are
 /// composed from, and the identity of the whole selected area presentation. Gameplay reads none of it.
 /// </summary>
-public sealed record AreaSourceArtwork
+public sealed partial record AreaSourceArtwork
 {
     /// <summary>The Ceres door's characters and colours.</summary>
     public CeresDoorSourceArtwork? CeresDoor { get; init; }

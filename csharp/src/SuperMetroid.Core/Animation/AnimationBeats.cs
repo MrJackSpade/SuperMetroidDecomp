@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Animation;
 /// </summary>
 /// <typeparam name="TFrame">The frame identity.</typeparam>
 /// <typeparam name="TEvent">The events the owner reacts to.</typeparam>
-internal static class AnimationBeats<TFrame, TEvent>
+internal static partial class AnimationBeats<TFrame, TEvent>
     where TFrame : struct
     where TEvent : notnull
 {

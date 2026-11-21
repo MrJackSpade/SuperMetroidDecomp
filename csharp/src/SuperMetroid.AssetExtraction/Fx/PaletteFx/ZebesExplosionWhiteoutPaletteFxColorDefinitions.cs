@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// The two effects write their own colours through one shared run of records, which brighten from black to white;
 /// this describes the authored colours, not arithmetic the game performs.
 /// </remarks>
-public static class ZebesExplosionWhiteoutPaletteFxColorDefinitions
+public static partial class ZebesExplosionWhiteoutPaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes one live BGR555 color.</summary>

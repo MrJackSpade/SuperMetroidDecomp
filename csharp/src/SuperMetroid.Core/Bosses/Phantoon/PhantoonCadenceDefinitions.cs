@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// The counter cadences and phases of Phantoon's fight and death (#1606): his flash, fades, figure-eight reversal,
 /// first eye-closed delay, flames, death pixelation and the Wrecked Ship's power returning.
 /// </summary>
-internal static class PhantoonCadenceDefinitions
+internal static partial class PhantoonCadenceDefinitions
 {
     /// <summary>
     /// The phase of Phantoon's body's own update count on which his hurt flash shows: for two updates of every four,

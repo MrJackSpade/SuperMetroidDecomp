@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>How the hatching egg's shell pieces and the Baby's slime drops fly, independent of their pictures.</summary>
-internal static class IntroEggMotionDefinitions
+internal static partial class IntroEggMotionDefinitions
 {
     /// <summary>
     /// Each piece of the shell: where it starts and its horizontal launch speed, which

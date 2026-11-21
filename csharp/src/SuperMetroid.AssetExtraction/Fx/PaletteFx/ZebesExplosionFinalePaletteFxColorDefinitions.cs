@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// The finale's records slide a white-to-black gradient in, rotate it and slide white back; this describes the authored
 /// colours, not arithmetic the game performs.
 /// </remarks>
-public static class ZebesExplosionFinalePaletteFxColorDefinitions
+public static partial class ZebesExplosionFinalePaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes fifteen live BGR555 colors.</summary>

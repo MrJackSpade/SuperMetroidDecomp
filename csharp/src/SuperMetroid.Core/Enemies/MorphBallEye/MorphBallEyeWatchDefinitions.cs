@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>How near Samus must come for the Morph Ball eye to open and keep its beam open, and how long it opens and closes (#2156).</summary>
-internal static class MorphBallEyeWatchDefinitions
+internal static partial class MorphBallEyeWatchDefinitions
 {
     /// <summary>How close horizontally Samus comes, in pixels and exclusive, for the eye to start opening.</summary>
     internal const int OpeningReachX = 128;

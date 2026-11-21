@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Movement data used by Kraid's belly-platform firing.</summary>
-internal static class KraidPlatformMovement
+internal static partial class KraidPlatformMovement
 {
     /// <summary>
     /// The lint's horizontal displacement each firing update, three and a half pixels leftward, which also carries Samus

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>What Mother Brain's attack chooser reads of Samus (<see cref="MotherBrainAttacks"/>).</summary>
-internal static class MotherBrainAttackDefinitions
+internal static partial class MotherBrainAttackDefinitions
 {
     /// <summary>
     /// The movement types the attack chooser counts as airborne: jumping, spinning, falling, the airborne balls, the glitch

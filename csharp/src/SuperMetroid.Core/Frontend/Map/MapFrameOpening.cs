@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>Where the map screens' frame opening lies on the screen (#1514): a map shows only through it, its frame's border around it.</summary>
-internal static class MapFrameOpening
+internal static partial class MapFrameOpening
 {
     /// <summary>The screen pixels of the frame's opening while the frame is scrolled by <paramref name="frameScroll"/>.</summary>
     /// <param name="frameScroll">The frame plane's scroll in pixels.</param>

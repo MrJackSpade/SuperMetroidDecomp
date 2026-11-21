@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// screen when it reverses toward a point (#2254): the screen, widened far above and below and a little to each side. A
 /// reversal outside it takes the off-screen kick.
 /// </summary>
-internal static class BabyMetroidFlightWindowDefinitions
+internal static partial class BabyMetroidFlightWindowDefinitions
 {
     /// <summary>How far above and below the screen the window reaches.</summary>
     internal const int VerticalMargin = 96;

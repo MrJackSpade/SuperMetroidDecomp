@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// override's song identity stores for it.
 /// </summary>
 [EncodingOwner("cartridge SPC upload stream data indices, byte offsets into the room-header music pointer table")]
-public static class AudioAssetCatalogDefinitions
+public static partial class AudioAssetCatalogDefinitions
 {
     /// <summary>The resident driver, sound effects, BRR directory, and shared samples.</summary>
     public static readonly AudioUploadAssetDefinition Common =
@@ -22,7 +22,7 @@ public static class AudioAssetCatalogDefinitions
     public static readonly IReadOnlyList<AudioUploadAssetDefinition> Music = new MusicBankView();
 
     /// <summary>Calculates the twenty-four aligned music table entries from native byte offsets.</summary>
-    private sealed class MusicBankView : IReadOnlyList<AudioUploadAssetDefinition>
+    private sealed partial class MusicBankView : IReadOnlyList<AudioUploadAssetDefinition>
     {
         /// <summary>Twenty-four music banks follow the common driver entry.</summary>
         public int Count => 24;

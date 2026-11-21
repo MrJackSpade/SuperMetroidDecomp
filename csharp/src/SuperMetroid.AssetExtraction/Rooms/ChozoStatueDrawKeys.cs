@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The published artwork name of each Chozo statue draw (<see cref="ChozoStatueDraw"/>, #1994, #2548): the name the installed
 /// room-object visual file keys its picture by, written out so renaming a member never changes it.
 /// </summary>
-internal static class ChozoStatueDrawKeys
+internal static partial class ChozoStatueDrawKeys
 {
     /// <summary>Each ChozoStatueDraw member's installed key.</summary>
     internal static InstalledKeys<ChozoStatueDraw> Installed { get; } = new(new Dictionary<ChozoStatueDraw, string>

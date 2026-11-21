@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 /// <param name="Sound">The playing sound.</param>
 /// <param name="Start">Absolute frame of the sound's frame zero (the request check that accepted it).</param>
-internal abstract record ClipLibraryPlayback(SoundEffectClipEntry Sound, long Start);
+internal abstract partial record ClipLibraryPlayback(SoundEffectClipEntry Sound, long Start);

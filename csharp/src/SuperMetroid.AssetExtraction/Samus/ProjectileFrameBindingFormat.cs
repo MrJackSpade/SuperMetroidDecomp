@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Stable visual-file identity for all authored timed projectile instructions.</summary>
-public static class ProjectileFrameBindingFormat
+public static partial class ProjectileFrameBindingFormat
 {
     /// <summary>JSON resource filename for timed projectile record-to-spritemap assignments, separate from the composition artwork file.</summary>
     public const string FileName = "projectile-frame-bindings.json";

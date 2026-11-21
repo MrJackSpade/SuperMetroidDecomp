@@ -9,7 +9,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed beam-charge and Grapple flare placement documents (#1502).</summary>
-public static class ChargeFlarePlacementFile
+public static partial class ChargeFlarePlacementFile
 {
     /// <summary>
     /// Required revision of the beam and Grapple placement schemas. Revision three keys each placement by the name of

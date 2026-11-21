@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The cutscene Baby's typed animations (#641, #1600), its pulses the Baby Metroid's (<see cref="BabyMetroidPulses"/>); they
 /// raise no events.
 /// </summary>
-internal static class MotherBrainBabyAnimations
+internal static partial class MotherBrainBabyAnimations
 {
     /// <summary>Every Baby segment.</summary>
     internal static AnimationSegments<MotherBrainBabySegment, BabyMetroidFrame, NoAnimationCue> Segments { get; } = new(

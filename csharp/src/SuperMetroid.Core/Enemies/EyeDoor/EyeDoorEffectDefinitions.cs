@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 /// Where an eye door's attack, sweat and smoke start, how the sweat is launched and how the smoke looks (#1414).
 /// Offsets are from the top-left corner of the eye's block.
 /// </summary>
-internal static class EyeDoorEffectDefinitions
+internal static partial class EyeDoorEffectDefinitions
 {
     /// <summary>A left-facing eye's attack starts half a block left of the eye, at the top of the block below.</summary>
     internal static readonly Offset16<RoomPixels> LeftShotOrigin = new(-8, 16);

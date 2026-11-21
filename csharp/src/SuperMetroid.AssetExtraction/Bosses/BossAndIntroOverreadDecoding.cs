@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// the player's cartridge (#1500): it runs each read the way the original game does, over the cartridge, for every game
 /// situation that reaches it, and keeps only the result.
 /// </summary>
-internal static class BossAndIntroOverreadDecoding
+internal static partial class BossAndIntroOverreadDecoding
 {
     /// <summary>Decodes every read into the installed document.</summary>
     internal static BossAndIntroOverreadDocument Decode(IImportCartridgeSource cartridge)

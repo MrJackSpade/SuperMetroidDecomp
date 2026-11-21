@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Progression;
 /// The load stations: the save stations, the elevators' arrivals, the Ceres start and the arrival on Zebes. A save
 /// resumes at one, and the used-station record keeps the ones Samus has used.
 /// </summary>
-public static class LoadStationDefinitions
+public static partial class LoadStationDefinitions
 {
     /// <summary>The gunship on the Landing Site, where a new game on Zebes first saves.</summary>
     public static LoadStation Gunship { get; } = new("Gunship", AreaId.Crateria);

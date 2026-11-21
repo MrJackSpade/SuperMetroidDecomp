@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// the way the original game does, over the cartridge, for every game situation that can reach it, and keeps only the
 /// result, keyed by that situation.
 /// </summary>
-internal static class EnemyOverreadDecoding
+internal static partial class EnemyOverreadDecoding
 {
     /// <summary>Decodes every enemy over-read into the installed document.</summary>
     /// <exception cref="InvalidDataException">A read gives different answers for situations the game cannot tell apart.</exception>

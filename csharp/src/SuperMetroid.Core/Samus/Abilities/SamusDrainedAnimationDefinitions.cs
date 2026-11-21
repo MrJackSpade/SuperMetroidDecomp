@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// lands on the frame the import decoded for the place in that pose's animation (<see cref="SamusAnimationDelays.Land"/>). Several name a
 /// segment's end, whose next frame is the first of the segment after it.
 /// </summary>
-internal static class SamusDrainedAnimationDefinitions
+internal static partial class SamusDrainedAnimationDefinitions
 {
     /// <summary>The drained pose the get-up starts from and moves on Up: the left-facing drained crouch.</summary>
     internal const SamusPoseId GetUpPose = SamusPoseId.DrainedCrouchingLeftPose;

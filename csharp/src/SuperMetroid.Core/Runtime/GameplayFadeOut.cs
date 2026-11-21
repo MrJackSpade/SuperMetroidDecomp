@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Runtime;
 /// time-up whiteout. It takes one step of the shared gradual colour change each update and shows as one fade of the display,
 /// which every picture, the HUD's among them, and every shaded sprite draw shows after its own shading.
 /// </summary>
-internal sealed class GameplayFadeOut : IGameplayShadingSource
+internal sealed partial class GameplayFadeOut : IGameplayShadingSource
 {
     /// <summary>The runtime's shared fade step count, which every fade this owner runs reads and advances.</summary>
     private readonly SharedFadeStepCount counter;

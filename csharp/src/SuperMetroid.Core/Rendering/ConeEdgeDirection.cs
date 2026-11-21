@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 /// <param name="Across">How far the edge runs right; negative to the left.</param>
 /// <param name="Down">How far the edge runs down; negative upward.</param>
-public readonly record struct ConeEdgeDirection(int Across, int Down)
+public readonly partial record struct ConeEdgeDirection(int Across, int Down)
 {
     /// <summary>The length of one step along an edge in the direction's own numbers: the peak of the game's fine sine.</summary>
     private const int StepLength = 32767;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Progression;
 /// generator and the earthquake rumble's power-on delay.
 /// Lifetime: the session.
 /// </summary>
-public sealed class SharedGameState
+public sealed partial class SharedGameState
 {
     /// <summary>
     /// The startup route the next save keeps. Ordinary gameplay saves the main game; the Spacetime Beam can overwrite it

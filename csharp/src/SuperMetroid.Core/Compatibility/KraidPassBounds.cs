@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Kraid recorded movie confirm the leftovers.
 /// </remarks>
 [CompatibilityService("a later projectile in the same Kraid collision pass is tested against the bounds the previous hit left behind")]
-public struct KraidPassBounds
+public partial struct KraidPassBounds
 {
     /// <summary>The bottom a mouth hit that does no damage leaves per place its dud flash takes.</summary>
     private const int BottomPerDudFlashPlace = 2;

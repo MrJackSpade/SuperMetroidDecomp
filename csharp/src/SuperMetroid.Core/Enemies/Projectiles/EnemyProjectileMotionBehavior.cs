@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// cues and code change the motion by calling its methods; a shot that destroys the projectile, or its deletion, stops it.
 /// </summary>
 /// <typeparam name="TMotion">The family's motions.</typeparam>
-internal abstract class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectileBehavior
+internal abstract partial class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectileBehavior
     where TMotion : struct, Enum
 {
     /// <summary>

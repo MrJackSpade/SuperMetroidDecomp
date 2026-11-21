@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>A bounded, address-stable resident SPC sound-effect channel program.</summary>
-public sealed record AudioSoundProgramMetadata(
+public sealed partial record AudioSoundProgramMetadata(
     string Id,
     int Address,
     int ByteCapacity,

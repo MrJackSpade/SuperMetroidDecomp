@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// Reads the OBJ characters a memory image holds through OBSEL's name base and name-select displacement (#1358), as the
 /// page a screen's sprite entries draw from when its characters come from its own transfers rather than one artwork sheet.
 /// </summary>
-internal static class ObjCharacterImage
+internal static partial class ObjCharacterImage
 {
     /// <summary>The ninth OBJ character-name bit, selecting the second name table.</summary>
     internal const int NameSelectBit = 1 << 8;

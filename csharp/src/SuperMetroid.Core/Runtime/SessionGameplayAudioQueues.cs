@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 /// <param name="queues">The session's queues.</param>
 /// <param name="demo">Whether an attract demo is driving the runtime.</param>
-internal sealed class SessionGameplayAudioQueues(AudioQueues queues, IAttractDemoState demo) : IGameplaySoundQueue, IGameplayMusicQueue
+internal sealed partial class SessionGameplayAudioQueues(AudioQueues queues, IAttractDemoState demo) : IGameplaySoundQueue, IGameplayMusicQueue
 {
     /// <summary>The session's queues.</summary>
     internal readonly AudioQueues queues = Ensure.NotNull(queues);

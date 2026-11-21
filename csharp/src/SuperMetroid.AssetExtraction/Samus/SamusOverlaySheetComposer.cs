@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// direction and frame upload, coloured as Samus's body sheet is. The chest cover is composed into the forward-facing
 /// body's own frames (#1513).
 /// </summary>
-internal static class SamusOverlaySheetComposer
+internal static partial class SamusOverlaySheetComposer
 {
     /// <summary>Every frame the sheet holds.</summary>
     internal static IEnumerable<string> Frames =>

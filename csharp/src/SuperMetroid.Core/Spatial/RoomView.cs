@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Spatial;
 /// the room than the room row its place names. So the screen shows the room from the row below the camera's, and actors
 /// stand on their floors as their pictures are drawn to.
 /// </summary>
-public static class RoomView
+public static partial class RoomView
 {
     /// <summary>The room row the screen's top line shows against a camera on the signed row <paramref name="cameraRow"/>.</summary>
     public static int ShownRow(int cameraRow) => cameraRow + 1;

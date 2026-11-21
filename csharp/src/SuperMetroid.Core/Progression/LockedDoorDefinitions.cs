@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Progression;
 /// Regenerate with tools/generate-room-object-population-definitions.ps1.
 /// </summary>
 [NumberedIdentities("Each door named with its block is one distinct door of its room, told apart by where it stands; nothing indexes them.")]
-public static class LockedDoorDefinitions
+public static partial class LockedDoorDefinitions
 {
     /// <summary>The green door facing left at column 142, row 70 of the Landing Site room, in its default state, its state once Samus has Power Bombs and its state once Zebes is awake: once opened, it stays open for good.</summary>
     public static LockedDoor LandingSiteGreenDoorFacingLeft { get; } = new("LandingSiteGreenDoorFacingLeft");

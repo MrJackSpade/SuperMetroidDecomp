@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// </summary>
 /// <param name="Tileset">The tileset.</param>
 /// <param name="Pictures">The installed pre-coloured room artwork: block sheets and library background images (#1392).</param>
-public sealed record RoomTilesetArtwork(TilesetDefinition Tileset, InstalledRoomArtwork Pictures);
+public sealed partial record RoomTilesetArtwork(TilesetDefinition Tileset, InstalledRoomArtwork Pictures);

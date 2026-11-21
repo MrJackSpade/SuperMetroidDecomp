@@ -7,7 +7,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Rejects ambiguous authored properties before deserializing installed presentation data.</summary>
-internal static class JsonAssetDocument
+internal static partial class JsonAssetDocument
 {
     /// <summary>Uses the document type as the diagnostic identity for older presentation compilers.</summary>
     internal static T Read<T>(Stream json, JsonSerializerOptions options) =>
@@ -91,7 +91,7 @@ internal static class JsonAssetDocument
     }
 
     /// <summary>One property name: a raw UTF-8 range of the document, or its decoded text when escaped.</summary>
-    private readonly record struct PropertyName(int Start, int Length, string? Decoded);
+    private readonly partial record struct PropertyName(int Start, int Length, string? Decoded);
 
     /// <summary>
     /// Rejects a repeated property name in any object of an already-parsed document, reading
@@ -165,7 +165,7 @@ internal static class JsonAssetDocument
     /// time; non-ASCII names, whose folding the hash cannot mirror, are compared
     /// directly against every name.
     /// </summary>
-    private sealed class ObjectNames
+    private sealed partial class ObjectNames
     {
         /// <summary>Names already encountered in the current object, including escaped spellings.</summary>
         private readonly List<PropertyName> names = [];

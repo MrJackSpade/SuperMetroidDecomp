@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// into the installed base-palette document.
 /// </summary>
 [EncodingOwner("cartridge addresses of the gameplay base palettes")]
-internal static class GameplayBasePaletteSourceDefinitions
+internal static partial class GameplayBasePaletteSourceDefinitions
 {
     /// <summary>$9A:8000, the complete starting 256-colour image.</summary>
     internal const int InitialPalette = 0x9a8000;

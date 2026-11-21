@@ -2,7 +2,7 @@
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>One ordered strip of 2-bpp room-FX, treadmill, and statue characters.</summary>
-public static class RoomFxBlockAnimationAtlasFormat
+public static partial class RoomFxBlockAnimationAtlasFormat
 {
     /// <summary>The characters of the simple room-FX pictures, which open the strip.</summary>
     public const int SimpleEffectTileCount = 89;

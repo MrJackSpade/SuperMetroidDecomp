@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </summary>
 /// <param name="Left">The inclusive left screen column, across the screen's width.</param>
 /// <param name="Right">The inclusive right screen column, across the screen's width.</param>
-public readonly record struct SuitPickupBeamEdges(int Left, int Right);
+public readonly partial record struct SuitPickupBeamEdges(int Left, int Right);

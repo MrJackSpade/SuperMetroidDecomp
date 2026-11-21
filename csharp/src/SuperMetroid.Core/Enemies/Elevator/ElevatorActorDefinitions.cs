@@ -3,7 +3,7 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>Authored definitions of the elevator actor.</summary>
-public static class ElevatorActorDefinitions
+public static partial class ElevatorActorDefinitions
 {
     /// <summary>How far above the platform Samus's center rides.</summary>
     public const int SamusYOffset = 26;

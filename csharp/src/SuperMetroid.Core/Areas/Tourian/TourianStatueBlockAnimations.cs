@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// from the statue's <see cref="TourianStatueAnimationDefinition"/> when an event is reached. Each statue builds its own, and
 /// each of its animations plays every beat of the segments it names.
 /// </summary>
-internal sealed class TourianStatueBlockAnimations
+internal sealed partial class TourianStatueBlockAnimations
 {
     /// <summary>Builds one statue's animations, whose first idle frame lasts <paramref name="firstFrameDuration"/> updates.</summary>
     internal TourianStatueBlockAnimations(int firstFrameDuration)

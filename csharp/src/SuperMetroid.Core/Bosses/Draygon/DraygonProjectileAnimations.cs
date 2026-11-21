@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// Draygon's typed projectile animations (#641, #1600, #2011): the goop's and wall-turret shot's segments, each beat the
 /// installed <see cref="EnemyProjectileFrameId"/> it shows, and the animation starting at each.
 /// </summary>
-internal static class DraygonProjectileAnimations
+internal static partial class DraygonProjectileAnimations
 {
     /// <summary>
     /// Every goop and wall-turret segment's beats: the goop loops its frames and bursts; the wall turret's shot forms over

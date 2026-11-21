@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <param name="Stretched">Stretched out mid-leap.</param>
 /// <param name="Bunched">Bunched up between leaps.</param>
 /// <param name="PushingOff">Pushing off into the next leap.</param>
-internal sealed record EtecoonStride(F Stretched, F Bunched, F PushingOff)
+internal sealed partial record EtecoonStride(F Stretched, F Bunched, F PushingOff)
 {
     /// <summary>The stride running left.</summary>
     internal static EtecoonStride Left { get; } = new(F.EtecoonRunningLeftStretched, F.EtecoonRunningLeftBunched, F.EtecoonRunningLeftPushingOff);

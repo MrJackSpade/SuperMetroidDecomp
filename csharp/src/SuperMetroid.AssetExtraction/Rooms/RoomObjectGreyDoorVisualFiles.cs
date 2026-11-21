@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the twenty grey-door and shared clear-cap frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectGreyDoorVisualFiles
+public static partial class RoomObjectGreyDoorVisualFiles
 {
     /// <summary>Family-relative JSON filename for twenty grey-door and shared clear-cap layouts.</summary>
     internal const string VisualFileName = "grey-doors.json";

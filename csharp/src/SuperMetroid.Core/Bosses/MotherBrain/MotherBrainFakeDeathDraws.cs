@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// draw of a row of the mural behind her tank (#2258), the block shape each draws, from
 /// <see cref="MotherBrainFakeDeathObjectDrawDefinitions"/>, and the installed picture (#1557) each shows.
 /// </summary>
-internal static class MotherBrainFakeDeathDraws
+internal static partial class MotherBrainFakeDeathDraws
 {
     /// <summary>The fake-death room's frames other than the mural's rows, pictured by the installed fake-death room frames.</summary>
     internal static RoomObjectDrawFamily<MotherBrainFakeDeathDraw> Family { get; } =
@@ -33,5 +33,5 @@ internal static class MotherBrainFakeDeathDraws
     /// <summary>One row of the mural behind her tank.</summary>
     /// <param name="Row">The row, counted from the mural's top row.</param>
     /// <param name="Shape">The block shape the row draws.</param>
-    internal readonly record struct MuralRowDraw(int Row, MotherBrainMuralRowShape Shape);
+    internal readonly partial record struct MuralRowDraw(int Row, MotherBrainMuralRowShape Shape);
 }

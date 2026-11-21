@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The Chozo orbs the Torizos throw (#2332, #2472): how many Bomb Torizo spews in each burst, and what an orb leaves when it
 /// breaks, each Torizo's orb rolling its own drop chances.
 /// </summary>
-internal static class TorizoChozoOrbDefinitions
+internal static partial class TorizoChozoOrbDefinitions
 {
     /// <summary>The orbs each burst of Bomb Torizo's spew throws at once; Golden Torizo's bursts throw one each.</summary>
     internal const int BombTorizoOrbsPerBurst = 3;

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// Samus on, where his parts sit on his body, his small form's lunge, his growth, his lints' and fingernails' paths, his
 /// hurt flash, and his sinking death's sound, shake and drops.
 /// </summary>
-internal static class KraidArenaDefinitions
+internal static partial class KraidArenaDefinitions
 {
     /// <summary>
     /// The first pixel of the room's second screen: Samus is held left of it while Kraid rises, and a fingernail waiting

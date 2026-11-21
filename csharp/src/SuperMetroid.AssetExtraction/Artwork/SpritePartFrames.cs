@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// Converts authored sprite pieces into whole-frame parts, sized by their screen's sprite sizes. A part's character is
 /// its sheet character minus the bound artwork's first character, so artwork holds only the characters its frames use.
 /// </summary>
-public static class SpritePartFrames
+public static partial class SpritePartFrames
 {
     /// <summary>The standard sprite sizes: the 8x8 and 16x16 sprites gameplay and the menus draw.</summary>
     public static ScreenObjectSizes StandardSizes { get; } = new(new(8, 8), new(16, 16));

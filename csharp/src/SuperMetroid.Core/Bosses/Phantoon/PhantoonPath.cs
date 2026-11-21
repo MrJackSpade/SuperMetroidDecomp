@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's figure-eight path, one authored unit step at a time.</summary>
-public static class PhantoonPath
+public static partial class PhantoonPath
 {
     /// <summary>The path's places in order, each the signed unit step he takes from it to the next place.</summary>
     internal static IReadOnlyList<Offset16<RoomPixels>> Places { get; } = [.. PhantoonPathDefinitions.Directions.Select(StepOf)];

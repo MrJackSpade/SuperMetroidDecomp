@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <param name="room">The loaded room, whose random numbers time the releases.</param>
 /// <param name="projectiles">The enemy projectiles, which hold the spores the spawner releases.</param>
 /// <param name="spores">The behaviour every spore the spawner releases runs.</param>
-internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, SporeSpawnSporeBehavior spores)
+internal sealed partial class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, SporeSpawnSporeBehavior spores)
     : EnemyProjectileMotionBehavior<SporeSpawnSpawnerMotion>(SporeSpawnSpawnerMotion.Releasing), IEnemyProjectileCues<SporeSpawnProjectileCue>
 {
     /// <summary>The Spore Spawn that set each spawner up and the way its spores drift, given as it opens.</summary>

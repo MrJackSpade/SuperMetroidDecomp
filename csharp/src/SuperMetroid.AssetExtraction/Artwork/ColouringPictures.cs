@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// colouring's drawn shade recolours.
 /// </summary>
 /// <typeparam name="TColouring">The screen's colouring domain.</typeparam>
-internal sealed class ColouringPictures<TColouring>
+internal sealed partial class ColouringPictures<TColouring>
     where TColouring : struct, Enum
 {
     /// <summary>The sets each colouring's frames are pictured in.</summary>

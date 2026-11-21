@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="TurnFacingRight">The turn a Torizo facing right turns about with.</param>
 /// <param name="TurnFacingLeft">The turn a Torizo facing left turns about with.</param>
 /// <param name="TurnDelay">The updates it waits before it turns toward a Samus behind it.</param>
-internal sealed record TorizoWalker(TorizoAnimation TurnFacingRight, TorizoAnimation TurnFacingLeft, int TurnDelay)
+internal sealed partial record TorizoWalker(TorizoAnimation TurnFacingRight, TorizoAnimation TurnFacingLeft, int TurnDelay)
 {
     /// <summary>The turn <paramref name="torizo"/> turns about with, away from the way it faces.</summary>
     internal TorizoAnimation TurnAbout(RoomEnemyPlace torizo) =>

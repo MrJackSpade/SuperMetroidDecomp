@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 /// <param name="context">The room, the place the placement took, the area's defeated bosses and the families that keep
 /// state.</param>
-internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : IRoomObjectFamilySetups
+internal sealed partial class RoomObjectFamilySetups(RoomObjectSetupContext context) : IRoomObjectFamilySetups
 {
     /// <inheritdoc/>
     public void SetUpColoredDoor(ColoredDoorVariant door, DoorLock lockedBy) =>

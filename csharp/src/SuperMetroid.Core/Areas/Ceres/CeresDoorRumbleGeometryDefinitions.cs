@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// places and only then selects their animation through the RNG; no trajectory, collision boundary or physical motion is
 /// sampled.
 /// </summary>
-internal static class CeresDoorRumbleGeometryDefinitions
+internal static partial class CeresDoorRumbleGeometryDefinitions
 {
     /// <summary>
     /// The four burst places relative to the door, in the order the rumble bursts at them, starting again from the first

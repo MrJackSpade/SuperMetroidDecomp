@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Tourian;
 /// uploads its unlocking animations paint (#1502), and the animated-tile objects whose headers copy their pictures
 /// (<see cref="TourianStatueTileStripDefinitions"/>).
 /// </summary>
-internal static class TourianStatueAnimatedTilePrograms
+internal static partial class TourianStatueAnimatedTilePrograms
 {
     /// <summary>The four statues' animations in authored header order.</summary>
     internal static IEnumerable<TourianStatueAnimationDefinition> All

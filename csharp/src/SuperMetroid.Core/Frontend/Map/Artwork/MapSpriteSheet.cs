@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// Draws the map's markers, elevator and area labels, arrows and position indicator from the map sprite sheet (#1392),
 /// each in the shade the import pre-coloured its recolourable parts in for the colouring it draws in (#1512).
 /// </summary>
-internal static class MapSpriteSheet
+internal static partial class MapSpriteSheet
 {
     /// <summary>
     /// Places <paramref name="id"/>'s frame at <paramref name="origin"/>, its recolourable parts in

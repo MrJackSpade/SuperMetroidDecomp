@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// The escaping Etecoons' typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="EscapeEtecoonCue"/> with the values it acts on.
 /// </summary>
-internal static class EscapeEtecoonAnimations
+internal static partial class EscapeEtecoonAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<EscapeEtecoonSegment, EnemyFrameId, EscapeEtecoonCue> Segments { get; } = new(

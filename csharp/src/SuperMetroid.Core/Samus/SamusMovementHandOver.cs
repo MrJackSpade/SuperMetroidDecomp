@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus;
 /// (<see cref="SamusMovementOwnerDefinitions"/>), which is not always every other hold: Draygon's hold leaves a
 /// shinespark beneath it until her release ends it, and a knockback lets a stored shine stay stored.
 /// </summary>
-internal static class SamusMovementHandOver
+internal static partial class SamusMovementHandOver
 {
     /// <summary>
     /// Gives Samus's movement to <paramref name="newOwner"/>, ending the holds it replaces

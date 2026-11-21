@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// (<see cref="ImportDataDirectory.Of"/>), which the installer deletes before it publishes. A room's blocks change only
 /// through their pictures in the installed block sheets.
 /// </summary>
-public static class RoomMetatileArtworkFiles
+public static partial class RoomMetatileArtworkFiles
 {
     /// <summary>Import-data visual-block manifest filename recording cartridge provenance, metatile JSON hashes, and native transfer lengths.</summary>
     internal const string ManifestFileName = "room-blocks.json";
@@ -113,7 +113,7 @@ public static class RoomMetatileArtworkFiles
     }
 
     /// <summary>A block file's table: the common room elements' or a block set's.</summary>
-    private abstract record RoomBlockSource
+    private abstract partial record RoomBlockSource
     {
         /// <summary>Only the nested cases derive.</summary>
         private RoomBlockSource()
@@ -121,11 +121,11 @@ public static class RoomMetatileArtworkFiles
         }
 
         /// <summary>The common room elements' table.</summary>
-        internal sealed record Common : RoomBlockSource;
+        internal sealed partial record Common : RoomBlockSource;
 
         /// <summary>A block set's table.</summary>
         /// <param name="Set">The set.</param>
-        internal sealed record OfSet(RoomBlockSet Set) : RoomBlockSource;
+        internal sealed partial record OfSet(RoomBlockSet Set) : RoomBlockSource;
     }
 
     /// <summary>Strict camel-case serialization settings for the metatile provenance manifest.</summary>
@@ -139,8 +139,8 @@ public static class RoomMetatileArtworkFiles
     };
 
     /// <summary>Native decompressed length and SHA-256 for one stock visual-block JSON file.</summary>
-    internal sealed record RoomMetatileFileEntry(int NativeByteCount, string Sha256);
+    internal sealed partial record RoomMetatileFileEntry(int NativeByteCount, string Sha256);
     /// <summary>Versioned cartridge provenance and all expected visual-block file entries.</summary>
-    internal sealed record RoomMetatileFileManifest(int Version, string SourceCartridgeSha256,
+    internal sealed partial record RoomMetatileFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomMetatileFileEntry> Entries);
 }

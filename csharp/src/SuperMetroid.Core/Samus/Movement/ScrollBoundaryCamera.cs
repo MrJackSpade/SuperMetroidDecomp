@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// the proposed position, ideal position and camera speed they read.
 /// </remarks>
 [RoomLifetime]
-public sealed class ScrollBoundaryCamera
+public sealed partial class ScrollBoundaryCamera
 {
     /// <summary>Creates a camera constrained by the supplied mutable room scroll grid.</summary>
     /// <param name="scrolls">Room-sized grid of directional scroll states.</param>

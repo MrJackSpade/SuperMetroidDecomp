@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// cell is pictured from the first character and mirroring that pictures it, in the colour row of the shade it is shown
 /// in. The game never sees a character, a mirroring or a colour row.
 /// </summary>
-internal static class MapCellCharacters
+internal static partial class MapCellCharacters
 {
     /// <summary>Each classified character and mirroring's cell.</summary>
     private static readonly Dictionary<MapCellSource, MapCell> CellsBySource = IndexSources();

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Draygon battle music; he roars, holds as his encounter decides, and takes off. His lift-off ends the reveal.
 /// </summary>
 [RoomLifetime]
-internal sealed class RidleyReveal
+internal sealed partial class RidleyReveal
 {
     /// <summary>Samus's passage through a door, which holds his opening wait.</summary>
     private readonly DoorPassage _doorPassage;

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="Body">Whether his body shows the flash's colours.</param>
 /// <param name="TailAndWings">Whether his tail and wings show the flash's colours.</param>
 [IndependentFlag("his body and his tail and wings each show the flash on their own phase")]
-public readonly record struct RidleyHurtFlashShowing(bool Body, bool TailAndWings)
+public readonly partial record struct RidleyHurtFlashShowing(bool Body, bool TailAndWings)
 {
     /// <summary>What <paramref name="hurtFlash"/> shows on <paramref name="bodyUpdateCount"/>'s phase.</summary>
     internal static RidleyHurtFlashShowing Of(UpdateCountdown hurtFlash, int bodyUpdateCount) => new(

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rendering;
 /// How the X-ray beam dims a room outside its cone (#1514); each room takes one (<see cref="XrayRoomDisplayRules.Select"/>):
 /// a grey wash over the whole room, the room's backgrounds kept as they are, or the room's own darkness kept.
 /// </summary>
-public sealed record XrayRoomBlendMode
+public sealed partial record XrayRoomBlendMode
 {
     /// <summary>Closes the dimmings to the three declared here.</summary>
     private XrayRoomBlendMode()

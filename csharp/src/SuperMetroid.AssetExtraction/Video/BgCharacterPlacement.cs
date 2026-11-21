@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// <param name="Set">The characters it shows over.</param>
 /// <param name="FirstCharacter">The first character it shows at.</param>
 /// <param name="CharacterCount">The characters it covers.</param>
-public sealed record BgCharacterPlacement(BgArtworkIdentity Identity, BgCharacterSet Set, int FirstCharacter, int CharacterCount)
+public sealed partial record BgCharacterPlacement(BgArtworkIdentity Identity, BgCharacterSet Set, int FirstCharacter, int CharacterCount)
 {
     /// <summary>Whether the artwork covers <paramref name="character"/> of <paramref name="set"/>.</summary>
     public bool Covers(BgCharacterSet set, int character) =>

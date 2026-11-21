@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The post-credits wave that ripples Samus sideways while the backdrop waits, and how it moves.</summary>
-internal static class EndingWavySamusDefinitions
+internal static partial class EndingWavySamusDefinitions
 {
     /// <summary>The wavy Samus effect: the wave's peak displacement.</summary>
     internal static UnsignedSixteenSixteen Amplitude { get; } = UnsignedSixteenSixteen.FromWholePixels(64);

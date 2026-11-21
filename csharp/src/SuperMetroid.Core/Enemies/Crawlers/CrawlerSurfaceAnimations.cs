@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>Chooses a crawler's animation for the surface it clings to.</summary>
-internal static class CrawlerSurfaceAnimations
+internal static partial class CrawlerSurfaceAnimations
 {
     /// <summary>The animation <paramref name="family"/> shows on the surface <paramref name="orientation"/> names.</summary>
     /// <exception cref="InvalidDataException"><paramref name="family"/> has no authored animations.</exception>

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// and how it lays the block's picture out (#1431), placed where the room's own block lies in the foreground (#1514), over
 /// the pictures the room's blocks show now. A block beyond the room draws nothing.
 /// </summary>
-public sealed class XrayRevealPlane
+public sealed partial class XrayRevealPlane
 {
 
     /// <summary>The blocks by place; null beyond the room.</summary>

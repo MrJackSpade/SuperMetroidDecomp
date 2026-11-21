@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>JSON schema for Phantoon and Wrecked Ship power-transition colors.</summary>
-public sealed record PhantoonColorDocument
+public sealed partial record PhantoonColorDocument
 {
     /// <summary>Gets the schema version required by <see cref="PhantoonColorFormat.Version"/>.</summary>
     public required int Version { get; init; }

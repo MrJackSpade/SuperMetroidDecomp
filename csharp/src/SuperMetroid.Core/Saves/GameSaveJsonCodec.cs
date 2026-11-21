@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>Strict deterministic conversion between named JSON saves and the owned save store.</summary>
-public static class GameSaveJsonCodec
+public static partial class GameSaveJsonCodec
 {
     /// <summary>Known equipment flags accepted by the named save schema.</summary>
     private static readonly SamusEquipmentFlags AllEquipmentFlags =

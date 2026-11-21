@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>The Wrecked Ship ghost species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Coven];

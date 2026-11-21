@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Projectile damage by kind, independent of the kinds' direction animations.</summary>
-internal static class SamusProjectileDamageDefinitions
+internal static partial class SamusProjectileDamageDefinitions
 {
     /// <summary>The damage a Shinespark echo starts with.</summary>
     internal const int ShinesparkEchoDamage = 4096;

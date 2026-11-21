@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus;
 /// (<see cref="SamusMovementHandOver"/>), in the order it ends them. An owner not listed ends no other hold that way, and
 /// handing her movement over through it fails.
 /// </summary>
-internal static class SamusMovementOwnerDefinitions
+internal static partial class SamusMovementOwnerDefinitions
 {
     /// <summary>The holds an owner ends when it takes her from a shinespark and from Crystal Flash.</summary>
     private static readonly SamusMovementHoldEnd[] SparkAndCrystalFlash = [SamusMovementHoldEnd.Shinespark, SamusMovementHoldEnd.CrystalFlash];

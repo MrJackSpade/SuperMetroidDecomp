@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// copy shape, extensions, and area gating stay in the compiled collision dispatcher.
 /// </summary>
 [EncodingOwner("retail X-ray reveal table words")]
-public static class XrayRevealVisualFiles
+public static partial class XrayRevealVisualFiles
 {
     /// <summary>
     /// The tank kinds in the order the cartridge's X-ray reveal lists their draws, after the block pairs' (#2484): the
@@ -349,13 +349,13 @@ public static class XrayRevealVisualFiles
     /// <param name="Entries">Every drawable rule's blocks.</param>
     /// <param name="Tanks">Each tank's reveal appearance, keyed by the tank's kind.</param>
     /// <param name="Rooms">The special rooms' overlays.</param>
-    internal sealed record XrayRevealVisualDocument(int Version, XrayRevealVisualEntry[] Entries,
+    internal sealed partial record XrayRevealVisualDocument(int Version, XrayRevealVisualEntry[] Entries,
         Dictionary<InWorldCollectibleKind, AppearanceDocument> Tanks, XrayRoomOverlayEntry[] Rooms);
 
     /// <summary>An appearance as the document writes it (#2100).</summary>
     /// <param name="Block">The block shown, or null where nothing shows.</param>
     /// <param name="Mirroring">How it is mirrored.</param>
-    internal sealed record AppearanceDocument(int? Block, BlockMirroring Mirroring)
+    internal sealed partial record AppearanceDocument(int? Block, BlockMirroring Mirroring)
     {
         /// <summary>The document of <paramref name="appearance"/>.</summary>
         internal static AppearanceDocument Of(RoomBlockAppearance appearance) =>
@@ -371,7 +371,7 @@ public static class XrayRevealVisualFiles
     /// <param name="Reactions">The reactions the rule covers, named as the kind's reactions; none for a kind that reads none.</param>
     /// <param name="Shape">The rule's copy shape.</param>
     /// <param name="Blocks">The blocks the shape copies, each named by its place in the shape.</param>
-    internal sealed record XrayRevealVisualEntry(RoomCollisionType CollisionType, string[] Reactions,
+    internal sealed partial record XrayRevealVisualEntry(RoomCollisionType CollisionType, string[] Reactions,
         string Shape, RevealBlocksDocument Blocks);
 
     /// <summary>
@@ -388,7 +388,7 @@ public static class XrayRevealVisualFiles
     /// <param name="TopRight">A square copy's top-right block.</param>
     /// <param name="BottomLeft">A square copy's bottom-left block.</param>
     /// <param name="BottomRight">A square copy's bottom-right block.</param>
-    internal sealed record RevealBlocksDocument(
+    internal sealed partial record RevealBlocksDocument(
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? Block = null,
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? Left = null,
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? Right = null,
@@ -461,7 +461,7 @@ public static class XrayRevealVisualFiles
     /// <summary>A collision kind and the reaction it reads, for checking that each is revealed alike.</summary>
     /// <param name="Type">The collision kind.</param>
     /// <param name="Reaction">The reaction it reads, or null for a kind that reads none.</param>
-    private readonly record struct XrayRevealVisualKeyDocument(RoomCollisionType Type, BlockReaction? Reaction);
+    private readonly partial record struct XrayRevealVisualKeyDocument(RoomCollisionType Type, BlockReaction? Reaction);
 
     /// <summary>Every reaction <paramref name="type"/> reads, none for a kind that reads none.</summary>
     private static IReadOnlyList<BlockReaction> ReactionsOf(RoomCollisionType type) =>
@@ -478,13 +478,13 @@ public static class XrayRevealVisualFiles
     /// <summary>One room-specific overlay, named by its overlay, and its ordered editable block records.</summary>
     /// <param name="Overlay">The overlay's name in <see cref="XrayRoomOverlayDefinitions"/>.</param>
     /// <param name="Tiles">The overlay's block records, in order.</param>
-    internal sealed record XrayRoomOverlayEntry(string Overlay, XrayRoomOverlayTileDocument[] Tiles);
+    internal sealed partial record XrayRoomOverlayEntry(string Overlay, XrayRoomOverlayTileDocument[] Tiles);
 
     /// <summary>Requires explicit X/Y JSON bytes so omitted coordinates cannot become a legal default block.</summary>
     /// <remarks>Keep file admission separate from the runtime value type. A missing coordinate must not become the
     /// struct's legal zero/default value during deserialization.</remarks>
     [SpatialComponents("External format: reveals.json stores each room-overlay tile's block coordinates as x/y bytes.")]
-    internal sealed record XrayRoomOverlayTileDocument(int X, int Y, AppearanceDocument Appearance)
+    internal sealed partial record XrayRoomOverlayTileDocument(int X, int Y, AppearanceDocument Appearance)
     {
         /// <summary>The tile's block column, 0 through 255.</summary>
         public int X { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, X);

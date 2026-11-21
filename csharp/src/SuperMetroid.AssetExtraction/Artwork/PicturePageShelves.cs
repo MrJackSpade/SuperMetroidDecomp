@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// as wide as the widest picture, but at least <see cref="LeastPageWidth"/>, and at most <see cref="RgbaPng.MaximumDimension"/>
 /// tall, as tall as its pictures reach.
 /// </summary>
-internal sealed class PicturePageShelves
+internal sealed partial class PicturePageShelves
 {
     /// <summary>The narrowest page.</summary>
     internal const int LeastPageWidth = 1024;

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// nothing of a bomb (#2560): what it reads as is the cleared place's, no bomb at rest at the room's origin, until the next
 /// bomb takes it.
 /// </summary>
-public sealed class SamusBomb
+public sealed partial class SamusBomb
 {
     /// <summary>Creates the free place <paramref name="place"/> among the five.</summary>
     internal SamusBomb(int place) => Place = place;

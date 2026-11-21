@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Progression;
 /// One area map's explored cells (#1777): each map tile of the area map (<see cref="AreaMapSize"/>), explored or not. A cell outside the
 /// area map is rejected rather than reaching a neighbouring cell.
 /// </summary>
-public sealed class ExploredMapCells
+public sealed partial class ExploredMapCells
 {
     /// <summary>Whether each map tile is explored, by column and row.</summary>
     private readonly bool[,] _explored = new bool[AreaMapSize.WidthInMapTiles, AreaMapSize.HeightInMapTiles];

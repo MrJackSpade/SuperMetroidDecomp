@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// placed since its last scroll (a room's entry), that no scrolling pass has run since. Each reader names what it uses
 /// for a camera placed since its last scroll.
 /// </summary>
-public abstract record SamusScrollCheckpoint
+public abstract partial record SamusScrollCheckpoint
 {
     /// <summary>Only the checkpoints below exist.</summary>
     private protected SamusScrollCheckpoint()

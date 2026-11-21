@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// pictures in (#1527): the fake-death room flash, the final room, phase two's attack and rear-leg colours, the room-entry
 /// glass and tube colours and the phase-three room lights. The game plays only the compiled shades.
 /// </summary>
-public static class MotherBrainRoomColorGeometry
+public static partial class MotherBrainRoomColorGeometry
 {
     /// <summary>The colours in each of a room-flash image's two slices.</summary>
     public const int SliceColors = 12;

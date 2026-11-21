@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// or the object, standing in a door or not. A place that holds no object holds nothing: the object's record leaves the
 /// room with it (#1622).
 /// </summary>
-internal sealed class RoomObjectPlace
+internal sealed partial class RoomObjectPlace
 {
     /// <summary>What the place holds; a new place is free.</summary>
     private Holding _holding = Holding.Free;
@@ -116,7 +116,7 @@ internal sealed class RoomObjectPlace
     }
 
     /// <summary>What a room-object place holds (#2560), one of the four cases below.</summary>
-    private abstract record Holding
+    private abstract partial record Holding
     {
         /// <summary>Only the cases below are what a place holds.</summary>
         private Holding()
@@ -130,18 +130,18 @@ internal sealed class RoomObjectPlace
         internal static Holding AwaitingObject { get; } = new Awaiting();
 
         /// <summary>A free place.</summary>
-        internal sealed record Nothing : Holding;
+        internal sealed partial record Nothing : Holding;
 
         /// <summary>A place a spawn has taken, whose setup has yet to give it its object or free it.</summary>
-        internal sealed record Awaiting : Holding;
+        internal sealed partial record Awaiting : Holding;
 
         /// <summary>A place holding <paramref name="Behaviour"/>, which stands in no door.</summary>
         /// <param name="Behaviour">The typed object the place holds.</param>
-        internal sealed record Held(RoomObjectBehaviour Behaviour) : Holding;
+        internal sealed partial record Held(RoomObjectBehaviour Behaviour) : Holding;
 
         /// <summary>A place holding <paramref name="Behaviour"/>, which stands in the door at its block as <paramref name="Standing"/>.</summary>
         /// <param name="Behaviour">The typed object the place holds.</param>
         /// <param name="Standing">The same object, as the door Samus's arrival asks to stay open or close.</param>
-        internal sealed record HeldInDoor(RoomObjectBehaviour Behaviour, IDoorBehindSamus Standing) : Holding;
+        internal sealed partial record HeldInDoor(RoomObjectBehaviour Behaviour, IDoorBehindSamus Standing) : Holding;
     }
 }

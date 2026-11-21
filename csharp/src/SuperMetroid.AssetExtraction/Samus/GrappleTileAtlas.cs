@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The grapple's characters, which only the import reads (#1636): the grapple sheet is composed from them. Its sprite,
 /// flare and swing documents are the installed grapple presentation (<see cref="InstalledGrapplePresentation"/>).
 /// </summary>
-public sealed class GrappleTileAtlas : IInstalledArtworkContent
+public sealed partial class GrappleTileAtlas : IInstalledArtworkContent
 {
     /// <summary>
     /// The grapple characters as encoded 4-bpp bytes (#1596): the four endpoint characters, then the horizontal, diagonal
@@ -73,7 +73,7 @@ public sealed class GrappleTileAtlas : IInstalledArtworkContent
     /// <summary>A Grapple tile sheet, distinguished by the endpoint frame and the rope characters it holds.</summary>
     /// <param name="Point">The endpoint frame's characters.</param>
     /// <param name="Segments">The rope's characters.</param>
-    private sealed record GrappleTilesVariant(InstalledArtworkId Point, InstalledArtworkId Segments) : SpriteArtworkVariant;
+    private sealed partial record GrappleTilesVariant(InstalledArtworkId Point, InstalledArtworkId Segments) : SpriteArtworkVariant;
 
     /// <summary>The standard page <see cref="pages"/> were composed over.</summary>
     private SpriteArtwork? pagesComposedOn;

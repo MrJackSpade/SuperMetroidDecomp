@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// through the scroll's 61 updates and at one on the first destination drawing update.
 /// </remarks>
 [CompatibilityService("a door's scroll restarts the short frame counter on every update from Samus's placement to the scroll's end")]
-public sealed class DoorTransitionFrameCounting
+public sealed partial class DoorTransitionFrameCounting
 {
     /// <summary>Whether the transition's scroll is restarting the short counter on each update.</summary>
     public bool RestartsShortCounter { get; private set; }

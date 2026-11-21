@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <param name="Facing">The way Samus faces: left, or right otherwise (#2560).</param>
 /// <param name="Crouching">Whether Samus's current pose has the crouching movement type.</param>
 [IndependentFlag("independent facts the x-ray display reads")]
-public readonly record struct SamusXrayDisplaySnapshot(
+public readonly partial record struct SamusXrayDisplaySnapshot(
     bool FinishedThisFrame,
     XrayWarmUp WarmUp,
     XrayBeamPhase BeamPhase,

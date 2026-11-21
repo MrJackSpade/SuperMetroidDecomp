@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>Chooses a Sidehopper's or Dessgeega's kind from its definition, and its animation for its kind, surface and movement phase.</summary>
-internal static class HopperAnimationChoices
+internal static partial class HopperAnimationChoices
 {
     /// <summary>The kind of hopper <paramref name="definition"/> is.</summary>
     /// <exception cref="InvalidDataException">The definition is no hopper.</exception>

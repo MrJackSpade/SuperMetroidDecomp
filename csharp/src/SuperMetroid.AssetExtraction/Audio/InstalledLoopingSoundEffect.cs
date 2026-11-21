@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>A never-ending sound effect, as the clip manifest stores it (#2560): one looping layer per channel.</summary>
 /// <param name="Layers">The channels' layers.</param>
-public sealed record InstalledLoopingSoundEffect(IReadOnlyList<InstalledLoopingSoundEffectLayer> Layers) : InstalledSoundEffectShape
+public sealed partial record InstalledLoopingSoundEffect(IReadOnlyList<InstalledLoopingSoundEffectLayer> Layers) : InstalledSoundEffectShape
 {
     /// <inheritdoc/>
     public override SoundEffectClipShape PlayedShape() =>

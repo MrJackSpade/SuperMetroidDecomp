@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 /// The Wrecked Ship Spark's flicker, active and emitter animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="SparkCue"/> naming what it does.
 /// </summary>
-internal static class SparkAnimations
+internal static partial class SparkAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<SparkSegment, EnemyFrameId, SparkCue> Segments { get; } = new(

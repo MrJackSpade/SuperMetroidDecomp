@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// compositions the ending's sheets and pictures are composed from and named by. The game draws those sheets and binds none
 /// of this artwork. Its characters are import data the installation never holds (<see cref="ImportEndingObjectArtwork"/>).
 /// </summary>
-public class EndingObjectSourceArtwork
+public partial class EndingObjectSourceArtwork
 {
     /// <summary>Validates and retains the selected ending maps and compositions.</summary>
     /// <param name="parts">The ending's object tilemaps and sprite presentations (#633).</param>

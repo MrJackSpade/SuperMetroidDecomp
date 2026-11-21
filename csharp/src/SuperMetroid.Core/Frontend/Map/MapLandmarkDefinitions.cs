@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// The area maps' landmarks (#1773): each area's boss markers with the boss each shows, each area's elevator labels with
 /// the area each leads to, in drawing order, and the gunship. Each identity names an installed position.
 /// </summary>
-public static class MapLandmarkDefinitions
+public static partial class MapLandmarkDefinitions
 {
     /// <summary>The gunship's marker on the Crateria map, shown whatever Samus has explored.</summary>
     public const string Gunship = "Crateria.Gunship";

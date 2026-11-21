@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Editable tile-reference schema limits and file names for library-background maps.</summary>
-public static class RoomBackgroundTilemapFormat
+public static partial class RoomBackgroundTilemapFormat
 {
     /// <summary>Required tilemap document schema revision.</summary>
     public const int Version = 1;

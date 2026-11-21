@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// coloured with the tileset's standard palette and, where a pixel names a sprite colour, the sprite half as a room load
 /// leaves it: the initial gameplay palette with the common sprite and enemy-projectile rows restored.
 /// </summary>
-internal static class RoomFloorSheetComposer
+internal static partial class RoomFloorSheetComposer
 {
     /// <summary>
     /// Composes <paramref name="tileset"/>'s floor sheet over the room as it has loaded, shown whole where a room of the

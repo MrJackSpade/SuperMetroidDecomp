@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable intro Mother Brain OAM art, separate from AI and instruction timing.</summary>
-public sealed class IntroMotherBrainSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroMotherBrainSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled OAM compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;

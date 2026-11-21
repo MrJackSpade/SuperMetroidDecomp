@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Crocomire;
 
 /// <summary>Editable 4-bpp characters for Crocomire's six ordered skeleton uploads.</summary>
-public sealed class CrocomireSkeletonArtwork
+public sealed partial class CrocomireSkeletonArtwork
 {
 
     /// <summary>Owned 4-bpp characters from which the six death-sequence uploads are sliced.</summary>

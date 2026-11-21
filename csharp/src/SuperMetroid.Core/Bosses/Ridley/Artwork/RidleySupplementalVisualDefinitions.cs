@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// Fixed wing and articulated-tail visual identities selected by Ridley's
 /// wing and tail draws. Pose cadence and segment motion remain gameplay state.
 /// </summary>
-internal static class RidleySupplementalVisualDefinitions
+internal static partial class RidleySupplementalVisualDefinitions
 {
 
     /// <summary>The wings fully raised, where the downstroke starts.</summary>

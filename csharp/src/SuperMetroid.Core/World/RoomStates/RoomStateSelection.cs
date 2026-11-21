@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// Runs a room's state choice (<see cref="RoomStateSelectionDefinitions"/>) with first-match
 /// precedence. Only the rooms of <see cref="SuperMetroid.Core.Rooms.RoomDefinitions.All"/> are accepted.
 /// </summary>
-public static class RoomStateSelection
+public static partial class RoomStateSelection
 {
     /// <summary>Selects a state with first-match precedence.</summary>
     public static RoomStateSettings Select(RoomDefinition room, RoomStateSelectionContext selection)

@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Fx.Artwork;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Reads and writes the import's room-FX blend colour document.</summary>
-public static class RoomFxPaletteBlendFile
+public static partial class RoomFxPaletteBlendFile
 {
     /// <summary>Loads all eight three-color room-FX blends, rejecting duplicate or unknown JSON properties, incomplete selections, and RGB components outside 0..31.</summary>
     /// <param name="json">Caller-owned stream containing the supported blend-palette JSON document.</param>

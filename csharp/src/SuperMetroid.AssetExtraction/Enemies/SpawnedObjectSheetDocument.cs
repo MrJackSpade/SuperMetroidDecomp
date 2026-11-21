@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// of the pictures particular to it, and the common sheets holding its other pictures, each of which every variant that
 /// draws it reads.
 /// </summary>
-internal sealed record SpawnedObjectSheetDocument
+internal sealed partial record SpawnedObjectSheetDocument
 {
     /// <summary>The installed sheet of the pictures no other spawned-object sheet holds; null when every picture is common.</summary>
     public required string? Sheet { get; init; }

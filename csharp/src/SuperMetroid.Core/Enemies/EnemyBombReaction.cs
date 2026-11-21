@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// common damage at the game's positions; a reaction sets only the stages it has. The species' entity decides which
 /// contacts use it (<see cref="IEnemyBombReaction.CommonBombDamageReaction"/>).
 /// </summary>
-internal sealed class EnemyBombReaction
+internal sealed partial class EnemyBombReaction
 {
     /// <summary>Whether the private reaction returns before common damage (the bomb stays marked).</summary>
     internal Func<EnemyBombContext, bool>? Rejects { get; init; }

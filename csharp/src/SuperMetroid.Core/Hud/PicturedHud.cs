@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Hud;
 /// covering an earlier one where they meet. The backend draws it as its own display layer at the HUD's fixed place, the
 /// top of the screen; no background plane holds it.
 /// </summary>
-public sealed class PicturedHud
+public sealed partial class PicturedHud
 {
     /// <summary>Keeps the placed pictures in drawing order.</summary>
     /// <param name="pictures">The placed pictures, earliest first.</param>

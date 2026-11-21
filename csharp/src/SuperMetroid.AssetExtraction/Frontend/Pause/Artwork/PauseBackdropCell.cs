@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Native-size artwork references, not tile numbers, addresses or gameplay commands.</summary>
-public sealed record PauseBackdropCell
+public sealed partial record PauseBackdropCell
 {
     /// <summary>The 256-character page of the loaded pause graphics the cell reads.</summary>
     [JsonConverter(typeof(PauseAtlasJsonConverter))]

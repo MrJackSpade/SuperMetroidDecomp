@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Fx;
 /// </para>
 /// </remarks>
 [RoomLifetime]
-public sealed class ColourEffectSystem : IGameplayShadingSource
+public sealed partial class ColourEffectSystem : IGameplayShadingSource
 {
     /// <summary>
     /// The running effects, in turn order: the order they started (#1592, #1598), an effect that starts joining after every
@@ -468,13 +468,13 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <summary>An effect that shows a look now, with the frame it shows.</summary>
     /// <param name="Effect">The effect.</param>
     /// <param name="Frame">The frame it shows.</param>
-    private readonly record struct ShowingEffect(RoomColourEffect Effect, ColourEffectFrame Frame);
+    private readonly partial record struct ShowingEffect(RoomColourEffect Effect, ColourEffectFrame Frame);
 
     /// <summary>
     /// The sound queues of a frontend screen's colour effects, which make no sound (#2544): <see cref="StartScreen"/> starts
     /// no effect that raises one, so no request ever reaches these.
     /// </summary>
-    private sealed class ScreenWithoutSounds : IGameplaySoundQueue
+    private sealed partial class ScreenWithoutSounds : IGameplaySoundQueue
     {
         /// <inheritdoc/>
         /// <exception cref="InvalidOperationException">Always: a frontend screen's colour effect made a sound, which none makes.</exception>

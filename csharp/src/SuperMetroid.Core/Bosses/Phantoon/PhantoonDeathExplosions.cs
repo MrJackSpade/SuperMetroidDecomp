@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// Phantoon's death explosions in the order they burst (#2315): the opening explosions, then the repeated ones, which
 /// start again from their first after their last.
 /// </summary>
-public static class PhantoonDeathExplosions
+public static partial class PhantoonDeathExplosions
 {
     /// <summary>The explosions in the order they burst: the opening explosions, then the repeated ones once.</summary>
     internal static IReadOnlyList<PhantoonDeathExplosionDefinition> Schedule { get; } = [.. Opening, .. Repeated];

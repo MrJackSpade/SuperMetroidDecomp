@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 /// at, and the installed characters it carries. Only the import pipeline resolves the pages; the game draws the timer's
 /// pre-coloured sheet.
 /// </summary>
-public static class EscapeTimerTilePageTransfers
+public static partial class EscapeTimerTilePageTransfers
 {
     /// <summary>The page's upload size in bytes.</summary>
     public static int ByteCountOf(EscapeTimerTilePage page) => page switch

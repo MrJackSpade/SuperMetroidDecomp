@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 /// typewriters step a character's tile from their program's tile base. Gameplay names a typed glyph's picture; the import
 /// and the checks that compare typed words read the tile here.
 /// </summary>
-internal static class EscapeTypewriterGlyphTiles
+internal static partial class EscapeTypewriterGlyphTiles
 {
     /// <summary>The tile of the letter A <paramref name="program"/>'s typewriter types from.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No escape typewriter types <paramref name="program"/>.</exception>

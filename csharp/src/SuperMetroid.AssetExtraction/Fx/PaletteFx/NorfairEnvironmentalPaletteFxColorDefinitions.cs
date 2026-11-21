@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// <remarks>
 /// The four effects share the heat shimmer's phases, one record for each.
 /// </remarks>
-public static class NorfairEnvironmentalPaletteFxColorDefinitions
+public static partial class NorfairEnvironmentalPaletteFxColorDefinitions
 {
     /// <summary>Each phase writes five live BGR555 colors.</summary>
     private const int ColorsPerFrame = 5;

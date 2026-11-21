@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTurretDefinitions;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's room turrets: the directions each turret may turn to, its turns, and the bullet each direction fires.</summary>
-internal static class MotherBrainTurrets
+internal static partial class MotherBrainTurrets
 {
     /// <summary>The bullet launch for one of the eight directions.</summary>
     internal static MotherBrainTurretDirectionDefinition ForDirection(MotherBrainTurretDirection direction) =>

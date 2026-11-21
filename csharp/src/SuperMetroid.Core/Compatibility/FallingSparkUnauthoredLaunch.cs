@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// from the player's game data, compares them with this service, and spawns a spark for every random number.
 /// </remarks>
 [CompatibilityService("a falling spark whose random launch choice lies past the seven authored launches drifts by the code stored after them")]
-public sealed class FallingSparkUnauthoredLaunch
+public sealed partial class FallingSparkUnauthoredLaunch
 {
     /// <summary>Keeps the decoded drift.</summary>
     /// <param name="drift">The signed horizontal drift per update, in pixels and 65536ths of a pixel.</param>

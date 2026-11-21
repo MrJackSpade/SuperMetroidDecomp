@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's entrance: the opening delay and its dance.</summary>
 [RoomLifetime]
-internal sealed class DraygonIntro
+internal sealed partial class DraygonIntro
 {
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
     private readonly RoomEffectActors _effectActors;

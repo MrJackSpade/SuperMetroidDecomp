@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// sprite, the diving splash and the bubbles. Each effect's pictures are typed frames (#2388), listed in the order its
 /// animation shows them, and each is installed under the name of what it shows (#2285).
 /// </summary>
-public static class SamusAtmosphereSheetDefinitions
+public static partial class SamusAtmosphereSheetDefinitions
 {
     /// <summary>The footstep splash's pictures: a splash at the foot, its spray, the drops scattering and settling.</summary>
     public static IReadOnlyList<F> FootstepSplash { get; } =

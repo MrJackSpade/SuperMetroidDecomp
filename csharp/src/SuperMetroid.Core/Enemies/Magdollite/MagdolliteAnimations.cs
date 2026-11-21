@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// The Magdollite head's idle, submerge and emerge animations, its body's pillar stacks and its overlay's throw and cap animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="MagdolliteCue"/> with the values it acts on.
 /// </summary>
-internal static class MagdolliteAnimations
+internal static partial class MagdolliteAnimations
 {
     /// <summary>The still pictures: each pillar stack by its height and the pillar's cap, each segment with the picture it holds.</summary>
     private static readonly KeyValuePair<MagdolliteSegment, EnemyFrameId>[] StillPictures =

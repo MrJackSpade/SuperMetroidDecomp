@@ -8,7 +8,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's typed body and brain animations (#641, #1600).</summary>
-internal static class MotherBrainAnimations
+internal static partial class MotherBrainAnimations
 {
     /// <summary>Every body segment.</summary>
     internal static AnimationSegments<B, EnemyFrameId, MotherBrainBodyCue> BodySegments { get; } = new(
@@ -482,7 +482,7 @@ internal static class MotherBrainAnimations
     /// <param name="Open">The open mouth.</param>
     /// <param name="Wide">The wide-open mouth.</param>
     /// <param name="Widest">The widest-open mouth.</param>
-    private sealed record HeadMouth(M Closed, M Opening, M Open, M Wide, M Widest);
+    private sealed partial record HeadMouth(M Closed, M Opening, M Open, M Wide, M Widest);
 
     /// <summary>The whole head of phase two.</summary>
     private static HeadMouth WholeHead => new(EnemyFrameId.MotherBrainHeadEyeShut, EnemyFrameId.MotherBrainHeadEyeOpen, EnemyFrameId.MotherBrainHeadEyeGlaring,

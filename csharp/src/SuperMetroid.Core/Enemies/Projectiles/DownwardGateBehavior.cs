@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>The downward gates: each gate moving down to close, closed, and rising again when woken.</summary>
 [RoomLifetime]
-internal sealed class DownwardGateBehavior
+internal sealed partial class DownwardGateBehavior
 {
     /// <summary>Shared finite projectile pool holding moving and closed gate actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -149,7 +149,7 @@ internal sealed class DownwardGateBehavior
     /// A downward gate: it slides by its vertical velocity, down while moving and up while closed, from when its animation
     /// starts it sliding until the animation stops it, and handles its animation's cues.
     /// </summary>
-    internal sealed class GateBehavior() : EnemyProjectileMotionBehavior<SingleMotion>(initial: null), IEnemyProjectileCues<DownwardGateProjectileCue>
+    internal sealed partial class GateBehavior() : EnemyProjectileMotionBehavior<SingleMotion>(initial: null), IEnemyProjectileCues<DownwardGateProjectileCue>
     {
         /// <summary>Each gate's block and the stage it is at, given as the gate's room object raises it.</summary>
         internal EnemyProjectileStates<DownwardGateState> Gates { get; } = new();

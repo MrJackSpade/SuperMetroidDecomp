@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// the file-select main page wrapping from either end to the other.
 /// </summary>
 /// <typeparam name="TRow">The page's rows.</typeparam>
-internal sealed class MenuRowOrder<TRow> : IReadOnlyList<TRow>
+internal sealed partial class MenuRowOrder<TRow> : IReadOnlyList<TRow>
 {
     /// <summary>The rows from the top.</summary>
     private readonly ImmutableArray<TRow> rows;

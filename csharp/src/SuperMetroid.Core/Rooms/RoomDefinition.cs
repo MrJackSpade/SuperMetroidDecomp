@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <param name="Area">The room's area.</param>
 /// <param name="MapPosition">The area-map cell of the room's top-left screen; each of its screens shows one cell further right or down.</param>
 /// <param name="Size">The room's size in scroll screens.</param>
-public sealed record RoomDefinition(
+public sealed partial record RoomDefinition(
     [InstalledKey] string Name,
     AreaId Area,
     Position16<MapTiles> MapPosition,

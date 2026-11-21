@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Native pause wireframe patch geometry, independent of inventory selection.</summary>
-public static class PauseWireframeDefinitions
+public static partial class PauseWireframeDefinitions
 {
     /// <summary>The supported editable pause-wireframe JSON schema version.</summary>
     public const int Version = 1;

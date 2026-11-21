@@ -26,7 +26,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("a shinespark crash's orbit counts on from the travel the last orbit or its first released echo left, which can shorten the orbit and moves when Samus regains control")]
-public sealed class CrashOrbitTravelCarryover
+public sealed partial class CrashOrbitTravelCarryover
 {
     /// <summary>The largest travel held; one more step continues from zero.</summary>
     internal const int LargestTravel = 65535;

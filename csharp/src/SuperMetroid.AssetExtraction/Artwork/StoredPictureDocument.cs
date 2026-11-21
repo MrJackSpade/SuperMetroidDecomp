@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// pixel of its rectangle there, and the rectangle's size, the box of what the frames showing it show (#1646). Every sheet
 /// frame showing the picture names it by the same tag.
 /// </summary>
-public sealed record StoredPictureDocument
+public sealed partial record StoredPictureDocument
 {
     /// <summary>The page holding the picture, counted from zero.</summary>
     public required int Page { get; init; }

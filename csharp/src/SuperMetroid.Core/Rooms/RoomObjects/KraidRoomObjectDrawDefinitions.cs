@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The block shape of each of Kraid's ceiling and spike frames (#1608): the three stages of a crumbling block's breakup,
 /// and the pictures and clears its draws leave. What each frame shows is its installed picture (#1557).
 /// </summary>
-internal static class KraidRoomObjectDrawDefinitions
+internal static partial class KraidRoomObjectDrawDefinitions
 {
     /// <summary>A still-solid block at the object's block: a crumbling block's rock and its pieces.</summary>
     private static readonly RoomBlockShape SolidBlock = new([new(new(0, 0), RoomCollisionType.SolidBlock)]);

@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// until an area resolves it; a behaviour that is not holds those kinds' own readings, null only for no reaction.
 /// </param>
 /// <remarks>Where a door block leads is its room's own (<see cref="RoomDoorBlock"/>, #2090), not a reading.</remarks>
-public sealed record RoomBlockReadings(
+public sealed partial record RoomBlockReadings(
     ShootableReaction? Shootable,
     BombableReaction? Bombable,
     SpecialBlockReaction? Special,

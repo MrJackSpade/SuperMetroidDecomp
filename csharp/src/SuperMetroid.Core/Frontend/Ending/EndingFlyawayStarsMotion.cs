@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// the handoff out of the explosion's last phase.
 /// </summary>
 /// <param name="motion">How the starfield starts moving with the flyaway.</param>
-internal sealed class EndingFlyawayStarsMotion(EndingStarsMotion motion) : EndingActorMotion
+internal sealed partial class EndingFlyawayStarsMotion(EndingStarsMotion motion) : EndingActorMotion
 {
     /// <summary>The left starfield's motion: it waits for the flyaway from its spawn on.</summary>
     internal static EndingFlyawayStarsMotion WaitingFromSpawn() => new(EndingStarsMotion.WaitingForFlyaway);

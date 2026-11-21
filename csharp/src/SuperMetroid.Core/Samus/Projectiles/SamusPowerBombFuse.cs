@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The fuse transition, the same whether a Power Bomb or a Chainsaw shot runs it.</summary>
-public static class SamusPowerBombFuse
+public static partial class SamusPowerBombFuse
 {
     /// <summary>
     /// Computes the fuse and animation changes and asks for the bomb's explosion or deletion. The step that burns the fuse

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>One placement a trail list gives, stated once, and the frames it gives it for (#2557).</summary>
 /// <param name="Placement">Where the trail's two sparkles start.</param>
 /// <param name="Frames">The frames of a shot the list gives the placement for.</param>
-internal sealed record ProjectileTrailPlacementGroup(ProjectileTrailPlacement Placement, SamusProjectileFrameId[] Frames)
+internal sealed partial record ProjectileTrailPlacementGroup(ProjectileTrailPlacement Placement, SamusProjectileFrameId[] Frames)
 {
     /// <summary>A list's placement for each frame its groups name.</summary>
     /// <param name="groups">The list's placements, each with its frames.</param>

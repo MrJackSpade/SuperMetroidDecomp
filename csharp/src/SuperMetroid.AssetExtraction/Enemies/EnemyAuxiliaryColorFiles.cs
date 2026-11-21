@@ -11,7 +11,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Import-only conversion of the four bounded enemy color animations.</summary>
-public static class EnemyAuxiliaryColorFiles
+public static partial class EnemyAuxiliaryColorFiles
 {
     /// <summary>Imports the face-block glow, drained sidehopper, and Golden Torizo body and belly palette rows.</summary>
     /// <param name="source">Cartridge-import-capable address space supplying the four native color tables.</param>

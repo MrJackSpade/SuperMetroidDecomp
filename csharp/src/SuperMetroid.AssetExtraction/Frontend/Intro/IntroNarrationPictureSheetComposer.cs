@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// them (#1512), over the font with its Japanese glyphs blanked, as
 /// <c>BlankOut_JapanText_Tiles</c> leaves it for the pages. A tile naming a character the font does not hold shows nothing.
 /// </summary>
-internal static class IntroNarrationPictureSheetComposer
+internal static partial class IntroNarrationPictureSheetComposer
 {
 
     /// <summary>Each letter the narration types: its alphabet without the space, which types none.</summary>

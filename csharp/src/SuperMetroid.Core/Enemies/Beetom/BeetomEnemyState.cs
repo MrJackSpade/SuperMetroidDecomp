@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// The state of one Beetom. Its facing is inherited from the previous Beetom in its place (<see
 /// cref="PlaceInheritance{TOccupant}"/>).
 /// </summary>
-public sealed class BeetomEnemyState
+public sealed partial class BeetomEnemyState
 {
     /// <summary>
     /// Starts one Beetom, facing the way the previous Beetom in its place last faced, or left for the place's first.

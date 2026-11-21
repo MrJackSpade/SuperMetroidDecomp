@@ -31,7 +31,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// blending frame, and a sheet with a frame that blends in some opaque pixels and not others gets a blend map.
 /// </para>
 /// </remarks>
-internal static class InstalledSheetConversion
+internal static partial class InstalledSheetConversion
 {
     /// <summary>Colours in one of the four-colour groups a HUD or room effect sheet is composed in.</summary>
     private const int TwoBppGroupColours = 4;
@@ -239,7 +239,7 @@ internal static class InstalledSheetConversion
     /// <summary>How many of a frame's pixels are opaque and how many of those blend when it is drawn as a sprite.</summary>
     /// <param name="Opaque">The frame's opaque pixels.</param>
     /// <param name="Blending">Its opaque pixels that blend.</param>
-    private sealed record FrameBlending(int Opaque, int Blending)
+    private sealed partial record FrameBlending(int Opaque, int Blending)
     {
         /// <summary>Whether the frame has opaque pixels and every one blends.</summary>
         public bool Wholly => Opaque > 0 && Blending == Opaque;

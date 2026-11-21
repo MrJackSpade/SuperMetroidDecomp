@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// The beacon flashing shows in the pre-Tourian hall, Red Brinstar's main street, the Red Brinstar elevator and the
 /// early Kraid rooms.
 /// </remarks>
-public static class BeaconPaletteFxColorDefinitions
+public static partial class BeaconPaletteFxColorDefinitions
 {
 
     /// <summary>Four live BGR555 colors are written by each timed record.</summary>

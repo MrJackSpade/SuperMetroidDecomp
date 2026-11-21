@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 
 /// <summary>What a falling spark keeps: the sideways drift and the vertical speed it adds to its position every update.</summary>
 /// <param name="horizontalStep">The drift chosen at launch.</param>
-internal sealed class FallingSparkState(SignedSixteenSixteen horizontalStep) : EnemyProjectileState
+internal sealed partial class FallingSparkState(SignedSixteenSixteen horizontalStep) : EnemyProjectileState
 {
     /// <summary>The sideways distance the spark moves each update; it grows by <see cref="FallingSparkMotionDefinitions.ImpactDriftScale"/> when the spark hits the floor.</summary>
     internal SignedSixteenSixteen HorizontalStep { get; set; } = horizontalStep;

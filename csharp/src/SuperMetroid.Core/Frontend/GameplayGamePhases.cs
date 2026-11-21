@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend;
 /// tanks' refill. The pause's brightening and the time-up's white-out run the same main gameplay update.
 /// </summary>
 /// <param name="session">The frontend session these phases run against.</param>
-internal sealed class GameplayGamePhases(FrontendSession session)
+internal sealed partial class GameplayGamePhases(FrontendSession session)
 {
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.GameplayFadeIn"/>.</summary>
     internal void RunGameplayFadeIn(ControllerButton controllerInput)

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's death: the sink below the floor, hiding his body and the background fade.</summary>
 [RoomLifetime]
-internal sealed class KraidDeath
+internal sealed partial class KraidDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;

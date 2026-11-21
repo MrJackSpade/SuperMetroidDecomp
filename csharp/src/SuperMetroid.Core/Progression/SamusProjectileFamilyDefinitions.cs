@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>What each family of Samus's projectiles is to the rules that test it (#2556).</summary>
-internal static class SamusProjectileFamilyDefinitions
+internal static partial class SamusProjectileFamilyDefinitions
 {
     /// <summary>
     /// Each family's role: beams, missiles and Super Missiles are fired shots, bombs and Power Bombs are bombs, and the

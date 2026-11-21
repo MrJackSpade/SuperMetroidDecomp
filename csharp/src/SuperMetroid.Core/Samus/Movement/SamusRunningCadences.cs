@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Samus.Movement.SamusRunningCadenceDefinitions;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>How Samus's running cadences are chosen and read: the frame delays a run animates by, and a boost stage's restart.</summary>
-internal static class SamusRunningCadences
+internal static partial class SamusRunningCadences
 {
     /// <summary>The cadence of each authored boost stage, by its stage.</summary>
     private static readonly Dictionary<int, SamusRunningCadence> CadenceOfStage = StagesOf(Timings);

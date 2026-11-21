@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Where each animated-tile object's frames are copied (<see cref="AnimatedTileVramDestinationDefinitions"/>).</summary>
-internal static class AnimatedTileVramDestinations
+internal static partial class AnimatedTileVramDestinations
 {
     /// <summary>The VRAM word <paramref name="animatedObject"/>'s object header copies every frame to.</summary>
     /// <exception cref="InvalidOperationException">The object copies no frames the port pictures.</exception>

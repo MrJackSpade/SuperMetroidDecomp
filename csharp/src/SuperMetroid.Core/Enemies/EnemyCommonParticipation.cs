@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// shared response for; a species' own reactions are its entity's, which it checks before these.
 /// </summary>
 /// <param name="collision">The enemy system's collision, resolved at use because the system builds it after its species.</param>
-internal sealed class EnemyCommonParticipation(Func<EnemyCollision> collision)
+internal sealed partial class EnemyCommonParticipation(Func<EnemyCollision> collision)
 {
     /// <summary>
     /// The shot reaction of the ordinary and the ignoring shot: the common shot reaction. An ignoring hitbox or

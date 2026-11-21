@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The published artwork name of each Mother Brain glass frame (<see cref="MotherBrainGlassDraw"/>, #1994, #2548): the name the installed
 /// room-object visual file keys its picture by, written out so renaming a member never changes it.
 /// </summary>
-internal static class MotherBrainGlassDrawKeys
+internal static partial class MotherBrainGlassDrawKeys
 {
     /// <summary>Each MotherBrainGlassDraw member's installed key.</summary>
     internal static InstalledKeys<MotherBrainGlassDraw> Installed { get; } = new(new Dictionary<MotherBrainGlassDraw, string>

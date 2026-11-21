@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rendering;
 /// a scene's first layer; the HUD, the effect overlay and the glows are the scene's later layers. The background's scroll
 /// may change line by line on either axis, as a described shape (#1468); its scrolls are scrolls, not rows already offset.
 /// </summary>
-public sealed record GameplaySceneLayer : DisplayLayer
+public sealed partial record GameplaySceneLayer : DisplayLayer
 {
     /// <summary>
     /// The gameplay scene's layers from back to front (#1514, #2573): the actors behind the room, the background's back

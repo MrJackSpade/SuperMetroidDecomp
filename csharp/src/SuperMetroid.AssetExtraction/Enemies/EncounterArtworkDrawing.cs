@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 /// <param name="Encounter">The encounter.</param>
 /// <param name="Looks">The encounter's looks the frames are drawn in, its room's load among them when they are drawn before it shows another.</param>
-internal sealed record EncounterArtworkDrawing(ComposedEncounter Encounter, IReadOnlyList<ComposedLook> Looks)
+internal sealed partial record EncounterArtworkDrawing(ComposedEncounter Encounter, IReadOnlyList<ComposedLook> Looks)
 {
     /// <summary>The enemy frames drawn, wherever a sheet holds them.</summary>
     internal IReadOnlyList<EnemyFrameId> Frames { get; init; } = [];

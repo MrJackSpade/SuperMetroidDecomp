@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// original game does, over the cartridge, for every game situation that can reach it, and keeps only the result, keyed
 /// by that situation.
 /// </summary>
-internal static class SamusOverreadDecoding
+internal static partial class SamusOverreadDecoding
 {
     /// <summary>
     /// The drained poses a Shinespark crash can finish in: Mother Brain's drain replaces the crash pose with a drained

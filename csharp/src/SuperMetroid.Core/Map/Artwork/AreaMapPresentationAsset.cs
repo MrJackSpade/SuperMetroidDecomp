@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Map.Artwork;
 /// One area's installed map (#1466): how each cell looks, which the import decodes from the area's editable presentation
 /// document, paired with exploration rules the import decided from the stock map, which edited artwork cannot change.
 /// </summary>
-public sealed class AreaMapPresentationAsset : IAreaMapView
+public sealed partial class AreaMapPresentationAsset : IAreaMapView
 {
     /// <summary>
     /// Each validated cell, row by row from the map's top left, <see cref="AreaMapSize.WidthInMapTiles"/> to a row: how it
@@ -61,7 +61,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
 
     /// <summary>One map cell: how it looks and the exploration rules it is shown under.</summary>
     /// <param name="Look">How the cell looks.</param>
-    private readonly record struct ExploredMapCell(MapCell Look)
+    private readonly partial record struct ExploredMapCell(MapCell Look)
     {
         /// <summary>Whether the cell can be discovered.</summary>
         internal required bool Discoverable { get; init; }

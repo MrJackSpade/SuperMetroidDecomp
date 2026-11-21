@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// enemy projectiles without the values carried across rooms.
 /// </remarks>
 [CompatibilityService("a new enemy projectile starts from the whole position and velocity its place's previous projectile left, the room before's until this room spawns into the place")]
-public sealed class EnemyProjectilePlaceLeftovers
+public sealed partial class EnemyProjectilePlaceLeftovers
 {
     /// <summary>What the room before left in each place, in place order; rest at the origin before any room has left one.</summary>
     internal EnemyProjectileHandOver[] FromRoomBefore { get; }

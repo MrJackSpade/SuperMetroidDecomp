@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// follow-up, the gunship pad's borrowed height) read the places after and before an enemy here too.
 /// </summary>
 [EncodingOwner("a room population's listing of its enemies: the members of a multipart enemy together, and the places after and before an enemy")]
-internal static class EnemyCompositeListing
+internal static partial class EnemyCompositeListing
 {
     /// <summary>The member of <paramref name="self"/>'s composite that plays <paramref name="role"/>.</summary>
     /// <param name="enemies">The room's enemy places.</param>

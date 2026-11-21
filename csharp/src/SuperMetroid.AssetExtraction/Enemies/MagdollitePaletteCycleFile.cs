@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Reads and writes the installed Magdollite palette cycle document.</summary>
-public static class MagdollitePaletteCycleFile
+public static partial class MagdollitePaletteCycleFile
 {
     /// <summary>Validates the four installed RGB5 glow rows and keeps them as installed.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>

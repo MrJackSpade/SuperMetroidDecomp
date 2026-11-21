@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The installed key of each <see cref="RoomBlockSet"/> (#2520), written out so renaming a member never changes a name
 /// the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class RoomBlockSetKeys
+internal static partial class RoomBlockSetKeys
 {
     /// <summary>Each RoomBlockSet member's installed key.</summary>
     internal static InstalledKeys<RoomBlockSet> Installed { get; } = new(new Dictionary<RoomBlockSet, string>

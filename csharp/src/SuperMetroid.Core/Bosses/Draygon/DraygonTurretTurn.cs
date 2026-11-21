@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>What one wall-turret firing does (#1686): fire from one of the wall cannons, or hold fire.</summary>
-internal abstract record DraygonTurretTurn
+internal abstract partial record DraygonTurretTurn
 {
     /// <summary>Only the nested cases derive.</summary>
     private DraygonTurretTurn()
@@ -15,8 +15,8 @@ internal abstract record DraygonTurretTurn
 
     /// <summary>The firing fires from <paramref name="Cannon"/>, unless the cannon is disabled.</summary>
     /// <param name="Cannon">The cannon.</param>
-    internal sealed record FiresFrom(DraygonWallCannon Cannon) : DraygonTurretTurn;
+    internal sealed partial record FiresFrom(DraygonWallCannon Cannon) : DraygonTurretTurn;
 
     /// <summary>The firing that holds fire.</summary>
-    private sealed record Holding : DraygonTurretTurn;
+    private sealed partial record Holding : DraygonTurretTurn;
 }

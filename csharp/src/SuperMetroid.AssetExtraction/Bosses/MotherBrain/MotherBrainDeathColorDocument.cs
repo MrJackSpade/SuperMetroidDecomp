@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Editable RGB5 image schema for Mother Brain's body disappearance and detached-head gray transition.</summary>
-public sealed record MotherBrainDeathColorDocument
+public sealed partial record MotherBrainDeathColorDocument
 {
     /// <summary>Schema revision; loading requires <see cref="MotherBrainDeathColorFormat.Version"/>.</summary>
     public required int Version { get; init; }

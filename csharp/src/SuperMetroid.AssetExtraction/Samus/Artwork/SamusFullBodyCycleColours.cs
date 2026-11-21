@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// The import pipeline decodes them from the installed document, whose palette order is its own knowledge; the cycles that
 /// choose a palette are Samus's.
 /// </summary>
-public sealed class SamusFullBodyCycleColours
+public sealed partial class SamusFullBodyCycleColours
 {
     /// <summary>Each cycle palette's suit colours.</summary>
     private readonly Dictionary<SamusFullBodyCycleShade, ImmutableArray<RgbColor>> palettes;

@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// The codec of the installed gameplay-HUD layout (#1638): the extraction writes it from the HUD's decoded artwork, whose
 /// cells are import data, and the game reads it as the layout it places the HUD's images by (#1616).
 /// </summary>
-public static class GameplayHudLayoutFile
+public static partial class GameplayHudLayoutFile
 {
     /// <summary>The layout document of <paramref name="artwork"/>, as UTF-8 JSON.</summary>
     /// <param name="artwork">The HUD's decoded, validated artwork, whose layout is written.</param>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>What each grapple phase does beside moving the beam (<see cref="GrapplePhases"/>).</summary>
-internal static class GrapplePhaseDefinitions
+internal static partial class GrapplePhaseDefinitions
 {
     /// <summary>
     /// The phases the grapple keeps its sound in: while it fires, swings, holds locked, grabs a wall and lets go of one. It

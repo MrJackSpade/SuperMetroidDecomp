@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// backdrops they shine through; its other sprites lie in front of the scene's pictures. Each picture and sprite is drawn
 /// whole, in its layer's order.
 /// </summary>
-internal static class EndingCreditsPresentation
+internal static partial class EndingCreditsPresentation
 {
     /// <summary>The ending's ordered layers for the frame.</summary>
     /// <exception cref="InvalidOperationException">The ending shows a scene the presentation does not draw.</exception>

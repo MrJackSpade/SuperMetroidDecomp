@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// (two horizontal and two vertical): each
 /// moves at <see cref="Speed"/> along one axis and keeps it for its continuation chain.
 /// </summary>
-internal static class RidleyAfterburnDefinitions
+internal static partial class RidleyAfterburnDefinitions
 {
     /// <summary>The speed of every directional afterburn, fourteen pixels per frame.</summary>
     private static readonly SignedEightEight Speed = SignedEightEight.FromPixels(14);

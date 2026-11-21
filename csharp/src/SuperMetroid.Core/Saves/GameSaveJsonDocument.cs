@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>Versioned, human-readable representation of all three save slots.</summary>
-public sealed record GameSaveJsonDocument
+public sealed partial record GameSaveJsonDocument
 {
     /// <summary>The file-format revision used to select compatible decoding and migration rules.</summary>
     public int SchemaVersion { get; init; } = GameSaveJsonFormat.SchemaVersion;

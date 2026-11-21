@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Physical launch and hand-anchor definitions; flare artwork placement is separate.</summary>
-internal static class GrappleFiringDefinitions
+internal static partial class GrappleFiringDefinitions
 {
     /// <summary>Launch speed along an axis: twelve pixels an update times the sine of a right angle, 255/256.</summary>
     internal static readonly SignedEightEight CardinalSpeed = SignedEightEight.FromPixelFraction(765, 64);

@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// not picture (#1636). It holds no characters,
 /// tile positions or colours; those are drawn into the block sheet, which a player edits in place.
 /// </summary>
-public static class RoomBlockAppearanceFiles
+public static partial class RoomBlockAppearanceFiles
 {
     /// <summary>
     /// The schema revision: revision 2 records a collectible slot only on the blocks a collectible writes where it lies,
@@ -98,7 +98,7 @@ public static class RoomBlockAppearanceFiles
     /// <param name="Blocks">
     /// The inputs of each block a room shows, by the name the block's pictures begin with; a block no room shows has no entry.
     /// </param>
-    internal sealed record BlockAppearancesDocument(int Version, string? Tileset, int Count, Dictionary<string, string?[]?>? Blocks);
+    internal sealed partial record BlockAppearancesDocument(int Version, string? Tileset, int Count, Dictionary<string, string?[]?>? Blocks);
 
     /// <summary>Strict camel-case record fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

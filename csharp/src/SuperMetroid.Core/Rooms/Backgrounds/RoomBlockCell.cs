@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// </summary>
 /// <param name="Picture">The block or collectible picture shown.</param>
 /// <param name="Flips">How the picture is mirrored.</param>
-public readonly record struct RoomBlockCell(RoomCellPicture Picture, BlockMirroring Flips);
+public readonly partial record struct RoomBlockCell(RoomCellPicture Picture, BlockMirroring Flips);

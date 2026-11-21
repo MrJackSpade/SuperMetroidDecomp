@@ -7,7 +7,7 @@ using static SuperMetroid.Core.Samus.Poses.SamusPoseId;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>How the grapple connects at each special angle: the stop or its reflection, firing cancellation and the pose a release drops into.</summary>
-internal static class GrappleConnections
+internal static partial class GrappleConnections
 {
     /// <summary>
     /// The special connections in the order a swing compares them: each authored stop followed by its left/right

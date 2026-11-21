@@ -6,7 +6,7 @@ using S = SuperMetroid.Core.Frontend.Intro.CinematicSpritePose;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>The animations of the intro narration's caret and Japanese-text next-page arrow (#641, #1600, #2196, #2197).</summary>
-internal static class IntroNarrationAnimations
+internal static partial class IntroNarrationAnimations
 {
     /// <summary>The caret's and the next-page arrow's animations.</summary>
     internal static CinematicAnimations<IntroNarrationAnimation, CinematicSpritePose, NoAnimationCue> Narration { get; } = new(

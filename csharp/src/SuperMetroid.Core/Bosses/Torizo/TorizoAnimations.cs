@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// drop, its open chest) is the segment its animation loops on, whose mark tells the owner to start the next animation
 /// once that change has come.
 /// </summary>
-internal static class TorizoAnimations
+internal static partial class TorizoAnimations
 {
     /// <summary>Every segment's steps.</summary>
     internal static AnimationSegments<TorizoBodySegment, EnemyFrameId, TorizoCue> Segments { get; } = new(

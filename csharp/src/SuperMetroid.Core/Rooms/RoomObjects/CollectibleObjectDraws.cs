@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// selection; the Chozo orb's frames are its animation's (<see cref="CollectibleSequenceAnimations"/>). What a frame other than a
 /// block pair's shows is its installed picture (#1557).
 /// </summary>
-internal static class CollectibleObjectDraws
+internal static partial class CollectibleObjectDraws
 {
     /// <summary>
     /// The collectibles' frames: each one block at the object's block, pictured by the installed collectible frames, but a
@@ -92,7 +92,7 @@ internal static class CollectibleObjectDraws
             : throw new InvalidDataException($"Undefined collectible block pair {pair}.");
 
     /// <summary>The collectibles' family: a block pair's frame writes its terrain alone; every other frame draws as pictured.</summary>
-    private sealed class CollectibleDrawFamily() : RoomObjectDrawFamily<CollectibleDraw>("collectible",
+    private sealed partial class CollectibleDrawFamily() : RoomObjectDrawFamily<CollectibleDraw>("collectible",
         frame => RoomBlockShapes.Block(CollisionOf(frame)))
     {
         /// <inheritdoc/>

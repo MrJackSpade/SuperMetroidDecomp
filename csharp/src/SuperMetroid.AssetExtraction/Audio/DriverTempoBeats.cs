@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// tempo T, T beats take one period's clock steps. The clip index stores that length in clip frames, in lowest terms, so
 /// the player times the beat as the clips were rendered without counting the driver's tempo units.
 /// </summary>
-internal static class DriverTempoBeats
+internal static partial class DriverTempoBeats
 {
     /// <summary>The driver's tempo counter period: the counts after which it wraps and the music advances a beat.</summary>
     private const int TempoCounterPeriod = 256;

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>The map scroll arrows' directions, the button each answers to and the step each takes.</summary>
-internal static class MapScrollControls
+internal static partial class MapScrollControls
 {
     /// <summary>
     /// The four scroll directions in the order held arrows are tested, the first that may scroll taking the step, and the

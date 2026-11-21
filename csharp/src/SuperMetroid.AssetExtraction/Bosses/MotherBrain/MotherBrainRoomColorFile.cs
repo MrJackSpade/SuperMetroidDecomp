@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads and writes the installed Mother Brain room colour document.</summary>
-public static class MotherBrainRoomColorFile
+public static partial class MotherBrainRoomColorFile
 {
     /// <summary>Validates and compiles fake-death flash, room-entry, phase-two and recovery color artwork without retaining the document's mutable RGB5 arrays.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The falling tubes' typed animations (#641, #1600), each beat naming the installed frame it shows (#2249).</summary>
-internal static class MotherBrainTubeAnimations
+internal static partial class MotherBrainTubeAnimations
 {
     /// <summary>Every piece's segment: its picture, held.</summary>
     internal static AnimationSegments<MotherBrainTubePiece, EnemyFrameId, NoAnimationCue> Segments { get; } = new(

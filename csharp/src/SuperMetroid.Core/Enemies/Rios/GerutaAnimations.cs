@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// The Geruta's idle and swoop animations and its flames' animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="GerutaCue"/> naming what it does.
 /// </summary>
-internal static class GerutaAnimations
+internal static partial class GerutaAnimations
 {
     /// <summary>
     /// The wing poses of a swoop's start from level to swept up, each with where its flames sit and which way they burn: a

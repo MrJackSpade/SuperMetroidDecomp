@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>The installed escape-warning program document as the import reads and writes it (#1502).</summary>
-public static class EscapeTypewriterDocumentDefinitions
+public static partial class EscapeTypewriterDocumentDefinitions
 {
     /// <summary>
     /// The supported editable escape-typewriter JSON schema version: revision 3 places each line by the pixel of its layer

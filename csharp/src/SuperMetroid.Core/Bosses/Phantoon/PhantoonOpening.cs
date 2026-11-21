@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's entrance: the starting flames and its wavy fade-in.</summary>
 [RoomLifetime]
-internal sealed class PhantoonOpening
+internal sealed partial class PhantoonOpening
 {
     /// <summary>Owns the starting, casual, rain, rage, and spiral flame actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;

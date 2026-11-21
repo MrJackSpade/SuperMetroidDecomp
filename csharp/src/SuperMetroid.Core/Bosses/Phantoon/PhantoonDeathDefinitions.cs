@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// Phantoon's death pixelation, as its dying fade-out grows it: one block size at its growth cadence,
 /// from the smallest to the largest, before the fade-out runs.
 /// </summary>
-internal static class PhantoonDeathDefinitions
+internal static partial class PhantoonDeathDefinitions
 {
     /// <summary>The death pixelation's first block size in screen pixels: no quantization.</summary>
     internal const int InitialPixelationSize = 1;

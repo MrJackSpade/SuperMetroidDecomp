@@ -28,7 +28,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <see cref="SuperMetroidGame.BindArtwork"/>. Every catalog is installed (#2224): a screen's art is never absent, so a
 /// rebinding replaces each catalog with another installed one and never with nothing.
 /// </summary>
-public sealed record GameArtwork
+public sealed partial record GameArtwork
 {
     /// <summary>The installed content of the screens, scenes and HUD (#2203): the area maps, the menus, the title, the opening and ending text and the scenes' colours.</summary>
     public required InstalledScreenContent ScreenContent { get; init; }

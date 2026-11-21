@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Input;
 /// Lifetime: the gameplay runtime, so a button still held when the pause screen opens again carries on from where the
 /// last pause left it.
 /// </summary>
-public sealed class HeldButtonRepeat
+public sealed partial class HeldButtonRepeat
 {
     /// <summary>The held buttons the previous update saw, newly pressed buttons excluded.</summary>
     internal ControllerButton PreviousHeld { get; private set; }

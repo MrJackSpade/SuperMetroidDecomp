@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 /// <param name="Draw">The frame's draw.</param>
 /// <param name="Runs">The frame's runs in write order; the first starts at the origin.</param>
-internal readonly record struct RoomObjectFrameLayout(RoomObjectDraw Draw, ReadOnlyMemory<RoomObjectDrawLists.Run> Runs)
+internal readonly partial record struct RoomObjectFrameLayout(RoomObjectDraw Draw, ReadOnlyMemory<RoomObjectDrawLists.Run> Runs)
 {
     /// <summary>The layout of a frame written as <paramref name="runs"/>, each cell colliding as the game's <paramref name="shape"/> says.</summary>
     /// <param name="draw">The frame's draw.</param>

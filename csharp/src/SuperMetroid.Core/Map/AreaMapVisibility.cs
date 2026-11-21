@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Map;
 
 /// <summary>Combines persistent map state with a nonpersistent host reveal mode.</summary>
-public static class AreaMapVisibility
+public static partial class AreaMapVisibility
 {
     /// <summary>
     /// Determines whether one cell is presented without modifying exploration or map-station

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Spatial;
 /// past zero reads is <see cref="SamusSpeedMagnitude"/>'s.
 /// </summary>
 [EncodingOwner("unsigned 16.16 fixed-point number")]
-public readonly record struct UnsignedSixteenSixteen
+public readonly partial record struct UnsignedSixteenSixteen
 {
     /// <summary>Holds the two parts, each checked to lie in 0 through 65535.</summary>
     public UnsignedSixteenSixteen(int whole, int fraction)

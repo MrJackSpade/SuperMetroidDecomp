@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// Builds the intro baby-discovery room's collision (<see cref="IntroBabyDiscoveryCollisionDefinitions"/>): its row of
 /// slopes on its floor.
 /// </summary>
-internal static class IntroBabyDiscoveryCollision
+internal static partial class IntroBabyDiscoveryCollision
 {
     /// <summary>How each block of the room collides, row by row, built freshly: air, with the slope row on the floor row.</summary>
     internal static RoomCollisionType[] CreateCollision()

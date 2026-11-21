@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 /// The Blue Brinstar face block's neutral and turning animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class BlueBrinstarFaceBlockAnimations
+internal static partial class BlueBrinstarFaceBlockAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<BlueBrinstarFaceBlockSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(

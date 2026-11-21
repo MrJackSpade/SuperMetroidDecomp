@@ -2,7 +2,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>File identities and transfer geometry for the three ending backdrops.</summary>
-public static class EndingFloorArtworkFormat
+public static partial class EndingFloorArtworkFormat
 {
     /// <summary>Supported JSON map schema revision for both the backdrop and reward-icon documents.</summary>
     public const int Version = 1;

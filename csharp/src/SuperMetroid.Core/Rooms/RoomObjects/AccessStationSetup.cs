@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// the access blocks either side.
 /// </summary>
 /// <param name="Station">The access rule of the station the placement places.</param>
-internal sealed record AccessStationSetup(StationAccessRule Station) : RoomObjectPlacementSetup
+internal sealed partial record AccessStationSetup(StationAccessRule Station) : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
     internal override RoomObjectKind Kind => RoomObjectKindDefinitions.AccessStations[Station];

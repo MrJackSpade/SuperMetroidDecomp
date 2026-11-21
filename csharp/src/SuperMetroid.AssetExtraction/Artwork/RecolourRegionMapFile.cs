@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// It is JSON: <c>{ "version": 2, "maps": { "R0000": { "size": { "x": W, "y": H }, "rows": [ [region, count, ...], ... ] } } }</c>,
 /// each map's rows from the top a run-length list of regions from the left whose counts cover exactly the picture's width.
 /// </summary>
-internal static class RecolourRegionMapFile
+internal static partial class RecolourRegionMapFile
 {
     /// <summary>
     /// The map format's revision: 1 held one page's map; 2 holds every map the pictures are shown with, each once by its tag,
@@ -127,10 +127,10 @@ internal static class RecolourRegionMapFile
     /// <summary>The map file.</summary>
     /// <param name="Version">The format revision.</param>
     /// <param name="Maps">Every map, by tag.</param>
-    internal sealed record Document(int Version, Dictionary<string, MapDocument> Maps);
+    internal sealed partial record Document(int Version, Dictionary<string, MapDocument> Maps);
 
     /// <summary>One map.</summary>
     /// <param name="Size">The width and height of the picture it is for.</param>
     /// <param name="Rows">Each row's runs, region then count.</param>
-    internal sealed record MapDocument(Extent16<ImagePixels> Size, int[][] Rows);
+    internal sealed partial record MapDocument(Extent16<ImagePixels> Size, int[][] Rows);
 }

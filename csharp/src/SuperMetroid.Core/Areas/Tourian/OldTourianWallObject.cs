@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 /// <param name="samus">Samus as the room reads her.</param>
 /// <param name="explosion">The enemy effects that set off the wall's explosion.</param>
-internal sealed class OldTourianWallObject(IRoomSamusAccess samus, IOldTourianWallExplosion explosion) : RoomObjectBehaviour
+internal sealed partial class OldTourianWallObject(IRoomSamusAccess samus, IOldTourianWallExplosion explosion) : RoomObjectBehaviour
 {
     /// <summary>Samus as the room reads her.</summary>
     private readonly IRoomSamusAccess _samus = samus;

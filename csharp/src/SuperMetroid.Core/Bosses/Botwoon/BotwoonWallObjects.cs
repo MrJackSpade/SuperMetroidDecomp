@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Spawns Botwoon's wall room object in the room's shared room-object places.</summary>
 /// <param name="places">The room's room-object places, which the wall contends for with every other room object.</param>
-internal sealed class BotwoonWallObjects(RoomObjectPlaceList places)
+internal sealed partial class BotwoonWallObjects(RoomObjectPlaceList places)
 {
     /// <summary>
     /// Spawns the wall room object performing <paramref name="mutation"/> at the wall's top block, in the first free place of the

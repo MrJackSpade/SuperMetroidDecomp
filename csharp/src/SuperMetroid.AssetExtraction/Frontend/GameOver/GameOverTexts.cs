@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver;
 /// The menu's initialization loads the title, objective, prompt, Yes and No elements in this order, each from the
 /// screen cell <see cref="Get"/> gives it.
 /// </remarks>
-public static class GameOverTexts
+public static partial class GameOverTexts
 {
     /// <summary>Selects one text element; unsupported selectors are rejected.</summary>
     internal static GameOverTextStream Get(GameOverTextElement element) => element switch

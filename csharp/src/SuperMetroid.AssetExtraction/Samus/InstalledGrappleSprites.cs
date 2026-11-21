@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Immutable Grapple visual attributes; cadence, placement, geometry and physics are not editable here.</summary>
-public sealed class InstalledGrappleSprites
+public sealed partial class InstalledGrappleSprites
 {
     /// <summary>The installed appearance of each of the rope's four pictures (#1596, #2565), keyed by the picture.</summary>
     private readonly Dictionary<GrappleRopePicture, SpritePart> segments;

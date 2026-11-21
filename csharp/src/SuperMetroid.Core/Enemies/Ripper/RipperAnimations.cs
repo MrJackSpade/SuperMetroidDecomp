@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// The grapple Ripper, jet Ripper and Ripper flying loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class RipperAnimations
+internal static partial class RipperAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<RipperSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// The hitboxes of each of Oum's 30 frames, which change as it rolls and attacks, each with the reaction it gives;
 /// they are independent of the pictures the frames show.
 /// </summary>
-internal static class OumCollisionDefinitions
+internal static partial class OumCollisionDefinitions
 {
     /// <summary>Reaction used by Oum's extended hitboxes that hurt Samus on contact.</summary>
     private static readonly EnemyReaction DamageTouch = OumReactions.DamagingTouch;

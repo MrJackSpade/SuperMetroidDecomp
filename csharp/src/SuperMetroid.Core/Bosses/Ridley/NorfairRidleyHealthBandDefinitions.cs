@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Norfair Ridley's four health bands (#1934). Each lower band seeks faster, lunges harder and bounces higher, and the
 /// three below full health each show their own health colouring.
 /// </summary>
-internal static class NorfairRidleyHealthBandDefinitions
+internal static partial class NorfairRidleyHealthBandDefinitions
 {
     /// <summary>Ridley from full health down to 9000: his slowest seek and lunge, low bounces, and his own colours.</summary>
     internal static NorfairRidleyHealthBand Unhurt { get; } = new(hoverDivisor: 12, grabDivisor: 15,

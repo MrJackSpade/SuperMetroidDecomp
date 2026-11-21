@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// for it. They are what the game reads of the enemy compositions, whose parts are the original's packed sprite placements
 /// and stay import data (<see cref="EnemySpritemapDocuments"/>, <see cref="EnemyExtendedFrameDocuments"/>).
 /// </summary>
-internal static class EnemyFrameDisplayFiles
+internal static partial class EnemyFrameDisplayFiles
 {
     /// <summary>The installed document's file name.</summary>
     internal const string FileName = "enemy-frame-displays.json";

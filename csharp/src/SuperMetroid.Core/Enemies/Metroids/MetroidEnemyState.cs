@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// <summary>
 /// The state of an ordinary Metroid, among it the two outer-body effect actors it spawned and its energy drain.
 /// </summary>
-public sealed class MetroidEnemyState
+public sealed partial class MetroidEnemyState
 {
     /// <summary>Connects the Metroid to its two live outer-body effect actors.</summary>
     internal MetroidEnemyState(RoomEffectActor electricity,

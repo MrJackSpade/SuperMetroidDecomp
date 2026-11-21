@@ -9,7 +9,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Imports only landmark positions; validates mixed-record identities against compiled definitions.</summary>
-public static class MapLandmarkExtractor
+public static partial class MapLandmarkExtractor
 {
     /// <summary>Exports named boss, elevator-destination-label, and Crateria gunship drawing positions from native area-map records.</summary>
     /// <param name="bus">Import-capable cartridge source for bank-$82 boss/elevator lists and the Crateria save-point position list.</param>

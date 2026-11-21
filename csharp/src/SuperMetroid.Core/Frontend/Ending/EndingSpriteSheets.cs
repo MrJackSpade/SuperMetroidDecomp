@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// explosion's actors, the result text and the animals' pod, the post-credits Samus each reward dresses with the shooting
 /// stars, and the falling Samus with the logo. Each actor's frames lie on its own sheet, whatever scene shows it.
 /// </summary>
-internal static class EndingSpriteSheets
+internal static partial class EndingSpriteSheets
 {
     /// <summary>The sheet of the escape's clouds.</summary>
     internal const SpriteSheetId Clouds = SpriteSheetId.EndingCloudSprites;

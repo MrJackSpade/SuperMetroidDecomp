@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Progression;
 /// The seven areas and checks on them. Imported data and save files number the areas; that numbering is the import's
 /// and the save files' own, and the area identities' own values are never read.
 /// </summary>
-public static class AreaIds
+public static partial class AreaIds
 {
     /// <summary>Every area: the six Zebes areas, then Ceres, the prologue station.</summary>
     public static IReadOnlyList<AreaId> All { get; } =

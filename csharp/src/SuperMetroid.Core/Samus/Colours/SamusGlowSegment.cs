@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// One of Samus's shade sequences (#2351, #2387): a glow (<see cref="SamusGlow"/>), and for a glow that differs by suit the
 /// suit it is shown in (#2557), so each glow is named once and the suit is its own dimension.
 /// </summary>
-public readonly record struct SamusGlowSegment
+public readonly partial record struct SamusGlowSegment
 {
     /// <summary>The sequence of <paramref name="glow"/> in <paramref name="suit"/>, or alike in every suit when none.</summary>
     private SamusGlowSegment(SamusGlow glow, SamusSuit? suit)

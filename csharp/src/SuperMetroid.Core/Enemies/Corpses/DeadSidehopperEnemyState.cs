@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <summary>
 /// One dead sidehopper's corpse state: its rot schedule, pixel rows, animation, hop, drain and contact progress.
 /// </summary>
-public sealed class DeadSidehopperEnemyState
+public sealed partial class DeadSidehopperEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<DeadTourianSegment> Playback { get; set; }

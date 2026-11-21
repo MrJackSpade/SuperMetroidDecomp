@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>How Crocomire's mouth volley aims each shot.</summary>
-public static class CrocomireVolley
+public static partial class CrocomireVolley
 {
     /// <summary>
     /// The gradient the volley's shot fired after <paramref name="shotsSpat"/> earlier ones is fired along: the authored

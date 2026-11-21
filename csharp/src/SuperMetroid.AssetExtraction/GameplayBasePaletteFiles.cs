@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction;
 /// them, to pre-colour the sheets that show them, so the document goes to the component's import-data directory
 /// (<see cref="ImportDataDirectory.Of"/>), which the installer deletes before it publishes. The installation holds none of it.
 /// </summary>
-public static class GameplayBasePaletteFiles
+public static partial class GameplayBasePaletteFiles
 {
     /// <summary>
     /// Where the sprite colours begin in the gameplay colours: the upper half, whose first row receives the common

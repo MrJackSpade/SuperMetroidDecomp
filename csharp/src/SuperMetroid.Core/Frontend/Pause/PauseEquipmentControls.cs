@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// The equipment page's controls (#1772): each named with its column, its installed selector anchor and, for an upgrade,
 /// the upgrade it toggles and its label; and each column as the ordered list the cursor moves along.
 /// </summary>
-internal static class PauseEquipmentControls
+internal static partial class PauseEquipmentControls
 {
     /// <summary>The AUTO/MANUAL mode switch: where the cursor starts while Samus has reserve capacity, and returns after a manual refill.</summary>
     internal static readonly PauseReserveControl ReserveMode = new("Reserve.Mode");

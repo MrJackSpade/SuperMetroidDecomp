@@ -9,7 +9,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>Samus's presentation: her whole body picture, its placement, her particles, and the animation-frame sequencing that drives them.</summary>
-internal sealed class SamusPresentation
+internal sealed partial class SamusPresentation
 {
     /// <summary>
     /// The whole body picture the body last drew, which the speed-booster echoes repeat; none before the body is drawn.

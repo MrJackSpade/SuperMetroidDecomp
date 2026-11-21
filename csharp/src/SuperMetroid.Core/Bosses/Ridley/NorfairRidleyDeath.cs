@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Norfair Ridley's death: the roar, breakup, explosions and the drop.</summary>
 [RoomLifetime]
-internal sealed class NorfairRidleyDeath
+internal sealed partial class NorfairRidleyDeath
 {
     /// <summary>Spawns the enemies Ridley's death releases into the room.</summary>
     private readonly IEnemyLifecycle _lifecycle;

@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TBeams">A beam combination.</typeparam>
 [CompatibilityService("a Spazer and Plasma beam launches at speeds and waits cooldowns read past the firing tables")]
-public sealed class UnauthoredBeamFiring<TBeams>
+public sealed partial class UnauthoredBeamFiring<TBeams>
     where TBeams : notnull
 {
     /// <summary>Each combination's horizontal and vertical launch speed.</summary>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// How Ceres Ridley flies (#2171, #2232): his lift-off, how hard each of his flights seeks its target, how long each
 /// attack lasts and how fast his swoop and retreat carry him.
 /// </summary>
-internal static class CeresRidleyFlightDefinitions
+internal static partial class CeresRidleyFlightDefinitions
 {
     /// <summary>The least vertical speed Ridley keeps, either way, while he moves into his fireball position: half a pixel an update.</summary>
     internal static readonly SignedEightEight FireballMoveMinimumSpeed = SignedEightEight.FromPixelFraction(1, 2);

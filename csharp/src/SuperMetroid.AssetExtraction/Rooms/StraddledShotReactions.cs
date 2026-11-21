@@ -37,7 +37,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// shootable reaction the behaviour at that block index selects, at that block.
 /// </para>
 /// </remarks>
-internal static class StraddledShotReactions
+internal static partial class StraddledShotReactions
 {
     /// <summary>The largest radius a shot's animation can give it: the radius is one byte.</summary>
     private const int LargestRadius = 255;

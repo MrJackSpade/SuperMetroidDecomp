@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Fx;
 /// The frames the effect plays: an animation of its own, or, for the heat shimmer, whose start chooses its suit's pulse,
 /// that pulse's (<see cref="ColourEffectFrames.SuitHeatPulse"/>).
 /// </param>
-internal sealed record ColourEffectDefinition(
+internal sealed partial record ColourEffectDefinition(
     ColourEffectStart Start,
     ColourEffectColours Colours,
     ColourEffectCondition Condition,

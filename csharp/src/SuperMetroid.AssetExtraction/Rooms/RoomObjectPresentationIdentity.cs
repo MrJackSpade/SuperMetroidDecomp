@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Stable, independent identities of selected room-actor art, not the PLM programs.</summary>
-public static class RoomObjectPresentationIdentity
+public static partial class RoomObjectPresentationIdentity
 {
     /// <summary>Fingerprints the catalogs already bound by a playable host; nothing is read or imported here.</summary>
     public static IReadOnlyDictionary<string, string> Create(RoomObjectVisualCatalogSet catalogs) =>

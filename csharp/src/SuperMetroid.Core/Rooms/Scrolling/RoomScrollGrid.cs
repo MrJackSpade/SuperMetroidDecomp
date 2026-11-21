@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// traversable, and those open with the camera aligned to the screen's top align the camera vertically differently. Scroll
 /// triggers, doors, enemies and scripted events change cells during play.
 /// </remarks>
-public sealed class RoomScrollGrid
+public sealed partial class RoomScrollGrid
 {
     /// <summary>How many scroll cells the game keeps: no room has more screens.</summary>
     public const int KeptCellCount = 50;

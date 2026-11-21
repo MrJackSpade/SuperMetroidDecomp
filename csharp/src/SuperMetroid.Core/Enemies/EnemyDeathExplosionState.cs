@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <param name="killedEnemy">The enemy the explosion came from.</param>
 /// <param name="dropper">The occupant whose drop chances the explosion rolls; none for a cleared place's.</param>
-internal sealed class EnemyDeathExplosionState(KilledEnemy killedEnemy, RoomEnemyOccupant? dropper)
+internal sealed partial class EnemyDeathExplosionState(KilledEnemy killedEnemy, RoomEnemyOccupant? dropper)
     : EnemyDeathAndDropState
 {
     /// <summary>The enemy the explosion came from, and whether it respawns when the drop ends.</summary>

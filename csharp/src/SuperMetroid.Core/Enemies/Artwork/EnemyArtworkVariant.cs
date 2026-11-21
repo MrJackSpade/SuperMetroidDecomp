@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// variant is known by its name, which the installation's populations name it by.
 /// </summary>
 /// <typeparam name="TSheet">The variant's installed sheet: an enemy's <see cref="SpriteSheet"/>, or the <see cref="SpawnedObjectSheet"/> of an owner's spawned objects.</typeparam>
-public sealed class EnemyArtworkVariant<TSheet>
+public sealed partial class EnemyArtworkVariant<TSheet>
     where TSheet : class
 {
     /// <summary>The encounters whose looks change each of the sheet's frames, in encounter order, by frame name.</summary>

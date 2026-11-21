@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// effect is its instruction stream and the voice-allocation policy its command handler applies.
 /// </summary>
 [EncodingOwner("audio RAM addresses of each sound library's voice-allocation state")]
-internal static class SpcSoundEffectDefinitions
+internal static partial class SpcSoundEffectDefinitions
 {
     /// <summary>The first library's effects, from command one.</summary>
     internal static readonly SpcSoundEffectDefinition<SpcLibrary1Policy>[] Library1 =

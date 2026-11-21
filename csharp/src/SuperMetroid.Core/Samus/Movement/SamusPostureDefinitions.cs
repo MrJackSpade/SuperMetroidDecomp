@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Authored displacement values for posture transitions.</summary>
-public static class SamusPostureDefinitions
+public static partial class SamusPostureDefinitions
 {
     /// <summary>
     /// The pose-change downward distance for <see cref="Poses.SamusPoseId.MorphingTransitionRightPose"/> and

@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Enemies.Choot.ChootFallingPathDefinitions;
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>Where a falling Choot is: its pattern, and the sample of its path at each update of its fall.</summary>
-internal static class ChootFalls
+internal static partial class ChootFalls
 {
     /// <summary>How far, in pixels, the loop origin of <paramref name="fallingPath"/> advances per loop.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="fallingPath"/> is not a defined path.</exception>

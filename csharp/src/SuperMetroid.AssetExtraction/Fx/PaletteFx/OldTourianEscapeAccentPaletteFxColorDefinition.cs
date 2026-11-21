@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>One old-Tourian escape accent's records and the colours each writes.</summary>
-public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
+public sealed partial class OldTourianEscapeAccentPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions: the records <paramref name="effect"/> shows, each writing <paramref name="colorsPerFrame"/> colours.</summary>
     /// <param name="effect">The colour effect whose records the program holds.</param>

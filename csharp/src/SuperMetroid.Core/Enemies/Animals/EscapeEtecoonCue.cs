@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>One cue of the escaping Etecoons' animations: what it does, with the values it acts on.</summary>
-internal abstract record EscapeEtecoonCue
+internal abstract partial record EscapeEtecoonCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
     private EscapeEtecoonCue()
@@ -13,13 +13,13 @@ internal abstract record EscapeEtecoonCue
     /// instead.
     /// </summary>
     /// <param name="Running">The way the Etecoon runs.</param>
-    internal sealed record LowTideRunStarts(HorizontalDirection Running) : EscapeEtecoonCue;
+    internal sealed partial record LowTideRunStarts(HorizontalDirection Running) : EscapeEtecoonCue;
 
     /// <summary>Moves the Etecoon horizontally.</summary>
     /// <param name="Offset">The cue's signed pixel offset.</param>
-    internal sealed record Move(int Offset) : EscapeEtecoonCue;
+    internal sealed partial record Move(int Offset) : EscapeEtecoonCue;
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Signal(EscapeEtecoonCueKind Kind) : EscapeEtecoonCue;
+    internal sealed partial record Signal(EscapeEtecoonCueKind Kind) : EscapeEtecoonCue;
 }

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// Sbug's eight directional animation loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class SbugAnimations
+internal static partial class SbugAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<CompassDirection, EnemyFrameId, NoAnimationCue> Segments { get; } = new(

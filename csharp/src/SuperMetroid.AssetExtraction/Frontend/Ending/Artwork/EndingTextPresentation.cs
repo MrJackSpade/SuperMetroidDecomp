@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable, bounded post-credit labels with cinematic behavior kept in code.</summary>
-public sealed class EndingTextPresentation
+public sealed partial class EndingTextPresentation
 {
     /// <summary>The installed result panel's tiles, with the installed producer label written in.</summary>
     private readonly BackgroundTile[] resultPanel;
@@ -39,7 +39,7 @@ public sealed class EndingTextPresentation
     public SubtitleSequence JapaneseSubtitle => new(this);
 
     /// <summary>The installed subtitle cells.</summary>
-    public readonly struct SubtitleSequence : IReadOnlyList<BackgroundTile>
+    public readonly partial struct SubtitleSequence : IReadOnlyList<BackgroundTile>
     {
         /// <summary>Presentation whose installed subtitle supplies this view.</summary>
         private readonly EndingTextPresentation owner;

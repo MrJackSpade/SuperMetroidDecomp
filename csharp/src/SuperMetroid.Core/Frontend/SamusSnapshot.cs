@@ -8,7 +8,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>What Samus, the player's controller and the escape countdown are doing at one moment.</summary>
-public sealed class SamusSnapshot
+public sealed partial class SamusSnapshot
 {
     /// <summary>Samus's pose.</summary>
     public required SamusPoseId Pose { get; init; }

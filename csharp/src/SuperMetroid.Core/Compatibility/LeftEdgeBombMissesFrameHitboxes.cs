@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// collision has no such test.
 /// </remarks>
 [CompatibilityService("an enemy that collides by its frames' hitboxes never meets a bomb lying on the room's leftmost pixel column")]
-public static class LeftEdgeBombMissesFrameHitboxes
+public static partial class LeftEdgeBombMissesFrameHitboxes
 {
     /// <summary>The room pixel column whose bombs enemies that collide by their frames' hitboxes pass over.</summary>
     internal const int PassedColumn = 0;

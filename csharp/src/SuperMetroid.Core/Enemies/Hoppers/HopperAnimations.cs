@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 /// The Sidehoppers' and Dessgeegas' floor and ceiling hop and landing animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="HopperCue"/> with the values it acts on.
 /// </summary>
-internal static class HopperAnimations
+internal static partial class HopperAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<HopperSegment, EnemyFrameId, HopperCue> Segments { get; } = new(

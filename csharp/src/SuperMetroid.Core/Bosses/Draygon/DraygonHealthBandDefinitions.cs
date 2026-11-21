@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// Draygon's health bands (#2266), each an eighth of his health wide from none upward, the highest holding the rest up
 /// to <see cref="MaximumAuthoredHealth"/>; each lower band shows his body layer more hurt.
 /// </summary>
-public static class DraygonHealthBandDefinitions
+public static partial class DraygonHealthBandDefinitions
 {
     /// <summary>Draygon body's authored health.</summary>
     public const int MaximumAuthoredHealth = 6000;

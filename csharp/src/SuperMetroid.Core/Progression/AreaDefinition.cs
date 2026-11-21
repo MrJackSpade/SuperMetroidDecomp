@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Progression;
 /// its heavy spike blocks are harmless.
 /// </param>
 [IndependentFlag("independent facts of one area: whether it allows pausing and whether its machinery waits for its boss's defeat")]
-internal sealed record AreaDefinition(bool AllowsPausing, bool PoweredFromBossDefeat);
+internal sealed partial record AreaDefinition(bool AllowsPausing, bool PoweredFromBossDefeat);

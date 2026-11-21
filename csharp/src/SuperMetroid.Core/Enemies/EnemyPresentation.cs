@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies;
 /// (#1512).
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyPresentation
+internal sealed partial class EnemyPresentation
 {
     /// <summary>The enemy session, which holds the installed sheets.</summary>
     private readonly EnemySession _session;

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>The perspective floors Ceres shows, made from the turns its rooms compute during the update (#1407).</summary>
-internal static class CeresPerspectiveFloors
+internal static partial class CeresPerspectiveFloors
 {
     /// <summary>
     /// The elevator shaft's floor: turned by the shaft's tilt at its own size about the shaft's centre, scrolled with the

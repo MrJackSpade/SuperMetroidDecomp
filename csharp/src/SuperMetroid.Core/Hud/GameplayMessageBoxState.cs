@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Hud;
 /// </remarks>
 /// <param name="saveChoiceInput">When an open save confirmation reads the controller; the session creates it.</param>
 /// <param name="pauses">The updates gameplay stays paused before the window opens and after it closes; the session creates it.</param>
-public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInput, MessageBoxPauses pauses)
+public sealed partial class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInput, MessageBoxPauses pauses)
 {
     /// <summary>When an open save confirmation reads the controller.</summary>
     private readonly SaveChoiceInputCadence _saveChoiceInput = Ensure.NotNull(saveChoiceInput);

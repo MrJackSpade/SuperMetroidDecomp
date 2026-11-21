@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// #1512, #1513): what an enemy hands the objects it spawns so they draw its objects' pictures in its colours. The
 /// default value is <see cref="SharedStandard"/>: the room's shared sheet in the pictures' standard colours.
 /// </summary>
-public readonly record struct SpriteGraphics
+public readonly partial record struct SpriteGraphics
 {
     /// <summary>The shading given, or null for the standard colours.</summary>
     private readonly PictureShading? shading;

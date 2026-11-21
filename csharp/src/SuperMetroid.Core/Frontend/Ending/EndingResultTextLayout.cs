@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// Where the post-credits text shows on the screen (#1416, #1467, #1555), in screen pixels before the text is moved down,
 /// the items the item percentage counts, and the clear-time digit positions.
 /// </summary>
-public static class EndingResultTextLayout
+public static partial class EndingResultTextLayout
 {
     /// <summary>The side of one glyph of the ending's fixed-width text in pixels; a typed character's column and row count glyphs.</summary>
     public const int GlyphPixels = 8;

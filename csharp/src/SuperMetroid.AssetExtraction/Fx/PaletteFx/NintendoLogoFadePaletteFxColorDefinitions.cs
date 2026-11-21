@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// brightens the copyright's grey and its blue by the same step; this describes the authored colours, not arithmetic
 /// the game performs.
 /// </remarks>
-public static class NintendoLogoFadePaletteFxColorDefinitions
+public static partial class NintendoLogoFadePaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes two live BGR555 colors.</summary>

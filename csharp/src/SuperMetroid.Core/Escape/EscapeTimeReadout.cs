@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Escape;
 
 /// <summary>The minutes, seconds and centiseconds the escape timer shows for a remaining time.</summary>
-public readonly record struct EscapeTimeReadout
+public readonly partial record struct EscapeTimeReadout
 {
     /// <summary>A value of its parts; only its own operations make one.</summary>
     /// <param name="minutes">Whole minutes remaining, 0 through 99.</param>

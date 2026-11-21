@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// <param name="Corner">The background pixel, from the area's top-left, the rectangle's corner lies on.</param>
 /// <param name="Source">The image pixel the rectangle's corner shows.</param>
 /// <param name="Size">The rectangle's width and height.</param>
-public readonly record struct RoomBackgroundImagePiece(Position16<BackgroundPixels> Corner, Position16<ImagePixels> Source, Extent16<BackgroundPixels> Size);
+public readonly partial record struct RoomBackgroundImagePiece(Position16<BackgroundPixels> Corner, Position16<ImagePixels> Source, Extent16<BackgroundPixels> Size);

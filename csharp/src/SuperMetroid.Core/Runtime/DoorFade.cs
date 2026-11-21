@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Runtime;
 /// has opened.
 /// </summary>
 /// <param name="samusColours">Samus's colours, whose beams' shade the fade in keeps lit.</param>
-internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSource
+internal sealed partial class DoorFade(SamusColours samusColours) : IGameplayShadingSource
 {
     /// <summary>Samus's colours, whose beams' shade the fade in keeps lit.</summary>
     private readonly SamusColours samusColours = Ensure.NotNull(samusColours);
@@ -73,10 +73,10 @@ internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSour
 
     /// <summary>Where a door's fade is: no fade, or a running stage.</summary>
     /// <param name="Stage">The stage.</param>
-    private abstract record Fade(DoorFadeStage Stage);
+    private abstract partial record Fade(DoorFadeStage Stage);
 
     /// <summary>No door is fading: the room shows its own colours.</summary>
-    private sealed record NoFade() : Fade(DoorFadeStage.None)
+    private sealed partial record NoFade() : Fade(DoorFadeStage.None)
     {
         /// <summary>The one such state.</summary>
         internal static NoFade Instance { get; } = new();
@@ -85,7 +85,7 @@ internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSour
     /// <summary>A running stage of a door's fade.</summary>
     /// <param name="Stage">The stage.</param>
     /// <param name="BetweenCommonRooms">Whether the door leads from one common room into another, which keeps more of the HUD lit.</param>
-    private abstract record Running(DoorFadeStage Stage, bool BetweenCommonRooms) : Fade(Stage)
+    private abstract partial record Running(DoorFadeStage Stage, bool BetweenCommonRooms) : Fade(Stage)
     {
         /// <summary>The effect the stage shows over the whole display.</summary>
         internal abstract ColourEffect DisplayEffect();
@@ -107,7 +107,7 @@ internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSour
     /// <summary>The room being left fades out to black over <paramref name="Steps"/>.</summary>
     /// <param name="Steps">The fade's steps, which the door takes one per update.</param>
     /// <param name="BetweenCommonRooms">Whether the door leads from one common room into another.</param>
-    private sealed record FadingOut(GradualFadeSteps Steps, bool BetweenCommonRooms)
+    private sealed partial record FadingOut(GradualFadeSteps Steps, bool BetweenCommonRooms)
         : Running(DoorFadeStage.FadingOut, BetweenCommonRooms)
     {
         /// <inheritdoc/>
@@ -120,7 +120,7 @@ internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSour
 
     /// <summary>The room has faded out, and stays dark while the door loads and scrolls.</summary>
     /// <param name="BetweenCommonRooms">Whether the door leads from one common room into another.</param>
-    private sealed record Dark(bool BetweenCommonRooms) : Running(DoorFadeStage.Dark, BetweenCommonRooms)
+    private sealed partial record Dark(bool BetweenCommonRooms) : Running(DoorFadeStage.Dark, BetweenCommonRooms)
     {
         /// <inheritdoc/>
         internal override ColourEffect DisplayEffect() => new ColourFlash(RgbColor.Black);
@@ -133,7 +133,7 @@ internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSour
     /// <summary>The room being entered fades in from black over <paramref name="Steps"/>.</summary>
     /// <param name="Steps">The fade's steps, which the door takes one per update.</param>
     /// <param name="BetweenCommonRooms">Whether the door leads from one common room into another.</param>
-    private sealed record FadingIn(GradualFadeSteps Steps, bool BetweenCommonRooms)
+    private sealed partial record FadingIn(GradualFadeSteps Steps, bool BetweenCommonRooms)
         : Running(DoorFadeStage.FadingIn, BetweenCommonRooms)
     {
         /// <summary>Whether the door has opened in the room being entered, which keeps Samus's visor lit from then on.</summary>

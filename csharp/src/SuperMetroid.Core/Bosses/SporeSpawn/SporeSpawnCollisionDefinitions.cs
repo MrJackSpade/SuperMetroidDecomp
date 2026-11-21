@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// The eleven Spore Spawn frames and their fixed gameplay hitboxes (#2241, #2234): each head list named for the pose it fits, and
 /// each frame listed against its head and its inner point.
 /// </summary>
-internal static class SporeSpawnCollisionDefinitions
+internal static partial class SporeSpawnCollisionDefinitions
 {
     /// <summary>Spore Spawn's contact reaction, on the active shell and vulnerable point.</summary>
     internal static readonly EnemyReaction Touch = SporeSpawnReactions.Touch;

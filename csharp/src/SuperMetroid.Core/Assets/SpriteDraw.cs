@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Assets;
 /// One whole-frame sprite entry of a published frame: an actor or display element shown at an origin. Backends draw it
 /// as one whole picture, assembling nothing.
 /// </summary>
-public abstract record SpriteDraw
+public abstract partial record SpriteDraw
 {
     /// <summary>Keeps what every kind of draw has.</summary>
     /// <param name="source">The actor or display element shown.</param>

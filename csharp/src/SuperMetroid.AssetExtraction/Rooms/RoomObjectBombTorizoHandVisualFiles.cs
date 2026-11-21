@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of Bomb Torizo's intact and cleared hand frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectBombTorizoHandVisualFiles
+public static partial class RoomObjectBombTorizoHandVisualFiles
 {
     /// <summary>
     /// Each hand frame's strips, where each starts and how many blocks long: the intact hand is written as the hand's block

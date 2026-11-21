@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.Artwork;
 /// <param name="motherBrainRainbowColors">Mother Brain's installed rainbow-beam colours.</param>
 /// <param name="kraidEyes">Kraid's installed eye colours.</param>
 /// <param name="bodySheets">Every boss's installed body sheet.</param>
-public sealed class BossArtworkBinding(CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays,
+public sealed partial class BossArtworkBinding(CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays,
     EscapeTypewriterPresentation escapeTypewriterPresentation, MotherBrainRainbowBeamColours motherBrainRainbowColors,
     KraidEyeColours kraidEyes, BossBodySheets bodySheets)
 {

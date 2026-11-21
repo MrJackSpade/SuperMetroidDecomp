@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Assets;
 /// The installed key of each <see cref="EncounterArtwork"/> (#2520), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class EncounterArtworkKeys
+internal static partial class EncounterArtworkKeys
 {
     /// <summary>Each EncounterArtwork member's installed key.</summary>
     internal static InstalledKeys<EncounterArtwork> Installed { get; } = new(new Dictionary<EncounterArtwork, string>

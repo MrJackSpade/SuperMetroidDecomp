@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// <summary>
 /// The state of a Mochtroid: its steering and its one-update movement selector.
 /// </summary>
-public sealed class MochtroidEnemyState
+public sealed partial class MochtroidEnemyState
 {
     /// <summary>The Mochtroid's velocity in room pixels per update, positive right and down.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }

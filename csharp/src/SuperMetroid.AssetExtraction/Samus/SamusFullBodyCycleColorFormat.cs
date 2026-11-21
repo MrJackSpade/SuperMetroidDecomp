@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Defines the document identity and fixed native full-body palette geometry.</summary>
-public static class SamusFullBodyCycleColorFormat
+public static partial class SamusFullBodyCycleColorFormat
 {
     /// <summary>JSON filename containing all Samus full-body cycle colors.</summary>
     public const string FileName = "samus-full-body-cycle-colors.json";

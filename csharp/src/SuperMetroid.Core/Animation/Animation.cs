@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Animation;
 
 /// <summary>An actor's animation (#1600): its phases in the order they play, and how it ends.</summary>
 /// <typeparam name="TSegment">The segment identity the phases play.</typeparam>
-internal sealed record Animation<TSegment>
+internal sealed partial record Animation<TSegment>
     where TSegment : struct
 {
     /// <summary>

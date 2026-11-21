@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 /// Draygon's installed RGB5 opening, normal, flash, and health-band colors, each set kept as installed. Health
 /// thresholds, hit reactions, and flash timing remain mechanics code.
 /// </summary>
-public sealed class DraygonColorCatalog
+public sealed partial class DraygonColorCatalog
 {
     /// <summary>The installed opening colours.</summary>
     private readonly InstalledColourRows intro;

@@ -6,7 +6,7 @@ using B = SuperMetroid.Core.Bosses.Botwoon.BotwoonBodyAnimationSegment;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Botwoon's typed animations (#641): his head's, his body segments' and his spit's (#2400).</summary>
-internal static class BotwoonAnimations
+internal static partial class BotwoonAnimations
 {
     /// <summary>Botwoon's facings in the order his segments are listed (#2567).</summary>
     private static readonly IReadOnlyList<CompassDirection> FacingOrder = Ensure.EveryMemberOnce<CompassDirection>(

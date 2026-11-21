@@ -3,7 +3,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>One post-credits star: its own flight's definition, and its position, velocity, start delay and pictures.</summary>
-internal struct EndingShootingStar
+internal partial struct EndingShootingStar
 {
     /// <summary>How the star flies: its acceleration, its pictures' pace and its start delay (#2541).</summary>
     internal EndingShootingStarDefinition Definition;

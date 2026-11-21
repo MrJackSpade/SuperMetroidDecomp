@@ -7,7 +7,7 @@ using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBodySegment;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>Spore Spawn's typed body animations (#641), each beat naming the installed frame it shows (#1885).</summary>
-internal static class SporeSpawnAnimations
+internal static partial class SporeSpawnAnimations
 {
     /// <summary>How long the living room waits before the descent.</summary>
     private const int DescentWait = 256;

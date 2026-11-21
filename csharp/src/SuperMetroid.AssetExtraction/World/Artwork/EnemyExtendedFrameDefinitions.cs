@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// Their selectors come from compiled instruction catalogs;
 /// component hitbox pointers remain gameplay-owned and absent from the asset.
 /// </summary>
-internal static class EnemyExtendedFrameDefinitions
+internal static partial class EnemyExtendedFrameDefinitions
 {
     /// <summary>Additional Torizo identities introduced by the completed-family schema.</summary>
     internal const int CompleteTorizoAdditionalFrameCount = 27;

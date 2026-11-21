@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Input;
 /// Named combinations of the player's controller buttons, for the screens and hosts that read buttons; gameplay reads
 /// <see cref="GameplayAction"/>s and their combinations in <see cref="GameplayActions"/>.
 /// </summary>
-public static class ControllerButtons
+public static partial class ControllerButtons
 {
     /// <summary>Every bit physically supplied by a standard twelve-button controller.</summary>
     public const ControllerButton All =

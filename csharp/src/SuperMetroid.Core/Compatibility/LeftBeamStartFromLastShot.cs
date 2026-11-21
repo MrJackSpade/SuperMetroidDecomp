@@ -30,7 +30,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("a beam fired to the left starts its muzzle check from the horizontal sub-pixel position its shot place kept from the projectile that held it when Samus's shots were last cleared")]
-public sealed class LeftBeamStartFromLastShot
+public sealed partial class LeftBeamStartFromLastShot
 {
     /// <summary>What each place keeps for its next projectile, in place order.</summary>
     internal readonly PixelFraction[] kept;

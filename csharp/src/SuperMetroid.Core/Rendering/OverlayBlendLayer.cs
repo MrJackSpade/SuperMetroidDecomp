@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rendering;
 /// picture (<see cref="OverlayPicture"/>), its horizontal scroll described line by line, as water's wave moves it sideways
 /// below the surface. The backend draws it.
 /// </summary>
-public sealed record OverlayBlendLayer : DisplayLayer
+public sealed partial record OverlayBlendLayer : DisplayLayer
 {
     /// <summary>The layer's horizontal scroll line by line, added to the screen position before each picture repeats across.</summary>
     public LineScroll Horizontal { get; }

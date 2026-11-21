@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// <summary>
 /// Which actor each picture shown on a Ceres room's turning floor is a picture of (#1626, #2573).
 /// </summary>
-public static class CeresFloorActors
+public static partial class CeresFloorActors
 {
     /// <summary>
     /// The floor's actors in the order their pictures lie over it (#2567): the elevator platform, the Baby's capsule, then

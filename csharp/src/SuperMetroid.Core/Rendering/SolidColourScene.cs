@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>A frame filled with one colour (#2505), shown at its brightness.</summary>
-public sealed class SolidColourScene : DisplayScene
+public sealed partial class SolidColourScene : DisplayScene
 {
     /// <summary>Keeps the colour and the brightness.</summary>
     /// <param name="colour">The colour filling the whole screen before the brightness applies.</param>

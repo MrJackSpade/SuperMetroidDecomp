@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 /// Atomic's four spinning animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class AtomicAnimations
+internal static partial class AtomicAnimations
 {
     /// <summary>The updates each of Atomic's turning frames shows for.</summary>
     private const int TurnUpdates = 8;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// <see cref="Decelerate"/>. The shot-reaction guard is inherited from the previous Bull in its
 /// place (<see cref="PlaceInheritance{TOccupant}"/>).
 /// </summary>
-public sealed class BullEnemyState
+public sealed partial class BullEnemyState
 {
     /// <summary>Starts one Bull with the shot-reaction guard the previous Bull in its place left, or none for the place's first.</summary>
     /// <remarks>

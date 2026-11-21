@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// (<see cref="ScrollStretch"/>) or a list of bands (<see cref="ScrollBands"/>). The backend's shader evaluates the shape
 /// line by line; nothing keeps a table of lines.
 /// </summary>
-public abstract record LineScroll
+public abstract partial record LineScroll
 {
     /// <summary>Closes the hierarchy to the wave, the waveform, the stretch and the bands.</summary>
     private protected LineScroll()

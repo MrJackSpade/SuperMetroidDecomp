@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// operand once, and the installed artwork file keys the frame by its name.
 /// </summary>
 [EncodingOwner("bank-$86 instruction-list operands of the enemy-projectile program frames")]
-internal static class EnemyProjectileProgramFrameDefinitions
+internal static partial class EnemyProjectileProgramFrameDefinitions
 {
     /// <summary>
     /// The bank-$86 operand of every installed program frame. Two frames share one: the waiting Kago bug plays the list

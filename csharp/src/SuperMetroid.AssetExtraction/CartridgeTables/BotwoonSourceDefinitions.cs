@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// cartridge, decoded once into the installed colour document.
 /// </summary>
 [EncodingOwner("cartridge addresses of Botwoon's colour tables")]
-internal static class BotwoonSourceDefinitions
+internal static partial class BotwoonSourceDefinitions
 {
     /// <summary>$B3:971B-$981A, BotwoonHealthBasedPalettes: the eight sixteen-colour health images.</summary>
     internal const int HealthColors = 0xb3971b;

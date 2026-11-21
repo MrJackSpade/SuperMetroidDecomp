@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies;
 /// enemies consult (the installation's enemy and boss over-read services and the runtime's rainbow-beam camera checkpoint)
 /// and the installed enemy sheets and enemy frame displays every room's enemies draw from (#1616).
 /// </summary>
-public sealed class EnemySession
+public sealed partial class EnemySession
 {
     /// <summary>
     /// Creates the enemy state a fresh power-on holds, bound to the compatibility services its enemies consult.

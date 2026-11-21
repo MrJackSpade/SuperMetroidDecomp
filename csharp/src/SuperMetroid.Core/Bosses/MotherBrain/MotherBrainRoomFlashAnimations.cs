@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// (#2404): its images (<see cref="MotherBrainRoomFlashDefinitions.FlashFrameCount"/>), each shown <see cref="MotherBrainRoomFlashDefinitions.FlashImageTicks"/> updates, looping
 /// for as long as the flash runs.
 /// </summary>
-internal static class MotherBrainRoomFlashAnimations
+internal static partial class MotherBrainRoomFlashAnimations
 {
     /// <summary>The flash's run of images.</summary>
     internal static AnimationSegments<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue> Segments { get; } = new(

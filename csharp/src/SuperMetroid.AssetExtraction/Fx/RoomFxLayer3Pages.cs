@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// Editable BG3 tiles for the six room-FX pages, as the import's document places them. Only the import reads them: it
 /// pictures each page once into the BG3 sheets (#1466), and the game names the page an effect shows (#1467).
 /// </summary>
-public sealed class RoomFxLayer3Pages
+public sealed partial class RoomFxLayer3Pages
 {
     /// <summary>Each authored page's tiles, row-major, by the effect that shows it.</summary>
     private readonly Dictionary<RoomFxType, BackgroundTile[]> pages;

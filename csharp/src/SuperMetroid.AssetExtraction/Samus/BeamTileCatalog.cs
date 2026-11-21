@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The installed beam characters by combination, with the beam palettes; the projectile sheets are composed from them.</summary>
-public sealed class BeamTileCatalog : IInstalledArtworkContent
+public sealed partial class BeamTileCatalog : IInstalledArtworkContent
 {
     /// <summary>Every pictured combination's installed 256-byte beam atlas.</summary>
     private readonly IReadOnlyDictionary<SamusBeamCombination, BeamTileAtlas> sheets;

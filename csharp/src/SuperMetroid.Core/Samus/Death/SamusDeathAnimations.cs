@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Death;
 /// white before the room fades; the explosion's whiteout brightens through its shades one update each and rests on its
 /// brightest.
 /// </summary>
-internal static class SamusDeathAnimations
+internal static partial class SamusDeathAnimations
 {
     /// <summary>The flash's shades, each with the updates it shows for.</summary>
     internal static AnimationSegments<SamusDeathFlashSegment, SamusDeathShade, NoAnimationCue> FlashSegments { get; } = new(

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// their rest lengths and initial angles; what it is doing, how far it may swing, the whip it aims and how hard its tip
 /// strikes.
 /// </summary>
-public sealed class RidleyTailState
+public sealed partial class RidleyTailState
 {
     /// <summary>Makes a tail at its initial layout, striking for <paramref name="damage"/>, that starts no whips of its own.</summary>
     /// <param name="damage">The tip's contact damage before Samus's suit reduction.</param>

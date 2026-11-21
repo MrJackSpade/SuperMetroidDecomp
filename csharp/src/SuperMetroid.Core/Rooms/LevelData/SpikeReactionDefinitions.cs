@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>What each spike reaction is to the grapple beam and to enemies (<see cref="SpikeReactions"/>, #1722).</summary>
-internal static class SpikeReactionDefinitions
+internal static partial class SpikeReactionDefinitions
 {
     /// <summary>The spike reactions the grapple beam passes through rather than stopping on.</summary>
     internal static readonly SpikeReaction[] LettingGrappleThrough = [SpikeReaction.HarmlessLetsGrappleThrough, SpikeReaction.EnemyBreakableLetsGrappleThrough];

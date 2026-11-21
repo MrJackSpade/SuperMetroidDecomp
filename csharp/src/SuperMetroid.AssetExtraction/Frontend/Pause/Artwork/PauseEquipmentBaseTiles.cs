@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// Which cells of the equipment screen's base page (<see cref="PauseEquipmentBaseDefinitions"/>) the live labels, reserves
 /// and wireframe own; the page's pictures are installed whole (#1615).
 /// </summary>
-public static class PauseEquipmentBaseTiles
+public static partial class PauseEquipmentBaseTiles
 {
     /// <summary>
     /// $82:C06C-$C087 destinations: beams occupy rows 16 to 20, suits and miscellaneous items rows 9 and 10

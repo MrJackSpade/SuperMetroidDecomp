@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Which looks of each encounter one frame is drawn in (#1513, #1538), as <see cref="EncounterArtworkDrawingDefinitions"/>
 /// lists them: a sheet holds the frame's finished pictures of only those looks.
 /// </summary>
-internal sealed class FrameDrawings
+internal sealed partial class FrameDrawings
 {
     /// <summary>Every catalogue entry with the frames it lists resolved, its effect actors' frames among them.</summary>
     private static readonly ResolvedDrawing[] Entries = [.. EncounterArtworkDrawingDefinitions.All.Select(drawing => new ResolvedDrawing(drawing,
@@ -52,5 +52,5 @@ internal sealed class FrameDrawings
     /// <param name="Drawing">The entry.</param>
     /// <param name="Frames">The enemy frames it lists, its effect actors' frames among them.</param>
     /// <param name="Projectiles">The projectile frames it lists.</param>
-    private sealed record ResolvedDrawing(EncounterArtworkDrawing Drawing, IReadOnlySet<EnemyFrameId> Frames, IReadOnlySet<EnemyProjectileFrameId> Projectiles);
+    private sealed partial record ResolvedDrawing(EncounterArtworkDrawing Drawing, IReadOnlySet<EnemyFrameId> Frames, IReadOnlySet<EnemyProjectileFrameId> Projectiles);
 }

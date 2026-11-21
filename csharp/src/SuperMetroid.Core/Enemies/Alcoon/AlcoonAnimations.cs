@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// The Alcoon's walking, fireball and airborne animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="AlcoonCue"/> naming what it does.
 /// </summary>
-internal static class AlcoonAnimations
+internal static partial class AlcoonAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<AlcoonSegment, EnemyFrameId, AlcoonCue> Segments { get; } = new(

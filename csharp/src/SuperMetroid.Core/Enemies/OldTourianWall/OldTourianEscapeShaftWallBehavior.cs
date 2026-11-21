@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
 /// <summary>The old Tourian escape shaft's fake wall: the explosion that goes off as it breaks.</summary>
 [RoomLifetime]
-internal sealed class OldTourianEscapeShaftWallBehavior
+internal sealed partial class OldTourianEscapeShaftWallBehavior
 {
     /// <summary>The room's enemy projectiles, which the wall's explosion spawns.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -45,7 +45,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     /// </summary>
     /// <param name="projectiles">The enemy projectiles, which scatter the explosion.</param>
     /// <param name="audio">The enemy sound queue the explosion's sound joins.</param>
-    internal sealed class WallExplosionBehavior(EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
+    internal sealed partial class WallExplosionBehavior(EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
         : EnemyProjectileBehavior, IEnemyProjectileCues<OldTourianWallExplosionCue>
     {
         /// <summary>Carries out one cue of the wall explosion's animation.</summary>

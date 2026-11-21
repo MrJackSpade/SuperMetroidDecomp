@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>A colour key in an installed sheet manifest (#1633): a colour the image's pixels hold and its recolour region.</summary>
-public sealed record InstalledColourKeyDocument
+public sealed partial record InstalledColourKeyDocument
 {
     /// <summary>The colour, as <c>#rrggbb</c>.</summary>
     public required string Colour { get; init; }

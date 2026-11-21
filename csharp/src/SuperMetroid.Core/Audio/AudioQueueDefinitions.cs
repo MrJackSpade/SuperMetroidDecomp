@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>The update counts of the game's music queue and its three sound queues.</summary>
-public static class AudioQueueDefinitions
+public static partial class AudioQueueDefinitions
 {
     /// <summary>The shortest music delay, in music-queue passes; shorter requested delays are lengthened to it.</summary>
     public const int MinimumMusicDelayPasses = 8;

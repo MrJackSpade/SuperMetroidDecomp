@@ -24,7 +24,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="CollectibleBlocks">
 /// Every block a collectible that shows its own picture writes under it, each once, and the block it straddles as.
 /// </param>
-internal sealed record StraddledTerrainDocument(
+internal sealed partial record StraddledTerrainDocument(
     int Version,
     IReadOnlyList<StraddledTerrainDocument.Tail> Tails,
     IReadOnlyList<StraddledTerrainDocument.Lead> Leads,
@@ -33,12 +33,12 @@ internal sealed record StraddledTerrainDocument(
     /// <summary>The block numbers from <paramref name="First"/> through <paramref name="Last"/>, each 0 through 1023.</summary>
     /// <param name="First">The first block number of the run.</param>
     /// <param name="Last">The last block number of the run, no lower than the first.</param>
-    internal sealed record BlockRun(int First, int Last);
+    internal sealed partial record BlockRun(int First, int Last);
 
     /// <summary>One tail class: the block numbers whose start contributes the same to a straddled read.</summary>
     /// <param name="Name">The class's name, unique among the tail classes, which the lead classes key their terrain by.</param>
     /// <param name="Blocks">The runs of block numbers the class holds, whatever their mirroring and collision kind.</param>
-    internal sealed record Tail([InstalledKey] string Name, IReadOnlyList<BlockRun> Blocks);
+    internal sealed partial record Tail([InstalledKey] string Name, IReadOnlyList<BlockRun> Blocks);
 
     /// <summary>One lead class: the blocks whose end contributes the same to a straddled read, and what it makes.</summary>
     /// <param name="Collision">The name of the kind every block of the class collides as.</param>
@@ -48,14 +48,14 @@ internal sealed record StraddledTerrainDocument(
     /// The terrain a read starting in a block of this class and ending in a block of each tail class finds, keyed by the
     /// tail class's name.
     /// </param>
-    internal sealed record Lead([InstalledKey] string Collision, [InstalledKey] string Mirroring, IReadOnlyList<BlockRun> Blocks,
+    internal sealed partial record Lead([InstalledKey] string Collision, [InstalledKey] string Mirroring, IReadOnlyList<BlockRun> Blocks,
         IReadOnlyDictionary<string, Outcome> Straddles);
 
     /// <summary>One straddled terrain block.</summary>
     /// <param name="Block">The block shown, 0 through 1023.</param>
     /// <param name="Mirroring">The name of how the block is mirrored.</param>
     /// <param name="Collision">The name of the kind the block collides as.</param>
-    internal sealed record Outcome(int Block, [InstalledKey] string Mirroring, [InstalledKey] string Collision);
+    internal sealed partial record Outcome(int Block, [InstalledKey] string Mirroring, [InstalledKey] string Collision);
 
     /// <summary>
     /// One block a collectible that shows its own picture writes under it (#2354): its end and start contribute to a
@@ -64,5 +64,5 @@ internal sealed record StraddledTerrainDocument(
     /// <param name="Pair">The name of the block pair.</param>
     /// <param name="Look">The name of the look of the collectible's picture the block lies under.</param>
     /// <param name="StraddlesAs">The block number, 0 through 1023, the block straddles as.</param>
-    internal sealed record CollectibleBlock([InstalledKey] string Pair, [InstalledKey] string Look, int StraddlesAs);
+    internal sealed partial record CollectibleBlock([InstalledKey] string Pair, [InstalledKey] string Look, int StraddlesAs);
 }

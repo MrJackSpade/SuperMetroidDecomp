@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>The state of the elevator enemy.</summary>
-public sealed class ElevatorEnemyState
+public sealed partial class ElevatorEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ElevatorSegment> Playback { get; set; }

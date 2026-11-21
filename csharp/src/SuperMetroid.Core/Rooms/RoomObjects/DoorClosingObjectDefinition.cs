@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The room object a door transition places to close the door behind Samus when nothing at the door closes: a blue cap
 /// closing with its facing, or Mother Brain's escape gate closing.
 /// </summary>
-internal abstract record DoorClosingObjectDefinition
+internal abstract partial record DoorClosingObjectDefinition
 {
     /// <summary>Only the nested cases derive.</summary>
     private DoorClosingObjectDefinition()
@@ -18,8 +18,8 @@ internal abstract record DoorClosingObjectDefinition
 
     /// <summary>A blue cap that closes facing <paramref name="Facing"/>.</summary>
     /// <param name="Facing">The cap's facing.</param>
-    internal sealed record BlueCap(ColoredDoorOrientation Facing) : DoorClosingObjectDefinition;
+    internal sealed partial record BlueCap(ColoredDoorOrientation Facing) : DoorClosingObjectDefinition;
 
     /// <summary>Mother Brain's escape gate closing.</summary>
-    private sealed record EscapeGateClosing : DoorClosingObjectDefinition;
+    private sealed partial record EscapeGateClosing : DoorClosingObjectDefinition;
 }

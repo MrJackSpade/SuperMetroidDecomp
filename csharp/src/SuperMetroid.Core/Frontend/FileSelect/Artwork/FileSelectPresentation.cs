@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 /// import pipeline that reads the installed presentation and never reach the game (#1463, #1616). Save-file validation,
 /// menu navigation, copy/clear operations and fades are the game's own.
 /// </summary>
-public sealed class FileSelectPresentation
+public sealed partial class FileSelectPresentation
 {
     /// <summary>The slot fields, anchors and durations the import pipeline validated.</summary>
     private readonly FileSelectPlacements placements;

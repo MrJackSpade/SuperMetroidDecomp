@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The initialization settings of each Wrecked Ship room state, named for their rooms.</summary>
-public static class WreckedShipRoomStateDefinitions
+public static partial class WreckedShipRoomStateDefinitions
 {
 
     /// <summary>The Bowling Alley room's default state.</summary>

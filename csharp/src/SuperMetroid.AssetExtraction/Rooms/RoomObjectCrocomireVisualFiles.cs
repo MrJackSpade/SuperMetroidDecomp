@@ -7,7 +7,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of Crocomire's five bridge and invisible-wall frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectCrocomireVisualFiles
+public static partial class RoomObjectCrocomireVisualFiles
 {
     /// <summary>JSON filename for Crocomire bridge and invisible-wall visual layouts.</summary>
     internal const string VisualFileName = "crocomire-arena.json";

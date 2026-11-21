@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// The opening narration's full, editable screen colours (#1464): its eight background sets and eight sprite sets of
 /// sixteen colours, kept as installed.
 /// </summary>
-public sealed class IntroCinematicPalette
+public sealed partial class IntroCinematicPalette
 {
     /// <summary>Retains the installed colours: the background sets, then the sprite sets, in equal halves.</summary>
     /// <param name="image">Every installed colour, background sets first.</param>

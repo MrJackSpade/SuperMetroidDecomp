@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Types four, six, and seven share the same retail list. Type two has a null retail
 /// pointer and deliberately remains on the mutable-address-space path.
 /// </remarks>
-public sealed class SamusAtmosphericSourceArtwork
+public sealed partial class SamusAtmosphericSourceArtwork
 {
     /// <summary>Holds both installed four-frame appearance lists whole, without retaining caller arrays.</summary>
     /// <param name="footstepSplash">Four type-one footstep appearances in animation-frame order, corresponding to $90:8C0F.</param>

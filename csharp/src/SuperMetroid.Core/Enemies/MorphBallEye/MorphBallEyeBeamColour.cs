@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// One of the sixteen colours the full Morph Ball eye beam cycles through, one an update (#2343); the last is followed
 /// by the first.
 /// </summary>
-public readonly record struct MorphBallEyeBeamColour
+public readonly partial record struct MorphBallEyeBeamColour
 {
     /// <summary>The colour at <paramref name="step"/> of the cycle.</summary>
     private MorphBallEyeBeamColour(int step) => Step = step;

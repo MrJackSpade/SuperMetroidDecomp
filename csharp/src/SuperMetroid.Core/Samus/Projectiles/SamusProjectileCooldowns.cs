@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileCooldownDefiniti
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The cooldown each beam combination's shots set the shared shot timer to.</summary>
-internal static class SamusProjectileCooldowns
+internal static partial class SamusProjectileCooldowns
 {
     /// <summary>
     /// The cooldown a beam combination's <paramref name="shot"/> sets the shared shot timer to. Beam charge doubles

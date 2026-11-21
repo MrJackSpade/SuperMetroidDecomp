@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// step, and the Hyper-shot glow's cycle. The import pipeline decodes them from the installed document; charge admission,
 /// step advancement and the glow's timer are Samus's.
 /// </summary>
-public sealed class SamusChargeColours
+public sealed partial class SamusChargeColours
 {
     /// <summary>Each charge palette's suit colours.</summary>
     private readonly Dictionary<SamusChargeShade, ImmutableArray<RgbColor>> palettes;

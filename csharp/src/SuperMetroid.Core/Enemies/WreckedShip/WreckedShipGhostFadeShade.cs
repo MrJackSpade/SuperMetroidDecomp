@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// The shade the Wrecked Ship ghost shows for its fading colours (#1512, #1552): the effect that last changed them and how
 /// many of its steps did. The ghost shows it, and the import pre-colours every one the ghost passes through.
 /// </summary>
-internal static class WreckedShipGhostFadeShade
+internal static partial class WreckedShipGhostFadeShade
 {
     /// <summary>The shade naming the colours <paramref name="fade"/> shows.</summary>
     internal static PictureShade Of(WreckedShipGhostFade fade) => new(EffectName(fade.ChangedBy), fade.StepsChanged);

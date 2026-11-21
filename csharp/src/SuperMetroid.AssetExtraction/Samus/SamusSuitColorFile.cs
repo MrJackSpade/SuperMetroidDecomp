@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Samus suit colour document.</summary>
-public static class SamusSuitColorFile
+public static partial class SamusSuitColorFile
 {
     /// <summary>Supported normal-suit color schema version.</summary>
     public const int Version = 1;

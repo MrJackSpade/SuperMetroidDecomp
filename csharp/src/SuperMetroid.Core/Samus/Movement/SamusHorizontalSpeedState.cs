@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// collision consumes
 /// the resulting displacement later; it is not guessed here.
 /// </remarks>
-public sealed class SamusHorizontalSpeedState
+public sealed partial class SamusHorizontalSpeedState
 {
     /// <summary>The water speeds Draygon's hold and special movement take in air, which have no speeds of their own there.</summary>
     private readonly WaterSpeedsInAir<SamusMovementType, SamusHorizontalSpeeds> _waterSpeedsInAir;

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// Lays out the English SPACE COLONY caption (<see cref="SpaceColonyCaptionDefinitions"/>): its visible letters left to
 /// right, one letter's width apart, skipping the space.
 /// </summary>
-public static class SpaceColonyCaption
+public static partial class SpaceColonyCaption
 {
     /// <summary>The pixel column of visible letter <paramref name="index"/>'s left edge, the space's width skipped.</summary>
     public static int Left(int index) =>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// The SPACE COLONY caption: its non-space letters appear left to right, one letter's width apart, and with Japanese text
 /// the katakana caption shows below it. The import pictures each letter and the katakana caption.
 /// </summary>
-public static class SpaceColonyCaptionDefinitions
+public static partial class SpaceColonyCaptionDefinitions
 {
     /// <summary>The English caption; its one space takes a letter's width but shows nothing.</summary>
     public const string Text = "SPACE COLONY";

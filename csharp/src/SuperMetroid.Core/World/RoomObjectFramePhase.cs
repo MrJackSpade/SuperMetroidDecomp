@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.World;
 /// <summary>
 /// The room-object phase of a gameplay frame and the room objects' step for a door transition.
 /// </summary>
-internal sealed class RoomObjectFramePhase
+internal sealed partial class RoomObjectFramePhase
 {
     /// <summary>Newly pressed actions passed to the room objects.</summary>
     private readonly GameplayActionInput _playerActions;
@@ -142,7 +142,7 @@ internal sealed class RoomObjectFramePhase
     /// </summary>
     /// <param name="phase">The room-object phase, which owns the message box and its pending work.</param>
     /// <param name="samus">Samus, whose beams a beam pickup shows.</param>
-    private sealed class RoomObjectMessages(RoomObjectFramePhase phase, SamusState samus)
+    private sealed partial class RoomObjectMessages(RoomObjectFramePhase phase, SamusState samus)
         : ICollectiblePickupConsequences, IStationActivationMessages
     {
         /// <inheritdoc/>

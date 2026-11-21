@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>The segments one facing of the Magdollite starts or plays through (#2557), each by its part in the facing's animations.</summary>
-internal sealed record MagdolliteFacingSegments
+internal sealed partial record MagdolliteFacingSegments
 {
     /// <summary>The head's idle bob.</summary>
     public required MagdolliteSegment Idle { get; init; }

@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.World;
 /// The frame boundary at the start of each update: the previous update's frame becomes visible, the controllers are
 /// latched and the frame counters advance; the display captures are published here.
 /// </summary>
-internal sealed class AcceptedFrameBoundary
+internal sealed partial class AcceptedFrameBoundary
 {
     /// <summary>Latches the controllers and advances the frame counters after publication.</summary>
     private readonly AcceptedFrameInput _input;

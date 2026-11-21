@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Abilities.Artwork;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>Selected X-ray art.</summary>
-public static class GameplayPresentationIdentity
+public static partial class GameplayPresentationIdentity
 {
     /// <summary>Captures the named identity of the selected X-ray presentation.</summary>
     /// <param name="xray">Non-null selected reveal-operand and item/special-room overlay catalog.</param>

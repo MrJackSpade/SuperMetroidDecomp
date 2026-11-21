@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// <remarks>
 /// The two navigation-light effects start at their own records but share one loop of records.
 /// </remarks>
-public static class CeresCinematicLightPaletteFxColorDefinitions
+public static partial class CeresCinematicLightPaletteFxColorDefinitions
 {
     /// <summary>Each gunship-engine record writes one live BGR555 color.</summary>
     internal const int GunshipEngineColorsPerFrame = 1;

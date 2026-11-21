@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Fx;
 /// The overlay effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomFxOverlayState : IGameplayShadingSource
+public sealed partial class RoomFxOverlayState : IGameplayShadingSource
 {
     /// <summary>
     /// The loop of the effect's own block animation (lava, acid, rain or spores), selecting the frame its pictures show, or

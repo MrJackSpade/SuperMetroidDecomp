@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// What one of Phantoon's casual flames keeps once it has landed: how long it rests at the floor, then how many times
 /// it has bounced.
 /// </summary>
-internal sealed class PhantoonCasualFlameState : EnemyProjectileState
+internal sealed partial class PhantoonCasualFlameState : EnemyProjectileState
 {
     /// <summary>The updates the landed flame pauses at the floor, the last being the one it starts bouncing on.</summary>
     private const int LandingPauseUpdates = 8;

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// Each record darkens every colour but the first by the same step on red, green and blue, clamped at black; this
 /// describes the authored colours, not arithmetic the game performs.
 /// </remarks>
-public static class ExplodingZebesFadePaletteFxColorDefinitions
+public static partial class ExplodingZebesFadePaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes eight live BGR555 colors.</summary>

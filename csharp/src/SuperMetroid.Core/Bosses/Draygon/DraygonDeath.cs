@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's death: drifting to its burial point, the Evirs and sinking below the room.</summary>
 [RoomLifetime]
-internal sealed class DraygonDeath
+internal sealed partial class DraygonDeath
 {
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;

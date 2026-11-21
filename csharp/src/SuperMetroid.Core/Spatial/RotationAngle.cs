@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Spatial;
 /// the fraction lets grapple and neck motion turn at sub-step precision while whole-step callers share the same turns.
 /// </summary>
 [EncodingOwner("8.8 rotation angle word")]
-public readonly record struct RotationAngle : IComparable<RotationAngle>, System.Numerics.IUnaryNegationOperators<RotationAngle, RotationAngle>
+public readonly partial record struct RotationAngle : IComparable<RotationAngle>, System.Numerics.IUnaryNegationOperators<RotationAngle, RotationAngle>
 {
     /// <summary>Number of whole steps in one complete turn.</summary>
     public const int StepsPerTurn = 256;

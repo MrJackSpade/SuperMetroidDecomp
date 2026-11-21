@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// How Mother Brain's neck bobs, lowers and raises, by the same angle steps in the fight and in the rainbow beam's
 /// sequence.
 /// </summary>
-internal static class MotherBrainNeckKinematics
+internal static partial class MotherBrainNeckKinematics
 {
     /// <summary>Lowest angle the lower neck bobs down to before reversing upward.</summary>
     private static readonly RotationAngle LowerBobFloor = RotationAngle.FromSteps(40);

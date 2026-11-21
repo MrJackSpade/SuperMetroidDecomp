@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>The gunship's takeoff (#1406, #1538): how long its engines take to fire up, and the look they show once they do.</summary>
-internal static class GunshipTakeoffDefinitions
+internal static partial class GunshipTakeoffDefinitions
 {
     /// <summary>
     /// The phase of the engines' rumble count on which the rumble shakes Samus and the gunship down; otherwise it

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>One frame of a sprite sheet: its rectangle on the sheet and the point of it that lands on the draw's origin.</summary>
-public sealed record SpriteSheetFrame
+public sealed partial record SpriteSheetFrame
 {
     /// <summary>Checks that the rectangle lies on the sheet; an empty frame has no width and no height and draws nothing.</summary>
     /// <param name="sheet">The image the frame is cut from.</param>

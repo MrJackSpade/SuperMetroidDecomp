@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// set makes may begin or end, so one artwork shows over each whole run in every room. A collectible is pictured as its
 /// kind alone (#1538), over no block's characters.
 /// </summary>
-internal sealed class RoomBlockComposition
+internal sealed partial class RoomBlockComposition
 {
     /// <summary>Keeps the tiles of every block and the characters each reads.</summary>
     private RoomBlockComposition(BackgroundTile[] tiles, RoomBlockCharacters characters)

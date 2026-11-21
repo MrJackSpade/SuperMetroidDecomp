@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// damage, rounded down, once for each half of the factor, so an odd weapon damage loses its odd point before the factor
 /// scales it.
 /// </summary>
-public readonly record struct WeaponDamageFactor
+public readonly partial record struct WeaponDamageFactor
 {
     /// <summary>The halves of a weapon's damage a full-damage hit deals.</summary>
     private const int HalvesPerWholeDamage = 2;

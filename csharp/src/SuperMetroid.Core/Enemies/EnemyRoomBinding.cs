@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// The loaded room's bindings that <see cref="RoomEnemySystem"/> shares with the owners it composes: the room's
 /// area, its enemy definition source and the game-state services its AI calls (including the enemy random source).
 /// </summary>
-internal sealed class EnemyRoomBinding
+internal sealed partial class EnemyRoomBinding
 {
     /// <summary>Binds the room to its enemy definitions and services and to the session whose enemy state outlives it.</summary>
     /// <param name="session">The enemy state and installed artwork that outlive each room.</param>

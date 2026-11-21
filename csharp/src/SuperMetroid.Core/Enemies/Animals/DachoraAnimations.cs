@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// The Dachora's run, idle, blink, shinespark charge, echo and fall animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class DachoraAnimations
+internal static partial class DachoraAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<DachoraSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(

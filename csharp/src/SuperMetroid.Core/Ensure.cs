@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 namespace SuperMetroid.Core;
 
 /// <summary>Reusable validation of the values Core is given. Every operation returns the validated value.</summary>
-public static class Ensure
+public static partial class Ensure
 {
     /// <summary>Requires a non-null reference and reports the checked value's expression.</summary>
     public static T NotNull<T>(

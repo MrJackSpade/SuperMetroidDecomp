@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Immutable, ROM-independent projectile visual compositions; no damage, collision or timing fields.</summary>
-public sealed class InstalledProjectileSprites
+public sealed partial class InstalledProjectileSprites
 {
     /// <summary>Compiled OAM compositions keyed by composition.</summary>
     internal readonly Dictionary<ProjectileSpriteId, SpriteComposition> frames;

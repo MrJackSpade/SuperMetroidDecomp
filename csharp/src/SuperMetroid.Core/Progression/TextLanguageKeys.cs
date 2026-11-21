@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Progression;
 /// The installed key of each <see cref="TextLanguage"/> (#2560), written out so renaming a member never changes a name an
 /// installed document spells it by, and the order the options' artwork walks the languages in.
 /// </summary>
-internal static class TextLanguageKeys
+internal static partial class TextLanguageKeys
 {
     /// <summary>Each TextLanguage member's installed key.</summary>
     internal static InstalledKeys<TextLanguage> Installed { get; } = new(new Dictionary<TextLanguage, string>

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// setup, including opposite alignment edges and held-Y adjustments. Both run the same chew with their own artwork; the
 /// ceiling plant chews twice as many times.
 /// </summary>
-internal static class SamusEaterObjectDefinitions
+internal static partial class SamusEaterObjectDefinitions
 {
     /// <summary>How many chews the floor plant makes.</summary>
     internal const int FloorChews = 4;

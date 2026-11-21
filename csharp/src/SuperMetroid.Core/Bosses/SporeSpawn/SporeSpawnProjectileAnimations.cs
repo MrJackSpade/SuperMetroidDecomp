@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// Spore Spawn's typed projectile animations (#641, #2011), each beat the installed <see cref="EnemyProjectileFrameId"/> it
 /// shows.
 /// </summary>
-internal static class SporeSpawnProjectileAnimations
+internal static partial class SporeSpawnProjectileAnimations
 {
     /// <summary>
     /// Every projectile animation: the closed emitter's pose, held (#2235); the emitter's release, which spawns a spore after its

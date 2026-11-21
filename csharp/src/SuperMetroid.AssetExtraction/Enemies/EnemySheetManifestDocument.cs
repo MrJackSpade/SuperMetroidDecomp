@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The installed enemy sheets' manifest (#1392, #1599): every variant of each enemy and of each owner's spawned objects, by
 /// the variant's name, the variants a room that places no enemies draws, and the variants each retail population draws.
 /// </summary>
-internal sealed record EnemySheetManifestDocument
+internal sealed partial record EnemySheetManifestDocument
 {
     /// <summary>The manifest revision.</summary>
     public required int Version { get; init; }

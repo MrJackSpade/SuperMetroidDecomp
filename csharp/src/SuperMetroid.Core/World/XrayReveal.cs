@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.World;
 /// collectibles and the camera as they are when a frame shows them. Nothing is kept between frames: the reveal shows the
 /// room as it is.
 /// </summary>
-internal sealed class XrayReveal
+internal sealed partial class XrayReveal
 {
     /// <summary>Supplies the camera position, which places the reveal.</summary>
     private readonly BackgroundScrollState _backgroundScroll;

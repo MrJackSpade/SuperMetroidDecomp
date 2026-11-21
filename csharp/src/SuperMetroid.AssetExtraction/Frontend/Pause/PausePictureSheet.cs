@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 /// rows without their labels, each label lit and dim, and the equipment page's template and dynamic parts in each state
 /// (<see cref="PauseEquipmentPageLayout"/>). The game places them by frame name.
 /// </summary>
-internal static class PausePictureSheet
+internal static partial class PausePictureSheet
 {
     /// <summary>Cells across the pause frame.</summary>
     private const int Columns = PauseBackdropDefinitions.Columns;

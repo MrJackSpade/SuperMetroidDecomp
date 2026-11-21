@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The four particles of a special beam attack, each naming the shot place it takes (#1683, #2565).</summary>
-internal static class SpecialAttackParticleDefinitions
+internal static partial class SpecialAttackParticleDefinitions
 {
     /// <summary>
     /// Each particle's part and shot place: the Ice and Plasma orbits start a quarter turn apart; the Wave particles

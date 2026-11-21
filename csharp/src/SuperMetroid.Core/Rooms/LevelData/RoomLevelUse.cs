@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// </summary>
 /// <param name="Room">The room whose state names the level.</param>
 /// <param name="Level">The level.</param>
-public readonly record struct RoomLevelUse(RoomDefinition Room, RoomLevelId Level);
+public readonly partial record struct RoomLevelUse(RoomDefinition Room, RoomLevelId Level);

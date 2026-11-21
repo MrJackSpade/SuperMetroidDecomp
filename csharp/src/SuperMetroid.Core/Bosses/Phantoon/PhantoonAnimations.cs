@@ -7,7 +7,7 @@ using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartSegment;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's typed body, eye, tentacle and mouth animations (#641, #1600), each beat naming the installed frame it shows (#1885).</summary>
-internal static class PhantoonAnimations
+internal static partial class PhantoonAnimations
 {
     /// <summary>The eyelid's dwell on each of its two moving poses.</summary>
     private const int EyelidFrameDuration = 10;

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// The records brighten from black to the logo's final colours in equal steps on each channel; this describes the
 /// authored colours, not arithmetic the game performs.
 /// </remarks>
-public static class TitleLogoFadePaletteFxColorDefinitions
+public static partial class TitleLogoFadePaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes fifteen live BGR555 colors.</summary>

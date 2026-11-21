@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The block table and background palette each retail graphics set's rooms are built from (#1616): the import's
 /// knowledge, which the rooms' pictures are composed from. Gameplay names a tileset by its graphics set alone.
 /// </summary>
-internal static class RoomTilesetTableDefinitions
+internal static partial class RoomTilesetTableDefinitions
 {
     /// <summary>The compressed block table each room theme's blocks use.</summary>
     internal static readonly Dictionary<RoomGraphicsSet, RoomBlockSet> BlockSources = new()

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>One complete 32x32 backdrop per area; live buttons are a separate foreground overlay.</summary>
-public sealed record PauseBackdropDocument
+public sealed partial record PauseBackdropDocument
 {
     /// <summary>Schema revision; loading requires <see cref="PauseBackdropDefinitions.Version"/>.</summary>
     public required int Version { get; init; }

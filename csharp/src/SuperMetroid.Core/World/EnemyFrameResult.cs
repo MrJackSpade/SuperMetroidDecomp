@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.World;
 /// <see cref="EnemyFramePhase"/> and <see cref="EnemyRoomEffects"/>.
 /// </summary>
 /// <param name="Events">The pass's events, in publication order.</param>
-public readonly record struct EnemyFrameResult(IReadOnlyList<EnemyPassEvent> Events)
+public readonly partial record struct EnemyFrameResult(IReadOnlyList<EnemyPassEvent> Events)
 {
     /// <summary>Whether the pass published an event of kind <typeparamref name="TEvent"/>.</summary>
     public bool Has<TEvent>() where TEvent : EnemyPassEvent => Events.OfType<TEvent>().Any();

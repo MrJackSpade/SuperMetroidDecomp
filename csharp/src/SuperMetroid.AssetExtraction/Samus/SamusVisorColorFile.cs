@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Samus visor colour document.</summary>
-public static class SamusVisorColorFile
+public static partial class SamusVisorColorFile
 {
     /// <summary>Supported schema revision, one, requiring exactly the six authored visor words.</summary>
     public const int Version = 1;

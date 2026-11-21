@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads and writes the installed cutscene Baby Metroid colour document.</summary>
-public static class BabyMetroidCutsceneColorFile
+public static partial class BabyMetroidCutsceneColorFile
 {
     /// <summary>Reads the installed initial and fade RGB5 artwork, keeping every colour as installed.</summary>
     /// <param name="json">UTF-8 JSON input read from its current position; the stream remains open.</param>

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The large and small explosions: each explosion's authored placement sets where it stands and delays its first frame,
 /// and each keeps its own delay and animation (#641), which staggers the blast.
 /// </remarks>
-internal sealed class IntroMotherBrainExplosionSystem
+internal sealed partial class IntroMotherBrainExplosionSystem
 {
     /// <summary>Three small and five big actors retained in spawn and drawing order.</summary>
     internal readonly List<ExplosionActor> actors = [];
@@ -54,7 +54,7 @@ internal sealed class IntroMotherBrainExplosionSystem
     }
 
     /// <summary>One cinematic actor's delayed animation and visible frame.</summary>
-    internal sealed class ExplosionActor
+    internal sealed partial class ExplosionActor
     {
         /// <summary>The cinematic actor running the explosion's animation.</summary>
         private readonly CinematicActor<IntroMotherBrainExplosionAnimation, CinematicSpritePose, NoAnimationCue> sprite;

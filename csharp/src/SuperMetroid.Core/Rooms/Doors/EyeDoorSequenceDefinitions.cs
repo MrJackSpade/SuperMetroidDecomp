@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// and of the body and bottom it watches over (#2480), each action an event raised just before the picture after it
 /// draws. Both facings play the same animations, mirrored; the right-facing body and bottom pulse faster.
 /// </summary>
-internal static class EyeDoorSequenceDefinitions
+internal static partial class EyeDoorSequenceDefinitions
 {
     /// <summary>The sound each hit on the eye makes.</summary>
     internal static readonly SoundEffectId HitSound = EnemySound.EnemyKilled;

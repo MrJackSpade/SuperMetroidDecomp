@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// Owtch's left and right shell-cycling animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="OwtchCue"/> naming what it does.
 /// </summary>
-internal static class OwtchAnimations
+internal static partial class OwtchAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<OwtchSegment, EnemyFrameId, OwtchCue> Segments { get; } = new(

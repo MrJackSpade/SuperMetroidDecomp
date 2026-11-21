@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>What a normal bomb sets off at a special block (#1742).</summary>
-public static class BombSpecialBlockReactions
+public static partial class BombSpecialBlockReactions
 {
     /// <summary>The plain solid special blocks a normal bomb shows as Speed Booster blocks in every area.</summary>
     private static readonly BombRevealedSpeedBlockLookalikes<SpecialBlockReaction, BlockReactionChange> SpeedBlockLookalikes =

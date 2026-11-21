@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Editable arrow placement and palette behavior corresponding to native reserve-arrow owner <c>$82:AD0A</c>.</summary>
-public sealed record PauseReserveArrowVisual
+public sealed partial record PauseReserveArrowVisual
 {
     /// <summary>Exactly ten distinct equipment-page cell locations; stock layout is an eight-cell vertical stem followed by a two-cell horizontal arm.</summary>
     public required PauseGridPoint[] Cells { get; init; }

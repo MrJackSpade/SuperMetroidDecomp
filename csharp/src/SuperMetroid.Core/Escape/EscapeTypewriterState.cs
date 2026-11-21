@@ -3,7 +3,7 @@ using SuperMetroid.Core.Escape.Artwork;
 namespace SuperMetroid.Core.Escape;
 
 /// <summary>Types the escape warning one character at a time; each accepted update types at most one glyph.</summary>
-public sealed class EscapeTypewriterState
+public sealed partial class EscapeTypewriterState
 {
     /// <summary>The installed warning text the typewriter types.</summary>
     private EscapeTypewriterMessage installedMessage;

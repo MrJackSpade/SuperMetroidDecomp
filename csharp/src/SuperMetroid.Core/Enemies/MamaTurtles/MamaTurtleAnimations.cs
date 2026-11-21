@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// The Mama Turtle's dormant, shell and spin animations (#641, #2342). Each frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="MamaTurtleCue"/> naming
 /// what it does.
 /// </summary>
-internal static class MamaTurtleAnimations
+internal static partial class MamaTurtleAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<MamaTurtleSegment, EnemyFrameId, MamaTurtleCue> Segments { get; } = new(

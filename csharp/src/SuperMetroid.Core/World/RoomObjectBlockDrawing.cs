@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.World;
 /// of the blocks setups write of their own accord, composed from every family's catalog (#2571).
 /// </summary>
 /// <param name="visuals">The host's installed room-object artwork, which outlives each room's drawing.</param>
-internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomObjectDrawing
+internal sealed partial class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomObjectDrawing
 {
     /// <summary>The host's installed room-object artwork.</summary>
     private readonly RoomObjectVisuals _visuals = Ensure.NotNull(visuals);

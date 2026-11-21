@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// displacement the next update moves the ship by, and the cursor after it, which starts the sequence again after its
 /// last displacement.
 /// </summary>
-internal readonly record struct EndingShipShakeCursor
+internal readonly partial record struct EndingShipShakeCursor
 {
     /// <summary>Holds a cursor at <paramref name="place"/> in <paramref name="sequence"/>.</summary>
     private EndingShipShakeCursor(IReadOnlyList<SignedSixteenSixteen> sequence, int place)

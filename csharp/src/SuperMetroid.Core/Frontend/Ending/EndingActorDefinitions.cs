@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// The ending's scene actors: where each starts, which of the screen's colours it draws in and which cinematic
 /// animation it runs.
 /// </summary>
-internal static class EndingActorDefinitions
+internal static partial class EndingActorDefinitions
 {
     /// <summary>The side-cloud escape's leading right cloud, starting past the screen's right.</summary>
     internal static readonly EndingSpriteDefinition SideCloudRightLeading =

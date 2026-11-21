@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// </summary>
 /// <param name="Directory">The family's directory, directly under the content directory the store is written to.</param>
 /// <param name="Sheets">The family's sheets, each under its installed name.</param>
-internal sealed record InstalledSheetFamily(string Directory, IReadOnlyList<NamedInstalledSheet> Sheets)
+internal sealed partial record InstalledSheetFamily(string Directory, IReadOnlyList<NamedInstalledSheet> Sheets)
 {
     /// <summary>
     /// The family of <paramref name="sheets"/>, each converted as the installation holds it (#1633); the sheets convert in

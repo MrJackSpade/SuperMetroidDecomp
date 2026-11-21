@@ -30,7 +30,7 @@ using SuperMetroid.Core.Assets;namespace SuperMetroid.Core.Samus.Abilities;
 /// (<see cref="SharedEscapeAndDrainCount{TStage}"/>).
 /// </para>
 /// </remarks>
-public sealed class SamusSuitPickupState
+public sealed partial class SamusSuitPickupState
 {
     /// <summary>Whether the post-message transformation currently owns Samus input: it runs a light-beam stage (#2560).</summary>
     public bool IsActive => runningStage is not null;

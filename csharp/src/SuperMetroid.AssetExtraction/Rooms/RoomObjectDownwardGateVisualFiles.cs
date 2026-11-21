@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the fourteen downward-gate column and trigger frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectDownwardGateVisualFiles
+public static partial class RoomObjectDownwardGateVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for six downward-gate column frames and eight left/right trigger layouts.</summary>
     internal const string VisualFileName = "downward-gates.json";

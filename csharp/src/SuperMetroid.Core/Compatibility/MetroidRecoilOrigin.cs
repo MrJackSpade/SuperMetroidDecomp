@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// projectile slot zero rather than the colliding projectile's, in both the shot and the bomb collision passes.
 /// </remarks>
 [CompatibilityService("a shot or bombed Metroid or Baby Metroid recoils away from Samus's first ordinary projectile, whichever projectile hit it")]
-public static class MetroidRecoilOrigin
+public static partial class MetroidRecoilOrigin
 {
     /// <summary>The projectile whose position a hit Metroid recoils from.</summary>
     /// <typeparam name="TProjectile">One of Samus's ordinary projectile places.</typeparam>

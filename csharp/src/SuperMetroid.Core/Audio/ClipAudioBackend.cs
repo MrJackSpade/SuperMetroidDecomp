@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Audio;
 /// Clips mix at their own rate (<see cref="AudioSession.SampleRate"/>), whose frames are the sound clock's samples, and the
 /// host resamples the mix to its device. Audio output is presentation: nothing here reaches a gameplay update.
 /// </summary>
-public sealed class ClipAudioBackend
+public sealed partial class ClipAudioBackend
 {
     /// <summary>Frames a cut clip fades out over: eight milliseconds.</summary>
     internal const int ReleaseFrames = 256;

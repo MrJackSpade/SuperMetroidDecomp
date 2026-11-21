@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <param name="Offset">The component's offset from the body's position.</param>
 /// <param name="Hitboxes">The component's rectangles, tested in order; empty for a component without collision.</param>
-internal readonly record struct EnemyCollisionComponent(Offset16<RoomPixels> Offset, IReadOnlyList<EnemyCollisionHitbox> Hitboxes);
+internal readonly partial record struct EnemyCollisionComponent(Offset16<RoomPixels> Offset, IReadOnlyList<EnemyCollisionHitbox> Hitboxes);

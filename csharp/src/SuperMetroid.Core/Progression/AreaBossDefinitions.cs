@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>Each area boss (<see cref="AreaBoss"/>).</summary>
-internal static class AreaBossDefinitions
+internal static partial class AreaBossDefinitions
 {
     /// <summary>
     /// Each boss: X-ray keeps the room's background while Kraid, Crocomire, Phantoon, Draygon or Mother Brain is loaded; the

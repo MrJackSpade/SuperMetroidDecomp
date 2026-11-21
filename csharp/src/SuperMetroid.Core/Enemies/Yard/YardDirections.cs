@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>Finds a Yard's surface direction and its airborne animations.</summary>
-internal static class YardDirections
+internal static partial class YardDirections
 {
     /// <summary>The orientation of <paramref name="direction"/>.</summary>
     internal static YardDirectionDefinition ForDirection(YardDirection direction) =>

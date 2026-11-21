@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's lints, nails and spat rocks.</summary>
 [RoomLifetime]
-internal sealed class KraidProjectiles
+internal sealed partial class KraidProjectiles
 {
     /// <summary>Room services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
@@ -83,7 +83,7 @@ internal sealed class KraidProjectiles
     /// animations' cues.
     /// </summary>
     /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
-    internal sealed class RockBehavior(KraidRockSegment? shot = null)
+    internal sealed partial class RockBehavior(KraidRockSegment? shot = null)
         : EnemyProjectileMotionBehavior<KraidRockMotion>(StartingMotions), IEnemyProjectileCues<KraidRockCue>
     {
         /// <inheritdoc/>

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// three below, and how each cell collides. The glass's typed object owns damage thresholds, shards and timing, and what
 /// each frame shows is its installed picture (#1557).
 /// </summary>
-internal static class MotherBrainGlassObjectDrawDefinitions
+internal static partial class MotherBrainGlassObjectDrawDefinitions
 {
     /// <summary>The intact glass: the shootable glass block alone.</summary>
     private static readonly RoomBlockShape Intact = new(

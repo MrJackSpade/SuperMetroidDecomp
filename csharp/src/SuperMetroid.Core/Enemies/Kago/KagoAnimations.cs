@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// Kago's slow and post-hit animation loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class KagoAnimations
+internal static partial class KagoAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<KagoSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(

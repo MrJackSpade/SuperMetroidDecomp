@@ -19,7 +19,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// </remarks>
 /// <param name="Raw">Unmodified 16-bit BG word: ten character bits, three palette bits, priority at bit 13, and horizontal/vertical flips at bits 14/15.</param>
 [EncodingOwner("area map cell word")]
-public readonly record struct MapTileWord(ushort Raw)
+public readonly partial record struct MapTileWord(ushort Raw)
 {
     /// <summary>Ten low bits selecting the BG map character independently of its attributes.</summary>
     internal const ushort CharacterMask = 0x03ff;

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>A shinespark crash echo's flight out from Samus (#2346), created when the echo is released.</summary>
 /// <param name="angle">The echo's departure angle.</param>
-internal sealed class ShinesparkEchoShotState(TrigonometryAngle angle) : SamusShotKindState
+internal sealed partial class ShinesparkEchoShotState(TrigonometryAngle angle) : SamusShotKindState
 {
     /// <summary>The echo's departure angle, in whole steps.</summary>
     internal TrigonometryAngle Angle { get; } = angle;

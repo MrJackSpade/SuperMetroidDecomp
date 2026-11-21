@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// the value the driver stores, the effect's argument plus one wrapped to a byte, so an argument of $FF turns the cut
 /// off and the driver-state snapshot records the exact stored byte.
 /// </summary>
-internal readonly record struct SpcMusicCutKey
+internal readonly partial record struct SpcMusicCutKey
 {
 
     /// <summary>A setting holding <paramref name="stored"/>, the driver's wrapped value.</summary>

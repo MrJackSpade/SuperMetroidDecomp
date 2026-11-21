@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Axis predicates over <see cref="DoorDirection"/>.</summary>
-public static class DoorDirections
+public static partial class DoorDirections
 {
     /// <summary>
     /// True for down and up, as the door transition and room loader test it. Horizontal

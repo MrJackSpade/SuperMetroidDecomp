@@ -28,7 +28,7 @@ namespace SuperMetroid.Core.Frontend.Artwork;
 /// #1616). Each screen binds its own part. The import builds it member by member; it is the snapshot itself, not a copy of
 /// a separate parts record (#2557).
 /// </summary>
-public sealed record InstalledScreenContent : IGameplayPresentationContent
+public sealed partial record InstalledScreenContent : IGameplayPresentationContent
 {
     /// <summary>Uppercase SHA-256 identity of length-framed map rules, station masks, and installed presentation resources in fixed order; an edit in place changes the identity.</summary>
     public required string ContentIdentity { get; init; }

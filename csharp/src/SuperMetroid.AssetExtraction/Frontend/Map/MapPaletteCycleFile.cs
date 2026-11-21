@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// import data the installation never holds (#1693), which the import pre-colours the map sprite sheet's highlight shades
 /// from; the installed cycle holds each frame's hold alone (<see cref="MapHighlightTimingFile"/>).
 /// </summary>
-public static class MapPaletteCycleFile
+public static partial class MapPaletteCycleFile
 {
     /// <summary>JSON filename, in the component's import data, of each highlight frame's hold and highlight colour.</summary>
     public const string FileName = "map-highlight-colours.json";

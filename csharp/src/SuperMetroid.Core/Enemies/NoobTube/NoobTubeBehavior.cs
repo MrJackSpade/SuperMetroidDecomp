@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>The Noob tube species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class NoobTubeBehavior : IEnemyEntityFactory
+internal sealed partial class NoobTubeBehavior : IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.NoobTubeCrack];
@@ -161,7 +161,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
 
     /// <summary>A crack, shard or bubble: the crack's, shards' and bubbles' movers, and their animations' cues.</summary>
     /// <param name="room">The loaded room, whose random numbers set a falling piece's sway.</param>
-    internal sealed class NoobTubeProjectileBehavior(EnemyRoomBinding room)
+    internal sealed partial class NoobTubeProjectileBehavior(EnemyRoomBinding room)
         : EnemyProjectileMotionBehavior<NoobTubePieceMotion>(StartingMotions)
     {
         /// <summary>What each of the tube's pieces keeps: its column, its flicker and its sway, given as the tube breaks.</summary>

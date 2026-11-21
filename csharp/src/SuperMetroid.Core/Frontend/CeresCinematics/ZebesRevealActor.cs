@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// </summary>
 /// <param name="definition">The actor's animation, colouring and slide.</param>
 /// <param name="sprite">The cinematic sprite showing the actor: its position and animation.</param>
-internal sealed class ZebesRevealActor(
+internal sealed partial class ZebesRevealActor(
     CeresDestructionActorDefinition definition,
     CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> sprite)
 {

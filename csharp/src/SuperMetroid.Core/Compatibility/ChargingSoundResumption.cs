@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Lifetime: Samus's.
 /// </remarks>
 [CompatibilityService("the charging beam's sound resumes at the post-draw check after the one that ended its interruption")]
-public sealed class ChargingSoundResumption
+public sealed partial class ChargingSoundResumption
 {
     /// <summary>Whether the resumption is armed for the next post-draw check.</summary>
     internal bool IsArmed { get; set; }

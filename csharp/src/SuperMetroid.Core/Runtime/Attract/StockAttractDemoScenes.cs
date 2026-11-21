@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// The demonstrations' order, where each starts, what Samus holds and where each recording ends are the title's choices;
 /// where she stands follows from her staging pose, and her ammunition and energy from the tanks each scene gives her.
 /// </remarks>
-public static class StockAttractDemoScenes
+public static partial class StockAttractDemoScenes
 {
     /// <summary>The abilities the Speed Booster's and later demonstrations build on.</summary>
     private const SamusEquipmentFlags Mobility = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall |

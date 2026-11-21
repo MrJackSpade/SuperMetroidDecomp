@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// One installed file read into a pooled buffer for a single hash check and parse. Asset
 /// compilers copy everything they keep, so the bytes return to the pool on dispose.
 /// </summary>
-internal sealed class PooledFileBytes : IDisposable
+internal sealed partial class PooledFileBytes : IDisposable
 {
     /// <summary>Rented backing array returned to the shared pool when this read is disposed.</summary>
     private byte[]? buffer;

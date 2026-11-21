@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>The state of one Fune, which spits each time its cooldown runs out.</summary>
-public sealed class FuneEnemyState : FuneNamiheEnemyState
+public sealed partial class FuneEnemyState : FuneNamiheEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal FuneEnemyState(FuneAction action) => Action = action;

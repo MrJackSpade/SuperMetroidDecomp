@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// doubling of it within that bound that keeps the sheet within it too. An empty picture has no rectangle and takes no
 /// room.
 /// </summary>
-internal static class SheetPacking
+internal static partial class SheetPacking
 {
     /// <summary>The widest a sheet that fits is packed; a picture that would cross it starts a new row of pictures.</summary>
     private const int MaximumWidth = 1024;

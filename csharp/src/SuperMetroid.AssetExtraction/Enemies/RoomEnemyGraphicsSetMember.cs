@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// import composes and pre-colours each member's sheets as its graphics set loads it, in the sprite palette row the record
 /// loads the member's colours into, so a member names nothing else.
 /// </remarks>
-internal sealed record RoomEnemyGraphicsSetMember
+internal sealed partial record RoomEnemyGraphicsSetMember
 {
     /// <summary>The last sprite palette row a record loads colours into.</summary>
     private const int LastPaletteRow = 7;

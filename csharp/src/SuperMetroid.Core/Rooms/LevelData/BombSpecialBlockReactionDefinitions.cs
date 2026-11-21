@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>What a normal bomb sets off at each special block's reaction (#1742).</summary>
-internal static class BombSpecialBlockReactionDefinitions
+internal static partial class BombSpecialBlockReactionDefinitions
 {
     /// <summary>
     /// Each special-block reaction's response to a normal bomb: the crumble blocks show their reveal, every Speed Booster

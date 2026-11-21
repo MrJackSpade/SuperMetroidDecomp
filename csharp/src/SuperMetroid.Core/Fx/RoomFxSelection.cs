@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// A room state's effect selection (#1546): the room effect each entry door selects, in the game's order, and the
 /// default effect a room entered through any other door shows, or none when that entry shows no effect.
 /// </summary>
-public sealed class RoomFxSelection
+public sealed partial class RoomFxSelection
 {
     /// <summary>Holds a selection's door effects in the game's order and its default effect.</summary>
     /// <param name="doorEffects">The effects entry doors select, in the game's order.</param>

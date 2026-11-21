@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// How the four cells of the grey door caps and the four shared clear-cap frames collide. What each frame shows is its
 /// installed picture (#1557). Bomb Torizo's special resident door uses the ordinary right-facing frames.
 /// </summary>
-internal static class GreyDoorObjectDrawDefinitions
+internal static partial class GreyDoorObjectDrawDefinitions
 {
     /// <summary>
     /// How the four blocks of each of the twenty grey-cap draws collide, from the cap's first block on. The cleared opening has no

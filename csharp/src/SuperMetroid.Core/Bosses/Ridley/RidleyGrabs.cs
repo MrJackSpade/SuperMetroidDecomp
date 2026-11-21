@@ -4,7 +4,7 @@ using GrabPolicy = SuperMetroid.Core.Bosses.Ridley.RidleySamusInteractionDefinit
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Whether Ridley may grab Samus in her current movement, and how long she stays intangible after release.</summary>
-internal static class RidleyGrabs
+internal static partial class RidleyGrabs
 {
     /// <summary>Whether Ridley may grab Samus: every movement but those that make her immune to his grab.</summary>
     internal static bool CanGrab(SamusMovementType movement) => Policy(movement) != GrabPolicy.Immune;

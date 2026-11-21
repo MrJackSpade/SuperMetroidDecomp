@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// intentional: the room continues running through both states, but it cannot restart the
 /// departure because its main-gameplay predicate no longer succeeds.
 /// </remarks>
-public sealed class CeresDepartureState
+public sealed partial class CeresDepartureState
 {
 
     /// <summary>Current portion of the departure sequence.</summary>

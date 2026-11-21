@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// 13% replays depend on through the door transition's wait for empty queues.
 /// </remarks>
 [CompatibilityService("each sound library's request is repeated until accepted, held and withdrawn, and the withdrawal repeated until accepted, before the library's next queued sound is requested")]
-public sealed class SoundRequestHandshakes<TLibrary, TSound>
+public sealed partial class SoundRequestHandshakes<TLibrary, TSound>
     where TLibrary : struct, Enum
     where TSound : struct, IEquatable<TSound>
 {
@@ -61,7 +61,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     /// While holding, the sound-queue passes before the accepted request is withdrawn, counted once a pass and over on the
     /// pass that withdraws it; otherwise none.
     /// </param>
-    internal readonly record struct Handshake(Phase Phase, TSound? Awaited, UpdateCountdown? Hold);
+    internal readonly partial record struct Handshake(Phase Phase, TSound? Awaited, UpdateCountdown? Hold);
 
     /// <summary>Sound-queue passes an accepted request is held before it is withdrawn, the withdrawal falling on the last.</summary>
     public const int WithdrawalHoldPasses = 2;

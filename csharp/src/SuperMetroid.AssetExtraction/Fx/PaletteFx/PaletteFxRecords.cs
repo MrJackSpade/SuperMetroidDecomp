@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// those runs number them; an animation that shows another's frames shows its records. The palette-FX program checks
 /// compare each record's place with its cartridge address.
 /// </summary>
-internal static class PaletteFxRecords
+internal static partial class PaletteFxRecords
 {
     /// <summary>
     /// Each record by its place in the cartridge's order: the frame of the animation whose run holds it, and the layout its
@@ -110,5 +110,5 @@ internal static class PaletteFxRecords
     /// <summary>One record of a run: the frame that shows it and the layout its run writes its colours in.</summary>
     /// <param name="Frame">The frame of the animation whose run holds the record.</param>
     /// <param name="Layout">How the record writes its colours.</param>
-    private readonly record struct RunRecord(ColourEffectFrame Frame, IReadOnlyList<PaletteFxRecordPart> Layout);
+    private readonly partial record struct RunRecord(ColourEffectFrame Frame, IReadOnlyList<PaletteFxRecordPart> Layout);
 }

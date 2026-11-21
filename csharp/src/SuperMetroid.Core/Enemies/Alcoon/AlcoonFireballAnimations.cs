@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// Alcoon's fireball animation (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
-internal static class AlcoonFireballAnimations
+internal static partial class AlcoonFireballAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<AlcoonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(

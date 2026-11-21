@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Every installed pre-coloured sprite sheet (#1392); the installation loader checks each holds the frames its family draws.</summary>
-public sealed class InstalledSpriteSheets
+public sealed partial class InstalledSpriteSheets
 {
     /// <summary>The sheets by identity.</summary>
     private readonly Dictionary<SpriteSheetId, SpriteSheet> sheets;

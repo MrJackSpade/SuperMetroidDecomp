@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// an impact, even a shot an earlier collision this update spent, as the game's reaction does. The shot stage must run
 /// before <see cref="Samus.Projectiles.ProjectileEnemyImpacts.TryStartEnemyImpact"/>, which would turn it into an impact.
 /// </summary>
-internal static class ProjectilePassThrough
+internal static partial class ProjectilePassThrough
 {
     /// <summary>
     /// Has the projectile fly on (<see cref="Samus.Projectiles.SamusProjectileOccupant.FlyOn"/>) after the super-missile quake.

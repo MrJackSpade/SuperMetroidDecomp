@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <param name="logo">The logo's actor.</param>
 /// <param name="typing">The text that types now.</param>
 /// <param name="phase">The phase the scene runs: the item percentage's typing, or the final message's.</param>
-internal sealed class EndingTypingScene(EndingLogo logo, EndingTypewriter typing, EndingCreditsPhase phase) : EndingScene
+internal sealed partial class EndingTypingScene(EndingLogo logo, EndingTypewriter typing, EndingCreditsPhase phase) : EndingScene
 {
     /// <inheritdoc/>
     internal override EndingCreditsPhase Phase { get; } =

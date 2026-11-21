@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Death;
 /// and each frame of the suit's explosion shows the one the installation names for it. Her colours under each are
 /// <see cref="SamusShades.DeathSuit"/> and <see cref="SamusShades.DeathSuitless"/>.
 /// </summary>
-public readonly record struct SamusDeathShade
+public readonly partial record struct SamusDeathShade
 {
     /// <summary>The shade <paramref name="step"/> of the death shades, from zero.</summary>
     /// <exception cref="ArgumentOutOfRangeException">There is no such death shade.</exception>

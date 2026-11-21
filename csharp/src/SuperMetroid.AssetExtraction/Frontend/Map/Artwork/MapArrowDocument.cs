@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>Defines the four directional map-arrow visuals.</summary>
-public sealed record MapArrowDocument
+public sealed partial record MapArrowDocument
 {
     /// <summary>Gets the document schema revision.</summary>
     public required int Version { get; init; }

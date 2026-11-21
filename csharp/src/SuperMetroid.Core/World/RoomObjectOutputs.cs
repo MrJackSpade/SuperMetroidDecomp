@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 /// <param name="AudioRequests">The update's audio requests of the runtime.</param>
 /// <param name="Thrown">Where the projectiles the room objects throw spawn.</param>
-internal sealed record RoomObjectOutputs(GameplayAudioRequests AudioRequests, RoomObjectThrownProjectileSpawners Thrown);
+internal sealed partial record RoomObjectOutputs(GameplayAudioRequests AudioRequests, RoomObjectThrownProjectileSpawners Thrown);

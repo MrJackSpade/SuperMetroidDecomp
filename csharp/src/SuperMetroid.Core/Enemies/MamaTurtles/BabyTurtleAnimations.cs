@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// The baby turtles' crawl, hiding, shell and spin animations (#641, #2342). Each frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="BabyTurtleCue"/> naming
 /// what it does.
 /// </summary>
-internal static class BabyTurtleAnimations
+internal static partial class BabyTurtleAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<BabyTurtleSegment, EnemyFrameId, BabyTurtleCue> Segments { get; } = new(

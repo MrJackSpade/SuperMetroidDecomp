@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// One of the settled colourings Phantoon's body shows on the background (#1512): black as his fight starts, a health band's
 /// colours, the white hurt flash, or his faded-out colours. His fades run from one to another.
 /// </summary>
-public readonly record struct PhantoonBodyLook
+public readonly partial record struct PhantoonBodyLook
 {
     /// <summary>
     /// Each colouring's name in its installed shades' names (#2472), written out so renaming a colouring's identity never

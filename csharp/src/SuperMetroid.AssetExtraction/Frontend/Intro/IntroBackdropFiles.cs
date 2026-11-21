@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// the first colour of the scene's own colours when it extracts them; the game reads these colours and neither palette
 /// document, which only the import reads to pre-colour the opening's sheets.
 /// </summary>
-public static class IntroBackdropFiles
+public static partial class IntroBackdropFiles
 {
     /// <summary>The installed document's file name.</summary>
     public const string FileName = "intro-backdrops.json";

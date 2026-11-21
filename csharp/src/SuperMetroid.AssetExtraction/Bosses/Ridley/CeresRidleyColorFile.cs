@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Reads and writes the installed Ceres Ridley colour document.</summary>
-public static class CeresRidleyColorFile
+public static partial class CeresRidleyColorFile
 {
     /// <summary>Compiles RGB5 JSON into a validated immutable color catalog, rejecting unknown/duplicate properties, unsupported versions, wrong row dimensions, and channels outside 0..31.</summary>
     /// <param name="json">JSON input read from its current position; the caller retains ownership of the stream.</param>

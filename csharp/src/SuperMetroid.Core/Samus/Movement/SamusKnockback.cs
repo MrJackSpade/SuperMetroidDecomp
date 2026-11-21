@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// (a damage boost, Crystal Flash's drain and her death release it). The hit's countdown, which its producer starts before
 /// any knockback, is <see cref="SamusState.KnockbackHold"/>.
 /// </summary>
-public abstract record SamusKnockback
+public abstract partial record SamusKnockback
 {
     /// <summary>Only the three cases below are knockbacks.</summary>
     private SamusKnockback()
@@ -33,7 +33,7 @@ public abstract record SamusKnockback
     public SamusKnockback Released() => this is MovingSamus moving ? new ReleasedSamus(moving.Way) : this;
 
     /// <summary>No knockback.</summary>
-    private sealed record NoKnockback : SamusKnockback
+    private sealed partial record NoKnockback : SamusKnockback
     {
         /// <inheritdoc/>
         public override SamusKnockbackDirection Direction => SamusKnockbackDirection.None;
@@ -41,7 +41,7 @@ public abstract record SamusKnockback
 
     /// <summary>A knockback moving Samus <paramref name="Way"/>.</summary>
     /// <param name="Way">Which way it moves her.</param>
-    private sealed record MovingSamus(SamusKnockbackDirection Way) : SamusKnockback
+    private sealed partial record MovingSamus(SamusKnockbackDirection Way) : SamusKnockback
     {
         /// <inheritdoc/>
         public override SamusKnockbackDirection Direction => Way;
@@ -49,7 +49,7 @@ public abstract record SamusKnockback
 
     /// <summary>A knockback that has returned Samus's movement to her pose, keeping <paramref name="Way"/>.</summary>
     /// <param name="Way">Which way it moved her.</param>
-    private sealed record ReleasedSamus(SamusKnockbackDirection Way) : SamusKnockback
+    private sealed partial record ReleasedSamus(SamusKnockbackDirection Way) : SamusKnockback
     {
         /// <inheritdoc/>
         public override SamusKnockbackDirection Direction => Way;

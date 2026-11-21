@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 /// first word all end before that place, so a capsule-only frame leaves the delays as they were and each wing frame's
 /// delays depend on that frame alone.
 /// </summary>
-public static class CeresRidleyGetawayBoostDelayFiles
+public static partial class CeresRidleyGetawayBoostDelayFiles
 {
     /// <summary>The value a list's control byte holds after its last descriptor.</summary>
     private const int ListEnd = 0;

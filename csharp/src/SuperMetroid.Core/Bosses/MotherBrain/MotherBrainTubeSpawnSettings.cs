@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// own (<see cref="MotherBrainFallingTubeDefinition.FallWaitUpdates"/>).
 /// </summary>
 /// <param name="Piece">The tube piece.</param>
-internal sealed record MotherBrainTubeSpawnSettings(MotherBrainTubePiece Piece) : EnemySpawnSettings;
+internal sealed partial record MotherBrainTubeSpawnSettings(MotherBrainTubePiece Piece) : EnemySpawnSettings;

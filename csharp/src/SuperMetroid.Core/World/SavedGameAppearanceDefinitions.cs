@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.Core.World;
 
 /// <summary>How Samus appears when a saved game loads at a station: her suit's loading glow and how long the appearance lasts.</summary>
-internal static class SavedGameAppearanceDefinitions
+internal static partial class SavedGameAppearanceDefinitions
 {
     /// <summary>The loading glow Samus shows in the Power Suit.</summary>
     public const ColourEffectId PowerSuitGlow = ColourEffectId.SamusLoadingPowerSuit;

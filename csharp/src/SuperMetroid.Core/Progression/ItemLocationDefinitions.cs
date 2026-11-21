@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Progression;
 /// tools/generate-room-object-population-definitions.ps1.
 /// </summary>
 [NumberedIdentities("Each item location named with its block is one distinct location of its room, told apart by where it stands; nothing indexes them.")]
-public static class ItemLocationDefinitions
+public static partial class ItemLocationDefinitions
 {
     /// <summary>The Power Bomb Tank lying in the open at column 29, row 7 of the Crateria Power Bombs room.</summary>
     public static ItemLocation CrateriaPowerBombsExposedPowerBombTank { get; } = new("CrateriaPowerBombsExposedPowerBombTank");

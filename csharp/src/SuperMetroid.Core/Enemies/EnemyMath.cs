@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Stateless enemy arithmetic shared by the species: bearings, whole-pixel velocity clamps, points on circles of short
 /// radius (<see cref="ShortCircleProduct"/>) and the parts of a speed along an angle's sine and cosine.
 /// </summary>
-internal static class EnemyMath
+internal static partial class EnemyMath
 {
     /// <summary>
     /// Holds a velocity within <paramref name="fastest"/>, a whole-pixel speed, either way (#2555): a velocity at or past

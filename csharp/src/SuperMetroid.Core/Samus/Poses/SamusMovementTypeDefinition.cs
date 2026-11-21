@@ -28,7 +28,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <param name="SilencesItemSelection">Whether selecting an item in the movement plays no item-selection sound.</param>
 /// <param name="SpinSoundEndsOnDeath">Whether dying in the movement ends its looping spin sound.</param>
 [IndependentFlag("independent facts of one movement type: whether it silences item selection and whether death ends its spin sound")]
-internal sealed record SamusMovementTypeDefinition(
+internal sealed partial record SamusMovementTypeDefinition(
     SamusMomentumResponse NoTransitionResponse,
     SamusBombJumpSetup BombJump,
     XrayPosture Xray,

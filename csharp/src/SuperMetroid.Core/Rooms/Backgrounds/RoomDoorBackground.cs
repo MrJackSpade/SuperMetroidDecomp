@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// <param name="SourceRoom">The source room's foreground.</param>
 /// <param name="WindowOrigin">The destination's foreground pixel the source screen's top-left gameplay pixel lies on.</param>
 /// <param name="SourceOrigin">The source room's foreground pixel the source screen's top-left gameplay pixel shows.</param>
-public sealed record RoomDoorBackground(RoomBackgroundLayer SourceRoom, Position16<PlanePixels> WindowOrigin, Position16<PlanePixels> SourceOrigin)
+public sealed partial record RoomDoorBackground(RoomBackgroundLayer SourceRoom, Position16<PlanePixels> WindowOrigin, Position16<PlanePixels> SourceOrigin)
 {
     /// <summary>
     /// The source screen of a door that began with the source room's foreground view at <paramref name="sourceView"/>,

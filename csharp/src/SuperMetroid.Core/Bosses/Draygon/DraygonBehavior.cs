@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The Draygon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
 
     /// <inheritdoc/>
@@ -195,7 +195,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="Direction">The way the swoop travels; rightward adds its velocity to X.</param>
     /// <param name="ArmsNearApex">The arms animation started as the path nears its lowest point.</param>
     /// <param name="ArmsIdle">The arms animation restored as the ascent passes the same point.</param>
-    internal sealed record DraygonSwoopSide(HorizontalDirection Direction, DraygonSegment ArmsNearApex, DraygonSegment ArmsIdle);
+    internal sealed partial record DraygonSwoopSide(HorizontalDirection Direction, DraygonSegment ArmsNearApex, DraygonSegment ArmsIdle);
 
     /// <summary>The swoop from the left edge to the right.</summary>
     internal static readonly DraygonSwoopSide RightSwoop = new(HorizontalDirection.Right, DraygonSegment.ArmsFacingRightNearSwoopApex,

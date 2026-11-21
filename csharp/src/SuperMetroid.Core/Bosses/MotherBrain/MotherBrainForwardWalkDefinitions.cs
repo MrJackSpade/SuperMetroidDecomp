@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The random gate of Mother Brain's low-X forward walk.</summary>
-public static class MotherBrainForwardWalkDefinitions
+public static partial class MotherBrainForwardWalkDefinitions
 {
     /// <summary>
     /// The low-X forward walk: one sample in 64 starts a forward step (#1619).

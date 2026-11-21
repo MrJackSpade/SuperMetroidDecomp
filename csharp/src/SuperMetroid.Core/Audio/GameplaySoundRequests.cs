@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Audio;
 /// later system.
 /// </remarks>
 /// <param name="sounds">The sound queues every request goes on into as it is made.</param>
-internal class GameplaySoundRequests(IGameplaySoundQueue sounds)
+internal partial class GameplaySoundRequests(IGameplaySoundQueue sounds)
 {
     /// <summary>The sound queues the requests go on into.</summary>
     internal readonly IGameplaySoundQueue sounds = Ensure.NotNull(sounds);

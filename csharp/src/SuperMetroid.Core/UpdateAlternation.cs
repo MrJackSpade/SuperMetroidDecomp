@@ -10,7 +10,7 @@ namespace SuperMetroid.Core;
 /// A count read here may run up or down and below zero: its half is the count's place in the alternation counted from
 /// below, so a count of -1 sits on the second half's last count.
 /// </remarks>
-public readonly record struct UpdateAlternation
+public readonly partial record struct UpdateAlternation
 {
     /// <summary>An alternation whose halves each last <paramref name="countsEachWay"/> counts.</summary>
     /// <param name="countsEachWay">How many counts each half lasts, one or more.</param>

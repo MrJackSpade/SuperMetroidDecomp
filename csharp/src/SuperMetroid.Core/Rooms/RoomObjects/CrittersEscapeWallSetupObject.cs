@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// turned the wall's blocks shootable when it spawns; it holds its place until its first update and leaves the room then,
 /// doing nothing else.
 /// </summary>
-internal sealed class CrittersEscapeWallSetupObject : RoomObjectBehaviour
+internal sealed partial class CrittersEscapeWallSetupObject : RoomObjectBehaviour
 {
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context) =>

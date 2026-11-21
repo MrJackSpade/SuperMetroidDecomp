@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// eyes and greys the released statues show. Only the statue room builds one, with that room (#2382, #2426).
 /// </summary>
 [RoomLifetime]
-internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
+internal sealed partial class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
 {
     /// <inheritdoc/>
     /// <remarks>Only the statue room can place these.</remarks>
@@ -196,7 +196,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>A decoration: it follows the statue's reveal and descent, and settles at its place.</summary>
     /// <param name="statue">The statues' shared animation state, whose rest finishes the statue's sinking.</param>
     /// <param name="statueRoom">The statue room, which says how far the statue has sunk.</param>
-    internal sealed class DecorationBehavior(TourianStatueAnimation statue, ITourianStatueRoom statueRoom)
+    internal sealed partial class DecorationBehavior(TourianStatueAnimation statue, ITourianStatueRoom statueRoom)
         : TourianStatueProjectileBehavior<TourianStatueDecorationMotion>(TourianStatueDecorationMotion.Settled)
     {
         /// <summary>The base decoration's animation starts it following the statue's reveal.</summary>

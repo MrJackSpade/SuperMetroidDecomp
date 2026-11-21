@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <param name="Name">The frame's name in the boss's sheet.</param>
 /// <param name="Shown">Its picture with the depth it is drawn at, or null when it paints nothing (#2560).</param>
 /// <param name="Anchor">Where its picture's top-left corner lies from its boss's position.</param>
-internal sealed record ComposedBossBodyFrame(string Name, ComposedBossBodyPicture? Shown, Offset16<RoomPixels> Anchor)
+internal sealed partial record ComposedBossBodyFrame(string Name, ComposedBossBodyPicture? Shown, Offset16<RoomPixels> Anchor)
 {
     /// <summary>How a dissolve erases the picture step by step (#1652, #2478): Crocomire's melt images'; null for every other frame.</summary>
     internal PictureDissolve? Dissolve { get; init; }

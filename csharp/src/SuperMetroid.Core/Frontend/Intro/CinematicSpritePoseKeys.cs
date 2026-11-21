@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The installed key of each <see cref="CinematicSpritePose"/> (#2520), written out so renaming a member never changes
 /// a name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class CinematicSpritePoseKeys
+internal static partial class CinematicSpritePoseKeys
 {
     /// <summary>Each CinematicSpritePose member's installed key.</summary>
     internal static InstalledKeys<CinematicSpritePose> Installed { get; } = new(new Dictionary<CinematicSpritePose, string>

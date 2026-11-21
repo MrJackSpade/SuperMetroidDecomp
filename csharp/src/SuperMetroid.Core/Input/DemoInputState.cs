@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Input;
 /// steps it; the cue a recording gives as it ends goes to the owner (an intro scene ends on it). The playback's own frame
 /// hold gates the recording, so each input lasts exactly as long as its recorded input.
 /// </remarks>
-public sealed class DemoInputState
+public sealed partial class DemoInputState
 {
     /// <summary>Whether the playback runs: set when a demo starts, cleared when its recording ends the demo's input.</summary>
     public bool Enabled { get; private set; }

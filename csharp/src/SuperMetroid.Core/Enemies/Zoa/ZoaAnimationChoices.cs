@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>Chooses a Zoa's animation by its facing and movement (#1624, #1810).</summary>
-internal static class ZoaAnimationChoices
+internal static partial class ZoaAnimationChoices
 {
     /// <summary>The rising animation facing <paramref name="facing"/>.</summary>
     internal static ZoaSegment Rising(HorizontalDirection facing) =>

@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.World;
 /// set by itself because the owners each one reaches differ, not because a binding replaces part of an installation.
 /// </remarks>
 [ArchitectureReview("context-bag", "The runtime's binding of host-installed artwork: its setters rebind the HUD, the boss artwork, the loaded room's enemies and the Samus artwork binding when the host binds new content; every other member is an immutable artwork catalog, not a service.")]
-internal sealed class RuntimeArtwork
+internal sealed partial class RuntimeArtwork
 {
 
     /// <summary>The session's installed boss artwork.</summary>

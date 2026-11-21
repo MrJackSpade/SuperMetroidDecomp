@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// interactions they register. A Fune spits on its cooldown, a Namihe when Samus comes level with it (#2063).
 /// </summary>
 [RoomLifetime]
-internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];

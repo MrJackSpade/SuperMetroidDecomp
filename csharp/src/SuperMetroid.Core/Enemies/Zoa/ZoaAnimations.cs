@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 /// Zoa's shooting and rising animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="ZoaCue"/> naming what it does.
 /// </summary>
-internal static class ZoaAnimations
+internal static partial class ZoaAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<ZoaSegment, EnemyFrameId, ZoaCue> Segments { get; } = new(

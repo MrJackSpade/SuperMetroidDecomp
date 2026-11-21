@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// row's installed picture (<see cref="Rooms.RoomObjects.RoomObjectSetupBlock.TreadmillIdle"/>,
 /// <see cref="Rooms.RoomObjects.RoomObjectSetupBlock.TreadmillRunning"/>, #1580).
 /// </summary>
-internal static class WreckedShipTreadmillBlockDefinitions
+internal static partial class WreckedShipTreadmillBlockDefinitions
 {
     /// <summary>The treadmill row's first block column, the same in both doors' setup.</summary>
     public const int BlockX = 4;

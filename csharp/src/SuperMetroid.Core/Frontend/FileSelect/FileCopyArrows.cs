@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <summary>
 /// Chooses the file-copy arrow (<see cref="FileCopyArrowDefinitions"/>) between a source and a destination slot.
 /// </summary>
-internal static class FileCopyArrows
+internal static partial class FileCopyArrows
 {
     /// <summary>
     /// The arrow from <paramref name="source"/> to <paramref name="destination"/>: short between neighbouring slots and

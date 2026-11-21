@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Samus's airborne pose transitions: jumps, spin and wall jumps, grapple wall jumps and drops, Shinespark wind-up, aerial turns and aim.</summary>
-internal static class SamusAerialPoseTransitions
+internal static partial class SamusAerialPoseTransitions
 {
     /// <summary>
     /// Shared momentum initialization of the normal-jump and falling pose
@@ -662,7 +662,7 @@ internal static class SamusAerialPoseTransitions
     /// <param name="RightToLeft">The generic turn from facing right to facing left.</param>
     /// <param name="LeftToRight">The generic turn from facing left to facing right.</param>
     /// <param name="ByAim">The aimed turn each shot direction selects.</param>
-    private sealed record AerialTurns(string Name, SamusPoseId RightToLeft, SamusPoseId LeftToRight,
+    private sealed partial record AerialTurns(string Name, SamusPoseId RightToLeft, SamusPoseId LeftToRight,
         IReadOnlyDictionary<SamusProjectileDirection, SamusPoseId> ByAim)
     {
         /// <summary>The turns of a normal jump.</summary>

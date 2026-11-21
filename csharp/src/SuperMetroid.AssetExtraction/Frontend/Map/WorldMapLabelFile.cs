@@ -7,7 +7,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Reads and writes the installed world-map label anchors.</summary>
-public static class WorldMapLabelFile
+public static partial class WorldMapLabelFile
 {
     /// <summary>Loads and validates label anchors for exactly the six Zebes world-map areas.</summary>
     /// <param name="json">Caller-owned stream containing a world-map label document.</param>

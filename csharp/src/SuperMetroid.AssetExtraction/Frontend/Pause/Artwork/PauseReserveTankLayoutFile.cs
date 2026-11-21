@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// The installed reserve-strip layout (#1638): the six anchors the game draws the strip at. The strip's compositions, whose
 /// parts are the original's packed sprite placements, are import data (<see cref="PauseReserveTankFormat.ArtworkFileName"/>).
 /// </summary>
-public static class PauseReserveTankLayoutFile
+public static partial class PauseReserveTankLayoutFile
 {
     /// <summary>Supported layout revision.</summary>
     public const int Version = 1;

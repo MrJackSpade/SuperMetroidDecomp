@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <typeparam name="TLinks">The species' named partners of one part, or the one partner of a part that has one.</typeparam>
 [RoomLifetime]
-internal sealed class EnemyPartLinks<TLinks> where TLinks : class
+internal sealed partial class EnemyPartLinks<TLinks> where TLinks : class
 {
     /// <summary>Each placed part's partners, keyed by the part's place.</summary>
     private readonly Dictionary<RoomEnemyPlace, TLinks> _links = [];

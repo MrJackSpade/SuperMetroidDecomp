@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 /// <param name="launchSpeed">The claw's launch speed.</param>
 /// <param name="thrown">The way the claw is thrown: it flies out that way and comes back the other.</param>
-internal sealed class NinjaPirateClawState(ReturningClawSpeed launchSpeed, HorizontalDirection thrown) : EnemyProjectileState
+internal sealed partial class NinjaPirateClawState(ReturningClawSpeed launchSpeed, HorizontalDirection thrown) : EnemyProjectileState
 {
     /// <summary>The way the claw is thrown, which its pirate chose: it flies out that way and comes back the other.</summary>
     internal HorizontalDirection Thrown { get; } = thrown;

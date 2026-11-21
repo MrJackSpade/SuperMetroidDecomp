@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>The state of a Chozo statue.</summary>
-public sealed class ChozoStatueState
+public sealed partial class ChozoStatueState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ChozoStatueSegment> Playback { get; set; }

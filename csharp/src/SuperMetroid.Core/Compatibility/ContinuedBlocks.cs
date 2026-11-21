@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// types there; a zero parameter returns no collision.
 /// </remarks>
 [CompatibilityService("a cell that continues a several-cell block collides and reacts as the block its link leads to, at that block, as that block stands then; a zero link behaves as air")]
-public static class ContinuedBlocks
+public static partial class ContinuedBlocks
 {
     /// <summary>
     /// The block <paramref name="cell"/> stands for: the cell itself when it continues nothing, the block its chain of links

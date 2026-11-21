@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Visual compositions selected by the scientist delivery and examination lists.</summary>
-internal static class IntroScientistSpriteDefinitions
+internal static partial class IntroScientistSpriteDefinitions
 {
     /// <summary>
     /// Three six-part delivered poses and three one-part examined poses: every pose the two scientist scenes' babies show

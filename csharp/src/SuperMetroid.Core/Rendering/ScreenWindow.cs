@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rendering;
 /// to the screen lines from <see cref="FirstLine"/> up to <see cref="EndLine"/>. The backend tests each pixel against
 /// the shapes; a window without shapes covers nothing.
 /// </summary>
-public sealed record ScreenWindow
+public sealed partial record ScreenWindow
 {
     /// <summary>The most shapes one window joins.</summary>
     public const int MaximumShapes = 4;

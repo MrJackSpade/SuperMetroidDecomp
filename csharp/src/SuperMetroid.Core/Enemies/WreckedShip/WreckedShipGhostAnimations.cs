@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// The Wrecked Ship ghost's (Coven) floating loop as a typed animation (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class WreckedShipGhostAnimations
+internal static partial class WreckedShipGhostAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<WreckedShipGhostSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(

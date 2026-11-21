@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// <remarks>
 /// The two effects share one run of records.
 /// </remarks>
-public static class TourianGlowPaletteFxColorDefinitions
+public static partial class TourianGlowPaletteFxColorDefinitions
 {
 
     /// <summary>Eight live BGR555 colors are written by each record.</summary>

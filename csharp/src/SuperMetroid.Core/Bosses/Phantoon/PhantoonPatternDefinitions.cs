@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The damage that ends a round of Phantoon's vulnerable eye or swoop, and the eye's gaze animations.</summary>
-public static class PhantoonPatternDefinitions
+public static partial class PhantoonPatternDefinitions
 {
     /// <summary>
     /// The damage that ends a round of his vulnerable eye or swoop: a round's damage reaching it closes his eye, and a

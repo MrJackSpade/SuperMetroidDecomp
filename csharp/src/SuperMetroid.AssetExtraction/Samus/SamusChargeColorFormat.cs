@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Installed filename and bounded suit, phase, frame, and palette geometry for selected Samus charge-related body colors.</summary>
-public static class SamusChargeColorFormat
+public static partial class SamusChargeColorFormat
 {
     /// <summary>Installed editable JSON filename for charged-beam, pseudo-Screw, and Hyper-shot palette rows.</summary>
     public const string FileName = "samus-charge-colors.json";

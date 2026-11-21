@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus.Grapple;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Grapple swing-frame document (#1502).</summary>
-public static class GrappleSwingFrameFile
+public static partial class GrappleSwingFrameFile
 {
     /// <summary>Supported revision of the displayed-frame JSON schema: one frame for each swing direction.</summary>
     public const int Version = 2;

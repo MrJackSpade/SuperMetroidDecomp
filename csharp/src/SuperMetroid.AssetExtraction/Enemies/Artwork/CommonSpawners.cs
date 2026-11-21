@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// elevator arrival, whose pad and platform are no projectiles for it to find (#2425), placed by its presence in the rooms
 /// whose data runs it.
 /// </summary>
-internal static class CommonSpawners
+internal static partial class CommonSpawners
 {
     /// <summary>Every common spawner with its presence, checked once: a spawner the import cannot place fails every install.</summary>
     private static readonly Lazy<IReadOnlyList<PlacedCommonSpawner>> Placed = new(Place);

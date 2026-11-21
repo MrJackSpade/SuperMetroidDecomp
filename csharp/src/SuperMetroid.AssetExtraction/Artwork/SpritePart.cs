@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <param name="Flip">The piece's own mirroring.</param>
 /// <param name="Palette">The piece's palette row, 0 through <see cref="MaximumPalette"/>.</param>
 /// <param name="Depth">Where the piece draws among the room's layers.</param>
-public readonly record struct SpritePart(
+public readonly partial record struct SpritePart(
     Offset16<ScreenPixels> Offset,
     bool Large,
     int Character,

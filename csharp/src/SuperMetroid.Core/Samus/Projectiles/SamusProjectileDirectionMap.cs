@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="Left">The value of a shot fired left.</param>
 /// <param name="UpLeft">The value of a shot fired diagonally up and left.</param>
 /// <param name="UpFacingLeft">The value of a shot fired straight up while facing left.</param>
-internal sealed record SamusProjectileDirectionMap<T>(
+internal sealed partial record SamusProjectileDirectionMap<T>(
     T UpFacingRight, T UpRight, T Right, T DownRight, T DownFacingRight,
     T DownFacingLeft, T DownLeft, T Left, T UpLeft, T UpFacingLeft)
 {

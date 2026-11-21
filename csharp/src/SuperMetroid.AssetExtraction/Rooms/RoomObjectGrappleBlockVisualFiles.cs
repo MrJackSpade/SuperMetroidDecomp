@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the five breakable Grapple-block frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectGrappleBlockVisualFiles
+public static partial class RoomObjectGrappleBlockVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for the five initial, breakup, and blank breakable-Grapple frames.</summary>
     internal const string VisualFileName = "grapple-blocks.json";

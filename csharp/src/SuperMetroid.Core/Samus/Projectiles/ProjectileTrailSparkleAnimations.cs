@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// for their durations, a move cue nudges a sparkle a pixel down before the next frame shows, and each animation plays its
 /// runs once and ends.
 /// </summary>
-internal static class ProjectileTrailSparkleAnimations
+internal static partial class ProjectileTrailSparkleAnimations
 {
     /// <summary>The times an ice sparkle shows its clustered frame before it starts to twinkle.</summary>
     internal const int IceClusteredShows = 4;

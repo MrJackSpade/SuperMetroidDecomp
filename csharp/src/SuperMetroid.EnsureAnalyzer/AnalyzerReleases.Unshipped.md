@@ -84,3 +84,7 @@ SME6486 | Design | Error | RandomPlaceSelectionAnalyzer
 SME6487 | Design | Error | ParallelListAnalyzer
 SME6488 | Design | Error | IdentityDuplicationAnalyzer
 SME6490 | Build | Error | GeneratedTextGenerator
+SME6491 | Build | Error | StateGraphGenerator
+SME6492 | Build | Error | StateGraphGenerator
+SME6493 | Build | Error | StateGraphGenerator
+SME6494 | Build | Error | StateGraphExposure

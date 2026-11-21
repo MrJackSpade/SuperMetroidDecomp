@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The five Speed Booster collision blocks and their authored crumble (#1554). A block plays its break sound and
 /// crumbles through four images; a respawning block stays gone, grows back through them and restores its saved block.
 /// </summary>
-internal static class SpeedBoosterBlockObjectDefinitions
+internal static partial class SpeedBoosterBlockObjectDefinitions
 {
     /// <summary>The break sound.</summary>
     internal static readonly SoundEffectId BreakSoundId = EnemySound.ContactBlockBreak;

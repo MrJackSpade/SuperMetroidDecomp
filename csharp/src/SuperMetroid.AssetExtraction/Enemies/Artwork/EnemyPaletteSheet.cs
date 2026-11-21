@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>One enemy's editable sixteen-colour palette, which the import colours its sheets in (#1512).</summary>
-public sealed class EnemyPaletteSheet
+public sealed partial class EnemyPaletteSheet
 {
     /// <summary>Owned RGB5 palette entries in OBJ color-index order.</summary>
     internal readonly RgbColor[] colors;

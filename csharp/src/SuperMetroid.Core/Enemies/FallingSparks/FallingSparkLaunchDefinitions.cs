@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.FallingSparks;
 
 /// <summary>The sideways drifts a falling spark can launch with.</summary>
-public static class FallingSparkLaunchDefinitions
+public static partial class FallingSparkLaunchDefinitions
 {
     /// <summary>
     /// The launch a spark takes, chosen from eight rolls of its random number (#2510): the seven authored sideways drifts

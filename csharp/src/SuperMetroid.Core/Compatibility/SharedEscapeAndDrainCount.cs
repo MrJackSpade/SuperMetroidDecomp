@@ -26,7 +26,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TStage">A suit pickup stage.</typeparam>
 [CompatibilityService("Crystal Flash's ammunition countdown, Draygon's escape presses and the suit pickup's stage are one count")]
-public sealed class SharedEscapeAndDrainCount<TStage>
+public sealed partial class SharedEscapeAndDrainCount<TStage>
     where TStage : notnull
 {
     /// <summary>The order of the suit pickup's stages, whose place the pickup leaves on the count.</summary>

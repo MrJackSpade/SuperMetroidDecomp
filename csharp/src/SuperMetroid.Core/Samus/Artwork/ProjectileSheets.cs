@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// The installed projectile sheets a context draws from: in gameplay the sheet of the beam combination each draw is
 /// pictured with (#1586), in the intro's flashbacks the intro's own sheet, which holds the power beam's pictures.
 /// </summary>
-public sealed class ProjectileSheets
+public sealed partial class ProjectileSheets
 {
     /// <summary>Every installed sheet.</summary>
     private readonly InstalledSpriteSheets sheets;

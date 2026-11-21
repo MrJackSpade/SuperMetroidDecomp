@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The installed key of each <see cref="RoomBackgroundTilemap"/> (#2520), written out so renaming a member never
 /// changes a name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class RoomBackgroundTilemapKeys
+internal static partial class RoomBackgroundTilemapKeys
 {
     /// <summary>Each RoomBackgroundTilemap member's installed key.</summary>
     internal static InstalledKeys<RoomBackgroundTilemap> Installed { get; } = new(new Dictionary<RoomBackgroundTilemap, string>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// One image of Mother Brain's rainbow colour cycle (#2259), which her beam steps through over her body, brain and rear
 /// legs.
 /// </summary>
-public readonly record struct MotherBrainRainbowImage
+public readonly partial record struct MotherBrainRainbowImage
 {
     /// <summary>The image at <paramref name="step"/> of the cycle.</summary>
     private MotherBrainRainbowImage(int step) => Step = step;

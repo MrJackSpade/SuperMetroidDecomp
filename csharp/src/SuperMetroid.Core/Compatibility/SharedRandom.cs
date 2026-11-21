@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// random routine (<c>$80:8111</c>) and its main loop's draw; the SMV replays compare the random value on every update.
 /// </remarks>
 [CompatibilityService("the exact sequence of the shared random value's draws and advances, across the frontend, every runtime and effect work")]
-public sealed class SharedRandom
+public sealed partial class SharedRandom
 {
     /// <summary>Creates the generator with the game's power-on seed.</summary>
     public SharedRandom() => State = SharedRandomDefinitions.PowerOnState;

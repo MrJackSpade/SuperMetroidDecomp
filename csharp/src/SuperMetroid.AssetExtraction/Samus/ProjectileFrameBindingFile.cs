@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed timed-projectile frame-binding document (#1502).</summary>
-public static class ProjectileFrameBindingFile
+public static partial class ProjectileFrameBindingFile
 {
     /// <summary>Loads the frame bindings installed in projectile directory <paramref name="directory"/>, as the player may have edited them.</summary>
     /// <exception cref="InvalidDataException">The document is invalid.</exception>

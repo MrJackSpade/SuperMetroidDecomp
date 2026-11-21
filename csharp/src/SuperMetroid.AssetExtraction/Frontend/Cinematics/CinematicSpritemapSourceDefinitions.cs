@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Cinematics;
 
 /// <summary>The bank-$8C spritemap each cinematic sprite pose shows, which import reads its stock artwork from.</summary>
 [EncodingOwner("bank-$8C addresses of the cinematic spritemaps")]
-internal static class CinematicSpritemapSourceDefinitions
+internal static partial class CinematicSpritemapSourceDefinitions
 {
     /// <summary>Bank $8C, where every cinematic spritemap is stored.</summary>
     internal const byte Bank = 0x8c;

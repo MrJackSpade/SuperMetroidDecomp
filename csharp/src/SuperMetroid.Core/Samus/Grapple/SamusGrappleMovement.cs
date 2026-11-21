@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// Grapple's narrower test of being submerged and its persistent environment-selected
 /// release are kept apart from ordinary aerial movement.
 /// </remarks>
-public static class SamusGrappleMovement
+public static partial class SamusGrappleMovement
 {
     /// <summary>
     /// Fires the grapple beam (cancelling it when it cannot fire), stopping immediately

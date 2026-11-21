@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>The dead Torizo's artwork the game draws besides its ordinary frames.</summary>
-internal static class DeadTorizoArtworkDefinitions
+internal static partial class DeadTorizoArtworkDefinitions
 {
     /// <summary>The frame of the corpse's sand heap, drawn after the room's enemies.</summary>
     internal const EnemyFrameId SandHeapFrame = EnemyFrameId.DeadTorizoRubbleMound;

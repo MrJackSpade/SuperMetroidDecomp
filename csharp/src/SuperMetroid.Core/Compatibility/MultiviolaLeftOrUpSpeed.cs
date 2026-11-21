@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// update at every heading and every authored speed and compares both moves with that arithmetic.
 /// </remarks>
 [CompatibilityService("a Multiviola turning a speed left or up complements its whole pixels, so an axis without speed still moves it a pixel an update left or up")]
-internal static class MultiviolaLeftOrUpSpeed
+internal static partial class MultiviolaLeftOrUpSpeed
 {
     /// <summary>
     /// The velocity a Multiviola heading <paramref name="heading"/> at <paramref name="wholePixels"/> whole pixels an update

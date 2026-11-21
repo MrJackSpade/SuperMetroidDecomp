@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>The records of the Tourian escape's shutter and background red flashes and the colours each writes, for the import.</summary>
-public static class TourianEscapeRedFlashPaletteFxColorDefinitions
+public static partial class TourianEscapeRedFlashPaletteFxColorDefinitions
 {
 
     /// <summary>The shutters' red flashing.</summary>

@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Draw">What the image draws at the gate's block.</param>
 /// <param name="Updates">The updates the image stays before the course's next image, or before the course ends.</param>
 /// <param name="Starts">The movement that starts as the image draws; none for an image the gate only shows.</param>
-internal readonly record struct DownwardGateImage(RoomObjectDraw Draw, int Updates, DownwardGateMovement Starts = DownwardGateMovement.None);
+internal readonly partial record struct DownwardGateImage(RoomObjectDraw Draw, int Updates, DownwardGateMovement Starts = DownwardGateMovement.None);

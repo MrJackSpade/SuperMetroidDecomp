@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// The four-boss statue sequence's timing and shaking (#1415): how long the statue waits once the last boss is
 /// released, how it lowers, and the earthquakes the descent and each release start.
 /// </summary>
-public static class TourianStatueSequenceDefinitions
+public static partial class TourianStatueSequenceDefinitions
 {
     /// <summary>
     /// The updates the statue holds, after the last release ends, before it starts to lower, the last the one that

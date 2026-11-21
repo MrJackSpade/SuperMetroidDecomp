@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// projectile it is bound to moves by whichever it holds, and the motion runs itself, so no switch over a family's motions
 /// chooses how the projectile moves.
 /// </summary>
-internal sealed class EnemyProjectileOwnedMotion : EnemyProjectileMotion
+internal sealed partial class EnemyProjectileOwnedMotion : EnemyProjectileMotion
 {
     /// <summary>The motion's name, for diagnostics.</summary>
     private readonly string _name;

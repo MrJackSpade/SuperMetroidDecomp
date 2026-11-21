@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// behaviours to the shots they spawn.
 /// </summary>
 [RoomLifetime]
-internal sealed class DraygonShots
+internal sealed partial class DraygonShots
 {
     /// <summary>Allocates the drop a shot goop leaves.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -46,7 +46,7 @@ internal sealed class DraygonShots
     /// <param name="touch">
     /// Creates the animation touching Samus starts, from the shot's own behaviour, or null when the kind has none of its own.
     /// </param>
-    internal sealed class DraygonShotBehavior(
+    internal sealed partial class DraygonShotBehavior(
         EnemyDeathsAndDrops deathsAndDrops,
         Func<DraygonShotBehavior, EnemyProjectileMotion?> initial,
         Func<DraygonShotBehavior, EnemyProjectileAnimation> shot,

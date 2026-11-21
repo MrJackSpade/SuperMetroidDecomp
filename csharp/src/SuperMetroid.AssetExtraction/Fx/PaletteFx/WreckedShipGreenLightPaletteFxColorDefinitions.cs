@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// <remarks>
 /// The two effects share these records.
 /// </remarks>
-public static class WreckedShipGreenLightPaletteFxColorDefinitions
+public static partial class WreckedShipGreenLightPaletteFxColorDefinitions
 {
 
     /// <summary>Two BGR555 colors are presentation-owned by each record.</summary>

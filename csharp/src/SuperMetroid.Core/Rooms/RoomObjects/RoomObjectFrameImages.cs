@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The object's frame identity: its frame enum, or the <see cref="RoomObjectDraw"/> of a family whose frames are typed
 /// records or span several frame types.
 /// </typeparam>
-internal sealed class RoomObjectFrameImages<TFrame> where TFrame : notnull
+internal sealed partial class RoomObjectFrameImages<TFrame> where TFrame : notnull
 {
 
     /// <summary>Holds the pictures of the frames, which the import has checked cover every frame the object draws.</summary>

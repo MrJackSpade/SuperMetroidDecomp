@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// The Boulder's mirrored rolling loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class BoulderAnimations
+internal static partial class BoulderAnimations
 {
     /// <summary>The updates each of the Boulder's turned frames shows for.</summary>
     private const int TurnUpdates = 8;

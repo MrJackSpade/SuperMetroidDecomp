@@ -7,7 +7,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Reads and writes the installed boss, elevator and gunship landmark anchors.</summary>
-public static class MapLandmarkFile
+public static partial class MapLandmarkFile
 {
     /// <summary>Enumerates every published boss, elevator, and gunship landmark identity the document must hold.</summary>
     /// <returns>All landmark IDs in area order, each area's boss markers before its elevator labels.</returns>

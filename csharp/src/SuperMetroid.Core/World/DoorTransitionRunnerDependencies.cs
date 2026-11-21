@@ -5,7 +5,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="DoorTransitionRunner"/> is constructed with, built once by the owner that creates it (#621).</summary>
-internal sealed record DoorTransitionRunnerDependencies
+internal sealed partial record DoorTransitionRunnerDependencies
 {
     /// <summary>Draws Samus and the room's actors during the door's waits and fades.</summary>
     public required GameplayActorDrawing ActorDrawing { get; init; }

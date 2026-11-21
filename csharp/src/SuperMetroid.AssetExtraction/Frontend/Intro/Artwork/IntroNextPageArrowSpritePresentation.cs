@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable OAM compositions of the Japanese text's next-page arrow (#1655), independent of its cadence and position.</summary>
-public sealed class IntroNextPageArrowSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroNextPageArrowSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated arrow compositions keyed by the pose that shows them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;

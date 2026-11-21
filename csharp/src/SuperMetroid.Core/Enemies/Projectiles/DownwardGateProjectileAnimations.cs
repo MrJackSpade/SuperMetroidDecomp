@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// The downward shot gate's moving and closed animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="DownwardGateProjectileCue"/> with the values it acts on.
 /// </summary>
-internal static class DownwardGateProjectileAnimations
+internal static partial class DownwardGateProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<DownwardGateProjectileSegment, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments { get; } = new(

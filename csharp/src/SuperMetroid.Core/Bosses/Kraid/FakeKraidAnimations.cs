@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// Fake Kraid's action choice, step and spit animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="FakeKraidCue"/> saying what it does.
 /// </summary>
-internal static class FakeKraidAnimations
+internal static partial class FakeKraidAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<FakeKraidSegment, EnemyFrameId, FakeKraidCue> Segments { get; } = new(

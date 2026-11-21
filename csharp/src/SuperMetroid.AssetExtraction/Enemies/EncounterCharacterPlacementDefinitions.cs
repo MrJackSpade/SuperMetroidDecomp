@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Where the cartridge places each encounter's characters among the sprite characters (#1392, #1406).</summary>
-internal static class EncounterCharacterPlacementDefinitions
+internal static partial class EncounterCharacterPlacementDefinitions
 {
     /// <summary>The sprite character the enemy tile area begins at: the first after the standard sprites' area.</summary>
     internal const int EnemyTileAreaFirstCharacter = 192;

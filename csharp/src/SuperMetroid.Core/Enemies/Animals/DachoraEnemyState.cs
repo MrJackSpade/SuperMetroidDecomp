@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// from rest because it has not moved before it, and its shinespark starts from rest because the charge stops it
 /// (<see cref="StartCharging"/>). Its speed-boost echoes keep their own state (<see cref="DachoraEchoState"/>, #2147).
 /// </summary>
-public sealed class DachoraEnemyState
+public sealed partial class DachoraEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal DachoraEnemyState(DachoraAction action) => Action = action;

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The terrain change of each of Kraid's room mutations.</summary>
-internal static class KraidRoomMutationDefinitions
+internal static partial class KraidRoomMutationDefinitions
 {
     /// <summary>Updates each crumble image, background or spike image shows.</summary>
     internal const int CrumbleFrameDuration = 3;

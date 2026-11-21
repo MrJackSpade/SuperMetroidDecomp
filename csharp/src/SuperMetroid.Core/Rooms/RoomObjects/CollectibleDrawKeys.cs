@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The installed key of each <see cref="CollectibleDraw"/> (#2520), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class CollectibleDrawKeys
+internal static partial class CollectibleDrawKeys
 {
     /// <summary>Each CollectibleDraw member's installed key.</summary>
     internal static InstalledKeys<CollectibleDraw> Installed { get; } = new(new Dictionary<CollectibleDraw, string>

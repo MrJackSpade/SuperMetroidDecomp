@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// interpolation. Every calculation below computes its two axes independently, so whole-value
 /// updates preserve its results.
 /// </remarks>
-public sealed class BackgroundScrollState
+public sealed partial class BackgroundScrollState
 {
     /// <summary>World-space foreground/camera position.</summary>
     public Position16<RoomPixels> ForegroundPosition { get; set; }

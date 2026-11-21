@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// Phantoon's translucent body, Fireflea's darkness, the waterfall rooms and the spores blend everywhere, a closed window.
 /// The paint belongs to the containing scene, and this layer also draws the unchanged HUD.
 /// </summary>
-public sealed record GameplayBlendLayer : DisplayLayer
+public sealed partial record GameplayBlendLayer : DisplayLayer
 {
     /// <summary>The gameplay layers and actors, composed before the blend.</summary>
     public GameplaySceneLayer Gameplay { get; }

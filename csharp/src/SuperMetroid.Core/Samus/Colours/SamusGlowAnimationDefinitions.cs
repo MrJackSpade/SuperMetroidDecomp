@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// climbs its own; the Speed Booster rises through its shades and rests on its brightest. A shot's glow restores the
 /// suit's own shade on the update after its last.
 /// </summary>
-internal static class SamusGlowAnimationDefinitions
+internal static partial class SamusGlowAnimationDefinitions
 {
     /// <summary>The suits in the order their sequences are listed: Power, Varia, Gravity.</summary>
     private static readonly IReadOnlyList<S> Suits = Ensure.EveryMemberOnce<S>([S.Power, S.Varia, S.Gravity]);

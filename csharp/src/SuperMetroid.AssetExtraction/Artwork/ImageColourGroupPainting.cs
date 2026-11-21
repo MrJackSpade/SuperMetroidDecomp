@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// How the import pipeline records the colour groups it composes a sheet with (#1464): the group each palette index was
 /// coloured from and the groups a frame's pixels use.
 /// </summary>
-internal static class ImageColourGroupPainting
+internal static partial class ImageColourGroupPainting
 {
     /// <summary>Every group, in the order the image keeps their colours.</summary>
     private static readonly ImmutableArray<ImageColourGroup> EveryGroup =

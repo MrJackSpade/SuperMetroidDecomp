@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Spawns Mother Brain's room-mutation objects in the room's shared room-object places.</summary>
 /// <param name="places">The room's room-object places, which her mutations contend for with every other room object.</param>
-internal sealed class MotherBrainRoomObjects(RoomObjectPlaceList places)
+internal sealed partial class MotherBrainRoomObjects(RoomObjectPlaceList places)
 {
     /// <summary>
     /// Spawns one of Mother Brain's room changes at its block: a terrain change that draws its layout on its first update

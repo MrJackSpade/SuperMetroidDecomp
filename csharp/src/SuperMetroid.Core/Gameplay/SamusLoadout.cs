@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// A complete Samus loadout granted by <see cref="GameplayAssists.GrantedLoadout"/>: her equipment, beams, energy,
 /// reserves and ammunition, each count filling both its current value and its maximum.
 /// </summary>
-public sealed record SamusLoadout
+public sealed partial record SamusLoadout
 {
     /// <summary>The items Samus has collected and equipped.</summary>
     public required SamusEquipmentFlags Equipment { get; init; }

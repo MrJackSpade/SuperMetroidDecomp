@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Serializable components of one SNES BG tilemap word.</summary>
-public sealed record GameplayHudCell
+public sealed partial record GameplayHudCell
 {
     /// <summary>Gets the zero-based character column in the 32-by-32 character page.</summary>
     public required int TileColumn { get; init; }

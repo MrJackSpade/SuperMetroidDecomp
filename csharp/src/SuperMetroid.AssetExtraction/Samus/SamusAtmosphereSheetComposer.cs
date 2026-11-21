@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// lava-and-dust small sprites in each frame, as their installed attributes name them, and the diving splash's and
 /// bubbles' spritemaps, coloured as Samus's other sheets are.
 /// </summary>
-internal static class SamusAtmosphereSheetComposer
+internal static partial class SamusAtmosphereSheetComposer
 {
     /// <summary>Every frame the sheet holds.</summary>
     internal static IEnumerable<string> Frames =>

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <param name="place">The place the crawler occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="family">The animation family the crawler's setup selects its surface animations from.</param>
-internal sealed class SurfaceCrawlerEntity(CrawlersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CrawlerAnimationFamily family)
+internal sealed partial class SurfaceCrawlerEntity(CrawlersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CrawlerAnimationFamily family)
     : CrawlerEntity(occupant, place, common)
 {
     /// <inheritdoc/>

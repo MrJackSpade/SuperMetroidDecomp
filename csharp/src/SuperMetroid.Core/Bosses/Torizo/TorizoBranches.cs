@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The animation each of a walking Torizo's decisions continues in when its test passes (#2175): the dodge or attack for
 /// the way its last step faced and the foot it stepped on, which the step's cue records in its posture.
 /// </summary>
-internal static class TorizoBranches
+internal static partial class TorizoBranches
 {
     /// <summary>The animation a passing <paramref name="kind"/> decision continues in, from the start, for <paramref name="posture"/>.</summary>
     /// <param name="kind">The decision.</param>

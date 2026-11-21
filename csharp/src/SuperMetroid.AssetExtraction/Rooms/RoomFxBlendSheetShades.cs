@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// blend loads its three colours over the HUD's effect colours' tenth through twelfth, and the empty blend clears only
 /// the twelfth, as <c>LoadFXHeader</c> copies them.
 /// </summary>
-internal static class RoomFxBlendSheetShades
+internal static partial class RoomFxBlendSheetShades
 {
     /// <summary>The room effects' tints in the order the blend sheet lists their shades (#2567).</summary>
     private static readonly IReadOnlyList<RoomEffectTint> TintOrder = Ensure.EveryMemberOnce<RoomEffectTint>(

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// settings phases their own. The dissolves, the controller page's scrolls, the start-game fade and handoff and the
 /// opening black hold show no cursor (#1775). Undefined phases reject.
 /// </remarks>
-internal static class GameOptionsCursorPolicy
+internal static partial class GameOptionsCursorPolicy
 {
     /// <summary>The page whose cursor a phase shows, or none during a transition.</summary>
     internal static GameOptionsPage? Select(GameOptionsPhase phase, GameOptionsPage page) => phase switch

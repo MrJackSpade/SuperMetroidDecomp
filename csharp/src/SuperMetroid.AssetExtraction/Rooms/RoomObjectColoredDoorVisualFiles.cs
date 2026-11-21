@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the forty-eight yellow, green and red door-cap frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectColoredDoorVisualFiles
+public static partial class RoomObjectColoredDoorVisualFiles
 {
     /// <summary>JSON filename for yellow, green, and red door-cap visual frames.</summary>
     internal const string VisualFileName = "colored-doors.json";

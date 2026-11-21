@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>How a picture's name spells the values of the appearance inputs that do not name a frame (#1466).</summary>
-public static class RoomAppearanceValues
+public static partial class RoomAppearanceValues
 {
     /// <summary>
     /// An input that leaves what the room loaded showing: Kraid's backdrop not yet shown, an animation that has selected no

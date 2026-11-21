@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rendering;
 /// How a background is pixelated: the screen is divided into square blocks, each showing the background at its
 /// top-left pixel. The background's scroll is added afterwards, each line using its own scroll, not the block's first line's.
 /// </summary>
-public readonly record struct BackgroundPixelation
+public readonly partial record struct BackgroundPixelation
 {
     /// <summary>The square block width in screen pixels, one or more.</summary>
     public int Size { get; }

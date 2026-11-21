@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <param name="Name">The place's name, which the installation keys its landings by.</param>
 /// <param name="Animation">The animation the frame belongs to.</param>
 /// <param name="Frame">The frame.</param>
-internal readonly record struct SamusAnimationPlace(SamusAnimationPlaceName Name, SamusPoseAnimation Animation, SamusAnimationFrame Frame);
+internal readonly partial record struct SamusAnimationPlace(SamusAnimationPlaceName Name, SamusPoseAnimation Animation, SamusAnimationFrame Frame);

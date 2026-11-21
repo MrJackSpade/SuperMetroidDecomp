@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Movement policies selected by Samus's morphed, spin-jumping or damage-boosting movement.</summary>
 /// <remarks>Each movement decides two things only: whether Ridley may grab Samus, and how long she stays out of reach after he releases her.</remarks>
-internal static class RidleySamusInteractionDefinitions
+internal static partial class RidleySamusInteractionDefinitions
 {
     /// <summary>Separates Samus's movement owners by Ridley's grab eligibility and release delay.</summary>
     internal enum GrabPolicy

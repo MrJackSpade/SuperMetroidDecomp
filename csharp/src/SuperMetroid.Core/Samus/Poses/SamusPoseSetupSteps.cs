@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// gives it, the controller's actions, the frame counter and the moonwalk setting, so the setups run through the pose
 /// phase without naming it.
 /// </summary>
-internal sealed class SamusPoseSetupSteps
+internal sealed partial class SamusPoseSetupSteps
 {
     /// <summary>Supplies the held and newly pressed controller buttons.</summary>
     private readonly GameplayActionInput _playerActions;

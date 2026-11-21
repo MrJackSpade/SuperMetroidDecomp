@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// One step of the file-copy arrows' colour rotation (#2361): each moves the arrows' colours one place along, and the
 /// first follows the last.
 /// </summary>
-public readonly record struct FileCopyArrowRotationStep
+public readonly partial record struct FileCopyArrowRotationStep
 {
     /// <summary>The step at <paramref name="step"/> of the rotation.</summary>
     private FileCopyArrowRotationStep(int step) => Step = step;

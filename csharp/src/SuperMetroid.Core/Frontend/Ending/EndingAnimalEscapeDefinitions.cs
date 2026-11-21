@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Definitions for the rescued animals' escape pod.</summary>
-internal static class EndingAnimalEscapeDefinitions
+internal static partial class EndingAnimalEscapeDefinitions
 {
     /// <summary>The colouring the pod draws in.</summary>
     internal const EndingSpriteColouring Colouring = EndingSpriteColouring.AnimalEscape;

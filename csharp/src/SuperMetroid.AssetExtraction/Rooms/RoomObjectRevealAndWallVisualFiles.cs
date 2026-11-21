@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// passage of Crateria's main street escape, the opened wall of the old Tourian escape shaft and the four rescue-wall
 /// frames of the escape animals, and the identities that name them.
 /// </summary>
-public static class RoomObjectRevealAndWallVisualFiles
+public static partial class RoomObjectRevealAndWallVisualFiles
 {
     /// <summary>The installed JSON filename of the reveal and wall pictures.</summary>
     public const string VisualFileName = "reveals-and-walls.json";

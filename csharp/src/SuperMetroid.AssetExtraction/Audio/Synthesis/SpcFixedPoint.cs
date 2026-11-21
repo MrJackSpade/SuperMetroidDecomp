@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// a multiplication by a fraction of 256.
 /// </summary>
 [EncodingOwner("sound driver 8.8 volume, pitch and tempo words")]
-internal static class SpcFixedPoint
+internal static partial class SpcFixedPoint
 {
     /// <summary>Fraction bits below the whole byte.</summary>
     private const int FractionBits = 8;

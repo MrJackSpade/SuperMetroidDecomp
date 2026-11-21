@@ -19,7 +19,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// with, the death step each explosion frame shows and the colour the room whitens to at each whiteout step, is installed
 /// by purpose in the death-step document, which the player edits in place.
 /// </summary>
-public static class SamusDeathPaletteArtworkFiles
+public static partial class SamusDeathPaletteArtworkFiles
 {
     /// <summary>Import-data JSON filename for suited/suitless death rows, whiteout shades, and explosion death steps.</summary>
     internal const string ArtworkFileName = "samus-death-palettes.json";
@@ -188,11 +188,11 @@ public static class SamusDeathPaletteArtworkFiles
     }
 
     /// <summary>Complete suited, suitless, whiteout, and explosion death-step payload, which only the import reads.</summary>
-    internal sealed record ArtworkDocument(int Version, Dictionary<string, ushort[][]> Suited,
+    internal sealed partial record ArtworkDocument(int Version, Dictionary<string, ushort[][]> Suited,
         ushort[][] Suitless, ushort[] Whiteout, Dictionary<string, int> ExplosionSteps);
     /// <summary>
     /// The installed death steps by purpose: the death step each explosion frame shows her suit and suitless body in, and the
     /// colour the room and every other sprite whiten to at each whiteout step, written as <c>#rrggbb</c> (#2564).
     /// </summary>
-    internal sealed record StepDocument(int Version, Dictionary<string, int> ExplosionSteps, string[] Whiteout);
+    internal sealed partial record StepDocument(int Version, Dictionary<string, int> ExplosionSteps, string[] Whiteout);
 }

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// store them as ints and pass each arithmetic result through these operations, so the wrap is explicit at each write.
 /// </summary>
 [EncodingOwner("sound driver byte and word widths")]
-internal static class SpcDriverWrap
+internal static partial class SpcDriverWrap
 {
     /// <summary>Values one driver byte holds.</summary>
     private const int ByteRange = 0x100;

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The Maridia rooms' doors, each named for the room it leads from and the room it leads to.</summary>
-public static class MaridiaDoorDefinitions
+public static partial class MaridiaDoorDefinitions
 {
     /// <summary>The door from the Glass Tunnel Save room to the Glass Tunnel room.</summary>
     public static DoorDefinition GlassTunnelSaveToGlassTunnel { get; } = new("GlassTunnelSaveToGlassTunnel", RoomDefinitions.GlassTunnel, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 38), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);

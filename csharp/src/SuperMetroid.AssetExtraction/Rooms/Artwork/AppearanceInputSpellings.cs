@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms.Artwork;
 /// Reads back the appearance inputs the installed records spell (#1466, #1502), so the records of which inputs each
 /// picture depends on load as the inputs the room reads.
 /// </summary>
-internal static class AppearanceInputSpellings
+internal static partial class AppearanceInputSpellings
 {
     /// <summary>The one Kraid backdrop input.</summary>
     internal static KraidBackdropAppearance KraidBackdrop { get; } = new();

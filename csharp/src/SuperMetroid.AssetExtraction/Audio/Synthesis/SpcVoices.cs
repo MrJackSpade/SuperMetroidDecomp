@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>What music and sound effects share on the DSP: instruments, pitch and volume writes, the key-on, key-off, noise and echo flags, and memory reads.</summary>
-internal sealed class SpcVoices
+internal sealed partial class SpcVoices
 {
     /// <summary>
     /// The stereo sides in the order the driver writes a voice's volume (#2567): the left from the pan, then the right from

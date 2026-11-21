@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>The Zebetites' installed barrier pulse colours, every frame kept as installed.</summary>
-public sealed class ZebetiteColorCatalog
+public sealed partial class ZebetiteColorCatalog
 {
     /// <summary>The installed pulse frames.</summary>
     private readonly InstalledColourRows frames;

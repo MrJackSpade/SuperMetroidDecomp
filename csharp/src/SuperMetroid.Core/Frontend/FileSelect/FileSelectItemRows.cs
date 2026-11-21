@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// File select's rows on each page, from the top (#2359): the order the cursor moves through and the order of each page's
 /// installed cursor anchors; and the save slot each slot row selects.
 /// </summary>
-internal static class FileSelectItemRows
+internal static partial class FileSelectItemRows
 {
     /// <summary>The main page's rows while a save exists: the save slots in slot order, Copy, Clear and Exit.</summary>
     internal static MenuRowOrder<FileSelectItem> MainWithData { get; } = new(

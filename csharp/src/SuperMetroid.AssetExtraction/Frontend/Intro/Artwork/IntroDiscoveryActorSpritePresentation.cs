@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable SR388 egg and baby OAM art; animation and motion remain compiled.</summary>
-public sealed class IntroDiscoveryActorSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroDiscoveryActorSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated egg, remnant, and baby compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;

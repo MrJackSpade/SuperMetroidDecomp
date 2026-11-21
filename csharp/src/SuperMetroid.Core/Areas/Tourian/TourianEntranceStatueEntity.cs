@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class TourianEntranceStatueEntity(TourianEntranceStatueBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal sealed partial class TourianEntranceStatueEntity(TourianEntranceStatueBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation, IEnemyDeparture
 {
     /// <summary>The place the placement holds until it leaves, which shows the scene's look.</summary>

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Hud;
 
 /// <summary>Shared admission decisions from the game's HUD steps for each movement type.</summary>
-internal static class SamusHudInput
+internal static partial class SamusHudInput
 {
     /// <summary>
     /// Whether a posture transition admits weapons: morph and unmorph art preserve the charge unless active Grapple is

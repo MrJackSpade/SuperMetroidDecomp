@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rendering;
 /// Phantoon's translucent body (#1514): the background his body shows on, lying behind the room, brightens the foreground,
 /// the actors taking part in blends and the backdrop wherever it shows, without ever covering the foreground.
 /// </summary>
-public sealed record PhantoonTranslucenceBlend : GameplayBlend
+public sealed partial record PhantoonTranslucenceBlend : GameplayBlend
 {
     /// <summary>The one translucent body.</summary>
     public static PhantoonTranslucenceBlend Body { get; } = new();

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Progression;
 /// The properties of a projectile family the game tests (<see cref="SamusProjectileFamilyDefinitions.Roles"/>, #2556): its
 /// ordered family comparisons ("explosions and later", "bombs and later") are these predicates; no family is ranked.
 /// </summary>
-public static class SamusProjectileFamilies
+public static partial class SamusProjectileFamilies
 {
     /// <summary>The properties of a family.</summary>
     extension(SamusProjectileFamily family)

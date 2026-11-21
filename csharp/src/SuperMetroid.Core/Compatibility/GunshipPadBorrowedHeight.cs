@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// own, not the hull's by name.
 /// </remarks>
 [CompatibilityService("the gunship's entrance pad starts one pixel above the enemy listed two places before it")]
-public static class GunshipPadBorrowedHeight
+public static partial class GunshipPadBorrowedHeight
 {
     /// <summary>How many places before the pad the room lists the enemy whose height it borrows.</summary>
     private const int LenderDistance = 2;

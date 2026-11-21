@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="rule">How the station is used.</param>
 /// <param name="area">The area whose map a map station serves.</param>
 /// <param name="animation">The animation it shows first.</param>
-internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, StationAnimation animation) : RoomObjectBehaviour
+internal sealed partial class AccessStationObject(StationAccessRule rule, AreaId area, StationAnimation animation) : RoomObjectBehaviour
 {
     /// <summary>How the station is used: its access blocks, its animations, its reward and its message.</summary>
     internal StationAccessRule Rule { get; } = Ensure.NotNull(rule);

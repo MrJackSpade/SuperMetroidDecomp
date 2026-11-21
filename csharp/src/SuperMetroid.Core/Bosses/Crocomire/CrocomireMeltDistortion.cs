@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="FirstLine">The band's first screen line.</param>
 /// <param name="EndLine">The screen line after the band's last.</param>
 /// <param name="Slope">The rows the band falls behind per line (#2181).</param>
-public sealed record CrocomireMeltDistortion(int LevelledTop, int Top, int FirstLine, int EndLine, UnsignedSixteenSixteen Slope)
+public sealed partial record CrocomireMeltDistortion(int LevelledTop, int Top, int FirstLine, int EndLine, UnsignedSixteenSixteen Slope)
 {
     /// <summary>The melt levelled with him on room row <paramref name="top"/>: every line shows his body there, and no band stretches.</summary>
     /// <param name="top">The room row he lies on.</param>

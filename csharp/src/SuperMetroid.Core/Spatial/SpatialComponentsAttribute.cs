@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Spatial;
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Method | AttributeTargets.Constructor,
     Inherited = false)]
-public sealed class SpatialComponentsAttribute : Attribute
+public sealed partial class SpatialComponentsAttribute : Attribute
 {
     /// <summary>Records why the components are stored or passed separately.</summary>
     public SpatialComponentsAttribute(string reason) => Reason = reason;

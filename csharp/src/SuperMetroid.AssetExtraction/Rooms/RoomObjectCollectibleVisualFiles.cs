@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// holds the 16 frames whose picture is seen: the eight block-pair frames lie under the item's own picture (#1538) and
 /// write only their terrain, which the import checks against the cartridge with the block pairs' selectors.
 /// </summary>
-public static class RoomObjectCollectibleVisualFiles
+public static partial class RoomObjectCollectibleVisualFiles
 {
     /// <summary>Editable JSON filename containing the sixteen editable collectible frames.</summary>
     internal const string VisualFileName = "collectibles.json";

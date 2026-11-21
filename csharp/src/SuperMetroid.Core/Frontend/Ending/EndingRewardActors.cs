@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>
 /// Selects the ending reward actors' definitions.
 /// </summary>
-internal static class EndingRewardActors
+internal static partial class EndingRewardActors
 {
     /// <summary>
     /// Resolves one reward actor's start and animation. The selected animation is a typed cinematic sprite animation

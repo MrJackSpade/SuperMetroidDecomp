@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>What one of Golden Torizo's eggs keeps: which way it was laid and rolls, and how long until it hatches.</summary>
 /// <param name="laidFacing">The way the egg starts rolling, as Golden Torizo faced when it laid it.</param>
-internal sealed class GoldenTorizoEggState(HorizontalDirection laidFacing) : EnemyProjectileState
+internal sealed partial class GoldenTorizoEggState(HorizontalDirection laidFacing) : EnemyProjectileState
 {
     /// <summary>
     /// The way Golden Torizo faced when it laid the egg: the egg rolls showing that side, and hatches showing it

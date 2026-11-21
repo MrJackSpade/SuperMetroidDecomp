@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The installed key of each <see cref="ChargeFlarePicture"/> (#2520), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class ChargeFlarePictureKeys
+internal static partial class ChargeFlarePictureKeys
 {
     /// <summary>Each ChargeFlarePicture member's installed key.</summary>
     internal static InstalledKeys<ChargeFlarePicture> Installed { get; } = new(new Dictionary<ChargeFlarePicture, string>

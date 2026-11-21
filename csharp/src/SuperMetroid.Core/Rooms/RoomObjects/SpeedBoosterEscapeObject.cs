@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="owner">The room's escape owner, which reaches Samus, the lava, the earthquake and the events.</param>
 [RoomLifetime]
-internal sealed class SpeedBoosterEscapeObject(SpeedBoosterEscapeObjects owner) : RoomObjectBehaviour
+internal sealed partial class SpeedBoosterEscapeObject(SpeedBoosterEscapeObjects owner) : RoomObjectBehaviour
 {
     /// <summary>The room's escape owner.</summary>
     private readonly SpeedBoosterEscapeObjects _owner = Ensure.NotNull(owner);

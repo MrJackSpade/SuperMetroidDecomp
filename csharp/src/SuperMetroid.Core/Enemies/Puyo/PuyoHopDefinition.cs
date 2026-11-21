@@ -10,5 +10,5 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// How fast the Puyo drops when a wall or ceiling cuts this hop short, and for the drop itself how fast it falls: the drop
 /// that follows a cut hop keeps falling at the cut hop's speed until it lands.
 /// </param>
-public readonly record struct PuyoHopDefinition(int JumpHeight, int XPixels, QuadraticSpeedCurvePlace LaunchSearchStep,
+public readonly partial record struct PuyoHopDefinition(int JumpHeight, int XPixels, QuadraticSpeedCurvePlace LaunchSearchStep,
     QuadraticSpeedCurvePlace CurveStep, PuyoAirborneMovement Movement, SignedSixteenSixteen DropSpeed);

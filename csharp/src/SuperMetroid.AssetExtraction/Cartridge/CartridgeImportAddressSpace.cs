@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// The import stages nothing in work memory, so this space maps no work RAM: a read the cartridge window does not
 /// serve fails at its caller rather than returning bytes nothing wrote (#1688).
 /// </remarks>
-public sealed class CartridgeImportAddressSpace : ISnesAddressSpace,
+public sealed partial class CartridgeImportAddressSpace : ISnesAddressSpace,
     IImportCartridgeSource, IRestoredSharedContent
 {
     /// <summary>Size in bytes of the unheadered retail Super Metroid ROM image: 3 MiB.</summary>

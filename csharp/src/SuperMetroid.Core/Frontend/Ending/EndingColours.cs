@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// on which was shown last.
 /// </remarks>
 [RoomScopeBoundary("The ending's colours own the ending's colour effects for the cinematic's lifetime; no gameplay room is loaded during it.")]
-internal sealed class EndingColours
+internal sealed partial class EndingColours
 {
     /// <summary>The order the restoring loads' shades lie in, which lists every load once (#2543).</summary>
     private static readonly IReadOnlyList<EndingColourLoad> LoadLayers = Ensure.EveryMemberOnce(EndingShadeLayeringDefinitions.Loads);

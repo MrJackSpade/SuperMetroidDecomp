@@ -28,7 +28,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// the import's read reads. So is the manifest naming them and the installed documents (#1693): the game reads only the
 /// documents it binds.
 /// </summary>
-public static class IntroCinematicArtworkFiles
+public static partial class IntroCinematicArtworkFiles
 {
     /// <summary>
     /// Manifest revision for the complete opening and Ceres artwork resource set; 22 installs no character page (#1636),
@@ -583,6 +583,6 @@ public static class IntroCinematicArtworkFiles
     };
 
     /// <summary>Records resource hashes and cartridge provenance for one extracted stock artwork set.</summary>
-    internal sealed record IntroCinematicArtworkManifest(
+    internal sealed partial record IntroCinematicArtworkManifest(
         int Version, string SourceCartridgeSha256, Dictionary<string, string> StockSha256);
 }

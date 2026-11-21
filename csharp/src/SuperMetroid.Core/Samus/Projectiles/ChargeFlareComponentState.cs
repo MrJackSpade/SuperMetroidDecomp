@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// pictures backward from wherever the component stands, each for <see cref="HyperBeamPictureUpdates"/>, and once that
 /// count steps back past the first picture the component shows nothing until the flare restarts or is cleared.
 /// </summary>
-internal sealed class ChargeFlareComponentState
+internal sealed partial class ChargeFlareComponentState
 {
     /// <summary>Sets up <paramref name="component"/>'s animation cleared, on its first picture.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="component"/> has no animation.</exception>

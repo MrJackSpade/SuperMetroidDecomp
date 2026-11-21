@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// combination it shares its colours with; and the Spacetime beam, in its own. Spazer with Plasma, alone or with Ice and
 /// Wave together, has no beam graphics.
 /// </summary>
-internal static class SamusBeamGraphicsDefinitions
+internal static partial class SamusBeamGraphicsDefinitions
 {
     /// <summary>Each combination with beam graphics, with the combination whose shade its beams show.</summary>
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusBeamCombination> ShownShades =

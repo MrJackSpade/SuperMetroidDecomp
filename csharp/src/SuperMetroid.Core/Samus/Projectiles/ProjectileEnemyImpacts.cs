@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Projectile hits on enemies: marking a shot's hit, reflection, the intro Mother Brain missile, and the start
 /// of the impact explosion.</summary>
 [RoomLifetime]
-internal sealed class ProjectileEnemyImpacts
+internal sealed partial class ProjectileEnemyImpacts
 {
     /// <summary>Owns projectile clearing when reflection retires a Super Missile link.</summary>
     private readonly ProjectileAnimation _animation;

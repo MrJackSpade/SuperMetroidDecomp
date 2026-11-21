@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// as its area resolves them (<see cref="In"/>).
 /// </para>
 /// </remarks>
-public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
+public readonly partial struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 {
     /// <summary>
     /// The kept behaviour each set of readings is, for <see cref="Holding"/>: every behaviour some write keeps and every
@@ -131,7 +131,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <summary>An unresolved behaviour in one area, which resolves it.</summary>
     /// <param name="Unresolved">The behaviour holding neither the special-block nor the special-air reading.</param>
     /// <param name="Area">The area resolving it.</param>
-    private readonly record struct AreaResolution(RoomBlockReadings Unresolved, AreaId Area);
+    private readonly partial record struct AreaResolution(RoomBlockReadings Unresolved, AreaId Area);
 
     /// <summary>A resolution's readings with the special-block and special-air readings its area gives left out.</summary>
     private static RoomBlockReadings Unresolved(RoomBlockReadings resolution) =>

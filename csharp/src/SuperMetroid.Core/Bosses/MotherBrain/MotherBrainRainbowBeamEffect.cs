@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// simulation, never when a frame is repainted. The beam chooses its colour during the update and the frame boundary
 /// latches it, so a colour reaches the screen one frame after it is chosen, while the cone is read as the frame ends (#2498).
 /// </summary>
-public sealed class MotherBrainRainbowBeamEffect
+public sealed partial class MotherBrainRainbowBeamEffect
 {
     /// <summary>Whether the last simulation update showed the beam; a hidden beam shows nothing.</summary>
     public bool Active => colours is not null;

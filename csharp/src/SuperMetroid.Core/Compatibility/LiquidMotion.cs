@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// past that run, which the replay import restores as <see cref="Moving"/> or <see cref="Stopped"/>.
 /// </remarks>
 [CompatibilityService("a room's liquid first moves, and lava or acid first swaps the shared random number's halves, on its second motion pass after the room loads")]
-public readonly record struct LiquidMotion
+public readonly partial record struct LiquidMotion
 {
     /// <summary>The motion's stage.</summary>
     private readonly LiquidMotionStage stage;

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies;
 /// the compatibility services that reproduce a reach by placement. <see cref="EnemyPlaceOrder"/> sets how places are
 /// allocated and processed.
 /// </summary>
-public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
+public sealed partial class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
 {
     /// <summary>Creates the place at <paramref name="ordinal"/> in <see cref="EnemyPlaceOrder"/>, before any occupant is installed.</summary>
     /// <param name="ordinal">The place's position in allocation and processing order.</param>
@@ -187,6 +187,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
         ReleaseEntity();
         OccupantStates = new();
     }
+
     /// <summary>The enemy's room position with its fraction of a pixel, each whole coordinate wrapping around the room.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Collision half-extents in pixels, initially the definition's.</summary>
@@ -285,6 +286,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
         get;
         internal set => field = Ensure.AtLeastZero(value);
     }
+
     /// <summary>
     /// The updates a hurt flash runs before any weapon's extension: the definition's, which the import resolves for every
     /// definition (a definition that names none takes the standard flash), copied into the place when it is populated;
@@ -295,6 +297,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
         get;
         internal set => field = Ensure.AtLeastZero(value);
     }
+
     /// <summary>
     /// Where the enemy draws relative to its position: zero for every population entry; Ceres's steam sets it to
     /// place its puffs on the rotating station, and Crocomire's tongue to keep its picture against his body's picture

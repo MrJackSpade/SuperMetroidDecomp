@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable charge-flare compositions, independent of cadence, placement and projectile physics.</summary>
-public sealed class ChargeFlareSprites
+public sealed partial class ChargeFlareSprites
 {
     /// <summary>Installed OAM parts keyed by the distinct flare compositions.</summary>
     internal readonly InstalledProjectileSprites sprites;

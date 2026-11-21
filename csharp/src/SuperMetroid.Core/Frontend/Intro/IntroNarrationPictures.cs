@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// whose colour variants its glow shows are shades (#1512), which the import composes once from the narration font under the cinematic's
 /// colours. The cinematic places them at the screen pixels its text scene shows them at.
 /// </summary>
-public static class IntroNarrationPictures
+public static partial class IntroNarrationPictures
 {
     /// <summary>The name of the first card's picture.</summary>
     public const string FirstCard = "first-card";

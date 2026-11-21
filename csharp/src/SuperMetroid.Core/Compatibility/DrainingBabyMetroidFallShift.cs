@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// the drain shift check compares every speed with that comparison.
 /// </remarks>
 [CompatibilityService("the draining Baby Metroid sits one pixel right of its shake while Samus's vertical speed reads four pixels or more, or slowed past zero")]
-internal static class DrainingBabyMetroidFallShift
+internal static partial class DrainingBabyMetroidFallShift
 {
     /// <summary>The whole pixels of vertical speed from which the Baby Metroid sits a pixel right.</summary>
     private const int ShiftingSpeed = 4;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Spawns Phantoon's door changes in the room's shared room-object places.</summary>
 /// <param name="places">The room's room-object places, which the door changes contend for with every other room object.</param>
-internal sealed class PhantoonDoorObjects(RoomObjectPlaceList places)
+internal sealed partial class PhantoonDoorObjects(RoomObjectPlaceList places)
 {
     /// <summary>
     /// Spawns <paramref name="change"/> at the door's top block: it takes a room-object place, its setup holds the door's

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>The state of an Evir's arms, which follow their body's position and facing.</summary>
-public sealed class EvirArmsState : EvirPartState
+public sealed partial class EvirArmsState : EvirPartState
 {
     /// <summary>Starts the state of arms whose body, listed right before them, is <paramref name="body"/>.</summary>
     /// <param name="body">The body's place.</param>

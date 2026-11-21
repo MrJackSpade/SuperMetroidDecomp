@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 /// One stop of the title's gradient (#1468): the line its band begins on, the colour the band blends in and how it blends
 /// it (#1709). The band runs down to the next stop. The colour is written as <c>#rrggbb</c> (#2564).
 /// </summary>
-public sealed record TitleGradientStop
+public sealed partial record TitleGradientStop
 {
     /// <summary>The screen line the band begins on, counted from the top of the screen.</summary>
     public required int Line { get; init; }

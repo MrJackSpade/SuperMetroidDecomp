@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The order the station frames are published in. Each family's published names are its draw identity's keys
 /// (<see cref="StationDrawKeys"/> and its siblings); only the import and its files know them, and the game draws by draw.
 /// </summary>
-internal static class RoomObjectVisualIdDefinitions
+internal static partial class RoomObjectVisualIdDefinitions
 {
     /// <summary>The station draws in their published enumeration order: each glow by station, then save and access states.</summary>
     internal static readonly StationDraw[] StationPublishedOrder =

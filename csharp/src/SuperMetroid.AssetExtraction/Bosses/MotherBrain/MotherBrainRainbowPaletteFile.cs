@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// Reads and writes Mother Brain's rainbow palette document, which is import data (#1637): the extraction writes it to the
 /// map presentation's import-data directory and only the import reads it.
 /// </summary>
-public static class MotherBrainRainbowPaletteFile
+public static partial class MotherBrainRainbowPaletteFile
 {
     /// <summary>The import-data JSON filename for rainbow, drain/revival, fake-death and restoration colors.</summary>
     public const string FileName = "mother-brain-rainbow-palette.json";

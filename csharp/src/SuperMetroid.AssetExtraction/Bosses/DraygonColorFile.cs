@@ -9,7 +9,7 @@ using SuperMetroid.Core.Bosses.Draygon;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Reads and writes the installed Draygon colour document.</summary>
-public static class DraygonColorFile
+public static partial class DraygonColorFile
 {
     /// <summary>Loads and validates the editable Draygon RGB5 color document.</summary>
     public static DraygonColorCatalog Read(Stream json)

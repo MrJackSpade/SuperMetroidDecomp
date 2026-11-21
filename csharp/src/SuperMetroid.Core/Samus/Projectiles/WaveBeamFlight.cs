@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <see cref="TrailInterval"/> updates after its first.
 /// </summary>
 /// <param name="trailInterval">The updates between the shot's trails after its first.</param>
-internal sealed class WaveBeamFlight(int trailInterval) : SamusShotBehavior
+internal sealed partial class WaveBeamFlight(int trailInterval) : SamusShotBehavior
 {
     /// <summary>
     /// The updates between the shot's trails after its first: <see cref="ProjectileTimingDefinitions.UnchargedWaveTrailInterval"/> for an uncharged Wave or Ice and Wave shot,

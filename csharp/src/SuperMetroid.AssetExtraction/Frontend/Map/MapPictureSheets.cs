@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// frame, and each area's world-map foreground and background, pre-coloured under the palette of the screen that shows
 /// them. The game places them by frame name; no map screen keeps a tilemap.
 /// </summary>
-internal static class MapPictureSheets
+internal static partial class MapPictureSheets
 {
     /// <summary>The shades every map cell is pictured in, in the sheet's order (#2567): unexplored, explored.</summary>
     private static readonly IReadOnlyList<MapCellShade> CellShades = Ensure.EveryMemberOnce<MapCellShade>(

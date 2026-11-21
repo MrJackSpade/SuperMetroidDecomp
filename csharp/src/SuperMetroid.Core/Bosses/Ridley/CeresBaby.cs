@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// The Baby Metroid Ceres Ridley carries (#2228): an actor of its own, with its own place in the room, its fall and its
 /// cutscene animation on its own clock, which its draw advances. Ceres Ridley's encounter holds it for the room.
 /// </summary>
-public sealed class CeresBaby
+public sealed partial class CeresBaby
 {
     /// <summary>Puts the Baby in Ridley's arms at <paramref name="position"/>, its animation waiting to show its first pose.</summary>
     /// <param name="position">Where the Baby starts: Ridley's arms.</param>

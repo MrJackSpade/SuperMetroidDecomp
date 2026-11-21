@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// The Skree's and Metaree's idling, wind-up, diving and stop animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="SkreeMetareeCue"/> naming what it does.
 /// </summary>
-internal static class SkreeMetareeAnimations
+internal static partial class SkreeMetareeAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<SkreeMetareeSegment, EnemyFrameId, SkreeMetareeCue> Segments { get; } = new(

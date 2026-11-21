@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 
 /// <summary>Kraid's independently animated extended foot compositions, not his body layer.</summary>
-internal static class KraidFootVisualDefinitions
+internal static partial class KraidFootVisualDefinitions
 {
     /// <summary>
     /// Five pictures (#2210): the foot planted, lifting, raised, swinging and reaching, each composed from the record where

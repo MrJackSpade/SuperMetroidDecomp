@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="MouthClosed">Its mouth closed picture.</param>
 /// <param name="MouthOpening">Its mouth opening picture.</param>
 /// <param name="MouthWide">Its mouth wide picture.</param>
-internal sealed record FakeKraidPoses(
+internal sealed partial record FakeKraidPoses(
     HorizontalDirection Facing,
     EnemyFrameId SteppingFeetTogether,
     EnemyFrameId SteppingFrontFootLifting,

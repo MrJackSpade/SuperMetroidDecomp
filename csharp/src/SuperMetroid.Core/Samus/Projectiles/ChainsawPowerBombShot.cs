@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// the fuse the beam carries (<see cref="SamusProjectile.BeamFuse"/>), then the Power Bomb's block reactions
 /// (<see cref="ChainsawFuse"/>), and it never moves.
 /// </summary>
-internal sealed class ChainsawPowerBombShot : SamusShotBehavior
+internal sealed partial class ChainsawPowerBombShot : SamusShotBehavior
 {
     /// <inheritdoc/>
     internal override void Run(SamusShotUpdate update) =>

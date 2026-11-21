@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>The gunship's liftoff dust clouds.</summary>
-public static class GunshipDustDefinitions
+public static partial class GunshipDustDefinitions
 {
     /// <summary>Dust is eighty pixels below Samus.</summary>
     public const int YOffset = 80;

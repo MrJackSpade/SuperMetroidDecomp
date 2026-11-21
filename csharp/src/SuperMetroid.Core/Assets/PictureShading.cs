@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Assets;
 /// (#2563). Each colour key's colour under a shading is worked out once per picture and blend, keyed by the colour key
 /// (#2565).
 /// </summary>
-public sealed record PictureShading
+public sealed partial record PictureShading
 {
     /// <summary>
     /// Each colour key's colour under this shading, by blend and picture, worked out once for each picture it colours with

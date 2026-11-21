@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>Room-select map and its frame.</summary>
 /// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
-public sealed class FileSelectRoomMapGraphics
+public sealed partial class FileSelectRoomMapGraphics
 {
     /// <summary>The room map's menu screen: its artwork, pictures, colours and sprites.</summary>
     internal readonly MenuScreen screen;

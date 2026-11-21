@@ -33,7 +33,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="SuperMissileUpBack">A thrown Super Missile pointing up and the other way.</param>
 /// <param name="SuperMissileBack">A thrown Super Missile pointing the other way.</param>
 /// <param name="SuperMissileDownBack">A thrown Super Missile pointing down and the other way.</param>
-internal sealed record TorizoProjectileSide(
+internal sealed partial record TorizoProjectileSide(
     F SonicBoomSmall, F SonicBoomMedium, F SonicBoomLarge, F ChozoOrb,
     F DustPuff, F DustPuffSmall, F DustPuffThin, F DustPuffFaint,
     F EggWhole, F EggCracked, F EggSplitting, F EggHatching,

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// band's <see cref="HealthBelow"/>. He shows them in <see cref="BotwoonHealthBandDefinitions.InOrderShown"/>'s order, one
 /// band an update, and keeps his own colours until his health first falls below full.
 /// </summary>
-public sealed class BotwoonHealthBand
+public sealed partial class BotwoonHealthBand
 {
     /// <summary>Defines a band.</summary>
     /// <param name="healthBelow">The health his health must fall below for the band to show.</param>

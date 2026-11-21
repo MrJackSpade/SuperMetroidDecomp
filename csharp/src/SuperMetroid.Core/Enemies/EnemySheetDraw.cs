@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Enemy">The enemy whose sheet is drawn.</param>
 /// <param name="Frame">The sheet frame's name.</param>
 /// <param name="Origin">The frame origin on screen, negative left of or above the view.</param>
-internal sealed record EnemySheetDraw(EnemyDefinitionId Enemy, string Frame, Offset16<ScreenPixels> Origin)
+internal sealed partial record EnemySheetDraw(EnemyDefinitionId Enemy, string Frame, Offset16<ScreenPixels> Origin)
 {
     /// <summary>
     /// The shades and colour effects the draw shows its picture in (#1512), such as a hit flash or a glow's frame; null

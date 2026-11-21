@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// link, one of Draygon's Evirs), created fresh each time one is spawned (#1591). Its spawner holds it when it moves,
 /// recolours, freezes or ends it; the room's <see cref="RoomEffectActors"/> steps and draws it until it ends.
 /// </summary>
-public sealed class RoomEffectActor
+public sealed partial class RoomEffectActor
 {
     /// <summary>Spawns an object of <paramref name="kind"/> at <paramref name="position"/>, showing its animation's first frame.</summary>
     /// <param name="kind">What the object is, which selects the animation it plays.</param>

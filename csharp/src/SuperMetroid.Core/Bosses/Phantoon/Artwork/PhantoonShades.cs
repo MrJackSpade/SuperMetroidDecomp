@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 /// colouring of his body, and the room once the Wrecked Ship's power has come on. His fades and the power coming on are
 /// typed fades between them (<see cref="PictureShadeFade"/>).
 /// </summary>
-public static class PhantoonShades
+public static partial class PhantoonShades
 {
     /// <summary>His body showing <paramref name="look"/>.</summary>
     public static PictureShade Body(PhantoonBodyLook look) => new($"phantoon-body-{look.Key}", 0);

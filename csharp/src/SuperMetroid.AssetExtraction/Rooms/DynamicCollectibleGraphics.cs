@@ -4,7 +4,7 @@ using static SuperMetroid.AssetExtraction.Rooms.RoomObjectDynamicCollectibleGrap
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Which graphics and palette offsets each dynamic collectible loads.</summary>
-internal static class DynamicCollectibleGraphics
+internal static partial class DynamicCollectibleGraphics
 {
     /// <summary>Whether <paramref name="kind"/> has a dynamic graphics upload: whether <see cref="RoomObjectDynamicCollectibleGraphicsDefinitions.Kinds"/> lists it.</summary>
     internal static bool HasUpload(InWorldCollectibleKind kind) => Kinds.Contains(kind);

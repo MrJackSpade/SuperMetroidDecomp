@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Extracts and loads the eight replaceable Samus Eater block frames.</summary>
-public static class RoomObjectSamusEaterVisualFiles
+public static partial class RoomObjectSamusEaterVisualFiles
 {
     /// <summary>Editable Samus Eater plant visual JSON filename.</summary>
     internal const string VisualFileName = "samus-eater.json";

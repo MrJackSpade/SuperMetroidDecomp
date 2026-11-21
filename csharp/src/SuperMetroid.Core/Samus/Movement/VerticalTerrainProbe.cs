@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// One vertical terrain scan: what <see cref="SamusBlockCollision"/>'s column probe reads from a
 /// vertical move. Every member is explicit; the scan has no default side-effect policy (#633).
 /// </summary>
-internal readonly record struct VerticalTerrainProbe
+internal readonly partial record struct VerticalTerrainProbe
 {
     /// <summary>Signed vertical displacement to probe.</summary>
     public required SignedSixteenSixteen Displacement { get; init; }

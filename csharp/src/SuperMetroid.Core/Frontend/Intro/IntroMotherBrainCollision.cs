@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// Builds the intro Mother Brain room's collision (<see cref="IntroMotherBrainCollisionDefinitions"/>): the ceiling and
 /// floor, the left wall's contour, the hanging formation, the pillar and the ledge.
 /// </summary>
-internal static class IntroMotherBrainCollision
+internal static partial class IntroMotherBrainCollision
 {
     /// <summary>How the block at <paramref name="column"/> of <paramref name="row"/> collides.</summary>
     private static RoomCollisionType Block(int row, int column)

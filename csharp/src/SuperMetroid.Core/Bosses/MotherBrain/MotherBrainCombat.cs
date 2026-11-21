@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's hitboxes and touch, and what Samus's weapons do to her head and body.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainCombat
+internal sealed partial class MotherBrainCombat
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;

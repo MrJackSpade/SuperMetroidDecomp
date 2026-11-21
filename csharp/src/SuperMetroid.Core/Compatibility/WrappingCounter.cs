@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 [CompatibilityService("counters that wrap at their width instead of saturating, so an expired timer keeps counting from the top")]
 [EncodingOwner("wrapping and saturating counters of 0 through 65535")]
-public static class WrappingCounter
+public static partial class WrappingCounter
 {
     /// <summary>The largest count a wrapping counter holds: a count stepped past it continues from zero.</summary>
     public const int LargestCount = ushort.MaxValue;

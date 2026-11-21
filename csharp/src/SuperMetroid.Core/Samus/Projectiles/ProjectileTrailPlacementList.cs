@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <param name="Family">The trail family whose list it is.</param>
 /// <param name="Course">The travel the family keeps the list for.</param>
-internal readonly record struct ProjectileTrailPlacementList(ProjectileTrailFamily Family, ProjectileTrailCourse Course);
+internal readonly partial record struct ProjectileTrailPlacementList(ProjectileTrailFamily Family, ProjectileTrailCourse Course);

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>
 /// How the yellow, green and red door caps' cells collide. What each frame shows is its installed picture (#1557).
 /// </summary>
-internal static class ColoredDoorObjectDrawDefinitions
+internal static partial class ColoredDoorObjectDrawDefinitions
 {
     /// <summary>
     /// How the four blocks of each colour's cap frames collide, from the cap's first block down its column or along its row. Closed caps keep the shootable and

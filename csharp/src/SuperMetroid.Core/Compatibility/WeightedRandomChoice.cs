@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TOutcome">What the choice chooses.</typeparam>
 [CompatibilityService("which outcome a random number chooses among weighted outcomes, exactly as the game chose it")]
-public sealed class WeightedRandomChoice<TOutcome>
+public sealed partial class WeightedRandomChoice<TOutcome>
 {
     /// <summary>The outcomes in order from the field's lowest values, each with its share.</summary>
     private readonly ImmutableArray<WeightedRandomOutcome<TOutcome>> _outcomes;

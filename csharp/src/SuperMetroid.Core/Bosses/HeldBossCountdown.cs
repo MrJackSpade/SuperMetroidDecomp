@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses;
 /// again.</item>
 /// </list>
 /// </summary>
-public sealed class HeldBossCountdown
+public sealed partial class HeldBossCountdown
 {
     /// <summary>The wait, over once the countdown has run out or before it is first started.</summary>
     internal UpdateCountdown Wait { get; set; } = UpdateCountdown.Ended();

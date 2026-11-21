@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// hanging from it. Clearing and creating the wall cover the same blocks and differ only in whether they are solid. What
 /// each frame shows is its installed picture (#1557).
 /// </summary>
-internal static class CrocomireArenaObjectDrawDefinitions
+internal static partial class CrocomireArenaObjectDrawDefinitions
 {
     /// <summary>The cleared bridge: ten open blocks along the row from the object's block.</summary>
     private static readonly RoomBlockShape ClearedBridge = new(

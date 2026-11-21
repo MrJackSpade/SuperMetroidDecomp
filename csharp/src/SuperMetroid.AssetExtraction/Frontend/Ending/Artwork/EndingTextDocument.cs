@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable <c>ending-text.json</c> schema for post-credit panels and typewriter labels; sequence timing, actual item percentage, and subtitle visibility remain runtime behavior.</summary>
-public sealed record EndingTextDocument
+public sealed partial record EndingTextDocument
 {
     /// <summary>Schema revision; loading requires <see cref="EndingTextDefinitions.Version"/>.</summary>
     public required int Version { get; init; }

@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// pose's typed placement (<see cref="Gameplay"/>), and installs the placements the game draws with
 /// (<see cref="Installed"/>).
 /// </summary>
-public sealed class SamusArmCannonDescriptors
+public sealed partial class SamusArmCannonDescriptors
 {
     /// <summary>The descriptor's flag byte bit that makes its direction change after animation frame zero.</summary>
     private const int FrameDependentDirectionFlag = 1 << 7;
@@ -129,7 +129,7 @@ public sealed class SamusArmCannonDescriptors
     /// <summary>A descriptor read for poses of one animation, whose frames name its displacements.</summary>
     /// <param name="Descriptor">Where the descriptor begins within the drawing data.</param>
     /// <param name="Animation">The animation of the poses that read it.</param>
-    private readonly record struct DescriptorReading(int Descriptor, SamusPoseAnimation Animation);
+    private readonly partial record struct DescriptorReading(int Descriptor, SamusPoseAnimation Animation);
 
     /// <summary>Where <paramref name="descriptor"/>'s displacements begin: after its one or two direction and mode pairs.</summary>
     private int DisplacementsStart(int descriptor) => descriptor +

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// definition holds it, and it takes its own step through the update that runs her movement, so no table of handlers keyed
 /// by movement type is looked up.
 /// </summary>
-internal sealed class SamusPoseMovement
+internal sealed partial class SamusPoseMovement
 {
     /// <summary>The movement's name, for diagnostics.</summary>
     private readonly string _name;

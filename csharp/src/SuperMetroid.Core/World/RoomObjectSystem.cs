@@ -32,7 +32,7 @@ namespace SuperMetroid.Core.World;
 /// the places update in and the loss of a spawn into a full room are the room's <see cref="Compatibility.RoomObjectPlaces"/>.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
+public sealed partial class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
 {
     /// <summary>Creates collision-triggered block room objects from Samus and projectile reactions.</summary>
     internal BlockReactionObjects BlockReactions { get; }

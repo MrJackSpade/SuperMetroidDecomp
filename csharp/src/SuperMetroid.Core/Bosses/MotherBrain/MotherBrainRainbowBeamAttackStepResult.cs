@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="EscapeDoorObject">The escape door's room object asked for, if any.</param>
 /// <param name="Earthquake">What the step last asked of the room's earthquake, if anything.</param>
 /// <param name="SamusProjectileCooldown">The shared projectile cooldown, in updates, the step gave Samus, if it gave her one.</param>
-public readonly record struct MotherBrainRainbowBeamAttackStepResult(
+public readonly partial record struct MotherBrainRainbowBeamAttackStepResult(
     MotherBrainForcedSamusMovementResult? Movement,
     IReadOnlyList<MotherBrainStepEffect> Effects,
     MotherBrainFadeImage? DrainColourImage,

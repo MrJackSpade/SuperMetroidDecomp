@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>How the grapple beam draws: its flare, the connected beam's segments and its endpoint.</summary>
-public static class SamusGrappleBeamDrawing
+public static partial class SamusGrappleBeamDrawing
 {
     /// <summary>How Samus draws during <paramref name="phase"/>.</summary>
     /// <remarks>

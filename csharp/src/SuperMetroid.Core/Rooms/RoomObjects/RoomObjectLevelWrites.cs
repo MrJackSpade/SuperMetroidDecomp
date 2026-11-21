@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The terrain writes room-object families share: drawing a block and making a block a door block.</summary>
-internal static class RoomObjectLevelWrites
+internal static partial class RoomObjectLevelWrites
 {
     /// <summary>Writes <paramref name="terrain"/> at a block, which shows the terrain's own picture.</summary>
     internal static void DrawTerrain(RoomLevelData level, Position16<RoomBlocks> block, RoomTerrainBlock terrain) =>

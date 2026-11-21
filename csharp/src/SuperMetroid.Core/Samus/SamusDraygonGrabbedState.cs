@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus;
 /// This object places her at the claw's offset and keeps her pose family, her escape presses, her release pose,
 /// the speeds her release clears and the movement type's side effect.
 /// </remarks>
-public sealed class SamusDraygonGrabbedState
+public sealed partial class SamusDraygonGrabbedState
 {
     /// <summary>Where Samus is in Draygon's hold: free, held, held while another owner moves her, or released unseen.</summary>
     internal SamusDraygonHoldPhase Phase { get; set; }

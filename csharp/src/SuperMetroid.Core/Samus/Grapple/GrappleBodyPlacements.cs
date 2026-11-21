@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Samus.Grapple.GrappleBodyPlacementDefinitions;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Where Samus's body sits on the grapple at each angle.</summary>
-internal static class GrappleBodyPlacements
+internal static partial class GrappleBodyPlacements
 {
     /// <summary>
     /// Samus's offset from the rope's start while swinging in <paramref name="direction"/>, facing left or right. The

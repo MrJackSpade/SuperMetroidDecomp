@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// word's collision against the collision the game gives it; the installed file holds what each shows, which the player
 /// edits in place. The game reads the pictures as installed: there is no compiled copy and no override.
 /// </summary>
-public static class RoomObjectSetupBlockFiles
+public static partial class RoomObjectSetupBlockFiles
 {
     /// <summary>The installed JSON filename of the setup-block pictures.</summary>
     public const string VisualFileName = "setup-blocks.json";
@@ -193,11 +193,11 @@ public static class RoomObjectSetupBlockFiles
     }
 
     /// <summary>The installed document: its format and every setup block's picture.</summary>
-    internal sealed record BlockDocument(int Version, BlockEntry[] Blocks);
+    internal sealed partial record BlockDocument(int Version, BlockEntry[] Blocks);
 
     /// <summary>
     /// One setup block's picture: its published name, the block it shows, or null where it shows nothing, and how it is
     /// mirrored.
     /// </summary>
-    internal sealed record BlockEntry(string Id, int? Block, BlockMirroring Mirroring);
+    internal sealed partial record BlockEntry(string Id, int? Block, BlockMirroring Mirroring);
 }

@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Samus's pose transitions: grounded, aerial, posture and morph-ball changes, turn and wall-jump handling, and the collision checks a larger new pose must pass, applied to the Samus state it owns.</summary>
-internal static class SamusPoseTransitions
+internal static partial class SamusPoseTransitions
 {
     /// <summary>
     /// Installs the ordinary or aimed falling pose selected by the walk-off transition when a

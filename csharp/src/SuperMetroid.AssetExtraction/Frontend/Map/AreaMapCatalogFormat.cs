@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>On-disk names and manifest bounds for seven area maps and their shared presentation resources.</summary>
-public static class AreaMapCatalogFormat
+public static partial class AreaMapCatalogFormat
 {
     /// <summary>
     /// Supported extracted map-catalog schema version; other manifest versions are rejected. 82 installs no colour document

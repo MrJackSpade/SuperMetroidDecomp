@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 /// The escape timer's installed layout document as the import reads and writes it (#1502): its revision and file name,
 /// the glyphs and anchors it names, each anchor's JSON key and the decimal value each digit glyph draws.
 /// </summary>
-public static class EscapeTimerLayoutDefinitions
+public static partial class EscapeTimerLayoutDefinitions
 {
     /// <summary>Supported JSON revision for the timer's pixel anchors and digit spacing; its frames are the installed sheet.</summary>
     public const int Version = 2;

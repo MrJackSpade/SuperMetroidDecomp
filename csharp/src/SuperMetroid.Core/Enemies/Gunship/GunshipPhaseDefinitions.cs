@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>What the gunship's phases do beside running (<see cref="GunshipBehavior"/>).</summary>
-internal static class GunshipPhaseDefinitions
+internal static partial class GunshipPhaseDefinitions
 {
     /// <summary>
     /// The phases the landed ship bobs before running: every phase from waiting for the landing entrance through waiting

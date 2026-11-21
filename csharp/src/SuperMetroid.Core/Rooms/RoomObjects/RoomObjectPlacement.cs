@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// names the kind of room object it places (#2557). Setup payloads are bounded domain records, not a store that can supply
 /// arbitrary values.
 /// </summary>
-public sealed record RoomObjectPlacement
+public sealed partial record RoomObjectPlacement
 {
     /// <summary>A placement at <paramref name="block"/> that its family sets up with <paramref name="setup"/>.</summary>
     /// <param name="block">Placement in 16-pixel room blocks.</param>

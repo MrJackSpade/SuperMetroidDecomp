@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// returned value in the working value it tests the next projectile's top edge against.
 /// </remarks>
 [CompatibilityService("a dud shot on Kraid's mouth bounds the rest of its collision pass by the place its flash takes among the room's thirty-two effect-actor places")]
-public sealed class EffectActorPlaces
+public sealed partial class EffectActorPlaces
 {
     /// <summary>How many places the room's effect actors take; a spawn while every place is taken takes none.</summary>
     internal const int PlaceCount = 32;
@@ -54,7 +54,7 @@ public sealed class EffectActorPlaces
     /// (<see cref="KraidPassBounds.LeaveAfterDud"/>) and what frees the place once the actor ends. Only the compatibility
     /// services that reproduce those reads look at its number.
     /// </summary>
-    public sealed class TakenPlace
+    public sealed partial class TakenPlace
     {
         /// <summary>Holds the place numbered <paramref name="number"/>, zero for the lowest.</summary>
         internal TakenPlace(int number) => Number = Ensure.BetweenInclusive(0, PlaceCount - 1, number);

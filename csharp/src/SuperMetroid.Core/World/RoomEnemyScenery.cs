@@ -15,4 +15,4 @@ namespace SuperMetroid.Core.World;
 /// <param name="ShaftTurn">The elevator shaft's turn, or null in a room that is no turning shaft.</param>
 /// <param name="TourianStatueRoom">The Tourian statue room, or null in every other room.</param>
 [RoomLifetime]
-internal sealed record RoomEnemyScenery(RoomFloor? Floor, CeresElevatorShaftRoomMainState? ShaftTurn, ITourianStatueRoom? TourianStatueRoom);
+internal sealed partial record RoomEnemyScenery(RoomFloor? Floor, CeresElevatorShaftRoomMainState? ShaftTurn, ITourianStatueRoom? TourianStatueRoom);

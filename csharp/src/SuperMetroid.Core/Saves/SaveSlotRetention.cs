@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Saves;
 /// slot never holds what a save could not (the clock is a reading, checked when it was made), and the explored map keeps only the Zebes areas' runs of cells the stock map
 /// occupies (<see cref="ExploredMapStorage"/>, <see cref="SavedMapExplorationRuns"/>).
 /// </summary>
-internal static class SaveSlotRetention
+internal static partial class SaveSlotRetention
 {
     /// <summary>The slot <paramref name="snapshot"/> saves as in <paramref name="slot"/>.</summary>
     internal static SuperMetroidSaveSlot Retain(SuperMetroidSaveSnapshot snapshot, SaveSlot slot, IAreaMapSource maps)

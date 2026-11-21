@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// The Ki-Hunter body's flight, swoop, hop, landing and spit animations and its wings' animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="KiHunterCue"/> naming what it does.
 /// </summary>
-internal static class KiHunterAnimations
+internal static partial class KiHunterAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<KiHunterSegment, EnemyFrameId, KiHunterCue> Segments { get; } = new(

@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <param name="NearLegBack">The near leg back.</param>
 /// <param name="NearLegPassing">The near leg passing.</param>
 /// <param name="NearLegReaching">The near leg reaching.</param>
-internal sealed record DachoraStridePace(int FarLegBack, int FarLegPassing, int FarLegReaching, int NearLegBack, int NearLegPassing, int NearLegReaching);
+internal sealed partial record DachoraStridePace(int FarLegBack, int FarLegPassing, int FarLegReaching, int NearLegBack, int NearLegPassing, int NearLegReaching);

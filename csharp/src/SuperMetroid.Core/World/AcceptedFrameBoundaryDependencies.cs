@@ -8,7 +8,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="AcceptedFrameBoundary"/> is constructed with, built once by the owner that creates it (#621).</summary>
-internal sealed record AcceptedFrameBoundaryDependencies
+internal sealed partial record AcceptedFrameBoundaryDependencies
 {
     /// <summary>The input half of the frame boundary: the controller latches and the frame counters.</summary>
     public required AcceptedFrameInput Input { get; init; }

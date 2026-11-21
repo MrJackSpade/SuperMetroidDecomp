@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// and the backdrops of the space behind the exploding planet from the first colour of each frame of the space's colour
 /// effect (#1637); the game loads no other ending colour, as every picture it draws is pre-coloured.
 /// </summary>
-public static class EndingBackdropFiles
+public static partial class EndingBackdropFiles
 {
     /// <summary>The installed document's file name.</summary>
     internal const string FileName = "ending-backdrops.json";

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// A room's grid in row-major block order (#633, #1469): each foreground block's terrain and behaviour, and what each
 /// background block shows.
 /// </summary>
-public readonly ref struct RoomLevelPlanes
+public readonly ref partial struct RoomLevelPlanes
 {
     /// <summary>Binds the three planes; <see cref="RoomLevelData"/> validates their lengths against the room size.</summary>
     /// <param name="foreground">Each foreground block's terrain.</param>

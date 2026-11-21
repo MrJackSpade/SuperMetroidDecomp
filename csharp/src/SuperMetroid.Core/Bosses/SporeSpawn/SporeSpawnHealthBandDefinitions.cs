@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// Spore Spawn's health bands (#2019, #2242): the four his body's colours show, each lower one more hurt, and the health
 /// below which a hit speeds up his swing.
 /// </summary>
-public static class SporeSpawnHealthBandDefinitions
+public static partial class SporeSpawnHealthBandDefinitions
 {
     /// <summary>The health below which a damaging hit doubles his swing's angle step, keeping its direction.</summary>
     public const int FastSwingBelow = 400;

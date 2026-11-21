@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// One test a room's state choice makes before offering a state: a persistent event, a defeated boss of the
 /// room's area, or the equipment Samus carries.
 /// </summary>
-internal abstract record RoomStateCondition
+internal abstract partial record RoomStateCondition
 {
     /// <summary>Satisfied once <paramref name="storyEvent"/> has happened.</summary>
     internal static RoomStateCondition Event(StoryEvent storyEvent) => new EventSet(storyEvent);
@@ -25,28 +25,28 @@ internal abstract record RoomStateCondition
     internal abstract bool IsMet(RoomStateSelectionContext selection);
 
     /// <summary>A persistent event test.</summary>
-    private sealed record EventSet(StoryEvent StoryEvent) : RoomStateCondition
+    private sealed partial record EventSet(StoryEvent StoryEvent) : RoomStateCondition
     {
         /// <inheritdoc/>
         internal override bool IsMet(RoomStateSelectionContext selection) => selection.IsEventSet(StoryEvent);
     }
 
     /// <summary>A defeated-boss test against the room's area.</summary>
-    private sealed record BossesDead(DefeatedBosses Bosses) : RoomStateCondition
+    private sealed partial record BossesDead(DefeatedBosses Bosses) : RoomStateCondition
     {
         /// <inheritdoc/>
         internal override bool IsMet(RoomStateSelectionContext selection) => selection.IsBossDead(Bosses);
     }
 
     /// <summary>The power-bomb equipment test.</summary>
-    private sealed record PowerBombsCarried : RoomStateCondition
+    private sealed partial record PowerBombsCarried : RoomStateCondition
     {
         /// <inheritdoc/>
         internal override bool IsMet(RoomStateSelectionContext selection) => selection.HasPowerBombs;
     }
 
     /// <summary>The morph-ball-and-missiles equipment test.</summary>
-    private sealed record MorphBallAndMissilesCarried : RoomStateCondition
+    private sealed partial record MorphBallAndMissilesCarried : RoomStateCondition
     {
         /// <inheritdoc/>
         internal override bool IsMet(RoomStateSelectionContext selection) => selection.HasMorphBallAndMissiles;

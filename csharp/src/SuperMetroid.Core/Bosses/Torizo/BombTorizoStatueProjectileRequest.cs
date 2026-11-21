@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="Fragment">The piece that falls, which selects its animation, place and fall.</param>
 /// <param name="RoomObjectBlock">The block the hand occupies, which the fragment's placement is relative to.</param>
 /// <param name="Spawner">The room's enemy projectiles, among which the fragment spawns.</param>
-internal sealed record BombTorizoStatueProjectileRequest(
+internal sealed partial record BombTorizoStatueProjectileRequest(
     BombTorizoStatueFragment Fragment,
     Position16<RoomBlocks> RoomObjectBlock,
     IBombTorizoStatueFragmentSpawner Spawner) : RoomObjectProjectileRequest(RoomObjectBlock)

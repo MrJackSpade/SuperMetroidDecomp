@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// The pause menu owns what its screens show; the game keeps the pause's steps, and Samus keeps her equipment, so an
 /// equipment-screen press changes Samus's equipment directly, as movement, drawing and saving see it.
 /// </remarks>
-internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
+internal sealed partial class PauseMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]

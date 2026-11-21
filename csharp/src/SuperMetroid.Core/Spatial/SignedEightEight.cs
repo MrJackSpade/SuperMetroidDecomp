@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Spatial;
 
 /// <summary>A signed 8.8 fixed-point velocity: eight whole bits and eight fraction bits, kept exactly.</summary>
 [EncodingOwner("signed 8.8 fixed-point number")]
-public readonly record struct SignedEightEight : IComparable<SignedEightEight>, System.Numerics.IUnaryNegationOperators<SignedEightEight, SignedEightEight>
+public readonly partial record struct SignedEightEight : IComparable<SignedEightEight>, System.Numerics.IUnaryNegationOperators<SignedEightEight, SignedEightEight>
 {
     /// <summary>The value whose sixteen-bit two's-complement form is <paramref name="rawValue"/>, 0 through 65535.</summary>
     /// <param name="rawValue">The unchanged two's-complement form, eight whole and eight fractional bits.</param>

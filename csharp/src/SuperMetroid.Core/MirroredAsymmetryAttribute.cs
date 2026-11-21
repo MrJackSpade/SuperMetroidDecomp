@@ -6,7 +6,7 @@ namespace SuperMetroid.Core;
 /// twice (SME6418). The reason names what the two sides do differently.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, Inherited = false)]
-public sealed class MirroredAsymmetryAttribute : Attribute
+public sealed partial class MirroredAsymmetryAttribute : Attribute
 {
     /// <summary>Marks a deliberate asymmetry; SME6418 reads the reason from the attribute argument.</summary>
     /// <param name="reason">What the two directions do differently.</param>

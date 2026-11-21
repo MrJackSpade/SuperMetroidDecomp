@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// The installed key of each <see cref="FileSelectItem"/> (#2520, #2565), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class FileSelectItemKeys
+internal static partial class FileSelectItemKeys
 {
     /// <summary>Each FileSelectItem member's installed key.</summary>
     internal static InstalledKeys<FileSelectItem> Installed { get; } = new(new Dictionary<FileSelectItem, string>

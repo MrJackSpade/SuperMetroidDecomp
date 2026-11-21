@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="angle">The angle the particle starts at round its circle.</param>
 /// <param name="radius">The distance, in pixels, the particle starts at from the point it circles.</param>
 /// <param name="turnPerUpdate">The turn the particle starts making round its circle each update.</param>
-internal abstract class OrbitingParticleState(SpecialAttackParticle part, TrigonometryAngle angle, int radius,
+internal abstract partial class OrbitingParticleState(SpecialAttackParticle part, TrigonometryAngle angle, int radius,
     TrigonometryAngle turnPerUpdate) : SpecialAttackParticleState(part)
 {
     /// <summary>The particle's angle round its circle.</summary>

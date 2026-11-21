@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Each X-ray revealed-block shape the game reaches.</summary>
-internal static class XrayRevealShapeDefinitions
+internal static partial class XrayRevealShapeDefinitions
 {
     /// <summary>
     /// Each shape: the two extensions, which copy no blocks; the copies of one, two side by side, two one above the other and

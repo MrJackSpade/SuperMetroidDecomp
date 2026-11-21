@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The installed room background character sheets, which the import pipeline composes the rooms' pre-coloured pictures
 /// from (#1392, #1466); gameplay reads none.
 /// </summary>
-public sealed class RoomCharacterAtlases
+public sealed partial class RoomCharacterAtlases
 {
     /// <summary>Copied lookup by character sheet; the RoomCharacterAtlas instances are shared and immutable.</summary>
     internal readonly Dictionary<RoomCharacterSet, RoomCharacterAtlas> byRoomCharacterSet;

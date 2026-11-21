@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// The Yapping Maw's eight attack bites and six cooldown animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="YappingMawCue"/> with the values it acts on.
 /// </summary>
-internal static class YappingMawAnimations
+internal static partial class YappingMawAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<YappingMawSegment, EnemyFrameId, YappingMawCue> Segments { get; } = new(

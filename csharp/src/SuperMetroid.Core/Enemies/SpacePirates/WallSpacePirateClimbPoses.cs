@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="KneesTucked">Its knees tucked.</param>
 /// <param name="LegsPushing">Its legs pushing.</param>
 /// <param name="LegsStretched">Its legs stretched.</param>
-internal sealed record WallSpacePirateClimbPoses(HorizontalDirection Wall, F LegsHanging, F KneesBending, F KneesTucked, F LegsPushing, F LegsStretched)
+internal sealed partial record WallSpacePirateClimbPoses(HorizontalDirection Wall, F LegsHanging, F KneesBending, F KneesTucked, F LegsPushing, F LegsStretched)
 {
     /// <summary>The poses on the left wall.</summary>
     internal static WallSpacePirateClimbPoses LeftWall { get; } = new(

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// rectangle sharing a picture, and the manifest whose colouring the pictures are drawn in. Its pictures can be laid on other
 /// sheets of a colouring that agrees with its own over the colour groups they use.
 /// </summary>
-internal sealed class PaintedSheet
+internal sealed partial class PaintedSheet
 {
     /// <summary>Keeps a painted sheet's manifest and pictures.</summary>
     private PaintedSheet(SpriteSheetDocument document, Dictionary<string, SheetPicture> frames)

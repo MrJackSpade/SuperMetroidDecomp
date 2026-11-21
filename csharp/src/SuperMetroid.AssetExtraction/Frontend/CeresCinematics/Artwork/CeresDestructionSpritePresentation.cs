@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Editable OAM compositions unique to the station blast and Zebes reveal.</summary>
-public sealed class CeresDestructionSpritePresentation : ICinematicSpriteFrames
+public sealed partial class CeresDestructionSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated destruction and reveal compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;

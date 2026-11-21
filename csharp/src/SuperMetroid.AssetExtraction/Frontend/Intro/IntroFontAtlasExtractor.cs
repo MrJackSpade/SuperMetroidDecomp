@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Exports the English opening's 144 contiguous 2-bpp font tiles.</summary>
-public static class IntroFontAtlasExtractor
+public static partial class IntroFontAtlasExtractor
 {
     /// <summary>Decompresses opening font resource $95:D089 and exports its first 144 contiguous English narration glyph tiles.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for the compressed FontOne resource.</param>

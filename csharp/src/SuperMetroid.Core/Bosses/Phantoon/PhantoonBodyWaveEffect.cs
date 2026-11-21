@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// each update; a requested wave starts on the next update, which only sets it up, and ripples from the update after
 /// (gameplay reads it: setup writes the wave's length, which Phantoon's AI reads).
 /// </summary>
-public sealed class PhantoonBodyWaveEffect
+public sealed partial class PhantoonBodyWaveEffect
 {
     /// <summary>
     /// Where the wave stands (#2560): rippling, or ended keeping its length, as the last setup started it; or requested,
@@ -99,18 +99,18 @@ public sealed class PhantoonBodyWaveEffect
 
     /// <summary>The wave a setup started (#2560), with the length its setup chose.</summary>
     /// <param name="Length">The wave's length.</param>
-    private abstract record WaveState(PhantoonWaveLength Length);
+    private abstract partial record WaveState(PhantoonWaveLength Length);
 
     /// <summary>A wave rippling his body.</summary>
     /// <param name="Length">The wave's length.</param>
-    private sealed record RipplingWave(PhantoonWaveLength Length) : WaveState(Length);
+    private sealed partial record RipplingWave(PhantoonWaveLength Length) : WaveState(Length);
 
     /// <summary>A wave that has ended, keeping its last shape and length.</summary>
     /// <param name="Length">The wave's length.</param>
-    private sealed record EndedWave(PhantoonWaveLength Length) : WaveState(Length);
+    private sealed partial record EndedWave(PhantoonWaveLength Length) : WaveState(Length);
 
     /// <summary>A requested wave, whose next update sets it up and does no more.</summary>
     /// <param name="Length">The length its setup selects.</param>
     /// <param name="Replacing">The wave the last setup started, which stands until this one's setup runs; null before any.</param>
-    private sealed record RequestedWave(PhantoonWaveLength Length, WaveState? Replacing) : WaveState(Length);
+    private sealed partial record RequestedWave(PhantoonWaveLength Length, WaveState? Replacing) : WaveState(Length);
 }

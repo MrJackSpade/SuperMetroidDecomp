@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// sheets, so the palettes and their manifest go to the component's import-data directory
 /// (<see cref="ImportDataDirectory.Of"/>), which the installer deletes before it publishes. The installation holds none of them.
 /// </summary>
-public static class RoomStaticPaletteArtworkFiles
+public static partial class RoomStaticPaletteArtworkFiles
 {
     /// <summary>Import-data room-palette manifest filename recording cartridge provenance and hashes for all distinct palette JSON sources.</summary>
     public const string ManifestFileName = "room-palettes.json";
@@ -110,6 +110,6 @@ public static class RoomStaticPaletteArtworkFiles
     };
 
     /// <summary>Records the cartridge revision and hashes of all extracted room palette files.</summary>
-    internal sealed record RoomPaletteFileManifest(
+    internal sealed partial record RoomPaletteFileManifest(
         int Version, string SourceCartridgeSha256, Dictionary<string, string> Sha256);
 }

@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Fx;
 /// <see cref="CeresHazeDefinitions.FadeSteps"/> less one, full (#2573).
 /// </summary>
 /// <param name="FadeSteps">The steps of the fade the haze shows.</param>
-public readonly record struct CeresHazeStrength(int FadeSteps);
+public readonly partial record struct CeresHazeStrength(int FadeSteps);

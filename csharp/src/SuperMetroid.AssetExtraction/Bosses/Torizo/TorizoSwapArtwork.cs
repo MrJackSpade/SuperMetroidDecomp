@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 /// Editable indexed characters for the native Torizo instruction uploads.
 /// Address and destination ownership remain in compiled control data.
 /// </summary>
-public sealed class TorizoSwapArtwork
+public sealed partial class TorizoSwapArtwork
 {
 
     /// <summary>Validated selected character transfers, by the tile page each holds.</summary>

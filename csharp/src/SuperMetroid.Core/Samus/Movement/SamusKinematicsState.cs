@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// sets each on its own (for example, a right wall puts Samus at the largest fraction of her pixel).
 /// Collapsing this state to floats would erase those observable edge semantics.
 /// </remarks>
-public sealed class SamusKinematicsState
+public sealed partial class SamusKinematicsState
 {
     /// <summary>
     /// The solid enemy Samus met moving in each direction, holding no entry for a direction where she met none, kept until

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <summary>The fixed geometry and paths of Botwoon's navigation through his room.</summary>
-internal static class BotwoonNavigationDefinitions
+internal static partial class BotwoonNavigationDefinitions
 {
 
     /// <summary>

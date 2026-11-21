@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// <param name="titles">The one-row titles, or null when none are installed.</param>
 /// <param name="panels">The large item panels, or null when none are installed.</param>
 /// <param name="notices">The station and save notices, or null when none are installed.</param>
-public sealed class GameplayMessageArtwork(
+public sealed partial class GameplayMessageArtwork(
     GameplayMessageTitlePresentation? titles,
     GameplayMessagePanelPresentation? panels = null,
     GameplayMessageNoticePresentation? notices = null)

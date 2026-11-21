@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// The geometry and collision of both mirrored, three-component eye doors' draws; what each frame shows is its installed
 /// picture (#1557). The eye and its parts' objects control timing, attacks, hits, persistence and the conversion to a blue door.
 /// </summary>
-internal static class EyeDoorObjectDrawDefinitions
+internal static partial class EyeDoorObjectDrawDefinitions
 {
     /// <summary>
     /// How each look's blocks collide, whichever way the door faces: the facing mirrors only the artwork, so each look's

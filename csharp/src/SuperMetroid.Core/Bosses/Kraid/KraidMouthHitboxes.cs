@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Reads the rectangle of Kraid's mouth shape and the edges its collision tests.</summary>
-internal static class KraidMouthHitboxes
+internal static partial class KraidMouthHitboxes
 {
     /// <summary>The rectangle of <paramref name="shape"/>, relative to Kraid's body position.</summary>
     internal static EnemyHitboxRectangle Resolve(KraidMouthHitbox shape) =>

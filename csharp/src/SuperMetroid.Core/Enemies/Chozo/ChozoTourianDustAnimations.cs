@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// The Wrecked Ship Chozo's footstep dust and the Tourian statue's descent dust (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
-internal static class ChozoTourianDustAnimations
+internal static partial class ChozoTourianDustAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<ChozoTourianDustSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(

@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable JSON schema for ordinary beam-combination colors; palette selection and charge/Hyper Beam animation are engine-owned rather than document data.</summary>
-public sealed record BeamPaletteDocument
+public sealed partial record BeamPaletteDocument
 {
     /// <summary>Schema revision, which must equal <see cref="BeamPaletteFile.Version"/>.</summary>
     public required int Version { get; init; }

@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.World;
 /// Samus's phases of a gameplay frame: grounded movement, animation transitions, uninitialized-pose movement,
 /// the grapple beam, X-ray from the HUD, load appearance and showing the equipped beams' colours.
 /// </summary>
-internal sealed class SamusFramePhases
+internal sealed partial class SamusFramePhases
 {
     /// <summary>Opens the attract demo's Samus input window and selects the demo's new-input state.</summary>
     private readonly IAttractSamusInput _attractDemo;
@@ -702,7 +702,7 @@ internal sealed class SamusFramePhases
     /// <param name="phases">The update's Samus phases, whose clock and actions the steps read.</param>
     /// <param name="move">What the movement runs against.</param>
     [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-    private sealed class PoseMoveSteps(SamusFramePhases phases, PoseMove move) : ISamusPoseMovementSteps
+    private sealed partial class PoseMoveSteps(SamusFramePhases phases, PoseMove move) : ISamusPoseMovementSteps
     {
         /// <summary>The update's Samus phases.</summary>
         private readonly SamusFramePhases _phases = phases;
@@ -841,7 +841,7 @@ internal sealed class SamusFramePhases
     /// <param name="Room">The loaded room.</param>
     /// <param name="Frame">The update's Samus control, which keeps the movement's result for the rest of the update.</param>
     [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-    private readonly record struct PoseMove(SamusState Samus, RoomScope Room, SamusControlFrame Frame)
+    private readonly partial record struct PoseMove(SamusState Samus, RoomScope Room, SamusControlFrame Frame)
     {
         /// <summary>The room's level data her movement collides with.</summary>
         public RoomLevelData Level => Room.LevelData;

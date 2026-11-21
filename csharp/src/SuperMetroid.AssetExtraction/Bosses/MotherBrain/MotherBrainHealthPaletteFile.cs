@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads and writes the installed Mother Brain health palette document.</summary>
-public static class MotherBrainHealthPaletteFile
+public static partial class MotherBrainHealthPaletteFile
 {
     /// <summary>Supported schema version: 2 keys each health band's body and rear-leg colours by the band (#2565).</summary>
     public const int Version = 2;

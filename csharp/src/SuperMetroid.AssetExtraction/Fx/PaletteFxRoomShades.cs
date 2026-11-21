@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// import's: each group starts at one ink of a room picture and runs to the end of that ink's colour group, as
 /// <c>PaletteFXObject_Handler</c> writes a record's colours from the object's colour pointer, skipping those it skips.
 /// </summary>
-internal static class PaletteFxRoomShades
+internal static partial class PaletteFxRoomShades
 {
     /// <summary>The colours of one of a room picture's colour groups.</summary>
     private const int GroupInks = 16;

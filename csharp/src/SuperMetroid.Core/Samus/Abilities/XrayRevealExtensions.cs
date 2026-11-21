@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>How the X-ray scope follows a block's extensions, apart from how collision follows them.</summary>
-public static class XrayRevealExtensions
+public static partial class XrayRevealExtensions
 {
     /// <summary>
     /// Returns the replacement block, or null to retain copied foreground art. Unlike collision,

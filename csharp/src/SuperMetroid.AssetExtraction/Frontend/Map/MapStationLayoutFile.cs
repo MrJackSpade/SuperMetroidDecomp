@@ -7,7 +7,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Reads and writes the installed map-station marker drawing layout.</summary>
-public static class MapStationLayoutFile
+public static partial class MapStationLayoutFile
 {
     /// <summary>The station families in the order the layout lists them; the extractor writes them in this order too (#2567).</summary>
     internal static readonly MapStationKind[] KindOrder = [MapStationKind.Missile, MapStationKind.Energy, MapStationKind.Map];

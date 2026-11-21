@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// and each ordinary update takes <see cref="NorfairRidleyMotionDefinitions.HurtCarryLagRecovery"/> off it, never below
 /// none. Once it is full, a hurt update also carries a grabbed Samus.
 /// </summary>
-public sealed class RidleyHurtCarryLag
+public sealed partial class RidleyHurtCarryLag
 {
     /// <summary>The lag built, none through <see cref="NorfairRidleyMotionDefinitions.HurtCarryLag"/>.</summary>
     [IntegerQuantity("the hurt carry lag built")]

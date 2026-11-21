@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// this step therefore has final priority over charge, Speed Booster, shinespark,
 /// Crystal Flash, and X-ray colors during its coloured updates (<see cref="SamusHurtFlashDefinitions.ColouredUpdates"/>).
 /// </remarks>
-public static class SamusHurtFlash
+public static partial class SamusHurtFlash
 {
     /// <summary>
     /// Advances one hurt-flash update, optionally showing the flash's or the restored suit's shade as the suit's colours

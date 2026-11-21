@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The Fake Kraid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FakeKraid];
@@ -321,7 +321,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal SpitAndSpikeBehavior SpitAndSpikes { get; } = new();
 
     /// <summary>Fake Kraid's spit, with room collision then capped gravity, or a spike flying until it strikes a wall.</summary>
-    internal sealed class SpitAndSpikeBehavior : EnemyProjectileBehavior
+    internal sealed partial class SpitAndSpikeBehavior : EnemyProjectileBehavior
     {
         /// <summary>The flight each kind this behaviour is bound to starts in: the spit's and the spikes'.</summary>
         private readonly Dictionary<RoomEnemyProjectileKind, EnemyProjectileOwnedMotion> _startingMotions;

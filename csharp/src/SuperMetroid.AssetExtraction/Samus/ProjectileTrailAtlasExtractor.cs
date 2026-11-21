@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts only trail-owned tiles, omitting the intervening missile/explosion graphics.</summary>
-public static class ProjectileTrailAtlasExtractor
+public static partial class ProjectileTrailAtlasExtractor
 {
     /// <summary>Imports eight ice/wave trail characters followed by four missile-family characters, excluding the unrelated native tile gap.</summary>
     /// <param name="bus">Cartridge-import-capable address space supplying the two four-bit planar trail-character spans.</param>

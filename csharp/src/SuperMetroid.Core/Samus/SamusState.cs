@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Samus;
 /// <remarks>
 /// The movement, pose, ability and drawing systems share it. The Landing Site cinematic actor is not part of it.
 /// </remarks>
-public sealed class SamusState
+public sealed partial class SamusState
 {
     /// <summary>The installed input and movement modes and the control setups that replace them.</summary>
     internal SamusControl Control { get; } = new();

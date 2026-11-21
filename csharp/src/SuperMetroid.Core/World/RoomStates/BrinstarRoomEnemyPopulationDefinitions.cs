@@ -23,7 +23,7 @@ using SuperMetroid.Core.Enemies.YappingMaws;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The enemy placement lists of the Brinstar rooms.</summary>
-internal static class BrinstarRoomEnemyPopulationDefinitions
+internal static partial class BrinstarRoomEnemyPopulationDefinitions
 {
     /// <summary>The enemy population of the Brinstar Pre Map room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition BrinstarPreMap { get; } = new("BrinstarPreMap",

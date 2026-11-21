@@ -3,7 +3,7 @@ using SamusFramesBeyondAnimation = SuperMetroid.Core.Compatibility.FramesBeyondA
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Which animation each Samus pose animates by (#1473), and how her animation reads its frames (#2048).</summary>
-internal static class SamusAnimationDelays
+internal static partial class SamusAnimationDelays
 {
     /// <summary>Every animation by its name.</summary>
     private static readonly Dictionary<SamusAnimationName, SamusPoseAnimation> ByName = NameEveryAnimation();

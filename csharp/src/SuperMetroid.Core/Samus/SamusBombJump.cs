@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus;
 /// arms it, after which the same jump cannot be armed again. The rising arc reads the direction until the jump ends. A
 /// bomb jump always has a direction; when Samus is not bomb jumping she holds none.
 /// </summary>
-public readonly record struct SamusBombJump
+public readonly partial record struct SamusBombJump
 {
     /// <summary>Stores a jump not yet armed; a jump is made with <see cref="FromBlast"/> and <see cref="Arm"/>.</summary>
     private SamusBombJump(SamusBombJumpDirection direction) => Direction = direction;

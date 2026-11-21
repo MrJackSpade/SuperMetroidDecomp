@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Runtime;
 /// Where the door transition stands: resting before the first door or after a door's transition has completed, or one
 /// door's transition under way (<see cref="OrdinaryDoorTransition"/>), which carries everything that transition holds.
 /// </summary>
-internal abstract class DoorTransitionStage
+internal abstract partial class DoorTransitionStage
 {
     /// <summary>No door transition has begun.</summary>
     internal static DoorTransitionStage Inactive { get; } = new Resting(DoorTransitionPhase.Inactive);
@@ -19,7 +19,7 @@ internal abstract class DoorTransitionStage
 
     /// <summary>A stage with no transition under way.</summary>
     /// <param name="phase"><see cref="DoorTransitionPhase.Inactive"/> or <see cref="DoorTransitionPhase.Complete"/>.</param>
-    private sealed class Resting(DoorTransitionPhase phase) : DoorTransitionStage
+    private sealed partial class Resting(DoorTransitionPhase phase) : DoorTransitionStage
     {
         /// <inheritdoc/>
         internal override DoorTransitionPhase Phase { get; } = phase;

@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// them and keeps the backdrops the backdrop document names (#1544). The sheets' frames are named from the families' poses
 /// (<see cref="CinematicSpritePoses"/>).
 /// </summary>
-public class IntroCinematicSourceArtwork
+public partial class IntroCinematicSourceArtwork
 {
     /// <summary>Validates and retains the selected opening artwork.</summary>
     /// <param name="parts">The opening's installed scene artwork.</param>

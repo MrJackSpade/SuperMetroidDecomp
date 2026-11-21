@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend;
 /// until title, game over or soft reset; the immutable artwork it binds is host-owned and shared, and the frame clock and
 /// unauthored Speed Booster cadence it counts on belong to the session.
 /// </summary>
-internal static class GameplayRuntimeFactory
+internal static partial class GameplayRuntimeFactory
 {
     /// <summary>
     /// Constructs a runtime over the session's random number generator and performs the start handoff in the game's

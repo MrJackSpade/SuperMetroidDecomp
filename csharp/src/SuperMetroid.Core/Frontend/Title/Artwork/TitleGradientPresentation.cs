@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Title.Artwork;
 /// The title's editable gradients, one for each zoom range (<see cref="TitleGradientFormat.VariantCount"/>), each described by its stops (#1468).
 /// The gradients contain no game-data locations, animation scripts, or gameplay state.
 /// </summary>
-public sealed class TitleGradientPresentation
+public sealed partial class TitleGradientPresentation
 {
     /// <summary>The independently authored gradients in order of their zoom ranges, from no zoom up.</summary>
     private readonly ScreenGradient[] variants;

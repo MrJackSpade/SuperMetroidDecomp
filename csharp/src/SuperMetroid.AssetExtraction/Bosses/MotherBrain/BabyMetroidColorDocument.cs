@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Versioned editable RGB5 pulse and initialization-target images for the live Baby Metroid encounter, excluding timer, fade-destination, and sound behavior.</summary>
-public sealed record BabyMetroidColorDocument
+public sealed partial record BabyMetroidColorDocument
 {
     /// <summary>Color schema revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }

@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// backdrop from the first colour of the screen's own colours when it extracts them; the game reads these colours and no
 /// palette document, as every picture it draws is pre-coloured.
 /// </summary>
-public static class SceneColourFiles
+public static partial class SceneColourFiles
 {
     /// <summary>The installed document's file name.</summary>
     public const string FileName = "scene-colours.json";

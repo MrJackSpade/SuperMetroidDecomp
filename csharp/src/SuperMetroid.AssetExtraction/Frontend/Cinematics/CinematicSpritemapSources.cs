@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Frontend.Cinematics;
 
 /// <summary>Where each cinematic sprite pose's spritemap is stored (<see cref="CinematicSpritemapSourceDefinitions"/>).</summary>
-internal static class CinematicSpritemapSources
+internal static partial class CinematicSpritemapSources
 {
     /// <summary>Each pose's place in the cartridge's order of the pose spritemaps.</summary>
     private static readonly Dictionary<CinematicSpritePose, int> Places = PlacesOf(CinematicSpritemapSourceDefinitions.Spritemaps);

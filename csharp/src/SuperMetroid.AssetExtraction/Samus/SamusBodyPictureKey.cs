@@ -12,5 +12,5 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="TopPicture">The top half picture it reads, or null when no composition reads a top character.</param>
 /// <param name="BottomPicture">The bottom half picture it reads, or null when no composition reads a bottom character or the frame names none.</param>
 /// <param name="ChestCover">Where the chest cover sits relative to the picture's origin, or null for a picture without one.</param>
-internal readonly record struct SamusBodyPictureKey(SamusSpritemapId? Top, SamusSpritemapId? Bottom, SamusBodyPicture? TopPicture,
+internal readonly partial record struct SamusBodyPictureKey(SamusSpritemapId? Top, SamusSpritemapId? Bottom, SamusBodyPicture? TopPicture,
     SamusBodyPicture? BottomPicture, Offset16<ScreenPixels>? ChestCover);

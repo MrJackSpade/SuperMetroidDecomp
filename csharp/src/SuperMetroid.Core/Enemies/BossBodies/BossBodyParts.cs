@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// body, eye, tentacles and mouth, Draygon's body, eye and dying arms, Crocomire's body and melt images, and Mother
 /// Brain's body show their frames here; a part shows its current frame alone, in place of the frame it showed before.
 /// </summary>
-internal sealed class BossBodyParts : IBossBodyDisplay
+internal sealed partial class BossBodyParts : IBossBodyDisplay
 {
     /// <summary>Where the boss places the body and whether it shows nothing, or none for a body no boss places (#2194).</summary>
     private readonly IBossBodyShowing? showing;

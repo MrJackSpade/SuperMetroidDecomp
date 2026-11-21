@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// through in order, one or more updates each, before the station's countdown starts. Each phase runs itself and enters the
 /// next (#2571); one that enters the next in the same update has the warning run that phase too.
 /// </summary>
-internal sealed class CeresSelfDestructPhase
+internal sealed partial class CeresSelfDestructPhase
 {
     /// <summary>The phase's name, for diagnostics.</summary>
     private readonly string _name;

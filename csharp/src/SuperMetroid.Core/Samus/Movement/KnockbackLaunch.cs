@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>How a knockback starts: its horizontal direction and timer (#633).</summary>
-public sealed record KnockbackLaunch
+public sealed partial record KnockbackLaunch
 {
     /// <summary>The direction the knockback carries Samus horizontally.</summary>
     public required KnockbackHorizontalDirection KnockbackXDirection { get; init; }

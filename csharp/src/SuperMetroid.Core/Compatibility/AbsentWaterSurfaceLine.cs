@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// above the room.
 /// </remarks>
 [CompatibilityService("Samus's air-bubble test and diving splash in a room with no water surface behave as though the surface lay just above the room")]
-public static class AbsentWaterSurfaceLine
+public static partial class AbsentWaterSurfaceLine
 {
     /// <summary>The line the game's tests find a missing surface on: one pixel above the room's top.</summary>
     private const int LineAboveRoom = -1;

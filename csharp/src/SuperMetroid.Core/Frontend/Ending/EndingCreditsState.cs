@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// the ending, and the scene passes from one to the next on the update the game does.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
+internal sealed partial class EndingCreditsState : IFrontendScreen, IEndingActorScene
 {
     /// <inheritdoc/>
     void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)

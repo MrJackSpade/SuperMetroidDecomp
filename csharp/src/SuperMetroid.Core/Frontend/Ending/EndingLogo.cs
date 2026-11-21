@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// The ending's assembling logo, followed by its colour loads (<see cref="EndingLogoDefinitions.CrossfadeSteps"/>): its two S halves move into place while its two
 /// circles draw in (#1979).
 /// </summary>
-internal sealed class EndingLogo
+internal sealed partial class EndingLogo
 {
     /// <summary>The upper S half, which signals the scene as it lands.</summary>
     private readonly MovingHalf upperS;
@@ -105,20 +105,20 @@ internal sealed class EndingLogo
         new(definition.Origin, EndingShades.Drawn(EndingLogoDefinitions.Colouring), EndingLogoAnimations.Logo, definition.Animation);
 
     /// <summary>Where the logo stands (#2560), one value: each case carries only its own data.</summary>
-    private abstract record Progress
+    private abstract partial record Progress
     {
         /// <summary>The halves move and the circles draw in; the grey-out cue has not run.</summary>
-        internal sealed record Assembling : Progress;
+        internal sealed partial record Assembling : Progress;
 
         /// <summary>The grey-out cue has run; the crossfade shows its first step on the next update.</summary>
-        internal sealed record CrossfadeRequested : Progress;
+        internal sealed partial record CrossfadeRequested : Progress;
 
         /// <summary>The crossfade shows its steps in turn.</summary>
         /// <param name="Shown">The step the logo showed last.</param>
-        internal sealed record Crossfading(EndingLogoCrossfadeStep Shown) : Progress;
+        internal sealed partial record Crossfading(EndingLogoCrossfadeStep Shown) : Progress;
 
         /// <summary>The logo has shown its crossfade's last step and hands off to the percentage text.</summary>
-        internal sealed record HandedOff : Progress;
+        internal sealed partial record HandedOff : Progress;
     }
 
     /// <summary>
@@ -129,7 +129,7 @@ internal sealed class EndingLogo
     /// <param name="Landing">Where the half comes to rest.</param>
     /// <param name="Direction">The way the half moves across: left, which also moves it down, or right, which also moves it up.</param>
     /// <param name="Landed">Called as the half lands, or null for none.</param>
-    private sealed record MovingHalf(CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> Actor, Offset16<ScreenPixels> Landing,
+    private sealed partial record MovingHalf(CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> Actor, Offset16<ScreenPixels> Landing,
         HorizontalDirection Direction, Action? Landed)
     {
         /// <summary>The half's speed on each axis, in pixels per update.</summary>

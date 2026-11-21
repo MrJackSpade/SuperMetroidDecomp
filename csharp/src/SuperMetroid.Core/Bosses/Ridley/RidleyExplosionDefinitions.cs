@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// How Lower Norfair Ridley's twelve death-breakup actors fly apart: their speeds, frames, order and lifetimes. The
 /// selected animations remain authored data.
 /// </summary>
-internal static class RidleyExplosionDefinitions
+internal static partial class RidleyExplosionDefinitions
 {
     /// <summary>
     /// The breakup setup draws a fragment's horizontal speed from one random value as the sum of two

@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// another (#1634). Each frame's origin is the page's corner, so the game places a page's pictures at the page's
 /// corner and each lands where the cartridge's page shows it.
 /// </summary>
-internal static class ScreenPictureSheetComposer
+internal static partial class ScreenPictureSheetComposer
 {
     /// <summary>Pixels along a tile's side.</summary>
     private const int TilePixels = RoomTileCanvas.CharacterPixels;
@@ -69,7 +69,7 @@ internal static class ScreenPictureSheetComposer
     /// <param name="Canvas">The canvas every picture is painted on.</param>
     /// <param name="Colours">The colours the pixels name.</param>
     /// <param name="Frames">Each picture's frame by its name.</param>
-    internal sealed record PaintedScreen(RoomTileCanvas Canvas, RgbColor[] Colours, Dictionary<string, SpriteSheetFrameDocument> Frames);
+    internal sealed partial record PaintedScreen(RoomTileCanvas Canvas, RgbColor[] Colours, Dictionary<string, SpriteSheetFrameDocument> Frames);
 
     /// <summary>Paints <paramref name="subjects"/> over <paramref name="characters"/> in <paramref name="palette"/>'s colours, packed onto shelves.</summary>
     /// <exception cref="InvalidDataException">Two subjects share a name, or the pictures need more than one sheet.</exception>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 /// <summary>
 /// The state of a hopper: the step it runs and its place along the quadratic speed curve that shapes each hop's arc.
 /// </summary>
-public sealed class HopperEnemyState
+public sealed partial class HopperEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal HopperEnemyState(HopperAction action) => Action = action;

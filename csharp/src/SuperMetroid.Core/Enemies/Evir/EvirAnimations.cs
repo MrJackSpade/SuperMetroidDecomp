@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// The Evir body's and arms' facing loops and its projectile's spit and regeneration animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="EvirCue"/> naming what it does.
 /// </summary>
-internal static class EvirAnimations
+internal static partial class EvirAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<EvirSegment, EnemyFrameId, EvirCue> Segments { get; } = new(

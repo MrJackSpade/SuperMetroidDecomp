@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// The file-select map's entry (#1512, #2415): the black screen it holds for
 /// <see cref="FileSelectMapDefinitions.EntryBlackHoldUpdates"/> updates, then the centered area-map reveal.
 /// </summary>
-public sealed class FileSelectMapEntry
+public sealed partial class FileSelectMapEntry
 {
     /// <summary>The entry's black hold, counted once each update; the reveal starts on its last.</summary>
     private readonly UpdateCountdown blackHold = UpdateCountdown.Lasting(FileSelectMapDefinitions.EntryBlackHoldUpdates);

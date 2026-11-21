@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// his handoff to the station's escape (<see cref="CeresEscape"/>). The state stores the phase, and each phase runs itself on
 /// his encounter (#2571), so his encounter runs its current phase with no switch over phase identities.
 /// </summary>
-public sealed class CeresRidleyPhase
+public sealed partial class CeresRidleyPhase
 {
     /// <summary>The phase's name, for diagnostics.</summary>
     private readonly string _name;

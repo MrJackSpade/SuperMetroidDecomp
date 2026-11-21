@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// surface. The release's cues spawn more of the effects it spawns.
 /// </summary>
 [RoomLifetime]
-internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<TourianStatueEffectMotion>
+internal sealed partial class TourianUnlockBehavior : TourianStatueProjectileBehavior<TourianStatueEffectMotion>
 {
     /// <summary>The room's randomness, which aims the particles.</summary>
     private readonly EnemyRoomBinding _room;

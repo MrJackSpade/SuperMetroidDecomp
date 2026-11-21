@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>The updates on which the dead Spore Spawn raises dust (#1606).</summary>
-internal static class SporeSpawnCadenceDefinitions
+internal static partial class SporeSpawnCadenceDefinitions
 {
     /// <summary>
     /// The updates on which the settled Spore Spawn raises a dust cloud at a random spot, counted on the frame counter at

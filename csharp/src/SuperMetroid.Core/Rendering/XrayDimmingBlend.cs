@@ -10,4 +10,4 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="Mode">How the room dims outside the cone.</param>
 /// <param name="RoomDarkens">Whether the room's own effect darkens what it blends, so that the dimming darkens.</param>
 /// <param name="Tint">The colour the room dims toward where nothing lies behind it: the X-ray's grey, or a darkness's shade.</param>
-public sealed record XrayDimmingBlend(XrayRoomBlendMode Mode, bool RoomDarkens, RgbColor Tint) : GameplayBlend;
+public sealed partial record XrayDimmingBlend(XrayRoomBlendMode Mode, bool RoomDarkens, RgbColor Tint) : GameplayBlend;

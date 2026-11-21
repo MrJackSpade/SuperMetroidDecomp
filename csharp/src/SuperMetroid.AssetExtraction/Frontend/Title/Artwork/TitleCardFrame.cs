@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 /// One title card frame of the import's title artwork (#1979): the card's text as far as one typing step shows it, whole; all parts inherit the
 /// active title palette.
 /// </summary>
-public sealed record TitleCardFrame
+public sealed partial record TitleCardFrame
 {
     /// <summary>Gets the card the frame shows, stored in the document by its installed key.</summary>
     [JsonConverter(typeof(TitleCardJsonConverter))]

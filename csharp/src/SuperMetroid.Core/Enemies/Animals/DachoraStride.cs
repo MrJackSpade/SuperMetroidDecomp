@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <param name="NearLegBack">Its near leg swung back.</param>
 /// <param name="NearLegPassing">Its near leg passing under it.</param>
 /// <param name="NearLegReaching">Its near leg reaching forward.</param>
-internal sealed record DachoraStride(F FarLegBack, F FarLegPassing, F FarLegReaching, F NearLegBack, F NearLegPassing, F NearLegReaching)
+internal sealed partial record DachoraStride(F FarLegBack, F FarLegPassing, F FarLegReaching, F NearLegBack, F NearLegPassing, F NearLegReaching)
 {
     /// <summary>The stride running left.</summary>
     internal static DachoraStride Left { get; } = new(

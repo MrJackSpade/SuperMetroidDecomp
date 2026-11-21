@@ -8,7 +8,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Reads and writes the installed selected-save marker drawing anchors.</summary>
-public static class MapSaveMarkerFile
+public static partial class MapSaveMarkerFile
 {
     /// <summary>Enumerates the complete stable save/elevator marker identity set the document must hold, independent of player discovery.</summary>
     /// <returns>Lazy marker keys, each a marked station's name, area by area.</returns>

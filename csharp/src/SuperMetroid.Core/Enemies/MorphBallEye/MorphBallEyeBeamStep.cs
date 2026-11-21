@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// </summary>
 /// <param name="species">The Morph Ball eye species whose beam steps.</param>
 [RoomLifetime]
-internal sealed class MorphBallEyeBeamStep(MorphBallEyeBehavior species) : IStepBeforeEnemySelection
+internal sealed partial class MorphBallEyeBeamStep(MorphBallEyeBehavior species) : IStepBeforeEnemySelection
 {
     /// <inheritdoc/>
     public void StepBeforeEnemySelection() => species.StepMorphBallEyeBeam();

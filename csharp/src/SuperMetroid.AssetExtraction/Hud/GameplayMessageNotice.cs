@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Defines one gameplay message's tilemap template and editable text regions.</summary>
-public sealed record GameplayMessageNotice
+public sealed partial record GameplayMessageNotice
 {
     /// <summary>Gets the number of content rows, excluding the shared borders.</summary>
     public required int RowCount { get; init; }

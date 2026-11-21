@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The scrolling sky's seven tilemap pages and their installed file names.</summary>
-public static class RoomSkyTilemapFormat
+public static partial class RoomSkyTilemapFormat
 {
     /// <summary>One native 32x32 page of 16-bit BG tile words.</summary>
     public const int PageByteCount = RoomBackgroundTilemapFormat.BytesPerPage;

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// (<c>csharp/test-fixtures/movement-release/enemy-angle-402.csv</c>).
 /// </remarks>
 [CompatibilityService("the aim-angle slope: the short side in 256ths over the long side, each counting only its part past a multiple of 65536 and 256, a long side of nothing giving the steepest slope")]
-public static class AimAngleSlope
+public static partial class AimAngleSlope
 {
     /// <summary>The 256ths in each pixel of the short side.</summary>
     private const int RisePerPixel = 256;

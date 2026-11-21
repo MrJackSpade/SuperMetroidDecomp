@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Lifetime: Samus's.
 /// </remarks>
 [CompatibilityService("a control setup during the enemies cancels Samus's pending pose transition")]
-public sealed class PoseTransitionCancellation
+public sealed partial class PoseTransitionCancellation
 {
     /// <summary>Whether a cancellation waits for the resample.</summary>
     internal bool IsWaiting { get; set; }

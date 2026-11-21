@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Definitions for the final assembling Super Metroid icon.</summary>
-internal static class EndingLogoDefinitions
+internal static partial class EndingLogoDefinitions
 {
     /// <summary>The colouring every logo actor draws in.</summary>
     internal const EndingSpriteColouring Colouring = EndingSpriteColouring.Logo;

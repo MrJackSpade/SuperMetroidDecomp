@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// How Lower Norfair Ridley flies and fights (#2171, #2232): his pogo bounces, how he lifts a grabbed Samus, how hard
 /// each of his flights seeks its target, how long each attack and his death last and how fast his swoop flies.
 /// </summary>
-internal static class NorfairRidleyMotionDefinitions
+internal static partial class NorfairRidleyMotionDefinitions
 {
     /// <summary>The fastest Ridley falls on a pogo bounce: six pixels an update.</summary>
     internal static readonly SignedEightEight PogoMaximumFallSpeed = SignedEightEight.FromPixels(6);

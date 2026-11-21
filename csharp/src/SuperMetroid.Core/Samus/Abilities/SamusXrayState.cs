@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// crouching input. The cone's angle and width reach the display through <see cref="SamusXrayDisplaySnapshot"/>, from
 /// which the display draws the cone and the blocks it reveals.
 /// </remarks>
-public sealed class SamusXrayState
+public sealed partial class SamusXrayState
 {
     /// <summary>The special suit colouring holding Samus's suit, which the X-ray visor takes.</summary>
     private readonly SamusSpecialColouring _colouring;

@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 /// cursor compositions and palette selectors the game-over sheet is composed from, and the layout
 /// (<see cref="Presentation"/>), which the installed layout holds for the game (<see cref="GameOverLayoutFile"/>).
 /// </summary>
-public sealed class GameOverSourcePresentation
+public sealed partial class GameOverSourcePresentation
 {
     /// <summary>The page's tiles, row by row, which the menus' picture of the page is composed from (#1467).</summary>
     internal readonly BackgroundTile[] page;
@@ -166,6 +166,6 @@ public sealed class GameOverSourcePresentation
     /// <param name="Baby">Each Baby frame's composition.</param>
     /// <param name="Egg">The egg's composition.</param>
     /// <param name="Cursors">The missile cursor's composition of each of its pictures.</param>
-    private sealed record GameOverSprites(Dictionary<GameOverBabyFrame, SpriteComposition> Baby, SpriteComposition Egg,
+    private sealed partial record GameOverSprites(Dictionary<GameOverBabyFrame, SpriteComposition> Baby, SpriteComposition Egg,
         Dictionary<MenuMissileFrame, SpriteComposition> Cursors);
 }

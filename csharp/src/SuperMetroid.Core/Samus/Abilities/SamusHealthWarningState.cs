@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>The low-energy check and its persistent critical-energy latch.</summary>
-public sealed class SamusHealthWarningState
+public sealed partial class SamusHealthWarningState
 {
     /// <summary>The request priority of the warning's start and stop sounds.</summary>
     private static readonly SoundRequestPriority WarningSoundPriority = SoundRequestPriority.Normal;

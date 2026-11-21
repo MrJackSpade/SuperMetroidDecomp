@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// The Rio's idle, swoop and cooldown animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="RioCue"/> naming what it does.
 /// </summary>
-internal static class RioAnimations
+internal static partial class RioAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<RioSegment, EnemyFrameId, RioCue> Segments { get; } = new(

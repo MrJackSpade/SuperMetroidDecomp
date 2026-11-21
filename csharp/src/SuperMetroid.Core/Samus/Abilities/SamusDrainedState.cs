@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// called. This class deliberately does not invent that enemy AI. It owns only the state
 /// mutations made by those calls and the fall the drained-fall animation cue starts later.
 /// </remarks>
-public sealed class SamusDrainedState
+public sealed partial class SamusDrainedState
 {
     /// <summary>
     /// Where the rainbow's colouring stands (#2562): showing, or ended by letting drained Samus fall or the rainbow's stop,

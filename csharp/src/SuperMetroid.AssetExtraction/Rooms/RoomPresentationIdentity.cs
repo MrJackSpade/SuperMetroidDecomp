@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Named identities of the room catalogs actually bound by a playable host.</summary>
-public static class RoomPresentationIdentity
+public static partial class RoomPresentationIdentity
 {
     /// <summary>
     /// Captures the named identity of the room presentation catalog actually selected by a host. How a room's blocks and

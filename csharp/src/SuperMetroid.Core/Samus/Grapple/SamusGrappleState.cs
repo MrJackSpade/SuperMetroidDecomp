@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// <summary>
 /// Samus's grapple beam: its phase, anchor, rope, swing, flare and the release that ends it.
 /// </summary>
-public sealed class SamusGrappleState
+public sealed partial class SamusGrappleState
 {
     /// <summary>Starts an inactive grapple whose flare, swing pictures and rope draw from <paramref name="artwork"/>.</summary>
     internal SamusGrappleState(SamusArtworkBinding artwork) => Artwork = Ensure.NotNull(artwork);

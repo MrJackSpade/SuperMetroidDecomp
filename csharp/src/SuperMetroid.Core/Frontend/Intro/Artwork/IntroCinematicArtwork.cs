@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// composed from are the import pipeline's, which also names the content's identity (#1463, #1467). Scene timing is
 /// the game's own.
 /// </summary>
-public sealed class IntroCinematicArtwork
+public sealed partial class IntroCinematicArtwork
 {
     /// <summary>Retains the selected opening backdrop and Ceres artwork.</summary>
     /// <param name="backdrop">The colour the opening shows where nothing is drawn, at full brightness.</param>

@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// colours, that exception included, match the cartridge. The bubble cursor visits steps 0..5 and wraps independently of
 /// the body steps (#625, #903).
 /// </remarks>
-public static class CrystalFlashColorFormat
+public static partial class CrystalFlashColorFormat
 {
     /// <summary>Ten editable body frames, one per pointer/timer record in playback order.</summary>
     public const int BodyFrameCount = SamusShadeDefinitions.CrystalFlash.BodyStepCount;

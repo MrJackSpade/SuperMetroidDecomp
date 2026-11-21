@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// earlier shade of the same effect and covers the rest. Her colours are her own:
 /// another owner's colours never show on her draws, and hers never show on theirs (#1512).
 /// </remarks>
-public sealed class SamusColours
+public sealed partial class SamusColours
 {
     /// <summary>The shades laid over the suit's, in the order they were laid; the last covers the others.</summary>
     internal readonly List<PictureShade> suitOverlays = [];

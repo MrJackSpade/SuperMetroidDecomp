@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFallingTubePopulati
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Places the pieces of Mother Brain's glass tube as they fall.</summary>
-internal static class MotherBrainFallingTubes
+internal static partial class MotherBrainFallingTubes
 {
     /// <summary>
     /// Resolves the selected piece's placement: where the tube's setup places it. The piece runs its own animation (#641).

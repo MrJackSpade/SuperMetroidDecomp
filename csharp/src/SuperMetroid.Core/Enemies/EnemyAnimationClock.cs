@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Enemies;
 /// one its owner shows the animation's next frame, pauses, holds the frame or stops the clock on.
 /// </para>
 /// </remarks>
-public sealed class EnemyAnimationClock
+public sealed partial class EnemyAnimationClock
 {
     /// <summary>
     /// Updates left before the animation takes its next step: one or more while the clock runs, and none from the update

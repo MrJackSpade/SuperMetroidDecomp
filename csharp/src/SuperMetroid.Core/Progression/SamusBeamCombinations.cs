@@ -3,7 +3,7 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>Decoding and component predicates for <see cref="SamusBeamCombination"/>.</summary>
-public static class SamusBeamCombinations
+public static partial class SamusBeamCombinations
 {
     /// <summary>The beam components of each combination.</summary>
     private static readonly FrozenDictionary<SamusBeamCombination, SamusBeamFlags> ComponentsOf =

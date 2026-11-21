@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>The Spark species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The pass-through shot reaction for this species' private shot reaction.</summary>
     internal static EnemyShotReaction PassThroughShot { get; } =

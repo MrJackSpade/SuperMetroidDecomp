@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The glow's kind decides how it plays. The game decided by whether the Hyper Beam is equipped, and only a Hyper
 /// Beam glow ever runs while it is: the Hyper Beam fires no ordinary charged shot and is never unequipped.
 /// </remarks>
-public sealed class ChargedShotGlow
+public sealed partial class ChargedShotGlow
 {
     /// <summary>Starts a glow of <paramref name="kind"/>, showing nothing until its first update shows its first shade.</summary>
     private ChargedShotGlow(ChargedShotGlowKind kind, SamusGlowSegment sequence)

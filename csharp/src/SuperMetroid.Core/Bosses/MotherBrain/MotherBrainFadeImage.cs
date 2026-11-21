@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One image of one of Mother Brain's encounter's authored colour fades (#2270).</summary>
-public readonly record struct MotherBrainFadeImage
+public readonly partial record struct MotherBrainFadeImage
 {
     /// <summary>The image at <paramref name="step"/> of <paramref name="fade"/>.</summary>
     internal MotherBrainFadeImage(MotherBrainFade fade, int step)

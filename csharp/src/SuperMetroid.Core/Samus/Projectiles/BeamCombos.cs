@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Beam combination attacks (charge plus special weapon): activation, and the ice, plasma, spazer and wave
 /// combo steps with the Spacetime shot's change to saved progress.</summary>
-internal sealed class BeamCombos
+internal sealed partial class BeamCombos
 {
     /// <summary>Ends expired special attack particles through the same projectile lifecycle as ordinary beams.</summary>
     private readonly ProjectileAnimation _animation;

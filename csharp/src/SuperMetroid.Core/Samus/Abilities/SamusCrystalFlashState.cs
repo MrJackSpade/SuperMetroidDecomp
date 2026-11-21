@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <see cref="SamusPoseId.CrystalFlashRightPose"/> and <see cref="SamusPoseId.CrystalFlashLeftPose"/> move only as
 /// Crystal Flash moves them.
 /// </remarks>
-public sealed class SamusCrystalFlashState
+public sealed partial class SamusCrystalFlashState
 {
     /// <summary>The exact held actions that start Crystal Flash: Down, both aims and Shoot, and nothing else.</summary>
     internal const GameplayAction RequiredInput =

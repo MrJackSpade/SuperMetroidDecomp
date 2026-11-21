@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable egg-fragment and slime OAM art, without physical motion rules.</summary>
-public sealed class IntroEggEffectSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroEggEffectSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled shell and slime OAM compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;

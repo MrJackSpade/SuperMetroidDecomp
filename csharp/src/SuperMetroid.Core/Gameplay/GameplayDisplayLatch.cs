@@ -11,4 +11,4 @@ namespace SuperMetroid.Core.Gameplay;
 /// previous latch in place. Arrays are owned copies; simulation cannot change them.
 /// </summary>
 /// <param name="Hud">The HUD's images this frame boundary latched, which the pause screen keeps (#1466).</param>
-public abstract record GameplayDisplayLatch(ShownHud Hud);
+public abstract partial record GameplayDisplayLatch(ShownHud Hud);

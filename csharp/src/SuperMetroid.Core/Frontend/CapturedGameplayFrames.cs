@@ -4,7 +4,7 @@ using SuperMetroid.Core.Runtime;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Captures every gameplay update's display frame, as every production host does.</summary>
-internal sealed class CapturedGameplayFrames : IGameplayFramePublication
+internal sealed partial class CapturedGameplayFrames : IGameplayFramePublication
 {
     /// <summary>The single capturing policy.</summary>
     public static CapturedGameplayFrames Instance { get; } = new();

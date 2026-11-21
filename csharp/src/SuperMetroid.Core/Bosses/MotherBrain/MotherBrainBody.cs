@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's body and tank: their setup, animations, movement, footsteps and the first phase.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainBody
+internal sealed partial class MotherBrainBody
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;

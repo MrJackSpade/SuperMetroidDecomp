@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Samus Hyper Beam colour document.</summary>
-public static class SamusHyperBeamColorFile
+public static partial class SamusHyperBeamColorFile
 {
     /// <summary>Validates the ten full-body Hyper Beam RGB5 rows and keeps every colour as installed, leaving palette-cycle timing to gameplay.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>

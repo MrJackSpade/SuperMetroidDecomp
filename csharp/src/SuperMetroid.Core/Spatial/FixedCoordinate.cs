@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Spatial;
 
 /// <summary>One axis of a 16.16 fixed-point position: the whole pixel and its fraction, each wrapping at sixteen bits.</summary>
 [EncodingOwner("16.16 fixed-point coordinate")]
-public readonly record struct FixedCoordinate
+public readonly partial record struct FixedCoordinate
 {
     /// <summary>The position at <paramref name="whole"/> pixels and <paramref name="fraction"/> 65536ths, each 0 through 65535.</summary>
     /// <param name="whole">The whole pixel, 0 through 65535; the coordinate range wraps past either end.</param>

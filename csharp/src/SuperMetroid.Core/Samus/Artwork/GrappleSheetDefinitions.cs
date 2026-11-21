@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// each orientation, picture of the rope's travelling pattern and rope-direction mirroring. The grapple's flare is drawn
 /// from the projectile sheet.
 /// </summary>
-public static class GrappleSheetDefinitions
+public static partial class GrappleSheetDefinitions
 {
     /// <summary>
     /// The endpoint's animation, its frames named for what they show (#2285): a point swelling to an orb, opening into a

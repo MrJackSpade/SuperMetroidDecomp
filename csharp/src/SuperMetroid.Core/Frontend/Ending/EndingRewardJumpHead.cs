@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <param name="Actor">The head actor.</param>
 /// <param name="Readied">Where the head stands once its animation readies it.</param>
 /// <param name="Launched">Where the head stands once its animation launches it.</param>
-internal sealed record EndingRewardJumpHead(EndingRewardActor Actor, Offset16<ScreenPixels> Readied, Offset16<ScreenPixels> Launched);
+internal sealed partial record EndingRewardJumpHead(EndingRewardActor Actor, Offset16<ScreenPixels> Readied, Offset16<ScreenPixels> Launched);

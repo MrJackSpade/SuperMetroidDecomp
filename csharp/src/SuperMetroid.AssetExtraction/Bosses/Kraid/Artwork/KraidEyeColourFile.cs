@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 /// Reads and writes the installed Kraid eye colours (#1637): the only colours of Kraid's the game works with, named by
 /// what they colour, without the colour groups and places the cartridge kept them at.
 /// </summary>
-public static class KraidEyeColourFile
+public static partial class KraidEyeColourFile
 {
     /// <summary>The installed document's file name, beside the enemy compositions.</summary>
     public const string FileName = "kraid-eye-colours.json";

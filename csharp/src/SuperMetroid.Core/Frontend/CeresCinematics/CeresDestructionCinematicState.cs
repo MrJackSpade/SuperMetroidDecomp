@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// same gameplay room.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class CeresDestructionCinematicState : IFrontendScreen, IComposedFrontendScene<LayeredScene>
+internal sealed partial class CeresDestructionCinematicState : IFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)

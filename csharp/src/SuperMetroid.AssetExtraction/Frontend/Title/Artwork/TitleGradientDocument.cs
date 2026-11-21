@@ -2,7 +2,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>Editable title-gradient schema: sixteen gradients, one per zoom range, each described by its stops.</summary>
-public sealed record TitleGradientDocument
+public sealed partial record TitleGradientDocument
 {
     /// <summary>Schema revision; loading requires <see cref="TitleGradientFile.Version"/>.</summary>
     public required int Version { get; init; }

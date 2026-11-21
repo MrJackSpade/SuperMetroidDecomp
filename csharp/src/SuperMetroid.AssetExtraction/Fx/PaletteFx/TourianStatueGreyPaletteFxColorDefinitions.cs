@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// <remarks>
 /// Draygon's, Kraid's, Ridley's and Phantoon's statues each grey out their own colours through one shared run of records.
 /// </remarks>
-public static class TourianStatueGreyPaletteFxColorDefinitions
+public static partial class TourianStatueGreyPaletteFxColorDefinitions
 {
 
     /// <summary>Eight colours are presentation-owned by each timed record.</summary>

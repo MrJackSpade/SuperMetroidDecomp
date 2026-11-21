@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// names, written out so renaming a colouring's identity never changes a name on disk. A health colouring's key is
 /// followed by its band's.
 /// </summary>
-internal static class TorizoLookKindKeys
+internal static partial class TorizoLookKindKeys
 {
     /// <summary>Each TorizoLookKind member's installed key.</summary>
     internal static InstalledKeys<TorizoLookKind> Installed { get; } = new(new Dictionary<TorizoLookKind, string>

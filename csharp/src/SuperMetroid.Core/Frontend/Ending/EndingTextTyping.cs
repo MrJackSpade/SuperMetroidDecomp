@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 /// <param name="Text">The text typed.</param>
 /// <param name="Letters">How many of the text's letters are typed, from one to all of them.</param>
-public readonly record struct EndingTextTyping(EndingTypedText Text, int Letters);
+public readonly partial record struct EndingTextTyping(EndingTypedText Text, int Letters);

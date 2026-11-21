@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// family of several names each sheet by a typed variant of what distinguishes it (a beam combination, a Grapple tile
 /// selection, the half pictures a Samus sheet composes), never by a number.
 /// </summary>
-public readonly record struct SpriteArtworkId
+public readonly partial record struct SpriteArtworkId
 {
     /// <summary>Names the one sheet of <paramref name="kind"/>.</summary>
     /// <param name="kind">The artwork family.</param>

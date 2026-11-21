@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <typeparam name="TAnimation">The family's animation identity.</typeparam>
 /// <typeparam name="TFrame">What the family's actors show.</typeparam>
 /// <typeparam name="TCue">The cues the family's animations publish.</typeparam>
-internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor<TCue>
+internal sealed partial class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor<TCue>
     where TAnimation : struct, Enum
     where TFrame : struct
     where TCue : notnull

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// land, its artwork, the colours its statue starts in, how it walks with its face and walks on from a landing with it,
 /// and the secret code its appearance answers.
 /// </summary>
-internal abstract class TorizoVariant
+internal abstract partial class TorizoVariant
 {
     /// <summary>A Torizo of the values given.</summary>
     /// <param name="start">Its starting place, first animation, processing and radii.</param>

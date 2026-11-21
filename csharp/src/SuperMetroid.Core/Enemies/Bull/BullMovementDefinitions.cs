@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>How a Bull accelerates, waits, retargets and reacts to a shot (#2279); live timers remain enemy state.</summary>
-public static class BullMovementDefinitions
+public static partial class BullMovementDefinitions
 {
     /// <summary>How much each acceleration or deceleration tick changes a Bull's acceleration.</summary>
     internal static readonly SignedEightEight AccelerationStep = SignedEightEight.FromPixelFraction(3, 32);

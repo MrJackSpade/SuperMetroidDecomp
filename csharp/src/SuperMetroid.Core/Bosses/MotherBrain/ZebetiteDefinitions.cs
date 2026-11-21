@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Fixed generation and respawn definitions for Tourian's Zebetites.</summary>
-internal static class ZebetiteDefinitions
+internal static partial class ZebetiteDefinitions
 {
     /// <summary>
     /// The four barrier generations, indexed by how many Zebetites have been destroyed (#2012): large barriers and split

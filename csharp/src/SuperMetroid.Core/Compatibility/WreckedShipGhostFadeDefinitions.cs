@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// the original game's fade routines step all sixteen of the ghost's colours toward these.
 /// </summary>
 [CompatibilityService("the Wrecked Ship ghost's own colours, which its fades step all sixteen of toward")]
-internal static class WreckedShipGhostFadeDefinitions
+internal static partial class WreckedShipGhostFadeDefinitions
 {
     /// <summary>
     /// The ghost's own sixteen colours, colour zero first, which its materializing fade moves toward (#1544). Colour zero,

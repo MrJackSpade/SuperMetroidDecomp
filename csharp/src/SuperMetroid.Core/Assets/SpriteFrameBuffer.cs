@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// One frame's sprite description: the whole-frame draws of every actor, in emission order, frontmost first. Gameplay
 /// builds one per frame and the frame boundary latches it; backends draw it directly.
 /// </summary>
-public sealed class SpriteFrameBuffer
+public sealed partial class SpriteFrameBuffer
 {
     /// <summary>Draws appended since <see cref="BeginFrame"/>.</summary>
     private readonly List<SpriteDraw> pending = [];

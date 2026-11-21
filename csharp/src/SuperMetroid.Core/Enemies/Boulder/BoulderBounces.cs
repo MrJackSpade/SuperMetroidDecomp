@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>Chooses the quadratic curve of a Boulder's next bounce.</summary>
-public static class BoulderBounces
+public static partial class BoulderBounces
 {
     /// <summary>The number of ground impacts after which the Boulder stops bouncing and rolls.</summary>
     public static int ImpactCount => BoulderBounceDefinitions.ImpactRestarts.Length;

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// frame shown for a fixed count, after which the next beat still plays its own duration, and his body shows the
 /// picture as each beat begins.
 /// </summary>
-internal static class CrocomireBodyAnimations
+internal static partial class CrocomireBodyAnimations
 {
     /// <summary>Every body, melting and skeleton segment's beats.</summary>
     internal static AnimationSegments<CrocomireBodySegment, EnemyFrameId, CrocomireBodyCue> Segments { get; } = new(

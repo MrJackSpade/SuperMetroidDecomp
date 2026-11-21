@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// Complete authored pause backdrops, including area lettering, kept as installed (#1615): every area's 1024 cells and
 /// the button page's 512 cells.
 /// </summary>
-public sealed class PauseBackdropPresentation
+public sealed partial class PauseBackdropPresentation
 {
     /// <summary>Every area's installed backdrop.</summary>
     private readonly IReadOnlyDictionary<AreaId, BackgroundTile[]> areas;

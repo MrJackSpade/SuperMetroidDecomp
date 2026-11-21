@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Audio;
 /// by <see cref="SoundQueueAdmission.For"/> from <see cref="Count"/>, and every priority turns a request away once that
 /// many wait, so a request always finds room (<see cref="Add"/>).
 /// </remarks>
-internal sealed class SoundQueue
+internal sealed partial class SoundQueue
 {
     /// <summary>The waiting requests, oldest first.</summary>
     internal readonly List<SoundEffectId> Waiting = [];

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="StartedAnimation">The animation the Baby starts on this step, if it starts one (#2319).</param>
 /// <param name="Visibility">Whether the step shows or hides the Baby on its place, or leaves it as it is (#2310).</param>
 [IndependentFlag("independent requests one cutscene step makes")]
-public readonly record struct BabyMetroidCutsceneStepResult(
+public readonly partial record struct BabyMetroidCutsceneStepResult(
     BabyMetroidCutscenePhase PhaseBefore,
     BabyMetroidCutscenePhase PhaseAfter,
     bool LatchSoundQueued,

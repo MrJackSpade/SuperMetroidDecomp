@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// acceptance clock check compares these replies on every update with a recording of the emulated sound program's.
 /// </remarks>
 [CompatibilityService("what one sound library reports back as acknowledged")]
-public readonly record struct SoundAcknowledgement<TSound>
+public readonly partial record struct SoundAcknowledgement<TSound>
     where TSound : struct, IEquatable<TSound>
 {
 
@@ -46,12 +46,12 @@ public readonly record struct SoundAcknowledgement<TSound>
     public override string ToString() => IsMusicLoading ? "music loading" : Sound?.ToString() ?? "none";
 
     /// <summary>What a library reports back (#2560): a closed choice of an acknowledged sound and music loading.</summary>
-    private abstract record Report;
+    private abstract partial record Report;
 
     /// <summary>The library acknowledges a sound.</summary>
     /// <param name="Sound">The sound acknowledged.</param>
-    private sealed record SoundReport(TSound Sound) : Report;
+    private sealed partial record SoundReport(TSound Sound) : Report;
 
     /// <summary>The sound driver is loading music, which acknowledges no sound.</summary>
-    private sealed record MusicLoadingReport : Report;
+    private sealed partial record MusicLoadingReport : Report;
 }

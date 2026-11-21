@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Audio;
 /// acknowledgements the next update's sound queues read. The game session and the session that records clips offline
 /// (#1305) share it, so both drive a backend with identical event streams.
 /// </summary>
-internal sealed class AudioEventSource
+internal sealed partial class AudioEventSource
 {
     /// <summary>Turns updates' requests into events on <paramref name="clock"/>, which its owner created with the state's lifetime.</summary>
     /// <param name="clock">The clock that decides when each library accepts and acknowledges a request: the game session's, or the offline clip recording's own.</param>

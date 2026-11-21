@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ridley's encounter.
 /// </summary>
 [RoomLifetime]
-internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncounter<NorfairRidleyState>
+internal sealed partial class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncounter<NorfairRidleyState>
 {
     /// <summary>Room services, level state, and RNG for the Norfair fight.</summary>
     private readonly EnemyRoomBinding _room;

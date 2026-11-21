@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>The collaborators a <see cref="TorizoBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
 [RoomLifetime]
-internal sealed record TorizoBehaviorDependencies
+internal sealed partial record TorizoBehaviorDependencies
 {
     /// <summary>The room the Torizo's fight is in: its area, its enemy definitions and the game services and random numbers its enemies use.</summary>
     public required EnemyRoomBinding Room { get; init; }

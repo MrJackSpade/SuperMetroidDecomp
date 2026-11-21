@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Samus's poses paired with their mirror image across the vertical axis: the same pose facing the other way.</summary>
-internal static class SamusPoseMirrorDefinitions
+internal static partial class SamusPoseMirrorDefinitions
 {
     /// <summary>
     /// Each facing pose and its mirror, right-facing (or right-to-left) first. A pose absent from this list is its own

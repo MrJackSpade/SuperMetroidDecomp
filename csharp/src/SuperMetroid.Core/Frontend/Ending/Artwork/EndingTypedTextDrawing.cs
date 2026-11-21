@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// the sheet pictures each text's letters once, and a typed text places each letter it has typed at the actor's origin, as
 /// its typing step showed them. A letter that shows nothing places nothing.
 /// </summary>
-public static class EndingTypedTextDrawing
+public static partial class EndingTypedTextDrawing
 {
     /// <summary>The sheet's frame for the letter <paramref name="typed"/> types: the last of its text's letters it shows.</summary>
     [InstalledKey]

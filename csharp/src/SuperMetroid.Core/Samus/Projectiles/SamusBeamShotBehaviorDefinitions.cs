@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>What the Spazer and Plasma combinations' shots run.</summary>
-internal static class SamusBeamShotBehaviorDefinitions
+internal static partial class SamusBeamShotBehaviorDefinitions
 {
     /// <summary>
     /// What each Spazer and Plasma combination's shots do

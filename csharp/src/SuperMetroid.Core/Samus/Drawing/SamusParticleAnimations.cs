@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// step lengths among them. A particle shown at once shows its first picture for its
 /// start's own updates instead.
 /// </remarks>
-internal static class SamusParticleAnimations
+internal static partial class SamusParticleAnimations
 {
     /// <summary>Every particle's pictures, each with the updates it shows for.</summary>
     internal static AnimationSegments<K, F, NoAnimationCue> Segments { get; } = new(

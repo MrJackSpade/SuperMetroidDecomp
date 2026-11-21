@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="PowerBombs">Her current and maximum Power Bombs.</param>
 /// <param name="Items">Her collected and equipped items.</param>
 /// <param name="Beams">Her collected and equipped beams.</param>
-internal sealed record TorizoSecretCode(
+internal sealed partial record TorizoSecretCode(
     GameplayAction Chord, int Energy, int ReserveEnergy, int Missiles, int SuperMissiles, int PowerBombs,
     SamusEquipmentFlags Items, SamusBeamFlags Beams)
 {

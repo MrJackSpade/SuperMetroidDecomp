@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>An attract demo: loading its room, playing its recording, and returning to another demo or the title.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class AttractDemoGameSequence(FrontendSession session) : IGamePhase
+internal sealed partial class AttractDemoGameSequence(FrontendSession session) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.AttractDemo;

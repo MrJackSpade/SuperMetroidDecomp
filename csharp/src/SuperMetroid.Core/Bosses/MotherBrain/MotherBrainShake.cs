@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// updates count down (<see cref="MotherBrainShakeDefinitions.Offsets"/>).
 /// </summary>
 /// <param name="cadence">The shake's cadence: which of the four offsets each count of updates left shows.</param>
-internal sealed class MotherBrainShake(UpdateCycle cadence)
+internal sealed partial class MotherBrainShake(UpdateCycle cadence)
 {
     /// <summary>The shake's updates, over once it has stopped.</summary>
     private readonly UpdateCountdown left = UpdateCountdown.Ended();

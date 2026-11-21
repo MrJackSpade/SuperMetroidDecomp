@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// <summary>
 /// Selects the post-shot transfers of the ending (<see cref="EndingPostShotUploadDefinitions"/>) in native order.
 /// </summary>
-internal static class EndingPostShotUploads
+internal static partial class EndingPostShotUploads
 {
     /// <summary>The subtitle's characters.</summary>
     internal static EndingPostShotUploadDefinition Subtitle { get; } = new(SubtitleLength, 0, EndingPostShotUploadSource.Subtitle);

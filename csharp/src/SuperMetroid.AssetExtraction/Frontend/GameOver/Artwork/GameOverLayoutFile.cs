@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 /// game binds. The page, compositions, Baby colours and palette selectors, whose entries are the original's packed tile and
 /// sprite placements, are import data (<see cref="GameOverPresentationFormat.ArtworkFileName"/>).
 /// </summary>
-public static class GameOverLayoutFile
+public static partial class GameOverLayoutFile
 {
     /// <summary>Supported layout revision.</summary>
     public const int Version = 1;

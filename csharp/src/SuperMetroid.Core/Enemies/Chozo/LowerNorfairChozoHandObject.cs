@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// </summary>
 /// <param name="statue">The room's Chozo statue objects, which hold the acid and the lowered-acid event.</param>
 [RoomLifetime]
-internal sealed class LowerNorfairChozoHandObject(ChozoStatueObjects statue) : RoomObjectBehaviour
+internal sealed partial class LowerNorfairChozoHandObject(ChozoStatueObjects statue) : RoomObjectBehaviour
 {
     /// <summary>The room's Chozo statue objects.</summary>
     private readonly ChozoStatueObjects _statue = Ensure.NotNull(statue);

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// in front of the scene. Its animation cycles her authored frames. The actor also retains the hit counter,
 /// colour flash, and the exploding state and the room picture's shake.
 /// </remarks>
-internal sealed class IntroMotherBrainSpriteState
+internal sealed partial class IntroMotherBrainSpriteState
 {
     /// <summary>The cinematic actor running the Mother Brain's typed animation (#641).</summary>
     private readonly CinematicActor<IntroMotherBrainAnimation, CinematicSpritePose, IntroMotherBrainCue> actor =

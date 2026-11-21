@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// fields are read, for the sequencer, the voices, the definition uploads and the extraction scans alike.
 /// </summary>
 [EncodingOwner("SPC driver note, instrument, source and DSP flag bytes")]
-internal static class SpcDriverBytes
+internal static partial class SpcDriverBytes
 {
     /// <summary>The note number a pitch or note byte names, without its tie or rest bit.</summary>
     /// <param name="noteOrPitch">A note byte, or the whole part of a pitch.</param>

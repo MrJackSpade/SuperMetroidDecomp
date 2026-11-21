@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// hops off its ledge falls that far.
 /// </remarks>
 [CompatibilityService("a Puyo whose fall carries its place along the speed curve to 128 marks starts the fall again from rest")]
-internal static class PuyoFallRestart
+internal static partial class PuyoFallRestart
 {
     /// <summary>The whole marks along the curve at which a fall starts over.</summary>
     private const int RestartMarks = 128;

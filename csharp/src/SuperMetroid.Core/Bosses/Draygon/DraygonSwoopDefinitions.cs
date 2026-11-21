@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>How Draygon's swoops speed up as his eye is hit, and when his arms reach out on them (#2300).</summary>
-internal static class DraygonSwoopDefinitions
+internal static partial class DraygonSwoopDefinitions
 {
     /// <summary>The swoop acceleration a fight starts with and a tail-whip hit restores: three thirty-seconds of a pixel per frame per frame downward.</summary>
     internal static readonly SignedEightEight InitialAcceleration = SignedEightEight.FromPixelFraction(3, 32);

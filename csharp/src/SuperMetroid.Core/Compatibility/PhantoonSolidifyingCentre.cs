@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// animation on each update. His eye, tentacles and mouth always ignore Samus, so the same point on their looks is never read.
 /// </remarks>
 [CompatibilityService("a shot or a bomb at the centre of Phantoon's body is spent on the update his body turns solid")]
-public static class PhantoonSolidifyingCentre
+public static partial class PhantoonSolidifyingCentre
 {
     /// <summary>
     /// The point, relative to his body's origin, that his invulnerable look's one hitbox covers: it absorbs a shot or a

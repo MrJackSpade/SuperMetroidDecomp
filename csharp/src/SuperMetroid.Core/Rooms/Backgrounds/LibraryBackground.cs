@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// A few backgrounds, the scrolling skies', show another picture when the room is entered through particular doors; the
 /// room selects that picture by the door, and every other door shows the background's ordinary picture.
 /// </summary>
-public sealed class LibraryBackground
+public sealed partial class LibraryBackground
 {
     /// <summary>Names the background, what the player sees of it and the entry doors that show their own pictures of it.</summary>
     /// <param name="name">The background's name.</param>

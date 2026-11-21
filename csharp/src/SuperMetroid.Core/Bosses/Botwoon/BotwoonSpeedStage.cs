@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// One of Botwoon's three speed stages (#2266): how fast his head moves and spits and how far apart his body segments
 /// trail it. He refreshes his stage from his health each time he chooses a walk outside a hole.
 /// </summary>
-public sealed class BotwoonSpeedStage
+public sealed partial class BotwoonSpeedStage
 {
     /// <summary>Defines a stage.</summary>
     /// <param name="movementSpeed">Pixels per direct move toward a hole, or path steps taken per authored-path update.</param>

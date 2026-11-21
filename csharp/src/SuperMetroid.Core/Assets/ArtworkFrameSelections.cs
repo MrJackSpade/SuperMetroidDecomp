@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Assets;
 /// which is all it does to show that picture. Each room builds its own, so a frame selected in one
 /// room never shows in the next; the display reads the selections when it resolves the frame's pictures.
 /// </summary>
-public sealed class ArtworkFrameSelections
+public sealed partial class ArtworkFrameSelections
 {
     /// <summary>The frame each animation shows, by animation.</summary>
     private readonly Dictionary<ArtworkAnimation, ArtworkFrame> shown = [];

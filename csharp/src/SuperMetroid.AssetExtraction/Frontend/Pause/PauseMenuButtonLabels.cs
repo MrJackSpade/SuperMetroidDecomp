@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 /// <summary>
 /// Places the pause frame's button labels on its two button rows.
 /// </summary>
-internal static class PauseMenuButtonLabels
+internal static partial class PauseMenuButtonLabels
 {
     /// <summary>MAP, EXIT and SAMUS labels recolored by the label palette routines.</summary>
     public static IEnumerable<PauseButtonLabelSpan> ButtonLabelSpans

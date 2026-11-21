@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// emulated sound program's, and the SMV replays trace each handler's state beside its queue.
 /// </remarks>
 [CompatibilityService("the request each sound library reports back as acknowledged")]
-public readonly struct SoundAcknowledgements<TLibrary, TSound> : IEquatable<SoundAcknowledgements<TLibrary, TSound>>
+public readonly partial struct SoundAcknowledgements<TLibrary, TSound> : IEquatable<SoundAcknowledgements<TLibrary, TSound>>
     where TLibrary : struct, Enum
     where TSound : struct, IEquatable<TSound>
 {

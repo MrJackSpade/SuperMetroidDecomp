@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// 64-pixel-wide tile rows. The file stacks the pages starting from the explosion's second page, with its first page
 /// last, which is the order the extracted file was written in.
 /// </summary>
-public static class SamusDeathTileAtlasFormat
+public static partial class SamusDeathTileAtlasFormat
 {
     /// <summary>
     /// The byte of the explosion's characters, in the order its spritemaps name them, that atlas byte

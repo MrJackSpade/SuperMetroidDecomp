@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Fx;
 /// The room states' effect selections, each holding its door effects in the game's order and its default effect, and the effects
 /// Mother Brain's fight applies by itself; regenerate with --generate-room-effects.
 /// </summary>
-public static class RoomFxDefinitions
+public static partial class RoomFxDefinitions
 {
     /// <summary>A selection whose rooms show no effect of their own, starting <see cref="ColourEffectId.UpperCrateriaRedFlashing"/> and <see cref="ColourEffectId.CrateriaEscapeYellowLightning"/>, in the untinted look.</summary>
     public static RoomFxSelection LandingSiteWhenZebesTimebombSet { get; } = new([],

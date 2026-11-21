@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Lower Norfair encounters.
 /// </summary>
 [RoomLifetime]
-internal sealed class RidleyTail
+internal sealed partial class RidleyTail
 {
     /// <summary>Replaces shots blocked by tail joints with dust or dud effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;

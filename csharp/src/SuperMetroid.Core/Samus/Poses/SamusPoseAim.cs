@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// placement. A pose that disables shooting fires nothing, draws no flare, cancels a fired Grapple and lands in the
 /// ordinary facing landing.
 /// </summary>
-internal abstract record SamusPoseAim
+internal abstract partial record SamusPoseAim
 {
     /// <summary>Closes the hierarchy to the aims declared here.</summary>
     private SamusPoseAim()
@@ -22,7 +22,7 @@ internal abstract record SamusPoseAim
     public bool AimsStraightUp => this is Aiming { Direction: var direction } && SamusProjectileDirectionDefinitions.Axes(direction).IsStraightUp;
 
     /// <summary>A pose whose arm cannon is armed: it aims or turns, and places a held charge's flare.</summary>
-    internal abstract record Armed : SamusPoseAim
+    internal abstract partial record Armed : SamusPoseAim
     {
         /// <summary>Where the pose places a held charge's flare.</summary>
         public abstract SamusFlareAim Flare { get; }
@@ -30,7 +30,7 @@ internal abstract record SamusPoseAim
 
     /// <summary>A pose aiming in <paramref name="Direction"/>, which places a held charge's flare at that direction's muzzle.</summary>
     /// <param name="Direction">The direction the pose fires in.</param>
-    internal sealed record Aiming(SamusProjectileDirection Direction) : Armed
+    internal sealed partial record Aiming(SamusProjectileDirection Direction) : Armed
     {
         /// <inheritdoc/>
         public override SamusFlareAim Flare { get; } = new SamusFlareAim.AtMuzzle(Direction);
@@ -41,12 +41,12 @@ internal abstract record SamusPoseAim
     /// aim's turning placement.
     /// </summary>
     /// <param name="HeldAim">The aim the turn holds.</param>
-    internal sealed record Turning(SamusTurningAim HeldAim) : Armed
+    internal sealed partial record Turning(SamusTurningAim HeldAim) : Armed
     {
         /// <inheritdoc/>
         public override SamusFlareAim Flare { get; } = new SamusFlareAim.WhileTurning(HeldAim);
     }
 
     /// <summary>A pose that disables shooting.</summary>
-    internal sealed record ShootingDisabled : SamusPoseAim;
+    internal sealed partial record ShootingDisabled : SamusPoseAim;
 }

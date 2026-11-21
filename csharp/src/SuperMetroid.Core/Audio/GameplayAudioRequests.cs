@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Audio;
 /// </remarks>
 /// <param name="sounds">The sound queues every sound request goes on into as it is made.</param>
 /// <param name="music">The music queue every music request goes on into as it is made.</param>
-internal sealed class GameplayAudioRequests(IGameplaySoundQueue sounds, IGameplayMusicQueue music) : GameplaySoundRequests(sounds)
+internal sealed partial class GameplayAudioRequests(IGameplaySoundQueue sounds, IGameplayMusicQueue music) : GameplaySoundRequests(sounds)
 {
     /// <summary>The music queue the requests go on into.</summary>
     internal readonly IGameplayMusicQueue music = Ensure.NotNull(music);

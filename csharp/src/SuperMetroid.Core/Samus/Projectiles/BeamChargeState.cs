@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// Beam charge state: the charge count and the Hyper Beam's flare, the charge sampled before the charge input, the
 /// charged-shot glow, the charge pulse and each flare component's animation.
 /// </summary>
-internal sealed class BeamChargeState
+internal sealed partial class BeamChargeState
 {
     /// <summary>
     /// Clears the charge, its count and the Hyper Beam's flare alike, as a Varia or Gravity Suit's pickup does (#1577)

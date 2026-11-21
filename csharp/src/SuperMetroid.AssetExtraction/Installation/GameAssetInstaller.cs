@@ -13,7 +13,7 @@ using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>Copies a supplied ROM and extracts runtime resources into an app-owned installation.</summary>
-public static class GameAssetInstaller
+public static partial class GameAssetInstaller
 {
     /// <summary>Default per-user Desktop installation root beneath Local Application Data.</summary>
     public static string DesktopRoot => Path.Combine(
@@ -273,10 +273,10 @@ public static class GameAssetInstaller
     }
 
     /// <summary>The published content's format and the digest of the source revision it was extracted from.</summary>
-    internal sealed record InstallationReceipt(int FormatVersion, string RomSha256);
+    internal sealed partial record InstallationReceipt(int FormatVersion, string RomSha256);
 
     /// <summary>One extraction stage: its progress text and extractor.</summary>
-    internal sealed record InstallerStep(
+    internal sealed partial record InstallerStep(
         string Progress,
         Action<CartridgeImportAddressSpace, string, InstalledSheetFamilies, CancellationToken> Extract);
 
@@ -285,7 +285,7 @@ public static class GameAssetInstaller
     /// deterministic, so its output is checked by verification, not by the installer. Every extraction extracts every
     /// component and publishes them atomically.
     /// </summary>
-    internal sealed record InstallerComponent(string DirectoryName, InstallerComponentKind Kind, params InstallerStep[] Steps)
+    internal sealed partial record InstallerComponent(string DirectoryName, InstallerComponentKind Kind, params InstallerStep[] Steps)
     {
         /// <summary>An extraction component: it reads only the cartridge and its own directory, and composition reads it.</summary>
         internal InstallerComponent(string directoryName, params InstallerStep[] steps) : this(directoryName, InstallerComponentKind.Extraction, steps)
@@ -295,7 +295,7 @@ public static class GameAssetInstaller
 
     /// <summary>A report listener that receives one report at a time, however many components report at once.</summary>
     /// <param name="Inner">The listener reported to.</param>
-    private sealed record SerializedProgress(IProgress<string> Inner) : IProgress<string>
+    private sealed partial record SerializedProgress(IProgress<string> Inner) : IProgress<string>
     {
         /// <summary>Taken around each report.</summary>
         private readonly Lock gate = new();

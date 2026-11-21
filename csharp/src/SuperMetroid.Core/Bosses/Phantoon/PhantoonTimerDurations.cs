@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="Short">The short duration.</param>
 /// <param name="Medium">The medium duration.</param>
 /// <param name="Long">The long duration.</param>
-public readonly record struct PhantoonTimerDurations(int Short, int Medium, int Long);
+public readonly partial record struct PhantoonTimerDurations(int Short, int Medium, int Long);

@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// (#2472); the ways the two sides differ, a hatchling shot facing left lying flat longer and a Super Missile thrown facing
 /// left flying away from Samus, are written at their segments.
 /// </summary>
-internal static class TorizoProjectileAnimations
+internal static partial class TorizoProjectileAnimations
 {
     /// <summary>A low-health explosion's flare burst pictures (#2557).</summary>
     private static FlareBurst ExplosionBurst { get; } = new(EnemyProjectileFrameId.TorizoExplosionSpark, EnemyProjectileFrameId.TorizoExplosionFlareBall, EnemyProjectileFrameId.TorizoExplosionFlareRingCored,

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <param name="HeadRaising">Its head raising from a peck.</param>
 /// <param name="EyeHalfShut">Standing with its eye half shut.</param>
 /// <param name="EyeShut">Standing with its eye shut.</param>
-internal sealed record DachoraStance(F HeadUp, F NeckStretched, F HeadLowered, F HeadToGround, F HeadRaising, F EyeHalfShut, F EyeShut)
+internal sealed partial record DachoraStance(F HeadUp, F NeckStretched, F HeadLowered, F HeadToGround, F HeadRaising, F EyeHalfShut, F EyeShut)
 {
     /// <summary>Standing facing left.</summary>
     internal static DachoraStance Left { get; } = new(

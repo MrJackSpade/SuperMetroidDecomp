@@ -6,4 +6,4 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// <param name="Skip">True for skipped colour entries, false for written colours.</param>
 /// <param name="Count">How many entries.</param>
 [IndependentFlag("whether a record part skips colours, a fact of the palette-FX data")]
-internal readonly record struct PaletteFxRecordPart(bool Skip, int Count);
+internal readonly partial record struct PaletteFxRecordPart(bool Skip, int Count);

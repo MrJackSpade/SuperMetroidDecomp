@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Audio;
 /// whose channels each loop. Each case carries only its own clips, so a one-shot cannot carry a loop and a loop cannot
 /// carry an end.
 /// </summary>
-public abstract record SoundEffectClipShape;
+public abstract partial record SoundEffectClipShape;

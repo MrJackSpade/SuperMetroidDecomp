@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Nothing">The chance of no drop.</param>
 /// <param name="SuperMissile">The chance of a Super Missile drop.</param>
 /// <param name="PowerBomb">The chance of a Power Bomb drop.</param>
-public readonly record struct EnemyDropChances(
+public readonly partial record struct EnemyDropChances(
     int SmallEnergy,
     int BigEnergy,
     int Missile,

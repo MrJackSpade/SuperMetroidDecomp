@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// sheet is composed from, and its 8×8 cover characters are import data too (<see cref="SamusArmCannonCoverCharacters"/>,
 /// #1636).
 /// </summary>
-public sealed class SamusArmCannonSourceArtwork
+public sealed partial class SamusArmCannonSourceArtwork
 {
     /// <summary>Each aim's cover appearance.</summary>
     private readonly FrozenDictionary<SamusProjectileDirection, SpritePart> appearances;
@@ -40,7 +40,7 @@ public sealed class SamusArmCannonSourceArtwork
     public InstalledSamusArmCannonArtwork Gameplay => Descriptors.Gameplay;
 
     /// <summary>Validated document tables: the drawing descriptors, each aim's cover appearance and its cover orientation.</summary>
-    internal sealed record DescriptorTables(SamusArmCannonDescriptors Descriptors,
+    internal sealed partial record DescriptorTables(SamusArmCannonDescriptors Descriptors,
         IReadOnlyDictionary<SamusProjectileDirection, SpritePart> Appearances,
         IReadOnlyDictionary<SamusProjectileDirection, SamusArmCannonCoverOrientation> Orientations);
 

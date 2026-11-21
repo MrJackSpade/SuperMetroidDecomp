@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// The OBJ characters the intro's uploads leave: the intro sheet with the decompressed cinematic sheet over its tail. The
 /// intro's cinematic and projectile sheets are composed over this page.
 /// </summary>
-internal static class IntroObjectPage
+internal static partial class IntroObjectPage
 {
     /// <summary>The intro OBJ page of <paramref name="intro"/>.</summary>
     internal static SpriteArtwork Of(ImportIntroCinematicArtwork intro)

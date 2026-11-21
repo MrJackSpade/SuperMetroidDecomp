@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.World;
 /// pictures by draw (<see cref="IRoomObjectFamilyPictures"/>), and World binds them here, so no family finds its catalog by
 /// its type.
 /// </remarks>
-internal sealed class RoomObjectVisuals
+internal sealed partial class RoomObjectVisuals
 {
     /// <summary>Every family's pictures, each under the draw that shows it.</summary>
     private RoomObjectFrameImages<RoomObjectDraw> _pictures;

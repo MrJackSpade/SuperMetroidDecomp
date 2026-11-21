@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// maps are the same map when their sizes and every value match.
 /// </summary>
 /// <typeparam name="T">The value each pixel holds.</typeparam>
-internal sealed class PictureMap<T> : IEquatable<PictureMap<T>>
+internal sealed partial class PictureMap<T> : IEquatable<PictureMap<T>>
     where T : unmanaged, IEquatable<T>
 {
     /// <summary>Each pixel's value, in reading order.</summary>

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// read directly, without an upload. Characters are laid out sixteen to a row, so a part larger than one
 /// character reads character <c>c + row * 16 + column</c>, the same grid the game's sprite characters use.
 /// </summary>
-public sealed class SpriteArtwork
+public sealed partial class SpriteArtwork
 {
     /// <summary>Encoded bytes of one four-bit planar character.</summary>
     public const int CharacterByteCount = 32;

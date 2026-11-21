@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// origin, shown in her colours as they stand when the frame publishes. Her draws are made before her colours settle for
 /// the frame, so the frame's publication (<see cref="SamusColours.ShadeOwnDraws"/>) makes each a draw naming her shading.
 /// </summary>
-public sealed record SamusColouredDraw : SpriteDraw
+public sealed partial record SamusColouredDraw : SpriteDraw
 {
     /// <summary>Places one of Samus's sheet frames.</summary>
     /// <param name="source">Which of Samus's sprites is shown.</param>

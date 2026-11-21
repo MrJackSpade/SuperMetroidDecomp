@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The shapes of Phantoon's wave: its lengths, its sine phase cycle and its periods.</summary>
-public static class PhantoonWaveDefinitions
+public static partial class PhantoonWaveDefinitions
 {
     /// <summary>
     /// The phase a wave's setup seeds (#2315): a step before a whole turn, so the first advance lands a step short of the

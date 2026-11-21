@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Audio;
 /// One sound library's clip playback (#1305): the sound it plays, from which frame, whether it
 /// still holds the library (before its logical end), and the library's priority and low-health mode.
 /// </summary>
-internal sealed class ClipLibraryState
+internal sealed partial class ClipLibraryState
 {
     /// <summary>The sound the library plays and whether it still holds the library, or null while it plays none (#2560).</summary>
     internal ClipLibraryPlayback? Playback { get; private set; }

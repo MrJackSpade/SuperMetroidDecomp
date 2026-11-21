@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Editable health-band palette JSON, separate from rainbow cycling and death-fade artwork; array references, rows, and RGB5 entries remain caller-owned and mutable.</summary>
-public sealed record MotherBrainHealthPaletteDocument
+public sealed partial record MotherBrainHealthPaletteDocument
 {
     /// <summary>Schema version required to match <see cref="MotherBrainHealthPaletteFile.Version"/> during loading or writing.</summary>
     public required int Version { get; init; }

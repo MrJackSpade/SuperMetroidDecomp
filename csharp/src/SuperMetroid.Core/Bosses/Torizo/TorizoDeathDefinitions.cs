@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// What Bomb and Golden Torizo's blow-ups and death leave and how long they flash (#2032): the gut's drool, the low-health
 /// and death explosions, and the death drops over each Torizo's arena.
 /// </summary>
-internal static class TorizoDeathDefinitions
+internal static partial class TorizoDeathDefinitions
 {
     /// <summary>The drool pieces Bomb Torizo's gut spills as it blows up.</summary>
     internal const int GutDroolPieces = 6;

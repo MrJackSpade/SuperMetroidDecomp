@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>An item a suit- or boot-column control stands for.</summary>
 /// <param name="Item">The item.</param>
-public sealed record ItemPauseUpgrade(SamusEquipmentFlags Item) : PauseUpgrade
+public sealed partial record ItemPauseUpgrade(SamusEquipmentFlags Item) : PauseUpgrade
 {
     /// <inheritdoc/>
     public override bool IsIn(SamusBeamFlags beams, SamusEquipmentFlags items) => (items & Item) != SamusEquipmentFlags.None;

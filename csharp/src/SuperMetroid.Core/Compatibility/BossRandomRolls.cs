@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// random value and these bosses' outcomes on every update.
 /// </remarks>
 [CompatibilityService("a boss's coin-flip roll passes for the half of the random range that starts at its threshold, read by the sign of the sample less the threshold")]
-public static class BossRandomRolls
+public static partial class BossRandomRolls
 {
     /// <summary>The samples in half the random range: a roll passes for this many consecutive samples.</summary>
     private const int HalfRange = 32768;

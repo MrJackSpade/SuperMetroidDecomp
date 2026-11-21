@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx;
 /// (<see cref="SpecialAirReactions.CollisionOf"/>): each reaction states what it does (#2571), so no switch over reaction
 /// identities runs it.
 /// </summary>
-public sealed class SpecialAirCollisionReaction
+public sealed partial class SpecialAirCollisionReaction
 {
     /// <summary>The reaction's name, for diagnostics.</summary>
     private readonly string _name;

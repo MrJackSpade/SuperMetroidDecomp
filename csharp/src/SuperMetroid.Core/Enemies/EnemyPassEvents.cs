@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// published them. Each pass and each load starts a new record, so a paused or frozen enemy never repeats an event; the
 /// record is what the pass returns.
 /// </summary>
-internal sealed class EnemyPassEvents
+internal sealed partial class EnemyPassEvents
 {
     /// <summary>The events published since the pass or the load began.</summary>
     private List<EnemyPassEvent> _published = [];

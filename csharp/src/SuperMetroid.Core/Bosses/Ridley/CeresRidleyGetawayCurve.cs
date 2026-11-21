@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ceres Ridley's getaway as its zoom and drift curves play it out (#2247): the zoom and the drift each update shows, for
 /// the getaway's duration. The getaway ends on the update after its last, once both curves are exhausted.
 /// </summary>
-public static class CeresRidleyGetawayCurve
+public static partial class CeresRidleyGetawayCurve
 {
     /// <summary>The getaway's duration in updates: every update of its zoom curve, which its drift curve matches.</summary>
     /// <exception cref="InvalidDataException">The zoom and drift curves last different numbers of updates.</exception>

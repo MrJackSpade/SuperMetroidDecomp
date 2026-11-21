@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// door, the twelve mural rows and the six tube clears. Their geometry, collision and timing stay
 /// with the draws and the encounter.
 /// </summary>
-public sealed class InstalledMotherBrainFakeDeathFrames : IRoomObjectFamilyPictures
+public sealed partial class InstalledMotherBrainFakeDeathFrames : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures the import made of every fake-death room frame.</summary>
     /// <param name="images">Every fake-death room frame's picture, keyed by its draw.</param>

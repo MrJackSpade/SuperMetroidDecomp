@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// without a typed reaction of its own. Its single step ends it by deleting the projectile on the pass after the reaction
 /// starts, as the game's animation does.
 /// </summary>
-internal sealed class EnemyProjectileDeleteAnimation : EnemyProjectileAnimation
+internal sealed partial class EnemyProjectileDeleteAnimation : EnemyProjectileAnimation
 {
     /// <summary>The one shared reaction; it keeps no state.</summary>
     internal static EnemyProjectileDeleteAnimation Instance { get; } = new();

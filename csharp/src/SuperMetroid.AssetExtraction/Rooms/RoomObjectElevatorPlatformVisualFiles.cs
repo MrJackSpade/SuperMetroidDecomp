@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the three elevator-platform frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectElevatorPlatformVisualFiles
+public static partial class RoomObjectElevatorPlatformVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for the elevator platform's three six-cell artwork frames.</summary>
     internal const string VisualFileName = "elevator-platforms.json";

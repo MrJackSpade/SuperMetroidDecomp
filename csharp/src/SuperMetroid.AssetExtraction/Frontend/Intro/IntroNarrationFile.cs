@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Reads and writes the installed six-page English opening narration.</summary>
-public static class IntroNarrationFile
+public static partial class IntroNarrationFile
 {
     /// <summary>Required schema revision of the six-page editable English narration document.</summary>
     public const int Version = 1;

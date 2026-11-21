@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>An enemy pass's AI frame with the counters it resolved once for the pass.</summary>
 /// <param name="frame">The enemy frame.</param>
 /// <param name="clock">The pass's counters.</param>
-internal sealed class ClockedEnemyAiFrame(RoomEnemyFrame frame, FrameCounters clock) : IEnemyAiFrame
+internal sealed partial class ClockedEnemyAiFrame(RoomEnemyFrame frame, FrameCounters clock) : IEnemyAiFrame
 {
     /// <inheritdoc/>
     public Position16<RoomPixels> Camera => frame.Camera;

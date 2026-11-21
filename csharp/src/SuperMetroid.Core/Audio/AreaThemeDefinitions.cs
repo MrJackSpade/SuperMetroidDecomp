@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Audio;
 /// rooms that do so are entered with an area's set loaded; a scene's or a boss's set names the song such a room would
 /// play from it, so the choice is defined whichever set is loaded.
 /// </summary>
-public static class AreaThemeDefinitions
+public static partial class AreaThemeDefinitions
 {
     /// <summary>The area theme of each data set.</summary>
     public static IReadOnlyDictionary<MusicDataSet, MusicTrack> Themes { get; } = new Dictionary<MusicDataSet, MusicTrack>

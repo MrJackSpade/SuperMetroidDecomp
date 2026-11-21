@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// speed, first heading, trigger, travel, proximity, wait and rests from its spawn settings where it uses them (#2450);
 /// the rider a move carries is found and carried within that move (#2512).
 /// </summary>
-public sealed class VerticalShutterEnemyState
+public sealed partial class VerticalShutterEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal VerticalShutterEnemyState(VerticalShutterAction action) => Action = action;

@@ -2,7 +2,7 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The Ceres steam actor's fixed starting values.</summary>
-public static class CeresSteamDefinitions
+public static partial class CeresSteamDefinitions
 {
     /// <summary>The random selection the setup draws for a vent's activation delay, before adding one: 32 delays.</summary>
     internal static readonly RandomSampleField ActivationDelay = RandomSampleField.OneOf(32);

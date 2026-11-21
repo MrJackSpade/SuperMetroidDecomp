@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <summary>
 /// The state of an Etecoon, which keeps the route its placement names (#2531) for when it takes it after its first landing.
 /// </summary>
-public sealed class EtecoonEnemyState
+public sealed partial class EtecoonEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>, to take <paramref name="route"/>.</summary>
     internal EtecoonEnemyState(EtecoonAction action, EtecoonRoute route)

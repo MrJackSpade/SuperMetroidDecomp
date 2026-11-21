@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Editable room background tile placements, preserving each 32x32 page's cell order.</summary>
-public sealed class RoomBackgroundTilemapAtlas
+public sealed partial class RoomBackgroundTilemapAtlas
 {
     /// <summary>The placed tiles in page order, row-major inside each 32-by-32 page.</summary>
     private readonly BackgroundTile[] tiles;

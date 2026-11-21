@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The health thresholds Kraid's initialization derives from its initial health.</summary>
-internal static class KraidHealthThresholds
+internal static partial class KraidHealthThresholds
 {
     /// <summary>
     /// <paramref name="eighths"/> eighths of <paramref name="initialHealth"/> (#1890): the initial health truncated to one

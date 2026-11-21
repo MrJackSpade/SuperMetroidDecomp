@@ -3,7 +3,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>One sparkle of a projectile trail, running its own animation (#2348).</summary>
-public sealed class SamusProjectileTrailSide
+public sealed partial class SamusProjectileTrailSide
 {
     /// <summary>
     /// Where the sparkle stands from its trail's <c>Origin</c>: its placement from the shot,

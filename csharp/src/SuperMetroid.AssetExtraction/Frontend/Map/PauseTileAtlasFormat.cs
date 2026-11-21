@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Additional pause-menu characters, separate from the shared map atlas.</summary>
-public static class PauseTileAtlasFormat
+public static partial class PauseTileAtlasFormat
 {
     /// <summary>Asset filename for pause-menu characters 256..511, loaded with the same PNG geometry as the shared map atlas.</summary>
     public const string FileName = "pause-ui-tiles.png";

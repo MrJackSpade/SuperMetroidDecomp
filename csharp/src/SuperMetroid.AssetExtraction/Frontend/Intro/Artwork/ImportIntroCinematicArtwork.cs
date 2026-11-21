@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// and the ending flyaway's sheets in. The game reads none of them; its own read of the opening
 /// (<see cref="IntroCinematicArtworkFiles.LoadCinematic"/>) reads no character page, layout or map and leaves the colour documents unread.
 /// </summary>
-public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
+public sealed partial class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
 {
     /// <summary>Takes the opening's installed documents, its characters and layouts and the colours only the import reads.</summary>
     /// <param name="parts">The opening's installed scene artwork.</param>

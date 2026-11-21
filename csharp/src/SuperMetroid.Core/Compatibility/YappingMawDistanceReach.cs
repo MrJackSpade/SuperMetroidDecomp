@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// measured distance for targets on both sides of the reach.
 /// </remarks>
 [CompatibilityService("a Yapping Maw measures its distance to Samus by one axis alone from 255 pixels on that axis, the reach of the short products it otherwise sums")]
-public static class YappingMawDistanceReach
+public static partial class YappingMawDistanceReach
 {
     /// <summary>The axis distance, in pixels, from which the Maw measures by that axis alone.</summary>
     private const int ShortProductReach = 255;

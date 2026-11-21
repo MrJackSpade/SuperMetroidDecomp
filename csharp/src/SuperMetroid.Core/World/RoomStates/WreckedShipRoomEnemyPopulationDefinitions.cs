@@ -13,7 +13,7 @@ using SuperMetroid.Core.Enemies.WorkRobots;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The enemy placement lists of the Wrecked Ship rooms.</summary>
-internal static class WreckedShipRoomEnemyPopulationDefinitions
+internal static partial class WreckedShipRoomEnemyPopulationDefinitions
 {
     /// <summary>The enemy population of the Sponge Bath room once the area's boss is dead.</summary>
     internal static PlacedRoomEnemyPopulationDefinition SpongeBathWhenAreaBossDead { get; } = new("SpongeBathWhenAreaBossDead",

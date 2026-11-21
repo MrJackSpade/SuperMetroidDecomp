@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Fx;
 /// <param name="ColourEffects">The colour effects the room effect starts, in the order they start.</param>
 /// <param name="BlockAnimations">The block animations the room effect starts, in the order they start.</param>
 /// <param name="Tint">The tint the effect lays over its overlay and the HUD.</param>
-public sealed record RoomEffectDefinition(
+public sealed partial record RoomEffectDefinition(
     int? LiquidStartLevel,
     int? LiquidTargetLevel,
     SignedEightEight LiquidLevelSpeed,

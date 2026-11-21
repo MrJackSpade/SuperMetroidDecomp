@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// axes, is the shot's.
 /// </summary>
 /// <param name="part">The part the particle plays in its attack.</param>
-internal sealed class WaveParticleState(SpecialAttackParticle part) : SpecialAttackParticleState(part)
+internal sealed partial class WaveParticleState(SpecialAttackParticle part) : SpecialAttackParticleState(part)
 {
     /// <summary>
     /// The updates the particle has left: <see cref="BeamComboDefinitions.WaveLifetime"/> when the attack starts, counted

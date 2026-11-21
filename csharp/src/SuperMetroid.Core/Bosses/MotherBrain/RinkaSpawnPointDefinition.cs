@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Authored spawn centre in whole room pixels (not a sprite or camera-relative coordinate): where a Rinka placed at the
 /// point appears, and what the reservation tests against the current camera.
 /// </param>
-internal readonly record struct RinkaSpawnPointDefinition(
+internal readonly partial record struct RinkaSpawnPointDefinition(
     RinkaSpawnPoint Point,
     Position16<RoomPixels> Centre);

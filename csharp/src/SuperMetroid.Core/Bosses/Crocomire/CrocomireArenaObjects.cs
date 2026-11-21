@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Spawns Crocomire's bridge and invisible-wall room objects in the room's shared room-object places.</summary>
 /// <param name="places">The room's room-object places, which the arena mutations contend for with every other room object.</param>
-internal sealed class CrocomireArenaObjects(RoomObjectPlaceList places)
+internal sealed partial class CrocomireArenaObjects(RoomObjectPlaceList places)
 {
     /// <summary>
     /// Spawns one of Crocomire's arena mutations at its block. Each mutation's setup does nothing; its terrain change

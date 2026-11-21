@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// The installed ending font as the import pipeline reads it (#1409): its selected glyph pixels, compiled to SNES 4-bpp
 /// characters for the ending's sheets and kept as installed.
 /// </summary>
-public sealed class EndingFontCharacters
+public sealed partial class EndingFontCharacters
 {
     /// <summary>The installed font's 4-bpp characters.</summary>
     private readonly byte[] characters;

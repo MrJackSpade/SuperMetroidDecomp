@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus;
 /// Samus and her state across frames: the actor, movement mode, prospective poses, colours and load appearance. What one
 /// frame's movement, grapple, X-ray and death steps did is that frame's own (<see cref="SamusControlFrame"/>).
 /// </summary>
-internal sealed class SamusFrameState : IRoomSamusAccess
+internal sealed partial class SamusFrameState : IRoomSamusAccess
 {
     /// <summary>Samus's colours, which outlive each Samus (#1405).</summary>
     public SamusColours Colours { get; }

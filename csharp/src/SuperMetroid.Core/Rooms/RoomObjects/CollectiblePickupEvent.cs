@@ -3,6 +3,6 @@
 /// <summary>One defined permanent pickup completed by the current room-object pass.</summary>
 /// <param name="Message">The gameplay-message identity requested for the synchronous pickup notification.</param>
 /// <param name="Consequence">What the pickup changes in the gameplay frame as its message opens (#2383).</param>
-public readonly record struct CollectiblePickupEvent(
+public readonly partial record struct CollectiblePickupEvent(
     GameplayMessageId Message,
     CollectiblePickupConsequence Consequence);

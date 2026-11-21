@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 /// File names of the installed game-over layout (<see cref="FileName"/>) and of the import-data artwork document
 /// (<see cref="ArtworkFileName"/>), and the artwork document's sprite and palette names.
 /// </summary>
-public static class GameOverPresentationFormat
+public static partial class GameOverPresentationFormat
 {
     /// <summary>Supported game-over presentation JSON schema version.</summary>
     public const int Version = 1;

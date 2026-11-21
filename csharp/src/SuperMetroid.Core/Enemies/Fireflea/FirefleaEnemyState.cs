@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 /// The state of a Fireflea: its animation and its flight, circling or bobbing, each with only the values that flight
 /// keeps. Setup sets every value its flight reads.
 /// </summary>
-public sealed class FirefleaEnemyState
+public sealed partial class FirefleaEnemyState
 {
     /// <summary>Starts the state of a Fireflea flying <paramref name="flight"/>.</summary>
     internal FirefleaEnemyState(FirefleaFlightState flight) => Flight = Ensure.NotNull(flight);

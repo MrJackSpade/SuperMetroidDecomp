@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Samus.Abilities.XrayRevealDefinitions;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>The reveal shape the X-ray scope runs for each collision kind and behaviour.</summary>
-public static class XrayReveals
+public static partial class XrayReveals
 {
     /// <summary>Returns the game-authored reveal shape for one collision kind and behaviour.</summary>
     /// <remarks>

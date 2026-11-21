@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>How a Mochtroid flies, holds on to Samus and drains her (#2156).</summary>
-internal static class MochtroidBehaviorDefinitions
+internal static partial class MochtroidBehaviorDefinitions
 {
     /// <summary>How many updates of contact an attached Mochtroid counts between its drains of Samus's health.</summary>
     internal const int AttachedDrainPeriod = 80;

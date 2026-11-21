@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rendering;
 /// zero makes a plain ellipse, such as the Power Bomb's blast; a wider core makes a column with rounded sides, such as the
 /// suit pickup's light beam. The oval may extend off the screen.
 /// </summary>
-public sealed record WindowOval : WindowShape
+public sealed partial record WindowOval : WindowShape
 {
     /// <summary>The left end of the oval's core, on the oval's middle line.</summary>
     public Offset16<ScreenPixels> CoreStart { get; }

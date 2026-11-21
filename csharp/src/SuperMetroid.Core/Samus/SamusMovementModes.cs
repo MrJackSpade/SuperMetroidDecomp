@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>Reads of the movement modes' definitions (<see cref="SamusMovementModeDefinitions"/>).</summary>
-internal static class SamusMovementModes
+internal static partial class SamusMovementModes
 {
     /// <summary>What a movement mode lets run.</summary>
     extension(SamusMovementMode mode)

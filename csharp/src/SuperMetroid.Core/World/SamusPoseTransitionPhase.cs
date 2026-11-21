@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.World;
 /// interruptions, the collision transitions, the input transition the input phase selected or the momentum response
 /// chosen when her input chooses no new pose, and the pose-history commit.
 /// </summary>
-internal sealed class SamusPoseTransitionPhase
+internal sealed partial class SamusPoseTransitionPhase
 {
 
     /// <summary>Supplies the held and newly pressed controller buttons to Samus's frame phases.</summary>

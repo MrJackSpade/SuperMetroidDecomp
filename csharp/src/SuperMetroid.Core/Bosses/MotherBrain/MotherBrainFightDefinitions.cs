@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// rises, the limits of her walks, the wall sealed behind Samus, her body's push and the touch that hurts, where her mouth,
 /// laser, bomb and breath leave her head, her drool, and the stages of her drain by the Baby.
 /// </summary>
-internal static class MotherBrainFightDefinitions
+internal static partial class MotherBrainFightDefinitions
 {
     /// <summary>How her room lists her (#2218): her body, then her head.</summary>
     internal static EnemyComposite<EnemyDefinitionId> Listing { get; } = new([EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead]);

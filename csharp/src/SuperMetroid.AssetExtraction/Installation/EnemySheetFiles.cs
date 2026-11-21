@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// naming every variant of each enemy and of each owner's spawned objects and the variants each population draws, which
 /// names the sheets (#1693). A player edits a sheet's installed files in place.
 /// </summary>
-public static class EnemySheetFiles
+public static partial class EnemySheetFiles
 {
     /// <summary>
     /// The manifest revision this build reads: 26 no longer records where a variant composed a picture held once from, as

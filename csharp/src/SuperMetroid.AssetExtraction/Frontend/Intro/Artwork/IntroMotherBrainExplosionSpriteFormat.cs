@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Installed file identity for twelve fourth-hit explosion frames.</summary>
-public static class IntroMotherBrainExplosionSpriteFormat
+public static partial class IntroMotherBrainExplosionSpriteFormat
 {
     /// <summary>The supported explosion-sprite JSON schema version.</summary>
     public const int Version = 1;

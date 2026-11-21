@@ -8,7 +8,7 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Samus full-body cycle colour document.</summary>
-public static class SamusFullBodyCycleColorFile
+public static partial class SamusFullBodyCycleColorFile
 {
     /// <summary>Loads and validates all 48 full-body cycle palettes for three suits and four families.</summary>
     public static InstalledSamusFullBodyCycleColors Read(Stream json)

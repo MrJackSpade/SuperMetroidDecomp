@@ -16,7 +16,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Exports the Ceres-door actor's direct tile DMA and authored RGB5 rows.</summary>
-public static class CeresDoorVisualFiles
+public static partial class CeresDoorVisualFiles
 {
     /// <summary>Exports the Ceres door tile DMA as indexed PNG and its normal, escape and animated appearances as JSON.</summary>
     /// <param name="bus">Supported-cartridge address space containing the Ceres door tile and palette sources.</param>

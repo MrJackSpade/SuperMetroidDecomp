@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// room publishes a new plane when gameplay changes a block, so the display draws each block's picture from the room's grid
 /// with no stored picture grid (#1346, #1431, #1469).
 /// </summary>
-public sealed class RoomLevelPlane
+public sealed partial class RoomLevelPlane
 {
     /// <summary>Pixels along each side of a level block.</summary>
     public const int BlockPixels = RoomGridConversions.BlockPixels;

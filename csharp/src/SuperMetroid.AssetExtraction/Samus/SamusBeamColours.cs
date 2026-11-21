@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The colours Samus's beams show for each beam combination the game can select (#1512): a retail combination's installed
 /// palette, the one the glitched Chainsaw beam shares (#1736), or the SpaceTime beam's defined black.
 /// </summary>
-internal static class SamusBeamColours
+internal static partial class SamusBeamColours
 {
     /// <summary>
     /// Every colour of the SpaceTime beam. The game's beam palette load reads its colours through a colour word used as a

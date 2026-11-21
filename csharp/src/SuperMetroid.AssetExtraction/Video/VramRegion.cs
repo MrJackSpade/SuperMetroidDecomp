@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// VMADD base and the byte-address arithmetic stay behind the view. A struct over the backend,
 /// so uploads and reads allocate nothing.
 /// </summary>
-internal readonly struct VramRegion
+internal readonly partial struct VramRegion
 {
     /// <summary>Backend VRAM whose words are exposed through this bounded view.</summary>
     internal readonly SnesVram vram;

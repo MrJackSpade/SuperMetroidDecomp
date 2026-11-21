@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// each cue is a <see cref="EscapeDachoraCue"/> with the values it acts on. Around the shaft it runs its laps
 /// left and then right (<see cref="LapsEachWay"/>), counting its laps; each lap's end is a cue its owner may take elsewhere (#2061, #2167).
 /// </summary>
-internal static class EscapeDachoraAnimations
+internal static partial class EscapeDachoraAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<EscapeDachoraSegment, EnemyFrameId, EscapeDachoraCue> Segments { get; } = new(

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core;
 /// analyzer (SME6373, #622) accepts reflection only inside such a declaration, and requires the reason.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Constructor | AttributeTargets.Method | AttributeTargets.Property, Inherited = false)]
-public sealed class ReflectionAuditAttribute : Attribute
+public sealed partial class ReflectionAuditAttribute : Attribute
 {
     /// <summary>Marks a reflection-owning declaration; SME6373 reads the reason from the attribute argument.</summary>
     /// <param name="reason">Why metadata, rather than behavior, is what this declaration verifies.</param>

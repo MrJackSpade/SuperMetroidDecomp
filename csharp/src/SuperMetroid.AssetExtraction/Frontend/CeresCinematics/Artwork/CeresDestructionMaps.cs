@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// The destruction's editable Mode 7 maps (#1467): two destruction views and the native clear-map slice, which the import
 /// composes the Ceres floor's shots from; the game draws those installed floor pictures and reads none of these cells.
 /// </summary>
-public sealed class CeresDestructionMaps
+public sealed partial class CeresDestructionMaps
 {
     /// <summary>Retains the validated map cells.</summary>
     private CeresDestructionMaps(byte[] views) => Views = views;

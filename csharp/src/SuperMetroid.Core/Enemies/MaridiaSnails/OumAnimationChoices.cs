@@ -3,7 +3,7 @@ using A = SuperMetroid.Core.Enemies.MaridiaSnails.OumSegment;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>Chooses Oum's animation by its facing and action (#1624, #1810, #2145).</summary>
-internal static class OumAnimationChoices
+internal static partial class OumAnimationChoices
 {
     /// <summary>The idle animation facing left or right.</summary>
     internal static A Idle(HorizontalDirection facing) => facing == HorizontalDirection.Left ? A.FacingLeftIdle : A.FacingRightIdle;

@@ -27,7 +27,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("Kraid's eyes glow up and fade back a level an update, a fading channel at none wrapping to full; the glow's peak and the eyes' return to the band's time his roar")]
-public readonly struct KraidEyeGlow
+public readonly partial struct KraidEyeGlow
 {
     /// <summary>The eyes Kraid has.</summary>
     public const int Eyes = 3;

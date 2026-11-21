@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// One of the three small dust clouds emitted
 /// when the Baby releases Mother Brain's head.
 /// </summary>
-public readonly record struct BabyMetroidReleaseDustRequest(
+public readonly partial record struct BabyMetroidReleaseDustRequest(
     Position16<RoomPixels> Position,
     DustExplosionAnimation Animation);

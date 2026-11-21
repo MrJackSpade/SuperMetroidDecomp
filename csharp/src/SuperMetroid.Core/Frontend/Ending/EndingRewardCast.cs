@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// actors and the jump's head and body, in spawn order. The scenes spawn these, and the import pictures the reward
 /// sheets' frames from them.
 /// </summary>
-internal static class EndingRewardCast
+internal static partial class EndingRewardCast
 {
     /// <summary>
     /// Whether <paramref name="reward"/>'s reveal crossfades the waiting backdrop into its colours: the background stays

@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>One ordered region in an indexed tile sheet. Null palette inherits its drawing owner's current palette.</summary>
 [SpatialComponents("External format: sprite composition JSON stores each OAM part displacement as offsetX/offsetY.")]
-public sealed record SpriteVisualPart
+public sealed partial record SpriteVisualPart
 {
     /// <summary>Signed horizontal pixel displacement from the composition origin.</summary>
     public required int OffsetX { get; init; }

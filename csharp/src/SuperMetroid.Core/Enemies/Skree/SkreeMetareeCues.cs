@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>The cues Skree and Metaree share in their common animations.</summary>
-internal static class SkreeMetareeCues
+internal static partial class SkreeMetareeCues
 {
     /// <summary>
     /// Carries out one cue. The wind-up rests immediately after readying the attack; main AI starts the dive on the

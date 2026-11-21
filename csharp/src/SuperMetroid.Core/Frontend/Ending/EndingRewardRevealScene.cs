@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 /// <param name="fade">The reward's colour fade, started as the reveal starts.</param>
 /// <param name="phase">The phase the scene runs: one of the reveal's halves, or the copyright's hold between them.</param>
-internal sealed class EndingRewardRevealScene(PacedFadeSteps fade, EndingCreditsPhase phase) : EndingScene
+internal sealed partial class EndingRewardRevealScene(PacedFadeSteps fade, EndingCreditsPhase phase) : EndingScene
 {
     /// <inheritdoc/>
     internal override EndingCreditsPhase Phase { get; } =

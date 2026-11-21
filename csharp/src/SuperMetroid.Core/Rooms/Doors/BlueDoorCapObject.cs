@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// (<see cref="DoorCapSequenceDefinitions.BlueClosing"/>), then, like a cap another door turns into, makes its block
 /// shootable again, shows its closed image (<see cref="DoorCapSequenceDefinitions.BlueClosed"/>) and leaves the room.
 /// </summary>
-internal sealed class BlueDoorCapObject : DoorCapObject
+internal sealed partial class BlueDoorCapObject : DoorCapObject
 {
     /// <summary>A cap a shot opens, from its next update.</summary>
     /// <param name="orientation">The cap's facing.</param>
@@ -117,7 +117,7 @@ internal sealed class BlueDoorCapObject : DoorCapObject
     /// How a blue cap came to be (#2560): a closed choice of a cap a shot opened, which carries the room's shot-cap rule, a cap
     /// closing behind Samus, and a cap another door turned into, which carries the door it stands in.
     /// </summary>
-    internal abstract record CapOrigin
+    internal abstract partial record CapOrigin
     {
         /// <summary>Closes the hierarchy to the origins declared here.</summary>
         private CapOrigin()
@@ -129,14 +129,14 @@ internal sealed class BlueDoorCapObject : DoorCapObject
 
         /// <summary>A cap a shot opened, which names no door of its own.</summary>
         /// <param name="Rule">The room's rule for whether a cap a shot opened closes behind Samus (#1906).</param>
-        internal sealed record ShotOpenedCap(ShotOpenedCapClosing<LockedDoor> Rule) : CapOrigin
+        internal sealed partial record ShotOpenedCap(ShotOpenedCapClosing<LockedDoor> Rule) : CapOrigin
         {
             /// <inheritdoc/>
             internal override bool StaysOpen(Func<LockedDoor, bool> openedForGood) => Rule.StaysOpen(openedForGood);
         }
 
         /// <summary>A cap closing behind Samus, which names no door of its own and never stays open.</summary>
-        internal sealed record ClosingCap : CapOrigin
+        internal sealed partial record ClosingCap : CapOrigin
         {
             /// <summary>The one such origin.</summary>
             internal static ClosingCap Instance { get; } = new();
@@ -152,7 +152,7 @@ internal sealed class BlueDoorCapObject : DoorCapObject
 
         /// <summary>A cap another door turned into once its door had been opened for good.</summary>
         /// <param name="Door">The door the cap stands in, as the door it took over from named it.</param>
-        internal sealed record TakenOverCap(PlacedDoor Door) : CapOrigin
+        internal sealed partial record TakenOverCap(PlacedDoor Door) : CapOrigin
         {
             /// <inheritdoc/>
             internal override bool StaysOpen(Func<LockedDoor, bool> openedForGood) => Door.IsOpenedForGood(openedForGood);

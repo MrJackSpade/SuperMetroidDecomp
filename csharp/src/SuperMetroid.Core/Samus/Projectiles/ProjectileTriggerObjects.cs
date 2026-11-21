@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Progression;
 
@@ -22,8 +22,11 @@ internal sealed class ProjectileTriggerObjects
     /// active place at that block in update order takes the family the strike lands as, whatever room object it holds; the
     /// grapple beam's touch (<see cref="BlockStrike.GrappleTouch"/>) lands as a beam.
     /// </summary>
-    /// <returns>Whether an active place lies at <paramref name="block"/>.</returns>
-    public bool TryNotifyResidentProjectileHit(
+    /// <remarks>
+    /// A resident-trigger block can outlive its object: the n00b tube's setup writes its origin before the already-broken
+    /// tube deletes itself. A hit on a block no active place holds lands on the object that left it and changes nothing.
+    /// </remarks>
+    public void NotifyResidentProjectileHit(
         Position16<RoomBlocks> block,
         BlockStrike strike)
     {
@@ -37,9 +40,7 @@ internal sealed class ProjectileTriggerObjects
             // object, which takes it all the same, so a place later in the order never sees it.
             if (place.Behaviour is IShootableRoomObject shootable)
                 shootable.Strike(new ResidentObjectProjectileHit(strike.Family));
-            return true;
+            return;
         }
-
-        return false;
     }
 }

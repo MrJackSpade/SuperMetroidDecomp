@@ -732,9 +732,9 @@ public static class SamusGrappleMovement
                 {
                     // A shot-triggered block also reacts to the grapple: its resident actor hears of a hit with no
                     // weapon, and decides itself whether to refuse the hit or wake up.
-                    if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.GrappleTouch.Instance))
-                        throw new InvalidOperationException(
-                            $"Grapple trigger block {block.Position} has no resident room-object owner.");
+                    // A block no object holds any more (the already-broken n00b tube's origin) takes the
+                    // touch and nothing happens.
+                    roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(block.At, BlockStrike.GrappleTouch.Instance);
                 }
                 else if (block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
                     roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);

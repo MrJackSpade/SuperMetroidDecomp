@@ -237,8 +237,7 @@ public sealed class SamusShinesparkState
         // The windup sets these whatever they held. The speed boost stays at its full stage through the windup
         // even though her base speed is zero and her extra speed becomes exactly the windup's run speed.
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(UnsignedSixteenSixteen.Zero);
-        samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
-        samus.KnockbackActive = false;
+        samus.Knockback = Movement.SamusKnockback.None;
         samus.HorizontalSpeed.SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage;
         samus.HorizontalSpeed.ExtraRunSpeed = ShinesparkDefinitions.WindupRunSpeed;
         samus.HorizontalSpeed.BaseSpeed = default;

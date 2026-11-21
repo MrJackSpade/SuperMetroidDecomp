@@ -246,7 +246,11 @@ internal static class NativeSnapshotImport
         samus.MaxHealth = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxHealth));
         samus.InvincibilityTimer = WrappingCountdown.Start(W(NativeSnapshotMemory.InvincibilityTimer));
         samus.KnockbackHold = UpdateCountdown.For(W(NativeSnapshotMemory.KnockbackTimer));
-        samus.KnockbackDirection = SamusMovementNativeWords.KnockbackDirections.Decode(W(NativeSnapshotMemory.KnockbackDirection), "Samus knockback direction");
+        // The checkpoint's movement handler is the ordinary one, so a recorded direction is a knockback that no longer moves her.
+        samus.Knockback = SamusMovementNativeWords.KnockbackDirections.Decode(W(NativeSnapshotMemory.KnockbackDirection), "Samus knockback direction") is
+            var recordedKnockback and not SamusKnockbackDirection.None
+            ? SamusKnockback.Moving(recordedKnockback).Released()
+            : SamusKnockback.None;
         samus.KnockbackXDirection = (KnockbackHorizontalDirection)W(NativeSnapshotMemory.KnockbackXDirection);
         samus.HurtFlash.HoldAt(W(NativeSnapshotMemory.HurtFlashCounter));
         PrivateState.Set(samus, "EnergyFraction", SuperMetroid.Core.Compatibility.PeriodicDamageEnergyFraction.Holding(W(NativeSnapshotMemory.SubunitHealth)));

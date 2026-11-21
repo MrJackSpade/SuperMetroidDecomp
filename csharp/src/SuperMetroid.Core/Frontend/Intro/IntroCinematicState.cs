@@ -898,9 +898,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The intro demo's movement phase consumes the knockback timer the first Rinka's hit published on the
         // preceding cinematic-sprite pass. Keeping this after animation matches Samus's update during the intro demo:
         // the hit frame finishes its standing animation before the knockback start installs the knockback pose.
-        if (!samus.KnockbackActive &&
-            samus.KnockbackHold.IsRunning &&
-            samus.KnockbackDirection == Samus.Movement.SamusKnockbackDirection.None)
+        if (samus.KnockbackPending)
         {
             SamusKnockbackMovement.Start(samus, demoInput, KnockbackLaunch.FromHurtState(samus), poseCollision: null);
             transitionAccepted = true;

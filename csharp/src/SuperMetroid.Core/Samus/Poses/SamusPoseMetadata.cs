@@ -250,6 +250,21 @@ internal static class SamusPoseMetadata
     /// <summary>True for all five left-facing Draygon-held poses.</summary>
     public static bool IsLeftFacingDraygonGrabbedPose(SamusPoseId pose) => IsRightFacingDraygonGrabbedPose(SamusPoseMirror.Of(pose));
 
+    /// <summary>
+    /// The way <paramref name="pose"/> faces as a member of the pose family whose right-facing members
+    /// <paramref name="isRightFacing"/> names and whose left-facing members <paramref name="isLeftFacing"/> names; none for
+    /// a pose of neither half (#2560).
+    /// </summary>
+    internal static HorizontalDirection? FacingIn(SamusPoseId pose, Func<SamusPoseId, bool> isRightFacing,
+        Func<SamusPoseId, bool> isLeftFacing) =>
+        isRightFacing(pose) ? HorizontalDirection.Right
+            : isLeftFacing(pose) ? HorizontalDirection.Left
+            : null;
+
+    /// <summary>Whether <paramref name="first"/> is a facing, and <paramref name="second"/> the same one.</summary>
+    internal static bool SameFacing(HorizontalDirection? first, HorizontalDirection? second) =>
+        first is { } facing && second == facing;
+
     /// <summary>True for all five right-facing Draygon-held poses.</summary>
     public static bool IsRightFacingDraygonGrabbedPose(SamusPoseId pose) => pose is
         SamusPoseId.DraygonGrabbedNeutralRightPose or SamusPoseId.DraygonGrabbedAimUpRightPose or
@@ -262,11 +277,8 @@ internal static class SamusPoseMetadata
     /// </summary>
     public static void ApplyDraygonGrabbedPoseChange(SamusState samus, SamusPoseId targetPose)
     {
-        bool leftFamily = IsLeftFacingDraygonGrabbedPose(samus.Pose) &&
-            IsLeftFacingDraygonGrabbedPose(targetPose);
-        bool rightFamily = IsRightFacingDraygonGrabbedPose(samus.Pose) &&
-            IsRightFacingDraygonGrabbedPose(targetPose);
-        if (!leftFamily && !rightFamily)
+        if (!SameFacing(FacingIn(samus.Pose, IsRightFacingDraygonGrabbedPose, IsLeftFacingDraygonGrabbedPose),
+                FacingIn(targetPose, IsRightFacingDraygonGrabbedPose, IsLeftFacingDraygonGrabbedPose)))
         {
             // The left-facing grabbed poses' input transitions reach only left-facing grabbed poses, and the right-facing
             // ones only right-facing: neither set crosses facing families. Draygon's owner AI
@@ -686,8 +698,7 @@ internal static class SamusPoseMetadata
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         samus.BombJump = (samus.BombJump ?? throw new InvalidOperationException("Only a published bomb jump can be armed.")).Arm();
-        samus.BombJumpStarting = true;
-        samus.BombJumpActive = false;
+        samus.BombJumpPhase = Projectiles.SamusBombJumpPhase.Starting;
         samus.BombJumpPoseInputLocked = true;
     }
 

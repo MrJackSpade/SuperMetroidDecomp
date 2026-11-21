@@ -366,7 +366,7 @@ empty, samus, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
         "normal-jump movement type uses native carry-clear setup entry");
     AssertEqual(null, airborneBombRejection.BombJump,
         "carry-clear bomb-jump family consumes and clears published direction");
-    AssertTrue(!airborneBombRejection.BombJumpStarting,
+    AssertTrue(airborneBombRejection.BombJumpPhase != SamusBombJumpPhase.Starting,
         "carry-clear bomb-jump family does not install special movement");
 
     // Put the airborne body three pixels above the floor and give it a hard downward
@@ -655,7 +655,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         directionSystem.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, directionSamus, 0, 0);
         AssertEqual(SamusBombJump.FromBlast(expectedDirection), directionSamus.BombJump,
             "bank-$A0 publishes the direction as a request pose handling has not accepted");
-        AssertTrue(!directionSamus.BombJumpStarting,
+        AssertTrue(directionSamus.BombJumpPhase != SamusBombJumpPhase.Starting,
             "timer-eight overlap does not start movement in same frame");
     }
 
@@ -1528,7 +1528,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     ushort startX = bombJump.Position.X.Whole;
     ushort startY = bombJump.Position.Y.Whole;
     SamusBombJumpMovement.Start(bombJump);
-    AssertTrue(bombJump.BombJumpActive && !bombJump.BombJumpStarting,
+    AssertTrue(bombJump.BombJumpPhase == SamusBombJumpPhase.Rising,
         "bomb-jump start handler activates the special handler");
     AssertEqual(startX, bombJump.Position.X.Whole, "bomb-jump start frame has no horizontal displacement");
     AssertEqual(startY, bombJump.Position.Y.Whole, "bomb-jump start frame has no vertical displacement");
@@ -1541,7 +1541,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     // the reduced 2.8000 magnitude for the following frame.
     SamusBombJumpMovement.Step(
 empty, bombJump, frameCounter: 0, RoomObjectFixtures.Unbound());
-    AssertTrue(bombJump.BombJumpActive, "unobstructed diagonal bomb jump remains active");
+    AssertTrue(bombJump.BombJumpPhase == SamusBombJumpPhase.Rising, "unobstructed diagonal bomb jump remains active");
     AssertEqual(startX, bombJump.Position.X.Whole, "right bomb jump retains whole X on first fractional step");
     AssertEqual(0x3000, bombJump.Kinematics.Position.X.Fraction, "right bomb jump uses native $90:9F25 fractional displacement");
     AssertEqual(2, bombJump.Kinematics.VerticalVelocity.Speed.Whole, "bomb-jump gravity stores next whole speed");
@@ -1553,7 +1553,7 @@ empty, bombJump, frameCounter: 0, RoomObjectFixtures.Unbound());
     bombJump.Kinematics.VerticalVelocity = bombJump.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(0xffff, 0));
     SamusBombJumpMovement.Step(
 empty, bombJump, frameCounter: 1, RoomObjectFixtures.Unbound());
-    AssertTrue(!bombJump.BombJumpActive, "signed bomb-jump apex ends special handler");
+    AssertTrue(bombJump.BombJumpPhase != SamusBombJumpPhase.Rising, "signed bomb-jump apex ends special handler");
     AssertEqual(null, bombJump.BombJump, "bomb-jump apex drops the request");
     AssertEqual(SamusVerticalDirection.Down, bombJump.Kinematics.VerticalVelocity.Direction, "bomb-jump apex hands off downward direction");
     AssertEqual(SamusAccelerationMode.Decelerating, bombJump.HorizontalSpeed.AccelerationMode, "diagonal apex selects mode two");
@@ -1579,7 +1579,7 @@ empty, bombJump, frameCounter: 1, RoomObjectFixtures.Unbound());
     ushort straightXSubposition = straightBombJump.Kinematics.Position.X.Fraction;
     BombJumpMovementResult ceilingHit = SamusBombJumpMovement.Step(
 ceiling, straightBombJump, frameCounter: 0, RoomObjectFixtures.Unbound());
-    AssertTrue(!straightBombJump.BombJumpActive && ceilingHit.Vertical is { Collided: true },
+    AssertTrue(straightBombJump.BombJumpPhase != SamusBombJumpPhase.Rising && ceilingHit.Vertical is { Collided: true },
         "straight bomb jump terminates on ceiling");
     AssertEqual(straightXSubposition, straightBombJump.Kinematics.Position.X.Fraction,
         "straight bomb jump performs no horizontal move");

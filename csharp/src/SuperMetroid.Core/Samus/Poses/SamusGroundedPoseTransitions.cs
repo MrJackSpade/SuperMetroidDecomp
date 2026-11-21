@@ -65,23 +65,11 @@ internal static class SamusGroundedPoseTransitions
     /// </remarks>
     public static void ApplyGroundedAimTransition(SamusState samus, SamusPoseId targetPose)
     {
-        bool sourceRight = SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsRightFacingRunningPose(samus.Pose) ||
-            SamusPoseMetadata.IsRightFacingRanIntoWallPose(samus.Pose) ||
-            SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose);
-        bool targetRight = SamusPoseMetadata.IsRightFacingStandingPose(targetPose) || SamusPoseMetadata.IsRightFacingRunningPose(targetPose) ||
-            SamusPoseMetadata.IsRightFacingRanIntoWallPose(targetPose);
-        bool sourceLeft = SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose) ||
-            SamusPoseMetadata.IsLeftFacingRanIntoWallPose(samus.Pose) ||
-            SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose);
-        bool targetLeft = SamusPoseMetadata.IsLeftFacingStandingPose(targetPose) || SamusPoseMetadata.IsLeftFacingRunningPose(targetPose) ||
-            SamusPoseMetadata.IsLeftFacingRanIntoWallPose(targetPose);
-        bool sameRightFamily = sourceRight && targetRight;
-        bool sameLeftFamily = sourceLeft && targetLeft;
-        bool sameRightCrouch = SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) &&
-            SamusPoseMetadata.IsRightFacingCrouchingPose(targetPose);
-        bool sameLeftCrouch = SamusPoseMetadata.IsLeftFacingCrouchingPose(samus.Pose) &&
-            SamusPoseMetadata.IsLeftFacingCrouchingPose(targetPose);
-        if (!sameRightFamily && !sameLeftFamily && !sameRightCrouch && !sameLeftCrouch)
+        // A landing source takes its standing pose's arm transitions; a target is never a landing.
+        HorizontalDirection? sourceUpright = FacingInAny(samus.Pose, StandingFacing, RunningFacing, RanIntoWallFacing, LandingFacing);
+        HorizontalDirection? targetUpright = FacingInAny(targetPose, StandingFacing, RunningFacing, RanIntoWallFacing);
+        if (!SamusPoseMetadata.SameFacing(sourceUpright, targetUpright) &&
+            !SamusPoseMetadata.SameFacing(CrouchingFacing(samus.Pose), CrouchingFacing(targetPose)))
         {
             // The input transitions never feed a facing reversal through this arm-only
             // transition seam; reversal has its own turn-pose initialization path.
@@ -96,9 +84,7 @@ internal static class SamusGroundedPoseTransitions
         }
 
         SamusPoseId sourcePose = samus.Pose;
-        bool preservesRunningAnimation =
-            (SamusPoseMetadata.IsRightFacingRunningPose(sourcePose) && SamusPoseMetadata.IsRightFacingRunningPose(targetPose)) ||
-            (SamusPoseMetadata.IsLeftFacingRunningPose(sourcePose) && SamusPoseMetadata.IsLeftFacingRunningPose(targetPose));
+        bool preservesRunningAnimation = SamusPoseMetadata.SameFacing(RunningFacing(sourcePose), RunningFacing(targetPose));
         if (!preservesRunningAnimation)
         {
             // This is the pose setup's ordinary target installation. Replacing Pose
@@ -193,16 +179,13 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     public static void ApplyRanIntoWallPoseChange(SamusState samus, SamusPoseId targetPose)
     {
-        bool moonwalking = SamusPoseMetadata.IsMoonwalkingPose(samus.Pose);
-        bool rightSource = SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsRightFacingRunningPose(samus.Pose) ||
-            SamusPoseMetadata.IsRightFacingRanIntoWallPose(samus.Pose) || SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose) || moonwalking;
-        bool leftSource = SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose) ||
-            SamusPoseMetadata.IsLeftFacingRanIntoWallPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose) || moonwalking;
-        bool rightRoute = rightSource &&
-            (SamusPoseMetadata.IsRightFacingRanIntoWallPose(targetPose) || targetPose == SamusPoseId.StandingAimUpRightPose);
-        bool leftRoute = leftSource &&
-            (SamusPoseMetadata.IsLeftFacingRanIntoWallPose(targetPose) || targetPose == SamusPoseId.StandingAimUpLeftPose);
-        if (!rightRoute && !leftRoute)
+        // A moonwalk stops in either wall pose; any other source stops only in the one it faces.
+        HorizontalDirection? route = SamusPoseMetadata.FacingIn(targetPose,
+            pose => SamusPoseMetadata.IsRightFacingRanIntoWallPose(pose) || pose == SamusPoseId.StandingAimUpRightPose,
+            pose => SamusPoseMetadata.IsLeftFacingRanIntoWallPose(pose) || pose == SamusPoseId.StandingAimUpLeftPose);
+        bool admitted = route is { } facing && (SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) ||
+            FacingInAny(samus.Pose, StandingFacing, RunningFacing, RanIntoWallFacing, LandingFacing) == facing);
+        if (!admitted)
         {
             // Only block-backed ran-into-wall poses call this exact setup. Treat a
             // different source/target pair as misuse of the specialized operation.
@@ -229,17 +212,9 @@ internal static class SamusGroundedPoseTransitions
         SamusPoseId targetPose,
         bool moonwalkEnabled)
     {
-        bool sourceStandingRight = SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose) ||
-            SamusPoseMetadata.IsRightFacingRanIntoWallPose(samus.Pose) ||
-            SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose);
-        bool sourceStandingLeft = SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) ||
-            SamusPoseMetadata.IsLeftFacingRanIntoWallPose(samus.Pose) ||
-            SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose);
-        bool targetVisualRight = SamusPoseMetadata.IsMoonwalkingFacingRightPose(targetPose);
-        bool targetVisualLeft = SamusPoseMetadata.IsMoonwalkingFacingLeftPose(targetPose);
-        bool entering =
-            (sourceStandingRight && targetVisualRight) ||
-            (sourceStandingLeft && targetVisualLeft);
+        HorizontalDirection? targetVisual = MoonwalkFacing(targetPose);
+        bool entering = SamusPoseMetadata.SameFacing(
+            FacingInAny(samus.Pose, StandingFacing, RanIntoWallFacing, LandingFacing), targetVisual);
 
         if (entering && !moonwalkEnabled)
         {
@@ -248,19 +223,14 @@ internal static class SamusGroundedPoseTransitions
             // candidate pose faces decides: the right-facing moonwalk poses travel left and become the right-to-left
             // turn; the left-facing ones travel right and become left-to-right.
             ApplyGroundedTurn(samus,
-                targetVisualRight ? SamusPoseId.TurningRightToLeftPose : SamusPoseId.TurningLeftToRightPose);
+                targetVisual == HorizontalDirection.Right ? SamusPoseId.TurningRightToLeftPose : SamusPoseId.TurningLeftToRightPose);
             return;
         }
 
-        bool sameVisualFamily =
-            (SamusPoseMetadata.IsMoonwalkingFacingRightPose(samus.Pose) && targetVisualRight) ||
-            (SamusPoseMetadata.IsMoonwalkingFacingLeftPose(samus.Pose) && targetVisualLeft);
-        bool exitsToForwardRun =
-            (SamusPoseMetadata.IsMoonwalkingFacingRightPose(samus.Pose) && targetPose == SamusPoseId.MovingRightNormalPose) ||
-            (SamusPoseMetadata.IsMoonwalkingFacingLeftPose(samus.Pose) && targetPose == SamusPoseId.MovingLeftNormalPose);
-        bool exitsToStandingFallback =
-            (SamusPoseMetadata.IsMoonwalkingFacingRightPose(samus.Pose) && SamusPoseMetadata.IsRightFacingStandingPose(targetPose)) ||
-            (SamusPoseMetadata.IsMoonwalkingFacingLeftPose(samus.Pose) && SamusPoseMetadata.IsLeftFacingStandingPose(targetPose));
+        HorizontalDirection? sourceVisual = MoonwalkFacing(samus.Pose);
+        bool sameVisualFamily = SamusPoseMetadata.SameFacing(sourceVisual, targetVisual);
+        bool exitsToForwardRun = sourceVisual is { } facing && targetPose == ForwardRunPose(facing);
+        bool exitsToStandingFallback = SamusPoseMetadata.SameFacing(sourceVisual, StandingFacing(targetPose));
         if ((!entering || !moonwalkEnabled) && !sameVisualFamily &&
             !exitsToForwardRun && !exitsToStandingFallback)
         {
@@ -340,13 +310,8 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     public static void StartRunning(SamusState samus, SamusPoseId targetPose)
     {
-        bool right = (SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose) ||
-                SamusPoseMetadata.IsRightFacingRanIntoWallPose(samus.Pose)) &&
-            targetPose == SamusPoseId.MovingRightNormalPose;
-        bool left = (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose) ||
-                SamusPoseMetadata.IsLeftFacingRanIntoWallPose(samus.Pose)) &&
-            targetPose == SamusPoseId.MovingLeftNormalPose;
-        if (!right && !left)
+        if (FacingInAny(samus.Pose, StandingFacing, LandingFacing, RanIntoWallFacing) is not { } facing ||
+            targetPose != ForwardRunPose(facing))
         {
             throw new InvalidOperationException(
                 $"Running start {samus.Pose} -> {targetPose} is not one the game makes.");
@@ -383,25 +348,22 @@ internal static class SamusGroundedPoseTransitions
             ? SamusTransitionShot.FromPose(samus)
             : null;
 
-        bool rightSource = SamusPoseMetadata.IsRightFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsRightFacingRunningPose(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkingFacingRightPose(samus.Pose) ||
-            SamusPoseMetadata.IsRightFacingRanIntoWallPose(samus.Pose) ||
-            SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) ||
-            SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose);
-        bool leftSource = SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkingFacingLeftPose(samus.Pose) ||
-            SamusPoseMetadata.IsLeftFacingRanIntoWallPose(samus.Pose) ||
-            SamusPoseMetadata.IsLeftFacingCrouchingPose(samus.Pose) ||
-            SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose);
-        bool turnsLeft = targetPose == (wasCrouching
-            ? SamusPoseId.TurningRightToLeftCrouchingPose
-            : SamusPoseId.TurningRightToLeftPose) && rightSource;
-        bool turnsRight = targetPose == (wasCrouching
-            ? SamusPoseId.TurningLeftToRightCrouchingPose
-            : SamusPoseId.TurningLeftToRightPose) && leftSource;
+        // The way the turn turns her: from the way an admitted source faces, to the turn the target names.
+        HorizontalDirection? source = FacingInAny(samus.Pose, StandingFacing, RunningFacing, MoonwalkFacing, RanIntoWallFacing,
+            CrouchingFacing, LandingFacing);
+        HorizontalDirection? turn = source switch
+        {
+            HorizontalDirection.Right when targetPose == (wasCrouching
+                ? SamusPoseId.TurningRightToLeftCrouchingPose
+                : SamusPoseId.TurningRightToLeftPose) => HorizontalDirection.Left,
+            HorizontalDirection.Left when targetPose == (wasCrouching
+                ? SamusPoseId.TurningLeftToRightCrouchingPose
+                : SamusPoseId.TurningLeftToRightPose) => HorizontalDirection.Right,
+            _ => null,
+        };
         bool leavesForwardView = wasForwardFacing &&
             targetPose is SamusPoseId.TurningRightToLeftPose or SamusPoseId.TurningLeftToRightPose;
-        if (!turnsLeft && !turnsRight && !leavesForwardView)
+        if (turn is null && !leavesForwardView)
         {
             throw new InvalidOperationException(
                 $"Grounded turn {samus.Pose} -> {targetPose} is not one the game makes.");
@@ -412,7 +374,7 @@ internal static class SamusGroundedPoseTransitions
         // turn/jump setup without a new Jump edge.
         if (wasMoonwalking && (controllerInput & GameplayAction.Jump) != GameplayAction.None)
         {
-            ApplyMoonwalkTurnToSpinJump(samus, turnsLeft
+            ApplyMoonwalkTurnToSpinJump(samus, turn == HorizontalDirection.Left
                 ? SamusPoseId.MoonwalkTurnToSpinJumpLeftPose : SamusPoseId.MoonwalkTurnToSpinJumpRightPose);
             return;
         }
@@ -440,8 +402,8 @@ internal static class SamusGroundedPoseTransitions
         }
 
         if (!wasForwardFacing &&
-            ((turnsLeft && !SamusPoseMetadata.IsRightToLeftGroundTurnPose(selectedTurnPose)) ||
-             (turnsRight && !SamusPoseMetadata.IsLeftToRightGroundTurnPose(selectedTurnPose))))
+            ((turn == HorizontalDirection.Left && !SamusPoseMetadata.IsRightToLeftGroundTurnPose(selectedTurnPose)) ||
+             (turn == HorizontalDirection.Right && !SamusPoseMetadata.IsLeftToRightGroundTurnPose(selectedTurnPose))))
         {
             throw new InvalidOperationException(
                 $"Grounded turn source {samus.Pose} has direction metadata inconsistent with target {targetPose}.");
@@ -515,4 +477,44 @@ internal static class SamusGroundedPoseTransitions
         if (expectedPose != targetPose)
             SamusPresentation.InitializeAnimation(samus, SamusPoseTransitions.StandingPoseInitialFrame(expectedPose, targetPose));
     }
+
+    /// <summary>The way <paramref name="pose"/> faces as a standing pose; none for a pose that is not one.</summary>
+    private static HorizontalDirection? StandingFacing(SamusPoseId pose) => SamusPoseMetadata.FacingIn(pose,
+        SamusPoseMetadata.IsRightFacingStandingPose, SamusPoseMetadata.IsLeftFacingStandingPose);
+
+    /// <summary>The way <paramref name="pose"/> faces as a running pose; none for a pose that is not one.</summary>
+    private static HorizontalDirection? RunningFacing(SamusPoseId pose) => SamusPoseMetadata.FacingIn(pose,
+        SamusPoseMetadata.IsRightFacingRunningPose, SamusPoseMetadata.IsLeftFacingRunningPose);
+
+    /// <summary>The way <paramref name="pose"/> faces as a ran-into-wall pose; none for a pose that is not one.</summary>
+    private static HorizontalDirection? RanIntoWallFacing(SamusPoseId pose) => SamusPoseMetadata.FacingIn(pose,
+        SamusPoseMetadata.IsRightFacingRanIntoWallPose, SamusPoseMetadata.IsLeftFacingRanIntoWallPose);
+
+    /// <summary>The way <paramref name="pose"/> faces as a landing; none for a pose that is not one.</summary>
+    private static HorizontalDirection? LandingFacing(SamusPoseId pose) => SamusPoseMetadata.FacingIn(pose,
+        SamusPoseMetadata.IsRightFacingLandingPose, SamusPoseMetadata.IsLeftFacingLandingPose);
+
+    /// <summary>The way <paramref name="pose"/> faces as a crouching pose; none for a pose that is not one.</summary>
+    private static HorizontalDirection? CrouchingFacing(SamusPoseId pose) => SamusPoseMetadata.FacingIn(pose,
+        SamusPoseMetadata.IsRightFacingCrouchingPose, SamusPoseMetadata.IsLeftFacingCrouchingPose);
+
+    /// <summary>The way <paramref name="pose"/> faces as a moonwalking pose; none for a pose that is not one.</summary>
+    private static HorizontalDirection? MoonwalkFacing(SamusPoseId pose) => SamusPoseMetadata.FacingIn(pose,
+        SamusPoseMetadata.IsMoonwalkingFacingRightPose, SamusPoseMetadata.IsMoonwalkingFacingLeftPose);
+
+    /// <summary>The way <paramref name="pose"/> faces as a member of the first of <paramref name="families"/> it belongs to.</summary>
+    private static HorizontalDirection? FacingInAny(SamusPoseId pose, params Func<SamusPoseId, HorizontalDirection?>[] families)
+    {
+        foreach (Func<SamusPoseId, HorizontalDirection?> family in families)
+        {
+            if (family(pose) is { } facing)
+                return facing;
+        }
+        return null;
+    }
+
+    /// <summary>The forward run facing <paramref name="facing"/>.</summary>
+    private static SamusPoseId ForwardRunPose(HorizontalDirection facing) => facing == HorizontalDirection.Right
+        ? SamusPoseId.MovingRightNormalPose
+        : SamusPoseId.MovingLeftNormalPose;
 }

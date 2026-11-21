@@ -871,7 +871,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
     {
         Pose = SamusPoseId.NormalJumpAimDownRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x007a, 0x0696)),
-        KnockbackDirection = SamusKnockbackDirection.DownRight,
+        Knockback = SamusKnockback.Moving(SamusKnockbackDirection.DownRight).Released(),
         KnockbackHold = UpdateCountdown.Ended(),
     };
     floorClipOverlap.Kinematics.Position = floorClipOverlap.Kinematics.Position.WithFractionX(0xffff).WithFractionY(0xffff);
@@ -901,7 +901,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
     {
         Pose = SamusPoseId.NormalJumpAimDownRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x0696)),
-        KnockbackDirection = SamusKnockbackDirection.DownRight,
+        Knockback = SamusKnockback.Moving(SamusKnockbackDirection.DownRight).Released(),
         KnockbackHold = UpdateCountdown.Ended(),
     };
     sameRadiusExpiry.PoseHistory.Restore(SamusPoseId.NormalJumpAimDownRightPose, sameRadiusExpiry.PoseHistory.PreviousMovement, sameRadiusExpiry.PoseHistory.MovementBeforePrevious);

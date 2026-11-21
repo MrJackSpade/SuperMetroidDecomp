@@ -132,33 +132,27 @@ internal static class SamusAerialPoseTransitions
         Ensure.NotNull(level);
 
         SamusPoseId sourcePose = samus.Pose;
-        SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
-        bool jumping = sourceMovementType == SamusMovementType.NormalJumping;
-        bool falling = sourceMovementType == SamusMovementType.Falling;
-        bool turnsLeft = genericTargetPose == (jumping
-            ? SamusPoseId.TurningRightToLeftJumpPose
-            : SamusPoseId.TurningRightToLeftFallingPose);
-        bool turnsRight = genericTargetPose == (jumping
-            ? SamusPoseId.TurningLeftToRightJumpPose
-            : SamusPoseId.TurningLeftToRightFallingPose);
-        if ((!jumping && !falling) || (!turnsLeft && !turnsRight))
+        AerialTurns family = SamusPoseMetadata.ReadMovementType(samus) switch
         {
-            throw new InvalidOperationException(
+            SamusMovementType.NormalJumping => AerialTurns.Jumping,
+            SamusMovementType.Falling => AerialTurns.Falling,
+            _ => throw new InvalidOperationException(
+                $"Aerial turn {sourcePose} -> {genericTargetPose} is not a turn while jumping or falling."),
+        };
+        HorizontalDirection turnsTo = genericTargetPose == family.RightToLeft ? HorizontalDirection.Left
+            : genericTargetPose == family.LeftToRight ? HorizontalDirection.Right
+            : throw new InvalidOperationException(
                 $"Aerial turn {sourcePose} -> {genericTargetPose} is not a turn while jumping or falling.");
-        }
 
         // The turn keeps her aim. A straight-down aim takes the down-aimed turn away from the way she faces.
         SamusProjectileDirection? shotDirection = SamusPoseMetadata.ReadAimDirection(samus);
-        IReadOnlyDictionary<SamusProjectileDirection, SamusPoseId> turns = jumping
-            ? SamusAimedPoseChoiceDefinitions.JumpingTurns
-            : SamusAimedPoseChoiceDefinitions.FallingTurns;
-        SamusPoseId selectedTurnPose = shotDirection is { } direction && turns.TryGetValue(direction, out SamusPoseId turn)
+        SamusPoseId selectedTurnPose = shotDirection is { } direction && family.ByAim.TryGetValue(direction, out SamusPoseId turn)
             ? turn
             : throw new InvalidDataException(
-                $"{(jumping ? "Jump" : "Fall")} pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(samus)}).");
+                $"{family.Name} pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(samus)}).");
 
-        if ((turnsLeft && !SamusPoseMetadata.IsRightToLeftAerialTurnPose(selectedTurnPose)) ||
-            (turnsRight && !SamusPoseMetadata.IsLeftToRightAerialTurnPose(selectedTurnPose)))
+        if ((turnsTo == HorizontalDirection.Left && !SamusPoseMetadata.IsRightToLeftAerialTurnPose(selectedTurnPose)) ||
+            (turnsTo == HorizontalDirection.Right && !SamusPoseMetadata.IsLeftToRightAerialTurnPose(selectedTurnPose)))
         {
             throw new InvalidOperationException(
                 $"Aerial turn source {sourcePose} has direction metadata inconsistent with {genericTargetPose}.");
@@ -632,15 +626,13 @@ internal static class SamusAerialPoseTransitions
     {
         Ensure.NotNull(level);
 
-        bool rightJump = SamusPoseMetadata.IsRightFacingNormalJumpPose(samus.Pose) &&
-            SamusPoseMetadata.IsRightFacingNormalJumpPose(targetPose);
-        bool leftJump = SamusPoseMetadata.IsLeftFacingNormalJumpPose(samus.Pose) &&
-            SamusPoseMetadata.IsLeftFacingNormalJumpPose(targetPose);
-        bool rightFall = SamusPoseMetadata.IsRightFacingFallingPose(samus.Pose) &&
-            SamusPoseMetadata.IsRightFacingFallingPose(targetPose);
-        bool leftFall = SamusPoseMetadata.IsLeftFacingFallingPose(samus.Pose) &&
-            SamusPoseMetadata.IsLeftFacingFallingPose(targetPose);
-        if ((!rightJump && !leftJump && !rightFall && !leftFall) ||
+        // Both endpoints jump, or both fall, facing the same way.
+        SamusMovementType family = SamusPoseMetadata.ReadMovementType(samus.Pose);
+        bool sameFamily = family is SamusMovementType.NormalJumping or SamusMovementType.Falling &&
+            SamusPoseMetadata.ReadMovementType(targetPose) == family &&
+            SamusPoseMetadata.ReadFacingDirection(samus.Pose) is SamusFacingDirection.Left or SamusFacingDirection.Right &&
+            SamusPoseMetadata.ReadFacingDirection(targetPose) == SamusPoseMetadata.ReadFacingDirection(samus.Pose);
+        if (!sameFamily ||
             (!SamusPoseMetadata.IsCompactAerialPose(samus.Pose) && !SamusPoseMetadata.IsCompactAerialPose(targetPose)))
         {
             // This is the exact precondition of the collision-aware compact-pose change.
@@ -672,8 +664,7 @@ internal static class SamusAerialPoseTransitions
             // Successful expansion still runs the normal-jump setup. A stored
             // shine may replace the requested aim pose; collision rejection above must
             // not consume the charge or apply the windup's one-pixel adjustment.
-            if (TryBeginShinesparkWindup(samus, targetPose,
-                rightJump || leftJump ? SamusMovementType.NormalJumping : SamusMovementType.Falling))
+            if (TryBeginShinesparkWindup(samus, targetPose, family))
                 return;
             InitializeOrdinaryAerialAcceleration(samus);
         }
@@ -696,4 +687,24 @@ internal static class SamusAerialPoseTransitions
     /// <summary>Whether <paramref name="pose"/> is one the ordinary jump setup installs: a jump transition, neutral or aimed, or the spin jump.</summary>
     private static bool IsOrdinaryJumpTarget(SamusPoseId pose) =>
         SamusPoseMetadata.IsJumpTransitionPose(pose) || pose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose;
+
+    /// <summary>
+    /// The turns of one aerial movement (#2560): the generic right-to-left and left-to-right turns its input transitions
+    /// publish, and the aimed turn each shot direction selects.
+    /// </summary>
+    /// <param name="Name">The movement's name in diagnostics.</param>
+    /// <param name="RightToLeft">The generic turn from facing right to facing left.</param>
+    /// <param name="LeftToRight">The generic turn from facing left to facing right.</param>
+    /// <param name="ByAim">The aimed turn each shot direction selects.</param>
+    private sealed record AerialTurns(string Name, SamusPoseId RightToLeft, SamusPoseId LeftToRight,
+        IReadOnlyDictionary<SamusProjectileDirection, SamusPoseId> ByAim)
+    {
+        /// <summary>The turns of a normal jump.</summary>
+        internal static AerialTurns Jumping { get; } = new("Jump", SamusPoseId.TurningRightToLeftJumpPose,
+            SamusPoseId.TurningLeftToRightJumpPose, SamusAimedPoseChoiceDefinitions.JumpingTurns);
+
+        /// <summary>The turns of a fall.</summary>
+        internal static AerialTurns Falling { get; } = new("Fall", SamusPoseId.TurningRightToLeftFallingPose,
+            SamusPoseId.TurningLeftToRightFallingPose, SamusAimedPoseChoiceDefinitions.FallingTurns);
+    }
 }

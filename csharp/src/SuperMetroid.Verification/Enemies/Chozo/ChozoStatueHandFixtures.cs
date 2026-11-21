@@ -1,3 +1,5 @@
+using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Verification.Harness;

@@ -107,8 +107,8 @@ internal static class RoomObjectProgramsVerification
     {
         IImportCartridgeSource cartridge = rom;
         int frames = 0;
-        foreach ((BlockReactionChange change, ushort entry) in BlockReactionEntries)
-            frames += CompareBlockReaction(cartridge, change, entry, change == BlockReactionChangeDefinitions.RespawningBreakableGrappleBlock);
+        foreach ((object change, ushort entry) in BlockReactionEntries)
+            frames += CompareBlockReaction(cartridge, ImagesOf(change), entry, ReferenceEquals(change, BlockReactionChangeDefinitions.RespawningBreakableGrappleBlock));
         Console.WriteLine($"  Block reactions: {frames} typed images match bank $84.");
     }
 
@@ -117,8 +117,8 @@ internal static class RoomObjectProgramsVerification
     {
         IImportCartridgeSource cartridge = rom;
         int frames = 0;
-        foreach ((BlockReactionChange change, ushort entry) in SpeedBoosterBlockEntries)
-            frames += CompareBlockReaction(cartridge, change, entry, restoresGrappleBehaviour: false);
+        foreach ((object change, ushort entry) in SpeedBoosterBlockEntries)
+            frames += CompareBlockReaction(cartridge, ImagesOf(change), entry, restoresGrappleBehaviour: false);
         AssertEqual(SoundRequestPriority.WhenIdle, SpeedBoosterBlockObjectDefinitions.BreakSoundPriority, "speed block break sound priority");
         Console.WriteLine($"  Speed Booster blocks: {frames} typed images match bank $84.");
     }
@@ -127,7 +127,19 @@ internal static class RoomObjectProgramsVerification
     /// Plays the native list at <paramref name="entry"/> beside <paramref name="change"/>, image by image, and returns the
     /// images compared.
     /// </summary>
-    private static int CompareBlockReaction(IImportCartridgeSource cartridge, BlockReactionChange change, ushort entry, bool restoresGrappleBehaviour)
+    /// <summary>
+    /// The images of <paramref name="change"/>, a reaction that saves terrain to restore or one that lasts, as the room's
+    /// block reactions show them.
+    /// </summary>
+    private static IReadOnlyList<BlockReactionFrame> ImagesOf(object change) => change switch
+    {
+        BlockReactionChange saving => saving.Frames,
+        LastingBlockReactionChange lasting => [.. lasting.Frames.Select(frame =>
+            new BlockReactionFrame(frame.Image, frame.Updates, frame.SoundBefore) { SoundPriority = frame.SoundPriority })],
+        _ => throw new ArgumentException($"{change} is no block reaction.", nameof(change)),
+    };
+
+    private static int CompareBlockReaction(IImportCartridgeSource cartridge, IReadOnlyList<BlockReactionFrame> images, ushort entry, bool restoresGrappleBehaviour)
     {
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         int cursor = entry;
@@ -141,8 +153,8 @@ internal static class RoomObjectProgramsVerification
             int word = Word(cursor);
             if (word < 0x8000)
             {
-                AssertTrue(frame < change.Frames.Count, $"{at}: the typed reaction ends before the native list draws");
-                BlockReactionFrame expected = change.Frames[frame];
+                AssertTrue(frame < images.Count, $"{at}: the typed reaction ends before the native list draws");
+                BlockReactionFrame expected = images[frame];
                 RoomObjectDraw draw = expected.Image is BlockReactionImage.Drawn drawn
                     ? drawn.Draw
                     : throw new InvalidDataException($"{at}: the native image draws where the typed one restores the block.");
@@ -159,7 +171,7 @@ internal static class RoomObjectProgramsVerification
             RoomObjectInstruction instruction = InstructionAt<RoomObjectInstruction>(cartridge, cursor);
             if (instruction == RoomObjectInstruction.Delete)
             {
-                AssertEqual(change.Frames.Count, frame, $"{at}: the native list ends after the typed images");
+                AssertEqual(images.Count, frame, $"{at}: the native list ends after the typed images");
                 AssertEqual<SoundEffectId?>(null, sound, $"{at}: no sound is left for the end");
                 AssertEqual(restoresGrappleBehaviour, grappleRestored, $"{at}: the Grapple behaviour restore");
                 return frame;
@@ -182,7 +194,7 @@ internal static class RoomObjectProgramsVerification
             }
             if (instruction == RoomObjectInstruction.SetObjectBtsToOne)
             {
-                AssertTrue(restoresGrappleBehaviour && frame < change.Frames.Count && change.Frames[frame].Image is BlockReactionImage.RestoresSavedTerrain,
+                AssertTrue(restoresGrappleBehaviour && frame < images.Count && images[frame].Image is BlockReactionImage.RestoresSavedTerrain,
                     $"{at}: only the respawning Grapple block restores its behaviour, just before its restored block");
                 grappleRestored = true;
                 cursor += 2;
@@ -190,8 +202,8 @@ internal static class RoomObjectProgramsVerification
             }
             if (instruction is RoomObjectInstruction.DrawObjectBlock or RoomObjectInstruction.DrawObjectBlockClone)
             {
-                AssertTrue(frame < change.Frames.Count && change.Frames[frame].Image is BlockReactionImage.RestoresSavedTerrain, $"{at}: the typed image restores the saved block");
-                AssertEqual(1, change.Frames[frame].Updates, $"{at}: the restored block stays one update");
+                AssertTrue(frame < images.Count && images[frame].Image is BlockReactionImage.RestoresSavedTerrain, $"{at}: the typed image restores the saved block");
+                AssertEqual(1, images[frame].Updates, $"{at}: the restored block stays one update");
                 AssertEqual<SoundEffectId?>(null, sound, $"{at}: no sound with the restored block");
                 frame++;
                 cursor += 2;

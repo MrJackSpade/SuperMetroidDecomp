@@ -26,7 +26,7 @@ internal static class TourianStatueSceneLookVerification
     {
         RoomEnemySystem enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles),
             RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork,
-            statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+            statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
         RoomEnemyPlace placement = enemies.Places.InUpdateOrder[0];
         placement.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, 0);
         placement.Bind(EnemyDefinitionId.TourianStatue, placement.KeptDefinition);

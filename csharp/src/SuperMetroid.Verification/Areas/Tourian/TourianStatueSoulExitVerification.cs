@@ -52,7 +52,7 @@ internal static class TourianStatueSoulExitVerification
         foreach (TourianStatueAnimationDefinition statue in TourianStatueAnimationDefinitions.Statues.Values)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
-                statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+                statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
             EnemySystemFixtures.UnlockEffects(enemies).SpawnTourianSoul(statue.Eye);
             EnemyProjectile soul = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             for (int update = 0; ; update++)
@@ -75,7 +75,7 @@ internal static class TourianStatueSoulExitVerification
         {
             ushort sample = random;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
-                services: new StandaloneRoomEnemyServices(() => sample), statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+                services: new StandaloneRoomEnemyServices(() => sample), statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
             TourianUnlockBehavior unlock = EnemySystemFixtures.UnlockEffects(enemies);
             unlock.SpawnTourianSoul(statue.Eye);
             EnemyProjectile soul = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);

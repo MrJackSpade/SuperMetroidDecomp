@@ -48,7 +48,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
             TourianStatueProjectileNativeListAddresses.Family.NativePointers(rom);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: InstalledFixtures.BossArtwork,
-            statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+            statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
         enemies.VerificationServices().NextRandom = () => 4;
         _ = EnemySystemFixtures.StatueScene(enemies);
         TourianUnlockBehavior unlock = EnemySystemFixtures.UnlockEffects(enemies);

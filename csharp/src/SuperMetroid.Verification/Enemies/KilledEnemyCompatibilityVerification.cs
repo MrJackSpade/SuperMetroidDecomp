@@ -13,7 +13,7 @@ internal static class KilledEnemyCompatibilityVerification
     /// Confirms what a neighbour finds in an enemy's place (<see cref="RemovedEnemyLeftovers{TStates}"/>): the living
     /// enemy's own state, the state a deleted enemy left as it left it, nothing once a kill cleared the place, and a later
     /// enemy's own state; and that the rest of a Shaktool chain reads the killed segment emptied in the record the kill
-    /// cleared and keeps what it writes there (<see cref="RoomEnemyPlace.FoundOrClearedState{T}"/>).
+    /// cleared and keeps what it writes there (<see cref="RoomEnemyPlace.ClearedByKill{TRecord}"/>).
     /// </summary>
     internal static void VerifyKilledEnemyCompatibility()
     {

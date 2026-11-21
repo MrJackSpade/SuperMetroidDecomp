@@ -40,6 +40,7 @@ internal static class EnemySystemFixtures
     /// <param name="floor">The room's turning floor, or null for a room that shows none.</param>
     /// <param name="statueRoom">The Tourian statue room, or null for any other room.</param>
     /// <param name="shaftTurn">The elevator shaft's turn, or null for a room that is no turning shaft.</param>
+    /// <param name="warnings">The room's warnings, or null for fresh warnings on the installed written sheet.</param>
     internal static RoomEnemySystem New(EnemySession session, RoomEnemyCompatibility compatibility,
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null,
         BossSourceArtwork? installedBosses = null, EnemyBreakableTerrainObjects? breakableTerrain = null,
@@ -83,7 +84,7 @@ internal static class EnemySystemFixtures
     internal static RoomEnemySystem PlacingAnyEnemy(EnemySession session, RoomEnemyCompatibility compatibility,
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null, BossSourceArtwork? installedBosses = null) =>
         New(session, compatibility, definitions, services, installedBosses,
-            floor: RoomBackgroundsFixtures.CeresFloor(), statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0),
+            floor: RoomBackgroundsFixtures.CeresFloor(), statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)),
             shaftTurn: new CeresElevatorShaftRoomMainState(new RoomMainHandOvers().ShaftTurnToDebris));
 
     /// <summary>The Tourian statue scene of <paramref name="enemies"/>, which the check built for the statue room.</summary>

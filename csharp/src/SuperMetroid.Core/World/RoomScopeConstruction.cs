@@ -28,14 +28,8 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 [RoomLifetime]
 internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
-<<<<<<< ours
-    LoadStation? loadStation, ScrollBoundaryCamera camera, SamusBombProjectileSystem bombProjectiles,
+    LoadStation? loadStation, CeresElevatorArrivalState? ceresElevatorArrival, ScrollBoundaryCamera camera, SamusBombProjectileSystem bombProjectiles,
     RoomMainHandOvers handOvers) : IDoorEventLoad
-||||||| base
-    LoadStation? loadStation, RoomMainHandOvers handOvers) : IDoorEventLoad
-=======
-    LoadStation? loadStation, CeresElevatorArrivalState? ceresElevatorArrival, RoomMainHandOvers handOvers) : IDoorEventLoad
->>>>>>> theirs
 {
     /// <summary>What the previous room's main handed on, each hand-over given only to the main that carries it.</summary>
     private readonly RoomMainHandOvers _handOvers = Ensure.NotNull(handOvers);
@@ -196,17 +190,9 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         Room = Room,
         Assets = Assets,
         LoadStation = LoadStation,
-<<<<<<< ours
+        CeresElevatorArrival = ceresElevatorArrival,
         LevelData = LevelData,
         Camera = Camera,
-||||||| base
-        LevelData = LevelData ?? throw Missing(nameof(LevelData)),
-        Camera = Camera ?? throw Missing(nameof(Camera)),
-=======
-        CeresElevatorArrival = ceresElevatorArrival,
-        LevelData = LevelData ?? throw Missing(nameof(LevelData)),
-        Camera = Camera ?? throw Missing(nameof(Camera)),
->>>>>>> theirs
         ArtworkFrames = ArtworkFrames,
         Appearance = Appearance,
         Looks = Looks,

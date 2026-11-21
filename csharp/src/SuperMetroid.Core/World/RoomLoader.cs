@@ -474,16 +474,8 @@ internal sealed class RoomLoader
             _backgroundScroll.BackgroundPosition);
         DoorDirection direction = door.Orientation.Direction;
         // The offsets derive from where the foreground stands before setup's first update.
-<<<<<<< ours
         Position16<RoomPixels> openingForeground = scroll.CameraPosition +
-            Ensure.Listed(DoorOpeningScrollDefinitions.OpeningForegroundOffsets, direction);
-||||||| base
-        Position16<RoomPixels> openingForeground = _doorOpeningScroll.CameraPosition +
-            Ensure.Listed(DoorOpeningScrollDefinitions.OpeningForegroundOffsets, direction);
-=======
-        Position16<RoomPixels> openingForeground = _doorOpeningScroll.CameraPosition +
             DoorOpeningScrollDefinitions.OpeningForegroundOffsets[direction];
->>>>>>> theirs
         _backgroundScroll.BeginDoorOpeningViews(openingForeground);
         // The source screen stays where it was on the screen, lying where the destination's view begins, while the
         // destination scrolls in around it.
@@ -588,42 +580,8 @@ internal sealed class RoomLoader
         Ensure.NotNull(state);
         if (state.Scroll.IsRunning)
             throw new InvalidOperationException("Door loading has not finished scrolling.");
-<<<<<<< ours
         SamusState samus = _player.Samus;
-        switch (state.Direction)
-        {
-            case DoorDirection.Right:
-                samus.Position = samus.Position.WithWholeX(RoomGridConversions.HalfBlockEnd(samus.Position.X.Whole));
-                break;
-            case DoorDirection.Left:
-                samus.Position = samus.Position.WithWholeX(RoomGridConversions.HalfBlockStart(samus.Position.X.Whole));
-                break;
-            case DoorDirection.Down:
-            case DoorDirection.Up:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined door direction {state.Direction}.");
-        }
-||||||| base
-        SamusState samus = _player.IntroducedSamus;
-        switch (state.Direction)
-        {
-            case DoorDirection.Right:
-                samus.Position = samus.Position.WithWholeX(RoomGridConversions.HalfBlockEnd(samus.Position.X.Whole));
-                break;
-            case DoorDirection.Left:
-                samus.Position = samus.Position.WithWholeX(RoomGridConversions.HalfBlockStart(samus.Position.X.Whole));
-                break;
-            case DoorDirection.Down:
-            case DoorDirection.Up:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined door direction {state.Direction}.");
-        }
-=======
-        SamusState samus = _player.IntroducedSamus;
         AlignSamusAfterDoorLoadingForDoorDirection[state.Direction](samus);
->>>>>>> theirs
     }
 
     /// <summary>
@@ -751,24 +709,7 @@ internal sealed class RoomLoader
         RoomEntry entry)
     {
         Ensure.NotNull(entry);
-<<<<<<< ours
-        if (viewportLoadMode is not (RoomViewportLoadMode.DisplayInitialViewport or RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn))
-            throw new ArgumentOutOfRangeException(nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode.");
-||||||| base
-        DoorOpeningSourceView? doorOpeningSourceView = viewportLoadMode switch
-        {
-            RoomViewportLoadMode.DisplayInitialViewport => null,
-            RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn => new DoorOpeningSourceView(_backgroundScroll.ForegroundScroll,
-                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, SourceScreenPictures())),
-            _ => throw new ArgumentOutOfRangeException(
-                nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
-        };
-=======
-        DoorOpeningSourceView? doorOpeningSourceView = viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport
-            ? null
-            : new DoorOpeningSourceView(_backgroundScroll.ForegroundScroll,
-                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, SourceScreenPictures()));
->>>>>>> theirs
+
         LoadedRoomAssets assets = entry.PreloadedAssets ??
             LoadedRoomAssets.Load(_scrollCells, room, RequireRoomAssetCatalogs());
 
@@ -781,17 +722,11 @@ internal sealed class RoomLoader
             outgoing.Projectiles.HandOverTo(_room.HandOver);
             outgoing.Enemies.HandOverTo(_room.HandOver);
         }
-<<<<<<< ours
         // The destination's camera and bombs are built new before its load begins: none of the outgoing room's bombs
         // reaches into the destination, and the camera step below places the camera.
         var destinationCamera = new ScrollBoundaryCamera(assets.Scrolls);
         var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.SamusArtwork);
-        RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation, destinationCamera, bombs);
-||||||| base
-        RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation);
-=======
-        RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation, entry.CeresElevatorArrival);
->>>>>>> theirs
+        RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation, entry.CeresElevatorArrival, destinationCamera, bombs);
         // The room's block animations: those the door-selected effect lists, and the treadmill a door's setup may start.
         var blockAnimations = new RoomBlockAnimations(room.State.Fx, door);
         // The room's pictures carry its tileset's colours (#1512), so the load colours nothing.
@@ -1153,18 +1088,8 @@ internal sealed class RoomLoader
         SamusPresentation.InitializeAnimation(_player.Samus);
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(_player.Samus);
 
-<<<<<<< ours
-        // The Ceres elevator's arrival owns its own state from the first draw, the concealer over the room's level drawn in
-        // the room's own colours.
-        loaded.BeginCeresElevatorArrival(new CeresElevatorArrivalState(_player.Samus));
-||||||| base
-        // The Ceres elevator's arrival owns its own state from the first draw, the concealer over the room's level drawn in
-        // the room's own colours.
-        _room.LoadedScope.BeginCeresElevatorArrival(new CeresElevatorArrivalState(_player.Samus));
-=======
         // The Ceres elevator's arrival, built with the room, owns its own state from the first draw, the concealer over the
         // room's level drawn in the room's own colours.
->>>>>>> theirs
 
         // The locked Ceres start's frame publishes the initial minimap itself, so the HUD shows Ceres's room from the
         // descent's first frame; later frames keep updating it.

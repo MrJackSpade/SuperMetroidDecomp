@@ -33,16 +33,8 @@ internal static class RetailSaveCaptureTests
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaSave, new Position16<RoomPixels>(0, 0));
         var station = runtime.RoomObjects.StationSnapshots.Single(s => s.IsSaveStation);
         var level = runtime.Room.LoadedLevelData;
-<<<<<<< ours
         var samus = runtime.Player.Samus;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
-||||||| base
-        var samus = runtime.Player.IntroducedSamus;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
-=======
-        var samus = runtime.Player.IntroducedSamus;
         samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
->>>>>>> theirs
         samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.Pose).Start;
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new((ushort)(station.Block.X * 16 + 13), (ushort)(station.Block.Y * 16 - samus.Kinematics.Radius.Y)));

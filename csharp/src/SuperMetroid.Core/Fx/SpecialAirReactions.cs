@@ -43,41 +43,5 @@ public static class SpecialAirReactions
     public static SpecialAirCollisionReaction CollisionOf(SpecialAirReaction reaction) => Of(reaction).Collision;
 
     /// <summary>What the block's reaction does.</summary>
-    /// <exception cref="InvalidOperationException">The reaction is undefined.</exception>
-<<<<<<< ours
-    private static SpecialAirReactionEffects Of(SpecialAirReaction reaction) =>
-        Reactions.TryGetValue(reaction, out var does)
-            ? does
-            : throw new InvalidOperationException($"Undefined {nameof(SpecialAirReaction)} {reaction}.");
-||||||| base
-    private static SpecialAirReactionEffects Of(SpecialAirReaction? reaction, string context)
-    {
-        SpecialAirReaction validated = Validate(reaction, context);
-        return Reactions.TryGetValue(validated, out var does)
-            ? does
-            : throw new InvalidOperationException($"Undefined {nameof(SpecialAirReaction)} {validated}.");
-    }
-
-    /// <summary>Requires the block to have a reaction.</summary>
-    /// <returns>The block's reaction.</returns>
-    private static SpecialAirReaction Validate(SpecialAirReaction? reaction, string context) =>
-        reaction ?? throw new ArgumentOutOfRangeException(
-            nameof(reaction),
-            reaction,
-            $"A special-air block's {context} reaction needs a reaction the block has.");
-=======
-    private static SpecialAirReactionEffects Of(SpecialAirReaction? reaction, string context)
-    {
-        SpecialAirReaction validated = Validate(reaction, context);
-        return Reactions[validated];
-    }
-
-    /// <summary>Requires the block to have a reaction.</summary>
-    /// <returns>The block's reaction.</returns>
-    private static SpecialAirReaction Validate(SpecialAirReaction? reaction, string context) =>
-        reaction ?? throw new ArgumentOutOfRangeException(
-            nameof(reaction),
-            reaction,
-            $"A special-air block's {context} reaction needs a reaction the block has.");
->>>>>>> theirs
+    private static SpecialAirReactionEffects Of(SpecialAirReaction reaction) => Reactions[reaction];
 }

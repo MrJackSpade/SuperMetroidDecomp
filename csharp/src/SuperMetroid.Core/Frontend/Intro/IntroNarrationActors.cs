@@ -25,31 +25,12 @@ internal sealed class IntroNarrationActors
     /// The page being typed (#2488), with its glyphs and its typing; none before the first page and once a page has
     /// finished.
     /// </summary>
-<<<<<<< ours
-    private IntroActiveNarrationPage? activePage;
-||||||| base
-    private AnimationPlayer<IntroNarrationPageId, IntroNarrationTyping, IntroNarrationTypingCue>? typing;
-=======
->>>>>>> theirs
     /// <summary>The installed narration artwork, rebound whenever the game is bound to its installed content.</summary>
     private IntroNarrationPresentation narrationPresentation;
     /// <summary>The eye frame the portrait shows, as an installed picture over it (#1467); null before the first frame.</summary>
     internal IntroEyeFrame? EyeFrame => eye.Shown;
-<<<<<<< ours
-||||||| base
-    /// <summary>The page glyphs, built from the installed presentation when it is bound.</summary>
-    private IntroNarrationCharacter[]? narrationAnimation;
-    /// <summary>The bound narration page's characters.</summary>
-    private IntroNarrationCharacter[] NarrationAnimation => narrationAnimation ??
-        throw new InvalidOperationException("No narration page is bound.");
-    /// <summary>Page whose glyphs and Japanese subtitle markers are active.</summary>
-    private IntroNarrationPageId? narrationPage;
-    /// <summary>The characters the active page has typed, which its typing shows; none before its first.</summary>
-    private int TypedCharacters => typing?.Shown?.Letters ?? 0;
-=======
     /// <summary>The page being typed, with its glyphs and typing, or null between pages.</summary>
     private IntroNarrationPage? narrationPage;
->>>>>>> theirs
     /// <summary>The persistent text-caret actor, running its typed animation (#641); <see cref="Caret"/> places it.</summary>
     private readonly CinematicActor<IntroNarrationAnimation, CinematicSpritePose, NoAnimationCue> caretSprite =
         new(default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors), IntroNarrationAnimations.Narration, IntroNarrationAnimation.Caret);
@@ -158,14 +139,7 @@ internal sealed class IntroNarrationActors
         StepNextPageArrow();
         subtitles.Step(newlyPressed, MarkAwaitingInput);
         eye.Step();
-<<<<<<< ours
-        if (activePage is { } page)
-||||||| base
-        if (narrationAnimation is not null)
-            StepInstalledNarration();
-=======
         if (narrationPage is { } page)
->>>>>>> theirs
             StepInstalledNarration(page);
         textGlow?.Step(text);
     }
@@ -174,148 +148,27 @@ internal sealed class IntroNarrationActors
     public void BindNarration(IntroNarrationPresentation presentation)
     {
         narrationPresentation = Ensure.NotNull(presentation);
-<<<<<<< ours
-        if (activePage is not { } active)
-            return;
-        IntroNarrationPageId page = active.Page;
-        active.Characters = presentation.Compile(page);
-        // The characters the page has typed, which its typing shows; none before its first.
-        int typedCharacters = active.Typing.Shown?.Letters ?? 0;
-        if (typedCharacters > active.Characters.Length)
-        {
-            throw new InvalidDataException(
-                $"Saved narration cursor {typedCharacters} exceeds the rebound {page} narration.");
-        }
-        AnimationSegments<IntroNarrationPageId, IntroNarrationTyping, IntroNarrationTypingCue> rebound =
-            IntroNarrationTypingAnimations.Segments(page, active.Characters.Length);
-        active.Typing.Rebind(rebound, IntroNarrationTypingAnimations.Typing(rebound, page));
-||||||| base
-        if (narrationPage is not { } page)
-        {
-            narrationAnimation = null;
-            return;
-        }
-        narrationAnimation = presentation.Compile(page);
-        if (TypedCharacters > narrationAnimation.Length)
-        {
-            throw new InvalidDataException(
-                $"Saved narration cursor {TypedCharacters} exceeds the rebound {page} narration.");
-        }
-        AnimationSegments<IntroNarrationPageId, IntroNarrationTyping, IntroNarrationTypingCue> rebound =
-            IntroNarrationTypingAnimations.Segments(page, narrationAnimation.Length);
-        Typing.Rebind(rebound, IntroNarrationTypingAnimations.Typing(rebound, page));
-=======
         narrationPage?.Rebind(presentation);
->>>>>>> theirs
     }
 
     /// <summary>
     /// Builds the glyphs of an installed page and starts its typing, which shows the page's subtitle once its opening pause
     /// has passed and types its first glyph after the pause again.
     /// </summary>
-<<<<<<< ours
-    private void StartNarration(IntroNarrationPageId page)
-    {
-        IntroNarrationCharacter[] characters = narrationPresentation.Compile(page);
-        AnimationSegments<IntroNarrationPageId, IntroNarrationTyping, IntroNarrationTypingCue> segments =
-            IntroNarrationTypingAnimations.Segments(page, characters.Length);
-        activePage = new IntroActiveNarrationPage(page, characters,
-            AnimationPlayer<IntroNarrationPageId, IntroNarrationTyping, IntroNarrationTypingCue>.StartingAfter(
-                segments, IntroNarrationTypingAnimations.Typing(segments, page), IntroNarrationDefinitions.PageOpeningPauseFrames));
-    }
-||||||| base
-    private void StartNarration(IntroNarrationPageId page)
-    {
-        narrationPage = page;
-        narrationAnimation = narrationPresentation.Compile(page);
-        AnimationSegments<IntroNarrationPageId, IntroNarrationTyping, IntroNarrationTypingCue> segments =
-            IntroNarrationTypingAnimations.Segments(page, narrationAnimation.Length);
-        typing = AnimationPlayer<IntroNarrationPageId, IntroNarrationTyping, IntroNarrationTypingCue>.StartingAfter(
-            segments, IntroNarrationTypingAnimations.Typing(segments, page), IntroNarrationDefinitions.PageOpeningPauseFrames);
-    }
-=======
     private void StartNarration(IntroNarrationPageId page) => narrationPage = new IntroNarrationPage(page, narrationPresentation);
->>>>>>> theirs
 
-<<<<<<< ours
-    /// <summary>Runs the page's typing one update: its subtitle, its next glyph with its sound and caret, and its finish.</summary>
-    private void StepInstalledNarration(IntroActiveNarrationPage page)
-||||||| base
-    /// <summary>Runs the page's typing one update: its subtitle, its next glyph with its sound and caret, and its finish.</summary>
-    private void StepInstalledNarration()
-=======
     /// <summary>Runs <paramref name="page"/>'s typing one update: its subtitle, its next glyph with its sound and caret, and its finish.</summary>
     private void StepInstalledNarration(IntroNarrationPage page)
->>>>>>> theirs
     {
-<<<<<<< ours
-        if (page.Typing.StepToNewFrame(cue => CarryOut(page.Page, cue)) is { } typed)
-||||||| base
-        if (Typing.StepToNewFrame(CarryOut) is { } typed)
-            TypeCharacter(typed.Letters - 1);
-=======
         if (page.Typing.StepToNewFrame(cue => CarryOutForIntroNarrationTypingCue[cue](page.Id)) is { } typed)
->>>>>>> theirs
             TypeCharacter(page.Characters, typed.Letters - 1);
     }
 
-<<<<<<< ours
-    /// <summary>Carries out <paramref name="cue"/> of the page's typing.</summary>
-    /// <exception cref="InvalidOperationException">The cue is not one a page's typing raises.</exception>
-    private void CarryOut(IntroNarrationPageId page, IntroNarrationTypingCue cue)
-||||||| base
-    /// <summary>Carries out <paramref name="cue"/> of the page's typing.</summary>
-    /// <exception cref="InvalidOperationException">The cue is not one a page's typing raises.</exception>
-    private void CarryOut(IntroNarrationTypingCue cue)
-=======
     /// <summary>What the typing does at each <see cref="IntroNarrationTypingCue"/> it raises, each cue's own arm.</summary>
     private IdentityTable<IntroNarrationTypingCue, Action<IntroNarrationPageId>> CarryOutForIntroNarrationTypingCue => field ??= new(new Dictionary<IntroNarrationTypingCue, Action<IntroNarrationPageId>>
->>>>>>> theirs
     {
-<<<<<<< ours
-        switch (cue)
-||||||| base
-        IntroNarrationPageId page = narrationPage ?? throw new InvalidDataException(
-            "Installed narration typed without an active page identity.");
-        switch (cue)
-=======
         [IntroNarrationTypingCue.ShowSubtitle] = page =>
->>>>>>> theirs
         {
-<<<<<<< ours
-            case IntroNarrationTypingCue.ShowSubtitle:
-                // Each page opens by showing its subtitle.
-                subtitles.BeginPage(page);
-                return;
-            case IntroNarrationTypingCue.BlinkCaret:
-                SetCaretBlinking();
-                return;
-            case IntroNarrationTypingCue.FinishPage:
-                FinishInstalledNarration(page);
-                activePage = null;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined narration typing cue {cue}.");
-        }
-    }
-||||||| base
-            case IntroNarrationTypingCue.ShowSubtitle:
-                // Each page opens by showing its subtitle.
-                subtitles.BeginPage(page);
-                return;
-            case IntroNarrationTypingCue.BlinkCaret:
-                SetCaretBlinking();
-                return;
-            case IntroNarrationTypingCue.FinishPage:
-                FinishInstalledNarration(page);
-                narrationAnimation = null;
-                narrationPage = null;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined narration typing cue {cue}.");
-        }
-    }
-=======
             // Each page opens by showing its subtitle.
             subtitles.BeginPage(page);
         },
@@ -326,7 +179,6 @@ internal sealed class IntroNarrationActors
             narrationPage = null;
         },
     });
->>>>>>> theirs
 
     /// <summary>
     /// Types the page's character at <paramref name="index"/>: starts its glow, moves the caret past it, plays the

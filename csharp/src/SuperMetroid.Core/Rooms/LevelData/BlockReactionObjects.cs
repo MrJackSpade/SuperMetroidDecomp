@@ -220,7 +220,7 @@ internal sealed class BlockReactionObjects
         {
             // Setting it up ends the shot's span of blocks, which a shot's collision does only once the room
             // object has taken a place. This object does not change terrain and leaves on its first update.
-            place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
+            place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
             return true;
         },
         [ShotBlockReaction.RespawningBreak] = (level, position, shootable, reaction, projectileFamily, place, block) =>
@@ -236,7 +236,7 @@ internal sealed class BlockReactionObjects
             // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses
             // its shootable collision before the first animated breaking frame runs later in this pass, keeping
             // what it shows until then (#2502).
-            place.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(shootable)));
+            place.Become(new LastingBlockReactionObject(BlockReactionChanges.PermanentShot(shootable)));
             level.SetCollision(position, block.Terrain.Deactivated().Collision);
             return true;
         },
@@ -247,7 +247,7 @@ internal sealed class BlockReactionObjects
         [ShotBlockReaction.Nothing] = (level, position, shootable, reaction, projectileFamily, place, block) =>
         {
             // The empty reactions leave the block alone, and the object still holds a place until its first update.
-            place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
+            place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
             return true;
         },
     });
@@ -264,7 +264,7 @@ internal sealed class BlockReactionObjects
         {
             // A normal bomb does not break this block. The setup redirects to the block's one-frame visible
             // reveal, deliberately leaving the live block and its collision untouched.
-            place.Become(new BlockReactionObject(yielding.Reveal));
+            place.Become(new LastingBlockReactionObject(yielding.Reveal));
             return true;
         }
 
@@ -287,27 +287,7 @@ internal sealed class BlockReactionObjects
         bool solidBlock)
     {
         Ensure.NotNull(level);
-<<<<<<< ours
-        if (behavior.Shootable is { } read && read.FreesEscapingCritters)
-            return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, strike);
-        if (!ShotBlockReactions.TryOf(behavior.Shootable, out ShotBlockReaction reaction))
-        {
-            throw new UnsupportedShotBlockReactionException(
-                nameof(behavior),
-                $"Shootable behaviour {behavior} has no reaction, or requires a specialized reaction outside the breakable/nothing room-object response.");
-        }
-||||||| base
-        if (behavior.Shootable is { } read && read.FreesEscapingCritters)
-            return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, strike);
-        if (ShotBlockReactions.Of(behavior.Shootable) is not { } reaction)
-        {
-            throw new UnsupportedShotBlockReactionException(
-                nameof(behavior),
-                $"Shootable behaviour {behavior} has no reaction, or requires a specialized reaction outside the breakable/nothing room-object response.");
-        }
-=======
         ShotBlockReaction reaction = Ensure.NotNull(shot).Response;
->>>>>>> theirs
 
         // A reaction that sets its object off only in a shootable block leaves shootable air before spawning; its
         // solid-block sibling places the object that does nothing.
@@ -330,111 +310,7 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         place.Block = position;
 
-<<<<<<< ours
-        switch (reaction)
-        {
-            case ShotBlockReaction.CollisionProbe:
-                // Setting it up ends the shot's span of blocks, which a shot's collision does only once the room
-                // object has taken a place. This object does not change terrain and leaves on its first update.
-                place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
-                return true;
-
-            case ShotBlockReaction.RespawningBreak:
-                // The setup keeps the collision kind with the shot-block parent's appearance for the
-                // restoration, and deactivates the live block immediately.
-                RestoreAsParent(level, place, block, RoomObjectSetupBlock.ShotBlockParent,
-                    BlockReactionChanges.RespawningShot(behavior.Shootable));
-                return true;
-
-            case ShotBlockReaction.PermanentBreak:
-                // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses
-                // its shootable collision before the first animated breaking frame runs later in this pass, keeping
-                // what it shows until then (#2502).
-                place.Become(new LastingBlockReactionObject(BlockReactionChanges.PermanentShot(behavior.Shootable)));
-                level.SetCollision(position, block.Terrain.Deactivated().Collision);
-                return true;
-
-            case ShotBlockReaction.RespawningPowerBombBreak:
-            case ShotBlockReaction.PermanentPowerBombBreak:
-            case ShotBlockReaction.RespawningSuperMissileBreak:
-            case ShotBlockReaction.PermanentSuperMissileBreak:
-                WeaponShotBlock yielding = Ensure.Listed(WeaponBlockReactionDefinitions.WeaponShotBlocks, reaction);
-                if (Ensure.Listed(yielding.Weapons, projectileFamily) == ShotBlockWeaponEffect.ShowsReveal)
-                {
-                    // A normal bomb does not break this block. The setup redirects to the block's one-frame visible
-                    // reveal, deliberately leaving the live block and its collision untouched.
-                    place.Become(new LastingBlockReactionObject(yielding.Reveal));
-                    return true;
-                }
-
-                // The block's own weapon keeps the collision kind with the block's parent appearance, deactivates the live
-                // block, and runs the block's change: a respawning block the ordinary breakup, a permanent one its
-                // shorter counterpart.
-                RestoreAsParent(level, place, block, yielding.Parent, yielding.Break);
-                return true;
-
-            case ShotBlockReaction.Nothing:
-                // The empty reactions leave the block alone, and the object still holds a place until its first update.
-                place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
-                return true;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ShotBlockReaction)} {reaction}.");
-        }
-||||||| base
-        switch (reaction)
-        {
-            case ShotBlockReaction.CollisionProbe:
-                // Setting it up ends the shot's span of blocks, which a shot's collision does only once the room
-                // object has taken a place. This object does not change terrain and leaves on its first update.
-                place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
-                return true;
-
-            case ShotBlockReaction.RespawningBreak:
-                // The setup keeps the collision kind with the shot-block parent's appearance for the
-                // restoration, and deactivates the live block immediately.
-                RestoreAsParent(level, place, block, RoomObjectSetupBlock.ShotBlockParent,
-                    BlockReactionChanges.RespawningShot(behavior.Shootable));
-                return true;
-
-            case ShotBlockReaction.PermanentBreak:
-                // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses
-                // its shootable collision before the first animated breaking frame runs later in this pass, keeping
-                // what it shows until then (#2502).
-                place.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(behavior.Shootable)));
-                level.SetCollision(position, block.Terrain.Deactivated().Collision);
-                return true;
-
-            case ShotBlockReaction.RespawningPowerBombBreak:
-            case ShotBlockReaction.PermanentPowerBombBreak:
-            case ShotBlockReaction.RespawningSuperMissileBreak:
-            case ShotBlockReaction.PermanentSuperMissileBreak:
-                WeaponShotBlock yielding = Ensure.Listed(WeaponBlockReactionDefinitions.WeaponShotBlocks, reaction);
-                if (Ensure.Listed(yielding.Weapons, projectileFamily) == ShotBlockWeaponEffect.ShowsReveal)
-                {
-                    // A normal bomb does not break this block. The setup redirects to the block's one-frame visible
-                    // reveal, deliberately leaving the live block and its collision untouched.
-                    place.Become(new BlockReactionObject(yielding.Reveal));
-                    return true;
-                }
-
-                // The block's own weapon keeps the collision kind with the block's parent appearance, deactivates the live
-                // block, and runs the block's change: a respawning block the ordinary breakup, a permanent one its
-                // shorter counterpart.
-                RestoreAsParent(level, place, block, yielding.Parent, yielding.Break);
-                return true;
-
-            case ShotBlockReaction.Nothing:
-                // The empty reactions leave the block alone, and the object still holds a place until its first update.
-                place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
-                return true;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ShotBlockReaction)} {reaction}.");
-        }
-=======
         return TrySpawnProjectileShotBlockForShotBlockReaction[reaction](level, position, shot.Reaction, reaction, projectileFamily, place, block);
->>>>>>> theirs
     }
 
     /// <summary>Frees the animals the escape wall at <paramref name="position"/> holds in, when the strike breaks it.</summary>

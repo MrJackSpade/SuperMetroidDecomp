@@ -54,15 +54,9 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPh
             BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits,
                 GameLoadingCompletion.GameplayFadeIn);
         },
-        [GameDataLoadRoute.ZebesLanding] = controllerInput =>
-        {
-            // The Zebes landing, followed by its waits. The update's
-            // own frame counts in the gameplay owner kept from Ceres.
-            session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-            session.GameplayRuntime.RoomLoader.InitializePostCeresZebesRoom();
-            BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
-                GameLoadingCompletion.GameplayFadeIn);
-        },
+        // The Zebes landing runs in the runtime Ceres left (Step with the runtime), never without one.
+        [GameDataLoadRoute.ZebesLanding] = controllerInput => throw new InvalidOperationException(
+            $"The {GameDataLoadRoute.ZebesLanding} load runs in the runtime Ceres left."),
     });
 
     /// <inheritdoc/>
@@ -91,70 +85,7 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPh
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-<<<<<<< ours
-        switch (session.LoadingRoute)
-        {
-            case GameDataLoadRoute.SelectedGame:
-                // The whole load happens in one update, then the black screen holds for its waits.
-                bool usesCeresArrival = session.SetupSelectedGame();
-                BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits, usesCeresArrival
-                    ? GameLoadingCompletion.CeresArrivalFadeIn
-                    : GameLoadingCompletion.MainGameplay);
-                break;
-            case GameDataLoadRoute.SavedCheckpoint:
-                // A save continued from the file-select map: the ordinary load brings in the
-                // game in one update, then holds for the same waits as a new game.
-                if (session.SetupSelectedGame())
-                    throw new InvalidOperationException("A save continued from the area map cannot use the Ceres arrival.");
-                BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits,
-                    GameLoadingCompletion.GameplayFadeIn);
-                break;
-            case GameDataLoadRoute.ZebesLanding:
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(GameDataLoadRoute)} {session.LoadingRoute}.");
-        }
-||||||| base
-        if (session.ResumesGameLoadingWait)
-        {
-            StepGameLoadingWait(controllerInput);
-            return;
-        }
-        switch (session.LoadingRoute)
-        {
-            case GameDataLoadRoute.SelectedGame:
-                // The whole load happens in one update, then the black screen holds for its waits.
-                bool usesCeresArrival = session.SetupSelectedGame();
-                BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits, usesCeresArrival
-                    ? GameLoadingCompletion.CeresArrivalFadeIn
-                    : GameLoadingCompletion.MainGameplay);
-                break;
-            case GameDataLoadRoute.SavedCheckpoint:
-                // A save continued from the file-select map: the ordinary load brings in the
-                // game in one update, then holds for the same waits as a new game.
-                if (session.SetupSelectedGame())
-                    throw new InvalidOperationException("A save continued from the area map cannot use the Ceres arrival.");
-                BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits,
-                    GameLoadingCompletion.GameplayFadeIn);
-                break;
-            case GameDataLoadRoute.ZebesLanding:
-                // The Zebes landing, followed by its waits. The update's
-                // own frame counts in the gameplay owner kept from Ceres.
-                session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-                session.GameplayRuntime.RoomLoader.InitializePostCeresZebesRoom();
-                BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
-                    GameLoadingCompletion.GameplayFadeIn);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(GameDataLoadRoute)} {session.LoadingRoute}.");
-        }
-=======
-        if (session.ResumesGameLoadingWait)
-        {
-            StepGameLoadingWait(controllerInput);
-            return;
-        }
         StepForGameDataLoadRoute[session.LoadingRoute](controllerInput);
->>>>>>> theirs
     }
 
     /// <summary>
@@ -168,22 +99,22 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPh
     }
 
     /// <summary>What <see cref="StepGameLoadingWait"/> does for each <see cref="GameLoadingCompletion"/> member, each member's own arm.</summary>
-    private IdentityTable<GameLoadingCompletion, Action> StepGameLoadingWaitForGameLoadingCompletion => field ??= new(new Dictionary<GameLoadingCompletion, Action>
+    private IdentityTable<GameLoadingCompletion, Action<LoadedGameplay>> StepGameLoadingWaitForGameLoadingCompletion => field ??= new(new Dictionary<GameLoadingCompletion, Action<LoadedGameplay>>
     {
-        [GameLoadingCompletion.CeresArrivalFadeIn] = () =>
+        [GameLoadingCompletion.CeresArrivalFadeIn] = live =>
         {
             session.BeginGameplayFadeIn(target: GameplayFadeTarget.CeresArrival);
             session.display.PublishBlack();
         },
-        [GameLoadingCompletion.GameplayFadeIn] = () =>
+        [GameLoadingCompletion.GameplayFadeIn] = live =>
         {
             session.BeginGameplayFadeIn(target: GameplayFadeTarget.Gameplay);
             session.display.PublishBlack();
         },
-        [GameLoadingCompletion.MainGameplay] = () =>
+        [GameLoadingCompletion.MainGameplay] = live =>
         {
             session.Enter(session.Phases.MainGameplay);
-            session.display.PublishGameplay(session.GameplayRuntime);
+            session.display.PublishGameplay(live);
         },
     });
 
@@ -199,44 +130,6 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPh
             session.display.PublishBlack();
             return;
         }
-<<<<<<< ours
-        switch (session.GameLoading.Completion)
-        {
-            case GameLoadingCompletion.CeresArrivalFadeIn:
-                session.BeginGameplayFadeIn(target: GameplayFadeTarget.CeresArrival);
-                session.display.PublishBlack();
-                break;
-            case GameLoadingCompletion.GameplayFadeIn:
-                session.BeginGameplayFadeIn(target: GameplayFadeTarget.Gameplay);
-                session.display.PublishBlack();
-                break;
-            case GameLoadingCompletion.MainGameplay:
-                session.Enter(session.Phases.MainGameplay);
-                session.display.PublishGameplay(live);
-                break;
-            default:
-                throw new InvalidDataException($"Invalid game-loading completion {session.GameLoading.Completion}.");
-        }
-||||||| base
-        switch (session.GameLoading.Completion)
-        {
-            case GameLoadingCompletion.CeresArrivalFadeIn:
-                session.BeginGameplayFadeIn(target: GameplayFadeTarget.CeresArrival);
-                session.display.PublishBlack();
-                break;
-            case GameLoadingCompletion.GameplayFadeIn:
-                session.BeginGameplayFadeIn(target: GameplayFadeTarget.Gameplay);
-                session.display.PublishBlack();
-                break;
-            case GameLoadingCompletion.MainGameplay:
-                session.Enter(session.Phases.MainGameplay);
-                session.display.PublishGameplay(session.GameplayRuntime);
-                break;
-            default:
-                throw new InvalidDataException($"Invalid game-loading completion {session.GameLoading.Completion}.");
-        }
-=======
-        StepGameLoadingWaitForGameLoadingCompletion[session.GameLoading.Completion]();
->>>>>>> theirs
+        StepGameLoadingWaitForGameLoadingCompletion[session.GameLoading.Completion](live);
     }
 }

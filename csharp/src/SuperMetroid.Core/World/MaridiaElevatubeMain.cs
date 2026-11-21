@@ -25,13 +25,7 @@ internal sealed class MaridiaElevatubeMain(MaridiaElevatubeRoomMainState tube) :
     /// <inheritdoc/>
     public RoomMainOutcome Run(RoomMainUpdate update)
     {
-<<<<<<< ours
-        tube.Step(update.Room.LevelData, update.Player.Samus, update.FrameCounter, update.Room.RoomObjects);
-||||||| base
-        tube.Step(update.Room.LevelData, update.Player.IntroducedSamus, update.FrameCounter, update.Room.RoomObjects);
-=======
-        tube.Step(update.Room.SamusTerrain, update.Player.IntroducedSamus, update.FrameCounter);
->>>>>>> theirs
+        tube.Step(update.Room.SamusTerrain, update.Player.Samus, update.FrameCounter);
         return RoomMainOutcome.None;
     }
 }

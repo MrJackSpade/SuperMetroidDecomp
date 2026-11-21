@@ -65,38 +65,12 @@ internal sealed class RoomObjectFramePhase
         if (samus.Xray.AreObjectsSuspended)
             return;
 
-<<<<<<< ours
-        RoomObjectStepOutcome step = StepRoomObjects(newlyPressed: GameplayAction.None, room, samus);
-
-        // Setup-time room objects do not have Samus contact/input available. If a future
-        // change publishes a player-facing event here, fail at the exact ownership
-        // boundary instead of silently discarding it.
-        if (step.Pickups.Count != 0 || step.StationActivations.Count != 0)
-        {
-            throw new InvalidDataException(
-                "A door-transition room-object step unexpectedly published a player interaction.");
-        }
-        SpawnThrownProjectiles(step, room.RoomObjects.Thrown);
-||||||| base
-        RoomObjectStepOutcome step = StepRoomObjects(newlyPressed: GameplayAction.None, room, samus);
-
-        // Setup-time room objects do not have Samus contact/input available. If a future
-        // change publishes a player-facing event here, fail at the exact ownership
-        // boundary instead of silently discarding it.
-        if (step.Pickups.Count != 0 || step.StationActivations.Count != 0)
-        {
-            throw new InvalidDataException(
-                "A door-transition room-object step unexpectedly published a player interaction.");
-        }
-        SpawnThrownProjectiles(step);
-=======
         // The freshly loaded objects have met no contact of Samus's, so the step touches no item and no station acts: the
         // untouched view's step yields only the projectiles its objects throw.
         IReadOnlyList<RoomObjectProjectileRequest> thrown =
             room.RoomObjects.Untouched.Step(room.LevelData, FrameInputs(GameplayAction.None, room, samus));
         EnemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(EnemyRoomEffectSite.Of(room, samus));
-        SpawnThrownProjectiles(thrown);
->>>>>>> theirs
+        SpawnThrownProjectiles(thrown, room.RoomObjects.Thrown);
     }
 
     /// <summary>The room objects' inputs for a step with <paramref name="newlyPressed"/> newly pressed.</summary>
@@ -117,24 +91,10 @@ internal sealed class RoomObjectFramePhase
     /// of its kind among <paramref name="spawners"/>: Mother Brain's glass's shards and the Bomb Torizo statue hand's
     /// fragments. The glass and the hand never share a room, so one step throws only one of the two kinds.
     /// </summary>
-<<<<<<< ours
-    private static void SpawnThrownProjectiles(RoomObjectStepOutcome step, RoomObjectThrownProjectileSpawners spawners)
-||||||| base
-    private static void SpawnThrownProjectiles(RoomObjectStepOutcome step)
-=======
-    private static void SpawnThrownProjectiles(IReadOnlyList<RoomObjectProjectileRequest> thrown)
->>>>>>> theirs
+    private static void SpawnThrownProjectiles(IReadOnlyList<RoomObjectProjectileRequest> thrown, RoomObjectThrownProjectileSpawners spawners)
     {
-<<<<<<< ours
-        foreach (RoomObjectProjectileRequest thrown in step.ThrownProjectiles)
-            thrown.Spawn(spawners);
-||||||| base
-        foreach (RoomObjectProjectileRequest thrown in step.ThrownProjectiles)
-            thrown.Spawn();
-=======
         foreach (RoomObjectProjectileRequest projectile in thrown)
-            projectile.Spawn();
->>>>>>> theirs
+            projectile.Spawn(spawners);
     }
 
     /// <summary>Runs the ordinary room-object phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
@@ -163,17 +123,9 @@ internal sealed class RoomObjectFramePhase
                 });
             }
             foreach (StationActivationEvent station in step.StationActivations)
-<<<<<<< ours
-                station.Open(opening);
-            SpawnThrownProjectiles(step, room.RoomObjects.Thrown);
-||||||| base
-                station.Open(opening);
-            SpawnThrownProjectiles(step);
-=======
                 _waitingMessages.Enqueue(() => station.Open(opening));
             OpenNextMessage();
-            SpawnThrownProjectiles(step.ThrownProjectiles);
->>>>>>> theirs
+            SpawnThrownProjectiles(step.ThrownProjectiles, room.RoomObjects.Thrown);
         }
     }
 

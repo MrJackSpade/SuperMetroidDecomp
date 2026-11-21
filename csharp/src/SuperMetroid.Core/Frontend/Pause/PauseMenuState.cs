@@ -160,17 +160,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
             MapArrows.StepArrows(ActiveMapScroll.CanScroll);
         ControllerButton delayedPressed = delayedHeldInput;
         ControllerButton newlyPressed = newlyPressedInput;
-<<<<<<< ours
-        if (Transition is { } transition)
-        {
-            StepPageTransition(transition);
-||||||| base
-        if (Transition is not null)
-        {
-            StepPageTransition();
-=======
         if (StepPageTransition())
->>>>>>> theirs
             return false;
 
         if (ScreenMode == PauseScreenMode.Map)
@@ -294,30 +284,15 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
         screen.Sprites.FinishFrame();
     }
 
-<<<<<<< ours
-    /// <summary>Advances map/equipment fade, page load, and brightness phases.</summary>
-    private void StepPageTransition(PausePageTransition transition)
-||||||| base
-    /// <summary>Advances map/equipment fade, page load, and brightness phases.</summary>
-    private void StepPageTransition()
-=======
     /// <summary>
     /// Advances map/equipment fade, page load, and brightness phases (#2553), and reports whether a page transition ran this
     /// update: with none under way the page's own controls run instead.
     /// </summary>
     private bool StepPageTransition()
->>>>>>> theirs
     {
-<<<<<<< ours
-        switch (transition.Stage)
-||||||| base
-        PausePageTransition transition = Transition ?? throw new InvalidDataException("No pause-page transition is in progress.");
-        switch (transition.Stage)
-=======
         if (Transition is not { } transition)
             return false;
         if (transition.Stage == PausePageTransitionStage.FadeOut)
->>>>>>> theirs
         {
             // The fade-out returns at black before the separate load update.
             if (transitionFade.Darken())

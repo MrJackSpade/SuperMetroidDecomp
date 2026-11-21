@@ -260,19 +260,8 @@ public sealed class RoomLevelData
     /// </summary>
     /// <param name="block">A block the read found in the grid.</param>
     /// <exception cref="InvalidDataException">A link leads outside the room's grid, or the chain is cyclic.</exception>
-<<<<<<< ours
     internal StoodForBlock? BlockStoodFor(RoomCollisionBlock block) =>
-        ContinuedBlocks.StoodFor(block, Size.Area, AsWholeBlock, cell => cell.Behavior.EndsExtension,
-            cell => GetCollisionBlock(TryGridBlockStepped(cell.At, cell.ExtensionLink, out Position16<RoomBlocks> reached) ? reached
-                : throw new InvalidDataException(
-                    $"Continuing block {cell.Position} type {cell.CollisionType}/behaviour ({cell.Behavior}) leads outside the room's grid.")));
-||||||| base
-    internal RoomCollisionBlock? BlockStoodFor(RoomCollisionBlock block) =>
-        ContinuedBlocks.StoodFor(block, Size.Area, Continues, cell => cell.Behavior.EndsExtension,
-            cell => GetCollisionBlock(GridBlockStepped(cell.At, cell.ExtensionLink) ?? throw new InvalidDataException(
-                $"Continuing block {cell.Position} type {cell.CollisionType}/behaviour ({cell.Behavior}) leads outside the room's grid.")));
-=======
-    internal RoomCollisionBlock? BlockStoodFor(RoomCollisionBlock block) => StandingBlockFor(block)?.Block;
+        ContinuedBlocks.StoodFor(block, Size.Area, AsWholeBlock, cell => cell.Behavior.EndsExtension, LinkedBlock);
 
     /// <summary>
     /// The block <paramref name="block"/> stands for (<see cref="BlockStoodFor"/>) with how it collides, which is no
@@ -284,9 +273,15 @@ public sealed class RoomLevelData
         ContinuedBlocks.StoodFor(block, Size.Area,
             cell => StandingTypes[cell.CollisionType] is { } type ? new StandingBlock(cell, type) : (StandingBlock?)null,
             cell => cell.Behavior.EndsExtension,
-            cell => GetCollisionBlock(GridBlockStepped(cell.At, cell.ExtensionLink) ?? throw new InvalidDataException(
-                $"Continuing block {cell.Position} type {cell.CollisionType}/behaviour ({cell.Behavior}) leads outside the room's grid.")));
->>>>>>> theirs
+            LinkedBlock);
+
+    /// <summary>The block <paramref name="extension"/>'s link leads to (<see cref="RoomCollisionBlock.ExtensionLink"/>).</summary>
+    /// <param name="extension">An extension block the read found in the grid.</param>
+    /// <exception cref="InvalidDataException">The link leads outside the room's grid.</exception>
+    private RoomCollisionBlock LinkedBlock(RoomCollisionBlock extension) =>
+        GetCollisionBlock(TryGridBlockStepped(extension.At, extension.ExtensionLink, out Position16<RoomBlocks> reached) ? reached
+            : throw new InvalidDataException(
+                $"Continuing block {extension.Position} type {extension.CollisionType}/behaviour ({extension.Behavior}) leads outside the room's grid."));
 
     /// <summary>How a block of each collision family collides once a read stands on it; none for the two extensions, which continue another block.</summary>
     private static IdentityTable<RoomCollisionType, StandingCollisionType?> StandingTypes { get; } = new(new Dictionary<RoomCollisionType, StandingCollisionType?>

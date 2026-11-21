@@ -48,13 +48,7 @@ internal static class RetailAttractTests
                     PixelComparison.Verify(packet, legacy.PublishedPixels(), renderer.RenderForReadback(packet), $"{device.Kind}: attract tick={tick}, cancel={cancel}");
                     samples++;
                 }
-<<<<<<< ours
                 if (legacy.IsAt(AttractDemoStep.Holding))
-||||||| base
-                if (legacy.AttractDemoHoldFramesRemaining > 0 && legacy.IsAt(AttractDemoStep.Playing))
-=======
-                if (legacy.AttractDemoHoldFramesRemaining > 0)
->>>>>>> theirs
                 {
                     sawHold = true;
                     // Each scene's ninety-frame final-image hold freezes that scene's own image.

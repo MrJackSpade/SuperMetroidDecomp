@@ -420,17 +420,15 @@ internal sealed class CleanupLoop(string solutionPath, string artifacts, string[
                 Heading($"step {step}: reachability prune of dead code");
                 string retired = Path.Combine(artifacts, $"retired-fields-{step}.txt");
                 File.WriteAllText(retired, "");
-                int exit;
+                // The prune applies every removal and move it selects, and the build fails where one needs a choice; a prune
+                // that throws is a defect of the prune and fails the run with its exception (#2599): nothing carries on past it.
                 using (var capture = new ConsoleCapture())
                 {
-                    exit = await ExitOfAsync(() => SuperMetroid.ReachabilityAudit.Program.PruneKeepingVerificationUsedAsync(
-                        CurrentAsync, root, pruneCategories, prunePrefix, pruneDestination, retired));
+                    await SuperMetroid.ReachabilityAudit.Program.PruneKeepingVerificationUsedAsync(
+                        CurrentAsync, root, pruneCategories, prunePrefix, pruneDestination, retired);
                     prunedSummaries.AddRange(capture.Lines().Where(line => PruneSummaryLine.IsMatch(line)));
                 }
-                Console.WriteLine($"--- reachability prune exit {exit}");
-                // The prune validates every edit before writing any, so a failed prune leaves the tree as it was.
-                if (exit != 0)
-                    Problem($"The reachability prune failed (exit {exit}) at step {step}; see the log.");
+                Console.WriteLine("--- reachability prune done");
                 retiredFields.AddRange(File.ReadAllLines(retired).Where(line => line.Length > 0));
             }
             else

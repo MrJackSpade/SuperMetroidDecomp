@@ -1,264 +1,154 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.ReachabilityAudit.SolutionLoading;
 using SuperMetroid.ReachabilityAudit.Declarations;
-using SuperMetroid.ReachabilityAudit.Reporting;
-using static SuperMetroid.ReachabilityAudit.Removal.RelocationSymbols;
+using SuperMetroid.ReachabilityAudit.SolutionLoading;
 
 namespace SuperMetroid.ReachabilityAudit.Removal;
 
 /// <summary>
-/// Moves shipped-assembly symbols into a development-only project or test-support, per <see cref="RelocationStyle"/>.
-/// <list type="bullet">
-/// <item>Top-level types move whole, keeping their namespace, to the same relative path under the target.</item>
-/// <item>Static members and nested types of a type that stays move into a per-owner adapter class,
-/// <c>&lt;Owner&gt;Tooling</c>, in the owner's namespace. It implements any moved interface the owner
-/// implemented and carries <c>[ToolingFor(typeof(Owner))]</c>.</item>
-/// <item>Instance methods and properties move into <c>extension(Owner self)</c> blocks.</item>
-/// <item>An owner's adapter and extension classes are chosen by <see cref="RelocationHolders"/>, among every class the
-/// target's projects already compile: a class of the style's name is merged into or passed over, never declared twice.</item>
-/// </list>
-/// Moved bodies are rewritten so that references back to the owner resolve; owner members they
-/// use that were private become internal for a development-only project, and every modifier the move writes is one its
-/// declaration kind takes (<see cref="RelocationModifiers"/>). Moved into test-support, they stay private and moved code
-/// reaches them through generated private-access members (<see cref="PrivateAccessShims"/>, #2570), so production
-/// holds no member wider for checks; only a type moved code names becomes internal there. A member that becomes internal keeps every rule a promotion can break
-/// (<see cref="PromotionRules"/>), and an underscore-prefixed one takes its name without the underscore, with every
-/// reference rewritten (<see cref="PromotedNames"/>). Every reference and documentation cref in the solution
-/// is retargeted, and crefs in shipped assemblies, which cannot see the target, become plain text, as do crefs in moved
-/// documentation to members the target cannot see.
-/// Anything that cannot move mechanically (instance fields, constructors, indexers, operators,
-/// generic owners, mutating struct members) is reported and left in place.
+/// Moves check-only helper code, dead top-level types tests still use, whole into test-support: each declaration, every
+/// part of a partial type, goes to the same path under the target with its namespace and its file's using directives
+/// (<see cref="RelocationOutput"/>). Its name and namespace do not change, so every check naming it binds to it as before.
 /// <para>
-/// A relocation runs in steps, each taking what the earlier ones decided: <see cref="RelocationSelection"/> places each
-/// selected declaration or leaves it for manual relocation; <see cref="RelocationMoves"/> settles what moves;
-/// <see cref="RelocationHolders.ForMoves"/> chooses each owner's holder classes; the promotion step collects every
-/// reference edit (<see cref="ReferenceRewriter"/>), decides what becomes internal and under which name, and collects
-/// again with the new names; the accessibility step writes the promoted declarations; and <see cref="RelocationOutput"/>
-/// renders the moved members into their files and writes every changed file. A promotion that would break a rule the
-/// build enforces (<see cref="PromotionRules"/>, <see cref="PromotedNames"/>, <see cref="RenamePairing"/>) is refused
-/// before anything is written: the moves reaching that member stay for manual relocation, with a <c>MANUAL</c> line saying
-/// why, and the steps run again from the moves left.
+/// A member of a production type is never moved: nothing in production exists for checks alone, so a dead one is removed
+/// (<see cref="SymbolRemover"/>), and the checks and moved code reading it fail to build (owner ruling, #2599). Nothing
+/// is reached through reflection, and no production member is widened for moved code: moved code that reaches what
+/// test-support cannot see fails to build there. The private-access members of #2570 and the promotions, renames and
+/// refusals before them are gone with the member moves they served.
+/// </para>
+/// <para>
+/// The references a move changes are written with it. Documentation staying in a shipped assembly, which cannot see the
+/// target, that cites a moved type becomes text: a labelled cref its label, an unlabelled one the name as code, which
+/// SME6454 rejects in Core where the sentence must be reworded. Moved documentation citing a member test-support cannot
+/// see (private, or private protected) becomes text the same way. A staying type compiled by a project that cannot see the
+/// target no longer implements a moved interface; a type every project compiling it sees the target from keeps it.
 /// </para>
 /// </summary>
 internal static class SymbolRelocator
 {
-    /// <summary>The promotion step's outcome: the reference edits, collected with the names promoted members take.</summary>
-    /// <param name="Collected">The edits and the members that become internal.</param>
-    /// <param name="Renames">The new name of each promoted underscore-prefixed member.</param>
-    /// <param name="Refused">The moves whose promotions are refused, each once, with why; when any is, nothing else applies.</param>
-    private sealed record PromotionDecision(ReferenceEdits Collected, RenameMap Renames, List<RefusedMove> Refused);
-
-    /// <summary>Moves the selected reachability category into tool source, rewrites references, and reports manual cases.</summary>
-    public static Task RelocateAsync(LoadedSolution solution, ReachabilityResult result, string category,
-        string targetDirectory, IReadOnlySet<string> shippedAssemblies) =>
-        RelocateAsync(solution, ReachabilityFindings.Classify(result).Where(f => f.Category == category)
-            .Select(f => f.Declaration.Key).ToHashSet(), targetDirectory, shippedAssemblies, RelocationStyle.Tooling);
-
-    /// <summary>
-    /// Moves the declarations with the given keys into the target, rewrites references, and reports manual cases. When a
-    /// promotion moved code needs is refused, the moves reaching that member stay for manual relocation and the steps run
-    /// again from the moves left, so nothing is written until every remaining move can be made whole.
-    /// </summary>
-    public static async Task RelocateAsync(LoadedSolution solution, IReadOnlySet<string> targets, string targetDirectory,
-        IReadOnlySet<string> shippedAssemblies, RelocationStyle style)
+    /// <summary>Moves the top-level types with the given keys into the target and writes every changed file.</summary>
+    /// <param name="solution">The loaded solution.</param>
+    /// <param name="targets">The keys of the types to move.</param>
+    /// <param name="targetDirectory">The test-support directory moved code goes into.</param>
+    /// <param name="shippedAssemblies">The assemblies that ship to players, whose documentation cannot cite the target.</param>
+    /// <exception cref="InvalidOperationException">A key names no top-level type of repository source.</exception>
+    public static void Relocate(LoadedSolution solution, IReadOnlySet<string> targets, string targetDirectory, IReadOnlySet<string> shippedAssemblies)
     {
         var identity = new SymbolIdentity(solution.RepositoryRoot);
         var trees = solution.Projects
             .SelectMany(p => p.Compilation.SyntaxTrees.Where(identity.IsRepositorySource)
-                .Select(t => new ProjectTree(Tree:t, p.Compilation, Project:p.Project.AssemblyName)))
+                .Select(t => new ProjectTree(Tree: t, p.Compilation, Project: p.Project.AssemblyName)))
             .GroupBy(entry => Path.GetFullPath(entry.Tree.FilePath), StringComparer.OrdinalIgnoreCase)
             .Select(group => group.First()).ToArray();
+        var moves = Select(trees, targets, identity);
+        var seesTarget = TargetVisibility(solution, targetDirectory);
+        var edits = References(trees, moves, identity, shippedAssemblies, seesTarget);
+        var placed = RelocationOutput.Place(moves, edits, trees, targetDirectory, identity);
+        Console.WriteLine($"Relocated {targets.Count} types ({moves.Count} declarations) into {placed.Written} files; " +
+            $"deleted {placed.Deleted} emptied files.");
+    }
 
-        // Moved test code reaches what stays private through generated private-access members (#2570): test-support holds no
-        // promotion of a member only it needs.
-        bool shimmed = style == RelocationStyle.VerificationAccess;
-        var selection = RelocationSelection.Select(trees, targets, identity, shippedAssemblies);
-        while (true)
+    /// <summary>Every declaration of every type to move, each part of a partial type among them.</summary>
+    /// <exception cref="InvalidOperationException">A key names a nested type, a member, or nothing in repository source.</exception>
+    private static List<RelocationMove> Select(IReadOnlyList<ProjectTree> trees, IReadOnlySet<string> targets, SymbolIdentity identity)
+    {
+        var moves = new List<RelocationMove>();
+        foreach (var (tree, compilation, _) in trees)
         {
-            var moves = new RelocationMoves(selection.Found, identity);
-            var holders = RelocationHolders.ForMoves(solution, moves, targetDirectory, style, identity);
-            var decision = shimmed ? DecideShims(trees, moves, holders, identity, shippedAssemblies)
-                : DecidePromotions(trees, moves, holders, identity, shippedAssemblies);
-            if (decision.Refused.Count == 0 && shimmed)
+            var model = SemanticModels.Of(compilation, tree);
+            foreach (var node in tree.GetRoot().DescendantNodes(node => node is CompilationUnitSyntax or BaseNamespaceDeclarationSyntax)
+                         .Where(node => node is BaseTypeDeclarationSyntax or DelegateDeclarationSyntax))
+                if (SymbolIdentity.Normalize(model.GetDeclaredSymbol(node)) is INamedTypeSymbol type && identity.Key(type) is { } key &&
+                    targets.Contains(key))
+                    moves.Add(new RelocationMove(type, node, tree, model));
+        }
+        var matched = moves.Select(move => identity.Key(move.Symbol)).ToHashSet(StringComparer.Ordinal);
+        if (targets.Where(key => !matched.Contains(key)).Order(StringComparer.Ordinal).ToList() is [_, ..] unmatched)
+            throw new InvalidOperationException("The relocation moves top-level types only, and these keys name none in repository source: " +
+                string.Join(", ", unmatched));
+        return moves;
+    }
+
+    /// <summary>
+    /// Whether every project compiling a file compiles the target too, so code in it sees what moves there. Test-support
+    /// shared through <c>.projitems</c> and the verification projects do; a shipped project does not.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No project compiles a file in the target directory.</exception>
+    private static Func<string, bool> TargetVisibility(LoadedSolution solution, string targetDirectory)
+    {
+        string prefix = Path.GetFullPath(targetDirectory).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            + Path.DirectorySeparatorChar;
+        var targetProjects = solution.Projects.Where(project => project.Compilation.SyntaxTrees.Any(tree =>
+            tree.FilePath.Length > 0 && Path.GetFullPath(tree.FilePath).StartsWith(prefix, StringComparison.OrdinalIgnoreCase))).ToList();
+        if (targetProjects.Count == 0)
+            throw new InvalidOperationException($"No project compiles a file in {targetDirectory}, so code moved there would compile nowhere.");
+        var compiledOutsideTarget = solution.Projects.Except(targetProjects)
+            .SelectMany(project => project.Compilation.SyntaxTrees.Where(tree => tree.FilePath.Length > 0).Select(tree => Path.GetFullPath(tree.FilePath)))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return path => !compiledOutsideTarget.Contains(Path.GetFullPath(path));
+    }
+
+    /// <summary>The edits that keep documentation and base lists valid once the types move, by tree.</summary>
+    private static Dictionary<SyntaxTree, List<TextEdit>> References(IReadOnlyList<ProjectTree> trees, List<RelocationMove> moves,
+        SymbolIdentity identity, IReadOnlySet<string> shippedAssemblies, Func<string, bool> seesTarget)
+    {
+        var movedKeys = moves.Select(move => identity.Key(move.Symbol)).OfType<string>().ToHashSet(StringComparer.Ordinal);
+        bool Moved(ISymbol symbol)
+        {
+            for (ISymbol? current = symbol; current is not null and not INamespaceSymbol; current = current.ContainingSymbol)
+                if (identity.Key(SymbolIdentity.Normalize(current)) is { } key && movedKeys.Contains(key))
+                    return true;
+            return false;
+        }
+        bool InMove(SyntaxTree tree, SyntaxNode node) => moves.Any(move => move.Tree == tree && move.Node.FullSpan.Contains(node.Span));
+        var edits = new Dictionary<SyntaxTree, List<TextEdit>>();
+        void Edit(SyntaxTree tree, TextEdit edit)
+        {
+            if (!edits.TryGetValue(tree, out var list))
+                edits[tree] = list = [];
+            list.Add(edit);
+        }
+        foreach (var (tree, compilation, assembly) in trees)
+        {
+            bool shipped = shippedAssemblies.Contains(assembly);
+            foreach (var cref in tree.GetRoot().DescendantNodes(descendIntoTrivia: true).OfType<CrefSyntax>())
             {
-                WritePromotions(decision.Collected, decision.Renames, moves, identity, typesOnly: true);
+                if (cref.Parent is not XmlCrefAttributeSyntax attribute ||
+                    SymbolIdentity.Normalize(SemanticModels.At(compilation, tree, cref).GetSymbolInfo(cref).Symbol) is not { } bound)
+                    continue;
+                bool inMove = InMove(tree, cref);
+                if (Moved(bound) ? shipped && !inMove : inMove && HiddenFromTarget(bound))
+                    Edit(tree, AsText(attribute, cref.ToString()));
             }
-            else if (decision.Refused.Count == 0)
-            {
-                WritePromotions(decision.Collected, decision.Renames, moves, identity);
-                var renamed = decision.Collected.Widened.Where(symbol => decision.Renames.NewName(symbol) is not null).ToList();
-                decision = decision with { Refused = Refused(decision.Collected, identity,
-                    await RenamePairing.RefusalsAsync(decision.Renames, renamed, decision.Collected, moves, solution, identity)) };
-            }
-            if (decision.Refused.Count > 0)
-            {
-                selection.Keep(decision.Refused, identity);
+            if (seesTarget(tree.FilePath))
                 continue;
-            }
-            var placed = RelocationOutput.Place(moves, decision.Collected, holders, trees, style, targetDirectory, identity);
-            int shims = shimmed ? WriteShims(decision.Collected, solution.RepositoryRoot, targetDirectory) : 0;
-            int promoted = decision.Collected.Promotions.Count - shims;
-            foreach (string line in selection.Manual) Console.WriteLine(line);
-            Console.WriteLine($"Relocated {moves.All.Count} declarations into {placed.Written} files; deleted {placed.Deleted} emptied files; " +
-                $"{promoted} members made internal; {shims} private members reached through private-access members; " +
-                $"{decision.Renames.Count} renamed without their underscore; {selection.Manual.Count} left for manual relocation.");
-            return;
-        }
-    }
-
-    /// <summary>
-    /// The promotion step: what becomes internal decides the names it takes (<see cref="PromotedNames"/>) and must keep every
-    /// rule a promotion can break (<see cref="PromotionRules"/>); a member that cannot is refused, and the moves reaching it
-    /// with it. Once names change, the edits are collected again with every reference written with its new name, and every
-    /// reference must be.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The rename changes what moved code reaches or misses a reference.</exception>
-    private static PromotionDecision DecidePromotions(IReadOnlyList<ProjectTree> trees, RelocationMoves moves, RelocationHolders holders,
-        SymbolIdentity identity, IReadOnlySet<string> shippedAssemblies)
-    {
-        var collected = new ReferenceRewriter(trees, moves, holders, identity, shippedAssemblies,
-            new RenameMap(new Dictionary<string, string>(StringComparer.Ordinal), identity)).Collect();
-        var types = new SourceTypes(identity, trees.Select(entry => entry.Compilation));
-        var compilationOf = trees.ToDictionary(entry => entry.Tree, entry => entry.Compilation);
-        var plan = PromotedNames.Plan(collected.Widened, trees, types, identity);
-        var renames = new RenameMap(plan.Names, identity);
-        var refusals = new Dictionary<ISymbol, string>(plan.Refusals, SymbolEqualityComparer.Default);
-        foreach (var (symbol, reason) in PromotionRules.Refusals(collected.Widened, [.. collected.SetterPromotions.OfType<IPropertySymbol>()],
-                     member => renames.NewName(member) ?? member.Name, types, tree => SemanticModels.Of(compilationOf[tree], tree), identity))
-            refusals.TryAdd(symbol, reason);
-        if (refusals.Count > 0)
-            return new PromotionDecision(collected, renames, Refused(collected, identity, refusals));
-        if (renames.Count == 0)
-            return new PromotionDecision(collected, renames, []);
-        var rewriter = new ReferenceRewriter(trees, moves, holders, identity, shippedAssemblies, renames);
-        var renamed = rewriter.Collect();
-        if (!renamed.Widened.SetEquals(collected.Widened))
-            throw new InvalidOperationException("Renaming the promoted underscore-prefixed members changed which members moved code reaches.");
-        rewriter.RejectUnwrittenRenames();
-        return new PromotionDecision(renamed, renames, []);
-    }
-
-    /// <summary>
-    /// The shim step: what moved code reaches of a staying owner stays private and is reached through a generated
-    /// private-access member (<see cref="PrivateAccessShims"/>), so no rule a promotion can break applies to it and nothing
-    /// is renamed. A type moved code names still becomes internal under the promotion rules. A member no extension member
-    /// can stand in for (<see cref="PrivateAccessShims.Refusal"/>), and a private setter of a property moved code otherwise
-    /// sees, which a check binds to the property rather than to an extension member, are refused.
-    /// </summary>
-    private static PromotionDecision DecideShims(IReadOnlyList<ProjectTree> trees, RelocationMoves moves, RelocationHolders holders,
-        SymbolIdentity identity, IReadOnlySet<string> shippedAssemblies)
-    {
-        var renames = new RenameMap(new Dictionary<string, string>(StringComparer.Ordinal), identity);
-        var collected = new ReferenceRewriter(trees, moves, holders, identity, shippedAssemblies, renames, shimsMembers: true).Collect();
-        var refusals = new Dictionary<ISymbol, string>(SymbolEqualityComparer.Default);
-        // A type moved code names becomes internal in this step, so a staying member's signature may name it.
-        var becomingVisible = collected.Promotions.OfType<INamedTypeSymbol>().Select(type => (ISymbol)type.OriginalDefinition)
-            .ToHashSet(SymbolEqualityComparer.Default);
-        foreach (var member in collected.Promotions.Where(symbol => symbol is not INamedTypeSymbol))
-            if (PrivateAccessShims.Refusal(member, becomingVisible) is { } reason)
-                refusals[member] = $"{member.ToDisplayString()}, which moved code reaches and stays private, is a {reason}, which no " +
-                    "private-access member can stand in for: move or reach it by hand";
-        foreach (var property in collected.SetterPromotions.Where(symbol => !collected.Promotions.Contains(symbol)))
-            refusals.TryAdd(property, $"{property.ToDisplayString()}, whose private setter moved code writes while it sees the " +
-                "property itself, so the write binds to the property and not to a private-access member: set it through PrivateState.Set");
-        var types = new SourceTypes(identity, trees.Select(entry => entry.Compilation));
-        var compilationOf = trees.ToDictionary(entry => entry.Tree, entry => entry.Compilation);
-        foreach (var (symbol, reason) in PromotionRules.Refusals([.. collected.Promotions.OfType<INamedTypeSymbol>()], [],
-                     member => member.Name, types, tree => SemanticModels.Of(compilationOf[tree], tree), identity))
-            refusals.TryAdd(symbol, reason);
-        return new PromotionDecision(collected, renames, refusals.Count > 0 ? Refused(collected, identity, refusals) : []);
-    }
-
-    /// <summary>Writes the private-access member of every staying member moved code reaches; returns how many it wrote.</summary>
-    private static int WriteShims(ReferenceEdits collected, string repositoryRoot, string targetDirectory)
-    {
-        int written = 0;
-        foreach (var owner in collected.Promotions.Where(symbol => symbol is not INamedTypeSymbol)
-                     .GroupBy(PrivateAccessShims.OwnerOf, SymbolEqualityComparer.Default))
-        {
-            var shims = PrivateAccessShims.For(repositoryRoot, (INamedTypeSymbol)owner.Key!, targetDirectory);
-            foreach (var member in owner)
+            foreach (var baseList in tree.GetRoot().DescendantNodes().OfType<BaseListSyntax>().Where(baseList => !InMove(tree, baseList)))
             {
-                shims.Add(member, member is IFieldSymbol { IsReadOnly: false } or IPropertySymbol { SetMethod: not null });
-                written++;
+                var kept = baseList.Types.Where(entry => SemanticModels.At(compilation, tree, entry.Type).GetTypeInfo(entry.Type).Type is not
+                    INamedTypeSymbol { TypeKind: TypeKind.Interface } implemented || !Moved(implemented.OriginalDefinition)).ToList();
+                if (kept.Count == baseList.Types.Count)
+                    continue;
+                var previous = baseList.GetFirstToken().GetPreviousToken();
+                Edit(tree, kept.Count == 0 ? new TextEdit(Microsoft.CodeAnalysis.Text.TextSpan.FromBounds(previous.Span.End, baseList.Span.End), "")
+                    : new TextEdit(baseList.Span, ": " + string.Join(", ", kept.Select(entry => entry.ToString()))));
             }
-            Directory.CreateDirectory(Path.GetDirectoryName(shims.Path)!);
-            File.WriteAllText(shims.Path, shims.Render(), new System.Text.UTF8Encoding(false));
         }
-        if (written > 0)
-            PrivateAccessShims.WriteImports(repositoryRoot);
-        return written;
+        return edits;
     }
 
-    /// <summary>The moves reaching each refused member, each once, with the first reason that refuses it.</summary>
-    private static List<RefusedMove> Refused(ReferenceEdits collected, SymbolIdentity identity, IReadOnlyDictionary<ISymbol, string> refusals)
-    {
-        var refused = new List<RefusedMove>();
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var (symbol, reason) in refusals.OrderBy(entry => entry.Key.ToDisplayString(), StringComparer.Ordinal))
-            foreach (var move in collected.MovesReaching(symbol).OrderBy(move => move.Symbol.ToDisplayString(), StringComparer.Ordinal))
-                if (seen.Add(identity.Key(move.Symbol) ?? throw new InvalidOperationException($"{move.Symbol.ToDisplayString()} has no repository identity.")))
-                    refused.Add(new RefusedMove(move, reason));
-        return refused;
-    }
+    /// <summary>Whether test-support cannot see a staying symbol: it, or a type containing it, is private or private protected.</summary>
+    private static bool HiddenFromTarget(ISymbol symbol) =>
+        symbol.DeclaredAccessibility is Accessibility.Private or Accessibility.ProtectedAndInternal ||
+        symbol.ContainingType?.OriginalDefinition is { } container && HiddenFromTarget(container);
 
-    /// <summary>
-    /// The accessibility step: staying members used by moved code become internal (<see cref="RelocationModifiers"/>), an
-    /// underscore-prefixed one under its name without the underscore (<see cref="PromotedNames"/>).
-    /// </summary>
-    /// <exception cref="InvalidOperationException">A promoted declaration takes no accessibility modifier or cannot be made internal.</exception>
-    private static void WritePromotions(ReferenceEdits collected, RenameMap renames, RelocationMoves moves, SymbolIdentity identity,
-        bool typesOnly = false)
+    /// <summary>A cref element written as text: an empty element's reference as code, a labelled one as its label.</summary>
+    /// <param name="attribute">The cref's attribute.</param>
+    /// <param name="written">The reference as the text should spell it.</param>
+    /// <exception cref="InvalidOperationException">The cref is in an element that is neither empty nor labelled.</exception>
+    private static TextEdit AsText(XmlCrefAttributeSyntax attribute, string written) => attribute.Parent switch
     {
-        if (typesOnly)
-        {
-            foreach (var type in collected.Promotions.OfType<INamedTypeSymbol>())
-                WritePromotion(collected, moves, identity, type);
-            return;
-        }
-        foreach (var symbol in collected.SetterPromotions)
-            foreach (var syntax in DeclarationsOf(identity, symbol))
-                if (syntax is PropertyDeclarationSyntax { AccessorList: { } accessors } property &&
-                    !moves.InMovedSpan(property.SyntaxTree, property.Span) &&
-                    accessors.Accessors.FirstOrDefault(a => a.IsKind(SyntaxKind.SetAccessorDeclaration) || a.IsKind(SyntaxKind.InitAccessorDeclaration)) is { } setter)
-                    foreach (var (span, text) in RelocationModifiers.PromotedSetter(setter,
-                                 symbol.DeclaredAccessibility is not (Accessibility.Public or Accessibility.ProtectedOrInternal)))
-                        collected.Add(property.SyntaxTree, span, text);
-        foreach (var symbol in collected.Promotions)
-            WritePromotion(collected, moves, identity, symbol);
-        foreach (var symbol in collected.Widened)
-            if (renames.NewName(symbol) is { } name)
-                foreach (var syntax in DeclarationsOf(identity, symbol))
-                    collected.Add(syntax.SyntaxTree, syntax switch
-                    {
-                        VariableDeclaratorSyntax declarator => declarator.Identifier.Span,
-                        PropertyDeclarationSyntax property => property.Identifier.Span,
-                        _ => throw new InvalidOperationException($"{symbol.ToDisplayString()} is declared by a {syntax.Kind()} at " +
-                            $"{syntax.GetLocation().GetLineSpan()}, whose name the rename cannot find."),
-                    }, name);
-    }
-
-    /// <summary>Writes one promoted declaration's accessibility: internal, as moved code needs it.</summary>
-    /// <exception cref="InvalidOperationException">The declaration takes no accessibility modifier or cannot be made internal.</exception>
-    private static void WritePromotion(ReferenceEdits collected, RelocationMoves moves, SymbolIdentity identity, ISymbol symbol)
-    {
-        if (symbol.DeclaredAccessibility is Accessibility.Internal or Accessibility.Public or Accessibility.ProtectedOrInternal) return;
-        // An accessibility modifier would require the method to be implemented (CS8795), and whether its calls run at all
-        // depends on that.
-        if (Unimplemented(symbol))
-            throw new InvalidOperationException($"Moved code uses {symbol.ToDisplayString()}, a partial method without an " +
-                "implementation, from outside its owner, and it cannot be made internal without one.");
-        foreach (var syntax in DeclarationsOf(identity, symbol))
-        {
-            var declaration = syntax is VariableDeclaratorSyntax { Parent.Parent: BaseFieldDeclarationSyntax sharedField } ? sharedField : DeclarationNode(syntax);
-            if (moves.InMovedSpan(declaration.SyntaxTree, declaration.Span)) continue;
-            if (declaration is not MemberDeclarationSyntax member)
-                throw new InvalidOperationException($"{symbol.ToDisplayString()}, which moved code uses, is declared by a " +
-                    $"{declaration.Kind()} at {declaration.GetLocation().GetLineSpan()}, which takes no accessibility modifier.");
-            foreach (var (span, text) in RelocationModifiers.Promoted(member))
-                collected.Add(declaration.SyntaxTree, span, text);
-        }
-    }
+        XmlEmptyElementSyntax element => new TextEdit(element.Span, $"<c>{written}</c>"),
+        XmlElementStartTagSyntax { Parent: XmlElementSyntax labelled } => new TextEdit(labelled.Span, labelled.Content.ToFullString()),
+        _ => throw new InvalidOperationException($"The cref at {attribute.GetLocation().GetLineSpan()} is in an unexpected element."),
+    };
 }

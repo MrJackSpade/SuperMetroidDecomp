@@ -2,8 +2,8 @@
 #
 # Each tools/cleanup/prune-fixtures/<name> directory holds input/ (a small repository whose csharp/Fixture.slnx lists
 # projects named like the repository's shipped, host and verification projects), expected/ (every file that repository
-# must hold after the prune) and, optionally, expected-output.txt (text the prune's output must hold, such as the MANUAL
-# line of a move it keeps in place). For each fixture, or only the names given, the check:
+# must hold after the prune) and, optionally, expected-output.txt (text the prune's output must hold, such as its summary
+# of what it moved) and expected-build-errors.txt (below). For each fixture, or only the names given, the check:
 #   1. copies input/ into a new temporary directory and writes csharp/Directory.Build.props there, importing the
 #      repository's csharp/Directory.Build.props, naming the repository's csharp/test-support as RepositoryTestSupport,
 #      so the fixture's host can take the console error policy, and adding the repository's analyzer
@@ -16,7 +16,9 @@
 #   3. requires the prune's output to hold expected-output.txt when there is one, compares every file of the copy (less
 #      bin/, obj/ and the files step 1 added) with expected/, byte for byte, including which files exist;
 #   4. builds the pruned copy's csharp/Fixture.slnx with tools/build.ps1, so an analyzer finding fails the fixture as it
-#      fails the cleanup's build.
+#      fails the cleanup's build. The prune applies every removal and move it selects, and breaks the code where it must
+#      (#2599): a fixture whose expected/ does not compile holds expected-build-errors.txt beside input/ and expected/, one
+#      line per text the failing build's output must hold (an error code, say), and the build must fail with every one.
 # Before the fixtures it builds SuperMetroid.ReachabilityAudit once in Release, as the cleanup does, which builds the
 # analyzer in Release too. A failed fixture keeps its copy and names it; a passing one is deleted. Exits nonzero when any
 # fixture fails.
@@ -33,7 +35,7 @@ $fixtures = Join-Path $PSScriptRoot 'prune-fixtures'
 $PruneCategories = 'unreachable-member,unreachable-type,unreferenced-field,unreferenced-enum-member,unreferenced-constant'
 
 # The files step 1 adds to a copy, which the comparison leaves out.
-$GeneratedFiles = @('csharp/Directory.Build.props', 'csharp/.editorconfig', 'csharp/test-support/VerificationAccess.Core/PrivateState.cs')
+$GeneratedFiles = @('csharp/Directory.Build.props', 'csharp/.editorconfig')
 
 # The repository analyzer the Release build of the reachability audit builds (csharp/Directory.Build.targets references it).
 $Analyzer = Join-Path $repository 'csharp/src/SuperMetroid.EnsureAnalyzer/bin/Release/netstandard2.0/SuperMetroid.EnsureAnalyzer.dll'
@@ -92,11 +94,6 @@ function Test-Fixture([string]$Fixture) {
 </Project>
 "@, [Text.UTF8Encoding]::new($false))
     Copy-Item -LiteralPath (Join-Path $repository 'csharp/.editorconfig') -Destination (Join-Path $copy 'csharp/.editorconfig')
-    # The prune reaches what moved checks need of a staying owner through generated private-access members, which reach it
-    # through the repository's PrivateState (#2570); a fixture's test-support holds it as the repository's does.
-    $privateState = Join-Path $copy 'csharp/test-support/VerificationAccess.Core'
-    $null = New-Item -ItemType Directory -Path $privateState -Force
-    Copy-Item -LiteralPath (Join-Path $repository 'csharp/test-support/VerificationAccess.Core/PrivateState.cs') -Destination $privateState
 
     & dotnet restore $solution -v:q | Out-Host
     if ($LASTEXITCODE -ne 0) { throw "Restoring fixture $Fixture failed (exit $LASTEXITCODE)." }
@@ -112,16 +109,26 @@ function Test-Fixture([string]$Fixture) {
     }
     $expectedOutput = Join-Path $fixtures "$Fixture/expected-output.txt"
     if (Test-Path -LiteralPath $expectedOutput -PathType Leaf) {
-        # A line the prune must print, such as the MANUAL line of a move it keeps in place.
+        # Text the prune must print, such as its summary of what it moved.
         $text = [IO.File]::ReadAllText($expectedOutput).Trim()
         if (-not ($output -join "`n").Contains($text, [StringComparison]::Ordinal)) { $failures.Add("the prune's output does not say: $text") }
     }
     Test-SameFiles $copy $expected $failures
 
-    # The pruned copy must build whatever the comparison found, analyzers included: a collision, an unresolved cref or a
-    # rule a promotion breaks shows here too.
-    & pwsh -NoProfile -NonInteractive -File (Join-Path $repository 'tools/build.ps1') $solution | Out-Host
-    if ($LASTEXITCODE -ne 0) { $failures.Add("the pruned copy does not build (exit $LASTEXITCODE)") }
+    # The pruned copy must build whatever the comparison found, analyzers included, unless the fixture names the errors its
+    # build must fail with.
+    $built = @(& pwsh -NoProfile -NonInteractive -File (Join-Path $repository 'tools/build.ps1') $solution 2>&1 | ForEach-Object { "$_" })
+    $buildExit = $LASTEXITCODE
+    $built | Out-Host
+    $breaks = Join-Path $fixtures "$Fixture/expected-build-errors.txt"
+    if (Test-Path -LiteralPath $breaks) {
+        if ($buildExit -eq 0) { $failures.Add("the pruned copy builds, but $breaks names errors its build must fail with") }
+        $builtText = $built -join "`n"
+        foreach ($expectedError in @([IO.File]::ReadAllLines($breaks) | Where-Object { $_.Trim() })) {
+            if (-not $builtText.Contains($expectedError.Trim())) { $failures.Add("the build of the pruned copy does not report '$($expectedError.Trim())'") }
+        }
+    }
+    elseif ($buildExit -ne 0) { $failures.Add("the pruned copy does not build (exit $buildExit)") }
     return @{ Failures = $failures; Copy = $copy }
 }
 

@@ -14,8 +14,7 @@ namespace SuperMetroid.ReachabilityAudit;
 /// </summary>
 /// <remarks>
 /// --remove deletes the declarations of the named finding categories.
-/// --relocate moves shipped symbols that only tools reach into a development-only project.
-/// --prune-keeping-verification-used deletes dead code, first moving what tests still use into test-support.
+/// --prune-keeping-verification-used deletes dead code, moving the dead top-level types tests still use into test-support.
 /// --check is the CI gate: it fails on any finding.
 /// </remarks>
 internal static class Program
@@ -79,18 +78,10 @@ internal static class Program
                     }
                     return 0;
                 }
-                case ["--solution", var solutionPath, "--relocate", var category, "--to", var targetDirectory]:
-                {
-                    var solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
-                    await SymbolRelocator.RelocateAsync(solution, ReachabilityAnalysis.Run(solution), category,
-                        Path.GetFullPath(targetDirectory), ReachabilityFindings.ProductionAssemblies);
-                    return 0;
-                }
                 case ["--solution", var solutionPath, "--prune-keeping-verification-used", var categoryList, "--path-prefix", var prefix,
                     "--to", var targetDirectory, "--retired-fields", var retiredFields]:
                 {
-                    // Deletes the dead code tests do not use, then moves what they still use, with everything it uses,
-                    // into test-support. Removing first leaves no dead shipped code naming members the move takes away.
+                    // Deletes the dead code, then moves the dead top-level types tests still use into test-support.
                     // The solution is opened from the files again each time the prune asks for it.
                     var workspaces = new List<MSBuildWorkspace>();
                     try
@@ -112,7 +103,7 @@ internal static class Program
                 default:
                     throw new ArgumentException("Usage: SuperMetroid.ReachabilityAudit --solution <SuperMetroid.Full.slnx> "
                         + "(--output <directory> | --remove <category,...> --retired-fields <file> [--path-prefix <repo-relative path>] "
-                        + "| --relocate <category> --to <project directory> | --why <symbol text> "
+                        + "| --why <symbol text> "
                         + "| --prune-keeping-verification-used <category,...> --path-prefix <repo-relative path,...> --to <test-support directory> --retired-fields <file> "
                         + "| --remove-keys <file> --retired-fields <file> | --core-import-only <file> | --check --output <directory>)");
             }
@@ -136,9 +127,11 @@ internal static class Program
             categoryList, prefix, targetDirectory, retiredFields);
 
     /// <summary>
-    /// Deletes the dead code tests do not use, then moves what they still use, with everything it uses, into
-    /// test-support. Removing first leaves no dead shipped code naming members the move takes away. The solution is
-    /// loaded again after the removal, which has written its files.
+    /// Deletes the dead code, every dead member of a production type that only tests use among it, then moves the dead
+    /// top-level types tests still use into test-support (<see cref="VerificationReferences.SelectRelocatedTypes"/>). A check
+    /// or a moved type that read a removed member no longer builds, and is rewritten to drive real game code (owner ruling,
+    /// #2599). Removing first leaves no dead shipped code naming the types the move takes away. The solution is loaded again
+    /// after the removal, which has written its files; the keys the move takes are the same in it.
     /// </summary>
     private static async Task PruneKeepingVerificationUsedAsync(Func<Task<LoadedSolution>> load, string categoryList, string prefix,
         string targetDirectory, string retiredFields)
@@ -157,19 +150,18 @@ internal static class Program
         // verification projects' references are collected while the reachability analysis runs.
         var referenced = Task.Run(() => VerificationReferences.Collect(solution));
         var result = ReachabilityAnalysis.Run(solution);
-        var unused = VerificationReferences.DeadFindings(result, categories, prefixes);
-        unused.ExceptWith(VerificationReferences.SelectUsedDeadCode(result, await referenced, categories, prefixes));
+        var dead = VerificationReferences.DeadFindings(result, categories, prefixes);
+        var relocated = VerificationReferences.SelectRelocatedTypes(result, await referenced, categories, prefixes);
+        // What a moved type declares moves with it.
+        dead.ExceptWith([.. dead.Where(key => VerificationReferences.DeadTopLevelType(result, dead, key) is { } type && relocated.Contains(type))]);
         Timed("reachability analysis and verification references");
-        SymbolRemover.Remove(solution, unused, Path.GetFullPath(retiredFields));
+        SymbolRemover.Remove(solution, dead, Path.GetFullPath(retiredFields));
         Timed("removal");
+        if (relocated.Count == 0)
+            return;
         solution = await load();
         Timed("compilation after the removal");
-        referenced = Task.Run(() => VerificationReferences.Collect(solution));
-        result = ReachabilityAnalysis.Run(solution);
-        var used = VerificationReferences.SelectUsedDeadCode(result, await referenced, categories, prefixes);
-        Timed("reachability analysis and verification references after the removal");
-        await SymbolRelocator.RelocateAsync(solution, used,
-            Path.GetFullPath(targetDirectory), ReachabilityFindings.ProductionAssemblies, RelocationStyle.VerificationAccess);
+        SymbolRelocator.Relocate(solution, relocated, Path.GetFullPath(targetDirectory), ReachabilityFindings.ProductionAssemblies);
         Timed("relocation");
     }
 }

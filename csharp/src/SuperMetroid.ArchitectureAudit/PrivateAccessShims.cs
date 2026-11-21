@@ -4,11 +4,11 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace SuperMetroid.ReachabilityAudit.Removal;
+namespace SuperMetroid.ArchitectureAudit;
 
 /// <summary>
 /// One owner's generated private-access class in test-support (#2570): an extension member for each private member
-/// checks, or code relocated into test-support, name, of the same name and signature, reaching the member through
+/// checks name, of the same name and signature, reaching the member through
 /// <c>PrivateState</c>. C# binds such a name to the extension member because the private member is not accessible there,
 /// so checks keep their syntax and production keeps the member private. A mutable value type's members that write it
 /// take their receiver by reference. A class already generated keeps its members and takes only the new ones.

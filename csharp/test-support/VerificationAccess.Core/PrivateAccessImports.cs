@@ -678,7 +678,6 @@ global using static SuperMetroid.Core.Samus.Colours.SamusVisorShadeStatePrivateA
 global using static SuperMetroid.Core.Samus.Death.SamusDeathAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Death.SamusDeathSequenceStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Drawing.SamusArmCannonStatePrivateAccess;
-global using static SuperMetroid.Core.Samus.Drawing.SamusParticlePrivateAccess;
 global using static SuperMetroid.Core.Samus.Drawing.SamusParticlesPrivateAccess;
 global using static SuperMetroid.Core.Samus.Drawing.SamusPresentationPrivateAccess;
 global using static SuperMetroid.Core.Samus.Drawing.SamusShownFramesPrivateAccess;

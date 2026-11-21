@@ -24,10 +24,17 @@ internal static class SamusParticlesAccess
     extension(SamusParticle self)
     {
         /// <summary>The step of its animation it shows, counted from the first; the first while it waits hidden.</summary>
-        internal int AnimationStep => Math.Max(self.Animation.Playback.Place.Beat - 1, 0);
+        internal int AnimationStep => self.Stage is SamusParticleStage.Showing showing
+            ? Math.Max(showing.Animation.Playback.Place.Beat - 1, 0)
+            : 0;
 
         /// <summary>The updates its picture still shows, counting the next; zero while it is hidden or finished.</summary>
-        internal int StepUpdatesLeft => self.IsHidden || self.IsFinished ? 0 : self.Animation.UpdatesLeft;
+        internal int StepUpdatesLeft => self.Stage is SamusParticleStage.Showing { Animation: { HasStopped: false } animation }
+            ? animation.UpdatesLeft
+            : 0;
+
+        /// <summary>The hidden wait it has left before it shows; over once it shows.</summary>
+        internal UpdateCountdown Hidden => self.Stage is SamusParticleStage.Waiting waiting ? waiting.Wait : UpdateCountdown.Ended();
     }
 
     /// <summary>Starts particles on the original's steps.</summary>

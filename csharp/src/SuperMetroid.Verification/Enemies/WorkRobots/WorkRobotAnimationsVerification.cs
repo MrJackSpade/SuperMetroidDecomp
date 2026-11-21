@@ -12,7 +12,7 @@ internal static class WorkRobotAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyWorkRobotAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = rom;
+        CartridgeImportAddressSpace cartridge = rom;
         // Each walk routine loads the instruction pointer with its walk's list and returns (#2167): LDY #list, RTL.
         foreach ((ushort routine, WorkRobotSegment walk) in WalkRoutines)
         {

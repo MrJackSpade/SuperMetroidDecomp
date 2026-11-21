@@ -45,7 +45,7 @@ internal static class KraidFootCoordinateMappingsVerification
     }
 
     /// <summary>Reads one native foot component byte solely as the verification oracle.</summary>
-    private static byte KraidFootCoordinateRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidFootCoordinateRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the shared foot rectangle and exhaustive native component-frame membership.</summary>
     internal static void VerifyKraidFootSharedHitbox(CartridgeImportAddressSpace rom)
@@ -90,5 +90,5 @@ internal static class KraidFootCoordinateMappingsVerification
     }
 
     /// <summary>Reads one native shared-hitbox byte solely as the verification oracle.</summary>
-    private static byte KraidFootSharedHitboxRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidFootSharedHitboxRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

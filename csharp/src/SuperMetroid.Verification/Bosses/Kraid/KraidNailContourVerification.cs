@@ -69,5 +69,5 @@ internal static class KraidNailContourVerification
     }
 
     /// <summary>Reads the retail contour as an independent oracle for the compiled lookup.</summary>
-    private static byte KraidNailContourRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidNailContourRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

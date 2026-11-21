@@ -58,7 +58,7 @@ internal static class GrowingShutterDefinitionsVerification
     }
 
     /// <summary>Reads cartridge bytes used as the compiled shutter comparison oracle.</summary>
-    private static byte CompiledGrowingShuttersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte CompiledGrowingShuttersRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks signed whole-pixel shutter velocities across high-byte selector aliases.</summary>
     private static void VerifyGrowingShutterWholeSpeed(CartridgeImportAddressSpace rom) =>
@@ -103,5 +103,5 @@ internal static class GrowingShutterDefinitionsVerification
             SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(0, parameter2))).GrowthSpeed;
 
     /// <summary>Reads a native velocity byte for the shutter speed-field comparison.</summary>
-    private static byte GrowingShutterSpeedFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrowingShutterSpeedFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

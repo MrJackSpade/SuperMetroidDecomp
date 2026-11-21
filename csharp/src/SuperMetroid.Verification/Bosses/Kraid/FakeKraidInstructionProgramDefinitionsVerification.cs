@@ -204,7 +204,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Reads native bank-$A6 bytes only for the independent instruction comparison.</summary>
-    private static byte FakeKraidInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FakeKraidInstructionProgramDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the Fake Kraid instruction check against the local retail cartridge.</summary>
     [VerificationCommand("--fake-kraid-instruction-mechanics")]

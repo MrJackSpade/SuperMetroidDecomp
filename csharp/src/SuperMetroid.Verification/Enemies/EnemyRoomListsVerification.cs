@@ -18,7 +18,7 @@ internal static class EnemyRoomListsVerification
     /// <summary>Compares every ordered enemy placement, death quota, and graphics-set member to the cartridge.</summary>
     internal static void VerifyCompiledEnemyRoomLists()
     {
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] populationPointers = RoomStateDefinitions.All
             .Select(state => RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation)).Distinct().Order().ToArray();

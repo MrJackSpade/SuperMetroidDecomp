@@ -84,7 +84,7 @@ internal static class GrappleEnemyDeathVerification
     }
 
     /// <summary>Reads a retail cartridge byte while seeding the focused synthetic death fixture.</summary>
-    private static byte GrappleEnemyDeathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleEnemyDeathRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Copies the retail enemy-projectile ($86) and sprite-map ($8D) banks into the synthetic cartridge.</summary>
     private static void SeedGrappleEnemyDeathRetailBanks(TestAddressSpace bus)

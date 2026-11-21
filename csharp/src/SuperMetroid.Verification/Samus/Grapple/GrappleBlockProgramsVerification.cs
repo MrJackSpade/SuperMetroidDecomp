@@ -62,7 +62,7 @@ internal static class GrappleBlockProgramsVerification
     }
 
     /// <summary>Reads a cartridge sound byte solely as the compiled-operand oracle.</summary>
-    private static byte GrappleBlockSoundMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleBlockSoundMappingRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Compares five one-block draw lists with native geometry, collision words, and terminal offsets.</summary>
     private static void VerifyGrappleBlockPhysicalDrawMapping(CartridgeImportAddressSpace rom)
@@ -97,7 +97,7 @@ internal static class GrappleBlockProgramsVerification
         RoomObjectGrappleBlockVisualFiles.VisualId(RoomObjectDrawIdentity.FrameOf<GrappleBlockDraw>(GrappleAt(pointer), "Grapple-block"));
 
     /// <summary>Reads native draw-list terminal offsets as the physical-geometry oracle.</summary>
-    private static byte GrappleBlockPhysicalDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleBlockPhysicalDrawMappingRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Compares the five frames' installed pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
     private static void VerifyGrappleBlockStockVisualMapping(CartridgeImportAddressSpace rom)

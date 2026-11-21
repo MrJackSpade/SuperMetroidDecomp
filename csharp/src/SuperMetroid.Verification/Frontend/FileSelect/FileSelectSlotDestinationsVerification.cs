@@ -76,7 +76,7 @@ internal static class FileSelectSlotDestinationsVerification
     }
 
     /// <summary>Reads native slot destination instructions for the layout comparison.</summary>
-    private static byte FileSelectSlotDestinationsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FileSelectSlotDestinationsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks both slot-label load sites use the compiled source and terminal word.</summary>
     private static void VerifyFileSelectSlotLabelSources(SuperMetroid.AssetExtraction.Cartridge.ISnesAddressSpace rom)

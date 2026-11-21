@@ -488,7 +488,7 @@ internal static class NativeEnemyFamilyStateImport
                 YardMovement.Hiding => YardMotion.Hiding,
                 YardMovement.Crawling => YardMotion.Crawling,
                 YardMovement.Airborne => new YardMotion.Airborne(YardDirections.ForAirborneFacing(yardRecord.AirborneFacingDirection).HidingAnimation),
-                YardMovement recorded => throw new InvalidDataException($"Recorded Yard movement {recorded} is not one the Yard moves by."),
+                _ => throw new InvalidDataException($"Recorded Yard movement {words.F:X4} is not one the Yard moves by."),
             };
             // A crawl's routine names its way (#2278).
             if (yardRecord.Movement == YardMovement.Crawling)

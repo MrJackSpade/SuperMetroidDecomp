@@ -49,5 +49,5 @@ internal static class LookupQuakeSoundSuppressionVerification
     }
 
     /// <summary>Reads a cartridge opcode or operand for the quake-suppression comparison chain.</summary>
-    private static byte QuakeSoundSuppressionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte QuakeSoundSuppressionRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

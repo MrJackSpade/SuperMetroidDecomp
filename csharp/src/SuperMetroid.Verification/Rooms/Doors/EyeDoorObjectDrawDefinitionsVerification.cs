@@ -180,7 +180,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
     }
 
     /// <summary>Reads one retail bank-$84 program byte for the fixture oracle.</summary>
-    private static byte EyeDoorRetailProgramPathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte EyeDoorRetailProgramPathRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     private static void VerifyEyeDoorVisualInstallation(CartridgeImportAddressSpace rom)

@@ -54,5 +54,5 @@ internal static class FirefleaMovementDefinitionsVerification
     }
 
     /// <summary>Reads one pinned bank-$A3 radius-table byte for the verification oracle.</summary>
-    private static byte FirefleaMovementDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FirefleaMovementDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

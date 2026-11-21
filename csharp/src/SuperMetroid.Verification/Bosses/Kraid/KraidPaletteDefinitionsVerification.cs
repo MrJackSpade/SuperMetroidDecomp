@@ -31,7 +31,7 @@ internal static class KraidPaletteDefinitionsVerification
     }
 
     /// <summary>Reads a byte of retail bank-$A7 code solely for the source-address oracle.</summary>
-    private static byte KraidPaletteSourceAddressesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidPaletteSourceAddressesRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Uses adjacent bank-$A7 symbol boundaries to check complete backdrop, target, health, secondary, and death-arm palette lengths.</summary>
     internal static void VerifyKraidPaletteSourceLengths()

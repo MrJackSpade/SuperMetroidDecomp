@@ -24,7 +24,7 @@ internal static class KraidRockLaunchDefinitionsVerification
     }
 
     /// <summary>Reads the native velocity table as the selection oracle.</summary>
-    private static byte KraidRockLaunchSpeedSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidRockLaunchSpeedSelectionRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks wrapped spawn offsets, projectile fields, and RNG read count without table rereads.</summary>
     internal static void VerifyKraidRockLaunchDefinitions(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
@@ -78,6 +78,6 @@ internal static class KraidRockLaunchDefinitionsVerification
     }
 
     /// <summary>Reads the original launch-speed words for production spawn comparison.</summary>
-    private static byte KraidRockLaunchDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidRockLaunchDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

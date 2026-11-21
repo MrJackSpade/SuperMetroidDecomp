@@ -162,7 +162,7 @@ internal static class IntroBabyActorDefinitionsVerification
     private static IntroCrossfadeTick OutOfLaboratoryFinishing => new(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration, 1);
 
     /// <summary>Reads a single retail byte only for the comparison oracle, outside the guarded production playback.</summary>
-    private static byte IntroBabyActorDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte IntroBabyActorDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Rejects production rereads of compiled Baby actor, instruction, demo-input and discovery-collision regions.</summary>
     private static CartridgeReadGuard NewIntroBabyActorDefinitionGuard(ISnesAddressSpace source) =>

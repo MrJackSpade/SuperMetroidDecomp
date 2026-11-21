@@ -393,7 +393,7 @@ public static class SamusBlockCollision
             // is speed boosting, screw attacking, or in a shinespark pose. On an
             // accepted break it installs the air-type bomb-parent visual and
             // reports no collision, so this scan continues through the new air. An inert block is solid before any room
-            // object is spawned ($94:932D), so it stops Samus even when every room-object place is held.
+            // object is spawned, so it stops Samus even when every room-object place is held.
             if (reaction == BombableReaction.Inert)
             {
                 acceptedDisplacement = ClipHorizontalToSolid(
@@ -827,7 +827,7 @@ public static class SamusBlockCollision
         {
             // The vertical reaction shares the exact room-object
             // setup and collision contract documented in the horizontal branch above.
-            // An inert block is solid before any room object is spawned ($94:932D), whatever the room-object places hold.
+            // An inert block is solid before any room object is spawned, whatever the room-object places hold.
             if (reaction == BombableReaction.Inert)
             {
                 acceptedDisplacement = ClipVerticalToSolid(

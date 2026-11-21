@@ -52,7 +52,7 @@ internal static class SamusProjectilesVerification
 /// Byte <paramref name="offset"/> of the bank-$93 power-beam projectile record that the native
 /// direction table at $93:8433 selects for <paramref name="direction"/>.
 /// </summary>
-static byte ReadRetailPowerBeamRadiusByte(ISnesAddressSpace rom, int direction, int offset) =>
+static byte ReadRetailPowerBeamRadiusByte(CartridgeImportAddressSpace rom, int direction, int offset) =>
     rom.ReadCartridgeByte(0x930000 | (rom.ReadCartridgeWord((0x938433 + direction * 2)) + offset));
 
 /// <summary>Checks beam and missile records, charge, impact, OAM, sound, and cartridge-timed projectile lifecycles.</summary>

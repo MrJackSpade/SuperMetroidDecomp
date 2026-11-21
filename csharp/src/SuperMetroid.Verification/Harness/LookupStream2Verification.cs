@@ -667,7 +667,7 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Copies a bounded span of native Dead Torizo artwork bytes for the oracle.</summary>
-    private static byte[] ReadDeadTorizoRomBytes(ISnesAddressSpace rom, int address, int count) =>
+    private static byte[] ReadDeadTorizoRomBytes(CartridgeImportAddressSpace rom, int address, int count) =>
         Enumerable.Range(0, count).Select(offset => rom.ReadCartridgeByte(address + offset)).ToArray();
 
     /// <summary>Checks native crawler/Yard speed ramps through actual velocity resets.</summary>

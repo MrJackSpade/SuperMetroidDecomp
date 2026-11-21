@@ -1234,7 +1234,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Reads the retail Sidehopper corpse character rows for an independent artwork fixture.</summary>
-    private static byte[] ReadSidehopperCorpseRomBytes(ISnesAddressSpace rom, int address, int count) =>
+    private static byte[] ReadSidehopperCorpseRomBytes(CartridgeImportAddressSpace rom, int address, int count) =>
         Enumerable.Range(0, count).Select(offset => rom.ReadCartridgeByte(address + offset)).ToArray();
 
     /// <summary>Builds a corpse-art fixture with cartridge Sidehopper palette and tile bytes.</summary>

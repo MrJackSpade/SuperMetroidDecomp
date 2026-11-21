@@ -94,7 +94,7 @@ internal static class GunshipMotionDefinitionsVerification
     }
 
     /// <summary>Reads one native motion-table byte for the independent gunship oracle.</summary>
-    private static byte GunshipMotionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GunshipMotionDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>
     /// Checks the brakes in the order the ship takes them against the cartridge's seventeen offsets, walking each brake to
@@ -127,7 +127,7 @@ internal static class GunshipMotionDefinitionsVerification
     }
 
     /// <summary>Reads a native hover timer byte for comparison with compiled phase data.</summary>
-    private static byte GunshipHoverTimerAlgorithmRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GunshipHoverTimerAlgorithmRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the signed vertical movement selected in each idle-bob phase.</summary>
     private static void VerifyGunshipHoverDeltaSelection(CartridgeImportAddressSpace rom)
@@ -138,7 +138,7 @@ internal static class GunshipMotionDefinitionsVerification
     }
 
     /// <summary>Reads a native signed bob displacement byte for comparison.</summary>
-    private static byte GunshipHoverDeltaSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GunshipHoverDeltaSelectionRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>
     /// The shared cartridge-read guard that also forwards enemy fixture lookups, so a sparse

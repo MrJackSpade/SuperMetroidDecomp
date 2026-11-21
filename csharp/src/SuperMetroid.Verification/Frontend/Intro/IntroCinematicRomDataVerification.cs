@@ -123,7 +123,7 @@ internal static class IntroCinematicRomDataVerification
     }
 
     /// <summary>Reads a cartridge byte to validate a named cinematic code or list pointer.</summary>
-    private static byte CinematicCodePointerCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte CinematicCodePointerCatalogRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>
     /// Checks that the import places each crossfaded scene's colours as nonempty runs among the opening's background and

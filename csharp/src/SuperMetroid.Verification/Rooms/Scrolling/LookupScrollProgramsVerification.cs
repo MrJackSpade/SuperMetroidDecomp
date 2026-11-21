@@ -74,5 +74,5 @@ internal static class LookupScrollProgramsVerification
     }
 
     /// <summary>Reads an original scroll-program byte for independent field comparison.</summary>
-    private static byte ScrollProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte ScrollProgramFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -142,7 +142,7 @@ internal static class DeadTourianCorpseArtworkVerification
     }
 
     /// <summary>Reads a retail corpse-sheet byte for the independent staging oracle.</summary>
-    private static byte ReadNativeDeadTourianCorpseSheetByte(ISnesAddressSpace rom, int sheetOffset) =>
+    private static byte ReadNativeDeadTourianCorpseSheetByte(CartridgeImportAddressSpace rom, int sheetOffset) =>
         rom.ReadCartridgeByte(0xb7c000 + sheetOffset);
 
     /// <summary>The Sidehopper corpse of population parameter <paramref name="parameter"/> as the character rot oracle stages it from installed art.</summary>

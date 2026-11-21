@@ -81,7 +81,7 @@ internal static class CeresElevatorArrivalVerification
     /// sprite colour, and the concealer's draw shows it. A sheet holding the pad apart from the concealer, as the common art
     /// held once holds it (#1544), has no colour of the concealer's for the shade to recolour.
     /// </summary>
-    private static void VerifyConcealerShade(ISnesAddressSpace rom, CeresElevatorArrivalState arrival)
+    private static void VerifyConcealerShade(CartridgeImportAddressSpace rom, CeresElevatorArrivalState arrival)
     {
         IImportCartridgeSource cartridge = rom;
         VerificationAssertions.AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x82812d), "the new-game clear loads an immediate colour");

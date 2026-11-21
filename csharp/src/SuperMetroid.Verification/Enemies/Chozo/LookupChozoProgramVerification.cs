@@ -52,5 +52,5 @@ internal static class LookupChozoProgramVerification
     }
 
     /// <summary>Reads one retail PLM byte for the selected field's source comparison.</summary>
-    private static byte ChozoProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte ChozoProgramFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

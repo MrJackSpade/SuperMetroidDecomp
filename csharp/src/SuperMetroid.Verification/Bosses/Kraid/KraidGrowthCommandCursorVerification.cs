@@ -71,7 +71,7 @@ internal static class KraidGrowthCommandCursorVerification
     }
 
     /// <summary>Reads one native command byte as an independent growth-selection oracle.</summary>
-    private static byte KraidGrowthCommandCursorRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidGrowthCommandCursorRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the Kraid growth command-cursor regression.</summary>
     [VerificationCommand("--kraid-growth-command-cursor")]

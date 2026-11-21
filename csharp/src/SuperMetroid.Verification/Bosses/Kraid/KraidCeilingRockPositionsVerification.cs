@@ -25,7 +25,7 @@ internal static class KraidCeilingRockPositionsVerification
     }
 
     /// <summary>Reads one bank-$A7 coordinate byte solely for the native oracle.</summary>
-    private static byte KraidCeilingRockCoordinatesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidCeilingRockCoordinatesRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Confirms each ceiling spawn advances to the next rock and pairs its native X coordinate with the PLM mutation while source-table reads are forbidden.</summary>
     internal static void VerifyKraidCeilingRockPositions(CartridgeImportAddressSpace rom)
@@ -67,6 +67,6 @@ internal static class KraidCeilingRockPositionsVerification
     }
 
     /// <summary>Reads a retail placement byte for the production-spawn comparison.</summary>
-    private static byte KraidCeilingRockPositionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidCeilingRockPositionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

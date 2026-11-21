@@ -164,7 +164,7 @@ internal static class GrappleFlarePresentationVerification
     }
 
     /// <summary>Reads a native Grapple flare delay byte solely for the verification timing oracle.</summary>
-    private static byte GrappleFlarePresentationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleFlarePresentationRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the real actor draws the flare from the bound sheets, and from newly bound ones.</summary>
     private static void VerifyGrappleFlareActorBinding(

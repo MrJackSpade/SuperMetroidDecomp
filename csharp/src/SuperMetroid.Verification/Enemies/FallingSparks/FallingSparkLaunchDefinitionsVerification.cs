@@ -69,5 +69,5 @@ internal static class FallingSparkLaunchDefinitionsVerification
     }
 
     /// <summary>Reads the native launch table as the independent speed oracle.</summary>
-    private static byte FallingSparkLaunchDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FallingSparkLaunchDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

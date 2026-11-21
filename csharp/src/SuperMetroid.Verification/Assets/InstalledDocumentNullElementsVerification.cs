@@ -35,7 +35,9 @@ internal static class InstalledDocumentNullElementsVerification
     internal static void VerifyInstalledDocumentNullElements()
     {
         ElementsProbe whole = Read("""{"Names":["a","b"],"Rows":[["c"]],"Optional":["d",null]}""");
-        AssertEqual(2, whole.Names.Count, "a document with every declared-present element reads whole");
+        var expected = new ElementsProbe { Names = ["a", "b"], Rows = [["c"]], Optional = ["d", null] };
+        AssertTrue(whole.Names.SequenceEqual(expected.Names) && whole.Rows.Single().SequenceEqual(expected.Rows.Single())
+            && whole.Optional.SequenceEqual(expected.Optional), "a document with every declared-present element reads whole");
         AssertTrue(whole.Optional[1] is null, "a collection declaring its elements nullable keeps a null element");
 
         JsonException names = AssertThrows<JsonException>(() => Read("""{"Names":["a",null],"Rows":[],"Optional":[]}"""),

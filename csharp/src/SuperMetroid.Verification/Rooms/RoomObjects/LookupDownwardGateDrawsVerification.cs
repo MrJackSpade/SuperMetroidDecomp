@@ -123,5 +123,5 @@ internal static class LookupDownwardGateDrawsVerification
     }
 
     /// <summary>Reads a native draw-list byte for the retail ROM comparison only.</summary>
-    private static byte DownwardGateDrawFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte DownwardGateDrawFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

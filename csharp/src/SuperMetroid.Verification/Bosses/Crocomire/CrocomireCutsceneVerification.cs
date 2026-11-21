@@ -90,7 +90,7 @@ internal static class CrocomireCutsceneVerification
     }
 
     /// <summary>The Crocomire room's authored scroll storage, read from its retail $8F:A9D7 record.</summary>
-    private static byte[] ReadNativeCrocomireRoomScrolls(ISnesAddressSpace rom) =>
+    private static byte[] ReadNativeCrocomireRoomScrolls(CartridgeImportAddressSpace rom) =>
         Enumerable.Range(0, RoomScrollGrid.KeptCellCount).Select(index => rom.ReadCartridgeByte(0x8fa9d7 + index)).ToArray();
 
     /// <summary>Checks the bridge melt lock at X=1280 and the later skeleton-wall lock at X=512.</summary>

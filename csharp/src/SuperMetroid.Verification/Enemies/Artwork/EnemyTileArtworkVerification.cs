@@ -67,7 +67,7 @@ internal static class EnemyTileArtworkVerification
     /// installed image. The bare skull's seventh copy, which shows what follows the image's six bands, is a read past the
     /// image the port does not keep (#2573).
     /// </summary>
-    private static byte[] ReadNativeCrocomireMeltingPassImage(ISnesAddressSpace rom, CrocomireMeltingIllustration pass)
+    private static byte[] ReadNativeCrocomireMeltingPassImage(CartridgeImportAddressSpace rom, CrocomireMeltingIllustration pass)
     {
         bool first = pass == CrocomireMeltingIllustration.Flesh;
         var expected = new byte[first ? CrocomireMeltingArtworkFormat.FleshByteCount : CrocomireMeltingArtworkFormat.BareSkullByteCount];

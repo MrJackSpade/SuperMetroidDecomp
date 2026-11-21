@@ -37,7 +37,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     /// checks each such native frame holds a BG2 command component.
     /// </summary>
     private static HashSet<ushort> VerifyNativeDraygonBg2FrameSelectors(
-        ISnesAddressSpace rom, HashSet<ushort> draygonOamPointers)
+        CartridgeImportAddressSpace rom, HashSet<ushort> draygonOamPointers)
     {
         var draygonBg2Pointers = new HashSet<ushort>();
         // The Draygon oracle matches each typed frame to the operand of its native list frame.

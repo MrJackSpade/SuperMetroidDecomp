@@ -92,5 +92,5 @@ internal static class FuneNamiheDefinitionsVerification
     }
 
     /// <summary>Reads one native selector byte solely as the verification oracle.</summary>
-    private static byte FuneNamiheProgramSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FuneNamiheProgramSelectionRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

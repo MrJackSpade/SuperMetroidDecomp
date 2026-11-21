@@ -18,7 +18,7 @@ internal static class FrontendSessionGameStateAccess
         /// <param name="sequence">The recorded sequence.</param>
         /// <exception cref="ArgumentOutOfRangeException">
         /// The word names no sequence, or Ceres's destruction, which is entered with its outcome
-        /// (<see cref="FrontendSession.BeginCeresDestruction"/>).
+        /// (<see cref="FrontendSession.BeginCeresDestruction"/>); a word read from a recording can name none.
         /// </exception>
         internal void Enter(SuperMetroidGameState sequence)
         {
@@ -43,31 +43,39 @@ internal static class FrontendSessionGameStateAccess
                 case SuperMetroidGameState.TimeUp:
                     self.Enter(TimeUpStep.WhiteningOut);
                     break;
-                default:
-                    self.Enter(self.Phases.Of(sequence));
+                case SuperMetroidGameState.CeresDestruction:
+                    throw new ArgumentOutOfRangeException(nameof(sequence), sequence,
+                        "Ceres's destruction is entered with its outcome (FrontendSession.BeginCeresDestruction).");
+                case SuperMetroidGameState.LoadingGame:
+                    self.Enter(self.Phases.LoadingGame);
                     break;
+                case SuperMetroidGameState.GameplayFadeIn:
+                    self.Enter(self.Phases.GameplayFadeIn);
+                    break;
+                case SuperMetroidGameState.MainGameplay:
+                    self.Enter(self.Phases.MainGameplay);
+                    break;
+                case SuperMetroidGameState.DoorTransition:
+                    self.Enter(self.Phases.DoorTransition);
+                    break;
+                case SuperMetroidGameState.ReserveTankRefill:
+                    self.Enter(self.Phases.ReserveTankRefill);
+                    break;
+                case SuperMetroidGameState.GameOverMenu:
+                    self.Enter(self.Phases.GameOverMenu);
+                    break;
+                case SuperMetroidGameState.CeresDeparture:
+                    self.Enter(self.Phases.CeresDeparture);
+                    break;
+                case SuperMetroidGameState.Ending:
+                    self.Enter(self.Phases.Ending);
+                    break;
+                case SuperMetroidGameState.AttractDemo:
+                    self.Enter(self.Phases.AttractDemo);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(sequence), sequence, "No sequence has this game-state word.");
             }
         }
-    }
-
-    /// <summary>The phases' views.</summary>
-    extension(GamePhases self)
-    {
-        /// <summary>The phase of <paramref name="sequence"/>, one the session holds whatever its step.</summary>
-        /// <param name="sequence">The recorded sequence.</param>
-        /// <exception cref="ArgumentOutOfRangeException">The word names no sequence the session holds a phase of.</exception>
-        internal IGamePhase Of(SuperMetroidGameState sequence) => sequence switch
-        {
-            SuperMetroidGameState.LoadingGame => self.LoadingGame,
-            SuperMetroidGameState.GameplayFadeIn => self.GameplayFadeIn,
-            SuperMetroidGameState.MainGameplay => self.MainGameplay,
-            SuperMetroidGameState.DoorTransition => self.DoorTransition,
-            SuperMetroidGameState.ReserveTankRefill => self.ReserveTankRefill,
-            SuperMetroidGameState.GameOverMenu => self.GameOverMenu,
-            SuperMetroidGameState.CeresDeparture => self.CeresDeparture,
-            SuperMetroidGameState.Ending => self.Ending,
-            SuperMetroidGameState.AttractDemo => self.AttractDemo,
-            _ => throw new ArgumentOutOfRangeException(nameof(sequence), sequence, "The session holds no phase of this game-state word; a staged sequence is entered at its step."),
-        };
     }
 }

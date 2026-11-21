@@ -91,7 +91,7 @@ internal static class ExploredMapPackingDefinitionsVerification
     }
 
     /// <summary>Reads a native map-packing byte solely for the cartridge-side verification oracle.</summary>
-    private static byte ExploredMapPackingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte ExploredMapPackingDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks that debugger restoration keeps the bound provider and decoded slots.</summary>
     private static void VerifyCalculatedMapPackingBindings(PersistentProgress explored)

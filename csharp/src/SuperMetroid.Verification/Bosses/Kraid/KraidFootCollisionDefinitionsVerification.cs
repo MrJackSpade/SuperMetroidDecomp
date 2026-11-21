@@ -135,7 +135,7 @@ internal static class KraidFootCollisionDefinitionsVerification
     }
 
     /// <summary>Reads one native bank-$A7 collision byte for the independent hitbox oracle.</summary>
-    private static byte KraidFootCollisionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidFootCollisionDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Rejects all cartridge reads and writes while installed Kraid foot collision runs.</summary>
     private static CartridgeReadGuard NewKraidFootCollisionNoReadBus() =>

@@ -26,7 +26,7 @@ internal static class EnemyDefinitionsVerification
     /// <summary>Walks room populations and graphics sets to establish exact coverage of all referenced enemy headers.</summary>
     internal static void VerifyCompiledEnemyDefinitions()
     {
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var referencedPointers = new HashSet<EnemyDefinitionId>();
         foreach (RoomStateSettings state in RoomStateDefinitions.All)

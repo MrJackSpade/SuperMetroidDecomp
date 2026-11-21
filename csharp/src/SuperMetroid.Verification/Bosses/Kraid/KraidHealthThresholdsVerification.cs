@@ -40,5 +40,5 @@ internal static class KraidHealthThresholdsVerification
     }
 
     /// <summary>Reads one retail instruction byte to confirm the initializer uses accumulator LSR.</summary>
-    private static byte KraidHealthFractionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidHealthFractionRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

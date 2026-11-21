@@ -39,5 +39,5 @@ internal static class FakeKraidSpitVelocitiesVerification
     }
 
     /// <summary>Reads a byte from the native launch-vector table for the axis comparison.</summary>
-    private static byte FakeKraidSpitVelocityFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FakeKraidSpitVelocityFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

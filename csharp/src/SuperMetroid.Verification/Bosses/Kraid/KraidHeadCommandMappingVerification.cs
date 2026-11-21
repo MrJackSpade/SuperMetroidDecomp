@@ -114,5 +114,5 @@ internal static class KraidHeadCommandMappingVerification
     }
 
     /// <summary>Reads one native bank-$A7 byte solely for the head-program oracle.</summary>
-    private static byte KraidHeadCommandMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidHeadCommandMappingRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

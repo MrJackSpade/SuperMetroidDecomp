@@ -150,7 +150,7 @@ internal static class DeadTorizoArtworkVerification
     }
 
     /// <summary>Reads one oracle byte from the corpse sheet at $B7:A800.</summary>
-    private static byte ReadNativeDeadTorizoSheetByte(ISnesAddressSpace rom, int sheetOffset) =>
+    private static byte ReadNativeDeadTorizoSheetByte(CartridgeImportAddressSpace rom, int sheetOffset) =>
         rom.ReadCartridgeByte(0xb7a800 + sheetOffset);
 
     /// <summary>Obtains a sand line's WRAM destination and sheet source from separate retail tables.</summary>

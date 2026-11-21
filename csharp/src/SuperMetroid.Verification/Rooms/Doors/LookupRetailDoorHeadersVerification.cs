@@ -129,5 +129,5 @@ internal static class LookupRetailDoorHeadersVerification
     }
 
     /// <summary>Reads one original door-header byte for field-level comparison.</summary>
-    private static byte DoorHeaderFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte DoorHeaderFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

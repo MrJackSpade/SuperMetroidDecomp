@@ -122,5 +122,5 @@ internal static class LookupBombTorizoHandDrawVerification
     }
 
     /// <summary>Reads a native bank-$84 hand-draw offset byte for run transitions.</summary>
-    private static byte BombTorizoHandDrawFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte BombTorizoHandDrawFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

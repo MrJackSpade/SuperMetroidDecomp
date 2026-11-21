@@ -43,5 +43,5 @@ internal static class KraidDefeatedObjectMappingsVerification
     }
 
     /// <summary>Reads an inline bank-$A7 argument byte from the cartridge oracle.</summary>
-    private static byte KraidDefeatedObjectFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidDefeatedObjectFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

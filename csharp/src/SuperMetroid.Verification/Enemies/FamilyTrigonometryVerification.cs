@@ -31,7 +31,7 @@ internal static class FamilyTrigonometryVerification
     }
 
     /// <summary>Reads a native sine-table byte for the signed-sample oracle.</summary>
-    private static byte FineSignedSineDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FineSignedSineDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks boundary-word Maw products, Bull movement, and linked Shaktool segment placement without runtime ROM reads.</summary>
     internal static void VerifyCompiledFamilyTrigonometry(CartridgeImportAddressSpace rom)
@@ -146,5 +146,5 @@ internal static class FamilyTrigonometryVerification
     }
 
     /// <summary>Reads a retail trigonometry byte for the independent family-math reference arrays.</summary>
-    private static byte CompiledFamilyTrigonometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte CompiledFamilyTrigonometryRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

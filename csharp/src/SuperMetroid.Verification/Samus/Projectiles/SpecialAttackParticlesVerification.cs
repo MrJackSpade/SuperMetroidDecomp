@@ -96,9 +96,9 @@ internal static class SpecialAttackParticlesVerification
         null => null,
         SuperMissileShotState superMissile => (superMissile.Ignition, superMissile.LinkChainPosition),
         MissileShotState missile => missile.Ignition,
-        IceParticleState ice => (ice.Part, ice.Angle, ice.Radius, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.OrbitingParticleState, global::SuperMetroid.Core.Spatial.TrigonometryAngle>(ice, "TurnPerUpdate"), ice.Lifetime.UpdatesLeft),
-        PlasmaParticleState ring => (ring.Part, ring.Angle, ring.Radius, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.OrbitingParticleState, global::SuperMetroid.Core.Spatial.TrigonometryAngle>(ring, "TurnPerUpdate"), ring.Phase),
-        SpazerParticleState spazer => (spazer.Part, spazer.Angle, spazer.Radius, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.OrbitingParticleState, global::SuperMetroid.Core.Spatial.TrigonometryAngle>(spazer, "TurnPerUpdate"), spazer.Phase, spazer.Partner.Place,
+        IceParticleState ice => (ice.Part, ice.Angle, ice.Radius, ice.TurnPerUpdate, ice.Lifetime.UpdatesLeft),
+        PlasmaParticleState ring => (ring.Part, ring.Angle, ring.Radius, ring.TurnPerUpdate, ring.Phase),
+        SpazerParticleState spazer => (spazer.Part, spazer.Angle, spazer.Radius, spazer.TurnPerUpdate, spazer.Phase, spazer.Partner.Place,
             spazer.LeavesTrails),
         WaveParticleState wave => (wave.Part, wave.Lifetime.UpdatesLeft),
         ShinesparkEchoShotState echo => (echo.Angle, echo.Radius),
@@ -307,7 +307,7 @@ internal static class SpecialAttackParticlesVerification
                 if (beam != SamusBeamFlags.Spazer)
                     continue;
                 SpazerParticleState spazer = particle.KindStateAs<SpazerParticleState>();
-                AssertEqual(TrigonometryAngle.Wrapped(OriginalSpazerTurn(place) * 4), global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.OrbitingParticleState, global::SuperMetroid.Core.Spatial.TrigonometryAngle>(spazer, "TurnPerUpdate"),
+                AssertEqual(TrigonometryAngle.Wrapped(OriginalSpazerTurn(place) * 4), spazer.TurnPerUpdate,
                     $"Spazer particle {place} circles the way its place's parity turns");
                 AssertEqual(place >= 2, particle.HeldShot().Type == SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail),
                     $"Spazer particle {place} is a trail exactly when it holds one of the last two places");
@@ -378,7 +378,7 @@ internal static class SpecialAttackParticlesVerification
                     // A falling particle is checked above and turns no more.
                     SpazerComboPhase.Falling or _ => throw new InvalidOperationException($"Undefined {nameof(SpazerComboPhase)} {spazer.Phase}."),
                 };
-                AssertEqual(TrigonometryAngle.Wrapped(expectedStep), global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.OrbitingParticleState, global::SuperMetroid.Core.Spatial.TrigonometryAngle>(spazer, "TurnPerUpdate"),
+                AssertEqual(TrigonometryAngle.Wrapped(expectedStep), spazer.TurnPerUpdate,
                     $"update {update}: Spazer particle {place} turns its place's way in {spazer.Phase}");
             }
         }

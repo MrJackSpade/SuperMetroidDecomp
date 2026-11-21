@@ -109,7 +109,7 @@ internal static class FileCopyArrowVerification
     }
 
     /// <summary>Reads native arrow spritemap bytes for the independent OAM reference.</summary>
-    private static byte FileCopyArrowRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FileCopyArrowRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the retail copy-confirmation arrow check.</summary>
     [VerificationCommand("--file-copy-arrow")]

@@ -60,7 +60,7 @@ internal static class GrappleBodyPlacementVerification
     private const int AnchorSpread = 1023;
 
     /// <summary>Reads native frame and body-offset tables for the independent placement oracle.</summary>
-    private static byte GrappleBodyPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleBodyPlacementRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the grapple placement comparison with the retail cartridge image.</summary>
     [VerificationCommand("--grapple-swing-frames")]

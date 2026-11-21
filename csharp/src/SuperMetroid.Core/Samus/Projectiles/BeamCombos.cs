@@ -67,9 +67,6 @@ internal sealed class BeamCombos
             TrigonometryAngle orbitTurn = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right)
                 ? BeamComboDefinitions.OrbitTurnOn
                 : BeamComboDefinitions.OrbitTurnBack;
-            // Each Spazer beam particle pairs with the trailing particle that turns its way.
-            List<SpazerParticleState> spazers = [];
-            List<SamusProjectile> spazerParticles = [];
             for (int partIndex = 0; partIndex < parts.Count; partIndex++)
             {
                 SpecialAttackParticle part = parts[partIndex];
@@ -94,10 +91,12 @@ internal sealed class BeamCombos
                         held.Install(SamusShotBehaviors.IceSpecialAttackInward, new IceParticleState(part, orbitTurn));
                         break;
                     case SamusComboKind.Spazer:
-                        var spazer = new SpazerParticleState(part, SpazerTurn(part.SpazerTurn, BeamComboDefinitions.SpazerCirclingTurn));
-                        spazers.Add(spazer);
-                        spazerParticles.Add(shot);
-                        held.Install(SamusShotBehaviors.SpazerSpecialAttack, spazer);
+                        // Each Spazer beam particle pairs with the other particle that turns its way, whose place the
+                        // attack already holds.
+                        int partnerIndex = Enumerable.Range(0, parts.Count)
+                            .Single(other => other != partIndex && parts[other].SpazerTurn == part.SpazerTurn);
+                        held.Install(SamusShotBehaviors.SpazerSpecialAttack,
+                            new SpazerParticleState(part, SpazerTurn(part.SpazerTurn, BeamComboDefinitions.SpazerCirclingTurn), particles[partnerIndex]));
                         break;
                     case SamusComboKind.Plasma:
                         held.Install(SamusShotBehaviors.PlasmaSpecialAttack, new PlasmaParticleState(part, orbitTurn));
@@ -118,13 +117,6 @@ internal sealed class BeamCombos
                     shot.Position = shot.Position.WithWhole(new(OffRoomPlaces.Place(samus.Position.X.Whole + part.WaveStart.X), OffRoomPlaces.Place(samus.Position.Y.Whole + part.WaveStart.Y)));
                 }
                 StartComboShot(held, shotKind);
-            }
-            // Each Spazer beam particle pairs with the trailing particle that turns its way.
-            foreach (SpazerParticleState spazer in spazers)
-            {
-                SpazerParticleState partner = spazers.Single(other => !ReferenceEquals(other, spazer) &&
-                    other.Part.SpazerTurn == spazer.Part.SpazerTurn);
-                spazer.Partner = spazerParticles[spazers.IndexOf(partner)];
             }
             _pool.ShotCount.CountSpecialAttack(parts.Count);
             // The attack waits the cooldown of its first place's projectile: the combination's charged shot.

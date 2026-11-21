@@ -52,7 +52,7 @@ internal static class GrappleConnectionDefinitionsVerification
     }
 
     /// <summary>Reads one cartridge byte only for comparison with compiled grapple connection entries.</summary>
-    private static byte GrappleConnectionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleConnectionDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks accepted grapple connections across authored movement, aim, vertical-speed, and anchor-owner states with compiled reads forbidden.</summary>
     private static void VerifyGrappleConnectionDispatch(CartridgeImportAddressSpace rom)
@@ -108,7 +108,7 @@ internal static class GrappleConnectionDefinitionsVerification
     }
 
     /// <summary>Reads a retail dispatch or pose byte for comparison with production connection results.</summary>
-    private static byte GrappleConnectionDispatchRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleConnectionDispatchRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks eight native special-angle rows, exact 16-bit angle matches, wrapped body offsets, phase changes, and camera clamps.</summary>
     private static void VerifyGrappleSpecialConnections(CartridgeImportAddressSpace rom)
@@ -176,7 +176,7 @@ internal static class GrappleConnectionDefinitionsVerification
     }
 
     /// <summary>Reads retail special-angle bytes only to construct the comparison records.</summary>
-    private static byte GrappleSpecialConnectionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleSpecialConnectionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>The first anchor coordinate the special stops are swept from: a screen inside the room's top and left edges.</summary>
     private const int SnapAnchorFirst = 256;
@@ -257,7 +257,7 @@ internal static class GrappleConnectionDefinitionsVerification
     }
 
     /// <summary>Reads retail policy and pose metadata bytes used as the cancellation/drop oracle.</summary>
-    private static byte GrappleCancellationAndDropRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleCancellationAndDropRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Forbids runtime reads of the compiled firing-cancel, connection, special-angle, and drop-pose ranges in bank $9B.</summary>
     private static CartridgeReadGuard NewGrappleConnectionReadGuard(ISnesAddressSpace source) =>

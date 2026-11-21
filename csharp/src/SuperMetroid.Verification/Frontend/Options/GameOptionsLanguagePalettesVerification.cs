@@ -65,7 +65,7 @@ internal static class GameOptionsLanguagePalettesVerification
     }
 
     /// <summary>Reads native toggle geometry and palette operands for the layout comparison.</summary>
-    private static byte GameOptionsToggleGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GameOptionsToggleGeometryRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks every tilemap word in four language regions for Japanese and English states.</summary>
     internal static void VerifyGameOptionsLanguagePalettes()
@@ -127,7 +127,7 @@ internal static class GameOptionsLanguagePalettesVerification
     }
 
     /// <summary>Reads native language-region operands for the tilemap palette comparison.</summary>
-    private static byte GameOptionsLanguagePalettesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GameOptionsLanguagePalettesRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the options toggle geometry check.</summary>
     [VerificationCommand("--lookup-options-toggle-geometry")]

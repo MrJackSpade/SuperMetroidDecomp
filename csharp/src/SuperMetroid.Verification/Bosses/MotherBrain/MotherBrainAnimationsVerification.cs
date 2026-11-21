@@ -60,10 +60,19 @@ internal static class MotherBrainAnimationsVerification
         AssertEqual(RoomFlashGoto.Target, cartridge.ReadCartridgeWord(RoomFlashLoop + 2), "the room flash loops to its first frame");
     }
 
-    /// <summary>Creates Mother Brain's body and head in a fresh enemy system.</summary>
-    private static NewMotherBrainResult NewMotherBrain()
+    /// <summary>Creates Mother Brain's body and head in a fresh enemy system of the installation's services and artwork.</summary>
+    private static NewMotherBrainResult NewMotherBrain() => NewMotherBrain(EnemySessionFixtures.WithInstalledServices());
+
+    /// <summary>
+    /// Creates Mother Brain's body and head in a fresh enemy system drawing from the installed sheets alone, which her
+    /// brain's draws (<see cref="MotherBrainBrainDraws"/>) draw from, building her head's sheet and no other (#2606).
+    /// </summary>
+    private static NewMotherBrainResult NewMotherBrainOverInstalledSheets() => NewMotherBrain(MotherBrainBrainDraws.Session());
+
+    /// <summary>Creates Mother Brain's body and head in a fresh enemy system of <paramref name="session"/>.</summary>
+    private static NewMotherBrainResult NewMotherBrain(EnemySession session)
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         RoomEnemyPlace bodyPlace = enemies.Places.InUpdateOrder[0];
         bodyPlace.Bind(EnemyDefinitionId.MotherBrainBody, bodyPlace.KeptDefinition);
         RoomEnemyPlace headPlace = enemies.Places.InUpdateOrder[1];
@@ -82,7 +91,7 @@ internal static class MotherBrainAnimationsVerification
     {
         foreach (MotherBrainHeadSegment program in new[] { MotherBrainHeadSegment.NeutralPhase2, MotherBrainHeadSegment.Laser, MotherBrainHeadSegment.Corpse })
         {
-            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
+            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrainOverInstalledSheets();
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, program);
             var frames = MotherBrainAnimations.HeadSegments.Beats(program).OfType<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame>().ToArray();
             AssertEqual<EnemyFrameId?>(frames[0].Shown, state.Brain.ShownFrame, $"{program} shows its first frame from its start");
@@ -100,7 +109,7 @@ internal static class MotherBrainAnimationsVerification
             }
         }
         {
-            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
+            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrainOverInstalledSheets();
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.StretchingPhase2);
             var opening = MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.StretchingPhase2).OfType<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame>().First();
             AssertEqual<EnemyFrameId?>(null, state.Brain.ShownFrame, "a stretch, which opens with a cue, shows nothing before its first draw");
@@ -123,7 +132,7 @@ internal static class MotherBrainAnimationsVerification
     {
         foreach ((ushort random, bool holds) in new[] { new VerifyBrainRandomHoldsCase(61439, true), new VerifyBrainRandomHoldsCase(61440, false) })
         {
-            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
+            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrainOverInstalledSheets();
             enemies.VerificationServices().ReadRandom = () => random;
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2Hold);
             for (int draw = 0; draw <= 8; draw++)
@@ -135,7 +144,7 @@ internal static class MotherBrainAnimationsVerification
         }
         foreach ((ushort random, bool bursts) in new[] { new VerifyBrainRandomHoldsCase(4063, false), new VerifyBrainRandomHoldsCase(4064, true) })
         {
-            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
+            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrainOverInstalledSheets();
             enemies.VerificationServices().ReadRandom = () => random;
             // The dying drool's loop shows its first frame, which the burst's last drool has just moved on to.
             var loopFrame = (AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame)MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.DyingDroolLoop)[0];
@@ -156,7 +165,7 @@ internal static class MotherBrainAnimationsVerification
     /// </summary>
     private static void VerifyBodyMoves()
     {
-        (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
+        (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrainOverInstalledSheets();
         state.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
         state.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 112));
         Position16<RoomPixels> origin = state.Body.Position.Whole;

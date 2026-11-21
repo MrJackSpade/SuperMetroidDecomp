@@ -23,7 +23,7 @@ internal static class MotherBrainMouthLaserDamageVerification
     /// <summary>Plays her brain's laser attack until it fires and checks the laser carries her body's damage.</summary>
     internal static void VerifyMotherBrainMouthLaserDamage()
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = EnemySystemFixtures.New(MotherBrainBrainDraws.Session(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace bodyPlace = enemies.Places.InUpdateOrder[0];
         bodyPlace.Bind(EnemyDefinitionId.MotherBrainBody, EnemyDefinitionFixtures.Blank with { Damage = BodyDamage });
         RoomEnemyPlace brainPlace = enemies.Places.InUpdateOrder[1];

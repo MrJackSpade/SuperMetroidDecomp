@@ -31,8 +31,6 @@ internal static class ChootPatternDefinitionsVerification
                 $"Choot pattern distance {patternIndex}");
 
             int pathAddress = 0xa20000 | ChootNativeWords.ChootFallingPaths.Word(fallingPath);
-            ReadOnlyMemory<Offset16<RoomPixels>> loop = ChootFalls.LoopOf(fallingPath);
-            AssertEqual(frameCounts[patternIndex] - 1, loop.Length, $"Choot path {patternIndex} loop updates");
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
                 Offset16<RoomPixels> point = ChootFallLoopAccess.OffsetAt(
@@ -135,9 +133,6 @@ internal static class ChootPatternDefinitionsVerification
         AssertThrows<InvalidDataException>(
             () => DecodedFallingPath(byte.MaxValue),
             "the import rejects a Choot pattern selector that does not wrap into the catalog");
-        AssertThrows<InvalidDataException>(
-            () => ChootFallingPathDefinitionsConstants.LoopOf(0xffff),
-            "restored Choot falling pointer does not read arbitrary bank-A2 data");
         Console.WriteLine(
             "Choot pattern definitions: five selectors/distances, all 450 physical path frames, twenty initializers, and five complete fall loops pass with every source read forbidden.");
     }

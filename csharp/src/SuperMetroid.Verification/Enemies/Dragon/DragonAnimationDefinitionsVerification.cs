@@ -78,17 +78,17 @@ internal static class DragonAnimationDefinitionsVerification
         bodyState.AttackCounter = 3;
         bodyState.Playback = playedOut;
 
-        enemies.DragonBehavior.RunDragonMain(body.HeldOccupant(), body, bodyState, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.DragonBehavior.RunDragonMain(body.HeldOccupant(), body, bodyState, bodyState.WingState, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(2, bodyState.AttackCounter, "the finished attack spits a fireball");
         AssertEqual(playedOut, bodyState.Playback, "the attack rests on its last pose the update it spits");
         AssertEqual(DragonAction.RestartingAttack, bodyState.Action, "a fireball with shots left restarts the attack next");
 
-        enemies.DragonBehavior.RunDragonMain(body.HeldOccupant(), body, bodyState, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.DragonBehavior.RunDragonMain(body.HeldOccupant(), body, bodyState, bodyState.WingState, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertDragonAnimationHandoff(body, bodyState, DragonSegment.AttackingFacingRight, "the attack after a fireball");
         AssertEqual(2, bodyState.AttackCounter, "the restarted attack spits nothing until it finishes again");
         AssertEqual(DragonAction.Attacking, bodyState.Action, "the restarted attack plays until it finishes");
 
-        enemies.DragonBehavior.RunDragonMain(body.HeldOccupant(), body, bodyState, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.DragonBehavior.RunDragonMain(body.HeldOccupant(), body, bodyState, bodyState.WingState, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(new AnimationPlayback<DragonSegment>(attack, AnimationPlace.StartOfAnimation), bodyState.Playback,
             "the restarted attack asked for again plays on where it stands");
     }
@@ -151,7 +151,7 @@ internal static class DragonAnimationDefinitionsVerification
 
         bodyState.ActionTimer = UpdateCountdown.Ended();
         DragonBehavior.RunDragonRising(body, bodyState);
-        enemies.DragonBehavior.RunDragonMain(body.HeldOccupant(), body, bodyState, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.DragonBehavior.RunDragonMain(body.HeldOccupant(), body, bodyState, bodyState.WingState, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         DragonSegment attacking = facingLeft
             ? DragonSegment.AttackingFacingLeft
             : DragonSegment.AttackingFacingRight;

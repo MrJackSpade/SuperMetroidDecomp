@@ -156,12 +156,13 @@ internal static class ShutterBehaviorVerification
         // A timer wait of two updates, growing down at the first growth speed.
         place.SetSpawnWords(EnemyDefinitionId.ShutterGrowing, _ => new PopulationWords(0, 0, 0, 2, 0));
         place.Position = place.Position.WithWholeY(296);
-        ShuttersBehavior.InitializeGrowingShutter(place.HeldOccupant(), place);
-        GrowingShutterEnemyState state = enemies.GrowingShutterStates[0] ?? throw new InvalidOperationException("The spawn sets the shutter up.");
+        // The shutter's setup, run as a spawn runs it, builds the state its main AI runs on.
+        GrowingShutterSpawnSettings settings = place.HeldOccupant().SpawnSettings<GrowingShutterSpawnSettings>();
+        GrowingShutterEnemyState state = ShuttersBehavior.InitializeGrowingShutter(settings, place);
         var frame = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(VerificationHelpersVerification.CreateEmptyRoom(new(16, 16)), 0),
             new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
-        void Update() => enemies.ShuttersBehavior.RunShutterGrowingMainAi(place.HeldOccupant(), place, frame);
+        void Update() => enemies.ShuttersBehavior.RunShutterGrowingMainAi(settings, place, state, frame);
 
         Update();
         AssertEqual(GrowingShutterAction.WaitForTimer, state.Action, "a two-update wait does not activate on its first update");

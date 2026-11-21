@@ -50,13 +50,13 @@ internal static class IntroMotherBrainInputDefinitionsVerification
         var played = new DemoInputState();
         played.Clear();
         played.Enable();
-        played.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
+        played.Load(DemoSignallingRecordingId.IntroMotherBrainFlashback, played.Disable);
         int firstShot = 0;
         do
         {
             firstShot++;
             AssertTrue(firstShot < 1024, "the intro Mother Brain demo presses the shot");
-            played.Step(_ => { });
+            played.Step();
         }
         while ((played.NewlyPressed & GameplayAction.Shoot) == 0);
         var guarded = NewIntroArtworkSourceReadGuard(bus);

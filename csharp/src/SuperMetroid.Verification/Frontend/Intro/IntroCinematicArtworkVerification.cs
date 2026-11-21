@@ -327,7 +327,9 @@ internal static class IntroCinematicArtworkVerification
         var state = CreateRetailIntroFixture(audio, characterArtwork: stock);
         // The intro runs to the flashback's setup, which builds its room from the installed collision (#2554).
         _ = state.StepToMotherBrainFlashback(audio);
-        RoomCollisionType[] installed = IntroMotherBrainCollision.CreateCollision();
+        RoomCollisionType[] installed = PlainTerrainCollision.Of(
+            new Extent16<RoomBlocks>(IntroMotherBrainCollisionDefinitions.Columns, IntroMotherBrainCollisionDefinitions.RoomRows),
+            IntroMotherBrainCollision.CreateCollision());
         AssertTrue(installed.Length >= native.Length, "the flashback's installed collision covers the decoded original");
         for (int index = 0; index < native.Length; index++)
             AssertEqual(native[index], installed[index],

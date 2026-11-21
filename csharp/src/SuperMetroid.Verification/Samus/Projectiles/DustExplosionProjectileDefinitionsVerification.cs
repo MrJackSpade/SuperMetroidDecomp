@@ -78,12 +78,12 @@ internal static class DustExplosionProjectileDefinitionsVerification
             (EyeDoorProjectileDefinition.CenteredSmoke, 0x84d7b8), // $84:D7B7 LDA #$000B, spawning the smoke on the eye.
         })
         {
-            ushort parameter = CartridgeImportSource.Require(rom).ReadCartridgeWord(parameterAddress);
+            ushort parameter = rom.ReadCartridgeWord(parameterAddress);
             int address = placementTable + (parameter >> 8) * 8;
-            int nativeXMask = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            int nativeYMask = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2);
-            short nativeXBase = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 4));
-            short nativeYBase = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 6));
+            int nativeXMask = rom.ReadCartridgeWord(address);
+            int nativeYMask = rom.ReadCartridgeWord(address + 2);
+            short nativeXBase = unchecked((short)rom.ReadCartridgeWord(address + 4));
+            short nativeYBase = unchecked((short)rom.ReadCartridgeWord(address + 6));
             DustExplosionAnimation animation = DustExplosionAnimationIndices.Decode(parameter & 0xff);
 
             const ushort random = 0x5aad;

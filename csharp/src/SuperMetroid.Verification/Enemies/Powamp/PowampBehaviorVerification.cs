@@ -30,9 +30,9 @@ internal static class PowampBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // The balloon and its body are placed as their room places them, whose settings name the part each is (#2163).
-        (RoomEnemyPlace balloon, RoomEnemyPlace body) = PowampPairFixtures.PlacePair(enemies);
+        (RoomEnemyPlace balloon, RoomEnemyPlace body, PowampBodyState bodyState) = PowampPairFixtures.PlacePair(enemies);
         AssertStarted(balloon.RequireSpeciesState<PowampBalloonState>(), PowampBalloonSegment.Deflated, "the balloon starts deflated");
-        AssertEqual(new AnimationPlayback<PowampBodySegment>(PowampAnimations.BodyStartingAt[PowampBodySegment.BodySlow], AnimationPlace.StartOfAnimation), body.RequireSpeciesState<PowampBodyState>().Playback,
+        AssertEqual(new AnimationPlayback<PowampBodySegment>(PowampAnimations.BodyStartingAt[PowampBodySegment.BodySlow], AnimationPlace.StartOfAnimation), bodyState.Playback,
             "the body starts on its slow pulse");
 
         // The ROM oracle holds every balloon beat to a four-byte native frame record, so the native pointer at a place
@@ -41,7 +41,6 @@ internal static class PowampBehaviorVerification
         IImportCartridgeSource cartridge = rom;
         PowampBalloonState balloonState = balloon.RequireSpeciesState<PowampBalloonState>();
         object?[] arguments = [balloon, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
-        PowampBodyState bodyState = body.RequireSpeciesState<PowampBodyState>();
         // The body stands low enough in the room that its balloon, placed above it, stays in the room.
         body.Position = body.Position.WithWholeY(100);
         RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(16, 16));
@@ -62,7 +61,7 @@ internal static class PowampBehaviorVerification
         {
             bodyState.Action = action;
             bodyState.ActionTimer = UpdateCountdown.For(1);
-            enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, bodyState, level, samus);
+            enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, bodyState, enemies.PowampBehavior.PlacedBalloon(body), level, samus);
         }
         int Length(PowampBalloonSegment start) => PowampAnimations.BalloonStartingAt[start].Phases.Sum(phase => phase.BeatCount);
 

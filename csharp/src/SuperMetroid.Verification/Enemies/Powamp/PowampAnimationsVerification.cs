@@ -19,7 +19,7 @@ internal static class PowampAnimationsVerification
     /// </summary>
     internal static void VerifyPowampAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int beats = NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, BodyEntries,
             PowampAnimations.BodySegments, PowampAnimations.BodyStartingAt.ToDictionary(), PowampFrameToolingDefinitions.Spritemap, NoOwnerInstructions)
             + NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, BalloonEntries,

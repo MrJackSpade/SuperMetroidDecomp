@@ -232,7 +232,7 @@ public sealed class SamusShinesparkState
         {
             samus.BeamCharge.ClearChargeAndFlare();
             if (cancelledCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
-                AudioRequests.QueueSound(SamusSound.Silence, SoundRequestPriority.High);
+                AudioRequests.QueueSound(SamusSoundStop.Any, SoundRequestPriority.High);
         }
 
         // The windup takes over Samus's movement and suit colouring. Flash's live

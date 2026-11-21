@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core;
 using System.Collections.Frozen;
-using System.Collections.ObjectModel;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 

@@ -3,18 +3,22 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>
 /// Every sound of Samus's library (<see cref="SoundEffectLibrary.Samus"/>): Samus's beams, missiles, grapple and spins,
 /// the X-ray scope, and the menu and map sounds. The library has its own queue: its sounds interrupt one another
-/// and never those of the enemies' or the room's library.
+/// and never those of the enemies' or the room's library. The requests that stop its sound and play nothing are
+/// <see cref="SamusSoundStop"/>'s (#2580).
 /// </summary>
 /// <remarks>
 /// Members are identities. Their values are arbitrary and nothing reads them; the import pipeline alone knows which
 /// installed sound effect each member requests.
+/// <para>
+/// Each different sound has one member (#2580): beam combinations that play the same sound share its member, which names
+/// every combination it serves. The requests merged into a member had its library, priority and length, so the merges
+/// keep who interrupts whom.
+/// </para>
 /// </remarks>
 public enum SamusSound
 {
     /// <summary>A Power Bomb explosion; it interrupts any sound of the library.</summary>
     PowerBombExplosion,
-    /// <summary>Silences the library; it interrupts any sound of the library.</summary>
-    Silence,
     /// <summary>A missile fired.</summary>
     Missile,
     /// <summary>A Super Missile fired.</summary>
@@ -29,56 +33,37 @@ public enum SamusSound
     ChargingBeam,
     /// <summary>The X-ray scope switching on.</summary>
     XrayStart,
-    /// <summary>The X-ray scope switching off; it silences the scope.</summary>
-    XrayEnd,
     /// <summary>An uncharged Power Beam shot.</summary>
     UnchargedPowerBeam,
-    /// <summary>An uncharged Ice Beam shot.</summary>
+    /// <summary>An uncharged Ice Beam shot, or an Ice and Wave Beam shot.</summary>
     UnchargedIceBeam,
     /// <summary>An uncharged Wave Beam shot.</summary>
     UnchargedWaveBeam,
-    /// <summary>An uncharged Ice and Wave Beam shot.</summary>
-    UnchargedIceWaveBeam,
-    /// <summary>An uncharged Spazer shot.</summary>
+    /// <summary>An uncharged Spazer shot, or a Spazer and Wave Beam shot.</summary>
     UnchargedSpazer,
-    /// <summary>An uncharged Spazer and Ice Beam shot.</summary>
+    /// <summary>
+    /// An uncharged Spazer and Ice Beam shot, or a Spazer, Ice and Wave, a Plasma and Ice, or a Plasma, Ice and Wave Beam
+    /// shot.
+    /// </summary>
     UnchargedSpazerIce,
-    /// <summary>An uncharged Spazer, Ice and Wave Beam shot.</summary>
-    UnchargedSpazerIceWave,
-    /// <summary>An uncharged Spazer and Wave Beam shot.</summary>
-    UnchargedSpazerWave,
-    /// <summary>An uncharged Plasma Beam shot.</summary>
+    /// <summary>An uncharged Plasma Beam shot, or a Plasma and Wave Beam shot.</summary>
     UnchargedPlasma,
-    /// <summary>An uncharged Plasma and Ice Beam shot.</summary>
-    UnchargedPlasmaIce,
-    /// <summary>An uncharged Plasma, Ice and Wave Beam shot.</summary>
-    UnchargedPlasmaIceWave,
-    /// <summary>An uncharged Plasma and Wave Beam shot.</summary>
-    UnchargedPlasmaWave,
     /// <summary>A charged Power Beam shot.</summary>
     ChargedPowerBeam,
-    /// <summary>A charged Ice Beam shot.</summary>
+    /// <summary>
+    /// A charged Ice Beam shot, or a charged Ice and Wave, Spazer and Ice, Spazer, Ice and Wave, Plasma and Ice, or Plasma,
+    /// Ice and Wave Beam shot.
+    /// </summary>
     ChargedIceBeam,
     /// <summary>A charged Wave Beam shot.</summary>
     ChargedWaveBeam,
-    /// <summary>A charged Ice and Wave Beam shot.</summary>
-    ChargedIceWaveBeam,
-    /// <summary>A charged Spazer shot.</summary>
+    /// <summary>A charged Spazer shot, or a charged Spazer and Wave Beam shot.</summary>
     ChargedSpazer,
-    /// <summary>A charged Spazer and Ice Beam shot.</summary>
-    ChargedSpazerIce,
-    /// <summary>A charged Spazer, Ice and Wave Beam shot.</summary>
-    ChargedSpazerIceWave,
-    /// <summary>A charged Spazer and Wave Beam shot.</summary>
-    ChargedSpazerWave,
-    /// <summary>A charged Plasma Beam shot, also the Hyper Beam.</summary>
+    /// <summary>
+    /// A charged Plasma Beam shot, also the Hyper Beam, a charged Plasma and Wave Beam shot, and Samus shooting the screen
+    /// after the credits.
+    /// </summary>
     ChargedPlasma,
-    /// <summary>A charged Plasma and Ice Beam shot.</summary>
-    ChargedPlasmaIce,
-    /// <summary>A charged Plasma, Ice and Wave Beam shot.</summary>
-    ChargedPlasmaIceWave,
-    /// <summary>A charged Plasma and Wave Beam shot, also Samus shooting the screen after the credits.</summary>
-    ChargedPlasmaWave,
     /// <summary>The Ice Beam's special Power Bomb attack.</summary>
     IceSpecialAttack,
     /// <summary>The end of the Ice Beam's special Power Bomb attack.</summary>
@@ -91,8 +76,6 @@ public enum SamusSound
     PlasmaSpecialAttack,
     /// <summary>The Wave Beam's special Power Bomb attack.</summary>
     WaveSpecialAttack,
-    /// <summary>The end of the Wave Beam's special Power Bomb attack; it silences the attack.</summary>
-    WaveSpecialAttackEnd,
     /// <summary>A save file selected on the file-select screen, before the helmet turns.</summary>
     FileSelected,
     /// <summary>The game being saved, at a save station or the gunship.</summary>
@@ -103,12 +86,8 @@ public enum SamusSound
     ResumedSpinJump,
     /// <summary>An ordinary spin jump.</summary>
     SpinJump,
-    /// <summary>The end of a spin jump; it silences the spin.</summary>
-    SpinJumpEnd,
     /// <summary>A Screw Attack spin.</summary>
     ScrewAttack,
-    /// <summary>The end of a Screw Attack; it silences the spin.</summary>
-    ScrewAttackEnd,
     /// <summary>Samus damaged, also a shinespark crashing into a wall; a high-priority sound.</summary>
     SamusDamaged,
     /// <summary>The pause map scrolling.</summary>

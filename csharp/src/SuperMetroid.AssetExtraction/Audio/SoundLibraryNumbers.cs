@@ -37,9 +37,4 @@ internal static class SoundLibraryNumbers
     internal static int Number(SoundEffectLibrary library) => Numbers.TryGetValue(library, out int number)
         ? number
         : throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound-effect library.");
-
-
-    /// <summary>The library whose state the sound driver keeps at zero-based <paramref name="index"/>.</summary>
-    /// <exception cref="InvalidDataException">No library is kept there.</exception>
-    internal static SoundEffectLibrary FromDriverIndex(int index) => Decode(index + 1);
 }

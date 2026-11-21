@@ -58,8 +58,8 @@ public static class BeamComboDefinitions
     public static readonly SignedEightEight WaveSpeedLimit = SignedEightEight.FromPixels(8);
     /// <summary>The Wave special beam attack's per-update acceleration: a quarter of a pixel per update.</summary>
     public static readonly SignedEightEight WaveAcceleration = SignedEightEight.FromPixelFraction(1, 4);
-    /// <summary>The sound of a Wave particle's removal.</summary>
-    public static readonly SoundEffectId WaveRemovalSound = SamusSound.WaveSpecialAttackEnd;
+    /// <summary>The stop of the Wave special beam attack's sound as one of its particles is removed.</summary>
+    public static readonly SoundEffectId WaveRemovalStop = SamusSoundStop.WaveSpecialAttack;
     /// <summary>The Wave special beam attack: the sound of the oscillator's pulse.</summary>
     public static readonly SoundEffectId WavePulseSound = SamusSound.WaveSpecialAttack;
 

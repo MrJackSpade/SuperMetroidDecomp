@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Where and how often Mother Brain's body-relative death explosions burst.</summary>

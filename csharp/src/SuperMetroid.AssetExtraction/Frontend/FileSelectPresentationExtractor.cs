@@ -12,7 +12,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 

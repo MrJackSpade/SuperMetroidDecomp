@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// <param name="SampleRate">The clips' rate in stereo frames per second: 32,040, one update's clock samples sixty times.</param>
 /// <param name="InitialBeat">How long the music's beat lasts at power-on, before any song has played.</param>
 /// <param name="Music">One clip per song of each clip set.</param>
-/// <param name="SoundEffects">One entry per sound effect.</param>
+/// <param name="SoundEffects">One entry per sound effect and per stop.</param>
 public sealed record AudioClipManifest(
     int FormatVersion,
     int SampleRate,
@@ -31,7 +31,13 @@ public sealed record AudioClipManifest(
     /// records no note starts. Version 8 (#2475) names the Mama Turtle's spin for her, where version 7 named it by the
     /// original's name for her. Version 9 (#2560) holds each sound effect's shape as one closed choice, a one-shot with its
     /// active frames and optional clip or a never-ending effect with its looping layers, where version 8 held a nullable
-    /// active length beside layers each with a nullable loop start.
+    /// active length beside layers each with a nullable loop start. Version 10 (#2603) renders each sound that plays an
+    /// instrument only a music data set defines with the data set its room loads, Phantoon's appearance and Crocomire's
+    /// cries among them, where version 9 rendered those from the shared sounds alone, silent where they key that instrument.
+    /// Version 11 (#2580) names each request that stops a
+    /// library's sound and plays nothing by its stop list, <c>SamusSoundStop</c>, <c>EnemySoundStop</c> or
+    /// <c>RoomSoundStop</c>, where version 10 named it in the library's sound list, and holds each different sound once, under its one
+    /// name, where version 10 held 27 more names for sounds identical to another's.
     /// </summary>
-    public const int CurrentFormatVersion = 9;
+    public const int CurrentFormatVersion = 11;
 }

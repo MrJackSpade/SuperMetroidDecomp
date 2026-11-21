@@ -28,9 +28,6 @@ internal static class SaveStationElectricityAnimations
         ],
     });
 
-    /// <summary>No animation starts at a segment: the electricity's one animation is started by name (#2061).</summary>
-    internal static IReadOnlyDictionary<SaveStationElectricitySegment, Animation<SaveStationElectricitySegment>> StartingAt { get; } = new Dictionary<SaveStationElectricitySegment, Animation<SaveStationElectricitySegment>>();
-
     /// <summary>The electricity's discharge (#2061): twenty sweeps, then the deletion.</summary>
     internal static Animation<SaveStationElectricitySegment> Discharge { get; } = new([Segments.Repeated(P.Cycle, 20), Segments.Whole(P.Deletion)], AnimationEnd.Holds);
 

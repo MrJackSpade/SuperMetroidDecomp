@@ -242,6 +242,7 @@ using static SuperMetroid.Verification.Frontend.BootDemoSetCountVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleEnemyDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleShellContourVerification;
 using static SuperMetroid.Verification.Audio.ManagedAudioVerification;
+using static SuperMetroid.Verification.Audio.RoomMusicSoundClipVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeObjectVerification;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeVisualsVerification;
@@ -782,6 +783,12 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCartridgeImportAddressSpace), () => VerifyCartridgeImportAddressSpace()),
         new(nameof(VerifyCartridgeAudioQueues), () => VerifyCartridgeAudioQueues()),
         new(nameof(VerifyManagedSnesDsp), () => VerifyManagedSnesDsp()),
+        // Each stop plays only zero-volume notes and each sound a note above it, as the cartridge's programs hold (#2580).
+        new(nameof(SuperMetroid.Verification.Audio.SoundStopProgramsVerification.VerifyStopsPlayOnlySilentNotes),
+            SuperMetroid.Verification.Audio.SoundStopProgramsVerification.VerifyStopsPlayOnlySilentNotes),
+        // No two members of the sound lists install the same clip: each different sound has one name (#2580).
+        new(nameof(SuperMetroid.Verification.Audio.SoundListClipsVerification.VerifyEachSoundHasItsOwnClip),
+            SuperMetroid.Verification.Audio.SoundListClipsVerification.VerifyEachSoundHasItsOwnClip),
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),
         new(nameof(SuperMetroid.Verification.Rooms.LevelData.BlockParameterCarryOverVerification.VerifyBlockParameterCarryOver),
             SuperMetroid.Verification.Rooms.LevelData.BlockParameterCarryOverVerification.VerifyBlockParameterCarryOver),
@@ -1019,6 +1026,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyGModeGateGlitch), () => VerifyGModeGateGlitch()),
         new(nameof(VerifyFrozenEnemyGateGlitch), () => VerifyFrozenEnemyGateGlitch()),
         new(nameof(VerifyMochtroidBotwoonPipeClip), () => VerifyMochtroidBotwoonPipeClip()),
+        new(nameof(VerifyRoomMusicSoundClips), () => VerifyRoomMusicSoundClips()),
         new(nameof(VerifySparkCrashAlignment), () => VerifySparkCrashAlignment()),
         new(nameof(VerifyEnemyAngleDivision), () => VerifyEnemyAngleDivision()),
         new(nameof(VerifyDraygonEyeEffects), () => VerifyDraygonEyeEffects()),

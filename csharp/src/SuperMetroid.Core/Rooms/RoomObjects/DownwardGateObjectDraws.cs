@@ -66,7 +66,5 @@ internal static class DownwardGateObjectDraws
     /// </param>
     internal readonly record struct Draw(DownwardGatePart Part, DownwardGateDraw Gate, RoomBlockShape Blocks)
     {
-        /// <summary>Whether the draw is the gate column's.</summary>
-        internal bool Column => Part == DownwardGatePart.Column;
     }
 }

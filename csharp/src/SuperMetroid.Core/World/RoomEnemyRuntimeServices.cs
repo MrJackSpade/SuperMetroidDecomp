@@ -55,9 +55,6 @@ internal sealed class RoomEnemyRuntimeServices(
     public void Reseed(SpeciesRandomReseed reseed) => system.Random.Reseed(reseed);
 
     /// <inheritdoc/>
-    RoomScrollState IRoomScrollZoneAccess.Read(Position16<RoomScreens> screen) => scrolls.ReadScreen(screen);
-
-    /// <inheritdoc/>
     public void Write(Position16<RoomScreens> screen, RoomScrollState state) => scrolls.SetRoomScreen(screen, state);
 
     /// <summary>Releases Samus's stationary script lock and reopens the player's grounded-movement gate.</summary>

@@ -10,7 +10,5 @@ public static class CrateriaEscapeLightningPaletteFxColorDefinitions
     internal static readonly CrateriaEscapeLightningPaletteFxColorDefinition CrateriaEscapeYellowLightning = new(ColourEffectId.CrateriaEscapeYellowLightning, 11);
     /// <summary>The Parlor's sky program targets the lightning's five-color dark tail from colour byte $AE.</summary>
     internal static readonly CrateriaEscapeLightningPaletteFxColorDefinition ParlorEscapeSkyFlicker = new(ColourEffectId.ParlorEscapeSkyFlicker, 5);
-    /// <summary>The yellow-lightning and Parlor sky programs in definition order.</summary>
-    public static IReadOnlyList<CrateriaEscapeLightningPaletteFxColorDefinition> All { get; } = [CrateriaEscapeYellowLightning, ParlorEscapeSkyFlicker];
 
 }

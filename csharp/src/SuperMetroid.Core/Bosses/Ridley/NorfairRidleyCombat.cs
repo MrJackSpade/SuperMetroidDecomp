@@ -260,7 +260,7 @@ internal sealed class NorfairRidleyCombat
 
         RidleyTailLink tip = state.Tail.Tip;
         _ridleyProjectiles.SpawnRidleyDust(tip.Position + NorfairRidleyArenaDefinitions.PogoDustBelowTip, DustExplosionAnimation.SmallDustCloud);
-        _audio.QueueEnemySound(EnemySound.Quake, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySound.BigExplosion, priority: SoundRequestPriority.Normal);
         _earthquake.Start(NorfairRidleyArenaDefinitions.PogoBounceQuake, NorfairRidleyArenaDefinitions.PogoBounceQuakeUpdates);
         SetRidleyPogoHorizontalDirection(place, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);

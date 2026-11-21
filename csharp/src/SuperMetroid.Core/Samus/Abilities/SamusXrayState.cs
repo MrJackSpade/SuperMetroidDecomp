@@ -630,7 +630,7 @@ public sealed class SamusXrayState
         AngularHalfWidth = RotationAngle.Zero;
         AngularWideningSpeed = RotationAngle.Zero;
         VisorShadeMode = XrayVisorShadeMode.TornDown;
-        samus.AudioRequests.QueueSound(SamusSound.XrayEnd, SoundRequestPriority.Normal);
+        samus.AudioRequests.QueueSound(SamusSoundStop.Xray, SoundRequestPriority.Normal);
         SamusHudSelection.ReturnAutoCancelledItem(samus);
     }
 

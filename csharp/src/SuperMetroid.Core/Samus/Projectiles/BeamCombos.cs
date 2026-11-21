@@ -488,12 +488,12 @@ internal sealed class BeamCombos
         if (shot.IsSpent)
         {
             _animation.ClearProjectile(shot);
-            return BeamComboDefinitions.WaveRemovalSound;
+            return BeamComboDefinitions.WaveRemovalStop;
         }
         if (wave.Lifetime.Count())
         {
             _animation.ClearProjectile(shot);
-            return BeamComboDefinitions.WaveRemovalSound;
+            return BeamComboDefinitions.WaveRemovalStop;
         }
         SignedEightEight oldXSpeed = shot.Velocity.X;
         StepTrail(held);

@@ -23,12 +23,12 @@ internal static class HealthWarningVerification
             audio.Reset();
             warning.Update((ushort)sample.First, requests);
             AssertEqual(sample.Second == 0 ? 0 : 1, roomRequests.Count, "warning queues only threshold transitions");
-            if (sample.Second != 0) AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Room, sample.Second), roomRequests[0], "warning native start/stop ID");
+            if (sample.Second != 0) AssertEqual(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Room, sample.Second), roomRequests[0], "warning native start/stop ID");
         }
         foreach (bool suppressed in new[] { false, true })
         {
             audio.Reset();
-            if (!suppressed) for (int i = 0; i < 6; i++) audio.QueueSound(RoomSound.Silence, SoundRequestPriority.Normal);
+            if (!suppressed) for (int i = 0; i < 6; i++) audio.QueueSound(RoomSoundStop.Any, SoundRequestPriority.Normal);
             // An exploding power bomb turns the start away in the queue's own test.
             soundState.PowerBombExploding = suppressed;
             warning.Update(30, requests);

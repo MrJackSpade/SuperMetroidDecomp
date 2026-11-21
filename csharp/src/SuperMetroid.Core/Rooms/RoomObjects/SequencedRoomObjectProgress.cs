@@ -46,8 +46,6 @@ internal abstract class SequencedRoomObjectProgress<TSegment, TFrame, TEvent>
     /// <param name="shown">The frame it last showed.</param>
     internal sealed class Resting(TFrame shown) : SequencedRoomObjectProgress<TSegment, TFrame, TEvent>
     {
-        /// <summary>The frame the object last showed, which it rests on.</summary>
-        internal TFrame Shown { get; } = shown;
     }
 
     /// <summary>The object's animation has ended with nothing to follow, its last step showing no frame: it rests showing none.</summary>

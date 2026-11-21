@@ -27,7 +27,7 @@ internal static class LookupQuakeSoundSelectionVerification
             state.PublishStatueEarthquakeSound(0, SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame);
             AssertEqual(1, sounds.SoundRequests.Count, "Each original selection emits exactly one rumble");
             var sound = sounds.SoundRequests[0];
-            AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadVerificationWord(rom, 0x88b256 + 4 * index)),
+            AssertEqual(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, ReadVerificationWord(rom, 0x88b256 + 4 * index)),
                 sound.SoundEffect, "Original sound, decoded by the import, including terminator restart");
             AssertEqual(SoundEffectLibrary.Enemies, sound.SoundEffect.Library, "Earthquake sounds are library-two sounds");
             AssertEqual(SoundRequestPriority.Normal, sound.Priority, "Earthquake sounds are requested at normal priority");

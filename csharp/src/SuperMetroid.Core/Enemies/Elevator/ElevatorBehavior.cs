@@ -185,10 +185,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             return;
         }
 
-        // Leaving the room queues the departure sound and then the spin-end sound before Samus's pose changes; they
+        // Leaving the room queues the departure sound and then the spin jump's stop before Samus's pose changes; they
         // stay two requests because each sound library plays independently.
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSound, priority: SoundRequestPriority.Normal);
-        _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSpinEndSound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.ElevatorDepartureSpinJumpStop, priority: SoundRequestPriority.Normal);
         SamusPoseMetadata.SetupForElevator(samus);
         samusProjectiles.Reset();
         PinSamusToElevator(place, samus);

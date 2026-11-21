@@ -52,7 +52,7 @@ internal static class IntroCinematicRomDataVerification
         AssertEqual(SoundEffectLibrary.Room,
             IntroCinematicDefinitions.Sounds.BabyHighCry.Library,
             "Baby cry sound library");
-        AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Room, 0x23), IntroCinematicDefinitions.Sounds.BabyHighCry,
+        AssertEqual(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Room, 0x23), IntroCinematicDefinitions.Sounds.BabyHighCry,
             "Baby cry one sequence");
 
         Suite(nameof(VerifyCinematicCodePointerCatalog), () => VerifyCinematicCodePointerCatalog());

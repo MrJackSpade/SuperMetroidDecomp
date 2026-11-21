@@ -84,7 +84,7 @@ public static class BlockAnimationLoops
     /// <exception cref="InvalidOperationException"><paramref name="animation"/> is undefined or has no loop.</exception>
     public static IReadOnlyList<TimedArtworkFrame> Frames(BlockAnimation animation) =>
         [.. Segments.Beats(Require(animation)).OfType<AnimationBeat<ArtworkFrame, NoAnimationCue>.Frame>()
-            .Select(frame => new TimedArtworkFrame(frame.Shown, frame.Duration))];
+            .Select(frame => new TimedArtworkFrame(frame.Shown))];
 
     /// <summary>
     /// Whether the loop of <paramref name="animation"/> waits for the area's boss to be defeated before its first frame

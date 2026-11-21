@@ -18,7 +18,4 @@ public static class PlanetZebesTextPaletteFxColorDefinitions
     /// <summary>The text's fade-out.</summary>
     internal static PlanetZebesTextPaletteFxColorDefinition FadeOutPlanetZebesText { get; } = new(ColourEffectId.FadeOutPlanetZebesText, ColorsPerFrame);
 
-    /// <summary>The fade-in and fade-out programs in definition order.</summary>
-    public static IReadOnlyList<PlanetZebesTextPaletteFxColorDefinition> All { get; } = [FadeInPlanetZebesText, FadeOutPlanetZebesText];
-
 }

@@ -10,7 +10,7 @@ internal static class KraidSoundDefinitions
     internal static SoundEffectId FakeKraidSpikeLaunch { get; } = EnemySound.Whoosh;
 
     /// <summary>A spat rock leaves the mouth, or a rock rises from the floor.</summary>
-    internal static SoundEffectId RockSpit { get; } = RoomSound.KraidEarthquake;
+    internal static SoundEffectId RockSpit { get; } = EnemySound.SmallExplosion;
 
     /// <summary>A belly lint fires.</summary>
     internal static SoundEffectId LintFire { get; } = RoomSound.KraidLint;
@@ -22,5 +22,5 @@ internal static class KraidSoundDefinitions
     internal static SoundEffectId HeadDyingCry { get; } = EnemySound.KraidDyingCry;
 
     /// <summary>A heavy footstep.</summary>
-    internal static SoundEffectId Footstep { get; } = EnemySound.Quake;
+    internal static SoundEffectId Footstep { get; } = EnemySound.BigExplosion;
 }

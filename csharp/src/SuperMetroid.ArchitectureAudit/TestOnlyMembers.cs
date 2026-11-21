@@ -18,9 +18,9 @@ namespace SuperMetroid.ArchitectureAudit;
 /// <para>
 /// Checks are the files only verification projects compile. Code a member's own type (or a type nested in it) runs is not
 /// counted, since a private member serves it; what System.Text.Json reads or binds of a payload shipped code serializes is
-/// production use. A member production never uses at all is dead code, which the reachability prune moves into
-/// test-support with what it reaches, reaching private state through the same private-access members (#2570), so the
-/// census leaves it to the prune. The architecture audit's push gate fails on every finding.
+/// production use. A member production never uses at all is dead code, which the reachability prune removes, leaving the
+/// checks that read it failing to build (#2599), so the census leaves it to the prune. The architecture audit's push gate
+/// fails on every finding.
 /// </para>
 /// <para>
 /// A private member, or a private accessor, is listed too when a check names it: a check binds to it only when nothing
@@ -94,8 +94,8 @@ internal static class TestOnlyMembers
         var used = uses.Values.GroupBy(use => use.Member, SymbolEqualityComparer.Default)
             .Where(member => member.Any(use => use.Production + use.InsideReads + use.InsideWrites != 0))
             .Select(member => member.Key!).ToHashSet(SymbolEqualityComparer.Default);
-        // A member production never uses at all is dead code the reachability prune moves into test-support, which the
-        // asynchronous cleanup runs after each push; only a member production uses, but more widely than it needs, is a finding.
+        // A member production never uses at all is dead code the reachability prune removes, which the asynchronous cleanup
+        // runs after each push; only a member production uses, but more widely than it needs, is a finding.
         return [.. uses.Values.Where(use => use.Checks != 0 && use.Production == 0 && used.Contains(use.Member))
             .Select(use => new TestOnlyMemberFinding(use, Shape(use, used: true)))];
     }

@@ -112,10 +112,6 @@ internal static class BotwoonAnimations
     internal static Animation<BotwoonSpitSegment> SpitFlight { get; } =
         Animation<BotwoonSpitSegment>.Looping([SpitSegments.Whole(BotwoonSpitSegment.Flight)]);
 
-    /// <summary>The spit's one animation, by the run it starts at.</summary>
-    internal static IReadOnlyDictionary<BotwoonSpitSegment, Animation<BotwoonSpitSegment>> SpitStartingAt { get; } =
-        new Dictionary<BotwoonSpitSegment, Animation<BotwoonSpitSegment>> { [BotwoonSpitSegment.Flight] = SpitFlight };
-
     /// <summary>Every projectile frame his body segments and his spit show.</summary>
     internal static IEnumerable<EnemyProjectileFrameId> ProjectileFrames => BodySegments.Frames.Concat(SpitSegments.Frames);
 

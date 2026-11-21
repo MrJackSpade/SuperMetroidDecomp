@@ -95,17 +95,4 @@ public readonly record struct SpritePart(
     public SpriteFramePart ToFramePart(int firstCharacter, ScreenObjectSizes sizes, bool inheritPalette = false) =>
         new(Offset, Large ? sizes.Large : sizes.Small, Character - firstCharacter, Flip,
             inheritPalette ? null : Palette, Depth);
-
-    /// <summary>Hashes the piece's visual fields in a fixed order.</summary>
-    internal void AppendIdentity(SelectedPresentationHash content)
-    {
-        content.Append("x", Offset.X);
-        content.Append("y", Offset.Y);
-        content.Append("large", Large ? 1 : 0);
-        content.Append("character", Character);
-        content.Append("flip-horizontal", FlipsHorizontally ? 1 : 0);
-        content.Append("flip-vertical", FlipsVertically ? 1 : 0);
-        content.Append("palette", Palette);
-        content.AppendName("depth", ActorDepthKeys.Installed.Of(Depth));
-    }
 }

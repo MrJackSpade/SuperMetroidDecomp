@@ -375,7 +375,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         bool endsSpin = previous != SamusMovementType.Running && currentPose == SamusPoseId.NormalJumpGunExtendedRightPose;
         AssertEqual(endsSpin ? 1 : 0, endingSpin.LiquidPhysics.SoundRequests.Count, "post-draw spin exit classification");
         if (endsSpin)
-            AssertEqual(new SoundRequest(SamusSound.SpinJumpEnd, SoundRequestPriority.Essential),
+            AssertEqual(new SoundRequest(SamusSoundStop.SpinJump, SoundRequestPriority.Essential),
                 endingSpin.LiquidPhysics.SoundRequests[0], "post-draw stop uses native max-fifteen queue");
     }
     var resumeCharge = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.NormalJumpGunExtendedRightPose).WithBeamChargeCount(BeamChargeDefinitions.ChargeSoundStartCounter);
@@ -1226,7 +1226,7 @@ internal static void VerifySamusAtmosphericEffects()
         landing.Kinematics.VerticalVelocity.Speed);
     AssertEqual(2, landing.LiquidPhysics.SoundRequests.Count,
         "spin landing publishes termination and impact sounds");
-    AssertEqual(new SoundRequest(SamusSound.SpinJumpEnd, SoundRequestPriority.Normal),
+    AssertEqual(new SoundRequest(SamusSoundStop.SpinJump, SoundRequestPriority.Normal),
         landing.LiquidPhysics.SoundRequests[0], "ordinary spin termination sound");
     AssertEqual(new SoundRequest(RoomSound.Landing, SoundRequestPriority.Normal),
         landing.LiquidPhysics.SoundRequests[1], "sub-five soft landing sound");
@@ -1247,7 +1247,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.WallJumping, previousPose: SamusPoseId.ScrewAttackRightPose,
         landing.Kinematics.VerticalVelocity.Speed);
-    AssertEqual(new SoundRequest(SamusSound.ScrewAttackEnd, SoundRequestPriority.Normal),
+    AssertEqual(new SoundRequest(SamusSoundStop.ScrewAttack, SoundRequestPriority.Normal),
         landing.LiquidPhysics.SoundRequests[0], "Screw Attack termination sound");
     AssertEqual(new SoundRequest(RoomSound.HardLanding, SoundRequestPriority.Normal),
         landing.LiquidPhysics.SoundRequests[1], "speed-five hard landing sound");

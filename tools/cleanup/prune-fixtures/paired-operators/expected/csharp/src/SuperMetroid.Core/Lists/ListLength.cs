@@ -15,12 +15,6 @@ public readonly record struct ListLength : IComparable<ListLength>
     /// <summary>Whether <paramref name="left"/> is the longer length, which nothing tests: C# requires it beside <c>&lt;</c>.</summary>
     public static bool operator >(ListLength left, ListLength right) => left.CompareTo(right) > 0;
 
-    /// <summary>Whether <paramref name="left"/> is no longer, which nothing tests: C# requires it beside <c>&gt;=</c>.</summary>
-    public static bool operator <=(ListLength left, ListLength right) => left.CompareTo(right) <= 0;
-
-    /// <summary>Whether <paramref name="left"/> is no shorter, which only checks test.</summary>
-    public static bool operator >=(ListLength left, ListLength right) => left.CompareTo(right) >= 0;
-
     /// <summary>Whether two lengths are equal, which production asks.</summary>
     public bool Equals(ListLength other) => Entries == other.Entries;
 

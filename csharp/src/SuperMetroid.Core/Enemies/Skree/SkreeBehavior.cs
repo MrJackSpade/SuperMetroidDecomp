@@ -61,7 +61,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreeDiving);
             state.Action = SkreeAction.Diving;
             // The dive screeches on the update the wind-up releases it.
-            _audio.QueueEnemySound(EnemySound.DiveScreech, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySound.Screech, priority: SoundRequestPriority.Normal);
         },
         [SkreeAction.Diving] = (_, place, samus, level, state) => RunSkreeDive(place, state, samus, level),
         [SkreeAction.Burrowing] = (occupant, place, samus, level, state) => RunSkreeBurrow(occupant, place, state),

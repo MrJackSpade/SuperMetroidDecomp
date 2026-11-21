@@ -11,7 +11,4 @@ public static class TourianEscapeRedFlashPaletteFxColorDefinitions
 
     /// <summary>The background's red flashing.</summary>
     internal static TourianEscapeRedFlashPaletteFxColorDefinition TourianBackgroundRedFlashing { get; } = new(ColourEffectId.TourianBackgroundRedFlashing, 4);
-
-    /// <summary>The shutter and background red-flash programs in definition order, with distinct colour starts, frame durations, and color extents.</summary>
-    public static IReadOnlyList<TourianEscapeRedFlashPaletteFxColorDefinition> All { get; } = [TourianShutterRedFlashing, TourianBackgroundRedFlashing];
 }

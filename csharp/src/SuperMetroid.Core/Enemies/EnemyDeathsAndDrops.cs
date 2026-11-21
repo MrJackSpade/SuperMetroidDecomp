@@ -473,15 +473,15 @@ internal sealed class EnemyDeathsAndDrops
                 break;
             case EnemyPickupKind.PowerBomb:
                 RestoreEnemyDropPowerBombs(samus, EnemyPickupDefinitions.PowerBombAmount);
-                RequestPickupSound(EnemySound.PowerBombPickup);
+                RequestPickupSound(EnemySound.AmmoPickup);
                 break;
             case EnemyPickupKind.Missile:
                 RestoreEnemyDropMissiles(samus, EnemyPickupDefinitions.MissileAmount);
-                RequestPickupSound(EnemySound.MissilePickup);
+                RequestPickupSound(EnemySound.AmmoPickup);
                 break;
             case EnemyPickupKind.SuperMissile:
                 RestoreEnemyDropSuperMissiles(samus, EnemyPickupDefinitions.SuperMissileAmount);
-                RequestPickupSound(EnemySound.SuperMissilePickup);
+                RequestPickupSound(EnemySound.AmmoPickup);
                 break;
             default:
                 throw new InvalidDataException(

@@ -8,7 +8,8 @@ namespace SuperMetroid.ReachabilityAudit.Analysis;
 
 /// <summary>
 /// The dead declarations verification still names. Reachability ignores tests, so code only a test
-/// uses is dead; before it is removed, what tests use moves into test-support with everything it uses.
+/// uses is dead; the dead top-level types tests use move into test-support with every such type they use, and every
+/// other dead declaration is removed, a member of a production type that only tests use among them.
 /// </summary>
 internal static class VerificationReferences
 {
@@ -47,33 +48,39 @@ internal static class VerificationReferences
             .Select(f => f.Declaration.Key).ToHashSet(StringComparer.Ordinal);
 
     /// <summary>
-    /// The findings of the given categories, declared under one of <paramref name="filePrefixes"/>, that verification
-    /// uses directly or through other such findings. A selected type's members move with it, so
-    /// what they use is selected too, to a fixed point.
+    /// The dead top-level types of the given categories, declared under one of <paramref name="filePrefixes"/>, that
+    /// verification uses directly or through other such types: check-only helper code, which moves whole into test-support.
+    /// A type's members move with it, so what they use is selected too, to a fixed point. A dead member of a production type
+    /// is never selected, whatever uses it: nothing in production exists for checks alone, so it is removed, and the checks
+    /// and moved code reading it fail to build until they drive real game code instead (owner ruling, #2599).
     /// </summary>
-    public static HashSet<string> SelectUsedDeadCode(ReachabilityResult result, HashSet<string> verificationReferenced,
+    public static HashSet<string> SelectRelocatedTypes(ReachabilityResult result, HashSet<string> verificationReferenced,
         IReadOnlySet<string> categories, IReadOnlyList<string> filePrefixes)
     {
         var dead = DeadFindings(result, categories, filePrefixes);
-        // The finding a key belongs to: the declaration itself, or the dead type reported for its members.
-        string? DeadFinding(string key)
-        {
-            for (string? current = key; !string.IsNullOrEmpty(current);
-                 current = result.Declarations.TryGetValue(current, out var declaration) ? declaration.ContainingTypeKey : null)
-                if (dead.Contains(current))
-                    return current;
-            return null;
-        }
-        var selected = verificationReferenced.Select(DeadFinding).OfType<string>().ToHashSet(StringComparer.Ordinal);
+        var selected = verificationReferenced.Select(key => DeadTopLevelType(result, dead, key)).OfType<string>().ToHashSet(StringComparer.Ordinal);
         while (true)
         {
-            var moving = result.Declarations.Keys.Where(key => DeadFinding(key) is { } finding && selected.Contains(finding)).ToList();
+            var moving = result.Declarations.Keys.Where(key => DeadTopLevelType(result, dead, key) is { } type && selected.Contains(type)).ToList();
             int before = selected.Count;
             foreach (string key in result.Graph.Reach(moving))
-                if (DeadFinding(key) is { } finding)
-                    selected.Add(finding);
+                if (DeadTopLevelType(result, dead, key) is { } type)
+                    selected.Add(type);
             if (selected.Count == before)
                 return selected;
         }
+    }
+
+    /// <summary>
+    /// The dead top-level type a key belongs to: the outermost type declaring it, when that type is itself a dead finding;
+    /// or null for a key of a staying type, a member of one among them.
+    /// </summary>
+    public static string? DeadTopLevelType(ReachabilityResult result, IReadOnlySet<string> dead, string key)
+    {
+        string current = key;
+        while (result.Declarations.TryGetValue(current, out var declaration) && declaration.ContainingTypeKey.Length > 0)
+            current = declaration.ContainingTypeKey;
+        return dead.Contains(current) && result.Declarations.TryGetValue(current, out var outermost) && outermost.Shape == DeclarationShape.Type
+            ? current : null;
     }
 }

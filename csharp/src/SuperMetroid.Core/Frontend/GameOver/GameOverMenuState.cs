@@ -114,7 +114,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
             // The death black-out hands over at brightness zero, so the screen is black; the menu
             // silences the room's sounds and holds the black screen while it waits out one update. The menu opens in this
             // phase with its fade made black, and nothing steps the fade before it.
-            audio.QueueSound(RoomSound.Silence, priority: GameOverMenuDefinitions.SoundPriority);
+            audio.QueueSound(RoomSoundStop.Any, priority: GameOverMenuDefinitions.SoundPriority);
             phaseAfterDisplayFrame = GameOverMenuPhase.Initialize;
         },
         [GameOverMenuPhase.Initialize] = pressed =>

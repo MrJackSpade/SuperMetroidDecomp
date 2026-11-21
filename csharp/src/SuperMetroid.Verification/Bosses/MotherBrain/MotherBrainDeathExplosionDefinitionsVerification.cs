@@ -33,7 +33,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
             var request = new MotherBrainDeathExplosionRequest(
                 Offset: new(-7, 9),
                 Animation: MotherBrainDeathExplosionNativeSelectors.Animations[parameter],
-                SoundEffect: MotherBrainSoundDefinitions.Explosion);
+                Sound: MotherBrainSoundDefinitions.Explosion);
             enemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDeathExplosion(motherBrain, request);
 
             EnemyProjectile projectile =

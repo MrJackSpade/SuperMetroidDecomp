@@ -94,8 +94,8 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(0x2610, EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord, "Zebes glyph base");
         AssertEqual(65, EscapeTypewriterTileDefinitions.FirstLetter, "first letter");
         AssertEqual(91, EscapeTypewriterTileDefinitions.ExclamationGlyph, "exclamation glyph");
-        AssertEqual<SoundEffectId>(RoomSound.IntroTypewriter, EscapeTypewriterDefinitions.ZebesClick, "Zebes click");
-        AssertEqual<SoundEffectId>(EnemySound.CeresTypewriter, EscapeTypewriterDefinitions.CeresClick, "Ceres click");
+        AssertEqual<SoundEffectId>(RoomSound.Typewriter, EscapeTypewriterDefinitions.ZebesClick, "Zebes click");
+        AssertEqual<SoundEffectId>(RoomSound.Typewriter, EscapeTypewriterDefinitions.CeresClick, "Ceres click");
         AssertEqual(42, ZebesEscapeDefinitions.DiagonalFrames, "diagonal shake frames");
         AssertEqual(18, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.LightHorizontal), "light horizontal shake");
         AssertEqual(21, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.MediumHorizontal), "medium horizontal shake");

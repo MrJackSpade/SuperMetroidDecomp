@@ -38,14 +38,6 @@ public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
     /// <summary>Front 768 map bytes followed by rear 768 map bytes, which the import pictures into the flight's floors (#1467).</summary>
     public ReadOnlyMemory<byte> FloorMaps { get; }
 
-    /// <summary>Identity of the installed documents and of the maps and compositions the flight sheets are composed from.</summary>
-    public override string ContentIdentity => SelectedPresentationHash.Create("CeresFlightImportArtwork-v2", content =>
-    {
-        content.Append("documents", Convert.FromHexString(base.ContentIdentity));
-        content.Append("mode7-maps", FloorMaps.Span);
-        content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
-    });
-
 
     /// <summary>Owned $4000-byte stream of 256 chunky 8-bpp Mode-7 characters, imported from <c>Tiles_Gunship_Ceres_Mode7</c> at <c>$95:A82F</c>; also reused by the ending flyaway.</summary>
     public ReadOnlyMemory<byte> FloorCharacters { get; }

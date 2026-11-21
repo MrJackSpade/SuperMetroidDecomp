@@ -24,17 +24,4 @@ public sealed record IntroCinematicSprites(IntroCaretSpritePresentation Caret, I
     IntroRinkaSpritePresentation Rinka, IntroEggEffectSpritePresentation EggEffect, IntroDiscoveryActorSpritePresentation DiscoveryActor,
     IntroScientistSpritePresentation Scientist, CeresDestructionSpritePresentation CeresDestruction)
 {
-    /// <summary>Identity of every composition, preserving each family's ordered parts.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("IntroCinematicSprites-v1", content =>
-    {
-        content.Append("caret-sprites", Convert.FromHexString(Caret.ContentIdentity));
-        content.Append("next-page-arrow-sprites", Convert.FromHexString(NextPageArrow.ContentIdentity));
-        content.Append("mother-brain-sprites", Convert.FromHexString(MotherBrain.ContentIdentity));
-        content.Append("mother-brain-explosion-sprites", Convert.FromHexString(MotherBrainExplosion.ContentIdentity));
-        content.Append("rinka-sprites", Convert.FromHexString(Rinka.ContentIdentity));
-        content.Append("egg-sprites", Convert.FromHexString(EggEffect.ContentIdentity));
-        content.Append("discovery-sprites", Convert.FromHexString(DiscoveryActor.ContentIdentity));
-        content.Append("scientist-sprites", Convert.FromHexString(Scientist.ContentIdentity));
-        content.Append("ceres-destruction-sprites", Convert.FromHexString(CeresDestruction.ContentIdentity));
-    });
 }

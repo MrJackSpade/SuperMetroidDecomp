@@ -85,9 +85,6 @@ public sealed class D3D11RenderWorker
     public long SkippedGpuTimingSamples => Interlocked.Read(ref skippedGpuTimingSamples);
     /// <summary>Thread-safe count of successful device/resource recreations after startup, excluding failed recovery attempts and the initial device.</summary>
     public long DeviceRecoveries => Interlocked.Read(ref deviceRecoveries);
-    /// <summary>Optional verification hook invoked after retaining a packet and before GPU submission.</summary>
-    private readonly Action? beforeRenderForVerification;
-
     /// <summary>Initial startup task returning the actual device's diagnostic description once renderer/swapchain/timer resources are ready; startup failure faults the task, and later recovery does not replace its result.</summary>
     public Task<string> Ready => ready.Task;
     /// <summary>Worker shutdown/failure task; unrecoverable owner-thread errors fault it rather than escaping the thread or displaying a modal error.</summary>
@@ -106,11 +103,6 @@ public sealed class D3D11RenderWorker
     /// <exception cref="ArgumentOutOfRangeException">Generation or timing capacity is outside its supported range.</exception>
     public D3D11RenderWorker(nint window, Extent16<DisplayPixels> clientSize, long generation, D3D11DeviceKind kind,
         int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)
-        : this(window, clientSize, generation, kind, null, timingCapacity) { }
-
-    /// <summary>Starts the render owner with an optional pre-render verification hook.</summary>
-    internal D3D11RenderWorker(nint window, Extent16<DisplayPixels> clientSize, long generation, D3D11DeviceKind kind,
-        Action? beforeRenderForVerification, int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(timingCapacity);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(timingCapacity, RenderTelemetryLimits.MaximumHistoryCapacity);
@@ -119,7 +111,6 @@ public sealed class D3D11RenderWorker
         gpuCompositionTiming = new(timingCapacity);
         gpuFrameTiming = new(timingCapacity);
         cpuUploadTiming = new(timingCapacity);
-        this.beforeRenderForVerification = beforeRenderForVerification;
         mailbox = new(generation); gate = new(generation);
         var thread = new Thread(() => Run(window, clientSize, kind))
         { IsBackground = true, Name = "Super Metroid GPU owner" };
@@ -210,9 +201,7 @@ public sealed class D3D11RenderWorker
                     RunDevice(window, ref clientSize, kind, ref retained, ref suspended, ref consecutiveLosses);
                     break;
                 }
-                catch (Exception error) when (ready.Task.IsCompletedSuccessfully &&
-                    D3D11RecoveryPolicy.IsDeviceLoss(error.HResult) &&
-                    consecutiveLosses++ < D3D11RecoveryPolicy.MaximumConsecutiveRecreations)
+                catch (Exception error) when (D3D11RecoveryPolicy.Recreates(error, ready.Task.IsCompletedSuccessfully, ref consecutiveLosses))
                 {
                     // RunDevice's using scopes release every old-device reference before
                     // recreating the HWND swapchain. Keep only immutable CPU display data.
@@ -292,7 +281,6 @@ public sealed class D3D11RenderWorker
                         // Preserve a just-taken packet even if submission loses the device.
                         // A newer mailbox packet or generation always supersedes it on retry.
                         retained = packet;
-                        beforeRenderForVerification?.Invoke();
                         bool timed = gpuTimer.TryBegin(packet.Identity);
                         if (!timed) Interlocked.Increment(ref skippedGpuTimingSamples);
                         long submissionStarted = System.Diagnostics.Stopwatch.GetTimestamp();

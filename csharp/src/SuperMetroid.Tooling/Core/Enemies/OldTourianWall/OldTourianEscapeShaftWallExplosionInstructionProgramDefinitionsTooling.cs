@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.RoomObjects;

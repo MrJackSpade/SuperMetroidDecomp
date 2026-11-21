@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Compatibility;
-namespace SuperMetroid.Core.Assets;
+﻿namespace SuperMetroid.Core.Assets;
 
 /// <summary>Verification access to <see cref="FadeLevelColour"/> members production does not use.</summary>
 internal static class FadeLevelColourAccess

@@ -85,7 +85,7 @@ internal static class EndingSnapshotTestsVerification
                             for (int i = 0; i < 16; i++)
                             {
                                 int remaining = level;
-                                AssertEqual(explosionBackgroundSource[i].FadeLevels.Map((_, channel) => channel * remaining / 32).ToColour(), background.Colours[i],
+                                AssertEqual(explosionBackgroundSource[i].FadeLevels.Map((_, channel) => channel * remaining / 32).ToColour(), background.Colours.ElementAt(i),
                                     "the import's explosion BG fade level scales the escape's far background");
                             }
                             foreach ((EndingFade fade, int start) in new[] { (EndingFade.ExplosionLava, 208), (EndingFade.ExplodingPlanet, 240) })
@@ -98,7 +98,7 @@ internal static class EndingSnapshotTestsVerification
                                     ushort expectedColor = (ushort)(((source & 31) * level / 32)
                                         | (((source >> 5 & 31) * level / 32) << 5)
                                         | (((source >> 10 & 31) * level / 32) << 10));
-                                    AssertEqual(expectedColor, sprite.Colours[i - start].ToWord(), "the import's explosion OBJ fade level scales the cartridge's colours");
+                                    AssertEqual(expectedColor, sprite.Colours.ElementAt(i - start).ToWord(), "the import's explosion OBJ fade level scales the cartridge's colours");
                                 }
                             }
                         }
@@ -256,7 +256,7 @@ internal static class EndingSnapshotTestsVerification
                             ushort expectedColor = (ushort)(((source & 31) * factor / 32)
                                 | (((source >> 5 & 31) * factor / 32) << 5)
                                 | (((source >> 10 & 31) * factor / 32) << 10));
-                            AssertEqual(expectedColor, level.Colours[i - start].ToWord(), "native reward dissolve pauses and resumes around copyright");
+                            AssertEqual(expectedColor, level.Colours.ElementAt(i - start).ToWord(), "native reward dissolve pauses and resumes around copyright");
                         }
                     }
                 }

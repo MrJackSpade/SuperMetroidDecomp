@@ -110,7 +110,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         {
             SheetShade found = made.Single(candidate => candidate.Shade == shade);
             for (int color = 0; color < count; color++)
-                AssertEqual(resolve(color), found.Colours[color],
+                AssertEqual(resolve(color), found.Colours.ElementAt(color),
                     $"installed Crocomire {name} color {color}");
         }
     }

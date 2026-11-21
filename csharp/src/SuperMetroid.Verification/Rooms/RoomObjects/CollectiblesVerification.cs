@@ -607,7 +607,7 @@ internal static class CollectiblesVerification
 
         // Message two is the first large box and patches its shoot-button placeholder.
         // Supplying B proves the glyph is selected from the binding word, not hard-coded X.
-        message.Begin(GameplayMessageId.MissileTank, 0, SuperMetroid.Core.Input.ControllerBindings.Default with { Shoot = ControllerButton.B });
+        message.Begin(GameplayMessageId.MissileTank, 0, SuperMetroid.Core.Input.ControllerBindings.Default.With(ControllerAction.Shoot, ControllerButton.B));
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
             message.Step(0);
         AssertEqual(6, message.TilemapRowCount(messages), "large item message has four content rows");

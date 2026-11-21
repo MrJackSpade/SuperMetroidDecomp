@@ -55,8 +55,8 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
     ControllerBindings swapped = ControllerBindings.Default.AssignAndSwap(
         action: ControllerAction.Shoot,
         physicalButton: ControllerButton.R);
-    AssertEqual(ControllerButton.R, swapped.Shoot, "controller swap assigns requested button");
-    AssertEqual(ControllerButton.X, swapped.AimUp, "controller swap preserves permutation");
+    AssertEqual(ControllerButton.R, swapped[ControllerAction.Shoot], "controller swap assigns requested button");
+    AssertEqual(ControllerButton.X, swapped[ControllerAction.AimUp], "controller swap preserves permutation");
     GameplayAction actions = swapped.ToActions(
         ControllerButton.R | ControllerButton.X | ControllerButton.Left | ControllerButton.Right | ControllerButton.Start);
     AssertEqual(

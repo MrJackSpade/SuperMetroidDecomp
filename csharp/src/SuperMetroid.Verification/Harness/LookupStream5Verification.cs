@@ -495,8 +495,9 @@ internal static class LookupStream5Verification
             // shade holds the initial wall's first sixteen colours in the wall's row.
             SheetShade wall = BossSheetShades.SpawnedObjects(InstalledFixtures.BossArtwork with { CrocomireColors = result }, EnemyDefinitionId.Crocomire)
                 .Single(shade => shade.Shade == SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireShades.Wall);
-            for (int ink = 0; ink < wall.Colours.Length; ink++)
-                AssertEqual(resolve[1](ink), wall.Colours[ink], "Initial wall load shows the supplied colours");
+            RgbColor[] wallColours = [.. wall.Colours];
+            for (int ink = 0; ink < wallColours.Length; ink++)
+                AssertEqual(resolve[1](ink), wallColours[ink], "Initial wall load shows the supplied colours");
             string expectedHash = SelectedPresentationHash.Create("CrocomireColorCatalog-v1", content =>
             {
                 for (int band = 0; band < bands.Length; band++)

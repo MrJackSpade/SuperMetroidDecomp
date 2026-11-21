@@ -1562,8 +1562,9 @@ internal static class LookupStream3Verification
             SheetShade sprites = SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.HealthSprites(health).Single(candidate => candidate.Shade == shade);
             SheetShade background = SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.HealthBackground(health).Single(candidate => candidate.Shade == shade);
             const int count = MotherBrainRainbowPaletteGeometry.ColorCount;
-            AssertEqual(2 * count, sprites.Colours.Length, "stream 3 health band sprite shade holds her brain's and rear legs' colours");
-            return (sprites.Colours[..count], sprites.Colours[count..], background.Colours);
+            RgbColor[] shown = [.. sprites.Colours];
+            AssertEqual(2 * count, shown.Length, "stream 3 health band sprite shade holds her brain's and rear legs' colours");
+            return (shown[..count], shown[count..], [.. background.Colours]);
         }
         for (int state = 0; state < 4; state++)
         {

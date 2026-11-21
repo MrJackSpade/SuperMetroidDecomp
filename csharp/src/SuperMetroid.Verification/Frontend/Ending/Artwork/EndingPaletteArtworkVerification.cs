@@ -219,7 +219,7 @@ internal static class EndingPaletteArtworkVerification
         SheetShade initial = shades.Single(shade => shade.Shade == EndingShades.Loaded(EndingColourLoad.LogoInitial));
         AssertTrue(initial.Inks.SequenceEqual(Enumerable.Range(240, 16)), "the logo's first colours cover its sprite colours");
         for (int color = 0; color < 16; color++)
-            AssertEqual(LittleEndianBytes.Word(nativeInitial[color * 2], nativeInitial[color * 2 + 1]), initial.Colours[color].ToWord(),
+            AssertEqual(LittleEndianBytes.Word(nativeInitial[color * 2], nativeInitial[color * 2 + 1]), initial.Colours.ElementAt(color).ToWord(),
                 "installed initial logo colours match the cartridge");
         byte[] nativeColors = EndingPaletteImport.ReadNativePalette(nativeBus,
             EndingPaletteId.LogoCrossfade, EndingPaletteDefinitions.Palettes[EndingPaletteId.LogoCrossfade].ColorCount);
@@ -230,7 +230,7 @@ internal static class EndingPaletteArtworkVerification
                 for (int color = 0; color < 16; color++)
                 {
                     int offset = ((step * 2 + palette) * 16 + color) * 2;
-                    AssertEqual(LittleEndianBytes.Word(nativeColors[offset], nativeColors[offset + 1]), shown.Colours[palette * 16 + color].ToWord(),
+                    AssertEqual(LittleEndianBytes.Word(nativeColors[offset], nativeColors[offset + 1]), shown.Colours.ElementAt(palette * 16 + color).ToWord(),
                         $"installed logo crossfade step {step} matches the cartridge");
                 }
         }

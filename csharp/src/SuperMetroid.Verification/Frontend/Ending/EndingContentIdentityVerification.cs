@@ -241,9 +241,12 @@ internal static class EndingContentIdentityVerification
             return Json(new { Version = version, Frames = frames });
         }
 
-        var fragments = Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
-            .Select(index => Map("fragment-" + index, index)).ToArray();
-        if (edit == "fragment-order") Array.Reverse(fragments);
+        RoomBackgroundTilemapAtlas[] maps = [.. Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
+            .Select(index => Map("fragment-" + index, index))];
+        if (edit == "fragment-order") Array.Reverse(maps);
+        // Each explosion picture holds the map installed in its place of the pictures' order.
+        Dictionary<EndingExplosionPicture, RoomBackgroundTilemapAtlas> fragments = EndingObjectArtworkFormat.ExplosionPictures
+            .Select((picture, place) => KeyValuePair.Create(picture, maps[place])).ToDictionary();
         var objects = new EndingObjectSourceArtwork(new EndingObjectArtworkParts { Fragments = fragments, WaitingTilemap = Map("waiting-map"), TransformationMap = Map("post-fragment-b"), PostShotLogoMap = Map("logo-map"), CloudSprites = EndingCloudSpritePresentation.Load(Sprites("cloud", EndingCloudSpriteDefinitions.Frames.Select(frame => frame.Name), EndingCloudSpriteFormat.Version)), ExplosionSprites = EndingExplosionSpritePresentation.Load(Sprites("explosion", EndingExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), CompletionTextSprites = EndingCompletionTextSpritePresentation.Load(Sprites("text", EndingCompletionTextSpriteDefinitions.Typings.Select(step => step.Name).Concat(EndingCompletionTextSpriteDefinitions.Frames.Select(frame => frame.Name)))), RewardSprites = EndingRewardSpritePresentation.Load(Sprites("reward", EndingRewardSpriteDefinitions.Frames.Select(frame => frame.Name))), LogoSprites = EndingLogoSpritePresentation.Load(Sprites("logo", EndingLogoSpriteDefinitions.Frames.Select(frame => frame.Name))) });
 
         RgbColor[] backdrops = [.. BackdropScenes.Select((scene, index) => new FadeLevelColour(index + 1, edit == "backdrop-" + scene ? 1 : 0, 0).ToColour())];

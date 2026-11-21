@@ -260,7 +260,7 @@ internal static class LookupStream4Verification
                 int frame = tick / program.FrameDuration % program.FrameCount;
                 ColourEffectFrame record = fx.FrameOf(program.Colours)
                     ?? throw new InvalidOperationException($"{program.Colours} shows no record on tick {tick}.");
-                RgbColor[] shown = PaletteFxRecordShades.Shade(program.Colours, record, new InkRange(0, int.MaxValue), selected).Colours;
+                RgbColor[] shown = [.. PaletteFxRecordShades.Shade(program.Colours, record, new InkRange(0, int.MaxValue), selected).Colours];
                 for (int index = 0; index < program.ColorsPerFrame; index++)
                     AssertEqual(Pack(rows[frame][index]), shown[index].ToWord(),
                         "Actual simultaneous title loops preserve stock output and wrap");
@@ -1593,7 +1593,7 @@ internal static class LookupStream4Verification
 
         for (ushort index = 0; index < 4; index++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + 2 * index)), CoordinateAxis.Wrap(SporeSpawnProjectileDefinitions.StalkSegments[index].Y), "stream4 original stalk segment spacing");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + 2 * index)), CoordinateAxis.Wrap(SporeSpawnProjectileDefinitions.StalkSegments[index].SpawnOffset.Y), "stream4 original stalk segment spacing");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + 2 * index)), SporeSpawnProjectileDefinitions.Emitters[index].Place.X, "stream4 original ceiling emitter spacing");
         }
     }

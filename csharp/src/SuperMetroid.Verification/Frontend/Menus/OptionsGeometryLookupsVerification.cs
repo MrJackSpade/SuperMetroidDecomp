@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Frontend;

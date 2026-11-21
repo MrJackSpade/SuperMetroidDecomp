@@ -147,7 +147,7 @@ internal static class SamusChargeColorsVerification
                     AssertTrue(found, "Native charge pointer supported");
                     AssertEqual(pointer, compiled, "Native charge pointer selection");
                     samusColours.ShowSuit(SamusShades.Charge(new SamusChargeShade(
-                        family != 0 ? SamusChargeKind.PseudoScrew : SamusChargeKind.ChargedBeam, SamusSuitListLayout.AtPlace(suit), phase)));
+                        family != 0 ? SamusChargeKind.PseudoScrew : SamusChargeKind.ChargedBeam, SamusSuitListLayout.Order[suit], phase)));
                     RgbColor[] shownSuit = samusColours.ShownSuit(catalogSources);
                     for (int color = 0; color < 16; color++)
                     {

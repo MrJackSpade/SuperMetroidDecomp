@@ -62,7 +62,7 @@ internal static class SaveSchemaTranslationVerification
         Suite(nameof(VerifyNamedSaveRuntime), () => VerifyNamedSaveRuntime(ram));
 
         // A schema-two save lists bosses by the eight area slots, stations and maps by table bit; it upgrades to the same store.
-        JsonObject schemaTwo = RequiredJson.Parse(json).AsObject();
+        JsonObject schemaTwo = SchemaFifteen(json);
         schemaTwo["schemaVersion"] = 2;
         ToSchemaFourProgression(schemaTwo);
         ToSchemaTwoProgression(schemaTwo);
@@ -74,11 +74,10 @@ internal static class SaveSchemaTranslationVerification
 
         // A schema-twelve save keeps each slot's reserve-missile count, which nothing in the game reads (#2364): the current
         // schema's strict reader rejects it, and the save upgrades to the same saves without it.
-        JsonObject schemaTwelve = RequiredJson.Parse(json).AsObject();
+        JsonObject schemaTwelve = SchemaFifteen(json);
         schemaTwelve["schemaVersion"] = 12;
         schemaTwelve.Required("slots").Required(0).Required("resources")["reserveMissiles"] = 27;
-        JsonObject twelveAsCurrent = RequiredJson.Parse(schemaTwelve.ToJsonString()).AsObject();
-        twelveAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject twelveAsCurrent = AsCurrentSchema(schemaTwelve);
         AssertInvalidJsonSave(twelveAsCurrent.ToJsonString(), "reserveMissiles");
         GameSaveJsonDocument upgradedTwelve = LegacyGameSaveJson.Deserialize(schemaTwelve.ToJsonString(), "game save", out bool migratedTwelve);
         AssertTrue(migratedTwelve, "a schema-twelve save is upgraded");
@@ -92,7 +91,7 @@ internal static class SaveSchemaTranslationVerification
         UpgradesSchemaThree(null, SaveStartupRoute.MainGame);
         void UpgradesSchemaThree(int? word, SaveStartupRoute route)
         {
-            JsonObject schemaThree = RequiredJson.Parse(json).AsObject();
+            JsonObject schemaThree = SchemaFifteen(json);
             schemaThree["schemaVersion"] = 3;
             ToSchemaFourProgression(schemaThree);
             JsonObject threeSlot = schemaThree.Required("slots").Required(0).AsObject();
@@ -101,7 +100,7 @@ internal static class SaveSchemaTranslationVerification
                 threeSlot["loadingGameState"] = loadingState;
             GameSaveJsonDocument upgradedThree = LegacyGameSaveJson.Deserialize(schemaThree.ToJsonString(), "game save", out bool migratedThree);
             AssertTrue(migratedThree, "a schema-three save is upgraded");
-            AssertEqual(route, (upgradedThree.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).StartupRoute,
+            AssertEqual(route, upgradedThree.Slots[SlotA].StartupRoute,
                 $"schema three's loading-state word ${word:X4} becomes its startup route");
         }
 
@@ -112,13 +111,12 @@ internal static class SaveSchemaTranslationVerification
             json.Contains($"\"{nameof(LoadStationDefinitions.CrocomireSave)}\"", StringComparison.Ordinal) &&
             json.Contains($"\"{nameof(LoadStationDefinitions.MaridiaElevator)}\"", StringComparison.Ordinal),
             "the current schema names the checkpoint and used stations by their load stations");
-        JsonObject schemaEight = RequiredJson.Parse(json).AsObject();
+        JsonObject schemaEight = SchemaFifteen(json);
         schemaEight["schemaVersion"] = 8;
         ToSchemaEightSlots(schemaEight);
         AssertEqual(0, schemaEight.Required("slots").Required(0).Required("checkpoint").Required("saveStation").GetValue<int>(),
             "the schema-eight fixture numbers the gunship as Crateria's station list does");
-        JsonObject eightAsCurrent = RequiredJson.Parse(schemaEight.ToJsonString()).AsObject();
-        eightAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject eightAsCurrent = AsCurrentSchema(schemaEight);
         AssertInvalidJsonSave(eightAsCurrent.ToJsonString(), "checkpoint");
         GameSaveJsonDocument upgradedEight = LegacyGameSaveJson.Deserialize(schemaEight.ToJsonString(), "game save", out bool migratedEight);
         AssertTrue(migratedEight, "a schema-eight save is upgraded");
@@ -131,30 +129,29 @@ internal static class SaveSchemaTranslationVerification
 
         // A schema-nine save could list the equipment bit no item records, which Golden Torizo's item code set and nothing
         // reads (#1778); the save upgrades without it, and a list it alone made up becomes no item.
-        JsonObject schemaNine = RequiredJson.Parse(json).AsObject();
+        JsonObject schemaNine = SchemaFifteen(json);
         schemaNine["schemaVersion"] = 9;
         JsonObject nineInventory = schemaNine.Required("slots").Required(0).Required("inventory").AsObject();
         nineInventory["collectedItems"] = "springBall, unassignedItem";
         nineInventory["equippedItems"] = "unassignedItem";
         GameSaveJsonDocument upgradedNine = LegacyGameSaveJson.Deserialize(schemaNine.ToJsonString(), "game save", out bool migratedNine);
         AssertTrue(migratedNine, "a schema-nine save is upgraded");
-        SaveInventoryJsonDocument nineItems = (upgradedNine.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).Inventory;
+        SaveInventoryJsonDocument nineItems = upgradedNine.Slots[SlotA].Inventory;
         AssertEqual(SamusEquipmentFlags.SpringBall, nineItems.CollectedItems, "schema nine's unused item bit is not carried among collected items");
         AssertEqual(SamusEquipmentFlags.None, nineItems.EquippedItems, "an equipped list of only the unused item bit becomes no item");
 
         // A schema-ten save names item locations and doors after the disassembly's abbreviated room labels (#2103); the
         // current schema's strict reader rejects those names, and the save upgrades to the rooms' spelled-out names.
-        JsonObject schemaTen = RequiredJson.Parse(json).AsObject();
+        JsonObject schemaTen = SchemaFifteen(json);
         schemaTen["schemaVersion"] = 10;
         JsonObject tenProgression = schemaTen.Required("slots").Required(0).Required("progression").AsObject();
         tenProgression["collectedItems"] = new JsonArray("BlueBrinstarETankExposedMissileTank");
         tenProgression["openedDoors"] = new JsonArray("RedBinstarElevYellowDoorFacingDown");
-        JsonObject tenAsCurrent = RequiredJson.Parse(schemaTen.ToJsonString()).AsObject();
-        tenAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject tenAsCurrent = AsCurrentSchema(schemaTen);
         AssertInvalidJsonSave(tenAsCurrent.ToJsonString(), "BlueBrinstarETankExposedMissileTank");
         GameSaveJsonDocument upgradedTen = LegacyGameSaveJson.Deserialize(schemaTen.ToJsonString(), "game save", out bool migratedTen);
         AssertTrue(migratedTen, "a schema-ten save is upgraded");
-        SaveProgressionJsonDocument tenProgress = (upgradedTen.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).Progression;
+        SaveProgressionJsonDocument tenProgress = upgradedTen.Slots[SlotA].Progression;
         AssertTrue(tenProgress.CollectedItems.SequenceEqual([ItemLocationDefinitions.BlueBrinstarEnergyTankExposedMissileTank.Name]),
             "schema ten's abbreviated item location becomes its room's spelled-out name");
         AssertTrue(tenProgress.OpenedDoors.SequenceEqual([LockedDoorDefinitions.RedBrinstarElevatorYellowDoorFacingDown.Name]),
@@ -163,48 +160,46 @@ internal static class SaveSchemaTranslationVerification
         // A schema-thirteen save names some item locations after the room state that first places them (#2491); the current
         // schema's strict reader rejects those names, and the save upgrades to the rooms' names. A schema-ten name that
         // schema eleven spelled out with its room state upgrades through both.
-        JsonObject schemaThirteen = RequiredJson.Parse(json).AsObject();
+        JsonObject schemaThirteen = SchemaFifteen(json);
         schemaThirteen["schemaVersion"] = 13;
         schemaThirteen.Required("slots").Required(0).Required("progression")["collectedItems"] =
             new JsonArray("BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs", "MorphBallDefaultExposedMorphBall");
-        JsonObject thirteenAsCurrent = RequiredJson.Parse(schemaThirteen.ToJsonString()).AsObject();
-        thirteenAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject thirteenAsCurrent = AsCurrentSchema(schemaThirteen);
         AssertInvalidJsonSave(thirteenAsCurrent.ToJsonString(), "BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs");
         GameSaveJsonDocument upgradedThirteen = LegacyGameSaveJson.Deserialize(schemaThirteen.ToJsonString(), "game save", out bool migratedThirteen);
         AssertTrue(migratedThirteen, "a schema-thirteen save is upgraded");
-        AssertTrue((upgradedThirteen.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).Progression.CollectedItems
+        AssertTrue(upgradedThirteen.Slots[SlotA].Progression.CollectedItems
                 .SequenceEqual([ItemLocationDefinitions.BombTorizoChozoBombs.Name, ItemLocationDefinitions.MorphBallExposedMorphBall.Name]),
             "schema thirteen's item locations named for a room state become their rooms' names");
         tenProgression["collectedItems"] = new JsonArray("WSEastSuperWhenAreaBossDeadExposedSuperMissileTank");
         GameSaveJsonDocument upgradedTenThroughThirteen = LegacyGameSaveJson.Deserialize(schemaTen.ToJsonString(), "game save", out _);
-        AssertTrue((upgradedTenThroughThirteen.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).Progression.CollectedItems
+        AssertTrue(upgradedTenThroughThirteen.Slots[SlotA].Progression.CollectedItems
                 .SequenceEqual([ItemLocationDefinitions.WreckedShipEastSuperExposedSuperMissileTank.Name]),
             "schema ten's abbreviated, state-named item location becomes its room's name");
 
         // A schema-fourteen save names some doors after the room states that place them (#2501); the current schema's
         // strict reader rejects those names, and the save upgrades to the rooms' names: the Attic's two grey doors on one
         // block are told apart by their conditions, and the Climb's escape door by its state.
-        JsonObject schemaFourteen = RequiredJson.Parse(json).AsObject();
+        JsonObject schemaFourteen = SchemaFifteen(json);
         schemaFourteen["schemaVersion"] = 14;
         schemaFourteen.Required("slots").Required(0).Required("progression")["openedDoors"] = new JsonArray(
             "ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x6", "AtticDefaultGreyDoorFacingRight", "AtticWhenAreaBossDeadGreyDoorFacingRight");
-        JsonObject fourteenAsCurrent = RequiredJson.Parse(schemaFourteen.ToJsonString()).AsObject();
-        fourteenAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject fourteenAsCurrent = AsCurrentSchema(schemaFourteen);
         AssertInvalidJsonSave(fourteenAsCurrent.ToJsonString(), "ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x6");
         GameSaveJsonDocument upgradedFourteen = LegacyGameSaveJson.Deserialize(schemaFourteen.ToJsonString(), "game save", out bool migratedFourteen);
         AssertTrue(migratedFourteen, "a schema-fourteen save is upgraded");
-        AssertTrue((upgradedFourteen.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).Progression.OpenedDoors
+        AssertTrue(upgradedFourteen.Slots[SlotA].Progression.OpenedDoors
                 .SequenceEqual([LockedDoorDefinitions.ClimbGreyDoorFacingLeftAt46x6WhenZebesTimebombSet.Name,
                     LockedDoorDefinitions.AtticGreyDoorFacingRightUntilAreaBossDead.Name, LockedDoorDefinitions.AtticGreyDoorFacingRightUntilEnemiesKilled.Name]),
             "schema fourteen's doors named for room states become their rooms' names");
 
         // A schema-seven save carries the count of item set-ups, which nothing in the game reads (#1691); the current
         // schema's strict reader rejects it, and the save upgrades to the same saves without it.
-        JsonObject schemaSeven = RequiredJson.Parse(json).AsObject();
+        JsonObject schemaSeven = SchemaFifteen(json);
         schemaSeven["schemaVersion"] = 7;
         ToSchemaSevenSlots(schemaSeven);
         JsonObject sevenAsCurrent = RequiredJson.Parse(json).AsObject();
-        sevenAsCurrent.Required("slots").Required(0)["loadedItemCount"] = 65535;
+        sevenAsCurrent.Required("slots").Required(SlotA)["loadedItemCount"] = 65535;
         AssertInvalidJsonSave(sevenAsCurrent.ToJsonString(), "loadedItemCount");
         GameSaveJsonDocument upgradedSeven = LegacyGameSaveJson.Deserialize(schemaSeven.ToJsonString(), "game save", out bool migratedSeven);
         AssertTrue(migratedSeven, "a schema-seven save is upgraded");
@@ -216,7 +211,7 @@ internal static class SaveSchemaTranslationVerification
         // A schema-six save keeps the HUD selection and reserve-tank mode as numbers and carries the debug build's
         // placement setting and the never-read new-file word (#1605); it upgrades to the names and the same saves,
         // whatever the two unread words held, and a number naming no selection or mode is rejected.
-        JsonObject schemaSix = RequiredJson.Parse(json).AsObject();
+        JsonObject schemaSix = SchemaFifteen(json);
         schemaSix["schemaVersion"] = 6;
         ToSchemaSixSlots(schemaSix);
         JsonObject sixSlot = schemaSix.Required("slots").Required(0).AsObject();
@@ -224,11 +219,11 @@ internal static class SaveSchemaTranslationVerification
         sixSlot["newFileMarker"] = 65535;
         // The current schema's strict reader never takes schema six's numbers in place of the names.
         JsonObject sixAsCurrent = RequiredJson.Parse(json).AsObject();
-        sixAsCurrent.Required("slots").Required(0)["reserveMode"] = sixSlot.Required("reserveMode").DeepClone();
+        sixAsCurrent.Required("slots").Required(SlotA)["reserveMode"] = sixSlot.Required("reserveMode").DeepClone();
         AssertInvalidJsonSave(sixAsCurrent.ToJsonString(), "reserveMode");
         GameSaveJsonDocument upgradedSix = LegacyGameSaveJson.Deserialize(schemaSix.ToJsonString(), "game save", out bool migratedSix);
         AssertTrue(migratedSix, "a schema-six save is upgraded");
-        GameSaveSlotJsonDocument upgradedSixSlot = upgradedSix.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.");
+        GameSaveSlotJsonDocument upgradedSixSlot = upgradedSix.Slots[SlotA];
         AssertEqual(HudItem.PowerBomb, upgradedSixSlot.HudItem, "schema six's HUD selection number becomes the selection");
         AssertEqual(ReserveTankMode.Manual, upgradedSixSlot.ReserveMode, "schema six's reserve-mode number becomes the mode");
         AssertSameBytes(SaveRamCodec.Encode(GameSaveJsonCodec.ToStore(upgradedSix, RetailPresentationFixture()), RetailPresentationFixture()),
@@ -244,7 +239,7 @@ internal static class SaveSchemaTranslationVerification
         // A schema-five save lists event bits no story event uses by number, broken Chozo orbs, and item locations and
         // doors by room-data number, including numbers no retail placement has (#1553); it upgrades to the same saves,
         // without the bits nothing reads.
-        JsonObject schemaFive = RequiredJson.Parse(json).AsObject();
+        JsonObject schemaFive = SchemaFifteen(json);
         schemaFive["schemaVersion"] = 5;
         ToSchemaFiveProgression(schemaFive);
         JsonObject fiveProgression = schemaFive.Required("slots").Required(0).Required("progression").AsObject();
@@ -263,7 +258,7 @@ internal static class SaveSchemaTranslationVerification
 
         // A schema-four save lists the Zebetite count as the three counter events and names the Baby Metroid-approach event
         // after its number (#1527); it upgrades to the count, the event's name and the same saves.
-        JsonObject schemaFour = RequiredJson.Parse(json).AsObject();
+        JsonObject schemaFour = SchemaFifteen(json);
         schemaFour["schemaVersion"] = 4;
         ToSchemaFourProgression(schemaFour);
         GameSaveJsonDocument upgradedFour = LegacyGameSaveJson.Deserialize(schemaFour.ToJsonString(), "game save", out bool migratedFour);
@@ -287,7 +282,7 @@ internal static class SaveSchemaTranslationVerification
             "a schema-four counter of seven becomes all four Zebetites destroyed");
 
         // Build a genuine old envelope independently: old named fields override its raw mirror.
-        JsonObject legacy = RequiredJson.Parse(json).AsObject();
+        JsonObject legacy = SchemaFifteen(json);
         legacy["schemaVersion"] = 1;
         ToSchemaFourProgression(legacy);
         ToSchemaTwoProgression(legacy);
@@ -350,6 +345,77 @@ internal static class SaveSchemaTranslationVerification
         }
         finally { Directory.Delete(fixtureDirectory, recursive: true); }
         Console.WriteLine("Schema two: named missing state, runtime restoration, legacy JSON conversion, precedence, padding removal, strict failures and backed-up upgrade pass.");
+    }
+
+    /// <summary>The name the current schema keys slot A by, the slot the fixtures save.</summary>
+    internal static string SlotA => GameSaveJsonFormat.SlotKey(SaveSlot.A);
+
+    /// <summary>The current save <paramref name="json"/> with its slots as schema fifteen wrote them (<see cref="ToSchemaFifteenSlots"/>).</summary>
+    private static JsonObject SchemaFifteen(string json)
+    {
+        JsonObject root = RequiredJson.Parse(json).AsObject();
+        ToSchemaFifteenSlots(root);
+        return root;
+    }
+
+    /// <summary>
+    /// Rewrites a current save's slots as schemas one through fifteen wrote them (#2565): the three slots listed in the file
+    /// select's order, an empty slot as null and each saved slot numbering its place, and the selected slot numbered by its
+    /// place.
+    /// </summary>
+    internal static void ToSchemaFifteenSlots(JsonObject root)
+    {
+        JsonObject named = root.Required("slots").AsObject();
+        var listed = new JsonArray();
+        int place = 0;
+        foreach (SaveSlot slot in SaveSlots.All)
+        {
+            if (named[GameSaveJsonFormat.SlotKey(slot)] is JsonObject saved)
+            {
+                var numbered = new JsonObject { ["slot"] = place };
+                foreach ((string field, JsonNode? value) in saved)
+                    numbered[field] = value?.DeepClone();
+                listed.Add(numbered);
+            }
+            else
+            {
+                listed.Add(null);
+            }
+            place++;
+        }
+        root["slots"] = listed;
+        SaveSlot selected = GameSaveJsonFormat.SlotNamed(root.Required("selectedSlot").GetValue<string>());
+        root["selectedSlot"] = SaveSlots.All.ToList().IndexOf(selected);
+    }
+
+    /// <summary>
+    /// A copy of the legacy fixture <paramref name="legacy"/>, whose slots are schema fifteen's, as the current schema keys
+    /// its slots and names the selected one, marked as the current schema: what the current schema's strict reader reads.
+    /// </summary>
+    private static JsonObject AsCurrentSchema(JsonObject legacy)
+    {
+        JsonObject current = RequiredJson.Parse(legacy.ToJsonString()).AsObject();
+        JsonArray listed = current.Required("slots").AsArray();
+        var named = new JsonObject();
+        int place = 0;
+        foreach (SaveSlot slot in SaveSlots.All)
+        {
+            if (listed[place] is JsonObject saved)
+            {
+                var entry = new JsonObject();
+                foreach ((string field, JsonNode? value) in saved)
+                {
+                    if (field != "slot")
+                        entry[field] = value?.DeepClone();
+                }
+                named[GameSaveJsonFormat.SlotKey(slot)] = entry;
+            }
+            place++;
+        }
+        current["slots"] = named;
+        current["selectedSlot"] = GameSaveJsonFormat.SlotKey(SaveSlots.All[current.Required("selectedSlot").GetValue<int>()]);
+        current["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        return current;
     }
 
     /// <summary>

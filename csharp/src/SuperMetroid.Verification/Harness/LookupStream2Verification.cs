@@ -1229,8 +1229,8 @@ internal static class LookupStream2Verification
         {
             var pulse = shades.Single(shade => shade.Shade == SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowShades.Pulse(SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowPulseFrame.All[frame]));
             AssertTrue(pulse.Inks.SequenceEqual([102, 107]), "the pulse shade recolours the arrow's two bevel colours");
-            AssertEqual(ReadVerificationWord(rom, 0x82ad5d + 2 * frame), pulse.Colours[0], "Native arrow color6 reaches the arrow's shade colour");
-            AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), pulse.Colours[1], "Native arrow color11 reaches the arrow's light colour");
+            AssertEqual(ReadVerificationWord(rom, 0x82ad5d + 2 * frame), pulse.InkColours[102], "Native arrow color6 reaches the arrow's shade colour");
+            AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), pulse.InkColours[107], "Native arrow color11 reaches the arrow's light colour");
         }
         Check(stock, document);
         Console.WriteLine("Reserve arrow ramps: all 64 native colors, shades and wrapping pass.");

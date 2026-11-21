@@ -62,7 +62,7 @@ internal static class EndingLogoVerification
                         shownStep.Step * 4 + p * 2);
                     for (int i = 0; i < 16; i++)
                         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8c0000 | (pointer - 30 + i * 2)),
-                            step.Colours[p * 16 + i].ToWord(), "native logo crossfade palette table entry");
+                            step.Colours.ElementAt(p * 16 + i).ToWord(), "native logo crossfade palette table entry");
                 }
             }
             poses.Add(Convert.ToHexString(ScreenSpritesFixtures.Frame(objects => logo.Draw(objects, logoSprites)).LowTable));

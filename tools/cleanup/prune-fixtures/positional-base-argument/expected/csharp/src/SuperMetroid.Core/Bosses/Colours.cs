@@ -10,7 +10,7 @@ public sealed class Colours
     public Tint? PartsShade => shown.PartsShade;
 
     /// <summary>How strong a pale glow is.</summary>
-    public static Tint GlowStrength => new Glow(Tint.Pale).Strength;
+    public static Tint GlowStrength => new Glow().Strength;
 
     /// <summary>Shows a band of <paramref name="tint"/>.</summary>
     /// <param name="tint">The band's shade.</param>
@@ -35,8 +35,7 @@ public sealed class Colours
     }
 
     /// <summary>A glow, whose strength its level gives.</summary>
-    /// <param name="Level">The level, which gives the glow's strength.</param>
-    private sealed record Glow(Tint Level) : BodyShown((Tint?)null)
+    private sealed record Glow() : BodyShown((Tint?)null)
     {
         /// <summary>How strong the glow is.</summary>
         public Tint Strength { get; } = Level;

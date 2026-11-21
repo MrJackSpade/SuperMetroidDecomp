@@ -54,8 +54,11 @@ developer's checkout, with its own `bin`/`obj` and its own `temp\`), `config.jso
        whole into test-support and deletes every other dead declaration, a dead member of a production type that only
        tests use among them: nothing in production exists for checks alone, so the checks reading such a member fail to
        build until they drive real game code (owner ruling, #2599). The next code-fix step removes the usings it copies
-       into moved files. It prints how long each of its phases took. A prune that throws is a defect of the prune and
-       fails the run with its exception.
+       into moved files. It prints how long each of its phases took. What is dead is read from code that compiles (a
+       reference that does not bind reaches nothing, so live code would read as dead): when a project does not compile,
+       as a fix or an earlier prune of the run leaves it where the developer has a choice to make, the prune prints
+       `Pruned nothing: ...` and changes nothing, and the next run prunes once the tree builds. A prune that throws is a
+       defect of the prune and fails the run with its exception.
      - **Stale reviews:** the architecture audit's `--prune-stale-reviews`. It deletes every `[ArchitectureReview]`
        whose finding its type no longer has (a prune of dead code can remove a finding), through the attribute's own
        syntax reference, and keeps every other byte of the file. It validates every edit before writing any and writes

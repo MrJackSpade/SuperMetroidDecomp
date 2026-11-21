@@ -119,19 +119,26 @@ internal static class Program
     /// The dead-code prune of the asynchronous cleanup (tools/cleanup/README.md): <paramref name="current"/> returns the
     /// solution as its files are, and is asked again after the removal has written its files. The command line opens the
     /// solution from the files each time; the cleanup, which loads the solution once for all its steps, hands over the
-    /// solution with every file its steps wrote.
+    /// solution with every file its steps wrote. Every load accepts compile errors, which the prune reads below.
     /// </summary>
     internal static Task PruneKeepingVerificationUsedAsync(Func<Task<Solution>> current, string repositoryRoot, string categoryList,
         string prefix, string targetDirectory, string retiredFields) =>
-        PruneKeepingVerificationUsedAsync(async () => await SolutionLoader.CompileAsync(await current(), repositoryRoot),
+        PruneKeepingVerificationUsedAsync(async () => await SolutionLoader.CompileAsync(await current(), repositoryRoot, mayFail: _ => true),
             categoryList, prefix, targetDirectory, retiredFields);
 
     /// <summary>
     /// Deletes the dead code, every dead member of a production type that only tests use among it, then moves the dead
     /// top-level types tests still use into test-support (<see cref="VerificationReferences.SelectRelocatedTypes"/>). A check
     /// or a moved type that read a removed member no longer builds, and is rewritten to drive real game code (owner ruling,
-    /// #2599). Removing first leaves no dead shipped code naming the types the move takes away. The solution is loaded again
-    /// after the removal, which has written its files; the keys the move takes are the same in it.
+    /// #2599). Removing first leaves no dead shipped code naming the types the move takes away.
+    /// <para>
+    /// What is dead is read from code that compiles: a reference that does not bind reaches nothing, so on a tree with
+    /// compile errors live code would read as dead and be deleted. When a project does not compile, which a fix or an
+    /// earlier prune of the same cleanup run leaves where the developer has a choice to make (#2599), the prune says so and
+    /// changes nothing; the next run prunes once the tree builds again. The move after the removal reads the tree the
+    /// removal left, whose checks may no longer compile: it binds only the moved types' declarations, documentation and
+    /// base lists, and a reference among them that does not bind is left as written, which fails the build there.
+    /// </para>
     /// </summary>
     private static async Task PruneKeepingVerificationUsedAsync(Func<Task<LoadedSolution>> load, string categoryList, string prefix,
         string targetDirectory, string retiredFields)
@@ -146,6 +153,13 @@ internal static class Program
         }
         var solution = await load();
         Timed("compilation");
+        if (SolutionLoader.ProjectsWithErrors(solution) is [_, ..] broken)
+        {
+            File.WriteAllText(Path.GetFullPath(retiredFields), "");
+            Console.WriteLine($"Pruned nothing: {string.Join(", ", broken)} do not compile, and what is dead cannot be read from " +
+                "code that does not compile; the next run prunes once they build.");
+            return;
+        }
         // What verification names and what reaches what are read from the same compilations, independently: the
         // verification projects' references are collected while the reachability analysis runs.
         var referenced = Task.Run(() => VerificationReferences.Collect(solution));

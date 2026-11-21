@@ -15,4 +15,10 @@ internal sealed class SuperMissileShotState(SamusMissileIgnition ignition, int? 
     /// is created until it ignites with a link of its own; a reflection leaves it naming none until it re-ignites.
     /// </summary>
     internal int? LinkChainPosition { get; set; } = linkPlace;
+
+    /// <inheritdoc/>
+    internal override int? NamedLinkPlace => LinkChainPosition;
+
+    /// <inheritdoc/>
+    internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam => Ignition.ReplacedByBeam(LinkChainPosition);
 }

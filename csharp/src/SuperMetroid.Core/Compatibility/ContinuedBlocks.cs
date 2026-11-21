@@ -23,26 +23,27 @@ namespace SuperMetroid.Core.Compatibility;
 public static class ContinuedBlocks
 {
     /// <summary>
-    /// The block <paramref name="cell"/> stands for: the cell itself when it continues nothing, the block its chain of links
-    /// leads to when it continues one, or null when a link in the chain is zero and the cell behaves as air.
+    /// The whole block <paramref name="cell"/> stands for: the cell itself when it continues nothing, the block its chain of
+    /// links leads to when it continues one, or null when a link in the chain is zero and the cell behaves as air.
     /// </summary>
     /// <typeparam name="TCell">How the room module reads a cell.</typeparam>
+    /// <typeparam name="TWhole">How the room module reads a whole block, one continuing no other.</typeparam>
     /// <param name="cell">The cell a read found.</param>
     /// <param name="roomBlocks">How many blocks the room has, one or more: a longer chain revisits a cell.</param>
-    /// <param name="continues">Whether a cell continues another block.</param>
+    /// <param name="whole">A cell as a whole block, or none when it continues another block.</param>
     /// <param name="standsForNothing">Whether a continuing cell's link is zero.</param>
     /// <param name="linked">The cell a continuing cell's link leads to.</param>
     /// <exception cref="InvalidDataException">The chain never leaves its continuing cells.</exception>
-    public static TCell? StoodFor<TCell>(TCell cell, int roomBlocks, Func<TCell, bool> continues, Func<TCell, bool> standsForNothing,
-        Func<TCell, TCell> linked) where TCell : struct
+    public static TWhole? StoodFor<TCell, TWhole>(TCell cell, int roomBlocks, Func<TCell, TWhole?> whole,
+        Func<TCell, bool> standsForNothing, Func<TCell, TCell> linked) where TCell : struct where TWhole : struct
     {
-        Ensure.NotNull(continues);
+        Ensure.NotNull(whole);
         Ensure.NotNull(standsForNothing);
         Ensure.NotNull(linked);
         for (int hops = Ensure.BetweenInclusive(1, int.MaxValue, roomBlocks); hops > 0; hops--)
         {
-            if (!continues(cell))
-                return cell;
+            if (whole(cell) is { } reached)
+                return reached;
             if (standsForNothing(cell))
                 return null;
             cell = linked(cell);

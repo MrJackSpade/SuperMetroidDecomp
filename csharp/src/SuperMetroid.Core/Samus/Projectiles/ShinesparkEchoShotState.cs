@@ -9,4 +9,16 @@ internal sealed class ShinesparkEchoShotState(TrigonometryAngle angle) : SamusSh
 
     /// <summary>The echo's expanding radius, in pixels: zero when it is released, growing each update.</summary>
     internal int Radius { get; set => field = Ensure.AtLeastZero(value); }
+
+    /// <inheritdoc/>
+    internal override bool AwaitsIgnitionAsFired => false;
+
+    /// <inheritdoc/>
+    internal override int? NamedLinkPlace => null;
+
+    /// <inheritdoc/>
+    internal override bool DeletesItselfAfterEnemyHit => false;
+
+    /// <inheritdoc/>
+    internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam => new BeamFiredOverLastShot.ReplacedShot.CrashEcho(Angle);
 }

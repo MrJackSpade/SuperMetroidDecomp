@@ -25,8 +25,8 @@ public static class SamusInsideBlockReactions
         void Visit(int y, bool bottomPoint, bool centerPoint)
         {
             var block = level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
-            if (block.Position is null || !level.TryReachBlockStoodFor(ref block) ||
-                block.Kind is not RoomBlockKind.SpecialAir { Reaction: var air })
+            if (block.Position is null || !level.TryReachBlockStoodFor(ref block, out RoomBlockKind.Whole? kind) ||
+                kind.Read(SpecialAirInside.Reader) is not { } air)
                 return;
             // A scroll trigger wakes only from the inside-block sample at Samus's centre.
             // Feet/head contacts belong to the separate movement scans. Keeping
@@ -182,6 +182,63 @@ public static class SamusInsideBlockReactions
             displacement = HeldAtQuicksandSurface(displacement);
         surfaceContact = true;
         return SpecialAirCollisionOutcome.PassesThrough;
+    }
+
+    /// <summary>
+    /// The special-air reaction Samus's inside-block sample reacts to (#2554): only special air reacts to her body's
+    /// overlap; every other kind of block carries no inside reaction.
+    /// </summary>
+    private sealed class SpecialAirInside : IWholeBlockReader<SpecialAirReaction?>
+    {
+        /// <summary>Only <see cref="Reader"/> is made.</summary>
+        private SpecialAirInside()
+        {
+        }
+
+        /// <summary>The one reader.</summary>
+        internal static SpecialAirInside Reader { get; } = new();
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? SpecialAir(SpecialAirReaction reaction) => reaction;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? Air() => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? Slope() => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? UnrevealedAir() => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? SolidBlock() => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? DoorBlock() => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? SpikeAir(SpikeReaction reaction) => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? SpikeBlock(SpikeReaction reaction) => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? SpecialBlock(SpecialBlockReaction reaction) => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? ShootableAir(ShootableReaction reaction) => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? ShootableBlock(ShootableReaction reaction) => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? BombableAir(BombableReaction reaction) => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? BombableBlock(BombableReaction reaction) => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? GrappleBlock(GrappleReaction reaction) => null;
     }
 
     /// <summary>

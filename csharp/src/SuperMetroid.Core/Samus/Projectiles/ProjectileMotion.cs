@@ -452,7 +452,7 @@ internal sealed class ProjectileMotion
         RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
 
         // An extension block reacts as the block it leads to, as it does for Samus's body; one that leads nowhere is air.
-        if (!level.TryReachBlockStoodFor(ref block))
+        if (!level.TryReachBlockStoodFor(ref block, out _))
             return false;
         return block.CollisionType switch
         {

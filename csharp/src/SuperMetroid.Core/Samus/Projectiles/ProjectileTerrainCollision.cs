@@ -288,7 +288,7 @@ internal sealed class ProjectileTerrainCollision
         // A shot reacts to the block its cell stands for, as bombs, missiles and Samus's body do (ContinuedBlocks); one that
         // stands for nothing lets the shot pass. A door cap is a shootable block at one end with continuing cells
         // across its other three, so a beam striking the cap's middle reaches the blue door's reaction through them.
-        if (!level.TryReachBlockStoodFor(ref block))
+        if (!level.TryReachBlockStoodFor(ref block, out _))
             return false;
         if (block.CollisionType == RoomCollisionType.Slope && !block.Behavior.Slope.IsNonSquare)
             return SquareSlopeShotReaction(held, block, span, axis == Axis.Horizontal);

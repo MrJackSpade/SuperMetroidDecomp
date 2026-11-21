@@ -20,4 +20,16 @@ internal class MissileShotState : SamusShotKindState
     /// <summary>Ignites the missile at <paramref name="speed"/>.</summary>
     /// <param name="speed">The base speed it ignites at: one pixel an update, or more after a reflection's head start.</param>
     internal void Ignite(SignedEightEight speed) => Ignition = new SamusMissileIgnition.Ignited(speed);
+
+    /// <inheritdoc/>
+    internal sealed override bool AwaitsIgnitionAsFired => Ignition.AwaitsIgnitionAsFired;
+
+    /// <inheritdoc/>
+    internal override int? NamedLinkPlace => null;
+
+    /// <inheritdoc/>
+    internal sealed override bool DeletesItselfAfterEnemyHit => false;
+
+    /// <inheritdoc/>
+    internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam => Ignition.ReplacedByBeam(linkPlace: null);
 }

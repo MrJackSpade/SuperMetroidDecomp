@@ -18,6 +18,40 @@ public abstract record RoomBlockKind
     /// <summary>The collision kind this case is.</summary>
     public abstract RoomCollisionType Collision { get; }
 
+    /// <summary>What <paramref name="reader"/> makes of a block of this kind: the reader's member for this case.</summary>
+    /// <typeparam name="TAnswer">What the reader makes of a block.</typeparam>
+    /// <param name="reader">The reader, which answers every kind a room's cell can be.</param>
+    public abstract TAnswer Read<TAnswer>(IRoomBlockReader<TAnswer> reader);
+
+    /// <summary>
+    /// This kind as a whole block's, one that stands for itself; none for a cell continuing another block, which stands
+    /// for the block its link leads to (<see cref="Compatibility.ContinuedBlocks"/>).
+    /// </summary>
+    internal abstract Whole? AsWholeBlock { get; }
+
+    /// <summary>
+    /// The kind of a whole block, one that stands for itself rather than continuing another (#2554): every kind but the two
+    /// extensions. A read that has reached the block a cell stands for meets only these.
+    /// </summary>
+    public abstract record Whole : RoomBlockKind
+    {
+        /// <summary>Only the whole kinds below derive from it.</summary>
+        private protected Whole()
+        {
+        }
+
+        /// <summary>What <paramref name="reader"/> makes of a whole block of this kind: the reader's member for this case.</summary>
+        /// <typeparam name="TAnswer">What the reader makes of a block.</typeparam>
+        /// <param name="reader">The reader, which answers every kind a whole block can be.</param>
+        public abstract TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader);
+
+        /// <inheritdoc/>
+        public sealed override TAnswer Read<TAnswer>(IRoomBlockReader<TAnswer> reader) => Read((IWholeBlockReader<TAnswer>)reader);
+
+        /// <inheritdoc/>
+        internal sealed override Whole AsWholeBlock => this;
+    }
+
     /// <summary>
     /// Whether <paramref name="collision"/> with <paramref name="behavior"/> makes a block, and then its case in
     /// <paramref name="kind"/>: a kind that reads a reaction makes one only when the behaviour gives it its reaction.
@@ -52,7 +86,7 @@ public abstract record RoomBlockKind
     }
 
     /// <summary>Empty air.</summary>
-    public sealed record Air : RoomBlockKind
+    public sealed record Air : Whole
     {
         /// <summary>Only <see cref="Instance"/> is made.</summary>
         private Air()
@@ -64,10 +98,13 @@ public abstract record RoomBlockKind
 
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.Air;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).Air();
     }
 
     /// <summary>A slope, whose geometry the block's behaviour selects.</summary>
-    public sealed record Slope : RoomBlockKind
+    public sealed record Slope : Whole
     {
         /// <summary>Only <see cref="Instance"/> is made.</summary>
         private Slope()
@@ -79,6 +116,9 @@ public abstract record RoomBlockKind
 
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.Slope;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).Slope();
     }
 
     /// <summary>A horizontal extension, colliding as the block its behaviour's displacement names.</summary>
@@ -94,6 +134,12 @@ public abstract record RoomBlockKind
 
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.HorizontalExtension;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IRoomBlockReader<TAnswer> reader) => Ensure.NotNull(reader).HorizontalExtension();
+
+        /// <inheritdoc/>
+        internal override Whole? AsWholeBlock => null;
     }
 
     /// <summary>A vertical extension, colliding as the block its behaviour's displacement names.</summary>
@@ -109,10 +155,16 @@ public abstract record RoomBlockKind
 
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.VerticalExtension;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IRoomBlockReader<TAnswer> reader) => Ensure.NotNull(reader).VerticalExtension();
+
+        /// <inheritdoc/>
+        internal override Whole? AsWholeBlock => null;
     }
 
     /// <summary>Air that reacts to nothing and that the X-ray scope does not reveal.</summary>
-    public sealed record UnrevealedAir : RoomBlockKind
+    public sealed record UnrevealedAir : Whole
     {
         /// <summary>Only <see cref="Instance"/> is made.</summary>
         private UnrevealedAir()
@@ -124,10 +176,13 @@ public abstract record RoomBlockKind
 
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.UnrevealedAir;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).UnrevealedAir();
     }
 
     /// <summary>An ordinary solid block.</summary>
-    public sealed record SolidBlock : RoomBlockKind
+    public sealed record SolidBlock : Whole
     {
         /// <summary>Only <see cref="Instance"/> is made.</summary>
         private SolidBlock()
@@ -139,10 +194,13 @@ public abstract record RoomBlockKind
 
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.SolidBlock;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).SolidBlock();
     }
 
     /// <summary>A door block.</summary>
-    public sealed record DoorBlock : RoomBlockKind
+    public sealed record DoorBlock : Whole
     {
         /// <summary>Only <see cref="Instance"/> is made.</summary>
         private DoorBlock()
@@ -154,77 +212,107 @@ public abstract record RoomBlockKind
 
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.DoorBlock;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).DoorBlock();
     }
 
     /// <summary>Spike air, with its spike reaction.</summary>
     /// <param name="Reaction">The spike reaction the block's behaviour gives it.</param>
-    public sealed record SpikeAir(SpikeReaction Reaction) : RoomBlockKind
+    public sealed record SpikeAir(SpikeReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.SpikeAir;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).SpikeAir(Reaction);
     }
 
     /// <summary>A solid spike block, with its spike reaction.</summary>
     /// <param name="Reaction">The spike reaction the block's behaviour gives it.</param>
-    public sealed record SpikeBlock(SpikeReaction Reaction) : RoomBlockKind
+    public sealed record SpikeBlock(SpikeReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.SpikeBlock;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).SpikeBlock(Reaction);
     }
 
     /// <summary>Special air, with its special-air reaction.</summary>
     /// <param name="Reaction">The special-air reaction the block's behaviour gives it.</param>
-    public sealed record SpecialAir(SpecialAirReaction Reaction) : RoomBlockKind
+    public sealed record SpecialAir(SpecialAirReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.SpecialAir;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).SpecialAir(Reaction);
     }
 
     /// <summary>A solid special block, with its special-block reaction.</summary>
     /// <param name="Reaction">The special-block reaction the block's behaviour gives it.</param>
-    public sealed record SpecialBlock(SpecialBlockReaction Reaction) : RoomBlockKind
+    public sealed record SpecialBlock(SpecialBlockReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.SpecialBlock;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).SpecialBlock(Reaction);
     }
 
     /// <summary>Shootable air, with its shootable reaction.</summary>
     /// <param name="Reaction">The shootable reaction the block's behaviour gives it.</param>
-    public sealed record ShootableAir(ShootableReaction Reaction) : RoomBlockKind
+    public sealed record ShootableAir(ShootableReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.ShootableAir;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).ShootableAir(Reaction);
     }
 
     /// <summary>A solid shootable block, with its shootable reaction.</summary>
     /// <param name="Reaction">The shootable reaction the block's behaviour gives it.</param>
-    public sealed record ShootableBlock(ShootableReaction Reaction) : RoomBlockKind
+    public sealed record ShootableBlock(ShootableReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.ShootableBlock;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).ShootableBlock(Reaction);
     }
 
     /// <summary>Bombable air, with its bombable reaction.</summary>
     /// <param name="Reaction">The bombable reaction the block's behaviour gives it.</param>
-    public sealed record BombableAir(BombableReaction Reaction) : RoomBlockKind
+    public sealed record BombableAir(BombableReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.BombableAir;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).BombableAir(Reaction);
     }
 
     /// <summary>A solid bombable block, with its bombable reaction.</summary>
     /// <param name="Reaction">The bombable reaction the block's behaviour gives it.</param>
-    public sealed record BombableBlock(BombableReaction Reaction) : RoomBlockKind
+    public sealed record BombableBlock(BombableReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.BombableBlock;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).BombableBlock(Reaction);
     }
 
     /// <summary>A grapple block, with its grapple reaction.</summary>
     /// <param name="Reaction">The grapple reaction the block's behaviour gives it.</param>
-    public sealed record GrappleBlock(GrappleReaction Reaction) : RoomBlockKind
+    public sealed record GrappleBlock(GrappleReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.GrappleBlock;
+
+        /// <inheritdoc/>
+        public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).GrappleBlock(Reaction);
     }
 }

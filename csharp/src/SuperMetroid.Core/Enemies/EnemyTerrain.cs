@@ -285,72 +285,81 @@ internal sealed class EnemyTerrain
         bool treatNonSquareSlopesAsWalls)
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock, out Position16<RoomBlocks> reached);
-        return block.Kind switch
-        {
-            RoomBlockKind.Air or
-            RoomBlockKind.SpikeAir or
-            RoomBlockKind.SpecialAir or
-            RoomBlockKind.ShootableAir or
-            RoomBlockKind.UnrevealedAir or
-            RoomBlockKind.BombableAir => false,
-            RoomBlockKind.Slope when block.Behavior.Slope.IsNonSquare =>
-                treatNonSquareSlopesAsWalls,
-            RoomBlockKind.Slope => SquareHorizontalSlopeIsSolid(
-                place,
-                targetEdge,
-                block.Behavior,
-                spanBlock),
-            RoomBlockKind.HorizontalExtension or RoomBlockKind.VerticalExtension =>
-                false, // A zero-offset extension resolves to air.
-            RoomBlockKind.SpikeBlock { Reaction: var spike } =>
-                ReactToEnemySpikeBlock(level, reached, spike),
-            RoomBlockKind.SolidBlock or
-            RoomBlockKind.DoorBlock or
-            RoomBlockKind.SpecialBlock or
-            RoomBlockKind.ShootableBlock or
-            RoomBlockKind.GrappleBlock or
-            RoomBlockKind.BombableBlock => true,
-            _ => throw new InvalidDataException(
-                $"Enemy horizontal collision type {block.CollisionType} is invalid."),
-        };
+        return block.Kind.Read(new ProbeReader(this, level, reached,
+            () => block.Behavior.Slope.IsNonSquare
+                ? treatNonSquareSlopesAsWalls
+                : SquareHorizontalSlopeIsSolid(place, targetEdge, block.Behavior, spanBlock)));
     }
 
     /// <summary>Classifies the next vertical block and may align the enemy against a non-square slope.</summary>
     private bool EnemyVerticalProbeIsSolid(RoomLevelData level, IEnemyTerrainBody place, Position16<RoomBlocks> startBlock, EnemyVerticalProbe probe)
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock, out Position16<RoomBlocks> reached);
-        return block.Kind switch
-        {
-            RoomBlockKind.Air or
-            RoomBlockKind.SpikeAir or
-            RoomBlockKind.SpecialAir or
-            RoomBlockKind.ShootableAir or
-            RoomBlockKind.UnrevealedAir or
-            RoomBlockKind.BombableAir => false,
-            RoomBlockKind.Slope when block.Behavior.Slope.IsNonSquare =>
-                NonSquareVerticalSlopeIsSolid(
-                    place,
-                    reached,
-                    block.Behavior,
-                    probe.TargetCenter.Y,
-                    probe.MovingUp),
-            RoomBlockKind.Slope => SquareVerticalSlopeIsSolid(
-                place,
-                probe.TargetEdge.Y,
-                block.Behavior,
-                probe.SpanBlock),
-            RoomBlockKind.HorizontalExtension or RoomBlockKind.VerticalExtension => false,
-            RoomBlockKind.SpikeBlock { Reaction: var spike } =>
-                ReactToEnemySpikeBlock(level, reached, spike),
-            RoomBlockKind.SolidBlock or
-            RoomBlockKind.DoorBlock or
-            RoomBlockKind.SpecialBlock or
-            RoomBlockKind.ShootableBlock or
-            RoomBlockKind.GrappleBlock or
-            RoomBlockKind.BombableBlock => true,
-            _ => throw new InvalidDataException(
-                $"Enemy vertical collision type {block.CollisionType} is invalid."),
-        };
+        return block.Kind.Read(new ProbeReader(this, level, reached,
+            () => block.Behavior.Slope.IsNonSquare
+                ? NonSquareVerticalSlopeIsSolid(place, reached, block.Behavior, probe.TargetCenter.Y, probe.MovingUp)
+                : SquareVerticalSlopeIsSolid(place, probe.TargetEdge.Y, block.Behavior, probe.SpanBlock)));
+    }
+
+    /// <summary>
+    /// Whether the block an enemy's probe reaches stops it (#2554): air of every kind lets it pass, as does an extension
+    /// whose zero link resolves it to air; solid kinds stop it; a spike block stops it unless the enemy breaks it; a slope
+    /// answers as the probe's own slope test does.
+    /// </summary>
+    /// <param name="terrain">The enemy terrain, which breaks an enemy-breakable spike block.</param>
+    /// <param name="level">The room's terrain.</param>
+    /// <param name="reached">The block the probe's extension links lead to, where a reaction to it takes place.</param>
+    /// <param name="slope">The probe's own test of a slope block.</param>
+    private sealed class ProbeReader(EnemyTerrain terrain, RoomLevelData level, Position16<RoomBlocks> reached,
+        Func<bool> slope) : IRoomBlockReader<bool>
+    {
+        /// <inheritdoc/>
+        public bool Air() => false;
+
+        /// <inheritdoc/>
+        public bool Slope() => slope();
+
+        /// <inheritdoc/>
+        public bool UnrevealedAir() => false;
+
+        /// <inheritdoc/>
+        public bool SolidBlock() => true;
+
+        /// <inheritdoc/>
+        public bool DoorBlock() => true;
+
+        /// <inheritdoc/>
+        public bool SpikeAir(SpikeReaction reaction) => false;
+
+        /// <inheritdoc/>
+        public bool SpikeBlock(SpikeReaction reaction) => terrain.ReactToEnemySpikeBlock(level, reached, reaction);
+
+        /// <inheritdoc/>
+        public bool SpecialAir(SpecialAirReaction reaction) => false;
+
+        /// <inheritdoc/>
+        public bool SpecialBlock(SpecialBlockReaction reaction) => true;
+
+        /// <inheritdoc/>
+        public bool ShootableAir(ShootableReaction reaction) => false;
+
+        /// <inheritdoc/>
+        public bool ShootableBlock(ShootableReaction reaction) => true;
+
+        /// <inheritdoc/>
+        public bool BombableAir(BombableReaction reaction) => false;
+
+        /// <inheritdoc/>
+        public bool BombableBlock(BombableReaction reaction) => true;
+
+        /// <inheritdoc/>
+        public bool GrappleBlock(GrappleReaction reaction) => true;
+
+        /// <inheritdoc/>
+        public bool HorizontalExtension() => false; // A zero-offset extension resolves to air.
+
+        /// <inheritdoc/>
+        public bool VerticalExtension() => false;
     }
 
     /// <summary>

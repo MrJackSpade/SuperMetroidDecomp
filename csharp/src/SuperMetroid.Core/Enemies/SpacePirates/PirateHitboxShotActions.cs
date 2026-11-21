@@ -40,7 +40,7 @@ internal static class PirateHitboxShotActions
         if (hitboxShot == SpacePirateReactions.GoldNinjaInvincibleHitboxShot)
         {
             if (family == SamusProjectileFamily.SuperMissile &&
-                held.KindState is SuperMissileShotState { Ignition: SamusMissileIgnition.Pending })
+                held.KindState is { AwaitsIgnitionAsFired: true })
                 return PirateHitboxShotAction.Ignore;
             return IsBeamOrMissile(family)
                 ? PirateHitboxShotAction.Reflect

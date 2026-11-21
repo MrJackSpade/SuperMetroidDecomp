@@ -100,14 +100,14 @@ internal static class ProjectileDamageVerification
         foreach ((bool power, int expected) in new[] { (true, 200), (false, 30) })
         {
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-            var bomber = Samus();
+            var bomber = Samus().InPose(SamusPoseId.MorphBallGroundRightPose);
             bomber.EquippedItems |= SuperMetroid.Core.Progression.SamusEquipmentFlags.Bombs;
             if (power)
             {
                 bomber.SelectedHudItem = HudItem.PowerBomb;
                 bomber.PowerBombs = 1;
             }
-            bombs.TryPlaceBomb(bomber, GameplayAction.Shoot, GameplayAction.Shoot, out _);
+            _ = bombs.TickCooldownAndPlaceBombs(bomber, GameplayAction.Shoot, GameplayAction.Shoot);
             SamusBombOccupant placed = bombs.Bombs.Single(bomb => bomb.IsActive).Occupant
                 ?? throw new InvalidOperationException("The laid bomb holds its place.");
             AssertEqual(expected, placed.Damage, power ? "Power Bomb damage" : "ordinary and spread bomb damage");

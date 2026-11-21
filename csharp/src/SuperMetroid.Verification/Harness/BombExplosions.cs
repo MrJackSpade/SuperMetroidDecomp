@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -14,18 +15,18 @@ namespace SuperMetroid.Verification.Harness;
 internal static class BombExplosions
 {
     /// <summary>
-    /// Lays a normal bomb at the centre of <paramref name="block"/>, as a Samus with Bombs standing there pressing Shoot lays
+    /// Lays a normal bomb at the centre of <paramref name="block"/>, as a Samus with Bombs in her ball there pressing Shoot lays
     /// it, and runs the bombs' updates until its fuse burns out and its explosion's cross reacts with the block and the four
     /// around it.
     /// </summary>
     /// <exception cref="InvalidOperationException">The bomb was not laid.</exception>
     internal static void ExplodeBombAt(SamusTerrain terrain, Position16<RoomBlocks> block)
     {
-        SamusState samus = InstalledFixtures.CreateSamus();
+        SamusState samus = InstalledFixtures.CreateSamus().InPose(SamusPoseId.MorphBallGroundRightPose);
         samus.EquippedItems |= SamusEquipmentFlags.Bombs;
         samus.Position = FixedPosition<RoomPixels>.FromWhole(new(block.X * 16 + 8, block.Y * 16 + 8));
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), InstalledFixtures.SamusArtwork());
-        bombs.TryPlaceBomb(samus, GameplayAction.Shoot, GameplayAction.Shoot, out _);
+        _ = bombs.TickCooldownAndPlaceBombs(samus, GameplayAction.Shoot, GameplayAction.Shoot);
         if (bombs.Bombs.All(bomb => !bomb.IsActive))
             throw new InvalidOperationException($"No bomb was laid at block {block}.");
         // The update the fuse burns out on reacts with the cross; the fuse lasts its whole timer from the bomb's laying.

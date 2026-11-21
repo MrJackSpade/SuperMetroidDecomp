@@ -135,7 +135,12 @@ internal static class NativeSnapshotMotherBrainImport
         state.AttackPhase = MotherBrainNativeWords.AttackPhases.Decode(W(MotherBrainMemory.AttackPhase), "Mother Brain attack phase");
         // The cooldown's word holds the updates it lasts.
         state.AttackCooldown.SetCartridgeCount(W(MotherBrainMemory.BodyAttackCooldown) - 1);
-        global::SuperMetroid.Core.PrivateState.Set(state, "BombCounter", (int)(W(MotherBrainMemory.BombCounter)));
+        // Her bomb count is the bombs counted at their spawn and not yet deleted (#2553); the import places none of her
+        // bombs, so it imports only a snapshot whose native count is zero, and refuses any other.
+        int nativeBombs = W(MotherBrainMemory.BombCounter);
+        if (nativeBombs != state.BombCounter)
+            throw new InvalidDataException(
+                $"The native snapshot counts {nativeBombs} live Mother Brain bombs, but the import places none of her bombs.");
         state.BodyTargetXPosition = W(MotherBrainMemory.BodyFunctionTimer);
         state.HandBeamPhase = MotherBrainNativeWords.HandBeamPhases.Decode(W(MotherBrainMemory.DeathBeamAttackPhase), "Mother Brain hand-beam phase");
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromStoredParts(

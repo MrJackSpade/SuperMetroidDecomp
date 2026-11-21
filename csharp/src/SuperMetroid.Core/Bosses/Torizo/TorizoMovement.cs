@@ -104,20 +104,18 @@ internal sealed class TorizoMovement
         MoveBody(torizo, state, level);
     }
 
-    /// <summary>Moves Bomb or Golden Torizo's body by the motion its animation started, or holds it still with none (#1931).</summary>
+    /// <summary>Moves Bomb or Golden Torizo's body by the motion its animation started, or holds it still (#1931).</summary>
     internal void MoveBody(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
-        RoomLevelData level)
-    {
-        if (state.Motion is { } motion)
-            MotionSteps[motion](torizo, state, level);
-    }
+        RoomLevelData level) =>
+        MotionSteps[state.Motion](torizo, state, level);
 
-    /// <summary>How the body moves in each motion (#2553): a walk, gravity while standing, or a leap.</summary>
+    /// <summary>How the body moves in each motion (#2553): not at all while holding still, a walk, gravity while standing, or a leap.</summary>
     private IdentityTable<TorizoBodyMotion, Action<RoomEnemyPlace, TorizoEnemyState, RoomLevelData>> MotionSteps => field ??= new(
         new Dictionary<TorizoBodyMotion, Action<RoomEnemyPlace, TorizoEnemyState, RoomLevelData>>
         {
+            [TorizoBodyMotion.HoldingStill] = static (_, _, _) => { },
             [TorizoBodyMotion.Walking] = Walk,
             [TorizoBodyMotion.Standing] = ApplyTorizoGravity,
             [TorizoBodyMotion.Leaping] = Leap,

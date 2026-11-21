@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses;
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>
@@ -7,21 +6,24 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// </summary>
 public readonly record struct GunshipIdleBob
 {
-    /// <summary>The step <paramref name="step"/> holds, with its place in the cycle.</summary>
-    private GunshipIdleBob(ListStep<GunshipIdleBobDefinition> step) => Step = step;
+    /// <summary>The step at <paramref name="place"/> of the bob's authored cycle.</summary>
+    private GunshipIdleBob(int place) => Place = place;
 
-    /// <summary>The step's definition, with its place in the cycle.</summary>
-    private ListStep<GunshipIdleBobDefinition> Step { get; }
+    /// <summary>The step's place in the bob's authored cycle (<see cref="GunshipMotionDefinitions.IdleBobs"/>).</summary>
+    private int Place { get; }
+
+    /// <summary>The step's definition.</summary>
+    private GunshipIdleBobDefinition Step => GunshipMotionDefinitions.IdleBobs[Place];
 
     /// <summary>The cycle's first step.</summary>
-    public static GunshipIdleBob First => new(ListStep<GunshipIdleBobDefinition>.FirstOf(GunshipMotionDefinitions.IdleBobs));
+    public static GunshipIdleBob First => new(0);
 
     /// <summary>The updates until the ship takes the step after this one.</summary>
-    public int Timer => Step.Entry.Timer;
+    public int Timer => Step.Timer;
 
     /// <summary>How far this step moves the ship, in whole pixels, downward positive.</summary>
-    public int YDelta => Step.Entry.YDelta;
+    public int YDelta => Step.YDelta;
 
     /// <summary>The step after this one; the last is followed by the first.</summary>
-    public GunshipIdleBob Next => new(Step.NextInCycle);
+    public GunshipIdleBob Next => new((Place + 1) % GunshipMotionDefinitions.IdleBobs.Length);
 }

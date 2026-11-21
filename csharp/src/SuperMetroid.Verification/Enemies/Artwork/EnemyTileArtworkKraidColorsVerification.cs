@@ -67,7 +67,8 @@ internal static class EnemyTileArtworkKraidColorsVerification
         AssertTrue(!File.Exists(Path.Combine(installation.EnemyTileDirectory, KraidColorFormat.FileName)),
             "the installation holds none of Kraid's colours but his eyes'");
         KraidEyeColours installedEyes = installation.LoadEnemyTiles().KraidEyes;
-        AssertEqual(KraidPalettes.HealthBandCount, KraidPalettes.HealthSequence.Count, "his health colours are the hurt flash's and the eight health bands'");
+        AssertEqual(KraidPalettes.ColorCount(KraidPaletteSource.Health) / KraidPalettes.BandColors, KraidPalettes.HealthSequence.Count,
+            "his health colours are the hurt flash's and the eight health bands'");
         AssertEqual(0, GroupOf(KraidShades.HurtFlash), "the hurt flash's colours come first among his health colours");
         AssertTrue(installedEyes.Hurt.ToArray().SequenceEqual(eyes.Hurt.ToArray()), "Kraid's installed hurt flash eye colours are the eyes' colours of his health colours");
         foreach (KraidHealthBand band in KraidHealthBandDefinitions.HighestFirst)

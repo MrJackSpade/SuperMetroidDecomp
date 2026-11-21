@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses;
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>
@@ -7,18 +6,18 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// </summary>
 public readonly record struct GunshipLandingBrake
 {
-    /// <summary>The brake <paramref name="step"/> holds, with its place in the schedule.</summary>
-    private GunshipLandingBrake(ListStep<int> step) => Step = step;
+    /// <summary>The brake at <paramref name="place"/> of the brakes' authored schedule.</summary>
+    private GunshipLandingBrake(int place) => Place = place;
 
-    /// <summary>The brake's offset, with its place in the schedule.</summary>
-    private ListStep<int> Step { get; }
+    /// <summary>The brake's place in the brakes' authored schedule (<see cref="GunshipMotionDefinitions.LandingBrakeYDeltas"/>).</summary>
+    private int Place { get; }
 
     /// <summary>The schedule's first brake.</summary>
-    public static GunshipLandingBrake First => new(ListStep<int>.FirstOf(GunshipMotionDefinitions.LandingBrakeYDeltas));
+    public static GunshipLandingBrake First => new(0);
 
     /// <summary>How far this brake moves the ship and Samus, in whole pixels, downward positive.</summary>
-    public int YDelta => Step.Entry;
+    public int YDelta => GunshipMotionDefinitions.LandingBrakeYDeltas[Place];
 
     /// <summary>The brake after this one; none after the last.</summary>
-    public GunshipLandingBrake? Next => Step.Following is { } following ? new GunshipLandingBrake(following) : null;
+    public GunshipLandingBrake? Next => Place + 1 < GunshipMotionDefinitions.LandingBrakeYDeltas.Length ? new GunshipLandingBrake(Place + 1) : null;
 }

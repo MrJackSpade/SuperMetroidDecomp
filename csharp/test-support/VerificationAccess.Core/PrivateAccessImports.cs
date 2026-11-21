@@ -190,6 +190,7 @@ global using static SuperMetroid.AssetExtraction.Rooms.SkyTilemapPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusDeathPalettesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusVisorColorsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.ChargeFlareSpritesPrivateAccess;
+global using static SuperMetroid.AssetExtraction.Samus.ProjectileSpriteDefinitionsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.GrappleSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractorPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.GrappleTileAtlasPrivateAccess;

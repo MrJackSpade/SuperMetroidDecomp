@@ -108,6 +108,9 @@ public readonly struct ControllerBindings : IEquatable<ControllerBindings>
     /// </exception>
     public ControllerBindings AssignAndSwap(ControllerAction action, ControllerButton physicalButton)
     {
+        // Bindings with one action rebound and the other six kept.
+        static ControllerBindings Rebound(ControllerBindings bindings, ControllerAction rebound, ControllerButton value) =>
+            new(bindings.Buttons.SetItem(rebound, value));
         ControllerButton displaced = this[action];
         if (!IsAssignable(physicalButton))
         {
@@ -117,11 +120,11 @@ public readonly struct ControllerBindings : IEquatable<ControllerBindings>
 
         if (displaced == physicalButton)
             return this;
-        ControllerBindings result = With(action, physicalButton);
+        ControllerBindings result = Rebound(this, action, physicalButton);
         foreach (ControllerAction other in Actions)
         {
             if (other != action && this[other] == physicalButton)
-                return result.With(other, displaced);
+                return Rebound(result, other, displaced);
         }
 
         throw new InvalidOperationException(
@@ -184,11 +187,6 @@ public readonly struct ControllerBindings : IEquatable<ControllerBindings>
         return this;
     }
 
-    /// <summary>These bindings with <paramref name="action"/> bound to <paramref name="value"/> and the other six kept.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="action"/> is not a defined action.</exception>
-    public ControllerBindings With(ControllerAction action, ControllerButton value) => Buttons.ContainsKey(action)
-        ? new(Buttons.SetItem(action, value))
-        : throw new ArgumentOutOfRangeException(nameof(action), action, "Undefined controller action.");
 
     /// <summary>Whether both bind every action to the same button; two default values are alike.</summary>
     public bool Equals(ControllerBindings other)

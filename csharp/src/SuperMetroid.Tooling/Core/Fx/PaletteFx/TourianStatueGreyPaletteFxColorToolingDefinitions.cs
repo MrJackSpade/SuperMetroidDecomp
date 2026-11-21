@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 internal static class TourianStatueGreyPaletteFxColorToolingDefinitions
 {
     /// <summary>The Draygon, Kraid, Ridley, and Phantoon entries in cartridge order.</summary>
-    [AccessedByReflection]
     public static IReadOnlyList<TourianStatueGreyPaletteFxColorDefinition> All =>
         TourianStatueGreyPaletteFxColorToolingDefinitions.Definitions;
     /// <summary>$8D:F749: first of four consecutive statue palette-FX definitions.</summary>

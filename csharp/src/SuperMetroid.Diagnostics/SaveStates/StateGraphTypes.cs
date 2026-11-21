@@ -49,13 +49,9 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     /// <summary>Each name's type, built with <see cref="byName"/>.</summary>
     private Dictionary<string, Type>? typesByName;
 
-    /// <summary>The handling of values that are types.</summary>
-    private readonly TypeIdentityStateType typeIdentity;
-
     /// <summary>Starts a registry holding the scalars, strings and the framework's own stateless objects.</summary>
     internal StateGraphTypes()
     {
-        typeIdentity = new TypeIdentityStateType(this);
         RegisterScalars();
         Put(new StringStateType(this));
         Put(new PlainObjectStateType(typeof(object), this, static () => new object()));
@@ -64,6 +60,8 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
         probes.Add(new SingletonProbe(new SingletonStateType(this, "System.StringComparer.Ordinal", StringComparer.Ordinal)));
         probes.Add(new SingletonProbe(new SingletonStateType(this, "System.StringComparer.OrdinalIgnoreCase", StringComparer.OrdinalIgnoreCase)));
         probes.Add(new SingletonProbe(new SingletonStateType(this, "System.Collections.Generic.ReferenceEqualityComparer", ReferenceEqualityComparer.Instance)));
+        // A type value is the runtime's own specialization of Type, accepted by what it is rather than registered by type.
+        probes.Add(new TypedProbe<Type>(new TypeIdentityStateType(this)));
     }
 
     /// <summary>The catalogs registered: each type's name and its static read-only members holding objects.</summary>
@@ -100,8 +98,6 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
         Type type = value.GetType();
         if (byType.TryGetValue(type, out StateGraphType? known) || probed.TryGetValue(type, out known))
             return known;
-        if (value is Type)
-            return typeIdentity;
         StateGraphType? found = null;
         lock (gate)
         {

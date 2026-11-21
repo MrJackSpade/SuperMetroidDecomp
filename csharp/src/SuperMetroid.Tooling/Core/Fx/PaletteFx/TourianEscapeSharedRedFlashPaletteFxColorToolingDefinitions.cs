@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 internal static class TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions
 {
     /// <summary>The two entries into the shared red-flash loop.</summary>
-    [AccessedByReflection]
     public static IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxColorDefinition> All =>
         TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions.Definitions;
     /// <summary><c>PalFxDef_Tourian20</c> at <c>$8D:FFD1</c>.</summary>

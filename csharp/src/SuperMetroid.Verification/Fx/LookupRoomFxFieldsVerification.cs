@@ -83,7 +83,14 @@ internal static class LookupRoomFxFieldsVerification
         {
             ushort pointer = (ushort)value;
             if (identities.Contains(pointer) && !originalEnds.Contains(pointer))
-                AssertEqual(pointer, RoomFxDefinitions.RecordPointerOf(RoomFxDefinitions.RecordAt(pointer)), "FX selected identity");
+            {
+                // A selection the cartridge stores under two headers (the quicksand shafts', #2574) is one selection: its
+                // records are the first header's, so a later header's record names the first header's pointer.
+                RoomEffectDefinition record = RoomFxDefinitions.RecordAt(pointer);
+                ushort named = RoomFxDefinitions.RecordPointerOf(record);
+                AssertTrue(named == pointer || named < pointer && ReferenceEquals(RoomFxDefinitions.RecordAt(named), record),
+                    $"FX selected identity ${pointer:X4} names ${named:X4}");
+            }
             else
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomFxDefinitions.RecordAt(pointer),
                     "Unknown, interior or terminator FX identity rejects");

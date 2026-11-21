@@ -29,15 +29,23 @@ internal static class MotherBrainBabyArrival
     }
 
     /// <summary>
-    /// Places Mother Brain in <paramref name="enemies"/>' first two places as her room's population places her, her body and
-    /// then her brain, which joins the encounter her body begins, beside <paramref name="samus"/>.
+    /// Places Mother Brain in <paramref name="enemies"/>' first two places as her room's population places her: the
+    /// population load sets up her room's first two entries, her body and then her brain, which joins the encounter her body
+    /// begins, each with her definitions and her entries' placement and hit areas, beside <paramref name="samus"/> (#2554).
     /// </summary>
     /// <returns>The encounter her body began.</returns>
     internal static MotherBrainEnemyState PlaceMotherBrain(World.RoomEnemySystem enemies, SamusState samus)
     {
-        IReadOnlyList<RoomEnemyPlace> places = Ensure.NotNull(enemies).Places.InUpdateOrder;
-        MotherBrainEnemyState state = places[0].PlaceAs<MotherBrainBodyEntity>(EnemyDefinitionId.MotherBrainBody, EnemySpawnSettings.None, samus).Encounter;
-        places[1].PlaceAs<MotherBrainHeadEntity>(EnemyDefinitionId.MotherBrainHead, EnemySpawnSettings.None, samus);
+        Ensure.NotNull(enemies);
+        RoomEnemyPopulationDefinition room = World.RoomStates.RoomEnemyPopulationDefinitions.MotherBrainBeforeDefeat;
+        RoomEnemyPlacement[] bodyAndBrain = room.Placements.Span[..2].ToArray();
+        enemies.PopulationLoader.LoadPopulation(enemies.Species, World.CompiledRoomEnemyDefinitions.Instance,
+            new PlacedRoomEnemyPopulationDefinition(room.Name, bodyAndBrain, deathQuota: 0),
+            new EnemyPopulationSurroundings(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Ensure.NotNull(samus), Input.GameplayAction.None,
+                Position16<RoomPixels>.Zero));
+        IReadOnlyList<RoomEnemyPlace> places = enemies.Places.InUpdateOrder;
+        MotherBrainEnemyState state = places[0].EntityOf<MotherBrainBodyEntity>().Encounter;
+        _ = places[1].EntityOf<MotherBrainHeadEntity>();
         return state;
     }
 

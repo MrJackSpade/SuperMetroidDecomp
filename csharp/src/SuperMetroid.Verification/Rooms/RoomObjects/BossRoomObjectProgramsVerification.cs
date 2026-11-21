@@ -116,7 +116,7 @@ internal static class BossRoomObjectProgramsVerification
         step = default;
         if (InstructionAt<RoomObjectInstruction>(cartridge, cursor) != RoomObjectInstruction.QueueSoundLibrary2Maximum6)
             return false;
-        SoundEffectId sound = SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2));
+        SoundEffectId sound = SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2));
         AssertEqual(expected, sound, $"{family} crumble sound");
         step = new NativeTerrainChanges.NativeStep(Offset16<RoomBlocks>.Zero, sound, Begins: false, Length: 3);
         return true;

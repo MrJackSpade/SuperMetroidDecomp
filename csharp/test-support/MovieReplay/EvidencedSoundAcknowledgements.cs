@@ -95,9 +95,9 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcceptanceTiming<So
             ? SoundAcknowledgement<SoundEffectId>.Of(null)
             : SoundAcknowledgement<SoundEffectId>.Of(new RequestedSound<SoundEffectId>(library switch
             {
-                SoundEffectLibrary.Samus => SamusSound.Silence,
-                SoundEffectLibrary.Enemies => EnemySound.Silence,
-                SoundEffectLibrary.Room => RoomSound.Silence,
+                SoundEffectLibrary.Samus => SamusSoundStop.Any,
+                SoundEffectLibrary.Enemies => EnemySoundStop.Any,
+                SoundEffectLibrary.Room => RoomSoundStop.Any,
                 _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound-effect library."),
             }));
 
@@ -113,7 +113,7 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcceptanceTiming<So
         {
             states[library] = nativeMemory[SoundStateLib1 + library];
             currents[library] = SoundEffectCommands.DecodeOptional(
-                SoundLibraryNumbers.FromDriverIndex(library), nativeMemory[CurrentSoundLib1 + library]);
+                SoundDriverLibraryPlaces.At(library), nativeMemory[CurrentSoundLib1 + library]);
         }
         captured = true;
     }

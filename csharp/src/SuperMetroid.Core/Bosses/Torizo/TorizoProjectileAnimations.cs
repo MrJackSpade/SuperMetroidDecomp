@@ -130,7 +130,7 @@ internal static class TorizoProjectileAnimations
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
             Cue(new TorizoProjectileCue.Signal(K.TurnHarmful)),
             Cue(new TorizoProjectileCue.Signal(K.PersistOnContactAndDrawInFront)),
-            Cue(new TorizoProjectileCue.PlaySound(Sound: RoomSound.ProjectileImpact, Priority: SoundRequestPriority.Normal)),
+            Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
             Show(EnemyProjectileFrameId.TorizoChozoOrbFlameBurst, 4),
             Show(EnemyProjectileFrameId.TorizoChozoOrbFlameDome, 5),
             Show(EnemyProjectileFrameId.TorizoChozoOrbFlameColumnShort, 6),
@@ -210,7 +210,7 @@ internal static class TorizoProjectileAnimations
         ],
         [P.EyeBeamFloorFlames] =
         [
-            Cue(new TorizoProjectileCue.PlaySound(Sound: RoomSound.ProjectileImpact, Priority: SoundRequestPriority.Normal)),
+            Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
             Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlameBurst, 4),
             Show(EnemyProjectileFrameId.GoldenTorizoEyeBeamFlameDome, 5),
             Cue(new TorizoProjectileCue.Signal(K.TurnHarmful)),

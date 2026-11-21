@@ -377,8 +377,8 @@ public sealed class SamusLiquidPhysicsState
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
             QueueSound(SamusPoseMetadata.IsScrewAttackPose(previousPose)
-                        ? SamusSound.ScrewAttackEnd
-                        : SamusSound.SpinJumpEnd,
+                        ? SamusSoundStop.ScrewAttack
+                        : SamusSoundStop.SpinJump,
                 priority: SoundRequestPriority.Normal);
         }
 

@@ -244,7 +244,7 @@ internal static class AudioVerification
             cancellation.AdvanceFrame(default);
         AssertEqual(SoundEffectLibraries.Count, cancelWrites.Count,
             "sound cancellation writes every native SFX library");
-        AssertTrue(cancelWrites.Contains(new AudioRequest.RequestSound(SamusSound.Silence)),
+        AssertTrue(cancelWrites.Contains(new AudioRequest.RequestSound(SamusSoundStop.Any)),
             "sound cancellation queues Samus's library's silence");
 
         // Library numbers are an exclusive cartridge domain known only to the import codec (#1553): only libraries one
@@ -264,7 +264,7 @@ internal static class AudioVerification
         // carry numbers, so it asserts the decode boundary instead.)
         AssertTrue(SoundEffectCommands.Decode(SoundEffectLibrary.Samus, 0x02) != SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, 0x02),
             "library-relative equal numbers decode to distinct sounds");
-        AssertEqual<SoundEffectId>(SamusSound.Silence, SoundEffectCommands.Decode(SoundEffectLibrary.Samus, 0x02),
+        AssertEqual<SoundEffectId>(SamusSoundStop.Any, SoundEffectCommands.Decode(SoundEffectLibrary.Samus, 0x02),
             "library one's request two is its silence");
         AssertEqual<SoundEffectId>(EnemySound.SmallEnergyPickup, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, 0x01),
             "library two's request one is the small energy pickup");

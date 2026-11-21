@@ -64,7 +64,7 @@ internal sealed class MotherBrainRainbowAndDeath
         foreach (var explosion in step.DeathExplosions)
         {
             SpawnMotherBrainDeathExplosion(state, explosion);
-            _motherBrainEncounter.RequestCueSound(explosion.SoundEffect);
+            _motherBrainEncounter.RequestCueSound(explosion.Sound);
         }
         if (step.Starts(MotherBrainStepEffect.BrainDetached))
         {
@@ -110,8 +110,8 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.EscapeDoorExplosion is { } doorDust)
         {
             _projectiles.SpawnDustOrExplosion(doorDust.Position, doorDust.Animation);
-            // The door explosion's sound competes at low priority.
-            _audio.QueueEnemySound(doorDust.SoundEffect, priority: SoundRequestPriority.Low);
+            // The door explosion's sound competes at the low priority its request carries.
+            _audio.QueueEnemySound(doorDust.Sound.SoundEffect, priority: doorDust.Sound.Priority);
         }
         if (step.EscapeDoorObject is { } doorObject)
             _access.RequestMotherBrainObject(doorObject.Block, doorObject.RoomObject);
@@ -208,7 +208,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 ? MotherBrainSoundDefinitions.StartRainbowDrain
                 : MotherBrainSoundDefinitions.StopRainbowDrain);
         if (current.Starts(MotherBrainStepEffect.ChargeSound) || current.Starts(MotherBrainStepEffect.FinalBeamFired))
-            _motherBrainEncounter.RequestBodySound(EnemySound.Silence);
+            _motherBrainEncounter.RequestBodySound(EnemySoundStop.Any);
         if (current.Explosion is not null)
             _motherBrainEncounter.RequestBodySound(EnemySound.SmallExplosion);
 

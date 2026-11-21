@@ -63,7 +63,7 @@ internal static class RoomFxBlockAnimationMechanicsDefinitionsVerification
             var guarded = NewRoomFxBlockAnimationMechanicsForbiddenBus(bus, definition, () => presentationReadCount++);
             var state = BlockAnimationLoops.Start(definition);
 
-            int steps = definition.Frames.Sum(frame => frame.Duration) + 1;
+            int steps = BlockAnimationLoopPasses.Of(definition).Sum() + 1;
             int observedFrames = 0;
             for (int step = 0; step < steps; step++)
             {
@@ -131,7 +131,7 @@ internal static class RoomFxBlockAnimationMechanicsDefinitionsVerification
                 int frame = index % definition.Frames.Count;
                 expected.Add(new RoomFxBlockAnimationMechanicsDefinitionsExpected(update,
                     AnimatedTileImageSources.OfCursor(definition, definition.FrameInstructionPointer(frame))));
-                update += definition.Frames[frame].Duration;
+                update += BlockAnimationLoopPasses.Of(definition)[frame];
             }
 
             var state = BlockAnimationLoops.Start(definition);

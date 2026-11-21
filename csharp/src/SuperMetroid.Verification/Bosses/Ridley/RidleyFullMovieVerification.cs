@@ -162,11 +162,11 @@ internal static class RidleyFullMovieVerification
         AssertTrue(samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked, "native grab installs command-zero alpha/beta pair");
         var bombs = CreateBombFixture();
         bombs.SetSharedCooldown(10);
-        bombs.StepFrame(new SamusTerrain { Level = runtime.Room.LoadedLevelData, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0, explosion: PowerBombExplosionStep.Skip);
+        bombs.StepFrame(new SamusTerrain { Level = runtime.Room.LoadedLevelData, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0, explosion: PowerBombExplosionStep.Advance);
         AssertEqual(10, bombs.CooldownTimer, "native locked alpha preserves cooldown");
         NorfairRidleyDeath.ReleaseNorfairRidleyGrab(state, samus);
         AssertTrue(!samus.Control.InputLocked && samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked, "native release restores ordinary control");
-        bombs.StepFrame(new SamusTerrain { Level = runtime.Room.LoadedLevelData, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0, explosion: PowerBombExplosionStep.Skip);
+        bombs.StepFrame(new SamusTerrain { Level = runtime.Room.LoadedLevelData, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0, explosion: PowerBombExplosionStep.Advance);
         AssertEqual(9, bombs.CooldownTimer, "native unlocked alpha resumes cooldown");
         // Native source8395: a descending lunge grabs standing Samus. Ground attacks
         // have their own reversal; this entry must negate after its lunge acceleration.
@@ -468,7 +468,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
         AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
         AssertTrue(dust.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.SmallDustCloud }, "native impact selects variant nine");
-        AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == EnemySound.Quake && request.Priority.Requests == 6), "native impact queues the quake sound");
+        AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == EnemySound.BigExplosion && request.Priority.Requests == 6), "native impact queues the quake sound");
         Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
     }
 

@@ -68,7 +68,7 @@ internal static class LookupDownwardGateDrawsVerification
                 int length = count & 0x7fff;
                 if (field == 0)
                 {
-                    AssertEqual((count & 0x8000) != 0, shape.Column, "Gate column draws down its column");
+                    AssertEqual((count & 0x8000) != 0, shape.Part == DownwardGatePart.Column, "Gate column draws down its column");
                     AssertRunHeader(count, dto.Runs.Span[run], "Gate DTO count/direction");
                     AssertRunHeader(count, exported[index].Runs.Span[run], "Gate export count/direction");
                     AssertEqual(length, dto.Runs.Span[run].Count, "Gate DTO width");

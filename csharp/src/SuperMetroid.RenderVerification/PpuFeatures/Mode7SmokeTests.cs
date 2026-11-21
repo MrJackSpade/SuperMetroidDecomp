@@ -42,7 +42,7 @@ internal static class Mode7SmokeTests
         {
             var registers = new FloorView(angle, scale, new Offset16<FloorPixels>(128, 112), new Offset16<FloorPixels>(offset, offset), overflow);
             var frame = new DisplayPacket(0,
-                new FloorScene(memory, new PlacedFloor(registers, map), DisplayBrightness.Combine(DisplayBrightness.StepsAbove(13), DisplayBrightness.StepsAbove(11))));
+                new FloorScene(memory, new PlacedFloor(registers, map), DisplayBrightness.Combine(DisplayBrightness.Black.Brighter(13), DisplayBrightness.Black.Brighter(11))));
             Check(frame);
             Check(new DisplayPacket(0, new LayeredScene(new FramePaint(memory.Backdrop),
                 new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws), new TurningFloorLayer(registers, map),
@@ -62,7 +62,7 @@ internal static class Mode7SmokeTests
                 new FloorView(0.27, scale, new(128, 112), new(-17, 211), FloorOverflowMode.Wrap),
                 map, hud, band);
             Check(new DisplayPacket(0,
-                new LayeredScene(gameplayMemory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, DisplayBrightness.StepsAbove(13))));
+                new LayeredScene(gameplayMemory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, DisplayBrightness.Black.Brighter(13))));
         }
         // A Ceres room's floor with its floor animation frames drawn over it (#1467), and the fixture's floor, with outside
         // pixels transparent, as Ceres rooms show them, or repeating.
@@ -80,7 +80,7 @@ internal static class Mode7SmokeTests
                 new FloorView(-0.27, scale, new(128, 112), new(-17, 211), fill ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
                 shown, hud, null);
             Check(new DisplayPacket(0,
-                new LayeredScene(gameplayMemory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, DisplayBrightness.StepsAbove(13))));
+                new LayeredScene(gameplayMemory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, DisplayBrightness.Black.Brighter(13))));
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact Mode 7 comparisons passed.");
 

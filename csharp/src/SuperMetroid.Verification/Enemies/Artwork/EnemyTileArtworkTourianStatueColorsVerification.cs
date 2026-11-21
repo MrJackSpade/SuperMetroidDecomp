@@ -40,7 +40,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         for (int color = 0; color < TourianStatueColorFormat.StatueColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueColors + color * sizeof(ushort),
                 colors.ResolveStatue(color).ToWord());
-        for (int row = 0; row < TourianStatueColorDefinitions.EyeGlowCount; row++)
+        for (int row = 0; row < TourianStatueColorDefinitions.EyeGlows.Count; row++)
         for (int color = 0; color < TourianStatueColorDefinitions.EyeColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueEyeColors +
                 (row * TourianStatueColorDefinitions.EyeColorCount + color) * sizeof(ushort),

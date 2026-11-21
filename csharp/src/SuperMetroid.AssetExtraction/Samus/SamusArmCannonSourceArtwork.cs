@@ -39,20 +39,6 @@ public sealed class SamusArmCannonSourceArtwork
     /// <summary>Where each pose draws the cover, as its descriptor reads it over the whole drawing window.</summary>
     public InstalledSamusArmCannonArtwork Gameplay => Descriptors.Gameplay;
 
-    /// <summary>SHA-256 of selected cannon placement, cover appearances and tile selectors; the characters are import data (#1636).</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-v6", content =>
-    {
-        foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("pose descriptor", PoseDescriptor(pose));
-        Span<byte> selectedDrawing = stackalloc byte[SamusArmCannonArtworkFormat.DrawingDataByteCount];
-        for (int index = 0; index < selectedDrawing.Length; index++)
-            selectedDrawing[index] = ReadDrawingByte(index);
-        content.Append("drawing data", selectedDrawing);
-        foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
-            CoverAppearance(direction).AppendIdentity(content);
-        foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
-            content.AppendName("cover orientation", SamusArmCannonCoverOrientationKeys.Installed.Of(orientations[direction]));
-    });
-
     /// <summary>Validated document tables: the drawing descriptors, each aim's cover appearance and its cover orientation.</summary>
     internal sealed record DescriptorTables(SamusArmCannonDescriptors Descriptors,
         IReadOnlyDictionary<SamusProjectileDirection, SpritePart> Appearances,
@@ -98,15 +84,6 @@ public sealed class SamusArmCannonSourceArtwork
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, Options);
         return json;
     }
-
-    /// <summary>Gets where <paramref name="pose"/>'s extracted drawing descriptor begins within the drawing data.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The pose has no record in the pose tables.</exception>
-    private int PoseDescriptor(SamusPoseId pose) => Descriptors.PoseDescriptor(pose);
-
-    /// <summary>The extracted descriptor byte <paramref name="offset"/> bytes into the drawing data.</summary>
-    /// <param name="offset">Byte offset into the drawing data; coordinate bytes are signed pixel offsets.</param>
-    /// <exception cref="InvalidDataException">The offset lies outside the extracted drawing window.</exception>
-    private byte ReadDrawingByte(int offset) => Descriptors.ReadDrawingByte(offset);
 
     /// <summary>Gets the installed cover's character, palette, depth, and mirroring for aim <paramref name="direction"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is no aim.</exception>

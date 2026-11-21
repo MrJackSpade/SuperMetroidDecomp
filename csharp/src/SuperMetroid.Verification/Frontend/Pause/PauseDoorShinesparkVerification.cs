@@ -72,7 +72,7 @@ internal static class PauseDoorShinesparkVerification
             if (scenario.Brightening)
                 game.Session.Enter(PauseStep.BrighteningGameplay);
             // The pause's fade keeps its step delay with no update left to wait, so the next update steps.
-            game.Session.screenFade.Show(DisplayBrightness.StepsAbove(scenario.Brightening ? (scenario.Terminal ? 14 : 5) : (scenario.Terminal ? 1 : 15)));
+            game.Session.screenFade.Show(DisplayBrightness.Black.Brighter(scenario.Brightening ? (scenario.Terminal ? 14 : 5) : (scenario.Terminal ? 1 : 15)));
             game.Session.screenFade.SetCadence(SuperMetroid.Core.Frontend.Pause.PauseFadeTiming.WaitBeforeEachStep, 0);
             // Put the leading edge immediately before the door for the next real mover call.
             samus.Position = samus.Position.WithWholeX((ushort)(160 - samus.Kinematics.Radius.X - 1));

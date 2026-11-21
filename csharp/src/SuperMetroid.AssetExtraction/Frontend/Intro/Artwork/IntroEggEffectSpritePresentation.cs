@@ -18,9 +18,6 @@ public sealed class IntroEggEffectSpritePresentation : ICinematicSpriteFrames
     /// <inheritdoc/>
     IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
-    /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroEggEffectSpritePresentation), frames);
-
     /// <summary>Retains the validated eleven-frame set after authoring arrays have been copied.</summary>
     private IntroEggEffectSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;

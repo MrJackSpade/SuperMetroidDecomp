@@ -97,7 +97,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
         SamusState doorSamus = live.Runtime.Player.Samus;
         live.Runtime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, live.Room, doorSamus);
         // The door queues Samus's door-entry sound stop, then queues
-        // the enemy library's silence so movement/charge loops terminate rather than leaking
+        // the enemy library's stop of any sound so movement/charge loops terminate rather than leaking
         // into the next room.
         SamusMovementType doorMovementType = SamusPoseMetadata.ReadMovementType(doorSamus);
         // A live power-bomb explosion turns all three sound requests away, so no sound is left waiting for the door to
@@ -105,17 +105,17 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
         if (doorMovementType is
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
-            session.audio.QueueSound(SamusSound.SpinJumpEnd,
+            session.audio.QueueSound(SamusSoundStop.SpinJump,
                 priority: SoundRequestPriority.Essential);
         }
         // The door's spin-sound check tests whether Shoot is held.
         else if (!live.Runtime.PlayerActions.Current.HasAny(GameplayAction.Shoot) &&
             !live.Runtime.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
         {
-            session.audio.QueueSound(SamusSound.Silence,
+            session.audio.QueueSound(SamusSoundStop.Any,
                 priority: SoundRequestPriority.Essential);
         }
-        session.audio.QueueSound(EnemySound.Silence,
+        session.audio.QueueSound(EnemySoundStop.Any,
             priority: SoundRequestPriority.Essential);
         // The door's music step follows both entry cancellations, not precedes them. Entering an ordinary door begins the
         // transition in the same update, and the beginning enters the room loading before returning, so the beginning never

@@ -34,7 +34,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         Suite(nameof(VerifyBand), () => VerifyBand(PhantoonSourceDefinitions.FadeOutColors,
             PhantoonColorFormat.FadeOutCount, native.ResolveFadeOut, "fade-out"));
         Suite(nameof(VerifyBand), () => VerifyBand(PhantoonSourceDefinitions.PowerOnColors,
-            PhantoonSourceDefinitions.PowerOnColourCount, color => native.ResolvePowerOnAtNative(color), "power-on"));
+            SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork.PhantoonColorCatalogAccess.PowerOnNativeColourCount, color => native.ResolvePowerOnAtNative(color), "power-on"));
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorFormat.HealthBandColorCount; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(rom,
@@ -134,7 +134,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             "the completed power shows the powered colours on the room's effects too");
         SheetShade powered = PhantoonSheetShades.PowerOn(stock.Bosses).Single();
         AssertEqual(PhantoonShades.Powered, powered.Shade, "the import pre-colours the room's powered colours");
-        for (int color = 0; color < PhantoonSourceDefinitions.PowerOnColourCount; color++)
+        for (int color = 0; color < SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork.PhantoonColorCatalogAccess.PowerOnNativeColourCount; color++)
             AssertEqual(colors.ResolvePowerOnAtNative(color),
                 powered.InkColours[PhantoonColorDestinations.PowerOnDestination + color],
                 $"Phantoon live ship power-on target {color}");

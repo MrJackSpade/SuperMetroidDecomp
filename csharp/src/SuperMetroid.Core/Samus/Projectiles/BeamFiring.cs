@@ -195,7 +195,7 @@ internal sealed class BeamFiring
         if (!_charge.PreviousCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
             return null;
         samus.ChargingSound.Cancel();
-        return new BeamFiringResult(SamusSound.Silence, SoundRequestPriority.Essential);
+        return new BeamFiringResult(SamusSoundStop.Any, SoundRequestPriority.Essential);
     }
 
     /// <summary>Attempts allocation and muzzle setup for an ordinary or charged beam shot.</summary>

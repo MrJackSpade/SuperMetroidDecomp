@@ -15,7 +15,10 @@ internal sealed class CinematicAnimations<TAnimation, TFrame, TCue>
     where TFrame : struct
     where TCue : notnull
 {
-    /// <summary>The animation each actor of the family starts, by the animation it is named for.</summary>
+    /// <summary>
+    /// The animation each actor of the family starts, by the animation it is named for, which <see cref="StartingWith"/>
+    /// reads.
+    /// </summary>
     private readonly Dictionary<TAnimation, Animation<TAnimation>> starts;
 
     /// <summary>
@@ -58,9 +61,6 @@ internal sealed class CinematicAnimations<TAnimation, TFrame, TCue>
 
     /// <summary>The segments the family's animations play.</summary>
     internal AnimationSegments<TAnimation, TFrame, TCue> Segments { get; }
-
-    /// <summary>The animations an actor of the family can start, each by the animation it is named for.</summary>
-    internal IReadOnlyCollection<TAnimation> Starts => starts.Keys;
 
     /// <summary>The animation an actor starting <paramref name="animation"/> plays.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No actor of the family starts <paramref name="animation"/>.</exception>

@@ -141,7 +141,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
                 // silences the room's sounds and holds the black screen while it waits out one update.
                 if (!fade.IsBlack)
                     throw new InvalidOperationException("Game-over menu must begin from a black screen.");
-                audio.QueueSound(RoomSound.Silence, priority: GameOverMenuDefinitions.SoundPriority);
+                audio.QueueSound(RoomSoundStop.Any, priority: GameOverMenuDefinitions.SoundPriority);
                 IsWaitingOutDisplayFrame = true;
                 break;
 

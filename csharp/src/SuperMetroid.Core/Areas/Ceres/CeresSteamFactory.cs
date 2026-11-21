@@ -13,8 +13,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 [RoomLifetime]
 internal sealed class CeresSteamFactory(CeresSteamBehavior vents, CeresSteamVentMotions motions) : IEnemySpawnFactory<CeresSteamSpawnSettings>
 {
-    /// <summary>The room's owner of the steam vents.</summary>
-    internal CeresSteamBehavior Vents { get; } = Ensure.NotNull(vents);
 
     /// <summary>The room's owner of the steam vents.</summary>
     private readonly CeresSteamBehavior _vents = Ensure.NotNull(vents);

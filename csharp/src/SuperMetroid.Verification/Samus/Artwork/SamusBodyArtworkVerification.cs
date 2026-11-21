@@ -379,18 +379,24 @@ internal static class SamusBodyArtworkVerification
         SamusBodySources body)
     {
         SamusArmCannonSourceArtwork armCannon = body.ArmCannon;
+        // The pose records and drawing bytes are the import's document, which the stock cannon is composed from (#2604).
+        SamusArmCannonArtworkDocument cannonDocument = SuperMetroid.Tooling.RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(
+            File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.SamusBodyDirectoryName),
+                SamusArmCannonArtworkFormat.ArtworkFileName)),
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new SamusPoseIdJsonConverter(),
+                new SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionJsonConverter(), new SamusArmCannonCoverOrientationJsonConverter() } });
         for (int pose = 0; pose < SamusBodyTableDecoding.PoseCount; pose++)
         {
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
             int source = SamusSourceDefinitions.PoseDrawingDataPointers.Value + pose * 2;
             ushort native = bus.ReadCartridgeWord(source);
-            AssertEqual(native, armCannon.PoseDrawingData(SamusPoseNumbering.FromNumber(pose)),
+            AssertEqual(native, cannonDocument.PoseDrawingData(SamusPoseNumbering.FromNumber(pose)),
                 $"arm-cannon pose {pose:X2} drawing pointer");
         }
         for (int offset = 0; offset < SamusArmCannonArtworkFormat.DrawingDataByteCount; offset++)
             AssertEqual(bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
                     (SamusSourceDefinitions.ArmCannonDrawingData + offset)),
-                armCannon.ReadDrawingByteAt((ushort)(SamusSourceDefinitions.ArmCannonDrawingData + offset)),
+                cannonDocument.ReadDrawingByteAt((ushort)(SamusSourceDefinitions.ArmCannonDrawingData + offset)),
                 $"arm-cannon drawing byte {offset:X3}");
         for (int direction = 0; direction < SamusProjectileDirectionCodec.Count; direction++)
         {

@@ -56,7 +56,7 @@ internal static class SpcDriverMemoryVerification
             AudioRequest.ForSound(SoundEffectLibrary.Enemies, EnemySound.SmallEnergyPickup), "a sound requests that sound of its library");
         AssertEqual(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Enemies),
             AudioRequest.ForSound(SoundEffectLibrary.Enemies, null), "no sound withdraws the library's request");
-        AssertThrows<ArgumentException>(() => AudioRequest.ForSound(SoundEffectLibrary.Enemies, SamusSound.Silence),
+        AssertThrows<ArgumentException>(() => AudioRequest.ForSound(SoundEffectLibrary.Enemies, SamusSoundStop.Any),
             "another library's sound is refused");
     }
 

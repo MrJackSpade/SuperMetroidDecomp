@@ -68,8 +68,6 @@ internal static class DownwardGateObjectDraws
     /// <param name="Gate">The draw.</param>
     internal readonly record struct Draw(DownwardGatePart Part, DownwardGateDraw Gate)
     {
-        /// <summary>Whether the draw is the gate column's.</summary>
-        internal bool Column => Part == DownwardGatePart.Column;
 
         /// <summary>
         /// The blocks the draw changes and how each collides: the column's shootable top and filled rows, or the trigger's

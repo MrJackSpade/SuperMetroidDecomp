@@ -199,7 +199,7 @@ internal static class TorizoProjectileAnimationsVerification
         if (SoundCommands.TryGetValue(instruction, out var sound))
         {
             var playSound = AssertIs<TorizoProjectileCue.PlaySound>(cue, $"{at}: cue");
-            AssertEqual(SoundEffectCommands.Decode(sound.Library, operands[0]), playSound.Sound, $"{at}: sound");
+            AssertEqual(SoundEffectCommands.DecodeCartridge(sound.Library, operands[0]), playSound.Sound, $"{at}: sound");
             AssertEqual(sound.Priority, playSound.Priority, $"{at}: sound queue limit");
             return;
         }

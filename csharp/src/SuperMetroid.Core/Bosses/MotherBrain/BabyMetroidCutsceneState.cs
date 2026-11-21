@@ -745,7 +745,7 @@ public sealed class BabyMetroidCutsceneState
         return new DustExplosionRequest(
             Position: Position.Whole + scatter,
             Animation: DustExplosionAnimation.SmallExplosion,
-            SoundEffect: MotherBrainSoundDefinitions.Explosion);
+            Sound: MotherBrainSoundDefinitions.Explosion);
     }
 
 

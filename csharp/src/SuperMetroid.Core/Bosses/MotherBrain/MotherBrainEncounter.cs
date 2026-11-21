@@ -47,14 +47,11 @@ internal sealed class MotherBrainEncounter
     internal void RequestRainbowBeamSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
-    /// <summary>
-    /// Queues a sound a Mother Brain animation cue or explosion makes. Mother Brain's explosion competes at low priority;
-    /// every other cue sound at normal priority.
-    /// </summary>
-    internal void RequestCueSound(SoundEffectId sound) =>
-        _audio.QueueEnemySound(
-            sound,
-            MotherBrainSoundDefinitions.CueSoundPriorities.TryGetValue(sound, out SoundRequestPriority priority) ? priority : SoundRequestPriority.Normal);
+    /// <summary>Queues a sound a Mother Brain animation cue makes, at normal priority.</summary>
+    internal void RequestCueSound(SoundEffectId sound) => _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
+
+    /// <summary>Queues a sound request that carries its own priority, as an explosion's does.</summary>
+    internal void RequestCueSound(SoundRequest request) => _audio.QueueEnemySound(request.SoundEffect, request.Priority);
 
     /// <summary>
     /// Queues one music change. Mother Brain's changes come in sequences (stop, load a data set, select a track), each

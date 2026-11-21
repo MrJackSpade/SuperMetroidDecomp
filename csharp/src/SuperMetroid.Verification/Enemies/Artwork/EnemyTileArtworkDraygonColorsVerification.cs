@@ -43,7 +43,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             DraygonColorDefinitions.SpriteCount, native.ResolveSprite, "sprite"));
         Suite(nameof(VerifyBand), () => VerifyBand(DraygonSourceDefinitions.WhiteFlashColors,
             DraygonColorDefinitions.WhiteFlashCount, native.ResolveWhiteFlash, "white flash"));
-        for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
+        for (int band = 0; band < SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Count; band++)
         for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     DraygonSourceDefinitions.HealthBandColors +
@@ -61,12 +61,12 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         // Invoke the actual body initializer and hurt program with the visual source
         // windows forbidden. Only the resource may supply colors during installed play.
         CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
-            address => address is >= DraygonSourceDefinitions.HealthBandColors and
-                    < (DraygonSourceDefinitions.HealthBandColors +
-                        DraygonColorDefinitions.HealthBandCount *
+            address => (address >= DraygonSourceDefinitions.HealthBandColors &&
+                    address < DraygonSourceDefinitions.HealthBandColors +
+                        SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Count *
                         DraygonColorDefinitions.HealthBandColorCount * sizeof(ushort))
-                    or >= DraygonSourceDefinitions.SpriteColors and
-                    < (DraygonSourceDefinitions.WhiteFlashColors +
+                || (address >= DraygonSourceDefinitions.SpriteColors &&
+                    address < DraygonSourceDefinitions.WhiteFlashColors +
                         DraygonColorDefinitions.WhiteFlashCount * sizeof(ushort)),
             address => $"Draygon accessed migrated palette ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
@@ -143,7 +143,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         // His white flash covers his band while it shows (#1597), so the bands are checked once the flash has ended.
         body.HurtFlash.End();
         enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
-        for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
+        for (int band = 0; band < SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Count; band++)
         {
             state.HealthBand = DraygonHealthBandDefinitions.HighestFirst[band];
             DraygonCombat.ShowDraygonHealthBand(state);

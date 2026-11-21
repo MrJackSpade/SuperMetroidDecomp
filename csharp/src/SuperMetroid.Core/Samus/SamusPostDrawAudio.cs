@@ -23,14 +23,14 @@ public static class SamusPostDrawAudio
             !speed.SpeedBoostCounter.IsAtFullStage)
         {
             speed.EchoSoundPlaying = false;
-            samus.AudioRequests.QueueSound(RoomSound.SpeedBoosterOrElevatorStop, priority: SoundRequestPriority.Essential);
+            samus.AudioRequests.QueueSound(RoomSoundStop.SpeedBoosterOrElevator, priority: SoundRequestPriority.Essential);
         }
         if (previousMovement is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) ||
             SamusPoseMetadata.ReadMovementType(samus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
             return;
 
-        samus.AudioRequests.QueueSound(SamusSound.SpinJumpEnd, priority: SoundRequestPriority.Essential);
-        // Resume on the NEXT post-draw pass, after the spin-end sound, while Shoot is still
+        samus.AudioRequests.QueueSound(SamusSoundStop.SpinJump, priority: SoundRequestPriority.Essential);
+        // Resume on the NEXT post-draw pass, after the spin jump's stop, while Shoot is still
         // held.
         if (samus.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter) &&
             (controllerInput & GameplayAction.Shoot) != GameplayAction.None)

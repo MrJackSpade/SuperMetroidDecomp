@@ -64,7 +64,7 @@ internal static class RoomObjectProgramsVerification
         for (int index = 0; index < NoobTubeObjectDefinitions.Cracking.Count; index++, cursor += 4)
             AssertShown(cursor, NoobTubeObjectDefinitions.Cracking[index], $"cracking image {index}");
         AssertEqual(RoomObjectInstruction.QueueSoundLibrary2Maximum6, At(cursor), "the tube shatters with its sound");
-        AssertEqual(NoobTubeObjectDefinitions.BreakSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "tube break sound");
+        AssertEqual(NoobTubeObjectDefinitions.BreakSound, SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "tube break sound");
         AssertEqual(SoundRequestPriority.Normal, NoobTubeObjectDefinitions.BreakSoundPriority, "tube break sound priority");
         AssertEqual(RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles, At(cursor + 3), "the tube throws its shards and bubbles");
         AssertEqual(RoomObjectInstruction.TriggerNoobTubeEarthquake, At(cursor + 5), "the tube shakes the room");
@@ -185,7 +185,7 @@ internal static class RoomObjectProgramsVerification
                 or RoomObjectInstruction.QueueSoundLibrary2Maximum6)
             {
                 AssertEqual<SoundEffectId?>(null, sound, $"{at}: one sound per image");
-                sound = SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2));
+                sound = SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2));
                 priority = instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct ? SoundRequestPriority.WhenIdle
                     : instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum3 ? SoundRequestPriority.Low
                     : SoundRequestPriority.Normal;
@@ -239,7 +239,7 @@ internal static class RoomObjectProgramsVerification
             AssertTrue(!began, $"{name} opens nothing as it starts");
             string ending = string.Join(", ", atEnd.Select(step => step.Effect ?? $"{step.Sound} at {step.Priority}"));
             string expected = name == nameof(ScriptedTerrainChangeDefinitions.CritterWallBreakthrough) ? "critters escaped"
-                : name == nameof(ScriptedTerrainChangeDefinitions.MaridiaElevatube) ? $"{(SoundEffectId?)EnemySound.Elevatube} at {SoundRequestPriority.Normal}"
+                : name == nameof(ScriptedTerrainChangeDefinitions.MaridiaElevatube) ? $"{(SoundEffectId?)EnemySoundStop.Elevatube} at {SoundRequestPriority.Normal}"
                 : "";
             AssertEqual(expected, ending, $"{name} acts as it ends exactly as its typed object does");
         }
@@ -253,7 +253,7 @@ internal static class RoomObjectProgramsVerification
         if (instruction is RoomObjectInstruction.QueueSoundLibrary2Maximum3 or RoomObjectInstruction.QueueSoundLibrary2Maximum6)
         {
             step = new NativeTerrainChanges.NativeStep(Offset16<RoomBlocks>.Zero,
-                SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), Begins: false, Length: 3,
+                SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), Begins: false, Length: 3,
                 priority: instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum3 ? SoundRequestPriority.Low : SoundRequestPriority.Normal);
             return true;
         }
@@ -325,7 +325,7 @@ internal static class RoomObjectProgramsVerification
         void AssertMovementSound(int cursor, string at)
         {
             AssertEqual(RoomObjectInstruction.QueueSoundLibrary3Maximum6, At(cursor), $"{at} movement sound");
-            AssertEqual(DownwardGateDefinitions.MovementSound, SoundEffectCommands.Decode(SoundEffectLibrary.Room, ReadOperandByte(cartridge, cursor + 2)),
+            AssertEqual(DownwardGateDefinitions.MovementSound, SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Room, ReadOperandByte(cartridge, cursor + 2)),
                 $"{at} movement sound identity");
             AssertEqual(SoundRequestPriority.Normal, DownwardGateMovementDefinitions.MovementSoundPriority, $"{at} movement sound priority");
         }
@@ -485,7 +485,7 @@ internal static class RoomObjectProgramsVerification
             if (frame.BiteBefore == SamusEaterBite.SoundAndDamage)
             {
                 AssertEqual(RoomObjectInstruction.QueueSoundLibrary2Maximum6, At(cursor), $"{at} chew sound");
-                AssertEqual(SamusEaterObjectDefinitions.ChewSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)),
+                AssertEqual(SamusEaterObjectDefinitions.ChewSound, SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)),
                     $"{at} chew sound identity");
                 AssertEqual(SoundRequestPriority.Normal, SamusEaterObjectDefinitions.ChewSoundPriority, $"{at} chew sound priority");
                 cursor += 3;

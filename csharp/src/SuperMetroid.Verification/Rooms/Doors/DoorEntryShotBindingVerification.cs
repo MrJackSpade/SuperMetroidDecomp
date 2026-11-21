@@ -65,7 +65,7 @@ internal static class DoorEntryShotBindingVerification
             AssertEqual(cancels, queued.Count != 0,
                 $"physical {held} with shot bound to Y {(cancels ? "queues" : "does not queue")} the library-one cancel");
             if (cancels)
-                AssertEqual<SoundEffectId>(SamusSound.Silence, queued[0],
+                AssertEqual<SoundEffectId>(SamusSoundStop.Any, queued[0],
                     "the queued library-one request is the cancel");
         }
         Console.WriteLine("Door entry shot binding: the library-one cancel follows the shot binding, not physical X.");

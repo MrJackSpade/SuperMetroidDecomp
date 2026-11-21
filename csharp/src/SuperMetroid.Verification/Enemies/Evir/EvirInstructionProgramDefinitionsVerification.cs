@@ -86,7 +86,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             AssertEqual(Offset16<RoomPixels>.Zero, state.RegenerationOffset, "regeneration loop advances the projectile mouth offset eight times");
             AssertEqual(EvirSpitAction.Idle, state.Action, "regeneration finish cue restores idle AI, the spit held at the mouth");
             const ushort nativeSpitSound = 0x005e;
-            AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, nativeSpitSound),
+            AssertEqual((SoundEffectId?)SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, nativeSpitSound),
                 enemies.Audio.LatestSound, "regeneration publishes the native library-two spit sound");
         }
 

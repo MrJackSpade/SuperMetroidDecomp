@@ -94,9 +94,6 @@ internal static class RoomEnemySpeciesAccess
                     yield return ridley.Norfair;
                     yield return ridley.Ceres;
                     break;
-                case CeresSteamFactory steam:
-                    yield return steam.Vents;
-                    break;
                 case SparkBehavior spark:
                     yield return spark.FallingSparks;
                     break;
@@ -377,9 +374,6 @@ internal static class RoomEnemySpeciesAccess
 
         /// <summary>The Choots, Maridia's flat fish that leap when Samus comes near and glide back down.</summary>
         internal ChootBehavior ChootBehavior => Owner<ChootBehavior>(self);
-
-        /// <summary>The steam that vents from Ceres station's walls.</summary>
-        internal CeresSteamBehavior CeresSteamBehavior => Owner<CeresSteamBehavior>(self);
 
         /// <summary>Ridley in Ceres station: his fight over the Baby Metroid and his getaway.</summary>
         internal CeresRidleyBehavior CeresRidleyBehavior => Owner<CeresRidleyBehavior>(self);

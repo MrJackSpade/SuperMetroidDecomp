@@ -48,19 +48,6 @@ public sealed class SamusArmCannonDescriptors
     /// </summary>
     public InstalledSamusArmCannonArtwork Gameplay { get; }
 
-    /// <summary>Gets where <paramref name="pose"/>'s drawing descriptor begins within the drawing data.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The pose has no record in the pose tables.</exception>
-    public int PoseDescriptor(SamusPoseId pose) =>
-        poseDescriptors.TryGetValue(pose, out int selected) ? selected
-            : throw new ArgumentOutOfRangeException(nameof(pose));
-
-    /// <summary>The descriptor byte <paramref name="offset"/> bytes into the drawing data.</summary>
-    /// <param name="offset">Byte offset into the drawing data; coordinate bytes are signed pixel offsets.</param>
-    /// <exception cref="InvalidDataException">The offset lies outside the extracted drawing window.</exception>
-    public byte ReadDrawingByte(int offset) => (uint)offset < (uint)drawingData.Length
-        ? drawingData[offset]
-        : throw new InvalidDataException($"Arm-cannon drawing byte {offset} is not extracted.");
-
     /// <summary>Validates and holds <paramref name="poseDescriptors"/> over <paramref name="drawingData"/>.</summary>
     /// <exception cref="InvalidDataException">
     /// The descriptors do not cover exactly the poses with records, a descriptor lies outside the drawing data, the drawing

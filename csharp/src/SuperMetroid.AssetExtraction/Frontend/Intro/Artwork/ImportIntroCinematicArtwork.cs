@@ -94,15 +94,6 @@ public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
         _ => throw new ArgumentOutOfRangeException(nameof(family), family, "Undefined cinematic family."),
     };
 
-    /// <summary>Identity of the installed documents and of the Mode 7 maps and compositions the opening's sheets are composed from.</summary>
-    public override string ContentIdentity => SelectedPresentationHash.Create("IntroCinematicImportArtwork-v2", content =>
-    {
-        content.Append("documents", Convert.FromHexString(base.ContentIdentity));
-        content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
-        content.Append("ceres-flight-sprites", Convert.FromHexString(FlightCharacters.Sprites.ContentIdentity));
-        content.Append("ceres-maps", CeresDestructionMaps.Views.Span);
-    });
-
     /// <summary>The four ordered 32x32 scene pages' tiles.</summary>
     public ReadOnlyMemory<BackgroundTile> BackgroundPages => backgroundPages;
     /// <summary>The four scene pages, one after another.</summary>

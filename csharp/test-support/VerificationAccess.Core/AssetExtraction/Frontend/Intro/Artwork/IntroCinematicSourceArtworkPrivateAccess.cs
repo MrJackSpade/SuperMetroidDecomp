@@ -30,11 +30,5 @@ internal static class IntroCinematicSourceArtworkPrivateAccess
         {
             get => PrivateState.Get<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroCinematicSourceArtwork, global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightSourceArtwork>(self, "CeresFlight");
         }
-
-        /// <summary>The private property <c>Cinematic</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Frontend.Intro.Artwork.IntroCinematicArtwork Cinematic
-        {
-            get => PrivateState.Get<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroCinematicSourceArtwork, global::SuperMetroid.Core.Frontend.Intro.Artwork.IntroCinematicArtwork>(self, "Cinematic");
-        }
     }
 }

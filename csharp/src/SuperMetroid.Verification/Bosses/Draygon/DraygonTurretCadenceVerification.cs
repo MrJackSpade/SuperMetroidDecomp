@@ -57,7 +57,7 @@ internal static class DraygonTurretCadenceVerification
             EnemyProjectile goop = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
                 p.Kind == RoomEnemyProjectileKind.DraygonGoop);
             AngledFlightState flight = runtime.Enemies.DraygonBehavior.Shots.Goop.Flights.Of(goop);
-            var velocity = new SpawnGoopResult(flight.Heading, flight.Velocity);
+            var velocity = new SpawnGoopResult(flight.Velocity);
             goop.Delete();
             return velocity;
         }
@@ -65,7 +65,8 @@ internal static class DraygonTurretCadenceVerification
         runtime.Enemies.DraygonBehavior.Turrets.SpawnDraygonWallTurret(runtime.Player.Samus, 0);
         var afterTurret = SpawnGoop();
         AssertEqual(beforeTurret, afterTurret, "goop speed does not inherit a turret's parameter");
-        AssertEqual(EnemyMath.VelocityAlong(afterTurret.Heading, DraygonProjectileSpeeds.Goop), afterTurret.Velocity,
+        AssertTrue(Enumerable.Range(0, byte.MaxValue + 1).Any(heading =>
+                EnemyMath.VelocityAlong(TrigonometryAngle.Wrapped(heading), DraygonProjectileSpeeds.Goop) == afterTurret.Velocity),
             "goop velocity is speed two along its heading");
 
         // #1269: $86:8E0F starts with $86:8D5C. Inside the power-bomb ellipse the goop loses

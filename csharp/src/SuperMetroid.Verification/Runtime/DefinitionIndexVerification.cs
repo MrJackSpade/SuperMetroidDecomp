@@ -49,15 +49,15 @@ internal static class DefinitionIndexVerification
         AssertTrue(indexed.Length < capturing.Catalogs.Count, "a Landing Site capture leaves catalogs it reaches nothing of unindexed");
         foreach (Type unreached in LandingSiteUnreachedCatalogs)
         {
-            AssertTrue(capturing.Catalogs.Any(catalog => catalog.Type == unreached), $"{unreached.Name} is a catalog of static members");
-            AssertTrue(indexed.All(catalog => catalog.Type != unreached), $"a Landing Site capture does not index {unreached.Name}");
+            AssertTrue(capturing.Catalogs.Any(catalog => TypeNameOf(catalog) == unreached.FullName), $"{unreached.Name} is a catalog of static members");
+            AssertTrue(indexed.All(catalog => TypeNameOf(catalog) != unreached.FullName), $"a Landing Site capture does not index {unreached.Name}");
         }
 
         var restoring = new DefinitionObjects();
         SuperMetroidRuntime restored = GraphDigestVerification.RestoreGraphThrough<SuperMetroidRuntime>(captured, restoring, content);
         AssertTrue(ReferenceEquals(RoomDefinitions.LandingSite, restored.Room.LoadedRoom.Definition),
             "the restored runtime stands in the catalog's own Landing Site");
-        AssertTrue(Indexed(restoring).All(catalog => indexed.Any(captured => captured.Type == catalog.Type)),
+        AssertTrue(Indexed(restoring).All(catalog => indexed.Any(captured => captured.Prefix == catalog.Prefix)),
             "a restore indexes only catalogs its capture named members of");
         Console.WriteLine("Definition index: the Landing Site capture restores to the catalog's own room.");
     }
@@ -83,7 +83,19 @@ internal static class DefinitionIndexVerification
 
     /// <summary>Whether <paramref name="catalog"/>'s type lies in one of <paramref name="namespaces"/> or a namespace within one.</summary>
     private static bool InNamespaces(DefinitionCatalog catalog, string[] namespaces) =>
-        catalog.Type.Namespace is { } name && namespaces.Any(root => name == root || name.StartsWith(root + ".", StringComparison.Ordinal));
+        NamespaceOf(catalog) is { } name && namespaces.Any(root => name == root || name.StartsWith(root + ".", StringComparison.Ordinal));
+
+    /// <summary>The full name of the type whose static members <paramref name="catalog"/> holds: its prefix before the separator.</summary>
+    private static string TypeNameOf(DefinitionCatalog catalog) => catalog.Prefix[..^DefinitionCatalog.MemberSeparator.Length];
+
+    /// <summary>The namespace of the type whose static members <paramref name="catalog"/> holds, or none for the global namespace.</summary>
+    private static string? NamespaceOf(DefinitionCatalog catalog) =>
+        TypeNameOf(catalog).Split('+')[0] is var outer && outer.LastIndexOf('.') is var dot and >= 0 ? outer[..dot] : null;
+
+    /// <summary>The assembly declaring <paramref name="catalog"/>'s members; read only for a catalog that holds one.</summary>
+    /// <exception cref="InvalidOperationException">A member is declared by no type.</exception>
+    private static System.Reflection.Assembly HomeOf(DefinitionCatalog catalog) => catalog.Members[0].DeclaringType?.Assembly
+        ?? throw new InvalidOperationException($"{catalog.Prefix} holds a member no type declares.");
 
     /// <summary>
     /// #1716: the index asks a catalog about an object whenever the catalog exposes one of the object's type, so a capture
@@ -107,7 +119,7 @@ internal static class DefinitionIndexVerification
                     candidates.Add(type, asked = [.. definitions.Candidates(type)]);
                 if (!asked.Contains(catalog))
                     throw new InvalidOperationException(
-                        $"Verification failed: {catalog.Type.FullName} exposes a {type.FullName}, but the index does not ask it about objects of that type.");
+                        $"Verification failed: {TypeNameOf(catalog)} exposes a {type.FullName}, but the index does not ask it about objects of that type.");
             }
         }
         AssertTrue(coveredCatalogs > 0, $"the {group} catalogs are found");
@@ -147,7 +159,7 @@ internal static class DefinitionIndexVerification
             }
             if (value is Delegate or MemberInfo)
                 continue;
-            foreach (object held in Held(value, type, catalog.Type.Assembly))
+            foreach (object held in Held(value, type, HomeOf(catalog)))
                 pending.Push(held);
         }
         return exposed;

@@ -23,7 +23,7 @@ internal static class HopperAnimationsVerification
                     // The sound routine's cue is its operand decoded to the cue's sound; every other routine's cue is fixed.
                     HopperCue expected = instruction.Operands switch
                     {
-                        "V" => new HopperCue.PlaySound(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0])),
+                        "V" => new HopperCue.PlaySound(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, operands[0])),
                         "" => instruction.Cue ?? throw new InvalidOperationException($"{at}: the routine names no cue."),
                         _ => throw new InvalidOperationException($"Undefined operand roles {instruction.Operands}."),
                     };

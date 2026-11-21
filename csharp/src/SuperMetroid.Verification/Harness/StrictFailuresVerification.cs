@@ -17,11 +17,13 @@ internal static void VerifyStrictFailureBoundaries()
         "duplicate persisted controller binding is rejected");
 
     AssertThrows<ArgumentOutOfRangeException>(
-        () => _ = DisplayBrightness.StepsAbove(-1),
-        "negative display brightness is rejected");
+        () => _ = DisplayBrightness.Black.Brighter(-1),
+        "a negative brightening step is rejected");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => _ = DisplayBrightness.StepsAbove(DisplayBrightness.StepsFromBlackToFull + 1),
-        "display brightness above full is rejected");
+        () => _ = DisplayBrightness.Full.Darker(-1),
+        "a negative darkening step is rejected");
+    AssertTrue(DisplayBrightness.Full.Brighter(1) == DisplayBrightness.Full && DisplayBrightness.Black.Darker(1) == DisplayBrightness.Black,
+        "display brightness never steps past full or black");
 
     AssertTrue(RoomObjectSystem.IsSupportedRoomPopulationHeader(
             RoomObjectKind.YellowDoorFacingLeft),

@@ -13,15 +13,13 @@ namespace SuperMetroid.Core.Compatibility;
 /// by her suit and applied (<c>SamusPeriodicDamage.Apply</c>); a fatal result empties it
 /// (<see cref="None"/>). A value owned by Samus's state, starting empty with each new Samus. Evidence: the original
 /// periodic damage subtracts the fraction from Samus's held fraction of one energy's
-/// <see cref="FractionalEnergyDrain.PartsPerEnergy"/> parts and takes one more energy when the subtraction borrows,
+/// parts, the parts a <see cref="FractionalEnergyDrain"/> counts in, and takes one more energy when the subtraction borrows,
 /// keeping the wrapped remainder; the atmospheric effects check (<c>VerifySamusAtmosphericEffects</c>) covers a covered
 /// fraction, a borrowing one, and a fatal borrow and fatal whole damage that empty it.
 /// </remarks>
 [CompatibilityService("periodic damage takes Samus's energy a fraction at a time, borrowing a whole energy when the fraction exceeds the one she holds and keeping the rest of that energy as her new fraction")]
 public readonly record struct PeriodicDamageEnergyFraction
 {
-    /// <summary>The parts one energy is divided into: a fraction and the damage taken from it are counted in these parts.</summary>
-    public const int PartsPerEnergy = FractionalEnergyDrain.PartsPerEnergy;
 
     /// <summary>The held fraction, kept as the drain the shared arithmetic runs on.</summary>
     private readonly FractionalEnergyDrain _held;
@@ -29,7 +27,7 @@ public readonly record struct PeriodicDamageEnergyFraction
     /// <summary>Stores the held fraction; callers use <see cref="None"/> or <see cref="After"/>.</summary>
     private PeriodicDamageEnergyFraction(FractionalEnergyDrain held) => _held = held;
 
-    /// <summary>The fraction held, 0 through one part short of an energy, in <see cref="PartsPerEnergy"/>ths.</summary>
+    /// <summary>The fraction held, 0 through one part short of an energy, in <c>PartsPerEnergy</c>ths.</summary>
     private int Parts => _held.HeldOver;
 
     /// <summary>No fraction held: a new Samus's, and the one a fatal periodic damage leaves.</summary>

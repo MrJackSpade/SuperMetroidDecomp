@@ -117,7 +117,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         Whiteout = null;
         // Dying while spin jumping ends the spin's sound at normal priority.
         if (SamusMovementTypeDefinitions.Movements[sourceMovementType].SpinSoundEndsOnDeath)
-            samus.AudioRequests.QueueSound(SamusSound.SpinJumpEnd, SoundRequestPriority.Normal);
+            samus.AudioRequests.QueueSound(SamusSoundStop.SpinJump, SoundRequestPriority.Normal);
         stage = PreFlashStage.Instance;
     }
 

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.AssetExtraction.CartridgeTables;
+﻿using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.AssetExtraction.Enemies;

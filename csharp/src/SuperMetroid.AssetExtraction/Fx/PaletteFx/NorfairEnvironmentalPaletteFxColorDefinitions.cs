@@ -22,8 +22,4 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
 
     /// <summary>The dark foreground's heat glow.</summary>
     internal static NorfairEnvironmentalPaletteFxColorDefinition NorfairDarkForegroundHeatGlow { get; } = new(ColourEffectId.NorfairDarkForegroundHeatGlow, ColorsPerFrame);
-
-    /// <summary>The four environmental programs in definition order: the heat-phase program, then the green, purple and dark foreground glows.</summary>
-    public static IReadOnlyList<NorfairEnvironmentalPaletteFxColorDefinition> All { get; } =
-        [NorfairForegroundAndHeatPhase, NorfairGreenForegroundHeatGlow, NorfairPurpleForegroundHeatGlow, NorfairDarkForegroundHeatGlow];
 }

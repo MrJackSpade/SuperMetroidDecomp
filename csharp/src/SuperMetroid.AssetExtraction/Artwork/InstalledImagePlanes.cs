@@ -13,25 +13,6 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <param name="Size">The image's width and height.</param>
 internal readonly record struct InstalledImagePlanes(SpriteImagePixels Planes, Extent16<ImagePixels> Size)
 {
-    /// <summary>
-    /// Copies <paramref name="source"/>'s rectangle of this image to <paramref name="target"/> with its top-left pixel at
-    /// <paramref name="corner"/>. A pixel of an image without a map lies in region zero and does not blend; a target without a
-    /// map keeps none, so the rectangle must hold only region zero or no blending where the target has no such map.
-    /// </summary>
-    /// <exception cref="ArgumentException">A rectangle reaches outside its image.</exception>
-    /// <exception cref="InvalidOperationException">The rectangle holds a recolour region or blending the target has no map for.</exception>
-    internal void CopyTo(FrameRectangle source, InstalledImagePlanes target, Position16<ImagePixels> corner)
-    {
-        CopyPixelsTo(source, target, corner);
-        int width = source.Size.X;
-        for (int row = 0; row < source.Size.Y; row++)
-        {
-            int from = ((source.Corner.Y + row) * Size.X) + source.Corner.X;
-            int to = ((corner.Y + row) * target.Size.X) + corner.X;
-            CopyMap(Planes.RecolourRegions, from, target.Planes.RecolourRegions, to, width, "recolour region");
-            CopyMap(Planes.Blending, from, target.Planes.Blending, to, width, "blending");
-        }
-    }
 
     /// <summary>
     /// Copies the pixels of <paramref name="source"/>'s rectangle of this image to <paramref name="target"/> with its
@@ -53,27 +34,6 @@ internal readonly record struct InstalledImagePlanes(SpriteImagePixels Planes, E
         {
             Planes.Pixels.AsSpan(((source.Corner.Y + row) * Size.X) + source.Corner.X, width)
                 .CopyTo(target.Planes.Pixels.AsSpan(((corner.Y + row) * target.Size.X) + corner.X, width));
-        }
-    }
-
-    /// <summary>
-    /// Copies one row of a map from <paramref name="source"/> to <paramref name="target"/>; a missing source map holds the
-    /// default value throughout, and a missing target map takes only it.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The target has no map, but the source row holds another value.</exception>
-    private static void CopyMap<T>(T[]? source, int from, T[]? target, int to, int width, string map)
-        where T : struct, IEquatable<T>
-    {
-        if (target is not null)
-        {
-            if (source is not null)
-                source.AsSpan(from, width).CopyTo(target.AsSpan(to, width));
-            else
-                target.AsSpan(to, width).Clear();
-        }
-        else if (source is not null && source.AsSpan(from, width).ContainsAnyExcept(default(T)))
-        {
-            throw new InvalidOperationException($"A picture's {map} map is copied to an image that has none.");
         }
     }
 

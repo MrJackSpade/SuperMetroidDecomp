@@ -63,7 +63,7 @@ internal static class TileSmokeTests
         void Check(DisplayLayer[] layers, string name, byte brightness = 15)
         {
             count++;
-            var frame = new DisplayPacket(0, new LayeredScene(memory, layers, DisplayBrightness.Combine(DisplayBrightness.StepsAbove(brightness), DisplayBrightness.StepsAbove(13), DisplayBrightness.StepsAbove(11))));
+            var frame = new DisplayPacket(0, new LayeredScene(memory, layers, DisplayBrightness.Combine(DisplayBrightness.Black.Brighter(brightness), DisplayBrightness.Black.Brighter(13), DisplayBrightness.Black.Brighter(11))));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame), $"{device.Kind}: {name} #{count}");
         }
     }

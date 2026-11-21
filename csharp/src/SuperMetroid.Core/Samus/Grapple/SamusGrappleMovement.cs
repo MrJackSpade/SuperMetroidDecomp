@@ -702,11 +702,9 @@ public static class SamusGrappleMovement
                 // beam through rejects it. Every other spike uses the empty reaction, which stops the
                 // beam without latching, and immediately deletes; the turret spike alone uses Draygon's
                 // broken-turret setup, which adds one whole periodic-damage unit and latches the beam.
-                if (block.Behavior.Spike is not { } spike)
-                    throw new InvalidDataException($"Grapple reached spike block {block.Position} with no spike reaction ({block.Behavior}).");
-                if (spike.LetsGrappleBeamThrough)
+                if (block.Behavior.Spike is { LetsGrappleBeamThrough: true })
                     return GrappleBlockReaction.Passes;
-                if (spike == SpikeReaction.TurretSpike)
+                if (block.Behavior.Spike == SpikeReaction.TurretSpike)
                 {
                     samus.PeriodicDamage.Accumulate(SpikeHazardDefinitions.GrappledTurretSpikeDamage);
                     return GrappleBlockReaction.Connects;

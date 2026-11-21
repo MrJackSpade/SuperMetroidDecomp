@@ -25,7 +25,7 @@ public sealed class TourianStatueRoom : ITourianStatueRoom, ITourianStatueProgre
         _roomFxOverlay = Ensure.NotNull(roomFxOverlay);
         // The statue room is composed only over water (#2486): its load rejects an effect without a surface, which no liquid
         // step takes away, so the statues' particles always have a surface to cross.
-        if (roomFxOverlay.Surface is null)
+        if (!roomFxOverlay.Surface.HasValue)
             throw new InvalidDataException("The Tourian statue room's effect names no water surface.");
     }
 
@@ -52,9 +52,8 @@ public sealed class TourianStatueRoom : ITourianStatueRoom, ITourianStatueProgre
     /// <inheritdoc/>
     /// <remarks>
     /// Read live from the room's effect, which the update's liquid step has already moved. The effect keeps a liquid's
-    /// surface once its load has given it one, so the guard below fails only if that invariant of the effect breaks.
+    /// surface once its load has given it one; the surface word the game's water tests read is its line
+    /// (<see cref="Compatibility.AbsentWaterSurfaceLine"/>).
     /// </remarks>
-    /// <exception cref="InvalidOperationException">The statue room's effect has lost the water surface its load gave it.</exception>
-    public int WaterSurface => _roomFxOverlay.Surface ??
-        throw new InvalidOperationException("The Tourian statue room's effect has lost the water surface its load gave it.");
+    public int WaterSurface => Compatibility.AbsentWaterSurfaceLine.Line(_roomFxOverlay.Surface);
 }

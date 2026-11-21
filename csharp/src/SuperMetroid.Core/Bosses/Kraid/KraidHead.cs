@@ -132,7 +132,9 @@ internal sealed class KraidHead
     /// </summary>
     internal void AdvanceKraidHeadAnimation(KraidEnemyState state)
     {
-        if (state.HeadHold.StepRunsOut() && PlayKraidHeadAnimation(state) is AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)
+        // A head that has started no animation keeps its pose.
+        if (state.HeadHold.StepRunsOut() && state.HeadPlayback is { } playback &&
+            PlayKraidHeadAnimation(state, playback) is AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)
             state.ShowHeadPose(shown);
     }
 
@@ -149,7 +151,9 @@ internal sealed class KraidHead
     /// </summary>
     private KraidHeadAnimationResult RunKraidHeadAnimationStep(KraidEnemyState state)
     {
-        if (PlayKraidHeadAnimation(state) is not AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)
+        // A head that has started no animation rests as one whose animation has ended.
+        if (state.HeadPlayback is not { } playback ||
+            PlayKraidHeadAnimation(state, playback) is not AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)
             return KraidHeadAnimationResult.AnimationEnded;
         state.ShowHeadPose(shown);
         return KraidHeadAnimationResult.PoseShown;
@@ -159,10 +163,9 @@ internal sealed class KraidHead
     /// Plays the head animation to its next frame, announcing its cries on the way: the frame it shows, or the hold at its
     /// segment's end. It shows nothing itself.
     /// </summary>
-    private AnimationShown<KraidHeadSegment, KraidHeadFrame> PlayKraidHeadAnimation(KraidEnemyState state)
+    private AnimationShown<KraidHeadSegment, KraidHeadFrame> PlayKraidHeadAnimation(KraidEnemyState state,
+        AnimationPlayback<KraidHeadSegment> playback)
     {
-        AnimationPlayback<KraidHeadSegment> playback = state.HeadPlayback ?? throw new InvalidDataException(
-            "Kraid's head animation has not been started.");
         AnimationPlace place = playback.Place;
         AnimationShown<KraidHeadSegment, KraidHeadFrame> outcome = KraidHeadAnimations.Segments.PlayToNextFrame(
             playback.Animation, ref place, PublishKraidHeadCue);

@@ -135,7 +135,9 @@ internal sealed class KraidLimbs
         state.BodyState.FightPhase = KraidFightPhase.HeadAnimationBeforeGrowth;
         state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.GrowthHeadAnimationUpdates);
 
-        state.ResumeHeadRoar(KraidHeadAnimations.ReadsAt(state.HeadPlayback).Growth);
+        // His growth resumes the roar from where his head's animation stands; he grows only after his rise started it.
+        if (state.HeadPlayback is { } head)
+            state.ResumeHeadRoar(KraidHeadAnimations.ReadsAt(head).Growth);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), KraidArenaDefinitions.GrowthShakeUpdates);
         state.FootState.StartAnimation(KraidPartSegment.FootInitial);
         state.FootState.Phase = KraidFootPhase.Resting;

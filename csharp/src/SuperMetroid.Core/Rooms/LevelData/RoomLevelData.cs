@@ -231,7 +231,7 @@ public sealed class RoomLevelData
     /// </summary>
     /// <param name="extension">An extension block the read found in the grid.</param>
     private RoomCollisionBlock LinkedBlockOrEdgeSolid(RoomCollisionBlock extension) =>
-        GridBlockStepped(extension.At, extension.ExtensionLink) is { } reached ? GetCollisionBlock(reached) : EdgeSolid();
+        TryGridBlockStepped(extension.At, extension.ExtensionLink, out Position16<RoomBlocks> reached) ? GetCollisionBlock(reached) : EdgeSolid(reached);
 
     /// <summary>
     /// The block <paramref name="block"/> stands for, as Samus's body, her shots, missiles and bombs collide with and react
@@ -400,7 +400,7 @@ public sealed class RoomLevelData
     /// room's width or height (<see cref="TerrainBeyondRoom{TTerrain, TBehavior}.EdgeSolid"/>).
     /// </summary>
     internal RoomCollisionBlock GetCollisionBlockOrEdgeSolid(Position16<RoomBlocks> block) =>
-        Size.Contains(block) ? GetCollisionBlock(block) : EdgeSolid();
+        Size.Contains(block) ? GetCollisionBlock(block) : EdgeSolid(block);
 
     /// <summary>Reads the block containing a room pixel: sixteen pixels to a block.</summary>
     public RoomCollisionBlock GetCollisionBlockAtPixel(Position16<RoomPixels> position) =>
@@ -483,7 +483,8 @@ public sealed class RoomLevelData
     }
 
     /// <summary>The block a collision probe outside the room reads.</summary>
-    private RoomCollisionBlock EdgeSolid() => new(Position: null, BeyondRoom.EdgeSolid, BeyondRoom.NoBehavior);
+    /// <param name="probed">The block the probe named, outside the room.</param>
+    private RoomCollisionBlock EdgeSolid(Position16<RoomBlocks> probed) => RoomCollisionBlock.OutsideRoom(probed, BeyondRoom.EdgeSolid, BeyondRoom.NoBehavior);
 
     /// <summary>A place in the level space past the grid, counted from the first block past it.</summary>
     private int BeyondPlace(int place) => place - terrain.Length;

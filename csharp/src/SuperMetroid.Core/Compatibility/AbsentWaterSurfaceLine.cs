@@ -29,6 +29,13 @@ public static class AbsentWaterSurfaceLine
     public static bool MouthIsUnder(int mouthY) => mouthY >= LineAboveRoom;
 
     /// <summary>
+    /// The water surface line the game's water tests read from the room effect's surface word: the effect's surface, or,
+    /// for an effect that names none, the line above the room.
+    /// </summary>
+    /// <param name="surface">The room effect's surface line, or none.</param>
+    public static int Line(int? surface) => surface ?? LineAboveRoom;
+
+    /// <summary>
     /// The room place the diving splash stands on in a room with no water surface: the line above the room, counted back
     /// from the far end of the room's coordinates (<see cref="OffRoomPlaces"/>), 65535.
     /// </summary>

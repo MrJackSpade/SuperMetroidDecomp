@@ -91,7 +91,7 @@ internal static class RoomTerrainBlockAddressingVerification
                 RoomCollisionBlock linked = room.Level.LinkedBlockOrEdgeSolid(extension);
                 RoomCollisionBlock linkedExpected = expected is { } at
                     ? room.Level.GetCollisionBlock(at)
-                    : new RoomCollisionBlock(null, RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None);
+                    : RoomCollisionBlock.OutsideRoom(default, RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None);
                 if (linked != linkedExpected)
                     AssertEqual(linkedExpected, linked, $"the grapple's read of {context}");
             }

@@ -169,10 +169,6 @@ public sealed class SamusState
     /// </summary>
     internal SamusGround? Ground { get; set; }
 
-    /// <summary>The ground her footstep and landing effects go by, once a room or a scene has set it.</summary>
-    /// <exception cref="InvalidOperationException">Nothing has set her ground yet.</exception>
-    internal SamusGround StandingGround => Ground ?? throw new InvalidOperationException("Samus's ground is read before any room or scene has set it.");
-
     /// <summary>
     /// Stored-shine colouring countdown and the shinespark's hold on her movement.
     /// </summary>

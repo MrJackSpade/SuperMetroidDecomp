@@ -420,10 +420,10 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     private void HandleLandingGraphics(SamusState samus)
     {
-        SamusGround ground = samus.StandingGround;
-        if (IsWet(samus, ground.Wetness))
+        // Every room and scene sets her ground as it loads; on none, a landing raises nothing.
+        if (samus.Ground is { } ground && IsWet(samus, ground.Wetness))
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
-        else if (ground.DryLandingsRaiseDust)
+        else if (samus.Ground is { DryLandingsRaiseDust: true })
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
         else
             EndLandingEffectWait();
@@ -568,7 +568,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         bool cinematic = samus.Presentation.Mode == SamusPresentationMode.Cinematic;
-        if (IsWet(samus, samus.StandingGround.Wetness))
+        if (samus.Ground is { } ground && IsWet(samus, ground.Wetness))
             SpawnFootstepPair(samus, SamusParticleKind.SurfaceSplash);
         else if (samus.HorizontalSpeed.IsActivelySpeedBoosting &&
                  DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == SamusLiquidMedium.Air)

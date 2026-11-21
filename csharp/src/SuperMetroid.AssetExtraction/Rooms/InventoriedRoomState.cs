@@ -110,8 +110,8 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     internal bool HoldsSpeedBoosterBlocks => Terrain.Any(block =>
         (block.Collision == RoomCollisionType.SpecialBlock &&
             (SpeedBoosterBlocks.TryResolve(block.Behavior, out _) ||
-                (block.Behavior.Special is not null &&
-                    BombSpecialBlockReactions.ChangeFor(block.Behavior.Special) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
+                (block.Behavior.Special is { } special &&
+                    BombSpecialBlockReactions.ChangeFor(special) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
         (IsReactingSpecialAir(block) &&
             SpecialAirReactions.CollisionOf(block.Behavior.SpecialAir).IsSpeedBlock));
 

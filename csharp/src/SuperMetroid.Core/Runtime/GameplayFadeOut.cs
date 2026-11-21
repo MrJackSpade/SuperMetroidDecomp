@@ -44,9 +44,11 @@ internal sealed class GameplayFadeOut : IGameplayShadingSource
     }
 
     /// <summary>Takes one step of the running fade.</summary>
-    /// <returns>Whether the fade completed on this update; the display keeps showing its end until <see cref="End"/>.</returns>
-    /// <exception cref="InvalidOperationException">No fade runs.</exception>
-    internal bool Step() => (steps ?? throw new InvalidOperationException("A gameplay fade steps once it has begun.")).Step();
+    /// <returns>
+    /// Whether the fade completed on this update; the display keeps showing its end until <see cref="End"/>. A display
+    /// no fade runs on takes no step, and completes none.
+    /// </returns>
+    internal bool Step() => steps is { } running && running.Step();
 
     /// <summary>Ends the fade: the display shows its own colours.</summary>
     internal void End() => steps = null;

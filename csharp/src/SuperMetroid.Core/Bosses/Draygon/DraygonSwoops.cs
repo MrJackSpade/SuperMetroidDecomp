@@ -77,7 +77,8 @@ internal sealed class DraygonSwoops
         DraygonEnemyState state,
         SamusState samus,
         int frameCounter,
-        DraygonBehavior.DraygonSwoopSide side)
+        DraygonBehavior.DraygonSwoopSide side,
+        DraygonSwoopPath path)
     {
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         _movement.SpawnPeriodicDraygonBreathBubble(state);
@@ -86,7 +87,7 @@ internal sealed class DraygonSwoops
         if (entry == DraygonSwoopDefinitions.ArmsReachUpdatesFromBottom)
             state.ArmsPart.StartAnimation(side.ArmsNearApex);
 
-        body.Position = body.Position.WithWholeY(PathOf(state).HeightAt(entry));
+        body.Position = body.Position.WithWholeY(path.HeightAt(entry));
         if (state.SwoopHalf.Count())
         {
             state.Phase = DraygonPhase.SwoopApex;
@@ -99,11 +100,12 @@ internal sealed class DraygonSwoops
     internal void CrossDraygonRightSwoopApex(
         DraygonEnemyState state,
         SamusState samus,
-        int frameCounter)
+        int frameCounter,
+        DraygonSwoopPath path)
     {
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         RoomEnemyPlace body = state.Body;
-        int frameCount = PathOf(state).EntryCount;
+        int frameCount = path.EntryCount;
         // The rightward swoop's bottom lies over Samus, inside the arena, so the distance on to the right-side place is a plain one.
         int distance = DraygonArenaDefinitions.RightSideResetDistance - body.Position.X.Whole;
         SetDraygonSwoopVelocity(state, distance, frameCount, HorizontalDirection.Right);
@@ -120,7 +122,8 @@ internal sealed class DraygonSwoops
         DraygonEnemyState state,
         SamusState samus,
         int frameCounter,
-        DraygonBehavior.DraygonSwoopSide side)
+        DraygonBehavior.DraygonSwoopSide side,
+        DraygonSwoopPath path)
     {
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         if (side.Direction != HorizontalDirection.Right)
@@ -130,7 +133,7 @@ internal sealed class DraygonSwoops
         if (entry == DraygonSwoopDefinitions.ArmsReachUpdatesFromBottom)
             state.ArmsPart.StartAnimation(side.ArmsIdle);
 
-        body.Position = body.Position.WithWholeY(PathOf(state).HeightAt(entry));
+        body.Position = body.Position.WithWholeY(path.HeightAt(entry));
         if (!state.SwoopHalf.Count())
         {
             DraygonMovement.MoveDraygonHorizontally(state);
@@ -165,10 +168,11 @@ internal sealed class DraygonSwoops
     internal void SetupDraygonLeftSwoop(
         DraygonEnemyState state,
         SamusState samus,
-        int frameCounter)
+        int frameCounter,
+        DraygonSwoopPath path)
     {
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
-        int frameCount = PathOf(state).EntryCount;
+        int frameCount = path.EntryCount;
 
         int distance = DistanceAcrossRoomEdge.Between(
             state.RightSideResetX, samus.Position.X.Whole);
@@ -183,21 +187,18 @@ internal sealed class DraygonSwoops
     internal void CrossDraygonLeftSwoopApex(
         DraygonEnemyState state,
         SamusState samus,
-        int frameCounter)
+        int frameCounter,
+        DraygonSwoopPath path)
     {
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         RoomEnemyPlace body = state.Body;
-        int frameCount = PathOf(state).EntryCount;
+        int frameCount = path.EntryCount;
         int distance = DistanceAcrossRoomEdge.Apart(body.Position.X.Whole, state.LeftSideReset.X);
         SetDraygonSwoopVelocity(state, distance, frameCount, HorizontalDirection.Left);
         state.SwoopHalf = UpdateCountdown.Lasting(frameCount);
         state.Phase = DraygonPhase.SwoopAscending;
     }
 
-    /// <summary>The path of the swoop Draygon is flying, which its setup planned.</summary>
-    /// <exception cref="InvalidOperationException">Draygon has not planned a swoop.</exception>
-    internal static DraygonSwoopPath PathOf(DraygonEnemyState state) =>
-        state.SwoopPath ?? throw new InvalidOperationException("Draygon flies a swoop he has not planned.");
 
     /// <summary>
     /// Sets the swoop's horizontal velocity: toward <paramref name="direction"/> at the speed that covers

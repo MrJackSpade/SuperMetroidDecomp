@@ -128,7 +128,7 @@ internal sealed class FrontendSession
         where T : class, IFrontendScreen => Screen as T;
     /// <summary>The screen showing, which must be a <typeparamref name="T"/>.</summary>
     private T RequireScreen<T>(string what)
-        where T : class, IFrontendScreen => Screen as T ?? throw new InvalidOperationException($"The {what} is not running.");
+        where T : class, IFrontendScreen => Screen is T screen ? screen : throw new InvalidOperationException($"The {what} is not running.");
     /// <summary>Live gameplay runtime, absent during frontend-only phases.</summary>
     private SuperMetroidRuntime? runtime;
     /// <summary>Live gameplay runtime, absent during frontend-only phases.</summary>

@@ -10,7 +10,19 @@ public static class ShotBlockReactions
     /// not handle (the door, collectible, gate and animal-escape reactions run before it).
     /// </summary>
     public static ShotBlockReaction? Of(ShootableReaction? reaction) =>
-        reaction is { } read && Handled.TryGetValue(read, out ShotBlockReaction handled) ? handled : null;
+        TryOf(reaction, out ShotBlockReaction handled) ? handled : null;
+
+    /// <summary>
+    /// Whether the shot-block response handles <paramref name="reaction"/>, and then its reaction in
+    /// <paramref name="handled"/>: none for no reaction or a reaction the response does not handle.
+    /// </summary>
+    public static bool TryOf(ShootableReaction? reaction, out ShotBlockReaction handled)
+    {
+        if (reaction is { } read && Handled.TryGetValue(read, out handled))
+            return true;
+        handled = default;
+        return false;
+    }
 
     /// <summary>Whether <paramref name="reaction"/> is one of the reactions every weapon's scan hands to the shot-block response.</summary>
     public static bool IsWeaponReaction(ShootableReaction? reaction) => reaction is { } read && WeaponReactions.Contains(read);

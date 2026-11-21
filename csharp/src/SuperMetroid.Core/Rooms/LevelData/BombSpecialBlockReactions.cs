@@ -15,11 +15,9 @@ public static class BombSpecialBlockReactions
     /// Booster blocks; in the other areas those blocks stay plain solid blocks (#1805).
     /// </summary>
     /// <param name="reaction">The block's reaction.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The block has no special-block reaction.</exception>
-    internal static BlockReactionChange ChangeFor(SpecialBlockReaction? reaction)
+    internal static BlockReactionChange ChangeFor(SpecialBlockReaction reaction)
     {
-        SpecialBlockReaction read = reaction ??
-            throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "The block has no special-block reaction for a bomb.");
+        SpecialBlockReaction read = reaction;
         if (SpeedBlockLookalikes.TryShowAsSpeedBlock(read, out BlockReactionChange? shown))
             return shown;
         return read switch

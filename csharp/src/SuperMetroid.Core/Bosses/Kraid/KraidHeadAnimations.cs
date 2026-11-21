@@ -141,11 +141,9 @@ internal static class KraidHeadAnimations
         [P.Death] = KraidHeadFrame.Closed,
     };
 
-    /// <summary>What collision and growth read where <paramref name="playback"/> stands; a head that never started has no pose to read.</summary>
-    internal static KraidHeadAnimationReads ReadsAt(AnimationPlayback<KraidHeadSegment>? playback)
+    /// <summary>What collision and growth read where <paramref name="started"/> stands.</summary>
+    internal static KraidHeadAnimationReads ReadsAt(AnimationPlayback<KraidHeadSegment> started)
     {
-        AnimationPlayback<KraidHeadSegment> started = playback ?? throw new InvalidDataException(
-            "Kraid's head animation has not started, so its mouth and growth reads have no pose to look at.");
         KraidHeadPlace place = PlaceOf(started);
         KraidHeadFrame?[] shown = [.. started.Animation.Phases
             .SelectMany(phase => Segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
@@ -183,16 +181,16 @@ internal static class KraidHeadAnimations
         : KraidHeadGrowthResume.NextStepOther;
 
     /// <summary>The outer mouth shape body hits are tested against where <paramref name="playback"/> stands.</summary>
-    internal static KraidMouthHitbox OuterMouthAt(AnimationPlayback<KraidHeadSegment>? playback)
+    internal static KraidMouthHitbox OuterMouthAt(AnimationPlayback<KraidHeadSegment> playback)
     {
         KraidMouthShapeRead read = ReadsAt(playback).Outer;
         return read is KraidMouthShapeRead.Found found
             ? found.Shape
-            : throw new InvalidDataException($"Kraid's outer mouth read at {(playback is { } head ? PlaceOf(head).ToString() : "no place")} finds {read.Kind}, not a mouth shape.");
+            : throw new InvalidDataException($"Kraid's outer mouth read at {PlaceOf(playback)} finds {read.Kind}, not a mouth shape.");
     }
 
     /// <summary>The inner mouth shape mouth hits are tested against where <paramref name="playback"/> stands, or null when the pose has none.</summary>
-    internal static KraidMouthHitbox? InnerMouthAt(AnimationPlayback<KraidHeadSegment>? playback)
+    internal static KraidMouthHitbox? InnerMouthAt(AnimationPlayback<KraidHeadSegment> playback)
     {
         KraidMouthShapeRead read = ReadsAt(playback).Inner;
         return read.Kind switch

@@ -35,31 +35,24 @@ public static class SpecialAirReactions
     };
 
     /// <summary>What the special-air block with reaction <paramref name="reaction"/> does to Samus inside it.</summary>
-    /// <param name="reaction">The block's reaction.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The block has no reaction.</exception>
-    public static SpecialAirInsideReaction InsideOf(SpecialAirReaction? reaction) => Of(reaction, "inside-body").Inside;
+    /// <param name="reaction">The block's reaction, or none, which does nothing.</param>
+    public static SpecialAirInsideReaction InsideOf(SpecialAirReaction? reaction) => Of(reaction).Inside;
 
     /// <summary>What the special-air block with reaction <paramref name="reaction"/> does when Samus's movement reaches it.</summary>
-    /// <param name="reaction">The block's reaction.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The block has no reaction.</exception>
-    public static SpecialAirCollisionReaction CollisionOf(SpecialAirReaction? reaction) => Of(reaction, "movement-collision").Collision;
+    /// <param name="reaction">The block's reaction, or none, which does nothing.</param>
+    public static SpecialAirCollisionReaction CollisionOf(SpecialAirReaction? reaction) => Of(reaction).Collision;
 
-    /// <summary>What the block's reaction does.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The block has no reaction.</exception>
+    /// <summary>What the block's reaction does: a block with none does nothing inside or when reached.</summary>
     /// <exception cref="InvalidOperationException">The reaction is undefined.</exception>
-    private static SpecialAirReactionEffects Of(SpecialAirReaction? reaction, string context)
+    private static SpecialAirReactionEffects Of(SpecialAirReaction? reaction)
     {
-        SpecialAirReaction validated = Validate(reaction, context);
-        return Reactions.TryGetValue(validated, out var does)
+        if (reaction is not { } named)
+            return NoReaction;
+        return Reactions.TryGetValue(named, out var does)
             ? does
-            : throw new InvalidOperationException($"Undefined {nameof(SpecialAirReaction)} {validated}.");
+            : throw new InvalidOperationException($"Undefined {nameof(SpecialAirReaction)} {named}.");
     }
 
-    /// <summary>Requires the block to have a reaction.</summary>
-    /// <returns>The block's reaction.</returns>
-    private static SpecialAirReaction Validate(SpecialAirReaction? reaction, string context) =>
-        reaction ?? throw new ArgumentOutOfRangeException(
-            nameof(reaction),
-            reaction,
-            $"A special-air block's {context} reaction needs a reaction the block has.");
+    /// <summary>What a special-air block whose behaviour names no reaction does: nothing.</summary>
+    private static readonly SpecialAirReactionEffects NoReaction = new(SpecialAirInsideReaction.Nothing, SpecialAirCollisionReaction.Nothing);
 }

@@ -899,15 +899,9 @@ public sealed class SamusBombProjectileSystem
         {
             // Both bombable-air and bombable-solid reactions use the bomb-block reactions; an inert block neither
             // spawns a room object nor changes the terrain.
-            if (block.Behavior.Bombable == BombableReaction.Inert)
+            // Every bombable block names its bomb reaction, as the import requires.
+            if (block.Behavior.Bombable is not { } bombable || bombable == BombableReaction.Inert)
                 return;
-            if (block.Behavior.Bombable is null)
-            {
-                // Every bombable block names its bomb reaction; the import refuses one that does not.
-                throw new InvalidDataException(
-                    $"Bombable block {block.Position} has behaviour ({block.Behavior}) with no " +
-                    "bomb-block reaction.");
-            }
             // Spawn is synchronous: an accepted bomb-block reaction applies its temporary solid-block
             // or air collision before the bomb proceeds to its next border/cross member.
             roomObjects.BlockReactions.SpawnBombReactionBlock(

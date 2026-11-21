@@ -123,7 +123,8 @@ internal sealed class KraidCombat
             return;
 
         int mouthHits = 0;
-        KraidMouthHitbox? innerMouth = tested.Count == 0 ? null : KraidHeadAnimations.InnerMouthAt(state.HeadPlayback);
+        // A head that has started no animation shows no mouth to hit.
+        KraidMouthHitbox? innerMouth = tested.Count == 0 || state.HeadPlayback is not { } head ? null : KraidHeadAnimations.InnerMouthAt(head);
         if (innerMouth is { } inner)
         {
             KraidPassBounds bounds = PlaceKraidPassBounds(body, inner);
@@ -196,9 +197,9 @@ internal sealed class KraidCombat
 
         bool chargedHit = false;
         int bodyHits = 0;
-        if (tested.Count != 0)
+        if (tested.Count != 0 && state.HeadPlayback is { } headAt)
         {
-            KraidMouthHitbox outerMouth = KraidHeadAnimations.OuterMouthAt(state.HeadPlayback);
+            KraidMouthHitbox outerMouth = KraidHeadAnimations.OuterMouthAt(headAt);
             KraidPassBounds bounds = PlaceKraidPassBounds(body, outerMouth);
             foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {

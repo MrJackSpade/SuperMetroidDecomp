@@ -93,7 +93,6 @@ internal static class KraidHeadCommandMappingVerification
         AssertEqual(Word(0x96d2), KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Delay, "roar entry duration");
         AssertEqual(Word(0x974a), KraidHeadAnimations.Starting(KraidHeadSegment.EyeGlow).Delay, "eye-glow entry duration");
         AssertEqual(Word(0x9764), KraidHeadAnimations.Starting(KraidHeadSegment.Death).Delay, "death entry duration");
-        AssertThrows<InvalidDataException>(() => KraidHeadAnimations.ReadsAt(null), "an unstarted head has no reads");
     }
 
     /// <summary>

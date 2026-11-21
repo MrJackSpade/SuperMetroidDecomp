@@ -127,20 +127,22 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
             case DraygonPhase.SwoopSetup when state.PassDirection == HorizontalDirection.Right:
                 Swoops.SetupDraygonRightSwoop(state, samus, frameCounter);
                 break;
-            case DraygonPhase.SwoopSetup:
-                Swoops.SetupDraygonLeftSwoop(state, samus, frameCounter);
+            // Every swoop after the rightward setup's flies the path that setup planned; the fight's first pass is a
+            // rightward swoop, so no other swoop phase is reached before one.
+            case DraygonPhase.SwoopSetup when state.SwoopPath is { } leftPath:
+                Swoops.SetupDraygonLeftSwoop(state, samus, frameCounter, leftPath);
                 break;
-            case DraygonPhase.SwoopDescending:
-                Swoops.DescendDraygonSwoop(state, samus, frameCounter, SwoopSideOf(state));
+            case DraygonPhase.SwoopDescending when state.SwoopPath is { } descending:
+                Swoops.DescendDraygonSwoop(state, samus, frameCounter, SwoopSideOf(state), descending);
                 break;
-            case DraygonPhase.SwoopApex when state.PassDirection == HorizontalDirection.Right:
-                Swoops.CrossDraygonRightSwoopApex(state, samus, frameCounter);
+            case DraygonPhase.SwoopApex when state.PassDirection == HorizontalDirection.Right && state.SwoopPath is { } rightApex:
+                Swoops.CrossDraygonRightSwoopApex(state, samus, frameCounter, rightApex);
                 break;
-            case DraygonPhase.SwoopApex:
-                Swoops.CrossDraygonLeftSwoopApex(state, samus, frameCounter);
+            case DraygonPhase.SwoopApex when state.SwoopPath is { } leftApex:
+                Swoops.CrossDraygonLeftSwoopApex(state, samus, frameCounter, leftApex);
                 break;
-            case DraygonPhase.SwoopAscending:
-                Swoops.AscendDraygonSwoop(state, samus, frameCounter, SwoopSideOf(state));
+            case DraygonPhase.SwoopAscending when state.SwoopPath is { } ascending:
+                Swoops.AscendDraygonSwoop(state, samus, frameCounter, SwoopSideOf(state), ascending);
                 break;
             case DraygonPhase.GoopSetup:
                 Goop.SetupDraygonGoopPass(state, state.PassDirection, samus, frameCounter);
@@ -193,6 +195,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
             case DraygonPhase.DyingFinish:
                 Death.SinkDraygonBelowTheRoom(state, frameCounter, samus);
                 break;
+            case DraygonPhase.SwoopSetup:
+            case DraygonPhase.SwoopDescending:
+            case DraygonPhase.SwoopApex:
+            case DraygonPhase.SwoopAscending:
             default:
                 throw new InvalidDataException(
                     $"Draygon body has no behaviour for phase {state.Phase}.");

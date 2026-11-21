@@ -23,6 +23,9 @@ public readonly record struct LiquidMotion
     /// <summary>A motion at <paramref name="stage"/>.</summary>
     private LiquidMotion(LiquidMotionStage stage) => this.stage = stage;
 
+    /// <summary>The liquid of a room just loaded: its next motion pass only begins its motion.</summary>
+    public static LiquidMotion AwaitingFirstPass { get; } = new(LiquidMotionStage.AwaitingFirstPass);
+
     /// <summary>A liquid whose motion has begun: each motion pass moves it.</summary>
     public static LiquidMotion Moving { get; } = new(LiquidMotionStage.Moving);
 
@@ -38,11 +41,13 @@ public readonly record struct LiquidMotion
     /// <summary>The stages of a room liquid's motion.</summary>
     private enum LiquidMotionStage
     {
+        /// <summary>The next motion pass only begins the motion.</summary>
+        AwaitingFirstPass,
 
         /// <summary>Each motion pass moves the liquid.</summary>
-        Moving = 1,
+        Moving,
 
         /// <summary>No motion pass moves the liquid again until the next room load.</summary>
-        Stopped = 2,
+        Stopped,
     }
 }

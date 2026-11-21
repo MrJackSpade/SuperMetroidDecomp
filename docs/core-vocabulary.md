@@ -1022,6 +1022,19 @@ share is declared once, as a property of each member's definition or a named fam
 reads it. A switch that maps each member to its own value is a lookup, and a test of one member or of a named constant is
 not a listing.
 
+SME6488 (#2574) gives each thing one identity named for what it is. In Core and the import pipeline no enum mirrors
+another member for member: no switch expression or dictionary initializer maps every member of one enum to the member of
+another named for it, each to its own or reaching every member of the other (`MotherBrainDeathExplosionAnimation.Smoke =>
+DustExplosionAnimation.Smoke`, `[IntroEggShellFragment.Left] = IntroEggEffectAnimation.ShellLeft`), and no two enums bear
+the same members. The users name the one identity (`DustExplosionAnimation`, `SamusProjectileFamily`), or the definition
+carries the member it stands for (a palette effect's `ColourEffectId`, a growth resume's `KraidHeadFrame`). No member is
+named by joining the names of two or more members of one type, each of two words or more
+(`EastAqueductQuicksandWestAqueductQuicksand`): a thing several users share is named for what it is
+(`QuicksandShaftsFallingSand`, `SaveRoomDoorOnLeft`), generated catalogs included. A frame is named for what its picture
+shows, never for the hitbox or depth its record carried (`PhantoonBody`, whose hit area is the fight's
+`PhantoonBodyHitArea`), and data is never reached through another thing's identity (a shot flame drops from
+`ShotFlameDropChances`, not through his eye's enemy definition).
+
 SME6472 (#2575) keeps definition data in domain catalogs. Outside a catalog file, Core builds no value of a Core type
 wholly from constants with a nonzero numeric literal among them (`new Offset16<RoomPixels>(1, 0)`,
 `SignedSixteenSixteen.FromWholePixels(1)`, `UpdateCountdown.Lasting(1)`) and passes no nonzero numeric literal by name

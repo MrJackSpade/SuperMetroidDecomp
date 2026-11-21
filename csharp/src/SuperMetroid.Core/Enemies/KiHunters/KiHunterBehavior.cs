@@ -799,13 +799,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void SpawnKiHunterAcidSpit(RoomEnemyOccupant occupant, RoomEnemyPlace body, HorizontalDirection direction)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KiHunterAcidSpit, Acid, SpriteGraphics.SpawnedBy(occupant, body.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KiHunterAcidSpit, Acid, SpriteGraphics.SpawnedBy(occupant, body.Shading), new KiHunterAcidSpitAnimation(Acid, direction == HorizontalDirection.Right
+            ? KiHunterAcidSpitSegment.Right
+            : KiHunterAcidSpitSegment.Left));
         if (projectile is null)
             return;
 
-        projectile.StartAnimation(new KiHunterAcidSpitAnimation(Acid, direction == HorizontalDirection.Right
-            ? KiHunterAcidSpitSegment.Right
-            : KiHunterAcidSpitSegment.Left));
         Acid.Spits.Start(projectile, new KiHunterAcidState(direction));
 
         projectile.Velocity = projectile.Velocity.WithX(KiHunterMotionDefinitions.AcidHorizontalSpeed.Toward(direction));

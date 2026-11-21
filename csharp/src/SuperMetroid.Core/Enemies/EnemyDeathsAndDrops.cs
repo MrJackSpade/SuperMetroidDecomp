@@ -114,7 +114,7 @@ internal sealed class EnemyDeathsAndDrops
     internal void RemoveKilledEnemy(RoomEnemyOccupant killed, EnemyDeathExplosion deathAnimation, bool respawns)
     {
         RoomEnemyPlace enemy = Ensure.NotNull(killed).Place;
-        EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathExplosion, ExplosionsAndPickups, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? explosion = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathExplosion, ExplosionsAndPickups, graphics: SpriteGraphics.SharedStandard, new EnemyDeathAndDropAnimation(this, EnemyDeathExplosions.Animation(deathAnimation)));
         Position16<RoomPixels> killedAt = enemy.Position.Whole;
         // A second death of an occupant already killed finds its place holding none, and its explosion drops nothing.
         RoomEnemyOccupant? dropper = enemy.Occupant;
@@ -123,7 +123,6 @@ internal sealed class EnemyDeathsAndDrops
         {
             explosion.Position = explosion.Position.WithWhole(killedAt);
             Explosions.Start(explosion, new EnemyDeathExplosionState(KilledEnemy.Of(killedIn, respawns), dropper));
-            explosion.StartAnimation(new EnemyDeathAndDropAnimation(this, EnemyDeathExplosions.Animation(deathAnimation)));
         }
     }
 
@@ -219,13 +218,7 @@ internal sealed class EnemyDeathsAndDrops
         EnemyDefinitionId definitionId,
         SamusState samus)
     {
-        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathPickup, ExplosionsAndPickups, graphics: SpriteGraphics.SharedStandard);
-        if (pickup is null)
-            return null;
-
-        pickup.Position = pickup.Position.WithWhole(position);
-        InitializeDirectEnemyPickup(pickup, _room.Definitions.ReadEnemyDefinition(definitionId).Drops, samus);
-        return pickup;
+        return SpawnDirectEnemyPickup(position, _room.Definitions.ReadEnemyDefinition(definitionId).Drops, samus);
     }
 
     /// <summary>
@@ -237,29 +230,35 @@ internal sealed class EnemyDeathsAndDrops
         EnemyDropChances dropChances,
         SamusState samus)
     {
-        EnemyProjectile? pickup = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EnemyDeathPickup, ExplosionsAndPickups, graphics: SpriteGraphics.SharedStandard);
-        if (pickup is null)
-            return null;
-
-        pickup.Position = pickup.Position.WithWhole(position);
-        InitializeDirectEnemyPickup(pickup, EnemyDrops.Rolling(dropChances), samus);
-        return pickup;
+        return SpawnDirectEnemyPickup(position, EnemyDrops.Rolling(dropChances), samus);
     }
 
     /// <summary>
-    /// Rolls a direct drop's <paramref name="dropChances"/>, none when its enemy drops nothing, and either starts its
-    /// pickup animation or the ending it plays when nothing drops.
+    /// Spawns a direct drop at <paramref name="position"/> into a free place, none when no place is free, and rolls its
+    /// <paramref name="drops"/>, none when its enemy drops nothing: it plays its pickup's animation or the ending it plays
+    /// when nothing drops.
     /// </summary>
-    private void InitializeDirectEnemyPickup(EnemyProjectile pickup, EnemyDrops drops, SamusState samus)
+    private EnemyProjectile? SpawnDirectEnemyPickup(Position16<RoomPixels> position, EnemyDrops drops, SamusState samus)
     {
+        // The roll is made only once a place is found, as the spawned pickup's setup makes it.
+        if (_projectiles.FindVacancy() is not { } vacancy)
+            return null;
         EnemyDropRoll roll = SelectRandomEnemyDrop(drops, samus);
 
         // Unlike a finished death explosion, a direct drop becomes a pickup in any place for
         // an enemy projectile, the first included. The roll reads the drop's definition straight back from
         // the pickup that holds it.
-        pickup.StartAnimation(new EnemyDeathAndDropAnimation(this, roll is EnemyDropRoll.PickupDrops drop
-            ? ConfigurePickup(pickup, drop.Kind)
-            : ConfigureDormantPickup(pickup)));
+        EnemyDeathAndDropSegment shown = roll is EnemyDropRoll.PickupDrops shownDrop
+            ? EnemyPickups.Animation(shownDrop.Kind).Animation
+            : EnemyDeathExplosionDefinitions.NoDropPause;
+        EnemyProjectile pickup = _projectiles.Spawn(vacancy, RoomEnemyProjectileKind.EnemyDeathPickup, ExplosionsAndPickups,
+            SpriteGraphics.SharedStandard, new EnemyDeathAndDropAnimation(this, shown));
+        pickup.Position = pickup.Position.WithWhole(position);
+        if (roll is EnemyDropRoll.PickupDrops drop)
+            _ = ConfigurePickup(pickup, drop.Kind);
+        else
+            _ = ConfigureDormantPickup(pickup);
+        return pickup;
     }
 
     /// <summary>

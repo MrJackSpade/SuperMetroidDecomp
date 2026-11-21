@@ -392,7 +392,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
     private void SpawnAlcoonFireball(RoomEnemyOccupant occupant, RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.AlcoonFireball, Fireball, SpriteGraphics.SpawnedBy(occupant, alcoon.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.AlcoonFireball, Fireball, SpriteGraphics.SpawnedBy(occupant, alcoon.Shading), new AlcoonFireballAnimation(AlcoonFireballSegment.Spinning));
         if (projectile is null)
             return;
 
@@ -401,7 +401,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The fireball takes its radii, damage, persistence, shot blocking, animation and motion from its definition
         // before its setup sets its position, to a fraction of a pixel, and its velocity.
-        projectile.StartAnimation(new AlcoonFireballAnimation(AlcoonFireballSegment.Spinning));
         Offset16<RoomPixels> muzzle = AlcoonFireballLaunchDefinitions.MuzzleFacingRight;
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(alcoon.Position.Whole + (movingLeft ? muzzle.MirroredX() : muzzle));
         projectile.Velocity = projectile.Velocity.WithX(

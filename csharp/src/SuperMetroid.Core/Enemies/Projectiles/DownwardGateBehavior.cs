@@ -43,14 +43,12 @@ internal sealed class DownwardGateBehavior
             // The remaining member, DownwardGateProjectileKind.Moving.
             : RoomEnemyProjectileKind.DownwardGateMoving;
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, Gate, graphics: SpriteGraphics.SharedStandard);
+        bool closed = request.Kind == DownwardGateProjectileKind.Closed;
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, Gate, graphics: SpriteGraphics.SharedStandard,
+            new DownwardGateProjectileAnimation(Gate, closed ? DownwardGateProjectileSegment.Closed : DownwardGateProjectileSegment.Moving));
         if (projectile is null)
             return; // The projectile spawn's deliberate finite-pool failure.
 
-        bool closed = request.Kind == DownwardGateProjectileKind.Closed;
-        projectile.StartAnimation(new DownwardGateProjectileAnimation(Gate, closed
-            ? DownwardGateProjectileSegment.Closed
-            : DownwardGateProjectileSegment.Moving));
         int blockX = request.RoomObjectBlock.X;
         int blockY = request.RoomObjectBlock.Y;
         projectile.Position = projectile.Position.WithWhole(new(

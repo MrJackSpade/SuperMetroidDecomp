@@ -118,11 +118,10 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         QuadraticSpeedCurvePlace launchPlace,
         SignedEightEight xVelocity)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PolypRock, Rock, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PolypRock, Rock, SpriteGraphics.SpawnedBy(occupant, source.Shading), new PolypRockAnimation(PolypRockSegment.LavaRock));
         if (projectile is null)
             return;
 
-        projectile.InstallAnimation(new PolypRockAnimation(PolypRockSegment.LavaRock));
         Rock.States.Start(projectile, new PolypRockState(launchPlace));
         projectile.Velocity = new(xVelocity, SignedEightEight.Zero);
         projectile.Position = source.Position;

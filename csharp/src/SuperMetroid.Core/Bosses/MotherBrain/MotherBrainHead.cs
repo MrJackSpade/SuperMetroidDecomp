@@ -447,11 +447,10 @@ internal sealed class MotherBrainHead
         MotherBrainEnemyState state,
         int afterburnCount)
     {
-        EnemyProjectile? bomb = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainBomb, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
+        EnemyProjectile? bomb = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainBomb, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading), new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.Bomb));
         if (bomb is null)
             return;
 
-        bomb.StartAnimation(new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.Bomb));
         RoomEnemyPlace head = state.Head;
         bomb.Position = bomb.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BombOffset);
         bomb.Position = bomb.Position.WithoutFractions();
@@ -469,11 +468,10 @@ internal sealed class MotherBrainHead
         MotherBrainEnemyState state,
         TrigonometryAngle angle)
     {
-        EnemyProjectile? ring = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainOnionRing, _projectileAttacks.OnionRing, graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
+        EnemyProjectile? ring = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainOnionRing, _projectileAttacks.OnionRing, graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading), new MotherBrainEffectAnimation(_projectileAttacks.OnionRing, MotherBrainEffectSegment.OnionRing));
         if (ring is null)
             return;
 
-        ring.StartAnimation(new MotherBrainEffectAnimation(_projectileAttacks.OnionRing, MotherBrainEffectSegment.OnionRing));
         _projectileAttacks.OnionRing.OnionRings.Start(ring, new MotherBrainOnionRingState(state, MotherBrainOnionRingDefinitions.MouthWaitUpdates));
         ring.Velocity = ring.Velocity.WithX(EnemyMath.SineSpeed(MotherBrainOnionRingDefinitions.Speed, angle));
         ring.Velocity = ring.Velocity.WithY(EnemyMath.SineSpeed(
@@ -501,11 +499,10 @@ internal sealed class MotherBrainHead
         RoomEnemyProjectileKind kind = state.NeckTurnPerUpdate < MotherBrainNeckTurnDefinitions.DyingDrool
             ? RoomEnemyProjectileKind.MotherBrainDrool
             : RoomEnemyProjectileKind.MotherBrainDyingDrool;
-        EnemyProjectile? drool = _projectiles.AllocateEnemyProjectile(kind, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? drool = _projectiles.AllocateEnemyProjectile(kind, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard, new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.Drool));
         if (drool is null)
             return;
 
-        drool.StartAnimation(new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.Drool));
         _projectileAttacks.Projectile.Drools.Start(drool, new MotherBrainDroolState(state, mouth));
 
         // Spawning the drool attaches it to the head at once, so its position is already
@@ -516,12 +513,11 @@ internal sealed class MotherBrainHead
     /// <summary>Runs the head's big purple breath step and the breath's setup.</summary>
     private void SpawnMotherBrainPurpleBreathBig(MotherBrainEnemyState state)
     {
-        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard, new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.PurpleBreathBig));
         if (breath is null)
             return;
 
         _projectileAttacks.Projectile.MotherBrains.Start(breath, new MotherBrainProjectileState(state));
-        breath.StartAnimation(new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.PurpleBreathBig));
         RoomEnemyPlace head = state.Head;
         breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
     }
@@ -529,12 +525,11 @@ internal sealed class MotherBrainHead
     /// <summary>Runs the small-breath spawn and the breath's setup.</summary>
     private void SpawnMotherBrainPurpleBreathSmall(MotherBrainEnemyState state)
     {
-        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard, new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.PurpleBreathSmall));
         if (breath is null)
             return;
 
         _projectileAttacks.Projectile.MotherBrains.Start(breath, new MotherBrainProjectileState(state));
-        breath.StartAnimation(new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.PurpleBreathSmall));
         RoomEnemyPlace head = state.Head;
         breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
         state.SmallPurpleBreathActive = true;
@@ -543,12 +538,11 @@ internal sealed class MotherBrainHead
     /// <summary>Spawns the rainbow beam's charge glow, pinned to her head in the update it spawns.</summary>
     private void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard, new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.RainbowBeamCharging));
         if (projectile is null)
             return;
 
         _projectileAttacks.Projectile.MotherBrains.Start(projectile, new MotherBrainProjectileState(state));
-        projectile.StartAnimation(new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.RainbowBeamCharging));
         projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
         projectile.Position = projectile.Position.WithoutFractions();
         _projectileAttacks.Projectile.PinMotherBrainRainbowCharge(projectile);

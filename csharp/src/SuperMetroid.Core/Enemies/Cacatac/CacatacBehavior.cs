@@ -168,11 +168,10 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void SpawnCacatacSpike(RoomEnemyOccupant occupant, RoomEnemyPlace source, CacatacSpikeDirection direction)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CacatacSpike, Spike, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CacatacSpike, Spike, SpriteGraphics.SpawnedBy(occupant, source.Shading), new CacatacProjectileAnimation(direction));
         if (projectile is null)
             return;
 
-        projectile.InstallAnimation(new CacatacProjectileAnimation(direction));
         projectile.Position = source.Position;
         projectile.Velocity = CacatacSpikes.Velocity(direction);
     }

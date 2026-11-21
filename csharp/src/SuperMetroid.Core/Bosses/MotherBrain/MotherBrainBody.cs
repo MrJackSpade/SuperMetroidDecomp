@@ -309,7 +309,7 @@ internal sealed class MotherBrainBody
         MotherBrainEnemyState state,
         SamusState samus)
     {
-        EnemyProjectile? beam = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainHandBeamCharging, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
+        EnemyProjectile? beam = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainHandBeamCharging, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading), new MotherBrainHandBeamAnimation(_projectileAttacks.Projectile));
         if (beam is null)
             return;
 
@@ -327,7 +327,6 @@ internal sealed class MotherBrainBody
             EnemyMath.SineSpeed(MotherBrainHandBeamDefinitions.Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
         _projectileAttacks.Projectile.MotherBrains.Start(beam, new MotherBrainProjectileState(state));
-        beam.StartAnimation(new MotherBrainHandBeamAnimation(_projectileAttacks.Projectile));
     }
 
     /// <summary>
@@ -359,14 +358,13 @@ internal sealed class MotherBrainBody
     /// <summary>Spawns one of Mother Brain's turrets, <paramref name="definition"/>.</summary>
     private void SpawnMotherBrainTurret(MotherBrainEnemyState state, MotherBrainTurretDefinition definition)
     {
-        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRoomTurret, _projectileAttacks.Projectile, MotherBrainTurretDefinitions.Graphics);
+        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRoomTurret, _projectileAttacks.Projectile, MotherBrainTurretDefinitions.Graphics, new MotherBrainTurretAnimation(_projectileAttacks.Projectile, MotherBrainTurretPose.Turret(definition.InitialDirection)));
         if (turret is null)
             return;
 
 
         turret.Position = turret.Position.WithWhole(definition.Position);
         _projectileAttacks.Projectile.Turrets.Start(turret, new MotherBrainTurretState(state, definition));
-        turret.StartAnimation(new MotherBrainTurretAnimation(_projectileAttacks.Projectile, MotherBrainTurretPose.Turret(definition.InitialDirection)));
 
         // A new turret draws a random number for each of its two waits, its turning wait first.
         _projectileAttacks.Projectile.ResetMotherBrainTurretRotationTimer(turret);

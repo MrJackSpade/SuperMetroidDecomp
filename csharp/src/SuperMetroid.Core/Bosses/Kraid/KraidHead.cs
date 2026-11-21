@@ -232,11 +232,10 @@ internal sealed class KraidHead
     /// <summary>Emits a mouth rock when a projectile place is free.</summary>
     private void SpawnKraidSpitRock(RoomEnemyPlace body)
     {
-        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KraidSpitRock, _spitRock, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
+        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KraidSpitRock, _spitRock, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading), new KraidRockAnimation(_spitRock, KraidRockSegment.SharedPose));
         if (rock is null)
             return;
 
-        rock.StartAnimation(new KraidRockAnimation(_spitRock, KraidRockSegment.SharedPose));
         int random = _access.ReadKraidRandomNumber();
         rock.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + KraidArenaDefinitions.SpitRockOffset);
         rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.SpitLaunch.Choose(random));

@@ -362,15 +362,14 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         HorizontalDirection direction,
         PirateLaserSpeed speed)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateMotherBrainLaser, Laser, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateMotherBrainLaser, Laser, graphics: SpriteGraphics.SharedStandard, new SpacePirateProjectileAnimation(Laser, direction == HorizontalDirection.Right
+            ? SpacePirateProjectileSegment.LaserRight
+            : SpacePirateProjectileSegment.LaserLeft));
         if (projectile is null)
             return null;
 
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(muzzle);
-        projectile.StartAnimation(new SpacePirateProjectileAnimation(Laser, direction == HorizontalDirection.Right
-            ? SpacePirateProjectileSegment.LaserRight
-            : SpacePirateProjectileSegment.LaserLeft));
 
         // The laser holds still through its muzzle frames until its animation fires it, running its flight
         // at once.

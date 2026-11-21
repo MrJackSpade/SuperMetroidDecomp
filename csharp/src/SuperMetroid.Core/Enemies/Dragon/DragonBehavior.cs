@@ -302,24 +302,16 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns and initializes a Dragon fireball.</summary>
     private void SpawnDragonFireball(RoomEnemyOccupant occupant, RoomEnemyPlace body, DragonEnemyState bodyState)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DragonFireball, Fireball, SpriteGraphics.SpawnedBy(occupant, body.Shading));
+        bool left = bodyState.Facing == HorizontalDirection.Left;
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DragonFireball, Fireball, SpriteGraphics.SpawnedBy(occupant, body.Shading),
+            new DragonFireballAnimation(left ? DragonFireballSegment.RisingLeft : DragonFireballSegment.RisingRight));
         if (projectile is null)
             return;
 
         Offset16<RoomPixels> muzzle = DragonFireballDefinitions.MuzzleFacingRight;
-        projectile.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + (bodyState.Facing == HorizontalDirection.Left ? muzzle.MirroredX() : muzzle));
+        projectile.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + (left ? muzzle.MirroredX() : muzzle));
         projectile.Velocity = projectile.Velocity.WithY(DragonFireballDefinitions.LaunchRise);
-
-        if (bodyState.Facing == HorizontalDirection.Left)
-        {
-            projectile.Velocity = projectile.Velocity.WithX(-DragonFireballDefinitions.SidewaysSpeed);
-            projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballSegment.RisingLeft));
-        }
-        else
-        {
-            projectile.Velocity = projectile.Velocity.WithX(DragonFireballDefinitions.SidewaysSpeed);
-            projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballSegment.RisingRight));
-        }
+        projectile.Velocity = projectile.Velocity.WithX(left ? -DragonFireballDefinitions.SidewaysSpeed : DragonFireballDefinitions.SidewaysSpeed);
     }
 
     /// <summary>Flies the fireball for one update.</summary>

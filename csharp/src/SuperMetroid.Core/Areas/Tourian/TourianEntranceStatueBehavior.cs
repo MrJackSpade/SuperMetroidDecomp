@@ -188,12 +188,11 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         Position16<RoomPixels> position,
         DecorationBehavior decorations)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, decorations, graphics: SceneGraphics);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, decorations, graphics: SceneGraphics, new TourianStatueProjectileAnimation(decorations, start));
         if (projectile is null)
             return;
 
         HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(decorations, start));
         projectile.Position = projectile.Position.WithWhole(position);
         // The decoration stays tied to its authored spawn point as the statue descends.
         projectile.Anchor = position;

@@ -72,11 +72,10 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     /// <param name="afterburns">The afterburn stages the fireball's impact spawns.</param>
     internal void SpawnRidleyFireball(RoomEnemyPlace ridley, RidleyFlightState state, int afterburns)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.RidleyFireball, Fireballs, FireballGraphics);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.RidleyFireball, Fireballs, FireballGraphics, new RidleyFireballAnimation(this, RidleyFireballSegment.Fireball));
         if (projectile is null)
             return;
 
-        projectile.StartAnimation(new RidleyFireballAnimation(this, RidleyFireballSegment.Fireball));
         ApplyRidleyProjectileAreaDamage(projectile);
         projectile.Position = projectile.Position.WithWhole(Muzzle(ridley, state));
         projectile.Velocity = state.FireballVelocity;
@@ -96,12 +95,11 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     /// <summary>Allocates the dust enemy projectile with one authored dust variant.</summary>
     internal void SpawnRidleyDust(Position16<RoomPixels> position, DustExplosionAnimation animation)
     {
-        EnemyProjectile? dust = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DustOrExplosion, DustExplosionProjectileBehavior.Instance, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? dust = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DustOrExplosion, DustExplosionProjectileBehavior.Instance, graphics: SpriteGraphics.SharedStandard, new DustExplosionProjectileAnimation(animation));
         if (dust is null)
             return;
 
         dust.Position = dust.Position.WithWhole(position);
-        dust.StartAnimation(new DustExplosionProjectileAnimation(animation));
     }
 
     /// <summary>
@@ -113,12 +111,11 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         Position16<RoomPixels> position,
         int remaining)
     {
-        EnemyProjectile? center = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.RidleyAfterburnCenter, Fireballs, FireballGraphics);
+        // The centre's animation raises the spawn of the pair along its axis.
+        EnemyProjectile? center = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.RidleyAfterburnCenter, Fireballs, FireballGraphics, new RidleyFireballAnimation(this,
+            pairAxis == Axis.Horizontal ? RidleyFireballSegment.HorizontalCenter : RidleyFireballSegment.VerticalCenter));
         if (center is null)
             return;
-        // The centre's animation raises the spawn of the pair along its axis.
-        center.StartAnimation(new RidleyFireballAnimation(this,
-            pairAxis == Axis.Horizontal ? RidleyFireballSegment.HorizontalCenter : RidleyFireballSegment.VerticalCenter));
         center.Position = center.Position.WithWhole(position);
         // The afterburn's centre starts at rest; a new projectile otherwise keeps the velocity its place last held.
         center.Velocity = PixelVelocity<RoomPixels>.Zero;
@@ -149,10 +146,9 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         RoomEnemyProjectileKind kind,
         PixelVelocity<RoomPixels> velocity)
     {
-        EnemyProjectile? afterburn = _projectiles.AllocateEnemyProjectile(kind, Fireballs, FireballGraphics);
+        EnemyProjectile? afterburn = _projectiles.AllocateEnemyProjectile(kind, Fireballs, FireballGraphics, new RidleyFireballAnimation(this, RidleyFireballSegment.DirectionalAfterburn));
         if (afterburn is null)
             return;
-        afterburn.StartAnimation(new RidleyFireballAnimation(this, RidleyFireballSegment.DirectionalAfterburn));
         ApplyRidleyProjectileAreaDamage(afterburn);
         afterburn.Position = afterburn.Position.WithWhole(source.Position.Whole);
         afterburn.Velocity = velocity;

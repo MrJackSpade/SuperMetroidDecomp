@@ -349,13 +349,12 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
         WorkRobotLaser laser,
         Position16<RoomPixels> camera)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(laser.ProjectileKind(), Laser, SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(laser.ProjectileKind(), Laser, SpriteGraphics.SharedStandard, new WorkRobotLaserAnimation(WorkRobotLaserSegment.Flare));
         if (projectile is null)
             return;
 
         // The laser takes its kind's radii, damage and contact (the diagonal and horizontal lasers differ), and draws
         // from the room's shared sheet in its standard colours.
-        projectile.StartAnimation(new WorkRobotLaserAnimation(WorkRobotLaserSegment.Flare));
         projectile.Velocity = projectile.Velocity.WithX(WorkRobotLaserDefinitions.Speed.Toward(state.Facing));
         projectile.Velocity = projectile.Velocity.WithY(laser switch
         {

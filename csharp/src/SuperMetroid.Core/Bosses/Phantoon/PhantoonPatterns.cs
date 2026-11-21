@@ -728,11 +728,10 @@ internal sealed class PhantoonPatterns
     /// <returns>The flame, or null when every enemy projectile place is in use.</returns>
     private EnemyProjectile? AllocateDestroyableFlame(RoomEnemyOccupant occupant, RoomEnemyPlace body)
     {
-        EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PhantoonDestroyableFlame, _combat.DestroyableFlame, SpriteGraphics.SpawnedBy(occupant, body.Shading));
+        EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PhantoonDestroyableFlame, _combat.DestroyableFlame, SpriteGraphics.SpawnedBy(occupant, body.Shading), new PhantoonFlameAnimation(_combat.DestroyableFlame, PhantoonFlameSegment.Burning));
         if (flame is null)
             return null;
 
-        flame.StartAnimation(new PhantoonFlameAnimation(_combat.DestroyableFlame, PhantoonFlameSegment.Burning));
         flame.Position = flame.Position.WithoutFractions();
         flame.Velocity = flame.Velocity.WithY(SignedEightEight.Zero);
         return flame;

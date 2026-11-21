@@ -76,7 +76,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         var bodies = new EnemyProjectile[YappingMawAttackDefinitions.TongueLinks];
         for (int link = bodies.Length - 1; link >= 0; link--)
         {
-            EnemyProjectile? body = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.YappingMawBody, EnemyProjectileBehavior.Still, SpriteGraphics.SpawnedBy(occupant, place.Shading));
+            EnemyProjectile? body = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.YappingMawBody, EnemyProjectileBehavior.Still, SpriteGraphics.SpawnedBy(occupant, place.Shading), new YappingMawBodyProjectileAnimation(occupant.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
+                ? YappingMawBodyProjectileSegment.FacingDown
+                : YappingMawBodyProjectileSegment.FacingUp));
             if (body is null)
             {
                 throw new InvalidDataException(
@@ -84,9 +86,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             body.Position = body.Position.WithWhole(place.Position.Whole);
-            body.InstallAnimation(new YappingMawBodyProjectileAnimation(occupant.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
-                ? YappingMawBodyProjectileSegment.FacingDown
-                : YappingMawBodyProjectileSegment.FacingUp));
             bodies[link] = body;
         }
 

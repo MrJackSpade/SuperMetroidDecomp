@@ -68,11 +68,10 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
     /// </summary>
     private void SpawnSporeSpawnSpore(Position16<RoomPixels> position, HorizontalDirection drift, SporeSpawnEnemyState sporeSpawn)
     {
-        EnemyProjectile? spore = projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnSpore, spores, SpriteGraphics.SharedIn(Ensure.NotNull(sporeSpawn).Colours.Sprites));
+        EnemyProjectile? spore = projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnSpore, spores, SpriteGraphics.SharedIn(Ensure.NotNull(sporeSpawn).Colours.Sprites), new SporeSpawnProjectileAnimation(spores, SporeSpawnProjectileSegment.Spore));
         if (spore is null)
             return;
 
-        spore.StartAnimation(new SporeSpawnProjectileAnimation(spores, SporeSpawnProjectileSegment.Spore));
         spore.Position = spore.Position.WithWhole(position);
 
         spores.Drifts.Start(spore, new SporeSpawnSporeState(drift));

@@ -70,13 +70,12 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         NoobTubePiece piece = request.Piece;
         RoomEnemyProjectileKind kind = PieceKinds[piece.Definition];
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, TubePieces, graphics: TubePieceGraphics);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, TubePieces, graphics: TubePieceGraphics, new NoobTubeProjectileAnimation(TubePieces, piece.Start.Match(PieceStartAnimations, 0)));
         if (projectile is null)
             return;
         // The tube's pieces draw from the shared sheet in the tube's crack colours (#1512).
 
         Position16<RoomPixels> place = request.RoomObjectBlock.ToRoomPixels() + piece.Offset;
-        projectile.StartAnimation(new NoobTubeProjectileAnimation(TubePieces, piece.Start.Match(PieceStartAnimations, 0)));
         SpawnNoobTubeProjectileForNoobTubeProjectileDefinition[piece.Definition](piece, projectile, place);
     }
 

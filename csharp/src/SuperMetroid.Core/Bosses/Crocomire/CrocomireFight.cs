@@ -464,11 +464,10 @@ internal sealed class CrocomireFight
     /// <summary>Spawns one of Crocomire's fight projectiles, fired along <paramref name="gradient"/>.</summary>
     private void SpawnCrocomireProjectile(RoomEnemyPlace body, int gradient)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CrocomireProjectile, _combat.MouthShot, graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CrocomireProjectile, _combat.MouthShot, graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading), new CrocomireProjectileAnimation(_combat.MouthShot, CrocomireProjectileSegment.Mouth));
         if (projectile is null)
             return;
 
-        projectile.StartAnimation(new CrocomireProjectileAnimation(_combat.MouthShot, CrocomireProjectileSegment.Mouth));
         projectile.Velocity = CrocomireFightDefinitions.SpitVelocity;
         projectile.Position = projectile.Position.WithWhole(body.Position.Whole + CrocomireFightDefinitions.SpitOffset);
         projectile.Position = projectile.Position.WithoutFractions();

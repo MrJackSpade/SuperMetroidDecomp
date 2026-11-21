@@ -26,20 +26,20 @@ internal sealed class EyeDoorBehavior
     private IdentityTable<EyeDoorProjectileDefinition, Action<EyeDoorProjectileRequest, RoomEnemyProjectileKind, EnemyProjectile, Position16<RoomBlocks>>> SpawnEyeDoorProjectileForEyeDoorProjectileDefinition => field ??= new(new Dictionary<EyeDoorProjectileDefinition, Action<EyeDoorProjectileRequest, RoomEnemyProjectileKind, EnemyProjectile, Position16<RoomBlocks>>>
     {
         [EyeDoorProjectileDefinition.Sweat] = (request, kind, projectile, block) =>
-        {
-            projectile.StartAnimation(new EyeDoorSweatAnimation(Sweat, EyeDoorSweatSegment.Falling));
-            InitializeEyeDoorSweat(projectile, request.Facing, block);
-        },
+            InitializeEyeDoorSweat(projectile, request.Facing, block),
         [EyeDoorProjectileDefinition.ScatteredSmoke] = (request, kind, projectile, block) =>
-        {
-            InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.ScatteredSmokeAnimation,
-                EyeDoorEffectDefinitions.ScatteredSmokePlacement, block);
-        },
+            InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.ScatteredSmokePlacement, block),
         [EyeDoorProjectileDefinition.CenteredSmoke] = (request, kind, projectile, block) =>
-        {
-            InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.CenteredSmokeAnimation,
-                EyeDoorEffectDefinitions.CenteredSmokePlacement, block);
-        },
+            InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.CenteredSmokePlacement, block),
+    });
+
+    /// <summary>The animation each <see cref="EyeDoorProjectileDefinition"/>'s projectile spawns playing (#2553).</summary>
+    private IdentityTable<EyeDoorProjectileDefinition, Func<EnemyProjectileAnimation>> EyeDoorProjectileAnimations => field ??= new(new Dictionary<EyeDoorProjectileDefinition, Func<EnemyProjectileAnimation>>
+    {
+        [EyeDoorProjectileDefinition.Sweat] = () => new EyeDoorSweatAnimation(Sweat, EyeDoorSweatSegment.Falling),
+        // A smoke keeps the definition's one-update timer.
+        [EyeDoorProjectileDefinition.ScatteredSmoke] = static () => new DustExplosionProjectileAnimation(EyeDoorEffectDefinitions.ScatteredSmokeAnimation),
+        [EyeDoorProjectileDefinition.CenteredSmoke] = static () => new DustExplosionProjectileAnimation(EyeDoorEffectDefinitions.CenteredSmokeAnimation),
     });
 
     /// <summary>
@@ -60,7 +60,8 @@ internal sealed class EyeDoorBehavior
         };
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind,
-            request.Definition == EyeDoorProjectileDefinition.Sweat ? Sweat : EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard);
+            request.Definition == EyeDoorProjectileDefinition.Sweat ? Sweat : EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard,
+            EyeDoorProjectileAnimations[request.Definition]());
         if (projectile is null)
             return; // Spawning fails when the room has no place left for an enemy projectile.
 
@@ -75,11 +76,10 @@ internal sealed class EyeDoorBehavior
     public void SpawnEyeDoorAttack(EyeDoorAttackRequest request, SharedGameState system)
     {
         Ensure.NotNull(system);
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EyeDoorProjectile, Shot, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.EyeDoorProjectile, Shot, graphics: SpriteGraphics.SharedStandard, new EyeDoorProjectileAnimation(Shot, EyeDoorProjectileSegment.Fired));
         if (projectile is null)
             return; // Spawning fails when the room has no place left for an enemy projectile.
 
-        projectile.StartAnimation(new EyeDoorProjectileAnimation(Shot, EyeDoorProjectileSegment.Fired));
         InitializeEyeDoorProjectile(Shot, projectile, request, system);
     }
 
@@ -168,13 +168,10 @@ internal sealed class EyeDoorBehavior
     /// </summary>
     private void InitializeEyeDoorSmoke(
         EnemyProjectile projectile,
-        DustExplosionAnimation animation,
         DustExplosionPlacement placement,
         Position16<RoomBlocks> block)
     {
         int random = _room.Random.Read();
-        // Stores only the animation, keeping the definition's one-update timer.
-        projectile.InstallAnimation(new DustExplosionProjectileAnimation(animation));
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + EyeDoorEffectDefinitions.SmokeCentre + new Offset16<RoomPixels>(
             placement.Base.X + placement.XScatter.Of(random),

@@ -227,11 +227,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int xOffset,
         PixelVelocity<RoomPixels> velocity)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FakeKraidSpit, SpitAndSpikes, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FakeKraidSpit, SpitAndSpikes, SpriteGraphics.SpawnedBy(occupant, source.Shading), new FakeKraidProjectileAnimation(FakeKraidProjectilePose.Spit));
         if (projectile is null)
             return;
 
-        projectile.StartAnimation(new FakeKraidProjectileAnimation(FakeKraidProjectilePose.Spit));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
             source.Position.Whole + new Offset16<RoomPixels>(xOffset, FakeKraidProjectileDefinitions.SpitYOffset));
         projectile.Velocity = velocity;
@@ -244,14 +243,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         FakeKraidEnemyState state,
         FakeKraidSpikeRow row)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FakeKraidSpike, SpitAndSpikes, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        bool left = state.Facing == HorizontalDirection.Left;
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.FakeKraidSpike, SpitAndSpikes, SpriteGraphics.SpawnedBy(occupant, source.Shading),
+            new FakeKraidProjectileAnimation(left ? FakeKraidProjectilePose.SpikeLeft : FakeKraidProjectilePose.SpikeRight));
         if (projectile is null)
             return false;
 
-        bool left = state.Facing == HorizontalDirection.Left;
-        projectile.StartAnimation(new FakeKraidProjectileAnimation(left
-            ? FakeKraidProjectilePose.SpikeLeft
-            : FakeKraidProjectilePose.SpikeRight));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
             source.Position.Whole + Offset16<RoomPixels>.Of(0, FakeKraidProjectiles.SpikeYOffset(row)));
         projectile.Velocity = new(FakeKraidProjectileDefinitions.SpikeSpeed.Toward(state.Facing), SignedEightEight.Zero);

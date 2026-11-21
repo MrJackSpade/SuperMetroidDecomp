@@ -432,14 +432,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection thrown,
         Offset16<RoomPixels> spawnOffset)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateClaw, Claw, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateClaw, Claw, SpriteGraphics.SpawnedBy(occupant, source.Shading), new SpacePirateProjectileAnimation(Claw, thrown == HorizontalDirection.Right
+            ? SpacePirateProjectileSegment.ClawRight
+            : SpacePirateProjectileSegment.ClawLeft));
         if (projectile is null)
             return;
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
-        projectile.StartAnimation(new SpacePirateProjectileAnimation(Claw, thrown == HorizontalDirection.Right
-            ? SpacePirateProjectileSegment.ClawRight
-            : SpacePirateProjectileSegment.ClawLeft));
         Claw.Claws.Start(projectile, new NinjaPirateClawState(SpacePirateMotionDefinitions.NinjaClawLaunchSpeed, thrown));
     }
 

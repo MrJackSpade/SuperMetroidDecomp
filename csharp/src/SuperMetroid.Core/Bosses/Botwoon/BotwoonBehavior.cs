@@ -804,7 +804,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <returns>The segment, alive and inside the wall.</returns>
     private BotwoonSegmentState SpawnBotwoonBodySegment(RoomEnemyOccupant occupant, RoomEnemyPlace head, int segmentIndex)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BotwoonBody, BodyAndSpit, SpriteGraphics.SpawnedBy(occupant, head.Shading));
+        // Every segment, the tail cap included, starts hidden inside the wall.
+        var animation = new BotwoonSegmentAnimation(BotwoonBodyAnimationSegment.Hidden);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BotwoonBody, BodyAndSpit, SpriteGraphics.SpawnedBy(occupant, head.Shading), animation);
         if (projectile is null)
         {
             throw new InvalidOperationException(
@@ -812,10 +814,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         }
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
-
-        // Every segment, the tail cap included, starts hidden inside the wall.
-        var animation = new BotwoonSegmentAnimation(BotwoonBodyAnimationSegment.Hidden);
-        projectile.StartAnimation(animation);
         var segment = new BotwoonSegmentState(head, segmentIndex, projectile, animation);
         Segments.Start(projectile, segment);
         projectile.CollisionOption = EnemyProjectileCollisionOption.NoCollision;
@@ -922,12 +920,11 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <param name="speed">The spit's speed.</param>
     private void SpawnBotwoonSpit(RoomEnemyOccupant occupant, RoomEnemyPlace head, TrigonometryAngle angle, int speed)
     {
-        EnemyProjectile? spit = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BotwoonSpit, BodyAndSpit, SpriteGraphics.SpawnedBy(occupant, head.Shading));
+        EnemyProjectile? spit = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BotwoonSpit, BodyAndSpit, SpriteGraphics.SpawnedBy(occupant, head.Shading), new BotwoonSpitAnimation());
         if (spit is null)
             return;
 
         spit.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
-        spit.StartAnimation(new BotwoonSpitAnimation());
 
         // The spit flies along its heading at its speed, split across and down, keeping each step's fraction of a pixel
         // so a shallow flight keeps its slow drift.

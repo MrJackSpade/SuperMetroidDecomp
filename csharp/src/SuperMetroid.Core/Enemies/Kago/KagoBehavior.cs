@@ -286,7 +286,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns and initializes a Kago bug; with no projectile place free, none spawns.</summary>
     private void SpawnKagoBug(RoomEnemyOccupant occupant, RoomEnemyPlace source)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KagoBug, Bug, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KagoBug, Bug, SpriteGraphics.SpawnedBy(occupant, source.Shading), new KagoBugProjectileAnimation(Bug, KagoBugProjectileSegment.Waiting));
         if (projectile is null)
             return;
 
@@ -302,7 +302,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             SoundDelay = UpdateCountdown.Lasting(firstGroundWait + KagoDefinitions.FirstSoundPastFirstHop),
         });
         projectile.StartMotion(Bug, KagoBugMotion.Waiting);
-        projectile.StartAnimation(new KagoBugProjectileAnimation(Bug, KagoBugProjectileSegment.Waiting));
     }
 
     /// <summary>

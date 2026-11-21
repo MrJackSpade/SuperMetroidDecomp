@@ -145,11 +145,10 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainTopTubeSegment tube,
         Position16<RoomPixels> position)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes), new MotherBrainTopTubeAnimation(tube));
         if (projectile is null)
             return;
 
-        projectile.StartAnimation(new MotherBrainTopTubeAnimation(tube));
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
         _projectileAttacks.Projectile.TopTubes.Start(projectile, new MotherBrainTopTubeState());

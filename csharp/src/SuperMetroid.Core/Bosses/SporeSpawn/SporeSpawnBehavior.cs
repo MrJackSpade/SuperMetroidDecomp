@@ -525,10 +525,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">No projectile place is free: he spawns his stalk into his room's empty places.</exception>
     private EnemyProjectile SpawnSporeSpawnStalk(RoomEnemyOccupant occupant, RoomEnemyPlace body, Offset16<RoomPixels> segment)
     {
-        EnemyProjectile stalk = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk, SpriteGraphics.SpawnedBy(occupant, body.Shading)) ?? throw new InvalidOperationException(
+        EnemyProjectile stalk = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk, SpriteGraphics.SpawnedBy(occupant, body.Shading), new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.Stalk)) ?? throw new InvalidOperationException(
             "Spore Spawn's stalk found no free projectile place; he spawns it as his room loads, into its empty places.");
 
-        stalk.StartAnimation(new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.Stalk));
         stalk.Position = stalk.Position.WithWhole(body.Position.Whole + segment);
         return stalk;
     }
@@ -536,11 +535,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns the ceiling spore emitter at <paramref name="emitter"/> for <paramref name="state"/>'s fight and runs its setup.</summary>
     private void SpawnSporeSpawnSpawner(RoomEnemyOccupant occupant, RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnEmitter emitter)
     {
-        EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnSpawner, Spawner, SpriteGraphics.SpawnedBy(occupant, body.Shading));
+        EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnSpawner, Spawner, SpriteGraphics.SpawnedBy(occupant, body.Shading), new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.SpawnerClosed));
         if (spawner is null)
             return;
 
-        spawner.StartAnimation(new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.SpawnerClosed));
         spawner.Position = spawner.Position.WithWhole(emitter.Place);
         Spawner.Emitters.Start(spawner, new SporeSpawnEmitterState(state, emitter.Drift));
     }

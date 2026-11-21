@@ -229,14 +229,13 @@ internal sealed class KraidRise
     private void RequestKraidRisingRock(RoomEnemyPlace body)
     {
         int random = _access.ReadKraidRandomNumber();
-        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KraidRisingRock, _background.Rocks, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
+        // The random sample's side chooses the rock's pose (#2278).
+        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KraidRisingRock, _background.Rocks, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading), new KraidRockAnimation(_background.Rocks, KraidRandomDefinitions.RisingRockFliesRight.IsTakenBy(random)
+            ? KraidRockSegment.RisingRightPose
+            : KraidRockSegment.SharedPose));
         if (rock is null)
             return;
 
-        // The random sample's side chooses the rock's pose (#2278).
-        rock.StartAnimation(new KraidRockAnimation(_background.Rocks, KraidRandomDefinitions.RisingRockFliesRight.IsTakenBy(random)
-            ? KraidRockSegment.RisingRightPose
-            : KraidRockSegment.SharedPose));
         // A rock on the left starts one pixel further from the body than its mirror on the right.
         int randomOffset = KraidRandomDefinitions.RisingRockOffset.Of(random);
         if (!KraidRandomDefinitions.RisingRockStartsOnRight.IsTakenBy(random))

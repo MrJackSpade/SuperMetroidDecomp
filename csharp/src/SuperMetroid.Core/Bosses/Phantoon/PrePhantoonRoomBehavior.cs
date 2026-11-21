@@ -33,10 +33,9 @@ internal sealed class PrePhantoonRoomBehavior
     /// </summary>
     public void SpawnPrePhantoonRoomProjectile()
     {
-        EnemyProjectile projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace, HoldingProjectile, graphics: SpriteGraphics.SharedStandard) ?? throw new InvalidOperationException(
+        EnemyProjectile projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace, HoldingProjectile, graphics: SpriteGraphics.SharedStandard, new PrePhantoonRoomAnimation()) ?? throw new InvalidOperationException(
             "The pre-Phantoon room's held place found no free place in a freshly cleared pool.");
         _heldPlace.Take();
-        projectile.StartAnimation(new PrePhantoonRoomAnimation());
     }
 
     /// <summary>The held place, which counts its hold on each of its updates and frees the place on the update after it.</summary>

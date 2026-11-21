@@ -276,11 +276,10 @@ internal sealed class DraygonParts
     /// <summary>Spawns a goop as either of the body animation's two goop cues does.</summary>
     private void SpawnDraygonGoop(DraygonEnemyState state, HorizontalDirection direction)
     {
-        EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonGoop, _shots.Goop, graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
+        EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonGoop, _shots.Goop, graphics: SpriteGraphics.SharedIn(DraygonColours.Goop), new DraygonProjectileAnimation(_shots.Goop, DraygonProjectileSegment.Goop));
         if (goop is null)
             return;
 
-        goop.StartAnimation(new DraygonProjectileAnimation(_shots.Goop, DraygonProjectileSegment.Goop));
         goop.Position = FixedPosition<RoomPixels>.FromWhole(state.Body.Position.Whole + (direction == HorizontalDirection.Right
             ? DraygonArenaDefinitions.GoopSpawnMovingRight : DraygonArenaDefinitions.GoopSpawnMovingLeft));
 

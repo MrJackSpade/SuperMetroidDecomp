@@ -328,11 +328,10 @@ internal sealed class CrocomireBridgeCollapse
         // The fragment counts as launched even when no projectile place is free.
         death.BridgeFragmentsSpawned = fragment + 1;
         // The fragments draw in the wall colours Crocomire's encounter installs.
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CrocomireBridgeCrumbling, _combat.Debris, SpriteGraphics.SharedIn(CrocomireColours.WallShading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CrocomireBridgeCrumbling, _combat.Debris, SpriteGraphics.SharedIn(CrocomireColours.WallShading), new CrocomireProjectileAnimation(_combat.Debris, CrocomireProjectileSegment.BridgeFragment));
         if (projectile is null)
             return;
 
-        projectile.StartAnimation(new CrocomireProjectileAnimation(_combat.Debris, CrocomireProjectileSegment.BridgeFragment));
         projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(fragment));
         projectile.Position = projectile.Position.WithWholeY(CrocomireBridgeFragmentDefinitions.Y).WithoutFractions();
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);

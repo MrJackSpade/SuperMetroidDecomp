@@ -19,13 +19,15 @@ public sealed class EnemyProjectile
     /// <param name="place">The zero-based enemy-projectile place the projectile takes.</param>
     /// <param name="left">What the place's previous projectile left there.</param>
     /// <param name="kind">What the projectile is.</param>
-    internal EnemyProjectile(int place, EnemyProjectileHandOver left, RoomEnemyProjectileKind kind)
+    /// <param name="animation">The animation it plays from its first pass (#2553): every spawn starts one.</param>
+    internal EnemyProjectile(int place, EnemyProjectileHandOver left, RoomEnemyProjectileKind kind, EnemyProjectileAnimation animation)
     {
         Place = Ensure.BetweenInclusive(0, EnemyProjectileEngine.PlaceCount - 1, place);
         Position = FixedPosition<RoomPixels>.FromWhole(left.Position);
         Velocity = left.Velocity;
         Vacate();
         Kind = kind;
+        Animation = Ensure.NotNull(animation);
         IsActive = true;
     }
 
@@ -59,7 +61,9 @@ public sealed class EnemyProjectile
     /// as they stand when that spawn takes the place (<see cref="EnemyProjectileHandOver"/>).
     /// </summary>
     internal EnemyProjectileHandOver LeftInPlace => new(Position.Whole, Velocity);
-    /// <summary>The typed animation the projectile plays (#641), or null when it plays none.</summary>
+    /// <summary>
+    /// The typed animation the projectile plays (#641): its spawn starts one (#2553), and only an ended projectile plays none.
+    /// </summary>
     internal EnemyProjectileAnimation? Animation { get; private set; }
     /// <summary>
     /// Gets the countdown to the animation's next frame; a spawn starts it at one so the animation's first frame shows on its

@@ -14,22 +14,25 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="doors">The room's Ceres doors, the door of Ridley's room among them.</param>
 internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehavior ceresRidley, CeresEscape escape, CeresDoorBehavior doors) : ICeresEncounter
 {
+    /// <summary>Ceres Ridley, whose hits and Baby Metroid scene the encounter steps.</summary>
+    private CeresRidleyBehavior CeresRidley { get; } = ceresRidley;
+
     /// <inheritdoc/>
     public CeresEscapeStatus CeresStatus { get => encounter.CeresStatus; set => encounter.CeresStatus = value; }
 
     /// <inheritdoc/>
     public int ResolveCeresRidleyProjectileHits(SamusProjectileSystem projectiles, SamusBombProjectileSystem samusBombs) =>
-        ceresRidley.Hits.ResolveCeresRidleyProjectileHits(projectiles, samusBombs);
+        CeresRidley.Hits.ResolveCeresRidleyProjectileHits(projectiles, samusBombs);
 
     /// <inheritdoc/>
-    public void StepCeresBabyWithEnemyPass() => ceresRidley.BabyScene.StepCeresBabyWithEnemyPass();
+    public void StepCeresBabyWithEnemyPass() => CeresRidley.BabyScene.StepCeresBabyWithEnemyPass();
 
     /// <inheritdoc/>
-    public void StepCeresBabyAfterActors() => ceresRidley.BabyScene.StepCeresBabyAfterActors();
+    public void StepCeresBabyAfterActors() => CeresRidley.BabyScene.StepCeresBabyAfterActors();
 
     /// <inheritdoc/>
     public void PublishCeresBaby(SpriteFrameBuffer sprites, Position16<RoomPixels> camera) =>
-        ceresRidley.BabyScene.PublishCeresBaby(sprites, camera);
+        CeresRidley.BabyScene.PublishCeresBaby(sprites, camera);
 
     /// <inheritdoc/>
     /// <remarks>

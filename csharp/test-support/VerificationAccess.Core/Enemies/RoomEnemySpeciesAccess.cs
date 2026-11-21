@@ -76,8 +76,9 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Verification's view of each owner the room's species composition built (#2571): the room system keeps no member per
-/// species, so a check reaches an owner through what the composition hands out, its factories, its frame participants and
-/// the capability holders that keep the owners they command, and a boss service through the composition itself.
+/// species, so a check reaches an owner as the game does, through the composition's frame participants (every species with
+/// room or frame lifecycle state) and the capability holders that keep the owners they command (#2554), and a boss
+/// service through the composition itself.
 /// </summary>
 internal static class RoomEnemySpeciesAccess
 {
@@ -85,26 +86,18 @@ internal static class RoomEnemySpeciesAccess
     private static IEnumerable<object> OwnersOf(RoomEnemySystem enemies)
     {
         RoomEnemySpecies species = enemies.SpeciesComposition;
-        foreach (IEnemyEntityFactory factory in species.Registry.Factories.Values)
-        {
-            yield return factory;
-            switch (factory)
-            {
-                case RidleyEntityFactory ridley:
-                    yield return ridley.Norfair;
-                    yield return ridley.Ceres;
-                    break;
-                case SparkBehavior spark:
-                    yield return spark.FallingSparks;
-                    break;
-                default:
-                    // Every other factory is its species' only owner.
-                    break;
-            }
-        }
         foreach (IEnemySpecies participant in species.FrameParticipants)
+        {
             yield return participant;
+            if (participant is SparkBehavior spark)
+                yield return spark.FallingSparks;
+            if (participant is MotherBrainBehavior motherBrain)
+                yield return motherBrain.Body.RoomActors.BabyMetroid;
+        }
+        yield return ((RoomEnemySpecies.RoomLoadPreparation)species.LoadPreparation).Gunship;
+        yield return ((CeresEncounter)species.Ceres).CeresRidley;
         var spawns = (RoomEnemySpecies.ObjectSpawns)species.RoomObjectSpawns;
+        yield return spawns.NoobTube;
         yield return spawns.EyeDoor;
         yield return spawns.OldTourianWall;
         yield return spawns.EscapeExplosions;

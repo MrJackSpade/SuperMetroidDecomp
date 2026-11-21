@@ -17,6 +17,12 @@ internal static class RoomEnemySpeciesObjectSpawnsPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySpecies.ObjectSpawns, global::SuperMetroid.Core.Areas.Escape.EscapeExplosionsBehavior>(self, "EscapeExplosions");
         }
 
+        /// <summary>The private property <c>NoobTube</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior NoobTube
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.World.RoomEnemySpecies.ObjectSpawns, global::SuperMetroid.Core.Enemies.NoobTube.NoobTubeBehavior>(self, "NoobTube");
+        }
+
         /// <summary>The private property <c>EyeDoor</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Enemies.EyeDoor.EyeDoorBehavior EyeDoor
         {

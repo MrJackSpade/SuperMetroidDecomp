@@ -34,16 +34,8 @@ internal static class BabyMetroidHeadTargetVerification
         global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", new BabyMetroidCutscenePhase.Flying.ActivateRainbowBeamAndMotherBrainBody());
         global::SuperMetroid.Core.PrivateState.Set(baby, "Position", FixedPosition<RoomPixels>.FromWhole(new(0x007d, 0x0045)).WithFractionsOf(baby.Position));
 
-<<<<<<< ours
         place.RunMainAi(runtime.Player.Samus);
-        AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase, "the Baby reaches the head");
-||||||| base
-        runtime.Enemies.BabyMetroidCutsceneBehavior.RunMotherBrainBabyMetroidMain((place), runtime.Player.IntroducedSamus, Position16<RoomPixels>.Zero);
-        AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase, "the Baby reaches the head");
-=======
-        runtime.Enemies.BabyMetroidCutsceneBehavior.RunMotherBrainBabyMetroidMain((place), runtime.Player.IntroducedSamus, Position16<RoomPixels>.Zero);
         AssertEqual(new BabyMetroidCutscenePhase.Flying.WaitForMotherBrainToTurnToCorpse(), baby.Phase, "the Baby reaches the head");
->>>>>>> theirs
         AssertEqual((ushort)0x007d, place.Position.X.Whole, "the Baby pins to the head enemy's current X");
         AssertEqual((ushort)0x0045, place.Position.Y.Whole, "the Baby pins $18 above the head enemy's current Y");
         Console.WriteLine("Baby Metroid head target: the Baby reads the head enemy's current position.");

@@ -32,16 +32,8 @@ internal static class ChozoGrabAnimationVerification
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.System.RecordBossesDefeated(AreaId.WreckedShip, DefeatedBosses.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BowlingAlley);
-<<<<<<< ours
         var samus = runtime.Player.Samus;
-        samus.Pose = SamusPoseId.MorphBallGroundRightPose;
-||||||| base
-        var samus = runtime.Player.IntroducedSamus;
-        samus.Pose = SamusPoseId.MorphBallGroundRightPose;
-=======
-        var samus = runtime.Player.IntroducedSamus;
         samus.ChangePoseKeepingAnimation(SamusPoseId.MorphBallGroundRightPose);
->>>>>>> theirs
         samus.CollectedItems = samus.EquippedItems = SamusEquipmentFlags.MorphBall;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);

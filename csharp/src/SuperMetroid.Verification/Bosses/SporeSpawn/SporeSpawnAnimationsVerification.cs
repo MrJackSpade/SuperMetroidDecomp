@@ -127,11 +127,6 @@ internal static class SporeSpawnAnimationsVerification
     /// </summary>
     private static int VerifyProjectilePrograms(CartridgeImportAddressSpace rom)
     {
-<<<<<<< ours
-        IImportCartridgeSource cartridge = rom;
-||||||| base
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-=======
         int updates = 0;
         // A spawner's programs run on a real ceiling spawner, whose release spawns its fight's spores (#2231); the stalk's,
         // which publishes no cue, and the spore's run on a real spore.
@@ -153,8 +148,7 @@ internal static class SporeSpawnAnimationsVerification
     private static int VerifyProjectileProgram(CartridgeImportAddressSpace rom, string program, ushort entry, bool onSpawner,
         Func<RoomEnemySystem, EnemyProjectileAnimation> animation, bool deletes)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
->>>>>>> theirs
+        IImportCartridgeSource cartridge = rom;
         int updates = 0;
         RoomEnemySystem enemies = NewProjectileSystem();
         // The spore takes the colours of the Spore Spawn whose spawner releases it (#2231).

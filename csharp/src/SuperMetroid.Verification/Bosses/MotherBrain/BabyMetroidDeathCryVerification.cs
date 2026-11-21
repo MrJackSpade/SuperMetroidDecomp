@@ -29,16 +29,8 @@ internal static class BabyMetroidDeathCryVerification
         ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.ImportMaps, InstalledFixtures.BossArtwork,
             [.. Enumerable.Range(0, 256).Select(index => (ushort)(index + 1))]);
         // The Baby's health lives in the place the final beam's spawn makes it in (#2572).
-<<<<<<< ours
         BabyMetroidCutsceneState baby = entity.Baby;
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.FinalCharge);
-||||||| base
-        var baby = MotherBrainLateFightFixtures.Arrive(sequence, FixedPosition<RoomPixels>.Zero);
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.FinalCharge);
-=======
-        var baby = MotherBrainLateFightFixtures.Arrive(sequence, FixedPosition<RoomPixels>.Zero);
         global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", new BabyMetroidCutscenePhase.Flying.FinalCharge());
->>>>>>> theirs
         global::SuperMetroid.Core.PrivateState.Set(baby, "Health", 79);
         // The room shows the colours the Baby's arrival laid over it; the fatal blow and the recovery change only the
         // background's.
@@ -50,18 +42,8 @@ internal static class BabyMetroidDeathCryVerification
         for (int index = 0; index < 256; index++)
             AssertEqual(arrived[index], charged[index], "Live final charge preserves room colors");
         baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
-<<<<<<< ours
         entity.Place.RunMainAi(samus);
-        AssertEqual(BabyMetroidCutscenePhase.TakeFinalBlow, baby.Phase, "Fatal hit enters native shake phase");
-||||||| base
-        var fatal = baby.Step(samus, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
-        AssertEqual(BabyMetroidCutscenePhase.TakeFinalBlow, fatal.PhaseAfter, "Fatal hit enters native shake phase");
-        apply(fatal);
-=======
-        var fatal = baby.Step(samus, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
-        AssertEqual(new BabyMetroidCutscenePhase.Flying.TakeFinalBlow(), fatal.PhaseAfter, "Fatal hit enters native shake phase");
-        apply(fatal);
->>>>>>> theirs
+        AssertEqual(new BabyMetroidCutscenePhase.Flying.TakeFinalBlow(), baby.Phase, "Fatal hit enters native shake phase");
         ushort[] blackout = Shown();
         for (int index = 0; index < 256; index++)
             AssertEqual(IsBlackoutColor(index) ? (ushort)0 : arrived[index], blackout[index],

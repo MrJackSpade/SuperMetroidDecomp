@@ -523,21 +523,9 @@ internal static class SaveSchemaTranslationVerification
         // Boot fixes the demo playlist, so each marker state boots a session.
         ram.SelectSlot(SaveSlot.C);
         ram.RestoreHistory(SaveFileHistory.None);
-<<<<<<< ours
-        AssertEqual(StockAttractDemoScenes.OrdinaryPlaylist, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(ram).Session.DemoPlaylist, "incomplete save plays the ordinary demo sets");
-||||||| base
-        AssertEqual(StockAttractDemoScenes.OrdinaryPlaylist, new SuperMetroidGame(ram).Session.DemoPlaylist, "incomplete save plays the ordinary demo sets");
-=======
-        AssertTrue(new SuperMetroidGame(ram).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)), "incomplete save plays the ordinary demo sets");
->>>>>>> theirs
+        AssertTrue(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(ram).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)), "incomplete save plays the ordinary demo sets");
         ram.CompleteGame();
-<<<<<<< ours
-        AssertEqual(StockAttractDemoScenes.CompletedGamePlaylist, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(ram).Session.DemoPlaylist, "completed save unlocks the completion demo set");
-||||||| base
-        AssertEqual(StockAttractDemoScenes.CompletedGamePlaylist, new SuperMetroidGame(ram).Session.DemoPlaylist, "completed save unlocks the completion demo set");
-=======
-        AssertTrue(new SuperMetroidGame(ram).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: true)), "completed save unlocks the completion demo set");
->>>>>>> theirs
+        AssertTrue(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(ram).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: true)), "completed save unlocks the completion demo set");
         AssertEqual(SaveSlot.C, ram.ReadSelectedSlot(), "twelve-byte completion signature preserves selected slot");
         ram.RestoreHistory(SaveFileHistory.None);
         var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

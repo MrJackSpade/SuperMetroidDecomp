@@ -34,16 +34,8 @@ internal static class TourianStatueWaterVerification
         AssertEqual(RoomFxType.TourianEntranceStatue, runtime.RoomFxOverlay.Type, "Actual four-statues room owns special FX 26");
         AssertEqual((ushort)0xb0, runtime.RoomFxOverlay.NamedBaseY.Whole, "Retail statues water begins at Y=B0");
         AssertEqual(true, runtime.RoomFxOverlay.IsRenderable, "Statue special FX must supply its water plane");
-<<<<<<< ours
         var samus = runtime.Player.Samus;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
-||||||| base
-        var samus = runtime.Player.IntroducedSamus;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
-=======
-        var samus = runtime.Player.IntroducedSamus;
         samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
->>>>>>> theirs
         samus.Position = samus.Position.WithWhole(new(64, 120));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);

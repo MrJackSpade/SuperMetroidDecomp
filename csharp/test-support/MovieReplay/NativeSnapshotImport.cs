@@ -333,17 +333,7 @@ internal static class NativeSnapshotImport
         }
         // Every place takes the snapshot's projectile, or, for a free one, what it holds for the room's next spawn there.
         for (int place = 0; place < SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity; place++)
-<<<<<<< ours
             ImportNativeEnemyProjectile(runtime.Enemies, place, runtime.Enemies.GraphicsSet, bus, W);
-        // This is a one-time initial snapshot import. No native state is fed back during replay.
-        runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
-||||||| base
-            ImportNativeEnemyProjectile(runtime.Enemies, place, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
-        // This is a one-time initial snapshot import. No native state is fed back during replay.
-        runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
-=======
-            ImportNativeEnemyProjectile(runtime.Enemies, place, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
->>>>>>> theirs
         runtime.Enemies.FrameContext.SeedEnemyPassCount(W(NativeSnapshotMemory.MainEnemyRoutineCount));
         // The liquid's BG3 HDMA object has already run its first pass, so its callback is
         // installed. A live object owns the per-frame liquid motion; once Mother Brain's
@@ -353,31 +343,11 @@ internal static class NativeSnapshotImport
             W(NativeSnapshotMemory.HdmaObjectFrameBehaviors + slot * 2) == NativeSnapshotMemory.AcidHdmaCallback);
         VerificationAssertions.AssertTrue(runtime.RoomFxOverlay.Type is RoomFxType.Lava or RoomFxType.Acid,
             "snapshot import models the lava/acid HDMA objects of its room");
-<<<<<<< ours
-        runtime.RoomFxOverlay.ImportLiquidMotion(
-            stopped: !lavaAcidObjectLive,
-            tidePhase: RotationAngleConstants.FromRaw(W(NativeSnapshotMemory.TidePhase)),
-            tideOffset: SixteenSixteenWords.ToDisplacement(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction)),
-            baseY: (runtime.RoomFxOverlay.BaseY
-                ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(new PixelFraction(W(NativeSnapshotMemory.LiquidBaseFraction))),
-            // The surface word is a signed line: one a tide carries above the room's top is negative.
-            surface: CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface)),
-            camera: runtime.Room.LoadedCamera.PixelPosition);
-||||||| base
-        runtime.RoomFxOverlay.ImportLiquidMotion(
-            stopped: !lavaAcidObjectLive,
-            tidePhase: RotationAngleConstants.FromRaw(W(NativeSnapshotMemory.TidePhase)),
-            tideOffset: SixteenSixteenWords.ToDisplacement(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction)),
-            baseY: (runtime.RoomFxOverlay.BaseY
-                ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(new PixelFraction(W(NativeSnapshotMemory.LiquidBaseFraction))),
-            // The surface word is a signed line: one a tide carries above the room's top is negative.
-            surface: CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface)));
-=======
         RunLiquidMotionToSnapshot(runtime, W, stopped: !lavaAcidObjectLive);
         // This is a one-time initial snapshot import. No native state is fed back during replay. The random number is the
         // recorded one, whatever the liquid's motion passes above stirred it to.
-        runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
->>>>>>> theirs
+        runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random),
+            camera: runtime.Room.LoadedCamera.PixelPosition);
         samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(bus);
         var kraidHeadCursors = new KraidHeadNativeCursors(bus);

@@ -42,16 +42,8 @@ internal static class HopperAnimationDefinitionsVerification
                  })
         {
             int header = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(hopper);
-<<<<<<< ours
             AssertEqual(HoppersNativeWords.HopperKinds.Decode(RoomEnemyDefinitionImporter.ReadWord(rom, header, 42), "hopper variant"),
-                HopperAnimationChoices.KindOf(hopper), $"{hopper}'s header names its kind");
-||||||| base
-            AssertEqual(HoppersNativeWords.HopperKinds.Decode(RoomEnemyDefinitionImporter.ReadWord(CartridgeImportSource.Require(rom), header, 42), "hopper variant"),
-                HopperAnimationChoices.KindOf(hopper), $"{hopper}'s header names its kind");
-=======
-            AssertEqual(HoppersNativeWords.HopperKinds.Decode(RoomEnemyDefinitionImporter.ReadWord(CartridgeImportSource.Require(rom), header, 42), "hopper variant"),
                 HopperKindDefinitions.Kinds[hopper], $"{hopper}'s header names its kind");
->>>>>>> theirs
         }
 
         EnemyDefinitionId[] definitions =

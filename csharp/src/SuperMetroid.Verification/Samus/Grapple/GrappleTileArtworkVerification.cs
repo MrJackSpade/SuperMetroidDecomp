@@ -27,25 +27,11 @@ internal static class GrappleTileArtworkVerification
         byte[] png = GrappleTileExtractor.Extract(bus);
         var stock = GrappleTileAtlas.Load(new MemoryStream(png));
         foreach (var transfer in GrappleTileDefinitions.Transfers)
-<<<<<<< ours
-            AssertTrue(stock.Resolve(transfer.Asset).Span.SequenceEqual(RomDataReader.ReadFixedBank(bus, transfer.SourceAddress, transfer.ByteCount)), "Every extracted Grapple transfer matches pinned native planar bytes");
-||||||| base
-            AssertTrue(stock.Resolve(transfer.Asset).Span.SequenceEqual(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), transfer.SourceAddress, transfer.ByteCount)), "Every extracted Grapple transfer matches pinned native planar bytes");
-=======
-            AssertTrue(stock.Shown(transfer).Span.SequenceEqual(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), transfer.SourceAddress, transfer.ByteCount)), "Every extracted Grapple transfer matches pinned native planar bytes");
->>>>>>> theirs
+            AssertTrue(stock.Shown(transfer).Span.SequenceEqual(RomDataReader.ReadFixedBank(bus, transfer.SourceAddress, transfer.ByteCount)), "Every extracted Grapple transfer matches pinned native planar bytes");
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
-<<<<<<< ours
             ushort expected = RomDataReader.ReadWordFixedBank(bus, GrappleBeamDefinitions.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
-            int actual = GrappleTileSelection.TransferFor(GrappleTileSelection.SegmentAssetFor(RotationAngleConstants.FromRaw((ushort)angle))).SourceAddress;
-||||||| base
-            ushort expected = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleBeamDefinitions.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
-            int actual = GrappleTileSelection.TransferFor(GrappleTileSelection.SegmentAssetFor(RotationAngleConstants.FromRaw((ushort)angle))).SourceAddress;
-=======
-            ushort expected = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleBeamDefinitions.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
             int actual = GrappleTileSelection.SegmentTransferFor(RotationAngleConstants.FromRaw((ushort)angle)).SourceAddress;
->>>>>>> theirs
             AssertEqual(0x9a0000 | expected, actual, "Compiled Grapple sector selection matches all 65536 native angles");
         }
         int cases = 0;
@@ -60,30 +46,14 @@ internal static class GrappleTileArtworkVerification
             AssertTrue(SameGraph(native, selected), "Grapple draws preserve entire rope/animation simulation state");
             // The binding holds the endpoint frame's character, then the angle sector's four rope characters, exactly
             // as the cartridge uploads them to $6200/$6210.
-<<<<<<< ours
-            SpriteArtwork stockTiles = stock.Tiles(selected.PointAnimationFrame, GrappleRopeOrientations.For(selected.Angle));
-            byte[] nativeTiles = [.. RomDataReader.ReadFixedBank(bus,
-||||||| base
-            SpriteArtwork stockTiles = stock.Tiles(selected.PointAnimationFrame, GrappleRopeOrientations.For(selected.Angle));
-            byte[] nativeTiles = [.. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-=======
             // The endpoint frame the native frame number shows: the one whose characters the cartridge uploads from it.
             GrappleEndpointFrame shownFrame = Enum.GetValues<GrappleEndpointFrame>().Single(frame =>
                 GrappleTileSelection.PointTransferFor(frame).SourceAddress == GrapplePointAnimationNative.SourceAddress(selected.PointAnimationFrame));
             ReadOnlyMemory<byte> stockTiles = stock.ShownTiles(shownFrame, GrappleRopeOrientations.For(selected.Angle));
-            byte[] nativeTiles = [.. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
->>>>>>> theirs
+            byte[] nativeTiles = [.. RomDataReader.ReadFixedBank(bus,
                     GrapplePointAnimationNative.SourceAddress(selected.PointAnimationFrame), SpriteArtwork.CharacterByteCount),
-<<<<<<< ours
                 .. RomDataReader.ReadFixedBank(bus,
-                    GrappleTileSelection.TransferFor(GrappleTileSelection.SegmentAssetFor(selected.Angle)).SourceAddress,
-||||||| base
-                .. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                    GrappleTileSelection.TransferFor(GrappleTileSelection.SegmentAssetFor(selected.Angle)).SourceAddress,
-=======
-                .. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     GrappleTileSelection.SegmentTransferFor(selected.Angle).SourceAddress,
->>>>>>> theirs
                     4 * SpriteArtwork.CharacterByteCount)];
             AssertTrue(stockTiles.Span.SequenceEqual(nativeTiles), "Stock grapple binding holds the native endpoint and rope characters");
             cases++;

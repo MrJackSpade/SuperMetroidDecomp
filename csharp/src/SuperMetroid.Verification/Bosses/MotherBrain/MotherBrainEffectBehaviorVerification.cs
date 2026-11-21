@@ -226,21 +226,11 @@ internal static class MotherBrainEffectBehaviorVerification
     /// <summary>The live-bomb count rises with each spawned bomb and falls with each deleted one.</summary>
     internal static void VerifyMotherBrainBombCount()
     {
-<<<<<<< ours
         var state = new MotherBrainEnemyState((new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>())).BoundFor(EnemyDefinitionId.MotherBrainBody), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes());
-        state.RecordBombSpawned();
-        state.RecordBombSpawned();
-||||||| base
-        var state = new MotherBrainEnemyState((new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())).BoundFor(EnemyDefinitionId.MotherBrainBody), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
-        state.RecordBombSpawned();
-        state.RecordBombSpawned();
-=======
-        var state = new MotherBrainEnemyState((new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())).BoundFor(EnemyDefinitionId.MotherBrainBody), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
         var first = new MotherBrainBombState(state, default, afterburns: 0);
         var second = new MotherBrainBombState(state, default, afterburns: 0);
         state.RecordBombSpawned(first);
         state.RecordBombSpawned(second);
->>>>>>> theirs
         AssertEqual(2, state.BombCounter, "two spawned bombs are counted");
         state.RecordBombRemoved(first);
         AssertEqual(1, state.BombCounter, "one deletion leaves the other bomb counted");

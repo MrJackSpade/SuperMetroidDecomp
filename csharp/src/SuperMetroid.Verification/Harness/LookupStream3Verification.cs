@@ -812,18 +812,8 @@ internal static class LookupStream3Verification
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
             int address = 0x9bc346 + 2 * (angle >> 10);
-<<<<<<< ours
             int expected = (0x9a0000|rom.ReadCartridgeWord(address));
-            var asset = GrappleTileSelection.SegmentAssetFor(RotationAngleConstants.FromRaw((ushort)angle));
-            AssertEqual(expected, GrappleTileSelection.TransferFor(asset).SourceAddress,
-||||||| base
-            int expected = (0x9a0000|CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-            var asset = GrappleTileSelection.SegmentAssetFor(RotationAngleConstants.FromRaw((ushort)angle));
-            AssertEqual(expected, GrappleTileSelection.TransferFor(asset).SourceAddress,
-=======
-            int expected = (0x9a0000|CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
             AssertEqual(expected, GrappleTileSelection.SegmentTransferFor(RotationAngleConstants.FromRaw((ushort)angle)).SourceAddress,
->>>>>>> theirs
                 "stream 3 native grapple angle sector");
         }
 

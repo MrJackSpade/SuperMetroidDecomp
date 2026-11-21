@@ -1136,16 +1136,8 @@ internal static class LookupStream4Verification
                 AssertEqual(Enumerable.Range(0, RoomEffectActorProgramAddresses.RecordsOf(RoomEffectActorSegment.Of(kind), 0))
                         .Sum(record => rom.ReadCartridgeWord(0xb40000 | (entry + 4 * record))),
                     spawned.FrameHold, "room sprite actual initial native duration");
-<<<<<<< ours
             AssertEqual(rom.ReadCartridgeWord((0xb40000 | (entry + 2))), spawned.SpritemapPointer, "room sprite actual initial native visual");
-            AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
-||||||| base
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | (entry + 2))), spawned.SpritemapPointer, "room sprite actual initial native visual");
-            AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
-=======
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | (entry + 2))), spawned.SpritemapPointer, "room sprite actual initial native visual");
             AssertTrue(spawned.Shows(kind), "room sprite selected kind preserved");
->>>>>>> theirs
             AssertEqual((ushort)0x1234, spawned.Position.X.Whole, "room sprite spawn X preserved");
             AssertEqual((ushort)0x5678, spawned.Position.Y.Whole, "room sprite spawn Y preserved");
             AssertEqual(SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook), spawned.Graphics, "room sprite tile base and colouring argument preserved");

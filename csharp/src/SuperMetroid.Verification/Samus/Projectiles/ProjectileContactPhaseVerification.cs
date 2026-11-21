@@ -79,19 +79,9 @@ internal static class ProjectileContactPhaseVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-<<<<<<< ours
             runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             var samus = runtime.Player.Samus;
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
-||||||| base
-            runtime.RoomLoader.InitializeCeresStartSamus();
-            var samus = runtime.Player.IntroducedSamus;
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
-=======
-            runtime.RoomLoader.InitializeCeresStartSamus();
-            var samus = runtime.Player.IntroducedSamus;
             samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
->>>>>>> theirs
             samus.Position = samus.Position.WithWhole(new(120, 120));
             samus.Health = 99;
             samus.EquippedItems = suit;

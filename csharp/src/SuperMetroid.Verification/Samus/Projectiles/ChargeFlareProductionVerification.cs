@@ -83,22 +83,10 @@ internal static class ChargeFlareProductionVerification
         roomAssets.Bind(runtime);
         runtime.Artwork.ChargeFlarePlacement = placement;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-<<<<<<< ours
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
-        runtime.Player.Samus.Pose = SamusPoseId.FacingRightNormalPose;
+        runtime.Player.Samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         SamusPresentation.InitializeAnimation(runtime.Player.Samus);
-||||||| base
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
-        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-        SamusPresentation.InitializeAnimation(runtime.Player.IntroducedSamus);
-=======
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.Player.IntroducedSamus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
-        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-        SamusPresentation.InitializeAnimation(runtime.Player.IntroducedSamus);
->>>>>>> theirs
         InstalledFixtures.BindProjectileArtwork(runtime);
         runtime.Projectiles.Charge.SetFlareCount(30);
         // Each component's first picture with three updates of its wait left, so both draws, each of which plays the flare

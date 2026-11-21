@@ -97,14 +97,8 @@ internal static class BossRoomObjectProgramsVerification
         IEnumerable<KeyValuePair<TMutation, TerrainChange>> typedChanges, NativeTerrainChanges.StepReader steps, string family)
         where TMutation : struct, Enum
     {
-<<<<<<< ours
-        IImportCartridgeSource cartridge = rom;
-||||||| base
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-=======
         Dictionary<TMutation, TerrainChange> changes = typedChanges.ToDictionary(change => change.Key, change => change.Value);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
->>>>>>> theirs
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<TMutation>().Length, entries.Count, $"every {family} mutation has a native list");
         AssertEqual(entries.Count, changes.Count, $"every {family} mutation has a typed change");
         int frames = 0;

@@ -113,19 +113,9 @@ internal static class EndingSceneColoursVerification
         AssertEqual(RgbColor.White, backdrop.Backdrop(NoSpace), "the silhouette whitens the backdrop");
         backdrop.Flash(EndingFlash.ExplosionWhiteout, RgbColor.White);
         backdrop.Flash(EndingFlash.WhiteoutCleared, black);
-<<<<<<< ours
         AssertEqual(black, backdrop.Backdrop(NoSpace), "the flyaway clears the whiteout's backdrop to black");
         backdrop.StartScene(EndingColourLoad.Credits, escape);
         AssertEqual(escape, backdrop.Backdrop(NoSpace), "the next scene shows its own backdrop");
-||||||| base
-        AssertEqual(black, backdrop.Backdrop(null), "the flyaway clears the whiteout's backdrop to black");
-        backdrop.Load(EndingColourLoad.Credits, escape);
-        AssertEqual(escape, backdrop.Backdrop(null), "the next scene shows its own backdrop");
-=======
-        AssertEqual(black, backdrop.Backdrop(null), "the flyaway clears the whiteout's backdrop to black");
-        backdrop.StartScene(EndingColourLoad.Credits, escape);
-        AssertEqual(escape, backdrop.Backdrop(null), "the next scene shows its own backdrop");
->>>>>>> theirs
         Console.WriteLine("  Ending scene colours: each scene shows its own colours, loads, fades, flashes and effects within a scene, "
             + "restores end the effects they restore, cleared effects end, each actor, picture and floor shows only its own effects.");
     }

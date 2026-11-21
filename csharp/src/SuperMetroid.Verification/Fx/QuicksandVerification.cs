@@ -127,16 +127,8 @@ internal static class QuicksandVerification
             SignedSixteenSixteen displacement = SignedSixteenSixteen.FromParts(2, 32768);
             SpecialAirCollisionOutcome outcome = SamusInsideBlockReactions.ReactCollision(
                 new(body, SamusBodyAttack.None),
-<<<<<<< ours
-                new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() },
-                QuicksandContact(0x80 + index),
-||||||| base
-                new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() },
-                new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80 + index)),
-=======
                 SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()),
-                new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80 + index)),
->>>>>>> theirs
+                QuicksandContact(0x80 + index),
                 axis: Axis.Vertical,
                 ref displacement);
             AssertEqual(index < 3 ? SpecialAirCollisionOutcome.LandsOnSurface : SpecialAirCollisionOutcome.PassesThrough, outcome,
@@ -257,16 +249,8 @@ internal static class QuicksandVerification
             SignedSixteenSixteen displacement = SixteenSixteenWords.ToDisplacement(probe);
             SpecialAirCollisionOutcome outcome = SamusInsideBlockReactions.ReactCollision(
                 new(body, SamusBodyAttack.None),
-<<<<<<< ours
-                new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() },
-                QuicksandContact(0x80),
-||||||| base
-                new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() },
-                new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80)),
-=======
                 SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()),
-                new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80)),
->>>>>>> theirs
+                QuicksandContact(0x80),
                 axis: Axis.Vertical,
                 ref displacement);
             AssertEqual(SpecialAirCollisionOutcome.LandsOnSurface, outcome, $"stationary probe {probe:X8} touches the surface");

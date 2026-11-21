@@ -14,7 +14,6 @@ internal static class BabyMetroidThemeVerification
     internal static int VerifyBabyMetroidTheme()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-<<<<<<< ours
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         // Mother Brain is placed as her room's population places her, and her late fight brings in the Baby, whose own main
         // AI then runs its cutscene; it stands at its final charge with no health left.
@@ -24,22 +23,7 @@ internal static class BabyMetroidThemeVerification
         MotherBrainEnemyState state = MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
         BabyMetroidCutsceneEntity entity = MotherBrainBabyArrival.BabyOf(MotherBrainBabyArrival.BringInBaby(state, samus));
         BabyMetroidCutsceneState baby = entity.Baby;
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.FinalCharge);
-||||||| base
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
-        enemies.MotherBrainEncounter.BeginAsSetUp(state);
-        var sequence = MotherBrainLateFightFixtures.NewSequence();
-        // The Baby's health lives in the place the final beam's spawn makes it in (#2572).
-        var baby = MotherBrainLateFightFixtures.Arrive(sequence, FixedPosition<RoomPixels>.Zero);
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.FinalCharge);
-=======
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
-        enemies.MotherBrainEncounter.BeginAsSetUp(state);
-        var sequence = MotherBrainLateFightFixtures.NewSequence();
-        // The Baby's health lives in the place the final beam's spawn makes it in (#2572).
-        var baby = MotherBrainLateFightFixtures.Arrive(sequence, FixedPosition<RoomPixels>.Zero);
         global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", new BabyMetroidCutscenePhase.Flying.FinalCharge());
->>>>>>> theirs
         global::SuperMetroid.Core.PrivateState.Set(baby, "Health", 0);
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);
         for (int frame = 0; frame <= 73; frame++)
@@ -61,13 +45,7 @@ internal static class BabyMetroidThemeVerification
             }
             if (frame == 72)
             {
-<<<<<<< ours
-                AssertEqual(BabyMetroidCutscenePhase.PrepareSamusForHyperBeam, baby.Phase, "Theme starts at preparation transition");
-||||||| base
-                AssertEqual(BabyMetroidCutscenePhase.PrepareSamusForHyperBeam, step.PhaseAfter, "Theme starts at preparation transition");
-=======
-                AssertEqual(new BabyMetroidCutscenePhase.Flying.PrepareSamusForHyperBeam(), step.PhaseAfter, "Theme starts at preparation transition");
->>>>>>> theirs
+                AssertEqual(new BabyMetroidCutscenePhase.Flying.PrepareSamusForHyperBeam(), baby.Phase, "Theme starts at preparation transition");
                 AssertEqual(11, baby.PhaseTimer.CartridgeCount, "Theme transition retains same-call Hyper Beam preparation decrement");
             }
         }

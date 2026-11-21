@@ -373,16 +373,8 @@ internal static class TitleGradientVerification
         TitleGradientPresentation installed = InstalledFixtures.Maps.TitleGradient;
         for (ushort zoom = 0; zoom <= FloorZoom.OwnSize.TwoHundredFiftySixths; zoom++)
         {
-<<<<<<< ours
             ScreenGradient decoded = TitleGradientDecoder.Decode(bus, zoom);
-            if (!presentation.Resolve(FloorZoomConstants.FromTwoHundredFiftySixths(zoom)).Equals(decoded))
-||||||| base
-            ScreenGradient decoded = TitleGradientDecoder.Decode(CartridgeImportSource.Require(bus), zoom);
-            if (!presentation.Resolve(FloorZoomConstants.FromTwoHundredFiftySixths(zoom)).Equals(decoded))
-=======
-            ScreenGradient decoded = TitleGradientDecoder.Decode(CartridgeImportSource.Require(bus), zoom);
             if (!presentation.Resolve(TitleFloorZoom.Starting(FloorZoomConstants.FromTwoHundredFiftySixths(zoom))).Equals(decoded))
->>>>>>> theirs
                 throw new InvalidDataException($"Extracted title gradient differs at zoom ${zoom:X2}.");
             if (!installed.Resolve(TitleFloorZoom.Starting(FloorZoomConstants.FromTwoHundredFiftySixths(zoom))).Equals(decoded))
                 throw new InvalidDataException($"Installed title gradient differs at zoom ${zoom:X2}.");

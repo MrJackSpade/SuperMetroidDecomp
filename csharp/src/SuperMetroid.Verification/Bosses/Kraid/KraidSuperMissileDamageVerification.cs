@@ -42,13 +42,7 @@ internal static class KraidSuperMissileDamageVerification
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
         var level = KraidFloorLevel(scope.LevelData);
         runtime.Room.Adopt(scope with { LevelData = level });
-<<<<<<< ours
-        var samus=runtime.Player.Samus;samus.Pose=SamusPoseId.FacingRightNormalPose;
-||||||| base
-        var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
-=======
-        var samus=runtime.Player.IntroducedSamus;samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
->>>>>>> theirs
+        var samus=runtime.Player.Samus;samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=HudItem.SuperMissile;
         SamusPoseMetadata.RefreshCollisionRadii(samus);SamusPresentation.InitializeAnimation(samus);samus.CommitPoseHistory();
         samus.Position = samus.Position.WithWhole(new(120, (ushort)(512-samus.Kinematics.Radius.Y)));samus.Control.Unlock();

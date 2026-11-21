@@ -481,8 +481,13 @@ internal static class NativeEnemyFamilyStateImport
                 1 => HorizontalDirection.Right,
                 _ => throw new InvalidDataException($"Native Yard airborne facing {words.C:X4} is neither left nor right."),
             };
-<<<<<<< ours
-            yardRecord.ConsecutiveTurnCounter = words.E;
+            // The recorded count is the misses in a row the Yard has counted, each counted as the game counts it.
+            yardRecord.ResetMissedProbes();
+            for (int miss = 1; miss <= words.E; miss++)
+            {
+                if (yardRecord.MissedSurfaceTooOften() && miss < words.E)
+                    throw new InvalidDataException($"Recorded Yard missed-probe count {words.E} lies past the {miss} misses that drop it.");
+            }
             // A recorded flight lands with the hiding animation its airborne facing names, as every flight production
             // begins does.
             yardRecord.Motion = YardNativeWords.YardMovements.Decode(words.F, "recorded YardMovement") switch
@@ -493,19 +498,6 @@ internal static class NativeEnemyFamilyStateImport
                 YardMovement.Airborne => new YardMotion.Airborne(YardDirections.ForAirborneFacing(yardRecord.AirborneFacingDirection).HidingAnimation),
                 _ => throw new InvalidDataException($"Recorded Yard movement {words.F:X4} is not one the Yard moves by."),
             };
-||||||| base
-            yardRecord.ConsecutiveTurnCounter = words.E;
-            yardRecord.Movement = YardNativeWords.YardMovements.Decode(words.F, "recorded YardMovement");
-=======
-            // The recorded count is the misses in a row the Yard has counted, each counted as the game counts it.
-            yardRecord.ResetMissedProbes();
-            for (int miss = 1; miss <= words.E; miss++)
-            {
-                if (yardRecord.MissedSurfaceTooOften() && miss < words.E)
-                    throw new InvalidDataException($"Recorded Yard missed-probe count {words.E} lies past the {miss} misses that drop it.");
-            }
-            yardRecord.Movement = YardNativeWords.YardMovements.Decode(words.F, "recorded YardMovement");
->>>>>>> theirs
             // A crawl's routine names its way (#2278).
             if (yardRecord.Movement == YardMovement.Crawling)
                 yardRecord.Crawl = YardNativeWords.Crawls.Decode(words.F, "recorded Yard crawl");

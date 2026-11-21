@@ -46,7 +46,8 @@ public sealed class UnnecessarySuppressionCodeFixProvider : DocumentFixProvider
                 else if (node.FirstAncestorOrSelf<AttributeSyntax>() is { Parent: AttributeListSyntax list } attribute)
                     Add(attributes, list, attribute);
                 else
-                    throw new CleanupFailure(diagnostic, $"the finding is at a {node.Kind()}, not a pragma code or a suppression attribute");
+                    throw new InvalidOperationException($"{document.FilePath}: the runner reports {diagnostic.Id} at a {node.Kind()} at " +
+                        $"{location.SourceSpan}, which is neither a pragma code nor a suppression attribute.");
             }
         }
         foreach (var entry in codes)

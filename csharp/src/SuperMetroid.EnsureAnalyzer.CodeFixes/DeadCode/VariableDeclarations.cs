@@ -6,18 +6,18 @@ using SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup;
 
 namespace SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode;
 
-/// <summary>Removes variables from their declarations (locals, <c>for</c> initializers, fields and field-like events):
-/// the whole declaration when none is left, or the removed declarators from the declaration's list.</summary>
+/// <summary>Removes variables from their declarations (locals, <c>for</c> initializers, <c>using</c> statements, fields
+/// and field-like events): the whole declaration when none is left, or the removed declarators from the declaration's
+/// list. A <c>using</c> statement left without its variable keeps disposing the value it was given.</summary>
 internal static class VariableDeclarations
 {
-    /// <summary>Removes <paramref name="removed"/> from their declarations; <paramref name="diagnostic"/> names the site
-    /// of a declaration this cannot edit.</summary>
-    internal static void Remove(SourceEdits edits, List<VariableDeclaratorSyntax> removed, Func<SyntaxNode, Diagnostic> diagnostic)
+    /// <summary>Removes <paramref name="removed"/> from their declarations.</summary>
+    internal static void Remove(SourceEdits edits, List<VariableDeclaratorSyntax> removed)
     {
         foreach (var group in removed.GroupBy(declarator => declarator.Parent))
         {
             if (group.Key is not VariableDeclarationSyntax declaration)
-                throw new CleanupFailure(diagnostic(group.First()), "the variable is not declared in a variable declaration");
+                throw new InvalidOperationException($"{edits.FilePath}({edits.Text.Lines.GetLinePosition(group.First().SpanStart)}): a variable declarator outside a variable declaration.");
             var gone = new HashSet<VariableDeclaratorSyntax>(group);
             var kept = declaration.Variables.Where(variable => !gone.Contains(variable)).ToList();
             if (kept.Count > 0)
@@ -37,8 +37,12 @@ internal static class VariableDeclarations
                 case ForStatementSyntax:
                     edits.Replace(declaration.Span, string.Empty);
                     break;
+                case UsingStatementSyntax when declaration.Variables is [{ Initializer: { } initializer }]:
+                    edits.Replace(declaration.Span, initializer.Value.ToString());
+                    break;
                 default:
-                    throw new CleanupFailure(diagnostic(group.First()), $"the variable is declared in a {declaration.Parent?.Kind()}, whose declaration cannot be removed");
+                    throw new InvalidOperationException(
+                        $"{edits.FilePath}({edits.Text.Lines.GetLinePosition(declaration.SpanStart)}): a variable declared by a {declaration.Parent?.Kind()}, which this fix does not know.");
             }
         }
     }

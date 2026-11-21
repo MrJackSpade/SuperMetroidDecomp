@@ -11,8 +11,8 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode;
 
 /// <summary>
 /// CS0162, unreachable code, enforced by the asynchronous cleanup (#1658). The compiler has proven the statements never
-/// run, so they go: the reported statement and every following statement of its block or switch section whose start
-/// is unreachable (a local function, which never runs in place, stays). A nested block left empty goes too, and a
+/// run, so they go: the reported statement and every following statement of its block, switch section or the file's
+/// top-level statements whose start is unreachable (a local function, which never runs in place, stays). A nested block left empty goes too, and a
 /// switch section left empty goes with its labels; a body the syntax needs keeps its braces, and an unreachable embedded
 /// statement becomes <c>{ }</c>. A label that only the removed code jumped to loses its label.
 /// </summary>
@@ -40,7 +40,7 @@ public sealed class UnreachableCodeCodeFixProvider : DocumentFixProvider
         foreach (Diagnostic diagnostic in diagnostics)
         {
             StatementSyntax first = StatementAt(root, diagnostic.Location.SourceSpan.Start)
-                ?? throw new CleanupFailure(diagnostic, "no statement starts at the finding");
+                ?? throw new InvalidOperationException($"{document.FilePath}: {diagnostic.Id} is reported at {diagnostic.Location.SourceSpan}, where no statement starts.");
             switch (first.Parent)
             {
                 case BlockSyntax block:
@@ -50,13 +50,17 @@ public sealed class UnreachableCodeCodeFixProvider : DocumentFixProvider
                     Collect(section.Statements, first, model, removed, diagnostic);
                     break;
                 case GlobalStatementSyntax:
-                    throw new CleanupFailure(diagnostic, "the unreachable code is a top-level statement");
+                    Collect([.. ((CompilationUnitSyntax)root).Members.OfType<GlobalStatementSyntax>().Select(global => global.Statement)],
+                        first, model, removed, diagnostic);
+                    break;
                 default:
                     edits.Replace(first.Span, "{ }");
                     removed.Add(first);
                     break;
             }
         }
+        foreach (StatementSyntax statement in removed.Where(statement => statement.Parent is GlobalStatementSyntax))
+            edits.Remove(statement.Parent!);
         foreach (var group in removed
             .SelectMany(statement => statement.Parent is (BlockSyntax or SwitchSectionSyntax) and var parent
                 ? new[] { (Statement: statement, Parent: parent) } : Array.Empty<(StatementSyntax Statement, SyntaxNode Parent)>())
@@ -85,25 +89,26 @@ public sealed class UnreachableCodeCodeFixProvider : DocumentFixProvider
     private static StatementSyntax? StatementAt(SyntaxNode root, int position) =>
         root.FindToken(position).Parent?.AncestorsAndSelf().OfType<StatementSyntax>().LastOrDefault(statement => statement.SpanStart == position);
 
-    /// <summary>Adds <paramref name="first"/> and every following statement of the list whose start is unreachable.</summary>
-    private static void Collect(SyntaxList<StatementSyntax> statements, StatementSyntax first, SemanticModel model, HashSet<StatementSyntax> removed,
+    /// <summary>Adds <paramref name="first"/> and every following statement of the list whose start is unreachable; a
+    /// following statement whose reachability cannot be analyzed ends the run, and the compiler reports it next time
+    /// when it is unreachable.</summary>
+    private static void Collect(IReadOnlyList<StatementSyntax> statements, StatementSyntax first, SemanticModel model, HashSet<StatementSyntax> removed,
         Diagnostic diagnostic)
     {
-        int before = removed.Count;
-        for (int index = statements.IndexOf(first); index < statements.Count; index++)
+        int start = statements.ToList().IndexOf(first);
+        for (int index = start; index < statements.Count; index++)
         {
             StatementSyntax statement = statements[index];
             if (statement is LocalFunctionStatementSyntax)
                 continue;
             ControlFlowAnalysis? flow = model.AnalyzeControlFlow(statement);
-            if (flow is null || !flow.Succeeded)
-                throw new CleanupFailure(diagnostic, "the reachability of the statements after it cannot be analyzed");
-            if (flow.StartPointIsReachable)
+            if (index == start && (flow is null || !flow.Succeeded || flow.StartPointIsReachable))
+                throw new InvalidOperationException($"{diagnostic.Location.GetLineSpan()}: the compiler reports {diagnostic.Id} for a statement whose " +
+                    "start control flow analysis does not find unreachable.");
+            if (flow is null || !flow.Succeeded || flow.StartPointIsReachable)
                 break;
             removed.Add(statement);
         }
-        if (removed.Count == before)
-            throw new CleanupFailure(diagnostic, "the reported statement is reachable");
     }
 
     /// <summary>Unlabels each statement whose label only the removed code jumped to.</summary>

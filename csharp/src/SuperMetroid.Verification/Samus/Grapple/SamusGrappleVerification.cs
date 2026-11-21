@@ -672,10 +672,10 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     OamBuffer grappleFlareOam = grappleFlareOamFrame.FinalizeAsOam();
     AssertEqual(GrappleFlareStage.JustFired, samus.Grapple.FlareStage,
         "grapple flare moves on only in post-Samus tile pass");
-    AssertEqual(16, samus.Grapple.FlareFrame,
-        "first grapple flare selects shared main frame sixteen");
-    AssertEqual(2, samus.Grapple.FlareAnimationTimer.RawValue,
-        "first grapple flare performs decrement-before-test");
+    // The flare's cadence past this first picture, the decrement before the test included, is compared picture by picture
+    // with the original's from firing in GrappleFlarePresentationVerification (#2554).
+    AssertEqual(ChargeFlareAnimationDefinitions.PictureNumbered(ChargeFlareComponent.MainFlare, 16), samus.Grapple.Flare.Picture,
+        "first grapple flare shows shared main picture sixteen");
     var grappleFlare = (SamusColouredDraw)grappleFlareOamFrame.Draws.Single();
     AssertEqual(InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(SuperMetroid.Core.Progression.SamusBeamCombinations.Of(samus.EquippedBeams)))
             .Frame(ProjectileSheetFrames.FlareFrame(
@@ -778,10 +778,8 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     AssertEqual(0x0c90, samus.Kinematics.VerticalVelocity.Speed.Fraction, "release pose preserves fractional Y velocity");
     AssertEqual(GrappleFlareStage.None, samus.Grapple.FlareStage,
         "completed grapple release clears the flare");
-    AssertEqual(0, samus.Grapple.FlareFrame,
-        "completed grapple release clears flare frame");
-    AssertEqual(0, samus.Grapple.FlareAnimationTimer.RawValue,
-        "completed grapple release clears flare timer");
+    AssertEqual(ChargeFlareAnimationDefinitions.PictureNumbered(ChargeFlareComponent.MainFlare, 0), samus.Grapple.Flare.Picture,
+        "completed grapple release returns the flare to its first picture");
 
     // Angle $40 is exactly rightward; the next sample $41 is (+255,+6).
     // Keep those native values and place terrain at the actual nearest probe.

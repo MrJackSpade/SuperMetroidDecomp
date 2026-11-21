@@ -61,7 +61,8 @@ internal sealed class BeamCombos
             // The attack's particles replace the shots Samus has in her first places (SpecialAttackReplacesFirstShots),
             // and each plays its part.
             IReadOnlyList<SpecialAttackParticle> parts = SpecialAttackParticleDefinitions.InPlaceOrder;
-            SamusProjectile[] particles = SpecialAttackReplacesFirstShots.ParticleShots(parts.Count, _pool.Occupy);
+            SamusProjectileOccupant[] particles = SpecialAttackReplacesFirstShots.ParticleShots(parts.Count,
+                place => OccupyComboShot(_pool, place, ParticleType(kind, parts[place], beam), ParticleShotKind(kind, parts[place])));
             // The Ice and Plasma particles turn round Samus by OrbitTurnOn each update, or by OrbitTurnBack (a full circle
             // less as much) when a left-facing Samus starts the attack, which carries them the opposite way by as much.
             TrigonometryAngle orbitTurn = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right)
@@ -70,15 +71,9 @@ internal sealed class BeamCombos
             for (int partIndex = 0; partIndex < parts.Count; partIndex++)
             {
                 SpecialAttackParticle part = parts[partIndex];
-                SamusProjectile shot = particles[partIndex];
-                // A Spazer attack's trailing particle is the Spazer echo from the start; every other particle is the
-                // combination's charged beam. Each deals the damage of the projectile it plays.
-                bool spazerTrail = kind == SamusComboKind.Spazer && part.SpazerTrail;
-                BeamComboShotKind shotKind = kind == SamusComboKind.Ice ? BeamComboShotKind.Charged
-                    : spazerTrail ? BeamComboShotKind.Echo : BeamComboShotKind.Combo;
-                SamusProjectileOccupant held = OccupyComboShot(shot, spazerTrail
-                    ? SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail)
-                    : SamusProjectileType.Beam(beam, charged: true), shotKind);
+                SamusProjectileOccupant held = particles[partIndex];
+                SamusProjectile shot = held.Projectile;
+                BeamComboShotKind shotKind = ParticleShotKind(kind, part);
                 shot.PicturedBeams = beam;
                 shot.Direction = kind == SamusComboKind.Spazer ? SamusProjectileDirection.DownFacingLeft : SamusProjectileDirection.UpFacingRight;
                 switch (kind)
@@ -102,7 +97,7 @@ internal sealed class BeamCombos
                 // Every particle but a Plasma ring leaves trails, the Spazer beam pair only once the attack falls
                 // (SpazerParticleState.LeavesTrails), which starts its countdown then.
                 if (kind is SamusComboKind.Wave or SamusComboKind.Ice || (kind == SamusComboKind.Spazer && part.SpazerTrail))
-                    shot.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);
+                    held.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);
                 if (kind is SamusComboKind.Wave or SamusComboKind.Spazer)
                     shot.Position = shot.Position.WithoutFractions();
                 if (kind == SamusComboKind.Wave)
@@ -145,11 +140,30 @@ internal sealed class BeamCombos
     };
 
     /// <summary>
-    /// Takes <paramref name="shot"/>'s place with a particle of <paramref name="type"/> dealing the damage of the charged
-    /// beam, the special attack or the Spazer echo it plays.
+    /// Takes <paramref name="place"/> of <paramref name="pool"/>, ending the shot there, with a particle of
+    /// <paramref name="type"/> dealing the damage of the charged beam, the special attack or the Spazer echo it plays.
     /// </summary>
-    internal static SamusProjectileOccupant OccupyComboShot(SamusProjectile shot, SamusProjectileType type, BeamComboShotKind shotKind) =>
-        Ensure.NotNull(shot).Occupy(type, SamusProjectileDamage.Read(ComboShotKind(type, shotKind)));
+    internal static SamusProjectileOccupant OccupyComboShot(SamusShotPool pool, int place, SamusProjectileType type, BeamComboShotKind shotKind) =>
+        Ensure.NotNull(pool).Occupy(place, type, SamusProjectileDamage.Read(ComboShotKind(type, shotKind)));
+
+    /// <summary>
+    /// What a special attack's particle playing <paramref name="part"/> is: a Spazer attack's trailing particle is the Spazer
+    /// echo from the start, and every other particle is the combination's charged beam.
+    /// </summary>
+    private static SamusProjectileType ParticleType(SamusComboKind kind, SpecialAttackParticle part, SamusBeamCombination beam) =>
+        kind == SamusComboKind.Spazer && part.SpazerTrail
+            ? SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail)
+            : SamusProjectileType.Beam(beam, charged: true);
+
+    /// <summary>
+    /// Which projectile a special attack's particle playing <paramref name="part"/> deals the damage and plays the animation
+    /// of: the charged beam for an Ice attack, the Spazer echo for a Spazer attack's trailing particle, and the attack's own
+    /// otherwise.
+    /// </summary>
+    private static BeamComboShotKind ParticleShotKind(SamusComboKind kind, SpecialAttackParticle part) =>
+        kind == SamusComboKind.Ice ? BeamComboShotKind.Charged
+        : kind == SamusComboKind.Spazer && part.SpazerTrail ? BeamComboShotKind.Echo
+        : BeamComboShotKind.Combo;
 
     /// <summary>Gives a particle the damage and animation of the charged beam, the special attack or the Spazer echo, and starts its first frame.</summary>
     private static void InitializeComboShot(SamusProjectileOccupant held, BeamComboShotKind shotKind)
@@ -446,7 +460,7 @@ internal sealed class BeamCombos
             BeamComboDefinitions.SpazerFallSideStep.Toward(spazer.Part.FallSideStep));
         shot.Direction = SamusProjectileDirection.DownFacingLeft;
         shot.FlyOn();
-        shot.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);
+        held.Trail = UpdateCountdown.Lasting(ProjectileTimingDefinitions.TrailInterval);
         spazer.Phase = SpazerComboPhase.Falling;
         if (!spazer.Part.SpazerTrail)
         {

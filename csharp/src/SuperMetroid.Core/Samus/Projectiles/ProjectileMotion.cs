@@ -284,12 +284,11 @@ internal sealed class ProjectileMotion
     /// </summary>
     private static void IgniteMissile(SamusState samus, SamusProjectileOccupant held, MissileShotState missile)
     {
-        SamusProjectile shot = held.Projectile;
         SignedEightEight ignitionSpeed = missile.Ignition is SamusMissileIgnition.PendingAfterReflection
             ? SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed
             : SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
         missile.Ignite(ignitionSpeed);
-        BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, shot, ignitionSpeed);
+        BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, held, ignitionSpeed);
     }
 
     /// <summary>
@@ -304,9 +303,9 @@ internal sealed class ProjectileMotion
         if (_pool.FindFreePlace() is not { } place)
             return;
 
-        SamusProjectile link = _pool.OccupyAtRest(place);
         const SamusProjectileKind kind = SamusProjectileKind.SuperMissileLink;
-        SamusProjectileOccupant linked = link.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), SamusProjectileDamage.Read(kind));
+        SamusProjectileOccupant linked = _pool.OccupyAtRest(place, SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), SamusProjectileDamage.Read(kind));
+        SamusProjectile link = linked.Projectile;
         link.PicturedBeams = owner.PicturedBeams;
         link.Direction = owner.Direction;
         if (owner.IsSpent)
@@ -315,7 +314,7 @@ internal sealed class ProjectileMotion
 
         // The link then takes the muzzle's position for Samus's pose as it is now, over the owner's coordinates; the two
         // differ when her pose's muzzle has moved since the owner was placed.
-        BeamFiring.InitializePosition(samus, link);
+        BeamFiring.InitializePosition(samus, linked);
         link.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
         linked.Install(SamusShotBehaviors.SuperMissileLink,
             new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));

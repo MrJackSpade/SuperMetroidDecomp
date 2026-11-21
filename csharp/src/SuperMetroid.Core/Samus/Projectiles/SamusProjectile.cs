@@ -4,18 +4,19 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// One of Samus's ordinary projectiles: a beam, missile, special-attack particle, echo or explosion. Each is created
-/// fresh when it takes its place in Samus's shot pool (<see cref="SamusShotPool.Occupy"/>), keeps its own state,
-/// and ends when it is deleted, replaced, or Samus's shots are cleared. Nothing it holds reaches the next projectile in
-/// its place but two values gameplay carries over: its horizontal position's fraction of a pixel, which is
+/// One place in Samus's shot pool and the ordinary projectile holding it: a beam, missile, special-attack particle, echo or
+/// explosion. Each place is created fresh when a projectile takes it (<see cref="SamusShotPool.Occupy"/>), and the
+/// projectile holding it (<see cref="Occupant"/>, #2558) owns all its state, from its firing, release or setting off until
+/// it ends, when it is deleted, replaced, or Samus's shots are cleared. A free place holds nothing of a projectile (#2560):
+/// what it reads as is the cleared place's, no projectile at rest at the room's origin, which the blocks and enemies a
+/// shot's update goes on to reach after the shot ended read. Nothing a projectile holds reaches the next projectile in its
+/// place but two values gameplay carries over: its horizontal position's fraction of a pixel, which is
 /// <see cref="LeftBeamStartFromLastShot"/>'s, and, for a beam fired with every place held over the shot in the last place,
-/// the count that shot leaves (<see cref="BeamFiredOverLastShot"/>). A place no projectile holds reads as the projectile
-/// that last ended there, or one never fired: no occupant, no damage, at rest at the room's origin. What the projectile is
-/// belongs to its occupant (<see cref="SamusProjectileOccupant"/>), so an empty place has no type to read.
+/// the count that shot leaves (<see cref="BeamFiredOverLastShot"/>).
 /// </summary>
 public sealed class SamusProjectile
 {
-    /// <summary>Creates a projectile, not yet fired, in <paramref name="place"/> of the shot pool.</summary>
+    /// <summary>Creates the free <paramref name="place"/> of the shot pool.</summary>
     internal SamusProjectile(int place) => Place = place;
 
     /// <summary>
@@ -27,10 +28,15 @@ public sealed class SamusProjectile
     public int Place { get; }
 
     /// <summary>
-    /// The projectile holding the place (#2558), which carries what it is and the damage it deals: from its firing, release
-    /// or setting off, which gives it both (<see cref="Occupy"/>), until it ends; null while the place holds no projectile.
+    /// The projectile holding the place (#2558, #2560), which owns all it is and does: from its firing, release or setting
+    /// off (<see cref="Occupy"/>) until it ends; null while the place holds no projectile.
     /// </summary>
     public SamusProjectileOccupant? Occupant { get; private set; }
+
+    /// <summary>The projectile holding the place, for a step that changes it.</summary>
+    /// <exception cref="InvalidOperationException">No projectile holds the place.</exception>
+    public SamusProjectileOccupant Held =>
+        Occupant ?? throw new InvalidOperationException($"No projectile holds Samus's shot place {Place}.");
 
     /// <summary>
     /// Whether the projectile holds its place: from the update it takes the place with its type until it ends. The
@@ -39,98 +45,134 @@ public sealed class SamusProjectile
     public bool IsOccupied => Occupant is not null;
 
     /// <summary>
-    /// Takes the place with a projectile of <paramref name="type"/> dealing <paramref name="damage"/>, as its firing, release
-    /// or setting off does: the damage is the one its type deals, read once the type is known.
+    /// Takes the place with a projectile of <paramref name="type"/> dealing <paramref name="damage"/> at
+    /// <paramref name="position"/>, as its firing, release or setting off does: the damage is the one its type deals.
     /// </summary>
     /// <param name="type">What the projectile is.</param>
     /// <param name="damage">The damage the projectile deals, one or more.</param>
+    /// <param name="position">Where the projectile starts.</param>
     /// <returns>The projectile now holding the place.</returns>
     /// <exception cref="InvalidOperationException">A projectile already holds the place.</exception>
-    internal SamusProjectileOccupant Occupy(SamusProjectileType type, int damage)
+    internal SamusProjectileOccupant Occupy(SamusProjectileType type, int damage, FixedPosition<RoomPixels> position)
     {
         if (Occupant is { } held)
             throw new InvalidOperationException($"Samus's projectile place {Place} already holds a {held.Type}.");
-        Occupant = new SamusProjectileOccupant(this, type, damage);
+        Occupant = new SamusProjectileOccupant(this, type, damage, position);
         return Occupant;
     }
 
     /// <summary>
-    /// The beam combination whose pictures the projectile shows (#1586): the beams Samus had equipped when she fired it,
-    /// set off its special attack or released its echo. It stays through every later change to the projectile, its
-    /// explosion, an enemy's reflection and the Super Missile's link alike, and through any later change to her
-    /// equipment. A Hyper Beam shot is pictured with the Wave and Plasma beams the Hyper Beam equips although it is a
-    /// charged Plasma shot, and a missile with the beams beside it although it carries none.
+    /// The beam combination whose pictures the projectile holding the place shows (<see cref="SamusProjectileOccupant.PicturedBeams"/>);
+    /// the Power beam's for a free place.
     /// </summary>
-    public SamusBeamCombination PicturedBeams { get; internal set; }
-
-    /// <summary>The direction the projectile was fired or reflected in.</summary>
-    public SamusProjectileDirection Direction { get; internal set; }
-
-    /// <summary>
-    /// Whether the projectile has already struck something: an enemy or enemy-projectile collision spends it
-    /// (<see cref="Spend"/>) so later collisions skip it, and the projectile's own update then deletes or converts it.
-    /// </summary>
-    public bool IsSpent { get; private set; }
-
-    /// <summary>The projectile strikes something (#2562): later collisions skip it, and its own update deletes or converts it.</summary>
-    internal void Spend() => IsSpent = true;
-
-    /// <summary>
-    /// The projectile flies on as though it had struck nothing (#2562): an enemy it passes through, or a beam combination
-    /// that keeps it, leaves it unspent, even when an earlier collision this update spent it.
-    /// </summary>
-    internal void FlyOn() => IsSpent = false;
-
-    /// <summary>Room position, to a fraction of a pixel.</summary>
-    public FixedPosition<RoomPixels> Position { get; internal set; }
-    /// <summary>Velocity in pixels per update.</summary>
-    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
-    /// <summary>Collision half-extents in pixels.</summary>
-    public Extent16<RoomPixels> Radius { get; internal set; }
-    /// <summary>
-    /// The projectile's animation (#1600, #2458): the frame it shows, the updates that frame has left, or a still picture it
-    /// keeps until its animation changes (#2347), and where its play stands; null while it has none to animate.
-    /// </summary>
-    internal AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>? Animation { get; set; }
-    /// <summary>The projectile's animation and where it stands in it; null while it has none to animate.</summary>
-    internal AnimationPlayback<SamusProjectileSegment>? Playback => Animation?.Playback;
-    /// <summary>The composition the projectile shows, selected by the timed-frame animation or installed frame binding; none before its first frame.</summary>
-    public ProjectileSpriteId? Sprite { get; internal set; }
-
-    /// <summary>
-    /// The wait before the shot next leaves a trail (#2458): started when a trailing shot is fired or a special attack's
-    /// particle starts to trail, counted by its flight, and started again with the flight's interval on each update it
-    /// leaves one; null for a shot that leaves no trail, as the Hyper Beam's.
-    /// </summary>
-    internal UpdateCountdown? Trail { private get; set; }
-
-    /// <summary>
-    /// Counts one update of the shot's flight toward its next trail: whether the shot leaves one on this update, after which
-    /// the next waits <paramref name="interval"/> updates. A shot that leaves no trail never leaves one.
-    /// </summary>
-    /// <param name="interval">The updates from this trail to the next, at least one.</param>
-    internal bool CountsDownToTrail(int interval)
+    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
+    public SamusBeamCombination PicturedBeams
     {
-        if (Trail is not { } trail || !trail.Count())
-            return false;
-        trail.Restart(Ensure.BetweenInclusive(1, int.MaxValue, interval));
-        return true;
+        get => Occupant is { } held ? held.PicturedBeams : SamusBeamCombination.Power;
+        internal set => Held.PicturedBeams = value;
     }
 
     /// <summary>
-    /// What the projectile does on its update (#1923), installed when it is fired, released or changed
-    /// (<see cref="SamusProjectileOccupant.Install"/>); null for an explosion, which only plays its animation, and before
-    /// the projectile is set up.
+    /// The direction the projectile holding the place was fired or reflected in (<see cref="SamusProjectileOccupant.Direction"/>);
+    /// the cleared place's for a free place.
     /// </summary>
-    internal SamusShotBehavior? Behavior { get; set; }
+    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
+    public SamusProjectileDirection Direction
+    {
+        get => Occupant is { } held ? held.Direction : default;
+        internal set => Held.Direction = value;
+    }
 
     /// <summary>
-    /// The Power Bomb fuse a beam carries, in updates (#2468): none for a beam fired into a free place, and for one fired
-    /// with every place held the count the shot it replaced left (<see cref="BeamFiredOverLastShot"/>). The Chainsaw shot
-    /// burns it down (<see cref="ChainsawFuse"/>); every other beam, its reflection and its explosion keep it for a beam
-    /// fired over it in turn. None for every other projectile, whose kind keeps its own count.
+    /// Whether the projectile holding the place has already struck something (<see cref="SamusProjectileOccupant.IsSpent"/>);
+    /// a free place has struck nothing.
     /// </summary>
-    internal UpdateCountdown BeamFuse { get; set; } = UpdateCountdown.Ended();
+    public bool IsSpent => Occupant is { IsSpent: true };
+
+    /// <summary>The projectile holding the place strikes something (#2562): later collisions skip it.</summary>
+    /// <exception cref="InvalidOperationException">No projectile holds the place.</exception>
+    internal void Spend() => Held.Spend();
+
+    /// <summary>The projectile holding the place flies on as though it had struck nothing (#2562).</summary>
+    /// <exception cref="InvalidOperationException">No projectile holds the place.</exception>
+    internal void FlyOn() => Held.FlyOn();
+
+    /// <summary>
+    /// The room position of the projectile holding the place, to a fraction of a pixel; the room's origin for a free place.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
+    public FixedPosition<RoomPixels> Position
+    {
+        get => Occupant is { } held ? held.Position : FixedPosition<RoomPixels>.Zero;
+        internal set => Held.Position = value;
+    }
+
+    /// <summary>The velocity of the projectile holding the place, in pixels per update; none for a free place.</summary>
+    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
+    public PixelVelocity<RoomPixels> Velocity
+    {
+        get => Occupant is { } held ? held.Velocity : default;
+        internal set => Held.Velocity = value;
+    }
+
+    /// <summary>The collision half-extents of the projectile holding the place, in pixels; none for a free place.</summary>
+    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
+    public Extent16<RoomPixels> Radius
+    {
+        get => Occupant is { } held ? held.Radius : Extent16<RoomPixels>.Zero;
+        internal set => Held.Radius = value;
+    }
+
+    /// <summary>
+    /// The animation of the projectile holding the place (<see cref="SamusProjectileOccupant.Animation"/>); null while it has
+    /// none to animate or the place is free.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
+    internal AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>? Animation
+    {
+        get => Occupant?.Animation;
+        set => Held.Animation = value;
+    }
+
+    /// <summary>The animation of the projectile holding the place and where it stands in it; null while it has none or the place is free.</summary>
+    internal AnimationPlayback<SamusProjectileSegment>? Playback => Occupant?.Playback;
+
+    /// <summary>The composition the projectile holding the place shows; none before its first frame or for a free place.</summary>
+    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
+    public ProjectileSpriteId? Sprite
+    {
+        get => Occupant?.Sprite;
+        internal set => Held.Sprite = value;
+    }
+
+    /// <summary>
+    /// Counts one update of the flight of the shot holding the place toward its next trail
+    /// (<see cref="SamusProjectileOccupant.CountsDownToTrail"/>); a free place leaves none.
+    /// </summary>
+    /// <param name="interval">The updates from this trail to the next, at least one.</param>
+    internal bool CountsDownToTrail(int interval) => Occupant is { } held && held.CountsDownToTrail(interval);
+
+    /// <summary>
+    /// What the projectile holding the place does on its update (<see cref="SamusProjectileOccupant.Behavior"/>); null for an
+    /// explosion, before the projectile is set up, and for a free place.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
+    internal SamusShotBehavior? Behavior
+    {
+        get => Occupant?.Behavior;
+        set => Held.Behavior = value;
+    }
+
+    /// <summary>
+    /// The Power Bomb fuse the beam holding the place carries (<see cref="SamusProjectileOccupant.BeamFuse"/>); none for a
+    /// free place.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
+    internal UpdateCountdown BeamFuse
+    {
+        get => Occupant is { } held ? held.BeamFuse : UpdateCountdown.Ended();
+        set => Held.BeamFuse = value;
+    }
 
     /// <summary>
     /// What a beam fired into this projectile's place finds there (#2524), from which <see cref="BeamFiredOverLastShot"/>
@@ -143,7 +185,7 @@ public sealed class SamusProjectile
     {
         null => new BeamFiredOverLastShot.ReplacedShot.FreePlace(),
         { KindState: { } state } => state.ReplacedByBeam,
-        _ => new BeamFiredOverLastShot.ReplacedShot.Beam(BeamFuse.UpdatesLeft),
+        { } held => new BeamFiredOverLastShot.ReplacedShot.Beam(held.BeamFuse.UpdatesLeft),
     };
 
     /// <summary>The state the kind of the projectile holding the place keeps, which must be a <typeparamref name="TState"/>.</summary>
@@ -156,8 +198,8 @@ public sealed class SamusProjectile
         null => throw new InvalidOperationException($"No projectile holds place {Place}, so none keeps a {typeof(TState).Name}."),
     };
 
-    /// <summary>A live projectile animation marks the projectile drawable and updated.</summary>
-    public bool IsActive => Animation is not null;
+    /// <summary>Whether a projectile holds the place with an animation to play, which marks it drawn and updated.</summary>
+    public bool IsActive => Occupant is { IsAnimated: true };
 
     /// <summary>
     /// Enemy collision admits a beam, missile, or Super Missile even when it has no animation to play. This
@@ -173,22 +215,8 @@ public sealed class SamusProjectile
         Compatibility.ClearedShotPlaceType.Striking(Occupant, shot => shot.Type, SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
 
     /// <summary>
-    /// Ends the projectile: it no longer holds its place, and it reads as no projectile, at rest at the room's origin, to
-    /// whatever still holds it and to anything that reads its place before the next projectile takes it.
+    /// Ends the projectile: it no longer holds its place, which reads as the cleared place to whatever still holds it and to
+    /// anything that reads it before the next projectile takes it.
     /// </summary>
-    internal void End()
-    {
-        Occupant = null;
-        PicturedBeams = SamusBeamCombination.Power;
-        Direction = default;
-        IsSpent = false;
-        Position = FixedPosition<RoomPixels>.Zero;
-        Velocity = default(PixelVelocity<RoomPixels>);
-        Radius = Extent16<RoomPixels>.Zero;
-        Animation = null;
-        Sprite = null;
-        Trail = null;
-        Behavior = null;
-        BeamFuse = UpdateCountdown.Ended();
-    }
+    internal void End() => Occupant = null;
 }

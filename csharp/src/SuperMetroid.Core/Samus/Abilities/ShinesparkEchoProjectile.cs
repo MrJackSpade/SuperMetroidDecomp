@@ -61,9 +61,9 @@ internal sealed class ShinesparkEchoProjectile
         SamusProjectile replaced = _pool.Shots[place];
         Position16<RoomPixels> start = ReleasedEchoStartsAtReplacedShot.Start(
             replaced.IsOccupied ? replaced.Position.Whole : null);
-        SamusProjectile echo = _pool.Occupy(place);
+        SamusProjectileOccupant released = BeamCombos.OccupyComboShot(_pool, place, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho), BeamComboShotKind.Echo);
+        SamusProjectile echo = released.Projectile;
         echo.Position = echo.Position.WithWhole(start);
-        SamusProjectileOccupant released = BeamCombos.OccupyComboShot(echo, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho), BeamComboShotKind.Echo);
         echo.PicturedBeams = picturedBeams;
         BeamCombos.StartComboShot(released, BeamComboShotKind.Echo);
         released.Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(angle.ToTrigonometryAngle()));

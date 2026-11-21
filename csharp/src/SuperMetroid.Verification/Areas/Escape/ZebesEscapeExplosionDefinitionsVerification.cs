@@ -57,7 +57,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
             AssertTrue(random < 8 || ZebesEscapeExplosionDefinitions.Draw.Choose(random) is ZebesEscapeExplosionDraw.LeftOpen,
                 $"draw {random} leaves the kind open");
             RoomEffectActor sprite = enemies.RoomEffectActors.Single(slot => slot.IsActive);
-            AssertEqual(drawn?.SpriteKind ?? kindLeftOpen, sprite.Kind,
+            AssertTrue(sprite.Shows(drawn?.SpriteKind ?? kindLeftOpen),
                 $"production escape sprite draw {random}, kind left open {kindLeftOpen}");
             AssertEqual(0x1234, sprite.Position.X.Whole,
                 $"production escape X draw {random}, kind left open {kindLeftOpen}");

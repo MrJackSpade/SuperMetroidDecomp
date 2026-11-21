@@ -1136,7 +1136,7 @@ internal static class LookupStream4Verification
                         .Sum(record => CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb40000 | (entry + 4 * record))),
                     spawned.FrameHold, "room sprite actual initial native duration");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | (entry + 2))), spawned.SpritemapPointer, "room sprite actual initial native visual");
-            AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
+            AssertTrue(spawned.Shows(kind), "room sprite selected kind preserved");
             AssertEqual((ushort)0x1234, spawned.Position.X.Whole, "room sprite spawn X preserved");
             AssertEqual((ushort)0x5678, spawned.Position.Y.Whole, "room sprite spawn Y preserved");
             AssertEqual(SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook), spawned.Graphics, "room sprite tile base and colouring argument preserved");

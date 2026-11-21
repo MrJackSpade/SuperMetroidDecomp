@@ -62,7 +62,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
             // The n-th Evir spawned is the n-th live sprite object.
             RoomEffectActor sprite = enemies.RoomEffectActors[5 - entry];
             AssertTrue(sprite.IsActive, $"Draygon burial Evir {entry} active after spawn");
-            AssertEqual(kind, sprite.Kind, $"Draygon burial Evir {entry} kind");
+            AssertTrue(sprite.Shows(kind), $"Draygon burial Evir {entry} kind");
             AssertEqual(start.X, sprite.Position.X.Whole,
                 $"Draygon burial Evir {entry} spawned X");
             AssertEqual(start.Y, sprite.Position.Y.Whole,

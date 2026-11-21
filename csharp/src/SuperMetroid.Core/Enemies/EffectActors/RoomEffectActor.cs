@@ -15,15 +15,11 @@ public sealed class RoomEffectActor
     /// <param name="graphics">The artwork and colours it draws with.</param>
     internal RoomEffectActor(RoomEffectActorKind kind, Position16<RoomPixels> position, SpriteGraphics graphics)
     {
-        Kind = kind;
         Position = FixedPosition<RoomPixels>.FromWhole(position);
         Graphics = graphics;
         Playback = new(RoomEffectActorAnimations.StartingWith(kind), AnimationPlace.StartOfAnimation);
         AdvanceAnimation();
     }
-
-    /// <summary>What the object shows, as its spawner chose it, which is also the animation it plays.</summary>
-    public RoomEffectActorKind Kind { get; }
 
     /// <summary>Whether the object still runs its animation; once it ends it never runs or shows again.</summary>
     public bool IsActive => Playback is not null;
@@ -68,7 +64,7 @@ public sealed class RoomEffectActor
     private void AdvanceAnimation()
     {
         AnimationPlayback<RoomEffectActorSegment> playback = Playback ?? throw new InvalidOperationException(
-            $"Effect actor {Kind} has no animation to play.");
+            "An ended effect actor has no animation to play.");
         Animation<RoomEffectActorSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
         AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Unpaused shown = RoomEffectActorAnimations.Segments.PlayToNextFrame(

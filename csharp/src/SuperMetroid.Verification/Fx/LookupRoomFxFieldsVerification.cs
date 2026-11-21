@@ -82,8 +82,14 @@ internal static class LookupRoomFxFieldsVerification
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
+            // A selection the cartridge stores under two headers (the quicksand shafts') holds one record at both; the record
+            // names the first.
             if (identities.Contains(pointer) && !originalEnds.Contains(pointer))
-                AssertEqual(pointer, RoomFxDefinitions.RecordPointerOf(RoomFxDefinitions.RecordAt(pointer)), "FX selected identity");
+            {
+                RoomEffectDefinition record = RoomFxDefinitions.RecordAt(pointer);
+                AssertEqual(RoomFxDefinitions.RecordPointers.First(first => ReferenceEquals(RoomFxDefinitions.RecordAt(first), record)),
+                    RoomFxDefinitions.RecordPointerOf(record), "FX selected identity");
+            }
             else
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomFxDefinitions.RecordAt(pointer),
                     "Unknown, interior or terminator FX identity rejects");
@@ -261,7 +267,9 @@ internal static class LookupRoomFxFieldsVerification
             foreach (DoorDefinition? door in DoorDefinitionsConstants.All.Append(null))
             {
                 ushort word = door is null ? (ushort)0 : DoorDefinitions.PointerOf(door);
-                ushort expected = firstByDoor.TryGetValue(word, out ushort matching) ? matching : fallback;
+                ushort native = firstByDoor.TryGetValue(word, out ushort matching) ? matching : fallback;
+                // A record the cartridge stores under two headers (the quicksand shafts') is named by the first.
+                ushort expected = native == 0 ? native : RoomFxDefinitions.RecordPointerOf(RoomFxDefinitions.RecordAt(native));
                 ushort actual = RoomFxDefinitions.SelectedRecordPointer(RoomFxDefinitions.Suffix(root), door);
                 if (actual != expected)
                     throw new InvalidOperationException(

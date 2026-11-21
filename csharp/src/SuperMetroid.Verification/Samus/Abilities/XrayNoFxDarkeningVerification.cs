@@ -50,7 +50,13 @@ internal static class XrayNoFxDarkeningVerification
             "Fireflea retains its shade's subtraction with nothing lying behind");
         RgbaPixel[] darkPixels = DisplayRendering.Render(fireflea);
         RgbaPixel[] firefleaMain = Unblended(fireflea);
-        foreach (int index in new[] { 80, 120, 180 }.Select(row => FirstLitPixel(firefleaMain, row)))
+        // The dark room shows its foreground on fewer rows: the first three of every eighth row below the HUD that show a
+        // lit pixel are sampled.
+        int[] darkSamples = [.. Enumerable.Range(0, ScreenGeometry.ScreenHeightPixels / 8).Select(band => band * 8)
+            .Where(row => row >= ScreenGeometry.GameplayHudHeightPixels)
+            .Where(row => LitPixelOrNone(firefleaMain, row) is not null).Take(3).Select(row => FirstLitPixel(firefleaMain, row))];
+        AssertEqual(3, darkSamples.Length, "the Fireflea room shows its foreground on at least three sampled rows");
+        foreach (int index in darkSamples)
             AssertEqual(Channels(firefleaMain[index], channel => Math.Max(0, channel - FixedColorChannel)), darkPixels[index],
                 "Fireflea subtracts seven without halving");
         Console.WriteLine("X-ray no-FX capture: fixed-colour addition without an effect behind and Fireflea exception verified.");
@@ -102,7 +108,11 @@ internal static class XrayNoFxDarkeningVerification
     }
 
     /// <summary>The first pixel of <paramref name="row"/> the main screen shows with every channel lit.</summary>
-    private static int FirstLitPixel(RgbaPixel[] pixels, int row)
+    private static int FirstLitPixel(RgbaPixel[] pixels, int row) =>
+        LitPixelOrNone(pixels, row) ?? throw new InvalidOperationException($"Fixture row {row} shows no lit foreground pixel.");
+
+    /// <summary>The first pixel of <paramref name="row"/> the main screen shows with every channel lit, or null when none is.</summary>
+    private static int? LitPixelOrNone(RgbaPixel[] pixels, int row)
     {
         for (int column = 0; column < ScreenGeometry.ScreenWidthPixels; column++)
         {
@@ -110,7 +120,7 @@ internal static class XrayNoFxDarkeningVerification
             if (pixel.R != 0 && pixel.G != 0 && pixel.B != 0)
                 return row * ScreenGeometry.ScreenWidthPixels + column;
         }
-        throw new InvalidOperationException($"Fixture row {row} shows no lit foreground pixel.");
+        return null;
     }
 
     /// <summary><paramref name="pixel"/> with each five-bit channel replaced by <paramref name="map"/> of it.</summary>

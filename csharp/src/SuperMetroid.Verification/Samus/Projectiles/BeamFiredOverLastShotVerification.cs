@@ -56,12 +56,14 @@ internal static class BeamFiredOverLastShotVerification
         {
             (SamusProjectileSystem projectiles, SamusBombProjectileSystem shared, SamusState samus) =
                 NewFixture(path == FirePath.Charged ? SamusBeamFlags.Charge : SamusBeamFlags.None);
+            if (path == FirePath.Hyper)
+                samus.EnableHyperBeam();
             HoldFirstPlaces(projectiles);
             _ = FlyingBeam(projectiles, LastPlace);
             CountShots(projectiles, LastPlace);
             SamusProjectile[] before = [.. projectiles.Shots];
 
-            AssertTrue(Fire(path, projectiles, level, samus, shared) is not null, $"{path}: the fire with every place held fires");
+            AssertTrue(Fire(path, projectiles, level, samus, shared), $"{path}: the fire with every place held fires");
             AssertTrue(!ReferenceEquals(before[LastPlace], projectiles.Shots[LastPlace]) && !before[LastPlace].IsOccupied,
                 $"{path}: the last place's shot is replaced and ends");
             AssertTrue(projectiles.Shots[LastPlace].IsOccupied, $"{path}: the new shot holds the last place");
@@ -76,10 +78,12 @@ internal static class BeamFiredOverLastShotVerification
 
             (SamusProjectileSystem full, SamusBombProjectileSystem fullShared, SamusState fullSamus) =
                 NewFixture(path == FirePath.Charged ? SamusBeamFlags.Charge : SamusBeamFlags.None);
+            if (path == FirePath.Hyper)
+                fullSamus.EnableHyperBeam();
             HoldFirstPlaces(full);
             SamusProjectile last = FlyingBeam(full, LastPlace);
             CountShots(full, SamusProjectileSystem.PlaceCount);
-            AssertTrue(Fire(path, full, level, fullSamus, fullShared) is null, $"{path}: a count of five refuses the fire");
+            AssertTrue(!Fire(path, full, level, fullSamus, fullShared), $"{path}: a count of five refuses the fire");
             AssertTrue(ReferenceEquals(last, full.Shots[LastPlace]) && last.IsOccupied, $"{path}: a refused fire replaces nothing");
         }
     }
@@ -107,7 +111,7 @@ internal static class BeamFiredOverLastShotVerification
         missile.HeldShot().Install(SamusShotBehaviors.Missile, ignition);
         CountShots(projectiles, LastPlace);
 
-        AssertTrue(Fire(FirePath.Uncharged, projectiles, EmptyLevel(), samus, shared) is not null,
+        AssertTrue(Fire(FirePath.Uncharged, projectiles, EmptyLevel(), samus, shared),
             "the Chainsaw fire with every place held fires");
         SamusProjectile chainsaw = projectiles.Shots[LastPlace];
         AssertEqual(SamusShotBehaviors.ChainsawPowerBomb, chainsaw.Behavior, "the last place holds the Chainsaw shot");
@@ -219,7 +223,7 @@ internal static class BeamFiredOverLastShotVerification
             HoldFirstPlaces(projectiles);
             hold(projectiles);
             CountShots(projectiles, LastPlace);
-            AssertTrue(Fire(FirePath.Uncharged, projectiles, EmptyLevel(), samus, shared) is not null, $"a beam fired over {holder} fires");
+            AssertTrue(Fire(FirePath.Uncharged, projectiles, EmptyLevel(), samus, shared), $"a beam fired over {holder} fires");
             AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), projectiles.Shots[LastPlace].HeldShot().Type,
                 $"the beam fired over {holder} holds the last place");
             AssertEqual(expected, projectiles.Shots[LastPlace].BeamFuse.UpdatesLeft, $"a beam fired over {holder} starts from the count it left");
@@ -285,13 +289,13 @@ internal static class BeamFiredOverLastShotVerification
         Hyper,
     }
 
-    /// <summary>Fires a beam by <paramref name="path"/>: the shot, or null when the fire is refused.</summary>
-    private static BeamShot? Fire(FirePath path, SamusProjectileSystem projectiles, RoomLevelData level, SamusState samus,
+    /// <summary>Fires a beam by <paramref name="path"/> as Samus's Shoot input does: whether the fire took a shot.</summary>
+    private static bool Fire(FirePath path, SamusProjectileSystem projectiles, RoomLevelData level, SamusState samus,
         SamusBombProjectileSystem shared) => path switch
     {
-        FirePath.Uncharged => projectiles.Firing.TryFireBeam(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, shared, charged: false),
-        FirePath.Charged => projectiles.Firing.TryFireBeam(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, shared, charged: true),
-        FirePath.Hyper => projectiles.Firing.TryFireHyperBeam(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, shared),
+        FirePath.Uncharged => projectiles.FireUnchargedBeam(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, shared),
+        FirePath.Charged => projectiles.FireChargedBeam(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, shared, GameplayAction.Shoot),
+        FirePath.Hyper => projectiles.FireHyperBeam(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, shared),
         _ => throw new ArgumentOutOfRangeException(nameof(path), path, $"Undefined {nameof(FirePath)}."),
     };
 

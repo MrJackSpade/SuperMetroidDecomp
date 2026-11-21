@@ -54,8 +54,12 @@ internal static class ProjectileDamageVerification
         foreach (bool charged in new[] { false, true })
         {
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            var samus = Samus(); samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam);
-            system.Firing.TryFireBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), charged);
+            // A charged shot is released from a full charge, which needs Charge equipped; an uncharged one is fired without it.
+            var samus = Samus(); samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam) | (charged ? SamusBeamFlags.Charge : SamusBeamFlags.None);
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+            AssertTrue(charged
+                ? system.FireChargedBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, bombs, GameplayAction.Shoot)
+                : system.FireUnchargedBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, bombs), $"beam {beam} charged {charged} fires");
             var slot = system.Shots[0];
             int table = charged ? SamusProjectileBeamTables.ChargedDataPointers : SamusProjectileBeamTables.UnchargedDataPointers;
             Check(slot, table, beam, slot.Direction.ToAimIndex());
@@ -78,7 +82,10 @@ internal static class ProjectileDamageVerification
             }
         }
         var hyper = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-        hyper.Firing.TryFireHyperBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), Samus(), new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
+        var hyperSamus = Samus();
+        hyperSamus.EnableHyperBeam();
+        AssertTrue(hyper.FireHyperBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), hyperSamus, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())),
+            "the Hyper Beam fires");
         AssertEqual(1000, hyper.Shots[0].HeldShot().Damage, "Hyper retains its post-initialization damage override");
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {

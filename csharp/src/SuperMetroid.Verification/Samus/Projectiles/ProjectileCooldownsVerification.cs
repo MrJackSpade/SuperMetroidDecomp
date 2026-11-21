@@ -46,9 +46,12 @@ internal static class ProjectileCooldownsVerification
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam) }.InPose(SamusPoseId.FacingRightNormalPose);
-            var result = projectiles.Firing.TryFireBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, edge, shared, charged);
-            AssertTrue(result is not null, "Cooldown check exercises the actual successful producer");
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam) | (charged ? SamusBeamFlags.Charge : SamusBeamFlags.None) }.InPose(SamusPoseId.FacingRightNormalPose);
+            // A charged shot is released from a full charge, which needs Charge equipped; an uncharged one is fired without it.
+            bool fired = charged
+                ? projectiles.FireChargedBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, shared, edge)
+                : projectiles.FireUnchargedBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, shared, edge);
+            AssertTrue(fired, "Cooldown check exercises the actual successful producer");
             int address = charged ? 0x90c264 + beam : edge == 0 ? 0x90c283 + beam : 0x90c254 + beam;
             AssertEqual(retail.ReadCartridgeByte(address), shared.CooldownTimer,
                 "Native charged/fresh/held selection installs exact shared delay");

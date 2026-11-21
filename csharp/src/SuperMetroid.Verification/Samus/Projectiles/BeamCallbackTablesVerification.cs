@@ -54,7 +54,9 @@ internal static class BeamCallbackTablesVerification
             var shared = CreateBombFixture();
             if (initializeOnly)
             {
-                projectiles.Firing.TryFireBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, shared, charged);
+                _ = charged
+                    ? projectiles.FireChargedBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, shared, GameplayAction.Shoot)
+                    : projectiles.FireUnchargedBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, shared);
                 AssertTrue(projectiles.Shots[0].IsOccupied || projectiles.Shots[0].InstructionPointer != 0,
                     $"charged={charged} beam {beamType:X1} initializes");
                 AssertEqual(SamusBeamShotBehaviors.Resolve(charged, SamusBeamCombinationTableOrderConstants.FromTableIndex(beamType)),

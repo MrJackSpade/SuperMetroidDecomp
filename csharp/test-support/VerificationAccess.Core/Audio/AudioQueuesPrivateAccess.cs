@@ -36,6 +36,6 @@ internal static class AudioQueuesPrivateAccess
         internal global::SuperMetroid.Core.Compatibility.SoundRequestHandshakes<global::SuperMetroid.Core.Audio.SoundEffectLibrary, global::SuperMetroid.Core.Audio.SoundEffectId> SoundHandshakes => PrivateState.Field<global::SuperMetroid.Core.Audio.AudioQueues, global::SuperMetroid.Core.Compatibility.SoundRequestHandshakes<global::SuperMetroid.Core.Audio.SoundEffectLibrary, global::SuperMetroid.Core.Audio.SoundEffectId>>(self, "SoundHandshakes");
 
         /// <summary>The private field <c>SoundQueues</c>, reached by name.</summary>
-        internal global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Audio.SoundEffectLibrary, global::SuperMetroid.Core.Audio.SoundQueue> SoundQueues => PrivateState.Field<global::SuperMetroid.Core.Audio.AudioQueues, global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Audio.SoundEffectLibrary, global::SuperMetroid.Core.Audio.SoundQueue>>(self, "SoundQueues");
+        internal global::SuperMetroid.Core.IdentityTable<global::SuperMetroid.Core.Audio.SoundEffectLibrary, global::SuperMetroid.Core.Audio.SoundQueue> SoundQueues => PrivateState.Field<global::SuperMetroid.Core.Audio.AudioQueues, global::SuperMetroid.Core.IdentityTable<global::SuperMetroid.Core.Audio.SoundEffectLibrary, global::SuperMetroid.Core.Audio.SoundQueue>>(self, "SoundQueues");
     }
 }

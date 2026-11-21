@@ -280,7 +280,7 @@ internal sealed class SamusAnimationLayout
         return programs.ToDictionary(animation => SamusAnimationNameKeys.Installed.Of(animation.Name), animation =>
             (IReadOnlyDictionary<string, int>)moved[animation]
                 .Where(offset => OwnStepAt(animation, offset) is not SamusAnimationDelay)
-                .ToDictionary(offset => animation.NameOf(FrameAt(animation, offset)), offset => cartridge.ReadCartridgeByte(
+                .ToDictionary(offset => animation.NameOf(FrameAt(animation, offset)), offset => (int)cartridge.ReadCartridgeByte(
                     SnesAddressMath.AddWithinBank(SamusOverreadSourceDefinitions.SamusAnimationProgramBank, starts[animation] + offset)),
                     StringComparer.Ordinal),
             StringComparer.Ordinal);

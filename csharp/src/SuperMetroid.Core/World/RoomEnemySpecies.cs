@@ -195,7 +195,7 @@ internal sealed class RoomEnemySpecies
         var firefleaBehavior = new FirefleaBehavior(enemies.Collision, enemies.DeathsAndDrops, enemies.RoomStatus);
         var fakeKraidBehavior = new FakeKraidBehavior(enemies.Room, enemies.Terrain, enemies.Projectiles, enemies.Collision, enemies.DeathsAndDrops, enemies.Audio);
         var eyeDoorBehavior = new EyeDoorBehavior(enemies.Room, enemies.Projectiles);
-        var evirBehavior = new EvirBehavior(enemies.Places, enemies.Collision, enemies.Audio);
+        var evirBehavior = new EvirBehavior(enemies.Places, enemies.Collision, enemies.Audio, partOffers);
         var etecoonBehavior = new EtecoonBehavior(enemies.Terrain, enemies.Earthquake, doorPassage, enemies.Audio);
         var escapeExplosionsBehavior = new EscapeExplosionsBehavior(enemies.Audio, enemies.EffectActors);
         var escapeAnimalsBehavior = new EscapeAnimalsBehavior(enemies.Room, enemies.Terrain);

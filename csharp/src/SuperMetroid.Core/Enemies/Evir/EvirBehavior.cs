@@ -8,22 +8,37 @@ namespace SuperMetroid.Core.Enemies.Evir;
 [RoomLifetime]
 internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
     /// <summary>
-    /// An Evir's body or arms, as the placement's settings name the part it is, which only the room's population load
-    /// places, the body facing the loading Samus; and its spit, built the same way wherever it is set up (#2146). The arms
-    /// share the body's definition; only their placement tells them apart.
+    /// An Evir's body, which only the room's population load places, facing the loading Samus: it offers the arms and spit
+    /// its room lists right after it the creation that builds each of them following it (#2146, #2554). The arms share the
+    /// body's definition; only their placement tells them apart. Arms or a spit no body offered are refused.
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
     public void Register(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Loads<EvirSpawnSettings>([EnemyDefinitionId.Evir], (occupant, settings, place, common, surroundings) =>
-            settings.Part == EvirBodyPart.Arms
-                ? EnemyOccupant.Running(new EvirArmsEntity(this, occupant, place, common))
-                : EnemyOccupant.Running(new EvirBodyEntity(this, occupant, place, common, surroundings, settings)));
-        registrar.Spawns<EnemySpawnSettings>([EnemyDefinitionId.EvirProjectile], (occupant, _, place, common) =>
-            EnemyOccupant.Running(new EvirSpitEntity(this, occupant, place, common)));
+        Ensure.NotNull(registrar).Loads<EvirSpawnSettings>([EnemyDefinitionId.Evir], CreateBody);
+        registrar.Joins([EnemyDefinitionId.EvirProjectile]);
     }
+
+    /// <summary>An Evir's body, which offers its arms and spit their creations.</summary>
+    /// <exception cref="InvalidDataException">The placement names arms with no body listed before them.</exception>
+    private EnemyOccupant CreateBody(RoomEnemyOccupant occupant, EvirSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings)
+    {
+        if (Ensure.NotNull(settings).Part == EvirBodyPart.Arms)
+            throw new InvalidDataException($"Evir arms in enemy place {Ensure.NotNull(place).Ordinal} are listed with no body before them.");
+        var body = new EvirBodyEntity(this, occupant, place, common, surroundings, settings);
+        _partOffers.OfferLoaded<EvirSpawnSettings>(EnemyDefinitionId.Evir, (later, laterSettings, laterPlace, laterCommon, laterSurroundings) =>
+            laterSettings.Part == EvirBodyPart.Arms
+                ? EnemyOccupant.Running(new EvirArmsEntity(this, later, laterPlace, laterCommon, place))
+                : CreateBody(later, laterSettings, laterPlace, laterCommon, laterSurroundings));
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.EvirProjectile, (spit, _, spitPlace, spitCommon) =>
+            EnemyOccupant.Running(new EvirSpitEntity(this, spit, spitPlace, spitCommon, place)));
+        return EnemyOccupant.Running(body);
+    }
+
+    /// <summary>Where a body offers the arms and spit listed after it the creation that builds each following it.</summary>
+    private readonly EnemyPartOffers _partOffers;
 
     /// <summary>The room's enemy places, where each Evir part finds its partners when it is placed.</summary>
     private readonly EnemyPlaces _places;
@@ -34,8 +49,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds place and collision owners for the Evir's three listed parts.</summary>
-    internal EvirBehavior(EnemyPlaces places, EnemyCollision collision, EnemyAudioQueue audio)
+    internal EvirBehavior(EnemyPlaces places, EnemyCollision collision, EnemyAudioQueue audio, EnemyPartOffers partOffers)
     {
+        _partOffers = partOffers;
         _audio = audio;
         _places = places;
         _collision = collision;
@@ -65,11 +81,10 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Initializes an Evir's arms.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal EvirArmsState InitializeEvirArms(RoomEnemyPlace place)
+    internal EvirArmsState InitializeEvirArms(RoomEnemyPlace place, RoomEnemyPlace body)
     {
         // The arms are not a second creature: they always read facing and position from their body.
-        RoomEnemyPlace body = _places.Member(place, EvirPartListingDefinitions.Listing, EvirMember.Arms, EvirMember.Body);
-        RequirePlacedBody(body, place, "arms");
+        RequireListedAfter(body, _places.Member(place, EvirPartListingDefinitions.Listing, EvirMember.Arms, EvirMember.Body), place, "arms");
         var arms = new EvirArmsState(body);
         PositionEvirArms(place, arms);
         arms.ShowsSpawnAnimation = true;
@@ -126,10 +141,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Initializes the Evir's spit.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal EvirSpitState InitializeEvirProjectile(RoomEnemyPlace place)
+    internal EvirSpitState InitializeEvirProjectile(RoomEnemyPlace place, RoomEnemyPlace body)
     {
-        RoomEnemyPlace body = _places.Member(place, EvirPartListingDefinitions.Listing, EvirMember.Spit, EvirMember.Body);
-        RequirePlacedBody(body, place, "spit");
+        RequireListedAfter(body, _places.Member(place, EvirPartListingDefinitions.Listing, EvirMember.Spit, EvirMember.Body), place, "spit");
         var state = new EvirSpitState(EvirSpitAction.Idle, body)
         {
             RegenerationOffset = Offset16<RoomPixels>.Zero,
@@ -143,14 +157,14 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Rejects an Evir's <paramref name="part"/> (its arms or spit) unless the room's population placed an Evir body where
-    /// its room lists the body.
+    /// Rejects an Evir's <paramref name="part"/> (its arms or spit) unless <paramref name="body"/>, the body that offered it
+    /// its creation, is where its room lists its body, <paramref name="listed"/>.
     /// </summary>
-    /// <exception cref="InvalidDataException">The population places no Evir body there.</exception>
-    private static void RequirePlacedBody(RoomEnemyPlace body, RoomEnemyPlace part, string partName)
+    /// <exception cref="InvalidDataException">The room lists the part apart from its body.</exception>
+    private static void RequireListedAfter(RoomEnemyPlace body, RoomEnemyPlace listed, RoomEnemyPlace part, string partName)
     {
-        if (body.Entity is not EvirBodyEntity)
-            throw new InvalidDataException($"Evir {partName} of enemy {part.Ordinal} follows {body.Occupant?.DefinitionId}, not an Evir body.");
+        if (listed != body)
+            throw new InvalidDataException($"Evir {partName} of enemy {part.Ordinal} follows enemy {listed.Ordinal}, not the Evir body of enemy {body.Ordinal}.");
     }
 
     /// <summary>Tracks Samus while the spit is present and alternates the body's timed vertical travel.</summary>

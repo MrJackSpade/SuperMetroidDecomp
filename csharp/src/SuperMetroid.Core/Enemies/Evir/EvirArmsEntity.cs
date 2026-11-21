@@ -9,11 +9,13 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the arms occupy.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class EvirArmsEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="body">The place of the body the room lists before the arms, which offered them their creation (#2554).</param>
+internal sealed class EvirArmsEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    RoomEnemyPlace body)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal EvirArmsState State { get; } = species.InitializeEvirArms(place);
+    internal EvirArmsState State { get; } = species.InitializeEvirArms(place, body);
 
     /// <summary>The two enemies the part's follow-up to a hit reaches, the ones its room lists after it, found as it is built.</summary>
     private IReadOnlyList<RoomEnemyPlace> FollowUpRecipients { get; } = species.FollowUpRecipientsOf(place);

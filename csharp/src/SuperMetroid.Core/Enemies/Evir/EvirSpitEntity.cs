@@ -9,11 +9,13 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the spit occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class EvirSpitEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="body">The place of the body the room lists before the spit, which offered them their creation (#2554).</param>
+internal sealed class EvirSpitEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    RoomEnemyPlace body)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal EvirSpitState State { get; } = species.InitializeEvirProjectile(place);
+    internal EvirSpitState State { get; } = species.InitializeEvirProjectile(place, body);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirProjectileMainAi(Place, State, frame);

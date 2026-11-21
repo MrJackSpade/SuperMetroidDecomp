@@ -51,7 +51,7 @@ internal static class RidleyHitFlashVerification
             ?? throw new InvalidOperationException("Ridley's sheet installs its shades.");
         SpriteSheetShadeDocument flash = shades[EnemyShades.HurtFlash.Key];
         AssertTrue(flash.InkColours.Keys.SequenceEqual(painted), "The hurt flash lists every ink Ridley paints, those whose flash colour equals their own among them");
-        foreach ((int ink, ushort colour) in flash.InkColours)
+        foreach ((int ink, RgbColor colour) in flash.InkColours)
         {
             // The flash clears his draws' palette bits, so each ink shows its own row.
             RgbColor own = source.Sources.SpriteColours[ink];
@@ -63,7 +63,7 @@ internal static class RidleyHitFlashVerification
         var shown = new Dictionary<int, RgbColor>();
         foreach (SpriteSheetShadeDocument laid in new[] { start, flash })
         {
-            foreach ((int ink, ushort colour) in laid.InkColours)
+            foreach ((int ink, RgbColor colour) in laid.InkColours)
                 shown[ink] = colour;
         }
         foreach (int ink in painted)

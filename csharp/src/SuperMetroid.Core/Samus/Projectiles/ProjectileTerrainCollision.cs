@@ -33,13 +33,12 @@ internal sealed partial class ProjectileTerrainCollision
 
     /// <summary>Advances a shot by its sideways velocity and scans its leading edge for block reactions and collision.</summary>
     internal static bool MoveHorizontally(
-        RoomLevelData level,
-        SamusProjectileOccupant held,
-        ISamusRoomObjects roomObjects)
+        SamusTerrain terrain,
+        SamusProjectileOccupant held)
     {
         SamusProjectile shot = held.Projectile;
         held.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
-        return ScanHorizontalShotReactions(level, held, roomObjects);
+        return ScanHorizontalShotReactions(terrain, held);
     }
 
     /// <summary>
@@ -47,22 +46,20 @@ internal sealed partial class ProjectileTerrainCollision
     /// never report a collision.
     /// </summary>
     internal void MoveWaveShotHorizontally(
-        RoomLevelData level,
-        SamusProjectileOccupant held,
-        ISamusRoomObjects roomObjects)
+        SamusTerrain terrain,
+        SamusProjectileOccupant held)
     {
         SamusProjectile shot = held.Projectile;
         held.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
-        ScanHorizontalWaveShotReactions(level, held, roomObjects, _straddledTerrain);
+        ScanHorizontalWaveShotReactions(terrain, held, _straddledTerrain);
     }
 
     /// <summary>
     /// Tests a new beam against the terrain before it receives its speed.
     /// </summary>
     internal bool RunInitialBeamCollision(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusProjectileOccupant held,
-        ISamusRoomObjects roomObjects,
         bool waveBeam)
     {
         SamusProjectile shot = held.Projectile;
@@ -77,9 +74,9 @@ internal sealed partial class ProjectileTerrainCollision
         {
             bool horizontalReaction = false;
             if (waveBeam)
-                MoveWaveShotHorizontally(level, held, roomObjects);
+                MoveWaveShotHorizontally(terrain, held);
             else
-                horizontalReaction = MoveHorizontally(level, held, roomObjects);
+                horizontalReaction = MoveHorizontally(terrain, held);
 
             // A Wave shot's scan reports no collision even after a block reacts, so a diagonal Wave shot still tests the
             // vertical edge. An ordinary beam's collision ends its firing at once.
@@ -91,7 +88,7 @@ internal sealed partial class ProjectileTerrainCollision
         // publishes a block reaction, so it necessarily reaches this second axis as well.
         if (!collided && axes.MovesVertically)
         {
-            bool verticalReaction = MoveVertically(level, held, roomObjects, waveBeam);
+            bool verticalReaction = MoveVertically(terrain, held, waveBeam);
             collided = !waveBeam && verticalReaction;
         }
 
@@ -108,9 +105,8 @@ internal sealed partial class ProjectileTerrainCollision
 
     /// <summary>Advances a shot by its vertical velocity and scans its leading edge; Wave retains reactions but is never stopped.</summary>
     internal static bool MoveVertically(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusProjectileOccupant held,
-        ISamusRoomObjects roomObjects,
         bool waveBeam = false)
     {
         SamusProjectile shot = held.Projectile;
@@ -118,10 +114,10 @@ internal sealed partial class ProjectileTerrainCollision
 
         if (waveBeam)
         {
-            ScanVerticalWaveShotReactions(level, held, roomObjects);
+            ScanVerticalWaveShotReactions(terrain, held);
             return false;
         }
-        return ScanVerticalShotReactions(level, held, roomObjects);
+        return ScanVerticalShotReactions(terrain, held);
     }
 
     /// <summary>
@@ -129,9 +125,8 @@ internal sealed partial class ProjectileTerrainCollision
     /// stops the shot, or one ends the span.
     /// </summary>
     internal static bool ScanHorizontalShotReactions(
-        RoomLevelData level,
-        SamusProjectileOccupant held,
-        ISamusRoomObjects roomObjects)
+        SamusTerrain terrain,
+        SamusProjectileOccupant held)
     {
         SamusProjectile shot = held.Projectile;
         int topBlock = RoomGridConversions.PixelToBlock(TerrainScanEdges.Edge(shot.Position.Y.Whole - shot.Radius.Y));
@@ -141,7 +136,7 @@ internal sealed partial class ProjectileTerrainCollision
             : TerrainScanEdges.Edge(shot.Position.X.Whole + shot.Radius.X - 1);
         int blockX = RoomGridConversions.PixelToBlock(targetX);
 
-        if (blockX >= level.Size.X || topBlock >= level.Size.Y || bottomBlock >= level.Size.Y)
+        if (blockX >= terrain.Level.Size.X || topBlock >= terrain.Level.Size.Y || bottomBlock >= terrain.Level.Size.Y)
             return false;
 
         // The span stops the shot only when every block in it does. A tall shot grazing air beside one solid block
@@ -150,9 +145,9 @@ internal sealed partial class ProjectileTerrainCollision
         int span = bottomBlock - topBlock;
         for (int blockY = topBlock; blockY <= bottomBlock; blockY++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
+            RoomCollisionBlock block = terrain.Level.GetCollisionBlock(new(blockX, blockY));
             ShotSpan context = ShotSpan.At(blockY - topBlock, span, targetX);
-            if (!RunShotReaction(level, held, block, roomObjects, context, out bool endSpan))
+            if (!RunShotReaction(terrain, held, block, context, out bool endSpan))
                 everyBlockSolid = false;
             if (endSpan) return true;
         }
@@ -161,9 +156,8 @@ internal sealed partial class ProjectileTerrainCollision
 
     /// <summary>Checks every block along the projectile's horizontal span, preserving each block reaction before aggregating solidity.</summary>
     internal static bool ScanVerticalShotReactions(
-        RoomLevelData level,
-        SamusProjectileOccupant held,
-        ISamusRoomObjects roomObjects)
+        SamusTerrain terrain,
+        SamusProjectileOccupant held)
     {
         SamusProjectile shot = held.Projectile;
         int leftBlock = RoomGridConversions.PixelToBlock(TerrainScanEdges.Edge(shot.Position.X.Whole - shot.Radius.X));
@@ -173,16 +167,16 @@ internal sealed partial class ProjectileTerrainCollision
             : TerrainScanEdges.Edge(shot.Position.Y.Whole + shot.Radius.Y - 1);
         int blockY = RoomGridConversions.PixelToBlock(targetY);
 
-        if (blockY >= level.Size.Y || leftBlock >= level.Size.X || rightBlock >= level.Size.X)
+        if (blockY >= terrain.Level.Size.Y || leftBlock >= terrain.Level.Size.X || rightBlock >= terrain.Level.Size.X)
             return false;
 
         bool everyBlockSolid = true;
         int span = rightBlock - leftBlock;
         for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
+            RoomCollisionBlock block = terrain.Level.GetCollisionBlock(new(blockX, blockY));
             ShotSpan context = ShotSpan.At(blockX - leftBlock, span, targetY);
-            if (!RunShotReaction(level, held, block, roomObjects, context, out bool endSpan, axis: Axis.Vertical))
+            if (!RunShotReaction(terrain, held, block, context, out bool endSpan, axis: Axis.Vertical))
                 everyBlockSolid = false;
             if (endSpan) return true;
         }
@@ -275,10 +269,9 @@ internal sealed partial class ProjectileTerrainCollision
 
     /// <summary>Resolves an extension and applies its slope, room-object, shootable, or ordinary solid reaction to one scanned block.</summary>
     private static bool RunShotReaction(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusProjectileOccupant held,
         RoomCollisionBlock block,
-        ISamusRoomObjects roomObjects,
         ShotSpan span,
         out bool endSpan,
         Axis axis = Axis.Horizontal)
@@ -288,8 +281,9 @@ internal sealed partial class ProjectileTerrainCollision
         // A shot reacts to the block its cell stands for, as bombs, missiles and Samus's body do (ContinuedBlocks); one that
         // stands for nothing lets the shot pass. A door cap is a shootable block at one end with continuing cells
         // across its other three, so a beam striking the cap's middle reaches the blue door's reaction through them.
-        if (!level.TryReachBlockStoodFor(ref block))
+        if (terrain.Meet(block) is not { } met)
             return false;
+        block = met.Block;
         if (block.CollisionType == RoomCollisionType.Slope && !block.Behavior.Slope.IsNonSquare)
             return SquareSlopeShotReaction(held, block, span, axis);
         if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.Slope.IsNonSquare)
@@ -309,38 +303,44 @@ internal sealed partial class ProjectileTerrainCollision
             return hit;
         }
 
-        // Chozo orbs and concealed item blocks are shootable blocks of the item-trigger behaviour. Their special
-        // reaction is none of the ordinary shot-block reactions: it
-        // finds and triggers the already-loaded permanent-item room object at this origin.
-        if (block.CollisionType == RoomCollisionType.ShootableBlock &&
-            block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
+        // A room's item, trigger and shootable blocks reach its room objects; a plain terrain holds only air, solid blocks
+        // and slopes.
+        if (met.Reacting is { } reacting)
         {
-            roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
-            return true;
-        }
-
-        // A solid or shootable block holding a resident room object's trigger tells that room object the shot's type. A
-        // solid block's behaviour is read as a shot block's reaction.
-        if (block.CollisionType == RoomCollisionType.SolidBlock &&
-            block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
-        {
-            NotifyResidentProjectileHit(roomObjects, block, shot.StrikingType);
-            return true;
-        }
-
-        if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
-        {
-            if (block.Behavior.Shootable == ShootableReaction.CollisionProbe)
+            RoomTerrain room = reacting.Room;
+            // Chozo orbs and concealed item blocks are shootable blocks of the item-trigger behaviour. Their special
+            // reaction is none of the ordinary shot-block reactions: it
+            // finds and triggers the already-loaded permanent-item room object at this origin.
+            if (block.CollisionType == RoomCollisionType.ShootableBlock &&
+                block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
             {
-                // Setting up the probe's room object ends the span. With every room-object place taken nothing is set
-                // up, and the span goes on.
-                endSpan = roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
-                    level, block.At, block.Behavior, BlockStrike.By(shot.StrikingType),
-                    block.CollisionType == RoomCollisionType.ShootableBlock);
+                room.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
+                return true;
+            }
+
+            // A solid or shootable block holding a resident room object's trigger tells that room object the shot's
+            // type. A solid block's behaviour is read as a shot block's reaction.
+            if (block.CollisionType == RoomCollisionType.SolidBlock &&
+                block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
+            {
+                NotifyResidentProjectileHit(room.RoomObjects, block, shot.StrikingType);
+                return true;
+            }
+
+            if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
+            {
+                if (block.Behavior.Shootable == ShootableReaction.CollisionProbe)
+                {
+                    // Setting up the probe's room object ends the span. With every room-object place taken nothing is
+                    // set up, and the span goes on.
+                    endSpan = room.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(
+                        terrain.Level, block.At, ShotBlockReactions.ShotBlocks[ShootableReaction.CollisionProbe],
+                        BlockStrike.By(shot.StrikingType), block.CollisionType == RoomCollisionType.ShootableBlock);
+                    return block.CollisionType == RoomCollisionType.ShootableBlock;
+                }
+                TrySpawnShootableReaction(room, held, block);
                 return block.CollisionType == RoomCollisionType.ShootableBlock;
             }
-            TrySpawnShootableReaction(level, held, block, roomObjects);
-            return block.CollisionType == RoomCollisionType.ShootableBlock;
         }
 
         // Solid, special, grapple, door and spike blocks stop the shot with no reaction. A bomb block's reaction
@@ -350,10 +350,9 @@ internal sealed partial class ProjectileTerrainCollision
 
     /// <summary>Routes a shootable behaviour to its downward gate, resident room object, blue door, or ordinary shot-block owner.</summary>
     internal static void TrySpawnShootableReaction(
-        RoomLevelData level,
+        RoomTerrain terrain,
         SamusProjectileOccupant held,
-        RoomCollisionBlock block,
-        ISamusRoomObjects roomObjects)
+        RoomCollisionBlock block)
     {
         SamusProjectile shot = held.Projectile;
         // The gate-trigger behaviours bypass the ordinary shot-block reactions and
@@ -362,7 +361,7 @@ internal sealed partial class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetDownwardGateTrigger(out _))
         {
-            roomObjects.Gates.SpawnDownwardGateTrigger(level, block.At, block.Behavior, BlockStrike.By(shot.StrikingType));
+            terrain.RoomObjects.Gates.SpawnDownwardGateTrigger(terrain.Level, block.At, block.Behavior, BlockStrike.By(shot.StrikingType));
             return;
         }
 
@@ -371,7 +370,7 @@ internal sealed partial class ProjectileTerrainCollision
         // after the generic shot trigger publishes the projectile type.
         if (block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
-            NotifyResidentProjectileHit(roomObjects, block, shot.StrikingType);
+            NotifyResidentProjectileHit(terrain.RoomObjects, block, shot.StrikingType);
             return;
         }
 
@@ -382,8 +381,8 @@ internal sealed partial class ProjectileTerrainCollision
         // same owner and power bombs retain the blue door setup's rejection behavior.
         if (block.Behavior.TryGetBlueDoorOrientation(out _))
         {
-            roomObjects.DoorObjects.SpawnBlueDoorOpening(
-                level,
+            terrain.RoomObjects.DoorObjects.SpawnBlueDoorOpening(
+                terrain.Level,
                 block.At,
                 block.Behavior,
                 BlockStrike.By(shot.StrikingType));
@@ -396,15 +395,20 @@ internal sealed partial class ProjectileTerrainCollision
         // keep its room object that does nothing; shootable air places none. The RoomObject
         // owner performs the power-bomb/Super-Missile family checks synchronously, just as each
         // setup sees the current projectile type while the room object spawns.
-        bool spawnsShotBlockReaction = block.Behavior.Shootable is ShootableReaction.NothingWhenSolid or
-                ShootableReaction.AnimalEscape or ShootableReaction.CollisionProbe ||
-            ShotBlockReactions.IsWeaponReaction(block.Behavior.Shootable);
-        if (spawnsShotBlockReaction)
+        ShootableReaction reaction = block.Behavior.Shootable;
+        if (reaction == ShootableReaction.AnimalEscape)
         {
-            roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
-                level,
+            _ = terrain.RoomObjects.BlockReactions.TrySpawnAnimalEscape(terrain.Level, block.At, BlockStrike.By(shot.StrikingType));
+            return;
+        }
+        if ((reaction is ShootableReaction.NothingWhenSolid or ShootableReaction.CollisionProbe ||
+                ShotBlockReactions.IsWeaponReaction(reaction)) &&
+            ShotBlockReactions.ShotBlocks.TryGetValue(reaction, out ShotBlock? shotBlock))
+        {
+            terrain.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(
+                terrain.Level,
                 block.At,
-                block.Behavior,
+                shotBlock,
                 BlockStrike.By(shot.StrikingType),
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
         }
@@ -504,12 +508,11 @@ internal sealed partial class ProjectileTerrainCollision
     /// scan runs past the room's ceiling and lands halfway through a block (<see cref="WaveScanRead"/>) it reacts to the
     /// terrain <paramref name="straddledTerrain"/> finds straddling that block and the next.
     /// </summary>
-    /// <param name="level">The room's terrain as it is now.</param>
+    /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="held">The Wave or Hyper shot.</param>
-    /// <param name="roomObjects">The room's objects, which a block reaction may spawn; none in a room without them.</param>
     /// <param name="straddledTerrain">The installation's straddled terrain, which the projectile system's terrain collision holds.</param>
     internal static void ScanHorizontalWaveShotReactions(
-        RoomLevelData level, SamusProjectileOccupant held, ISamusRoomObjects roomObjects, StraddledTerrain<RoomTerrainBlock> straddledTerrain)
+        SamusTerrain terrain, SamusProjectileOccupant held, StraddledTerrain<RoomTerrainBlock> straddledTerrain)
     {
         SamusProjectile shot = held.Projectile;
         Ensure.NotNull(straddledTerrain);
@@ -521,28 +524,28 @@ internal sealed partial class ProjectileTerrainCollision
         // A shot whose centre lies above the room's top edge reacts to no block, nor one whose span is too tall or whose
         // centre or leading edge lies past the room's last screen.
         if (span > SamusProjectileMotionDefinitions.WaveScanLongestReach || OffRoomPlaces.LiesBeforeRoom(shot.Position.Y.Whole) ||
-            RoomGridConversions.PixelToScreen(shot.Position.Y.Whole) >= RoomGridConversions.ScreensCovering(level.Size.Y) ||
-            RoomGridConversions.PixelToScreen(targetX) >= RoomGridConversions.ScreensCovering(level.Size.X))
+            RoomGridConversions.PixelToScreen(shot.Position.Y.Whole) >= RoomGridConversions.ScreensCovering(terrain.Level.Size.Y) ||
+            RoomGridConversions.PixelToScreen(targetX) >= RoomGridConversions.ScreensCovering(terrain.Level.Size.X))
             return;
 
         for (int step = 0; step <= span; step++)
         {
-            WaveScanRead read = WaveScanRead.At(Position16<RoomPixels>.Of(targetX, top).ToRoomBlock(), level.Size.X, step);
-            Position16<RoomBlocks> readBlock = read.BlockIn(level.Size.X);
-            if (!level.Size.Contains(readBlock))
+            WaveScanRead read = WaveScanRead.At(Position16<RoomPixels>.Of(targetX, top).ToRoomBlock(), terrain.Level.Size.X, step);
+            Position16<RoomBlocks> readBlock = read.BlockIn(terrain.Level.Size.X);
+            if (!terrain.Level.Size.Contains(readBlock))
                 continue;
-            RoomCollisionBlock block = level.GetCollisionBlock(readBlock);
+            RoomCollisionBlock block = terrain.Level.GetCollisionBlock(readBlock);
             if (read.StraddlesNext)
             {
                 // The straddled block is the next one in the room's reading order, on the next row past a row's end.
-                Position16<RoomBlocks> nextBlock = level.GridBlockStepped(readBlock, Offset16<RoomBlocks>.OneRight) ??
+                Position16<RoomBlocks> nextBlock = terrain.Level.GridBlockStepped(readBlock, Offset16<RoomBlocks>.OneRight) ??
                     throw new NotSupportedException("A straddled Wave collision read crosses the room's grid.");
-                RoomTerrainBlock next = level.GetCollisionBlock(nextBlock).Terrain;
+                RoomTerrainBlock next = terrain.Level.GetCollisionBlock(nextBlock).Terrain;
                 // The reaction consumes the straddled block; the behaviour and room-object setup
                 // still use the block the read starts in, as aligned reads do.
                 block = block with { Terrain = straddledTerrain.Straddling(block.Terrain, next) };
             }
-            RunShotReaction(level, held, block, roomObjects, ShotSpan.At(step, span, targetX), out bool endSpan);
+            RunShotReaction(terrain, held, block, ShotSpan.At(step, span, targetX), out bool endSpan);
             // Wave discards whether a block stops it, but still honors room-object scan termination.
             if (endSpan) return;
         }
@@ -552,7 +555,7 @@ internal sealed partial class ProjectileTerrainCollision
     /// Preserves the vertical scan's linear block order across the room's side edges.
     /// </summary>
     internal static void ScanVerticalWaveShotReactions(
-        RoomLevelData level, SamusProjectileOccupant held, ISamusRoomObjects roomObjects)
+        SamusTerrain terrain, SamusProjectileOccupant held)
     {
         SamusProjectile shot = held.Projectile;
         int left = TerrainScanEdges.Edge(shot.Position.X.Whole - shot.Radius.X);
@@ -563,8 +566,8 @@ internal sealed partial class ProjectileTerrainCollision
             ? shot.Position.Y.Whole - shot.Radius.Y
             : shot.Position.Y.Whole + shot.Radius.Y - 1);
         int centerScreenX = RoomGridConversions.PixelToScreen(shot.Position.X.Whole);
-        if (centerScreenX >= RoomGridConversions.ScreensCovering(level.Size.X) ||
-            RoomGridConversions.PixelToScreen(targetY) >= RoomGridConversions.ScreensCovering(level.Size.Y))
+        if (centerScreenX >= RoomGridConversions.ScreensCovering(terrain.Level.Size.X) ||
+            RoomGridConversions.PixelToScreen(targetY) >= RoomGridConversions.ScreensCovering(terrain.Level.Size.Y))
             return;
 
         // The span's blocks follow the room's reading order from the target row. Its X is not clipped to the room's
@@ -574,10 +577,10 @@ internal sealed partial class ProjectileTerrainCollision
         Position16<RoomBlocks> firstBlock = Position16<RoomPixels>.Of(left, targetY).ToRoomBlock();
         for (int step = 0; step <= span; step++)
         {
-            Position16<RoomBlocks> block = BlockScanCycle.BlockAlongRows(firstBlock, level.Size.X, step);
-            if (level.Size.Contains(block))
+            Position16<RoomBlocks> block = BlockScanCycle.BlockAlongRows(firstBlock, terrain.Level.Size.X, step);
+            if (terrain.Level.Size.Contains(block))
             {
-                RunShotReaction(level, held, level.GetCollisionBlock(block), roomObjects,
+                RunShotReaction(terrain, held, terrain.Level.GetCollisionBlock(block),
                     ShotSpan.At(step, span, targetY), out bool endSpan, axis: Axis.Vertical);
                 if (endSpan) return;
             }

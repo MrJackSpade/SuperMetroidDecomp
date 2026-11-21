@@ -15,5 +15,5 @@ internal sealed partial class WorkRobotLaserAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<WorkRobotLaserSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => WorkRobotLaserAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<WorkRobotLaserSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => WorkRobotLaserAnimations.Segments;
 }

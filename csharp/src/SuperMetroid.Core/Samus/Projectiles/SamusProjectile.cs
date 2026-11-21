@@ -122,13 +122,16 @@ public sealed partial class SamusProjectile
     /// ignition speed, link place, departure angle or carried fuse that kind keeps. A beam, the Hyper Beam's shot and their
     /// explosions keep no kind state and carry their fuse; a missile's explosion keeps its missile's.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The projectile keeps an undefined ignition.</exception>
-    internal BeamFiredOverLastShot.ReplacedShot AsReplacedByBeam => Occupant switch
-    {
-        null => new BeamFiredOverLastShot.ReplacedShot.FreePlace(),
-        { KindState: { } state } => state.ReplacedByBeam,
-        { } held => new BeamFiredOverLastShot.ReplacedShot.Beam(held.BeamFuse.UpdatesLeft),
-    };
+    internal BeamFiredOverLastShot.ReplacedShot AsReplacedByBeam => Occupant is not { } held ? new BeamFiredOverLastShot.ReplacedShot.FreePlace()
+        : held.KindState is { } kind ? kind.ReplacedByBeam(ReflectionHeadStart)
+        : new BeamFiredOverLastShot.ReplacedShot.Beam(held.BeamFuse.UpdatesLeft);
+
+    /// <summary>
+    /// The head start a reflection gives a missile toward the speed it re-ignites at: what that speed exceeds a fired
+    /// missile's by.
+    /// </summary>
+    private static SignedEightEight ReflectionHeadStart =>
+        SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed - SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
 
     /// <summary>The state the kind of the projectile holding the place keeps, which must be a <typeparamref name="TState"/>.</summary>
     /// <exception cref="InvalidOperationException">No projectile holds the place, or the one holding it keeps no such state.</exception>

@@ -1,4 +1,3 @@
-
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Verification access to <see cref="RoomFxOverlayState"/> members production does not use.</summary>
@@ -49,59 +48,6 @@ internal static class RoomFxOverlayStateAccess
             Ensure.NotNull(frame);
             self.AdvanceLiquidMotion(system, frame.TimeIsFrozen);
             self.Step(frames, frame);
-        }
-
-        /// <summary>
-        /// Shows Fireflea darkness in the loaded room as a Fireflea room's load starts it, from its first flash, for a check
-        /// of how its shade reaches the screen; returns the darkness.
-        /// </summary>
-        internal FirefleaFxState StartFirefleaDarknessForCheck()
-        {
-            var darkness = new FirefleaFxState();
-            self.Type = RoomFxType.Fireflea;
-            self.Fireflea = darkness;
-            return darkness;
-        }
-
-        /// <summary>
-        /// Takes the liquid's motion from a native snapshot recorded mid-room (#2056): its motion has begun, whether an
-        /// enemy has stopped it, where its tide stands, its base surface and its surface line.
-        /// </summary>
-        /// <param name="stopped">Whether an enemy has ended the liquid's motion.</param>
-        /// <param name="tidePhase">How far round its rise and fall the tide is.</param>
-        /// <param name="tideOffset">How far the tide displaces the surface from its base line.</param>
-        /// <param name="baseY">The surface before the tide's displacement.</param>
-        /// <param name="surface">The surface's room line, negative once a tide carries it above the room's top.</param>
-        internal void ImportLiquidMotion(bool stopped, RotationAngle tidePhase, SignedSixteenSixteen tideOffset, FixedCoordinate baseY,
-            int surface)
-        {
-            self.Motion = stopped ? SuperMetroid.Core.Compatibility.LiquidMotion.Stopped : SuperMetroid.Core.Compatibility.LiquidMotion.Moving;
-            self.TidePhase = tidePhase;
-            self.TideOffset = tideOffset;
-            self.BaseY = baseY;
-            self.Surface = surface;
-        }
-
-        /// <summary>Gives the liquid <paramref name="liquid"/>'s tide standing at <paramref name="phase"/> with <paramref name="offset"/>, for a check of one tide step.</summary>
-        internal void SetTideForCheck(RoomLiquid liquid, RotationAngle phase, SignedSixteenSixteen offset)
-        {
-            self.Liquid = liquid;
-            self.TidePhase = phase;
-            self.TideOffset = offset;
-        }
-
-        /// <summary>Runs one step of the liquid's tide alone, the step its motion pass takes after the rise.</summary>
-        internal void StepTideForCheck() => self.StepLiquidTide();
-
-        /// <summary>Places the quake sounds at <paramref name="position"/> in their rhythm, for a check of the sound each position plays.</summary>
-        internal void SetEarthquakeSoundRhythmPositionForCheck(int position) =>
-            self.EarthquakeSoundRhythm = CyclingSequence<int>.At(RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays, position);
-
-        /// <summary>Returns the loaded room to its own effect, <paramref name="type"/>, which has no Fireflea darkness.</summary>
-        internal void EndFirefleaDarknessForCheck(RoomFxType type)
-        {
-            self.Type = type;
-            self.Fireflea = null;
         }
 
         /// <summary>The liquid's base surface, which the check requires the effect to name.</summary>

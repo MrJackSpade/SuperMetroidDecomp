@@ -51,7 +51,5 @@ internal static partial class MotherBrainWalks
     /// <summary>The animations <paramref name="speed"/> walks in.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="speed"/> is not a walking speed.</exception>
     private static MotherBrainWalkGait GaitOf(MotherBrainWalkSpeed speed) =>
-        MotherBrainWalkDefinitions.Gaits.TryGetValue(speed, out MotherBrainWalkGait gait)
-            ? gait
-            : throw new InvalidOperationException($"Undefined {nameof(MotherBrainWalkSpeed)} {speed}.");
+        MotherBrainWalkDefinitions.Gaits[speed];
 }

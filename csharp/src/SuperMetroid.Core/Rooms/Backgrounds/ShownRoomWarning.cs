@@ -17,7 +17,7 @@ public sealed partial class ShownRoomWarning
         if (pictures.IsDefault)
             throw new ArgumentException("A warning needs its pictures.", nameof(pictures));
         Pictures = pictures;
-        Depth = Enum.IsDefined(depth) ? depth : throw new ArgumentOutOfRangeException(nameof(depth), depth, "Undefined warning depth.");
+        Depth = depth;
     }
 
     /// <summary>The pictures, in the order shown.</summary>

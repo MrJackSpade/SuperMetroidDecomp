@@ -84,7 +84,7 @@ public readonly partial struct ControllerBindings : IEquatable<ControllerBinding
     /// Whether <paramref name="button"/> is one of the <see cref="AssignableButtons"/>; false for every other button set,
     /// including combinations of valid buttons, directions, Start, and none.
     /// </summary>
-    public static bool IsAssignable(ControllerButton button) => AssignableButtons.Contains(button);
+    private static bool IsAssignable(ControllerButton button) => AssignableButtons.Contains(button);
 
     /// <summary>Returns the button bound to one action.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="action"/> is not a defined action.</exception>

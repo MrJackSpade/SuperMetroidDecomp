@@ -10,11 +10,7 @@ internal static partial class CrawlerSurfaceAnimations
         CrawlerSurfaceOrientation orientation) => ForOrientation(Family(family), orientation);
 
     /// <summary>One family's four surface animations.</summary>
-    private static CrawlerAnimationDefinition Family(CrawlerAnimationFamily family) =>
-        CrawlerAnimationDefinitions.Families.TryGetValue(family, out CrawlerAnimationDefinition definition)
-            ? definition
-            : throw new InvalidDataException(
-                $"Crawler animation family {family} has no authored animations.");
+    private static CrawlerAnimationDefinition Family(CrawlerAnimationFamily family) => CrawlerAnimationDefinitions.Families[family];
 
     /// <summary>Selects an animation by one of the four physical surface orientations.</summary>
     private static CrawlerSegment ForOrientation(CrawlerAnimationDefinition definition, CrawlerSurfaceOrientation orientation) =>

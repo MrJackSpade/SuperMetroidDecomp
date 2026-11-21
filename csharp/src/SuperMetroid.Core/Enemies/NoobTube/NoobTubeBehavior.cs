@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
@@ -11,10 +12,13 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 internal sealed partial class NoobTubeBehavior : IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.NoobTubeCrack];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.NoobTubeCrack], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new NoobTubeCrackEntity(occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new NoobTubeCrackEntity(occupant, place, common));
 
     /// <summary>The pictures and shading every tube piece draws with: the shared sheet in the tube's crack colours.</summary>
     private static readonly SpriteGraphics TubePieceGraphics =
@@ -32,6 +36,30 @@ internal sealed partial class NoobTubeBehavior : IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
+    /// <summary>What <see cref="SpawnNoobTubeProjectile"/> does for each <see cref="NoobTubeProjectileDefinition"/> member, each member's own arm.</summary>
+    private IdentityTable<NoobTubeProjectileDefinition, Action<NoobTubePiece, EnemyProjectile, Position16<RoomPixels>>> SpawnNoobTubeProjectileForNoobTubeProjectileDefinition => field ??= new(new Dictionary<NoobTubeProjectileDefinition, Action<NoobTubePiece, EnemyProjectile, Position16<RoomPixels>>>
+    {
+        [NoobTubeProjectileDefinition.Crack] = (piece, projectile, place) =>
+        {
+            TubePieces.Pieces.Start(projectile, new NoobTubeDebrisState(place.X));
+            projectile.Position = projectile.Position.WithWhole(place);
+        },
+        [NoobTubeProjectileDefinition.Shard] = (piece, projectile, place) =>
+        {
+            TubePieces.Pieces.Start(projectile, new NoobTubeDebrisState(place.X));
+            projectile.Position = projectile.Position.WithWholeY(place.Y);
+            projectile.Velocity = piece.Velocity;
+        },
+        [NoobTubeProjectileDefinition.ReleasedAirBubble] = (piece, projectile, place) =>
+        {
+            TubePieces.Pieces.Start(projectile, new NoobTubeDebrisState(place.X));
+            projectile.Position = projectile.Position.WithWholeY(place.Y);
+            // The bubble sets only its rise: it sways by its own arc, and the sideways speed its place's previous
+            // projectile left passes on to the next projectile spawned there (EnemyProjectileHandOver).
+            projectile.Velocity = projectile.Velocity.WithY(piece.Velocity.Y);
+        },
+    });
+
     /// <summary>
     /// Spawns the crack, glass shard or released air bubble the request names, at the tube's block the request
     /// carries.
@@ -39,55 +67,16 @@ internal sealed partial class NoobTubeBehavior : IEnemyEntityFactory
     public void SpawnNoobTubeProjectile(
         NoobTubeProjectileRequest request)
     {
-
         NoobTubePiece piece = request.Piece;
-        RoomEnemyProjectileKind kind = piece.Definition switch
-        {
-            NoobTubeProjectileDefinition.Crack => RoomEnemyProjectileKind.NoobTubeCrack,
-            NoobTubeProjectileDefinition.Shard => RoomEnemyProjectileKind.NoobTubeShard,
-            NoobTubeProjectileDefinition.ReleasedAirBubble =>
-                RoomEnemyProjectileKind.NoobTubeReleasedAirBubble,
-            _ => throw new InvalidOperationException(
-                $"Undefined n00b-tube projectile definition {piece.Definition}."),
-        };
+        RoomEnemyProjectileKind kind = PieceKinds[piece.Definition];
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, TubePieces, graphics: TubePieceGraphics);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, TubePieces, graphics: TubePieceGraphics, new NoobTubeProjectileAnimation(TubePieces, piece.Start.Match(PieceStartAnimations, 0)));
         if (projectile is null)
             return;
         // The tube's pieces draw from the shared sheet in the tube's crack colours (#1512).
 
         Position16<RoomPixels> place = request.RoomObjectBlock.ToRoomPixels() + piece.Offset;
-        projectile.StartAnimation(new NoobTubeProjectileAnimation(TubePieces, piece.Start switch
-        {
-            NoobTubePieceStart.AtSegment start => NoobTubeProjectileAnimations.StartingAt[start.Segment],
-            NoobTubePieceStart.ShardFlight flight => NoobTubeProjectileAnimations.ShardAnimations[flight.Shard],
-            _ => throw new InvalidOperationException($"A n00b tube piece starts by {piece.Start}, which no case answers."),
-        }));
-        switch (piece.Definition)
-        {
-            case NoobTubeProjectileDefinition.Crack:
-                TubePieces.Pieces.Start(projectile, new NoobTubeDebrisState(place.X));
-                projectile.Position = projectile.Position.WithWhole(place);
-                return;
-
-            case NoobTubeProjectileDefinition.Shard:
-                TubePieces.Pieces.Start(projectile, new NoobTubeDebrisState(place.X));
-                projectile.Position = projectile.Position.WithWholeY(place.Y);
-                projectile.Velocity = piece.Velocity;
-                return;
-
-            case NoobTubeProjectileDefinition.ReleasedAirBubble:
-                TubePieces.Pieces.Start(projectile, new NoobTubeDebrisState(place.X));
-                projectile.Position = projectile.Position.WithWholeY(place.Y);
-                // The bubble sets only its rise: it sways by its own arc, and the sideways speed its place's previous
-                // projectile left passes on to the next projectile spawned there (EnemyProjectileHandOver).
-                projectile.Velocity = projectile.Velocity.WithY(piece.Velocity.Y);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"N00b-tube setup lost projectile definition {piece.Definition}.");
-        }
+        SpawnNoobTubeProjectileForNoobTubeProjectileDefinition[piece.Definition](piece, projectile, place);
     }
 
     /// <summary>Drops the detached crack at its fixed fall speed.</summary>
@@ -159,6 +148,19 @@ internal sealed partial class NoobTubeBehavior : IEnemyEntityFactory
     /// <summary>The tube's crack, shards and released-air bubbles (#1760): their spawner starts their animations.</summary>
     internal NoobTubeProjectileBehavior TubePieces => field ??= new NoobTubeProjectileBehavior(_room);
 
+    /// <summary>The enemy projectile each n00b-tube piece spawns as (#2553): its crack, a glass shard or a released bubble.</summary>
+    private static IdentityTable<NoobTubeProjectileDefinition, RoomEnemyProjectileKind> PieceKinds { get; } = new(new Dictionary<NoobTubeProjectileDefinition, RoomEnemyProjectileKind>
+    {
+        [NoobTubeProjectileDefinition.Crack] = RoomEnemyProjectileKind.NoobTubeCrack,
+        [NoobTubeProjectileDefinition.Shard] = RoomEnemyProjectileKind.NoobTubeShard,
+        [NoobTubeProjectileDefinition.ReleasedAirBubble] = RoomEnemyProjectileKind.NoobTubeReleasedAirBubble,
+    });
+
+    /// <summary>The animation each start of a piece plays (#2553): the one beginning at its segment, or its shard's flight.</summary>
+    private static NoobTubePieceStartCases<int, Animation<NoobTubeProjectileSegment>> PieceStartAnimations { get; } = new(
+        AtSegment: static (start, _) => NoobTubeProjectileAnimations.StartingAt[start.Segment],
+        ShardFlight: static (flight, _) => NoobTubeProjectileAnimations.ShardAnimations[flight.Shard]);
+
     /// <summary>A crack, shard or bubble: the crack's, shards' and bubbles' movers, and their animations' cues.</summary>
     /// <param name="room">The loaded room, whose random numbers set a falling piece's sway.</param>
     internal sealed partial class NoobTubeProjectileBehavior(EnemyRoomBinding room)
@@ -178,33 +180,22 @@ internal sealed partial class NoobTubeBehavior : IEnemyEntityFactory
             [RoomEnemyProjectileKind.NoobTubeReleasedAirBubble] = null,
         };
 
+        /// <summary>What <c>Move</c> does for each <see cref="NoobTubePieceMotion"/> member, each member's own arm.</summary>
+        private IdentityTable<NoobTubePieceMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>> MoveForNoobTubePieceMotion => field ??= new(new Dictionary<NoobTubePieceMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>>
+        {
+            [NoobTubePieceMotion.CrackFlickering] = (context, projectile) => FlickerNoobTubeCrack(projectile, context.ShortCounter),
+            [NoobTubePieceMotion.CrackFalling] = (context, projectile) => DropNoobTubeCrack(projectile),
+            [NoobTubePieceMotion.ShardFlying] = (context, projectile) => FlyNoobTubeShard(this, projectile, context.Camera.Y),
+            [NoobTubePieceMotion.ShardFalling] = (context, projectile) => DropNoobTubeShard(this, projectile, context.Camera.Y),
+            [NoobTubePieceMotion.BubbleFalling] = (context, projectile) => DropNoobTubeBubble(this, projectile),
+            [NoobTubePieceMotion.BubbleFlying] = (context, projectile) => MoveNoobTubeBubbleVertically(this, projectile),
+        });
+
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, NoobTubePieceMotion motion)
         {
             EnemyProjectile projectile = context.Projectile;
-            switch (motion)
-            {
-                case NoobTubePieceMotion.CrackFlickering:
-                    FlickerNoobTubeCrack(projectile, context.ShortCounter);
-                    break;
-                case NoobTubePieceMotion.CrackFalling:
-                    DropNoobTubeCrack(projectile);
-                    break;
-                case NoobTubePieceMotion.ShardFlying:
-                    FlyNoobTubeShard(this, projectile, context.Camera.Y);
-                    break;
-                case NoobTubePieceMotion.ShardFalling:
-                    DropNoobTubeShard(this, projectile, context.Camera.Y);
-                    break;
-                case NoobTubePieceMotion.BubbleFalling:
-                    DropNoobTubeBubble(this, projectile);
-                    break;
-                case NoobTubePieceMotion.BubbleFlying:
-                    MoveNoobTubeBubbleVertically(this, projectile);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(NoobTubePieceMotion)} {motion}.");
-            }
+            MoveForNoobTubePieceMotion[motion](context, projectile);
         }
 
         /// <inheritdoc/>
@@ -225,55 +216,45 @@ internal sealed partial class NoobTubeBehavior : IEnemyEntityFactory
         private void FlickerNoobTubeCrack(EnemyProjectile projectile, Compatibility.ShortFrameCount shortCounter) =>
             Pieces.Of(projectile).IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsInSecondHalfAt(shortCounter);
 
+        /// <summary>What <see cref="ApplyNoobTubeProjectileCue"/> does for each <see cref="NoobTubeProjectileCueKind"/> member, each member's own arm.</summary>
+        private IdentityTable<NoobTubeProjectileCueKind, Action<EnemyProjectile, NoobTubeShardMirroring, bool>> ApplyNoobTubeProjectileCueForNoobTubeProjectileCueKind => field ??= new(new Dictionary<NoobTubeProjectileCueKind, Action<EnemyProjectile, NoobTubeShardMirroring, bool>>
+        {
+            [NoobTubeProjectileCueKind.FlickerReflected] = (projectile, mirroring, atOwnColumn) =>
+            {
+                // The shard shows itself at its column, or its mirror image mirrored across the tube. A column past the
+                // room's left edge lies at the end of the room's axis (AdvanceNoobTubeShardX), and its mirror image
+                // lies as far past the room's right edge, on the axis as OffRoomPlaces keeps it (#2537).
+                int column = Pieces.Of(projectile).X.Whole;
+                projectile.Position = projectile.Position.WithWholeX(atOwnColumn
+                    ? column
+                    : OffRoomPlaces.Place(NoobTubeDebrisDefinitions.ShardMirrorSpan - column));
+                mirroring.ShowsMirroredFrame = !atOwnColumn;
+            },
+            [NoobTubeProjectileCueKind.FlickerHidden] = (projectile, mirroring, atOwnColumn) =>
+            {
+                // The shard shows at its column on odd updates and is hidden on even ones.
+                projectile.Position = projectile.Position.WithWholeX(Pieces.Of(projectile).X.Whole);
+                Pieces.Of(projectile).IsHidden = !atOwnColumn;
+            },
+            [NoobTubeProjectileCueKind.AssignShardFallingAngle] = (projectile, mirroring, atOwnColumn) =>
+            {
+                Pieces.Of(projectile).StartSway(NoobTubeDebrisDefinitions.FallingSwayStart.Of(room.Random.Generate()));
+                projectile.Velocity = projectile.Velocity.WithY(NoobTubeDebrisDefinitions.ShardFallYVelocity);
+            },
+            [NoobTubeProjectileCueKind.AssignBubbleFallingAngle] = (projectile, mirroring, atOwnColumn) => Pieces.Of(projectile).StartSway(NoobTubeDebrisDefinitions.FallingSwayStart.Of(room.Random.Generate())),
+            [NoobTubeProjectileCueKind.StartCrackFlicker] = (projectile, mirroring, atOwnColumn) => projectile.StartMotion(this, NoobTubePieceMotion.CrackFlickering),
+            [NoobTubeProjectileCueKind.StartCrackFall] = (projectile, mirroring, atOwnColumn) => projectile.StartMotion(this, NoobTubePieceMotion.CrackFalling),
+            [NoobTubeProjectileCueKind.StartShardFall] = (projectile, mirroring, atOwnColumn) => projectile.StartMotion(this, NoobTubePieceMotion.ShardFalling),
+            [NoobTubeProjectileCueKind.StartBubbleRise] = (projectile, mirroring, atOwnColumn) => projectile.StartMotion(this, NoobTubePieceMotion.BubbleFlying),
+            [NoobTubeProjectileCueKind.StartBubbleFall] = (projectile, mirroring, atOwnColumn) => projectile.StartMotion(this, NoobTubePieceMotion.BubbleFalling),
+            [NoobTubeProjectileCueKind.Delete] = (projectile, mirroring, atOwnColumn) => projectile.Delete(),
+        });
+
         /// <summary>Carries out one cue of the crack, shard and bubble animations; <paramref name="shortCounter"/> times the flicker.</summary>
         private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, Compatibility.ShortFrameCount shortCounter, NoobTubeProjectileCue cue, NoobTubeShardMirroring mirroring)
         {
             bool atOwnColumn = NoobTubeCadenceDefinitions.DebrisAtOwnColumn.IsInSecondHalfAt(shortCounter);
-            switch (cue.Kind)
-            {
-                case NoobTubeProjectileCueKind.FlickerReflected:
-                    // The shard shows itself at its column, or its mirror image mirrored across the tube. A column past the
-                    // room's left edge lies at the end of the room's axis (AdvanceNoobTubeShardX), and its mirror image
-                    // lies as far past the room's right edge, on the axis as OffRoomPlaces keeps it (#2537).
-                    int column = Pieces.Of(projectile).X.Whole;
-                    projectile.Position = projectile.Position.WithWholeX(atOwnColumn
-                        ? column
-                        : OffRoomPlaces.Place(NoobTubeDebrisDefinitions.ShardMirrorSpan - column));
-                    mirroring.ShowsMirroredFrame = !atOwnColumn;
-                    break;
-                case NoobTubeProjectileCueKind.FlickerHidden:
-                    // The shard shows at its column on odd updates and is hidden on even ones.
-                    projectile.Position = projectile.Position.WithWholeX(Pieces.Of(projectile).X.Whole);
-                    Pieces.Of(projectile).IsHidden = !atOwnColumn;
-                    break;
-                case NoobTubeProjectileCueKind.AssignShardFallingAngle:
-                    Pieces.Of(projectile).StartSway(NoobTubeDebrisDefinitions.FallingSwayStart.Of(room.Random.Generate()));
-                    projectile.Velocity = projectile.Velocity.WithY(NoobTubeDebrisDefinitions.ShardFallYVelocity);
-                    break;
-                case NoobTubeProjectileCueKind.AssignBubbleFallingAngle:
-                    Pieces.Of(projectile).StartSway(NoobTubeDebrisDefinitions.FallingSwayStart.Of(room.Random.Generate()));
-                    break;
-                case NoobTubeProjectileCueKind.StartCrackFlicker:
-                    projectile.StartMotion(this, NoobTubePieceMotion.CrackFlickering);
-                    break;
-                case NoobTubeProjectileCueKind.StartCrackFall:
-                    projectile.StartMotion(this, NoobTubePieceMotion.CrackFalling);
-                    break;
-                case NoobTubeProjectileCueKind.StartShardFall:
-                    projectile.StartMotion(this, NoobTubePieceMotion.ShardFalling);
-                    break;
-                case NoobTubeProjectileCueKind.StartBubbleRise:
-                    projectile.StartMotion(this, NoobTubePieceMotion.BubbleFlying);
-                    break;
-                case NoobTubeProjectileCueKind.StartBubbleFall:
-                    projectile.StartMotion(this, NoobTubePieceMotion.BubbleFalling);
-                    break;
-                case NoobTubeProjectileCueKind.Delete:
-                    projectile.Delete();
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(NoobTubeProjectileCueKind)} {cue.Kind}.");
-            }
+            ApplyNoobTubeProjectileCueForNoobTubeProjectileCueKind[cue.Kind](projectile, mirroring, atOwnColumn);
         }
     }
 }

@@ -26,7 +26,7 @@ internal static class SamusBombCountVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16),
             new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]),
             RoomLevelData.NothingBeyondGrid(), []);
-        var terrain = new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled };
+        var terrain = SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled);
 
         SamusBombProjectileSystem range = CreateBombFixture();
         range.BombCounter = SamusBombProjectileSystem.PlaceCount;
@@ -73,10 +73,9 @@ internal static class SamusBombCountVerification
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs,
             Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
-        };
+        }.InPose(SamusPoseId.MorphBallGroundRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         return samus;
     }

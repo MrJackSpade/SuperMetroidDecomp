@@ -45,7 +45,7 @@ internal static class CrocomirePresentation1193Verification
 
         void PlaceSamusInArena()
         {
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             samus.Health = samus.MaxHealth = 999;
             samus.Position = samus.Position.WithWhole(new(600, 120));
             SamusPoseMetadata.RefreshCollisionRadii(samus);

@@ -18,10 +18,10 @@ internal static partial class EnemyProjectileCueRunners
         internal static CommonRunner<TSegment> Instance { get; } = new();
 
         /// <inheritdoc/>
-        internal override AnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(
-            AnimationSegments<TSegment, TFrame, EnemyProjectileCommonCue> segments, EnemyProjectileCueContext context,
+        internal override IUnpausedHidingAnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(
+            IUnpausedAnimationPlay<TSegment, TFrame, EnemyProjectileCommonCue> segments, EnemyProjectileCueContext context,
             ref Animation<TSegment> animation, ref AnimationPlace place) =>
-            Ensure.NotNull(segments).PlayToNextFrame(ref animation, ref place, cue =>
+            Ensure.NotNull(segments).PlayToNextFrame(ref animation, ref place, (cue, _) =>
             {
                 context.Projectiles.ApplyCommonCue(context.Projectile, cue);
                 return null;

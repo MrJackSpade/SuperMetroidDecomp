@@ -162,8 +162,8 @@ public readonly partial record struct TrigonometryAngle : IComparable<Trigonomet
     ];
 
     /// <summary>The four straight directions in clockwise order from up, each a quarter of the turn on from the last.</summary>
-    private static readonly CompassDirection[] StraightDirectionsClockwise =
-        [CompassDirection.Up, CompassDirection.Right, CompassDirection.Down, CompassDirection.Left];
+    private static readonly StraightDirection[] StraightDirectionsClockwise =
+        [StraightDirection.Up, StraightDirection.Right, StraightDirection.Down, StraightDirection.Left];
 
     /// <summary>
     /// The compass direction opening the eighth of the turn that holds the angle: each direction's eighth runs from it
@@ -182,7 +182,7 @@ public readonly partial record struct TrigonometryAngle : IComparable<Trigonomet
     /// The straight direction, up, right, down or left, nearest the angle: the one whose quarter of the turn, centred on
     /// it, holds the angle. An angle exactly halfway between two takes the later one clockwise.
     /// </summary>
-    public CompassDirection NearestStraightDirection() =>
+    public StraightDirection NearestStraightDirection() =>
         StraightDirectionsClockwise[(StepsClockwiseFromUp + StepsPerTurn / 8) % StepsPerTurn / (StepsPerTurn / 4)];
 
     /// <summary>This angle as the whole steps of an 8.8 <see cref="RotationAngle"/>.</summary>

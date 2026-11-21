@@ -16,5 +16,5 @@ internal sealed partial class DownwardGateProjectileAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<DownwardGateProjectileSegment, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments => DownwardGateProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<DownwardGateProjectileSegment, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments => DownwardGateProjectileAnimations.Segments;
 }

@@ -16,6 +16,6 @@ internal sealed partial class MotherBrainTurretAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainTurretPose, EnemyProjectileFrameId, MotherBrainTurretCue> Segments =>
+    private protected override IUnpausedAnimationPlay<MotherBrainTurretPose, EnemyProjectileFrameId, MotherBrainTurretCue> Segments =>
         MotherBrainTurretAnimations.Segments;
 }

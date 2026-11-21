@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal static partial class GunshipDustAnimations
 {
     /// <summary>Every dust animation.</summary>
-    internal static AnimationSegments<GunshipDustSegment, EnemyProjectileFrameId, GunshipDustCue> Segments { get; } = new(
-        new Dictionary<GunshipDustSegment, AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>[]>
+    internal static UnpausedAnimationSegments<GunshipDustSegment, EnemyProjectileFrameId, GunshipDustCue> Segments { get; } = new(
+        new Dictionary<GunshipDustSegment, AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Unpaused[]>
     {
         [P.RightInner] = Cloud(8, 9, 10, EnemyProjectileFrameId.GunshipDustRightInnerPuff, EnemyProjectileFrameId.GunshipDustRightInnerBillowing, EnemyProjectileFrameId.GunshipDustRightInnerSpreading, EnemyProjectileFrameId.GunshipDustRightInnerDrifting, EnemyProjectileFrameId.GunshipDustRightInnerThinning, EnemyProjectileFrameId.GunshipDustRightInnerFading, EnemyProjectileFrameId.GunshipDustRightInnerWisps, EnemyProjectileFrameId.GunshipDustRightInnerFaint),
         [P.RightMiddle] = Cloud(6, 7, 8, EnemyProjectileFrameId.GunshipDustRightMiddlePuff, EnemyProjectileFrameId.GunshipDustRightMiddleBillowing, EnemyProjectileFrameId.GunshipDustRightMiddleSpreading, EnemyProjectileFrameId.GunshipDustRightMiddleDrifting, EnemyProjectileFrameId.GunshipDustRightMiddleThinning, EnemyProjectileFrameId.GunshipDustRightMiddleFading, EnemyProjectileFrameId.GunshipDustRightMiddleWisps, EnemyProjectileFrameId.GunshipDustRightMiddleFaint),
@@ -44,7 +44,7 @@ internal static partial class GunshipDustAnimations
     /// <paramref name="firstUpdates"/>, the next two each for <paramref name="secondUpdates"/> and the last four each for
     /// <paramref name="thirdUpdates"/>, then the cloud deletes itself.
     /// </summary>
-    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>[] Cloud(int firstUpdates, int secondUpdates, int thirdUpdates,
+    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Unpaused[] Cloud(int firstUpdates, int secondUpdates, int thirdUpdates,
         params ReadOnlySpan<EnemyProjectileFrameId> poses) =>
     [
         .. AnimationBeats<EnemyProjectileFrameId, GunshipDustCue>.Steady(firstUpdates, poses[..2]),
@@ -54,7 +54,7 @@ internal static partial class GunshipDustAnimations
     ];
 
     /// <summary>An outer dust cloud over its side's pictures, <paramref name="puff"/>, <paramref name="billowing"/>, <paramref name="spreading"/>, <paramref name="drifting"/>, <paramref name="thinning"/>, <paramref name="fading"/>, <paramref name="faint"/>, each pair of pictures a little longer than the last, and then the cloud is deleted.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>[] OuterCloud(EnemyProjectileFrameId puff, EnemyProjectileFrameId billowing, EnemyProjectileFrameId spreading, EnemyProjectileFrameId drifting, EnemyProjectileFrameId thinning, EnemyProjectileFrameId fading, EnemyProjectileFrameId faint) =>
+    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Unpaused[] OuterCloud(EnemyProjectileFrameId puff, EnemyProjectileFrameId billowing, EnemyProjectileFrameId spreading, EnemyProjectileFrameId drifting, EnemyProjectileFrameId thinning, EnemyProjectileFrameId fading, EnemyProjectileFrameId faint) =>
     [
         Show(puff, 11),
         Show(billowing, 11),
@@ -67,8 +67,8 @@ internal static partial class GunshipDustAnimations
     ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue> Cue(GunshipDustCue cue) => new AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Unpaused Cue(GunshipDustCue cue) => new AnimationBeat<EnemyProjectileFrameId, GunshipDustCue>.Event(cue);
 }

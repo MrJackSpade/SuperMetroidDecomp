@@ -71,9 +71,8 @@ internal static void VerifySamusStandingAimMovement()
 
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     SamusPresentation.InitializeAnimation(samus);
 
@@ -88,7 +87,7 @@ internal static void VerifySamusStandingAimMovement()
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
         SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, target);
         GroundedMovementResult result = SamusGroundedMovement.StepStanding(
-level, samus, frameCounter: 0, controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, frameCounter: 0, controllerInput: 0);
         AssertTrue(result.Vertical.Collided, $"right aim pose ${SamusPoseNumbers.Number(target):X2} remains grounded");
         AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, $"right aim pose ${SamusPoseNumbers.Number(target):X2} clears base speed");
     }
@@ -102,23 +101,22 @@ level, samus, frameCounter: 0, controllerInput: 0, roomObjects: SamusRoomObjectF
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, SamusPoseId.RunningAimDiagonalUpRightPose);
     ushort rightXBefore = samus.Position.X.Whole;
     for (ushort frame = 0; frame < 4; frame++)
-        SamusGroundedMovement.StepRunning(level, samus, frame, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusGroundedMovement.StepRunning(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, frame, controllerInput: GameplayAction.None);
     AssertTrue(samus.Position.X.Whole > rightXBefore, "right aimed run moves right");
     uint rightRunSpeed = samus.HorizontalSpeed.BaseSpeed.RawValue;
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, SamusPoseId.RunningAimDiagonalDownRightPose);
     AssertEqual(rightRunSpeed, samus.HorizontalSpeed.BaseSpeed.RawValue, "right running aim change preserves speed");
-    SamusGroundedMovement.StepRunning(level, samus, frameCounter: 1, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusGroundedMovement.StepRunning(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, frameCounter: 1, controllerInput: GameplayAction.None);
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, SamusPoseId.StandingAimUpRightPose);
-    SamusGroundedMovement.StepStanding(level, samus, frameCounter: 0, controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusGroundedMovement.StepStanding(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, frameCounter: 0, controllerInput: 0);
     AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "right aimed running-to-standing cleanup");
 
     // Install left-facing normal through a fresh state so the transition helper never
     // crosses families; native left records are an independent mirrored family.
     var leftSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingLeftNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)),
-    };
+    }.InPose(SamusPoseId.FacingLeftNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(leftSamus);
     SamusPresentation.InitializeAnimation(leftSamus);
     SamusPoseId[] leftAimRoute = [
@@ -131,7 +129,7 @@ level, samus, frameCounter: 0, controllerInput: 0, roomObjects: SamusRoomObjectF
     {
         SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, target);
         GroundedMovementResult result = SamusGroundedMovement.StepStanding(
-level, leftSamus, frameCounter: 1, controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), leftSamus, frameCounter: 1, controllerInput: 0);
         AssertTrue(result.Vertical.Collided, $"left aim pose ${SamusPoseNumbers.Number(target):X2} remains grounded");
     }
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.StandingAimUpLeftPose);
@@ -140,14 +138,14 @@ level, leftSamus, frameCounter: 1, controllerInput: 0, roomObjects: SamusRoomObj
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.RunningAimDiagonalUpLeftPose);
     ushort leftXBefore = leftSamus.Position.X.Whole;
     for (ushort frame = 0; frame < 4; frame++)
-        SamusGroundedMovement.StepRunning(level, leftSamus, frame, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusGroundedMovement.StepRunning(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), leftSamus, frame, controllerInput: GameplayAction.None);
     AssertTrue(leftSamus.Position.X.Whole < leftXBefore, "left aimed run moves left");
     uint leftRunSpeed = leftSamus.HorizontalSpeed.BaseSpeed.RawValue;
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.RunningAimDiagonalDownLeftPose);
     AssertEqual(leftRunSpeed, leftSamus.HorizontalSpeed.BaseSpeed.RawValue, "left running aim change preserves speed");
-    SamusGroundedMovement.StepRunning(level, leftSamus, frameCounter: 0, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusGroundedMovement.StepRunning(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), leftSamus, frameCounter: 0, controllerInput: GameplayAction.None);
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.StandingAimUpLeftPose);
-    SamusGroundedMovement.StepStanding(level, leftSamus, frameCounter: 1, controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusGroundedMovement.StepStanding(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), leftSamus, frameCounter: 1, controllerInput: 0);
     AssertEqual(0u, leftSamus.HorizontalSpeed.BaseSpeed.RawValue, "left aimed running-to-standing cleanup");
 
     AssertThrows<InvalidOperationException>(
@@ -247,9 +245,8 @@ internal static void VerifySamusAimedAerialMovement()
 
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.StandingAimDiagonalUpRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 171)),
-    };
+    }.InPose(SamusPoseId.StandingAimDiagonalUpRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     SamusPresentation.InitializeAnimation(samus);
     SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(samus, 
@@ -258,8 +255,8 @@ internal static void VerifySamusAimedAerialMovement()
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     AssertEqual(19, samus.Kinematics.Radius.Y, "next alpha publishes aimed jump radius");
     ushort launchY = samus.Position.Y.Whole;
-    AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(
-level, samus, GameplayAction.Jump, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
+SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Jump, frameCounter: 0);
     AssertEqual(launchY, samus.Position.Y.Whole, "aimed transition frame does not move vertically");
 
     SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
@@ -275,15 +272,12 @@ level, samus, GameplayAction.Jump, frameCounter: 0, roomObjects: SamusRoomObject
     // another aimed-jump pose expands through `$91:FDAE`; these few upward frames put the
     // body in open air so neither the upper nor lower probe needs to displace the center.
     for (ushort index = 0; index < 4; index++)
-        SamusAerialMovement.StepNormalJump(level, samus, GameplayAction.Jump, index, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Jump, index);
     ushort compactCenterY = samus.Position.Y.Whole;
     uint compactVelocity = samus.Kinematics.VerticalVelocity.Speed.RawValue;
     SamusVerticalDirection compactDirection = samus.Kinematics.VerticalVelocity.Direction;
-    AssertThrows<InvalidOperationException>(
-        () => SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, SamusPoseId.NormalJumpAimDownRightPose),
-        "compact aim requires room-aware collision route");
     SamusAerialPoseTransitions.ApplyCompactAerialTransition(samus, 
-level, SamusPoseId.NormalJumpAimDownRightPose, frameCounter: 4, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.NormalJumpAimDownRightPose, frameCounter: 4);
     AssertEqual(SamusPoseId.NormalJumpAimDownRightPose, samus.Pose, "compact jump pose");
     AssertEqual(19, samus.Kinematics.Radius.Y, "compact jump commit retains old live radius");
     SamusPoseMetadata.RefreshCollisionRadii(samus); // Next alpha publishes compact geometry.
@@ -292,7 +286,7 @@ level, SamusPoseId.NormalJumpAimDownRightPose, frameCounter: 4, roomObjects: Sam
     AssertEqual(compactVelocity, samus.Kinematics.VerticalVelocity.Speed.RawValue, "compact entry preserves 16.16 velocity");
     AssertEqual(compactDirection, samus.Kinematics.VerticalVelocity.Direction, "compact entry preserves vertical direction");
     SamusAerialPoseTransitions.ApplyCompactAerialTransition(samus, 
-level, SamusPoseId.NormalJumpAimDiagonalDownRightPose, frameCounter: 5, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.NormalJumpAimDiagonalDownRightPose, frameCounter: 5);
     AssertEqual(10, samus.Kinematics.Radius.Y, "compact expansion commit retains old live radius");
     SamusPoseMetadata.RefreshCollisionRadii(samus); // Next alpha publishes expanded geometry.
     AssertEqual(19, samus.Kinematics.Radius.Y, "compact jump exit radius");
@@ -302,13 +296,13 @@ level, SamusPoseId.NormalJumpAimDiagonalDownRightPose, frameCounter: 5, roomObje
     AerialMovementResult frame = default;
     for (int index = 0; index < 160; index++)
     {
-        frame = SamusAerialMovement.StepNormalJump(
-level, samus, GameplayAction.Jump, unchecked((ushort)index), roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        frame = SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
+SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Jump, unchecked((ushort)index));
         if (frame.Landed)
             break;
     }
     AssertTrue(frame.Landed, "aimed normal jump lands");
-    SamusPoseTransitions.ApplyAerialLanding(samus, wasSpinning: false, controllerInput: GameplayAction.None);
+    SamusPoseTransitions.ApplyAerialLanding(samus, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(samus), wasSpinning: false, controllerInput: GameplayAction.None);
     AssertEqual(SamusPoseId.LandingAimDiagonalDownRightPose, samus.Pose, "shot direction three selects E4 landing");
     AssertEqual(21, samus.Kinematics.Radius.Y, "aimed landing expands radius");
     AssertEqual(171, samus.Position.Y.Whole, "aimed landing retains floor-aligned feet");
@@ -325,9 +319,8 @@ level, samus, GameplayAction.Jump, unchecked((ushort)index), roomObjects: SamusR
     // fixed while collision command five clears all vertical and horizontal motion.
     var compactFall = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FallingAimDownRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 170)),
-    };
+    }.InPose(SamusPoseId.FallingAimDownRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(compactFall);
     SamusPresentation.InitializeAnimation(compactFall);
     compactFall.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0x4000), SamusVerticalDirection.Down);
@@ -335,10 +328,10 @@ level, samus, GameplayAction.Jump, unchecked((ushort)index), roomObjects: SamusR
     compactFall.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x8000);
     AerialMovementResult compactFallFrame = default;
     for (ushort index = 0; index < 40 && !compactFallFrame.Landed; index++)
-        compactFallFrame = SamusAerialMovement.StepFalling(level, compactFall, 0, index, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        compactFallFrame = SamusAerialMovement.StepFalling(SuperMetroid.Core.Samus.Movement.SamusMovement.Falling, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), compactFall, 0, index);
     AssertTrue(compactFallFrame.Landed, "compact falling pose reaches floor");
     ushort compactBottom = unchecked((ushort)(compactFall.Position.Y.Whole + compactFall.Kinematics.Radius.Y));
-    SamusPoseTransitions.ApplyCompactAerialLanding(compactFall, level, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusPoseTransitions.ApplyCompactAerialLanding(compactFall, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), frameCounter: 0);
     AssertEqual(SamusPoseId.NormalLandingRightPose, compactFall.Pose, "shot direction four selects A4 landing");
     // $91:FDAE leaves $0B00 at the compact body until alpha's SetSamusRadius, so enemy and
     // projectile collision later in the landing frame still use radius ten.
@@ -369,15 +362,14 @@ level, samus, GameplayAction.Jump, unchecked((ushort)index), roomObjects: SamusR
         halfPlatformBts);
     var capturedCompactLanding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FallingAimDownRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x002e, 0x00be)),
-    };
+    }.InPose(SamusPoseId.FallingAimDownRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(capturedCompactLanding);
     SamusPresentation.InitializeAnimation(capturedCompactLanding);
     AssertEqual(0x00c8, capturedCompactLanding.Kinematics.BottomBoundary,
         "captured compact body begins on half-platform surface");
     SamusPoseTransitions.ApplyCompactAerialLanding(capturedCompactLanding, 
-halfPlatform, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+SamusTerrain.InRoom(halfPlatform, SamusRoomObjectFixtures.Uninstalled), frameCounter: 1);
     AssertEqual(0x00b3, capturedCompactLanding.Position.Y.Whole,
         "captured half-platform landing shifts center up eleven pixels");
     AssertEqual(0x00c8, unchecked((ushort)(capturedCompactLanding.Position.Y.Whole +
@@ -388,13 +380,12 @@ halfPlatform, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled)
     // same family guard in open air so a future right-only shortcut cannot silently pass.
     var compactLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.NormalJumpAimDownLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 100)),
-    };
+    }.InPose(SamusPoseId.NormalJumpAimDownLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(compactLeft);
     SamusPresentation.InitializeAnimation(compactLeft);
     SamusAerialPoseTransitions.ApplyCompactAerialTransition(compactLeft, 
-level, SamusPoseId.NormalJumpAimDiagonalDownLeftPose, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.NormalJumpAimDiagonalDownLeftPose, frameCounter: 1);
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalDownLeftPose, compactLeft.Pose, "mirrored compact jump target");
     AssertEqual(10, compactLeft.Kinematics.Radius.Y, "mirrored expansion retains old radius until alpha");
     SamusPoseMetadata.RefreshCollisionRadii(compactLeft);
@@ -402,9 +393,8 @@ level, SamusPoseId.NormalJumpAimDiagonalDownLeftPose, frameCounter: 1, roomObjec
 
     var compactLeftLanding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FallingAimDownLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 170)),
-    };
+    }.InPose(SamusPoseId.FallingAimDownLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(compactLeftLanding);
     SamusPresentation.InitializeAnimation(compactLeftLanding);
     compactLeftLanding.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0x4000), SamusVerticalDirection.Down);
@@ -412,13 +402,13 @@ level, SamusPoseId.NormalJumpAimDiagonalDownLeftPose, frameCounter: 1, roomObjec
     AerialMovementResult compactLeftFallFrame = default;
     for (ushort index = 0; index < 40 && !compactLeftFallFrame.Landed; index++)
     {
-        compactLeftFallFrame = SamusAerialMovement.StepFalling(
-level, compactLeftLanding, 0, index, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        compactLeftFallFrame = SamusAerialMovement.StepFalling(SuperMetroid.Core.Samus.Movement.SamusMovement.Falling, 
+SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), compactLeftLanding, 0, index);
     }
     AssertTrue(compactLeftFallFrame.Landed, "mirrored compact falling pose reaches floor");
     ushort compactLeftBottom = unchecked((ushort)(
         compactLeftLanding.Position.Y.Whole + compactLeftLanding.Kinematics.Radius.Y));
-    SamusPoseTransitions.ApplyCompactAerialLanding(compactLeftLanding, level, frameCounter: 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusPoseTransitions.ApplyCompactAerialLanding(compactLeftLanding, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), frameCounter: 1);
     AssertEqual(SamusPoseId.NormalLandingLeftPose, compactLeftLanding.Pose, "shot direction five selects A5 landing");
     AssertEqual(
         compactLeftBottom,
@@ -436,13 +426,12 @@ level, compactLeftLanding, 0, index, roomObjects: SamusRoomObjectFixtures.Uninst
         new RoomBlockBehavior[boxedBlocks.Length]);
     var boxedCompact = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.NormalJumpAimDownRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 176)),
-    };
+    }.InPose(SamusPoseId.NormalJumpAimDownRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(boxedCompact);
     SamusPresentation.InitializeAnimation(boxedCompact);
     SamusAerialPoseTransitions.ApplyCompactAerialTransition(boxedCompact, 
-boxedLevel, SamusPoseId.NormalJumpAimDiagonalDownRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+SamusTerrain.InRoom(boxedLevel, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.NormalJumpAimDiagonalDownRightPose, frameCounter: 0);
     AssertEqual(SamusPoseId.CrouchingRightPose, boxedCompact.Pose, "boxed compact expansion selects crouch");
     AssertEqual(10, boxedCompact.Kinematics.Radius.Y, "boxed compact fallback retains live radius until alpha");
     AssertEqual(170, boxedCompact.Position.Y.Whole, "boxed compact fallback applies FFD4 offset");
@@ -452,11 +441,11 @@ boxedLevel, SamusPoseId.NormalJumpAimDiagonalDownRightPose, frameCounter: 0, roo
 
     // PSP_Falling chooses ordinary falling from the physics-facing byte. Aim is
     // reconsidered on the next input pass, rather than being preserved by the walk-off.
-    samus.Pose = SamusPoseId.StandingAimDiagonalUpRightPose;
+    samus.ChangePoseKeepingAnimation(SamusPoseId.StandingAimDiagonalUpRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     SamusPresentation.InitializeAnimation(samus);
-    AssertEqual(SamusPoseId.FallingRightPose, SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus), "up-right walk-off target");
-    SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseId.FallingRightPose, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), frameCounter: 0);
+    AssertEqual(SamusPoseId.FallingRightPose, samus.Pose, "up-right walk-off target");
     AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.VerticalVelocity.Direction, "aimed walk-off starts downward");
     SamusPoseMetadata.RefreshCollisionRadii(samus); // Next alpha precedes the airborne input/aim transition.
     SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, SamusPoseId.FallingAimDiagonalUpRightPose);
@@ -624,9 +613,9 @@ internal static void VerifySamusGunExtendedMovement()
         new VerifySamusGunExtendedMovementCase(SamusPoseId.NormalJumpForwardLeftPose, forwardLeftRelease.ProspectivePose, "left"),
     })
     {
-        var releasedForwardJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = source };
+        var releasedForwardJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(source);
         SamusPoseMetadata.RefreshCollisionRadii(releasedForwardJump);
-        SamusPresentation.InitializeAnimation(releasedForwardJump, releasedForwardJump.PoseFrameNumbered(1));
+        releasedForwardJump.ChangePose(releasedForwardJump.Pose, releasedForwardJump.PoseFrameNumbered(1));
         releasedForwardJump.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0x4567), SamusVerticalDirection.Up);
         releasedForwardJump.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x89ab);
 
@@ -646,23 +635,23 @@ internal static void VerifySamusGunExtendedMovement()
 
     // `$91:F50C` preserves the animation phase across movement-type-one arm changes. Begin
     // on a nonzero index so resetting to frame zero cannot accidentally satisfy the check.
-    var running = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingRightNormalPose };
+    var running = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.MovingRightNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(running);
-    SamusPresentation.InitializeAnimation(running, running.PoseFrameNumbered(4));
+    running.ChangePose(running.Pose, running.PoseFrameNumbered(4));
     int runningFrame = running.AnimationNumber;
     ushort runningTimer = running.AnimationFrameTimer.RawValue;
-    SamusPoseAnimation runningProgram = SamusAnimationDelays.AnimationForPose(running.AnimatedPose ?? throw new InvalidOperationException("The run has no animation."));
+    SamusPoseAnimation runningProgram = SamusAnimationDelays.AnimationForPose(running.Pose);
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(running, SamusPoseId.MovingRightGunExtendedPose);
     AssertEqual(SamusPoseId.MovingRightGunExtendedPose, running.Pose, "running gun extension installs pose $0B");
     AssertEqual(runningFrame, running.AnimationNumber, "running gun extension preserves frame");
     AssertEqual(runningTimer, running.AnimationFrameTimer.RawValue, "running gun extension preserves timer");
-    AssertTrue(ReferenceEquals(runningProgram, SamusAnimationDelays.AnimationForPose(running.AnimatedPose ?? throw new InvalidOperationException("The run has no animation."))), "running gun extension retains the shared animation program");
+    AssertTrue(ReferenceEquals(runningProgram, SamusAnimationDelays.AnimationForPose(running.Pose)), "running gun extension retains the shared animation program");
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(running, SamusPoseMetadata.ReadNoInputPose(running).From(running.Pose));
     AssertEqual(SamusPoseId.FacingRightNormalPose, running.Pose,
         "releasing Right while holding Shot leaves running-gun pose");
 
     // Same-radius airborne arm changes must not perturb the live 16.16 velocity or direction.
-    var jumping = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.NeutralJumpRightPose };
+    var jumping = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.NeutralJumpRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(jumping);
     SamusPresentation.InitializeAnimation(jumping);
     jumping.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0x4567), SamusVerticalDirection.Up);
@@ -671,7 +660,7 @@ internal static void VerifySamusGunExtendedMovement()
     AssertEqual(0x00034567u, jumping.Kinematics.VerticalVelocity.Speed.RawValue, "jump gun extension preserves velocity");
     AssertEqual(SamusVerticalDirection.Up, jumping.Kinematics.VerticalVelocity.Direction, "jump gun extension preserves direction");
 
-    var falling = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FallingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
+    var falling = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) }.InPose(SamusPoseId.FallingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(falling);
     SamusPresentation.InitializeAnimation(falling);
     falling.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(2, 0xabcd), SamusVerticalDirection.Down);
@@ -682,7 +671,7 @@ internal static void VerifySamusGunExtendedMovement()
 
     // `$91:E99B` samples HELD Shot, not newly pressed Shot. Holding X at horizontal impact
     // selects `$E6`; releasing it selects `$A4` from the same source metadata.
-    SamusPoseTransitions.ApplyAerialLanding(falling, wasSpinning: false, GameplayAction.Shoot);
+    SamusPoseTransitions.ApplyAerialLanding(falling, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(falling), false, GameplayAction.Shoot);
     AssertEqual(SamusPoseId.FiringLandingRightPose, falling.Pose, "held Shot selects firing landing $E6");
     AssertEqual(21, falling.Kinematics.Radius.Y, "firing landing expands to standing radius");
     AssertEqual(0u, falling.Kinematics.VerticalVelocity.Speed.RawValue, "firing landing clears Y speed");
@@ -694,21 +683,23 @@ internal static void VerifySamusGunExtendedMovement()
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(falling), "$E6 F8 transition applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, falling.Pose, "$E6 returns to standing right");
 
-    var releasedLanding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FallingGunExtendedRightPose };
+    var releasedLanding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FallingGunExtendedRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(releasedLanding);
     SamusPresentation.InitializeAnimation(releasedLanding);
-    SamusPoseTransitions.ApplyAerialLanding(releasedLanding, wasSpinning: false, controllerInput: 0);
+    SamusPoseTransitions.ApplyAerialLanding(releasedLanding, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(releasedLanding), wasSpinning: false, controllerInput: 0);
     AssertEqual(SamusPoseId.NormalLandingRightPose, releasedLanding.Pose, "released Shot selects ordinary landing $A4");
 
-    var mirroredLanding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FallingGunExtendedLeftPose };
+    var mirroredLanding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FallingGunExtendedLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(mirroredLanding);
     SamusPresentation.InitializeAnimation(mirroredLanding);
-    SamusPoseTransitions.ApplyAerialLanding(mirroredLanding, wasSpinning: false, GameplayAction.Shoot);
+    SamusPoseTransitions.ApplyAerialLanding(mirroredLanding, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(mirroredLanding), false, GameplayAction.Shoot);
     AssertEqual(SamusPoseId.FiringLandingLeftPose, mirroredLanding.Pose, "held Shot selects mirrored firing landing $E7");
 
     AssertTrue(SamusPoseMetadata.IsRightFacingRunningPose(SamusPoseId.MovingRightGunExtendedPose), "$0B is admitted by running dispatcher");
-    AssertTrue(SamusPoseMetadata.IsRightFacingNormalJumpPose(SamusPoseId.NormalJumpGunExtendedRightPose), "$13 is admitted by jump dispatcher");
-    AssertTrue(SamusPoseMetadata.IsRightFacingFallingPose(SamusPoseId.FallingGunExtendedRightPose), "$67 is admitted by falling dispatcher");
+    AssertTrue(SamusPoseTraits.Of(SamusPoseId.NormalJumpGunExtendedRightPose) is { Facing: SamusFacingDirection.Right, Movement: SamusMovementType.NormalJumping },
+        "$13 is admitted by jump dispatcher: it faces right and moves as a normal jump");
+    AssertTrue(SamusPoseTraits.Of(SamusPoseId.FallingGunExtendedRightPose) is { Facing: SamusFacingDirection.Right, Movement: SamusMovementType.Falling },
+        "$67 is admitted by falling dispatcher: it faces right and moves as a fall");
     AssertTrue(SamusPoseMetadata.IsRightFacingLandingPose(SamusPoseId.FiringLandingRightPose), "$E6 is admitted by landing dispatcher");
     AssertTrue(SamusPoseMetadata.IsLeftFacingLandingPose(SamusPoseId.FiringLandingLeftPose), "$E7 is admitted by mirrored landing dispatcher");
 
@@ -768,7 +759,7 @@ internal static void VerifySamusGunExtendedMovement()
     // through landing, then a fresh Jump edge arrived before `$F8`. Run both mirrors through
     // the real initializer so this verifies radius, animation, and vertical launch state in
     // addition to the family predicate used by the runtime switch.
-    var firingLandingJumpRight = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FiringLandingRightPose };
+    var firingLandingJumpRight = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FiringLandingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(firingLandingJumpRight);
     SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(firingLandingJumpRight, 
         SamusPoseId.NeutralJumpTransitionRightPose);
@@ -782,7 +773,7 @@ internal static void VerifySamusGunExtendedMovement()
     AssertEqual(SamusVerticalDirection.Up, firingLandingJumpRight.Kinematics.VerticalVelocity.Direction,
         "right firing-landing jump launches upward");
 
-    var firingLandingJumpLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FiringLandingLeftPose };
+    var firingLandingJumpLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FiringLandingLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(firingLandingJumpLeft);
     SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(firingLandingJumpLeft, 
         SamusPoseId.NeutralJumpTransitionLeftPose);
@@ -796,10 +787,7 @@ internal static void VerifySamusGunExtendedMovement()
     AssertEqual(SamusVerticalDirection.Up, firingLandingJumpLeft.Kinematics.VerticalVelocity.Direction,
         "left firing-landing jump launches upward");
 
-    var aimedLandingJumpRight = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
-    {
-        Pose = SamusPoseId.LandingAimDiagonalUpRightPose,
-    };
+    var aimedLandingJumpRight = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.LandingAimDiagonalUpRightPose);
     SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(aimedLandingJumpRight, 
         SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose);
     AssertEqual(SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose,

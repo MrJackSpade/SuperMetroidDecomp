@@ -16,6 +16,6 @@ internal sealed partial class RidleyFireballAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<RidleyFireballSegment, EnemyProjectileFrameId, RidleyFireballCue> Segments =>
+    private protected override IUnpausedAnimationPlay<RidleyFireballSegment, EnemyProjectileFrameId, RidleyFireballCue> Segments =>
         RidleyFireballAnimations.Segments;
 }

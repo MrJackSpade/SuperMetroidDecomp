@@ -17,4 +17,10 @@ internal abstract partial record RoomObjectPlacementSetup
 
     /// <summary>Runs this setup through <paramref name="setups"/>.</summary>
     internal abstract void SetUp(IRoomObjectFamilySetups setups);
+
+    /// <summary>
+    /// Whether a placement of this setup may stand off the room's grid (#2572): only a coloured door, whose place is all the
+    /// room observes of it.
+    /// </summary>
+    internal virtual bool StandsOffTheRoom => false;
 }

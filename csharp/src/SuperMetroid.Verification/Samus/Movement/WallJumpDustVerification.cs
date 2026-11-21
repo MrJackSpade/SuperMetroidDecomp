@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
@@ -22,9 +23,9 @@ internal static class WallJumpDustVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) };
             // Grapple contact faces the wall; its accepted wall jump reverses that pose.
-            samus.Pose = grapple
+            samus.ChangePoseKeepingAnimation(grapple
                 ? facingRight ? SamusPoseId.GrappleWallContactRightPose : SamusPoseId.GrappleWallContactLeftPose
-                : facingRight ? SamusPoseId.SpinJumpRightPose : SamusPoseId.SpinJumpLeftPose;
+                : facingRight ? SamusPoseId.SpinJumpRightPose : SamusPoseId.SpinJumpLeftPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             var liquid = samus.LiquidPhysics;
@@ -38,7 +39,7 @@ internal static class WallJumpDustVerification
             var earlier = SamusParticle.AtStep(SamusParticleKind.SurfaceSplash, 1, SamusParticleStart.Shown(9), new(55, 66), Offset16<RoomPixels>.Zero);
             samus.Presentation.Particles.Add(earlier);
             if (grapple) SamusAerialPoseTransitions.ApplyGrappleWallJump(samus);
-            else SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, SuperMetroid.Verification.Harness.VerificationHelpersVerification.CreateEmptyRoom(new(64, 64)), 0, SamusRoomObjectFixtures.Uninstalled);
+            else SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, SamusTerrain.InRoom(SuperMetroid.Verification.Harness.VerificationHelpersVerification.CreateEmptyRoom(new(64, 64)), SamusRoomObjectFixtures.Uninstalled), 0);
 
             bool suppressed = medium is 1 or 2;
             IReadOnlyList<SamusParticle> particles = samus.Presentation.Particles.All;

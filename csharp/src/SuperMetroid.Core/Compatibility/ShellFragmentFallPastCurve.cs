@@ -34,14 +34,11 @@ public sealed partial class ShellFragmentFallPastCurve
     /// <summary>The updates a fragment can fall past its curve: one for each decoded step.</summary>
     public int Updates => _steps.Count;
 
-    /// <summary>The step a fragment falls by on the update <paramref name="updatesPastCurve"/> after its curve ends.</summary>
+    /// <summary>
+    /// The step a fragment falls by on the update <paramref name="updatesPastCurve"/> after its curve ends: one of the
+    /// <see cref="Updates"/> decoded steps, within which the opening cinematic confirmed, as it accepted them, that every
+    /// fragment lands.
+    /// </summary>
     /// <param name="updatesPastCurve">Updates fallen past the curve, zero for the first.</param>
-    /// <exception cref="ArgumentOutOfRangeException">No fragment is still airborne that far past the curve.</exception>
-    public SignedSixteenSixteen Step(int updatesPastCurve) =>
-        updatesPastCurve >= 0 && updatesPastCurve < _steps.Count
-            ? _steps[updatesPastCurve]
-            // Rejected, not read: every fragment has reached the floor by the last decoded step, so a later read is
-            // never made; the intro egg motion check follows every fragment from its spawn to its deletion.
-            : throw new ArgumentOutOfRangeException(nameof(updatesPastCurve), updatesPastCurve,
-                $"Every shell fragment has landed within {_steps.Count} updates past its gravity curve.");
+    public SignedSixteenSixteen Step(int updatesPastCurve) => _steps[updatesPastCurve];
 }

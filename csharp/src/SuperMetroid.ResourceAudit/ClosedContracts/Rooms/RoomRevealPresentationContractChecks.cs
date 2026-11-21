@@ -82,9 +82,9 @@ internal static class RoomRevealPresentationContractChecks
 
         void Add(RoomCollisionType type, BlockReaction? reaction)
         {
-            if (XrayReveals.Find(type, reaction) is { } command && InstalledXrayReveals.IsDrawable(command))
-                entries.Add(new(type, reaction, XrayRevealVisualBlocks.ForShape(command,
-                    [.. new[] { 1, 2, 3, 4 }.Take(XrayRevealVisualBlocks.CountFor(command)).Select(SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock)])));
+            if (XrayReveals.Find(type, reaction) is { } command && InstalledXrayReveals.IsDrawable(command, out XrayRevealCopyShape copy))
+                entries.Add(new(type, reaction, XrayRevealVisualBlocks.ForShape(copy,
+                    [.. new[] { 1, 2, 3, 4 }.Take(XrayRevealVisualBlocks.CountFor(copy)).Select(SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock)])));
         }
         // The overlays are required with the reveals (#1596); every required room overlay shows one block.
         var overlays = new InstalledXrayOverlays(InstalledXrayOverlays.TankKinds.ToDictionary(tank => tank, _ => RoomBlockAppearance.Of(0)),

@@ -28,20 +28,19 @@ public sealed partial class FileSelectRoomMapGraphics
 
     /// <summary>Installs one area's revealed map and fixed frame into a separate menu display owner, without choosing a load station or advancing menu timing.</summary>
     /// <param name="system">Persistence owner supplying downloaded-map, explored-cell, boss, and station visibility state; it is not replaced or cleared.</param>
-    /// <param name="area">One of the six Zebes map areas, excluding Ceres.</param>
+    /// <param name="zebes">One of the six Zebes map areas; Ceres has no room map on the saved-game map.</param>
     /// <param name="screenContent">The installed screen content, whose area maps supply the stations and landmarks.</param>
     /// <param name="sheets">The installed sprite sheets: the map sprites and the background pictures.</param>
-    public FileSelectRoomMapGraphics(SharedGameState system, AreaId area, InstalledScreenContent screenContent,
+    public FileSelectRoomMapGraphics(SharedGameState system, ZebesArea zebes, InstalledScreenContent screenContent,
         InstalledSpriteSheets sheets)
     {
+        AreaId area = AreaIds.Area(zebes);
         Ensure.NotNull(system);
         Ensure.NotNull(screenContent);
         InstalledSpriteSheets installed = Ensure.NotNull(sheets);
         mapSheet = installed.Get(SpriteSheetId.MapSprites);
         roomPictures = installed.Get(SpriteSheetId.RoomMapPictures);
         icons = new FileSelectMapIcons(system, area, screenContent.Maps.Stations, screenContent.Maps.Landmarks, mapSheet);
-        if (!AreaIds.IsZebes(area))
-            throw new ArgumentOutOfRangeException(nameof(area), area, "Ceres has no room map on the saved-game map.");
         screen = new MenuScreen(screenContent.Backdrops.Menus, installed);
         AreaMap = AreaMapProjection.Project(screenContent.Get(area), system);
     }

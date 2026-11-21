@@ -41,17 +41,6 @@ public static partial class ShinesparkDefinitions
     /// </summary>
     public const int CrashOrbitStartRadius = 12;
 
-    /// <summary>The spark each directional shinespark pose launches: horizontal, vertical or diagonal, facing either way.</summary>
-    public static readonly IReadOnlyDictionary<SamusPoseId, ShinesparkPhase> LaunchPhases = new Dictionary<SamusPoseId, ShinesparkPhase>
-    {
-        [SamusPoseId.ShinesparkHorizontalRightPose] = ShinesparkPhase.Horizontal,
-        [SamusPoseId.ShinesparkHorizontalLeftPose] = ShinesparkPhase.Horizontal,
-        [SamusPoseId.ShinesparkVerticalRightPose] = ShinesparkPhase.Vertical,
-        [SamusPoseId.ShinesparkVerticalLeftPose] = ShinesparkPhase.Vertical,
-        [SamusPoseId.ShinesparkDiagonalRightPose] = ShinesparkPhase.Diagonal,
-        [SamusPoseId.ShinesparkDiagonalLeftPose] = ShinesparkPhase.Diagonal,
-    };
-
     /// <summary>How far the crash's orbiting copies turn on each orbiting update: four steps.</summary>
     public static readonly RotationAngle CrashOrbitTurn = RotationAngle.FromSteps(4);
 

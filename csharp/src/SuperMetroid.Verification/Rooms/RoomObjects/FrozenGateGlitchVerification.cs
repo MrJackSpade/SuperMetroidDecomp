@@ -96,7 +96,7 @@ internal static class FrozenGateGlitchVerification
         }
         gate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
-        AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingClosed },
+        AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.Closed, Resting: true },
             "Caterpillar gate rests closed, waiting for a trigger or Samus in its column");
 
         SamusState samus = runtime.Player.IntroducedSamus;
@@ -121,7 +121,7 @@ internal static class FrozenGateGlitchVerification
                 zero.Contact.HasAny(EnemyContact.SolidToSamus)),
         ];
 
-        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SixteenSixteenWords.ToDisplacement(SixteenSixteenConstants2.FromWhole(expected.Distance)) });
+        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, roomObjects), samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SixteenSixteenWords.ToDisplacement(SixteenSixteenConstants2.FromWhole(expected.Distance)) });
         AssertTrue(movement.Collided,
             $"{expected.Distance}-pixel native case collides with enemy or terrain");
         AssertEqual(expected.EnemyCollision, movement.EnemyCollision is not null,
@@ -132,7 +132,7 @@ internal static class FrozenGateGlitchVerification
         roomObjects.Step(level);
         gate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
-        bool gateWoke = gate.Behaviour is not DownwardGateObject { Phase: DownwardGatePhase.RestingClosed };
+        bool gateWoke = gate.Behaviour is not DownwardGateObject { Phase: DownwardGatePhase.Closed, Resting: true };
         AssertEqual(expected.GateWoke, gateWoke,
             $"{expected.Distance}-pixel case preserves native gate wake state");
 

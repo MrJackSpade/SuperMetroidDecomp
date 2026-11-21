@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.World;
 
@@ -44,4 +45,7 @@ internal sealed partial record RoomObjectPopulationLoaderDependencies
 
     /// <summary>Maridia's glass tube, which the room's population sets up as it is placed.</summary>
     public required NoobTubeObjects NoobTube { get; init; }
+
+    /// <summary>The room's scroll triggers, bound to their blocks once every placement is set up.</summary>
+    public required ScrollObjects Scrolls { get; init; }
 }

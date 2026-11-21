@@ -12,12 +12,12 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 internal static partial class EndingTypewriterAnimations
 {
-    /// <summary>The typing of <paramref name="sequence"/>, which has <paramref name="characters"/> installed characters.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="characters"/> is negative.</exception>
-    internal static AnimationSegments<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue> Segments(EndingTextSequence sequence, int characters) =>
+    /// <summary>The typing of <paramref name="sequence"/>, whose installed characters are <paramref name="characters"/>.</summary>
+    internal static AnimationSegments<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue> Segments(EndingTextSequence sequence,
+        IReadOnlyCollection<EndingTextCharacter> characters) =>
         new(new Dictionary<EndingTextSequence, AnimationBeat<EndingTypewriterTyping, EndingTypewriterCue>[]>
         {
-            [sequence] = Typed(sequence, Ensure.AtLeastZero(characters)),
+            [sequence] = Typed(sequence, Ensure.NotNull(characters).Count),
         }, [sequence]);
 
     /// <summary>The animation that types <paramref name="sequence"/> once and rests on what it typed.</summary>

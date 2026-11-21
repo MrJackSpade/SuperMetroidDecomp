@@ -28,9 +28,8 @@ internal static class SamusArmCannonDefinitionsVerification
 
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.FacingRightNormalPose,
                 SelectedHudItem = selectedHudItem,
-            };
+            }.InPose(SamusPoseId.FacingRightNormalPose);
             samus.Artwork.ArmCannon = artwork;
             _ = NewArmCannonPolicyReadGuard(rom);
 
@@ -57,7 +56,7 @@ internal static class SamusArmCannonDefinitionsVerification
 
         // The cartridge stores at most two (INC, then 2 once it reaches 3), so a stable selection holds the count there and
         // the closed Beam selection starts no transition.
-        var holding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, SelectedHudItem = HudItem.Beam };
+        var holding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { SelectedHudItem = HudItem.Beam }.InPose(SamusPoseId.FacingRightNormalPose);
         holding.Artwork.ArmCannon = artwork;
         holding.ArmCannon.stability.PlaceAt(SuperMetroid.Core.UpdateCountdownAccess.AtAge(SamusArmCannonDefinitions.StableSelectionUpdates, 2));
         holding.ArmCannon.Update(holding);

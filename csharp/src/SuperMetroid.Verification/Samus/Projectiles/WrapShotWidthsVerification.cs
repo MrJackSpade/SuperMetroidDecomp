@@ -64,8 +64,8 @@ internal static class WrapShotWidthsVerification
             for (int frame = 0; frame < 40; frame++)
             {
                 GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
-                bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
-                shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)(left ? 0 : width * 16 - 256), (ushort)Math.Max(0, originsY[room] - 128)), bombs, new SharedGameState(new SharedRandom()));
+                bombs.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
+                shots.StepFrame(SamusTerrain.InRoom(level, roomObjects), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)(left ? 0 : width * 16 - 256), (ushort)Math.Max(0, originsY[room] - 128)), bombs, new SharedGameState(new SharedRandom()));
                 var shot = shots.Shots[0];
                 RoomTerrainBlock targetWord = level.GetCollisionBlockByIndex(target).Terrain;
                 if (hit < 0 && targetWord == OpenedDoorCap) hit = frame;

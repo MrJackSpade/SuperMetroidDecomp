@@ -141,7 +141,7 @@ internal static class PauseMenuVerification
             "pause map shows through the frame's opening one row above the opening's page cells");
         // The display packet shows the marker's first pulse frame where Samus's map cell lies on the scrolled map.
         SpriteSheetFrame markerFrame = MenuSheetFixtures.For(presentation).Get(SpriteSheetId.MapSprites)
-            .Frame(SuperMetroid.Core.Ensure.Listed(SuperMetroid.Core.Frontend.Map.MapSpriteDefinitions.Names, SuperMetroid.Core.Frontend.Map.MapSpriteId.IndicatorSmall));
+            .Frame(SuperMetroid.Core.Frontend.Map.MapSpriteDefinitions.Names[SuperMetroid.Core.Frontend.Map.MapSpriteId.IndicatorSmall]);
         AssertEqual(new Offset16<ScreenPixels>(116, 64),
             ShownSpriteDraws(pause).Single(draw => ReferenceEquals(draw.Image, markerFrame)).Origin, "pause map marker shows its initial frame at its origin");
         // The fixture retains the five retail Crateria destination labels (22 OBJ parts).

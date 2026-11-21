@@ -176,6 +176,14 @@ public sealed partial class HudState
         Minimap = minimap;
     }
 
+    /// <summary>The reserve indicator each reserve mode shows: AUTO's arrows filled or empty, a cleared place for manual, and the template's before the first reserve tank.</summary>
+    private static IdentityTable<ReserveTankMode, Func<HudSnapshot, HudReserveIndicator?>> ReserveIndicators => field ??= new(new Dictionary<ReserveTankMode, Func<HudSnapshot, HudReserveIndicator?>>
+    {
+        [ReserveTankMode.Auto] = static shown => shown.ReserveHealth != 0 ? HudReserveIndicator.Filled : HudReserveIndicator.Empty,
+        [ReserveTankMode.Manual] = static shown => HudReserveIndicator.Cleared,
+        [ReserveTankMode.None] = static shown => null,
+    });
+
     /// <summary>
     /// The HUD's images as its values select them now, in the order they are drawn (#1466, #1555): the static top row, then
     /// the template with each value's images over it. A HUD not yet set up shows only its top row.
@@ -213,13 +221,7 @@ public sealed partial class HudState
         Ammo(HudAmmoCounter.PowerBombs, values.PowerBombs, values.MaxPowerBombs);
         // AUTO shows its arrows filled or empty; the pause screen's switch to manual (the only way manual is reached)
         // clears its place; before the first reserve tank the template shows.
-        HudReserveIndicator? reserve = values.ReserveMode switch
-        {
-            ReserveTankMode.Auto => values.ReserveHealth != 0 ? HudReserveIndicator.Filled : HudReserveIndicator.Empty,
-            ReserveTankMode.Manual => HudReserveIndicator.Cleared,
-            ReserveTankMode.None => null,
-            _ => throw new InvalidOperationException($"Undefined {nameof(ReserveTankMode)} {values.ReserveMode}."),
-        };
+        HudReserveIndicator? reserve = ReserveIndicators[values.ReserveMode](values);
         if (reserve is { } indicator)
             images.Add(art.AutoReserve(indicator));
         if (Minimap is { } shown)
@@ -231,13 +233,17 @@ public sealed partial class HudState
     }
 
     /// <summary>Whether Samus, as <paramref name="values"/> show her, holds the item <paramref name="icon"/> shows.</summary>
-    private static bool Holds(HudSnapshot values, HudIcon icon) => icon switch
+    private static bool Holds(HudSnapshot values, HudIcon icon)
     {
-        HudIcon.Missile => values.MaxMissiles != 0,
-        HudIcon.SuperMissile => values.MaxSuperMissiles != 0,
-        HudIcon.PowerBomb => values.MaxPowerBombs != 0,
-        HudIcon.Grapple => values.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam),
-        HudIcon.XRay => values.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope),
-        _ => throw new ArgumentOutOfRangeException(nameof(icon), icon, "Undefined item icon."),
-    };
+        if (icon == HudIcon.Missile)
+            return values.MaxMissiles != 0;
+        if (icon == HudIcon.SuperMissile)
+            return values.MaxSuperMissiles != 0;
+        if (icon == HudIcon.PowerBomb)
+            return values.MaxPowerBombs != 0;
+        if (icon == HudIcon.Grapple)
+            return values.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam);
+        // The X-ray icon is the last of the five.
+        return values.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope);
+    }
 }

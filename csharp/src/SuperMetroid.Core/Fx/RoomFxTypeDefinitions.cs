@@ -8,7 +8,7 @@ internal static partial class RoomFxTypeDefinitions
     /// than the background's wave), rain, spores and fog show on the overlay; lava alone bubbles; the scrolling sky's effect spawns its drifting bands; the Firefleas' effect
     /// starts their darkness; the rest show nothing there.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<RoomFxType, RoomFxTypeDefinition> Types = new Dictionary<RoomFxType, RoomFxTypeDefinition>
+    internal static readonly IdentityTable<RoomFxType, RoomFxTypeDefinition> Types = new(new Dictionary<RoomFxType, RoomFxTypeDefinition>
     {
         [RoomFxType.None] = new(RoomFxOverlayMotion.None),
         [RoomFxType.Lava] = new(RoomFxOverlayMotion.LavaOrAcid, BubblesAmbiently: true),
@@ -23,5 +23,5 @@ internal static partial class RoomFxTypeDefinitions
         [RoomFxType.CeresRidley] = new(RoomFxOverlayMotion.None),
         [RoomFxType.CeresElevator] = new(RoomFxOverlayMotion.None),
         [RoomFxType.CeresHaze] = new(RoomFxOverlayMotion.None),
-    };
+    });
 }

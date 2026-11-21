@@ -32,8 +32,8 @@ internal static class ProjectileFileContractsVerification
         AssertTrue(ReferenceEquals(compiledBeams.Palettes, InstalledFixtures.ImportProjectiles.BeamPalettes),
             "the beam catalog and the import's read share the beam colours read from the import data");
         for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
-            AssertTrue(compiledBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrderConstants.FromTableIndex(selection))).Span.SequenceEqual(
-                expectedBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrderConstants.FromTableIndex(selection))).Span),
+            AssertTrue(compiledBeams.Resolve(SamusBeamCombinationTableOrderConstants.FromTableIndex(selection)).Span.SequenceEqual(
+                expectedBeams.Resolve(SamusBeamCombinationTableOrderConstants.FromTableIndex(selection)).Span),
                 "file-context beam assembly retains every transfer byte and selection");
         Dictionary<SuperMetroid.Core.Progression.SamusBeamCombination, BeamTileAtlas> sheets = BeamTileAtlasDefinitions.Pictured.ToDictionary(index => index, index =>
         {
@@ -42,8 +42,8 @@ internal static class ProjectileFileContractsVerification
         });
         var ownedBeams = BeamTileCatalog.FromAtlases(sheets, (compiledBeams.Palettes ?? throw new InvalidOperationException("Verification requires compiledBeams.Palettes.")), (compiledBeams.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires compiledBeams.HyperBeamFxColors.")));
         sheets[SuperMetroid.Core.Progression.SamusBeamCombination.Power] = sheets[SuperMetroid.Core.Progression.SamusBeamCombination.Wave];
-        AssertTrue(ownedBeams.Resolve(BeamTileCatalog.AssetFor(0)).Span.SequenceEqual(
-            expectedBeams.Resolve(BeamTileCatalog.AssetFor(0)).Span), "beam assembler owns the input array");
+        AssertTrue(ownedBeams.Resolve(SamusBeamCombinationTableOrderConstants.FromTableIndex(0)).Span.SequenceEqual(
+            expectedBeams.Resolve(SamusBeamCombinationTableOrderConstants.FromTableIndex(0)).Span), "beam assembler owns the input array");
         AssertThrows<ArgumentException>(() => BeamTileCatalog.FromAtlases(new Dictionary<SuperMetroid.Core.Progression.SamusBeamCombination, BeamTileAtlas>(), compiledBeams.Palettes,
             compiledBeams.HyperBeamFxColors), "beam assembler rejects an incomplete selection set");
         Console.WriteLine("PASS projectile file contracts: the extracted beam pages assemble into the loaded beam catalog.");

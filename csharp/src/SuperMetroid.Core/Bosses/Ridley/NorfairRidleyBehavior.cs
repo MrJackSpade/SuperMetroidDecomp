@@ -106,6 +106,151 @@ internal sealed partial class NorfairRidleyBehavior : IEnemySpecies, IRidleyReve
             RunNorfairRidleyFightPhase(place, state, samus, controllerInput, level, powerBomb);
     }
 
+    /// <summary>What <see cref="RunNorfairRidleyFightPhase"/> does for each <see cref="NorfairRidleyPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<NorfairRidleyPhase, Action<RoomEnemyPlace, NorfairRidleyState, SamusState, GameplayAction, RoomLevelData, SamusPowerBombExplosionState>> RunNorfairRidleyFightPhaseForNorfairRidleyPhase => field ??= new(new Dictionary<NorfairRidleyPhase, Action<RoomEnemyPlace, NorfairRidleyState, SamusState, GameplayAction, RoomLevelData, SamusPowerBombExplosionState>>
+    {
+        [NorfairRidleyPhase.EnterArena] = (place, state, samus, controllerInput, level, powerBomb) =>
+        {
+            NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, NorfairRidleyArenaDefinitions.ArenaEntry, divisor: NorfairRidleyMotionDefinitions.ArenaEntryDivisor);
+            if (RidleyFlight.IsWithinRectangle(place, NorfairRidleyArenaDefinitions.ArenaEntry, NorfairRidleyArenaDefinitions.FlightTargetReach))
+            {
+                state.FightMode = RidleyFightMode.Fighting;
+                state.Phase = NorfairRidleyPhase.SelectAttack;
+                SelectNorfairRidleyAttack(place, state, samus, controllerInput, level, powerBomb);
+            }
+        },
+        [NorfairRidleyPhase.SelectAttack] = (place, state, samus, controllerInput, level, powerBomb) => SelectNorfairRidleyAttack(place, state, samus, controllerInput, level, powerBomb),
+        [NorfairRidleyPhase.HoverSetup] = (place, state, samus, controllerInput, level, powerBomb) =>
+        {
+            state.Phase = NorfairRidleyPhase.Hover;
+            state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.HoverUpdates);
+            NorfairRidleyCombat.TickNorfairRidleyHover(place, state);
+        },
+        [NorfairRidleyPhase.Hover] = (place, state, samus, controllerInput, level, powerBomb) => NorfairRidleyCombat.TickNorfairRidleyHover(place, state),
+        [NorfairRidleyPhase.SwoopSetup] = (place, state, samus, controllerInput, level, powerBomb) =>
+        {
+            state.Phase = NorfairRidleyPhase.SwoopMoveToStart;
+            state.Flight.SwoopHeading = RotationAngle.Zero;
+            NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(place, state);
+        },
+        [NorfairRidleyPhase.SwoopMoveToStart] = (place, state, samus, controllerInput, level, powerBomb) => NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(place, state),
+        [NorfairRidleyPhase.SwoopAimDown] = (place, state, samus, controllerInput, level, powerBomb) =>
+        {
+            NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
+                state,
+                SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopDiveTurn),
+                SwoopTarget(state, NorfairRidleyMotionDefinitions.SwoopDiveHeading),
+                NorfairRidleyMotionDefinitions.SwoopDiveSpeed,
+                NorfairRidleyPhase.SwoopAimSideways,
+                NorfairRidleyMotionDefinitions.SwoopSweepUpdates);
+        },
+        [NorfairRidleyPhase.SwoopAimSideways] = (place, state, samus, controllerInput, level, powerBomb) =>
+        {
+            if (NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
+                    state,
+                    SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopSweepTurn),
+                    SwoopTarget(state, RotationAngle.QuarterTurn),
+                    NorfairRidleyMotionDefinitions.SwoopSweepSpeed,
+                    NorfairRidleyPhase.SwoopAimUp,
+                    NorfairRidleyMotionDefinitions.SwoopTurnUpdates))
+            {
+                state.Tail.Whip.Give();
+            }
+        },
+        [NorfairRidleyPhase.SwoopAimUp] = (place, state, samus, controllerInput, level, powerBomb) =>
+        {
+            NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
+                state,
+                SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopTurnUpTurn),
+                SwoopTarget(state, RidleyFlightDefinitions.SwoopClimbTarget),
+                NorfairRidleyMotionDefinitions.SwoopClimbSpeed,
+                NorfairRidleyPhase.SwoopClimb,
+                NorfairRidleyMotionDefinitions.SwoopClimbUpdates);
+        },
+        [NorfairRidleyPhase.SwoopClimb] = (place, state, samus, controllerInput, level, powerBomb) =>
+        {
+            if (NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
+                    state,
+                    SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopClimbTurn),
+                    SwoopTarget(state, RidleyFlightDefinitions.SwoopClimbTarget),
+                    NorfairRidleyMotionDefinitions.SwoopClimbSpeed,
+                    NorfairRidleyPhase.SwoopRecover,
+                    NorfairRidleyMotionDefinitions.SwoopRecoveryUpdates))
+            {
+                NorfairRidleyCombat.SelectNorfairRidleyFacingAnimation(place, state);
+            }
+        },
+        [NorfairRidleyPhase.SwoopRecover] = (place, state, samus, controllerInput, level, powerBomb) =>
+        {
+            RidleyFlight.UpdateSwoopVelocity(state.Flight, TurnStep.None, RotationAngle.HalfTurn, NorfairRidleyMotionDefinitions.SwoopRecoverySpeed);
+            if (state.SwoopPhaseTimer.StepKeepsRunning())
+                return;
+            state.Phase = NorfairRidleyCombat.SamusMovementUsesRidleyGrab(samus)
+                ? NorfairRidleyPhase.GrabApproach
+                : NorfairRidleyPhase.SelectAttack;
+        },
+        [NorfairRidleyPhase.WallSweepSetup] = (place, state, samus, controllerInput, level, powerBomb) =>
+        {
+            state.Tail.IdealLinkSpacing = RidleyTailDefinitions.WallSweepLinkSpacing;
+            state.Tail.ExtensionSpeed = RidleyTailDefinitions.PogoExtensionSpeed;
+            state.Phase = NorfairRidleyPhase.SweepToWallBehind;
+            state.PhaseTimer.LastFor(RidleyRandomDefinitions.WallSweepTimer.Of(_room.Random.Read()) + NorfairRidleyMotionDefinitions.WallSweepFirstLegLeastUpdates);
+            Combat.TickNorfairRidleyWallSweep(place, state, samus, RidleyWallSweepTarget.WallBehind);
+        },
+        [NorfairRidleyPhase.SweepToWallBehind] = (place, state, samus, controllerInput, level, powerBomb) => Combat.TickNorfairRidleyWallSweep(place, state, samus, RidleyWallSweepTarget.WallBehind),
+        [NorfairRidleyPhase.SweepToWallAhead] = (place, state, samus, controllerInput, level, powerBomb) => Combat.TickNorfairRidleyWallSweep(place, state, samus, RidleyWallSweepTarget.WallAhead),
+        [NorfairRidleyPhase.PogoMoveToSide] = (place, state, samus, controllerInput, level, powerBomb) => Combat.TickNorfairRidleyPogoMoveToSide(place, state, samus),
+        [NorfairRidleyPhase.PogoMoveToHeight] = (place, state, samus, controllerInput, level, powerBomb) => Combat.TickNorfairRidleyPogoMoveToHeight(place, state, samus),
+        [NorfairRidleyPhase.PogoFall] = (place, state, samus, controllerInput, level, powerBomb) => Combat.TickNorfairRidleyPogoFall(place, state, samus, level),
+        [NorfairRidleyPhase.PogoRise] = (place, state, samus, controllerInput, level, powerBomb) => NorfairRidleyCombat.TickNorfairRidleyPogoRise(state, samus),
+        [NorfairRidleyPhase.GrabApproach] = (place, state, samus, controllerInput, level, powerBomb) => NorfairRidleyCombat.TickNorfairRidleyGrabApproach(place, state, samus, powerBomb),
+        [NorfairRidleyPhase.PowerBombDodge] = (place, state, samus, controllerInput, level, powerBomb) => NorfairRidleyCombat.TickNorfairRidleyPowerBombDodge(place, state, powerBomb),
+        [NorfairRidleyPhase.CarrySetup] = (place, state, samus, controllerInput, level, powerBomb) => NorfairRidleyCombat.BeginNorfairRidleyCarry(place, state),
+        [NorfairRidleyPhase.CarryMoveToAnchor] = (place, state, samus, controllerInput, level, powerBomb) =>
+        {
+            NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, state.Target, NorfairRidleyMotionDefinitions.CarryDivisor);
+            if (state.PhaseTimer.StepRunsOut())
+            {
+                state.Phase = NorfairRidleyPhase.CarryRise;
+                state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.CarryRiseUpdates);
+            }
+        },
+        [NorfairRidleyPhase.CarryRise] = (place, state, samus, controllerInput, level, powerBomb) =>
+        {
+            if (state.PhaseTimer.StepRunsOut())
+            {
+                state.Tail.IdealLinkSpacing = RidleyTailDefinitions.CarryReleaseLinkSpacing;
+                state.Tail.ExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
+                NorfairRidleyDeath.ReleaseNorfairRidleyGrab(state, samus);
+                state.Phase = NorfairRidleyPhase.CarryRelease;
+                state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.CarryReleaseUpdates);
+            }
+            else
+                NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, state.Target.WithY(NorfairRidleyArenaDefinitions.FlightLineY), NorfairRidleyMotionDefinitions.CarryDivisor);
+        },
+        [NorfairRidleyPhase.CarryRelease] = (place, state, samus, controllerInput, level, powerBomb) =>
+        {
+            if (state.PhaseTimer.StepRunsOut())
+            {
+                state.Tail.IdealLinkSpacing = RidleyTailDefinitions.StandardLinkSpacing;
+                state.Tail.ExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
+                state.Phase = NorfairRidleyPhase.SelectAttack;
+            }
+            else
+            {
+                NorfairRidleyMovement.MoveNorfairRidleyToward(
+                    place, state.Flight, new Position16<RoomPixels>(RidleyMovementTargets.CarryRelease.For(state.Flight.FacingDirection), NorfairRidleyArenaDefinitions.CarryReleaseY), NorfairRidleyMotionDefinitions.CarryDivisor);
+            }
+        },
+        [NorfairRidleyPhase.MoveToDeathSpot] = (place, state, samus, controllerInput, level, powerBomb) => NorfairRidleyCombat.TickNorfairRidleyMoveToDeathSpot(place, state),
+        [NorfairRidleyPhase.DeathRoar] = (place, state, samus, controllerInput, level, powerBomb) => Death.TickNorfairRidleyDeathRoar(place, state, samus),
+        [NorfairRidleyPhase.DeathExplosions] = (place, state, samus, controllerInput, level, powerBomb) => Death.TickNorfairRidleyDeathExplosions(place, state, samus),
+        [NorfairRidleyPhase.DeathBreakup] = (place, state, samus, controllerInput, level, powerBomb) => Death.BeginNorfairRidleyBreakup(place, state),
+        [NorfairRidleyPhase.DeathWait] = (place, state, samus, controllerInput, level, powerBomb) => NorfairRidleyDeath.TickNorfairRidleyBreakupWait(state),
+        [NorfairRidleyPhase.DeathFinish] = (place, state, samus, controllerInput, level, powerBomb) => Death.TickNorfairRidleyDeathFinish(place, state, samus),
+        [NorfairRidleyPhase.DeathComplete] = (place, state, samus, controllerInput, level, powerBomb) => { },
+    });
+
     /// <summary>Runs the Lower Norfair flight, swoop, wall sweep, pogo, grab or death phase Ridley is in once he has lifted off.</summary>
     private void RunNorfairRidleyFightPhase(
         RoomEnemyPlace place,
@@ -115,207 +260,7 @@ internal sealed partial class NorfairRidleyBehavior : IEnemySpecies, IRidleyReve
         RoomLevelData level,
         SamusPowerBombExplosionState powerBomb)
     {
-        switch (state.Phase)
-        {
-            case NorfairRidleyPhase.EnterArena:
-                NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, NorfairRidleyArenaDefinitions.ArenaEntry, divisor: NorfairRidleyMotionDefinitions.ArenaEntryDivisor);
-                if (RidleyFlight.IsWithinRectangle(place, NorfairRidleyArenaDefinitions.ArenaEntry, NorfairRidleyArenaDefinitions.FlightTargetReach))
-                {
-                    state.FightMode = RidleyFightMode.Fighting;
-                    state.Phase = NorfairRidleyPhase.SelectAttack;
-                    SelectNorfairRidleyAttack(place, state, samus, controllerInput, level, powerBomb);
-                }
-                return;
-
-            case NorfairRidleyPhase.SelectAttack:
-                SelectNorfairRidleyAttack(place, state, samus, controllerInput, level, powerBomb);
-                return;
-
-            case NorfairRidleyPhase.HoverSetup:
-                state.Phase = NorfairRidleyPhase.Hover;
-                state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.HoverUpdates);
-                NorfairRidleyCombat.TickNorfairRidleyHover(place, state);
-                return;
-
-            case NorfairRidleyPhase.Hover:
-                NorfairRidleyCombat.TickNorfairRidleyHover(place, state);
-                return;
-
-            case NorfairRidleyPhase.SwoopSetup:
-                state.Phase = NorfairRidleyPhase.SwoopMoveToStart;
-                state.Flight.SwoopHeading = RotationAngle.Zero;
-                NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(place, state);
-                return;
-
-            case NorfairRidleyPhase.SwoopMoveToStart:
-                NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(place, state);
-                return;
-
-            case NorfairRidleyPhase.SwoopAimDown:
-                NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
-                    state,
-                    SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopDiveTurn),
-                    SwoopTarget(state, NorfairRidleyMotionDefinitions.SwoopDiveHeading),
-                    NorfairRidleyMotionDefinitions.SwoopDiveSpeed,
-                    NorfairRidleyPhase.SwoopAimSideways,
-                    NorfairRidleyMotionDefinitions.SwoopSweepUpdates);
-                return;
-
-            case NorfairRidleyPhase.SwoopAimSideways:
-                if (NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
-                        state,
-                        SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopSweepTurn),
-                        SwoopTarget(state, RotationAngle.QuarterTurn),
-                        NorfairRidleyMotionDefinitions.SwoopSweepSpeed,
-                        NorfairRidleyPhase.SwoopAimUp,
-                        NorfairRidleyMotionDefinitions.SwoopTurnUpdates))
-                {
-                    state.Tail.Whip.Give();
-                }
-                return;
-
-            case NorfairRidleyPhase.SwoopAimUp:
-                NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
-                    state,
-                    SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopTurnUpTurn),
-                    SwoopTarget(state, RidleyFlightDefinitions.SwoopClimbTarget),
-                    NorfairRidleyMotionDefinitions.SwoopClimbSpeed,
-                    NorfairRidleyPhase.SwoopClimb,
-                    NorfairRidleyMotionDefinitions.SwoopClimbUpdates);
-                return;
-
-            case NorfairRidleyPhase.SwoopClimb:
-                if (NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
-                        state,
-                        SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopClimbTurn),
-                        SwoopTarget(state, RidleyFlightDefinitions.SwoopClimbTarget),
-                        NorfairRidleyMotionDefinitions.SwoopClimbSpeed,
-                        NorfairRidleyPhase.SwoopRecover,
-                        NorfairRidleyMotionDefinitions.SwoopRecoveryUpdates))
-                {
-                    NorfairRidleyCombat.SelectNorfairRidleyFacingAnimation(place, state);
-                }
-                return;
-
-            case NorfairRidleyPhase.SwoopRecover:
-                RidleyFlight.UpdateSwoopVelocity(state.Flight, TurnStep.None, RotationAngle.HalfTurn, NorfairRidleyMotionDefinitions.SwoopRecoverySpeed);
-                if (state.SwoopPhaseTimer.StepKeepsRunning())
-                    return;
-                state.Phase = NorfairRidleyCombat.SamusMovementUsesRidleyGrab(samus)
-                    ? NorfairRidleyPhase.GrabApproach
-                    : NorfairRidleyPhase.SelectAttack;
-                return;
-
-            case NorfairRidleyPhase.WallSweepSetup:
-                state.Tail.IdealLinkSpacing = RidleyTailDefinitions.WallSweepLinkSpacing;
-                state.Tail.ExtensionSpeed = RidleyTailDefinitions.PogoExtensionSpeed;
-                state.Phase = NorfairRidleyPhase.SweepToWallBehind;
-                state.PhaseTimer.LastFor(RidleyRandomDefinitions.WallSweepTimer.Of(_room.Random.Read()) + NorfairRidleyMotionDefinitions.WallSweepFirstLegLeastUpdates);
-                Combat.TickNorfairRidleyWallSweep(place, state, samus, RidleyWallSweepTarget.WallBehind);
-                return;
-
-            case NorfairRidleyPhase.SweepToWallBehind:
-                Combat.TickNorfairRidleyWallSweep(place, state, samus, RidleyWallSweepTarget.WallBehind);
-                return;
-
-            case NorfairRidleyPhase.SweepToWallAhead:
-                Combat.TickNorfairRidleyWallSweep(place, state, samus, RidleyWallSweepTarget.WallAhead);
-                return;
-
-            case NorfairRidleyPhase.PogoMoveToSide:
-                Combat.TickNorfairRidleyPogoMoveToSide(place, state, samus);
-                return;
-
-            case NorfairRidleyPhase.PogoMoveToHeight:
-                Combat.TickNorfairRidleyPogoMoveToHeight(place, state, samus);
-                return;
-
-            case NorfairRidleyPhase.PogoFall:
-                Combat.TickNorfairRidleyPogoFall(place, state, samus, level);
-                return;
-
-            case NorfairRidleyPhase.PogoRise:
-                NorfairRidleyCombat.TickNorfairRidleyPogoRise(state, samus);
-                return;
-
-            case NorfairRidleyPhase.GrabApproach:
-                NorfairRidleyCombat.TickNorfairRidleyGrabApproach(place, state, samus, powerBomb);
-                return;
-
-            case NorfairRidleyPhase.PowerBombDodge:
-                NorfairRidleyCombat.TickNorfairRidleyPowerBombDodge(place, state, powerBomb);
-                return;
-
-            case NorfairRidleyPhase.CarrySetup:
-                NorfairRidleyCombat.BeginNorfairRidleyCarry(place, state);
-                return;
-
-            case NorfairRidleyPhase.CarryMoveToAnchor:
-                NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, state.Target, NorfairRidleyMotionDefinitions.CarryDivisor);
-                if (state.PhaseTimer.StepRunsOut())
-                {
-                    state.Phase = NorfairRidleyPhase.CarryRise;
-                    state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.CarryRiseUpdates);
-                }
-                return;
-
-            case NorfairRidleyPhase.CarryRise:
-                if (state.PhaseTimer.StepRunsOut())
-                {
-                    state.Tail.IdealLinkSpacing = RidleyTailDefinitions.CarryReleaseLinkSpacing;
-                    state.Tail.ExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
-                    NorfairRidleyDeath.ReleaseNorfairRidleyGrab(state, samus);
-                    state.Phase = NorfairRidleyPhase.CarryRelease;
-                    state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.CarryReleaseUpdates);
-                }
-                else
-                    NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, state.Target.WithY(NorfairRidleyArenaDefinitions.FlightLineY), NorfairRidleyMotionDefinitions.CarryDivisor);
-                return;
-
-            case NorfairRidleyPhase.CarryRelease:
-                if (state.PhaseTimer.StepRunsOut())
-                {
-                    state.Tail.IdealLinkSpacing = RidleyTailDefinitions.StandardLinkSpacing;
-                    state.Tail.ExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
-                    state.Phase = NorfairRidleyPhase.SelectAttack;
-                }
-                else
-                {
-                    NorfairRidleyMovement.MoveNorfairRidleyToward(
-                        place, state.Flight, new Position16<RoomPixels>(RidleyMovementTargets.CarryRelease.For(state.Flight.FacingDirection), NorfairRidleyArenaDefinitions.CarryReleaseY), NorfairRidleyMotionDefinitions.CarryDivisor);
-                }
-                return;
-
-            case NorfairRidleyPhase.MoveToDeathSpot:
-                NorfairRidleyCombat.TickNorfairRidleyMoveToDeathSpot(place, state);
-                return;
-
-            case NorfairRidleyPhase.DeathRoar:
-                Death.TickNorfairRidleyDeathRoar(place, state, samus);
-                return;
-
-            case NorfairRidleyPhase.DeathExplosions:
-                Death.TickNorfairRidleyDeathExplosions(place, state, samus);
-                return;
-
-            case NorfairRidleyPhase.DeathBreakup:
-                Death.BeginNorfairRidleyBreakup(place, state);
-                return;
-
-            case NorfairRidleyPhase.DeathWait:
-                NorfairRidleyDeath.TickNorfairRidleyBreakupWait(state);
-                return;
-
-            case NorfairRidleyPhase.DeathFinish:
-                Death.TickNorfairRidleyDeathFinish(place, state, samus);
-                return;
-
-            case NorfairRidleyPhase.DeathComplete:
-                return;
-
-            default:
-                throw new InvalidDataException($"Undefined {nameof(NorfairRidleyPhase)} {state.Phase}.");
-        }
+        RunNorfairRidleyFightPhaseForNorfairRidleyPhase[state.Phase](place, state, samus, controllerInput, level, powerBomb);
     }
 
     /// <summary>Chooses an attack situation by Samus's movement, Ridley's health and Samus's height in the arena.</summary>

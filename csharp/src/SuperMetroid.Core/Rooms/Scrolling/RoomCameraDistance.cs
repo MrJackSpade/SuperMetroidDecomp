@@ -12,7 +12,6 @@ public sealed partial class RoomCameraDistance
     public CameraDistanceMode Mode { get; private set; } = CameraDistanceMode.NormalTracking;
 
     /// <summary>Has the camera aim by <paramref name="mode"/> from its next horizontal tracking on.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="mode"/> is not a distance mode.</exception>
     internal void Request(CameraDistanceMode mode) =>
-        Mode = Enum.IsDefined(mode) ? mode : throw new ArgumentOutOfRangeException(nameof(mode), mode, "Undefined camera distance mode.");
+        Mode = mode;
 }

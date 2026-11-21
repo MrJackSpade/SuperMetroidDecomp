@@ -25,6 +25,11 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// For every named place of Samus's animations, the frame it lands on in every animation other than the place's own, by
 /// place name, then by animation name (#2048).
 /// </param>
+/// <param name="AnimationDelaysRead">
+/// For every animation, by its name, the ticks the frame timer starts from on each frame a pose start or a cue can move the
+/// animation to that holds no delay of its own, by the frame's name in the animation: the byte the game reads there as
+/// the delay (#2553).
+/// </param>
 /// <param name="SpaceTimeOverwrites">
 /// What SpaceTime's palette copy overwrites in progression, by program name, then by step position, then by the shot
 /// place's name (<see cref="SamusOverreadFormat.ShotPlaceName"/>); null where the copy stops before progression.
@@ -40,6 +45,7 @@ internal sealed partial record SamusOverreadDocument(
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> AnimationFramesAfterCues,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>> AnimationReadsPast,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> AnimationPlaceLandings,
+    IReadOnlyDictionary<string, IReadOnlyDictionary<string, int>> AnimationDelaysRead,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor>> ChainsawFuseLandings,
     IReadOnlyDictionary<string, bool> PostureAdmissions,

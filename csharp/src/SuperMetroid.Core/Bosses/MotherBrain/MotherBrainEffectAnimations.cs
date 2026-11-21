@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static partial class MotherBrainEffectAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments { get; } = new(
-        new Dictionary<MotherBrainEffectSegment, AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>[]>
+    internal static UnpausedAnimationSegments<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments { get; } = new(
+        new Dictionary<MotherBrainEffectSegment, AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Unpaused[]>
     {
         [P.OnionRing] =
         [
@@ -139,8 +139,8 @@ internal static partial class MotherBrainEffectAnimations
             .ToDictionary();
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue> Cue(MotherBrainEffectCue cue) => new AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Unpaused Cue(MotherBrainEffectCue cue) => new AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Event(cue);
 }

@@ -2,58 +2,46 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// Ceres Ridley's getaway as its zoom and drift curves play it out (#2247): the zoom and the drift each update shows, for
-/// the getaway's duration. The getaway ends on the update after its last, once both curves are exhausted.
+/// the getaway's duration. The getaway ends on the update after its last, once both curves are exhausted. The curves are
+/// laid out once into one step per update (#2553), so the flight walks them and no update outside them exists.
 /// </summary>
 public static partial class CeresRidleyGetawayCurve
 {
-    /// <summary>The getaway's duration in updates: every update of its zoom curve, which its drift curve matches.</summary>
+    /// <summary>Each update of the getaway in turn: the floor's zoom and drift on it.</summary>
     /// <exception cref="InvalidDataException">The zoom and drift curves last different numbers of updates.</exception>
-    public static int Duration { get; } = MatchingDuration();
+    public static IReadOnlyList<CeresRidleyGetawayStep> Steps { get; } = LaidOut();
 
-    /// <summary>The floor's zoom on update <paramref name="update"/> of the getaway, from zero.</summary>
-    /// <exception cref="InvalidDataException">The update lies outside the getaway.</exception>
-    public static FloorZoom ZoomAt(int update)
-    {
-        int updatesIn = RequireWithin(update);
-        foreach (CeresRidleyGetawayZoomStretch stretch in CeresRidleyGetawayDefinitions.ZoomCurve)
-        {
-            if (updatesIn < stretch.Updates)
-                return stretch.ZoomAfter(updatesIn);
-            updatesIn -= stretch.Updates;
-        }
-        throw new InvalidDataException($"Ceres Ridley getaway update {update} lies past its zoom curve.");
-    }
+    /// <summary>The getaway's duration in updates: every update of its zoom curve, which its drift curve matches.</summary>
+    public static int Duration => Steps.Count;
 
     /// <summary>
-    /// The floor's drift on update <paramref name="update"/> of the getaway, from zero: its X is subtracted from the
-    /// floor's horizontal offset, so the image moves right, and its Y added to the vertical offset.
+    /// The curves laid out one step per update: each update of the zoom curve, with the drift its own curve has reached by
+    /// then. The two curves advance side by side, each through its own stretches, and last as long as each other.
     /// </summary>
-    /// <exception cref="InvalidDataException">The update lies outside the getaway.</exception>
-    public static Offset16<FloorPixels> DriftAt(int update)
+    private static CeresRidleyGetawayStep[] LaidOut()
     {
-        int updatesIn = RequireWithin(update);
-        foreach (CeresRidleyGetawayDriftStretch stretch in CeresRidleyGetawayDefinitions.DriftCurve)
+        var steps = new List<CeresRidleyGetawayStep>();
+        int driftStretch = 0;
+        UpdateCountdown driftLeft = UpdateCountdown.For(CeresRidleyGetawayDefinitions.DriftCurve[driftStretch].Updates);
+        foreach (CeresRidleyGetawayZoomStretch zoom in CeresRidleyGetawayDefinitions.ZoomCurve)
         {
-            if (updatesIn < stretch.Updates)
-                return stretch.Drift;
-            updatesIn -= stretch.Updates;
+            foreach (int update in Enumerable.Range(0, zoom.Updates))
+            {
+                steps.Add(new CeresRidleyGetawayStep(zoom.ZoomAfter(update), CeresRidleyGetawayDefinitions.DriftCurve[driftStretch].Drift));
+                // The drift curve moves on to its next stretch once this one's updates are shown, as the last one's are
+                // on the getaway's last update.
+                if (driftLeft.StepEnds() && ++driftStretch < CeresRidleyGetawayDefinitions.DriftCurve.Count)
+                    driftLeft.Restart(CeresRidleyGetawayDefinitions.DriftCurve[driftStretch].Updates);
+            }
         }
-        throw new InvalidDataException($"Ceres Ridley getaway update {update} lies past its drift curve.");
-    }
-
-    /// <summary>Returns <paramref name="update"/>, rejecting one outside the getaway's duration.</summary>
-    private static int RequireWithin(int update) =>
-        update >= 0 && update < Duration
-            ? update
-            : throw new InvalidDataException($"Ceres Ridley getaway update {update} lies outside its {Duration} updates.");
-
-    /// <summary>The updates both curves last, which must agree.</summary>
-    private static int MatchingDuration()
-    {
-        int zoom = CeresRidleyGetawayDefinitions.ZoomCurve.Sum(stretch => stretch.Updates);
-        int drift = CeresRidleyGetawayDefinitions.DriftCurve.Sum(stretch => stretch.Updates);
-        return zoom == drift
-            ? zoom
-            : throw new InvalidDataException($"Ceres Ridley's getaway zoom lasts {zoom} updates but its drift {drift}.");
+        return [.. steps];
     }
 }
+
+/// <summary>One update of Ceres Ridley's getaway (#2247, #2553).</summary>
+/// <param name="Zoom">The floor's zoom on the update.</param>
+/// <param name="Drift">
+/// The floor's drift on the update: its X is subtracted from the floor's horizontal offset, so the image moves right, and
+/// its Y added to the vertical offset.
+/// </param>
+public readonly record struct CeresRidleyGetawayStep(FloorZoom Zoom, Offset16<FloorPixels> Drift);

@@ -25,13 +25,10 @@ public sealed partial class HyperBeamColourEffectState
     /// Runs one update of the Hyper Beam's colour effect: once the shade shown has held its updates, the next shade is laid
     /// over Samus's beams.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The cycle comes to rest, which a cycle that only shows shades never does.</exception>
     public void Step(SamusColours colours)
     {
         Ensure.NotNull(colours);
         if (Cycle.StepToNewFrame() is { } shade)
             colours.LayOverBeams(shade);
-        if (Cycle.IsResting)
-            throw new InvalidOperationException("The Hyper Beam's colour cycle came to rest; it only shows shades, for ever.");
     }
 }

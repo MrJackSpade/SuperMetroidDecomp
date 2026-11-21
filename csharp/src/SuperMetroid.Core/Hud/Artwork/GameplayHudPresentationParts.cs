@@ -18,7 +18,7 @@ internal sealed partial record GameplayHudPresentationParts
     /// <summary>
     /// Each ammunition counter's field: the screen pixel its count's first digit's upper-left corner shows at, and its digits.
     /// </summary>
-    public required ImmutableDictionary<HudAmmoCounter, HudAmmoField> AmmoFields { get; init; }
+    public required IdentityTable<HudAmmoCounter, HudAmmoField> AmmoFields { get; init; }
 
     /// <summary>The screen pixel the AUTO indicator's upper-left corner shows at.</summary>
     public required Position16<ScreenPixels> AutoReserveCorner { get; init; }

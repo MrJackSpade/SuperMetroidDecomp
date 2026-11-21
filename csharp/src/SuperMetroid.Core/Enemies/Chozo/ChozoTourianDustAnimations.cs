@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 internal static partial class ChozoTourianDustAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<ChozoTourianDustSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<ChozoTourianDustSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static UnpausedAnimationSegments<ChozoTourianDustSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<ChozoTourianDustSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused[]>
     {
         [P.Footsteps] =
         [
@@ -34,7 +34,7 @@ internal static partial class ChozoTourianDustAnimations
     });
 
     /// <summary>The dust's puff growing to a dense cloud, two updates a picture, which both the footsteps and the descent raise.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[] PuffToCloud =>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused[] PuffToCloud =>
     [
         Show(EnemyProjectileFrameId.ChozoDustPuff, 2),
         Show(EnemyProjectileFrameId.ChozoDustPuffPair, 2),
@@ -58,8 +58,8 @@ internal static partial class ChozoTourianDustAnimations
         new([Segments.Repeated(P.TourianDescentDust, DescentDustPuffs), Segments.Whole(P.TourianDescentDustEnd)], AnimationEnd.Holds);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
 }

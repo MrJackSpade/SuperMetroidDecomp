@@ -27,7 +27,7 @@ internal static partial class TorizoDeathDefinitions
     /// The chances both Torizos' death drops roll, Golden Torizo's as well as Bomb Torizo's (#2244): Bomb Torizo's own,
     /// never nothing.
     /// </summary>
-    internal static readonly EnemyDropChances DeathDropChances = new(SmallEnergy: 50, BigEnergy: 50, Missile: 50, Nothing: 0, SuperMissile: 50, PowerBomb: 55);
+    internal static readonly EnemyDropChances DeathDropChances = new(smallEnergy: 50, bigEnergy: 50, missile: 50, nothing: 0, superMissile: 50, powerBomb: 55);
 
     /// <summary>Bomb Torizo's arena: a narrow stretch of the upper room.</summary>
     internal static readonly TorizoDropArena BombTorizoArena =

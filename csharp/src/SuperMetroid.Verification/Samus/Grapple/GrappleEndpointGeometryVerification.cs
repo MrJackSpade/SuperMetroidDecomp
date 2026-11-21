@@ -73,7 +73,7 @@ internal static class GrappleEndpointGeometryVerification
         var samus = runtime.Player.IntroducedSamus;
         foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose })
         {
-            samus.Pose = pose;
+            samus.ChangePoseKeepingAnimation(pose);
             samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             SamusPresentation.InitializeAnimation(samus);
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;

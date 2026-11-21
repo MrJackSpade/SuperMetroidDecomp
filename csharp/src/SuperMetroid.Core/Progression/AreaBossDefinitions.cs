@@ -8,7 +8,7 @@ internal static partial class AreaBossDefinitions
     /// defeat each is recorded as in its area's progress is the area's boss for Kraid, both Ridleys, Phantoon, Draygon and
     /// Mother Brain, its mini-boss for Spore Spawn, Crocomire and Botwoon, and its Torizo for the Torizos (#2563).
     /// </summary>
-    internal static readonly IReadOnlyDictionary<AreaBoss, AreaBossDefinition> Bosses = new Dictionary<AreaBoss, AreaBossDefinition>
+    internal static readonly IdentityTable<AreaBoss, AreaBossDefinition> Bosses = new(new Dictionary<AreaBoss, AreaBossDefinition>
     {
         [AreaBoss.CeresRidley] = new(XrayKeepsBackground: false, RecordedAs: DefeatedBosses.AreaBoss),
         [AreaBoss.Torizo] = new(XrayKeepsBackground: false, RecordedAs: DefeatedBosses.AreaTorizo),
@@ -20,5 +20,5 @@ internal static partial class AreaBossDefinitions
         [AreaBoss.Draygon] = new(XrayKeepsBackground: true, RecordedAs: DefeatedBosses.AreaBoss),
         [AreaBoss.Botwoon] = new(XrayKeepsBackground: false, RecordedAs: DefeatedBosses.AreaMiniBoss),
         [AreaBoss.MotherBrain] = new(XrayKeepsBackground: true, RecordedAs: DefeatedBosses.AreaBoss),
-    };
+    });
 }

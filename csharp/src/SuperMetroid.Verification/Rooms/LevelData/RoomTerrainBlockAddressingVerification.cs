@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -191,7 +192,10 @@ internal static class RoomTerrainBlockAddressingVerification
         Console.WriteLine("Wave scan read blocks: every read starts in the block at its place along the room's rows.");
     }
 
-    /// <summary>Runs a one-block shot's horizontal or vertical scan over <paramref name="block"/> and reports whether it stopped.</summary>
+    /// <summary>
+    /// Moves a one-block shot over <paramref name="block"/> horizontally or vertically, by a speed too small to leave the
+    /// pixel it stands on, and reports whether its leading edge's scan stopped it.
+    /// </summary>
     private static bool ScanShot(RoomLevelData level, Position16<RoomBlocks> block, bool vertical)
     {
         var shot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
@@ -200,8 +204,8 @@ internal static class RoomTerrainBlockAddressingVerification
         shot.HeldShot().Velocity = vertical ? new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1)) : new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
         SamusProjectileOccupant held = shot.HeldShot();
         return vertical
-            ? ProjectileTerrainCollision.ScanVerticalShotReactions(level, held, roomObjects: SamusRoomObjectFixtures.Uninstalled)
-            : ProjectileTerrainCollision.ScanHorizontalShotReactions(level, held, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            ? ProjectileTerrainCollision.MoveVertically(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), held)
+            : ProjectileTerrainCollision.MoveHorizontally(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), held);
     }
 
     /// <summary>The block a level-data place addresses: the place's remainder by the width is its column, its quotient its row.</summary>

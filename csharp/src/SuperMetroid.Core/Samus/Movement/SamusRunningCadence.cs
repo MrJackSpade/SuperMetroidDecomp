@@ -15,9 +15,4 @@ internal enum SamusRunningCadence
     BoostStage3,
     /// <summary>Speed Booster stage four, the quickest.</summary>
     BoostStage4,
-    /// <summary>
-    /// The cadence a full sound queue selects, which the game never authored
-    /// (<see cref="SuperMetroid.Core.Compatibility.UnauthoredBoostCadence"/>).
-    /// </summary>
-    UnauthoredBoost,
 }

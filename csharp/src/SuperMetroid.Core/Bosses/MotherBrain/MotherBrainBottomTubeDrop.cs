@@ -10,4 +10,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed partial record MotherBrainBottomTubeDrop(
     MotherBrainTubePiece Piece,
     RoomObjectSpawnRequest<MotherBrainRoomMutation> Clears,
-    int WaitAfterUpdates) : MotherBrainFollowedTubeDrop(Clears, WaitAfterUpdates);
+    int WaitAfterUpdates) : MotherBrainFollowedTubeDrop(Clears, WaitAfterUpdates)
+{
+    /// <inheritdoc/>
+    internal override void React<TContext>(MotherBrainTubeDropReactions<TContext> reactions, TContext context) =>
+        Ensure.NotNull(reactions).Bottom(this, context);
+}

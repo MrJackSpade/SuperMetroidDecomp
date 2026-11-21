@@ -46,7 +46,7 @@ internal static class SamusLandingDrawVerification
         runtime.InitializeDebugGroundedSamus(64, 232, 16);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         setup(runtime);

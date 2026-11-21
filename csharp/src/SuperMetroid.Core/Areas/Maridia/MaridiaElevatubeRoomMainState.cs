@@ -62,13 +62,11 @@ public sealed partial class MaridiaElevatubeRoomMainState
     /// maximum speed.
     /// </summary>
     internal void Step(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
-        Ensure.NotNull(roomObjects);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
 
         // Samus is held at the tube's centre every update, with no fraction of a pixel.
@@ -78,7 +76,7 @@ public sealed partial class MaridiaElevatubeRoomMainState
         TrackedY = TrackedY.MovedBy(displacement);
         _fraction.Leave(TrackedY.Fraction);
 
-        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false });
+        SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false });
 
         // The game's range test is exactly the inclusive range of the maximum speed either way; a candidate outside it is
         // rejected rather than clamped, leaving the preceding velocity intact.

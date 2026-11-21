@@ -9,11 +9,11 @@ internal static partial class FakeKraidProjectileDefinitions
     /// <summary>
     /// Each spit shot's horizontal speed toward the side Fake Kraid faces, in pixels an update: the far shot the faster.
     /// </summary>
-    internal static IReadOnlyDictionary<FakeKraidSpit, int> SpitSpeedPixels { get; } = new Dictionary<FakeKraidSpit, int>
+    internal static IdentityTable<FakeKraidSpit, int> SpitSpeedPixels { get; } = new(new Dictionary<FakeKraidSpit, int>
     {
         [FakeKraidSpit.Near] = 2,
         [FakeKraidSpit.Far] = 4,
-    };
+    });
 
     /// <summary>How far Fake Kraid steps each walk cue, in pixels, toward the side he walks.</summary>
     internal const int StepPixels = 4;
@@ -54,10 +54,10 @@ internal static partial class FakeKraidProjectileDefinitions
     /// The fixed body launch offsets from body Y: the top port just above it, the middle and bottom ports below.
     /// This is port selection, not an interpolated motion curve.
     /// </summary>
-    internal static readonly Dictionary<FakeKraidSpikeRow, int> SpikeYOffsets = new()
+    internal static readonly IdentityTable<FakeKraidSpikeRow, int> SpikeYOffsets = new(new Dictionary<FakeKraidSpikeRow, int>
     {
         [FakeKraidSpikeRow.Top] = -2,
         [FakeKraidSpikeRow.Middle] = 12,
         [FakeKraidSpikeRow.Bottom] = 24,
-    };
+    });
 }

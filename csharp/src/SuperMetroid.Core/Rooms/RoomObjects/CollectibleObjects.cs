@@ -61,21 +61,20 @@ internal sealed partial class CollectibleObjects
     internal bool HasPendingCollectibleMessage => _awaitingMessage.Count != 0;
 
     /// <summary>
-    /// The pickup message has closed: each item awaiting it finishes its pickup within the same room-object update, an item
-    /// showing its empty block before it leaves, a shot block's item leaving its block empty. They finish from the last
-    /// place back, the order the room's searches for a collectible run in.
+    /// A message box has closed: the first item awaiting its message, whose box the step opened first (#2553), finishes its
+    /// pickup within the same room-object update, an item showing its empty block before it leaves, a shot block's item
+    /// leaving its block empty. A later item's box opens next and its item finishes when that box closes, as each item's
+    /// box returns into its own room object's update. A box no item opened finds none awaiting and finishes none.
     /// </summary>
     internal void CompleteCollectibleMessage(RoomLevelData level)
     {
-        for (int index = _awaitingMessage.Count - 1; index >= 0; index--)
-        {
-            AwaitingPickup awaiting = _awaitingMessage[index];
-            awaiting.Item.ResumeAfterMessage(_drawing, level, awaiting.Place);
-        }
-        bool raisesLava = _awaitingMessage.Count != 0 && _awaitingMessage[^1].RaisesLava;
-        _awaitingMessage.Clear();
+        if (_awaitingMessage.Count == 0)
+            return;
+        AwaitingPickup awaiting = _awaitingMessage[0];
+        _awaitingMessage.RemoveAt(0);
+        awaiting.Item.ResumeAfterMessage(_drawing, level, awaiting.Place);
         // The Speed Booster's pickup starts the lava rising once its message has closed.
-        if (raisesLava)
+        if (awaiting.RaisesLava)
             _roomFx.SetLiquidSpeed(SpeedBoosterPickupDefinitions.LavaRiseVelocity);
     }
 

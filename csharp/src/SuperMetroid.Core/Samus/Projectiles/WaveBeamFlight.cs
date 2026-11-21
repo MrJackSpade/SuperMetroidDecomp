@@ -15,5 +15,5 @@ internal sealed partial class WaveBeamFlight(int trailInterval) : SamusShotBehav
 
     /// <inheritdoc/>
     internal override void Run(SamusShotUpdate update) =>
-        update.Shots.Motion.FlyWaveBeam(update.Terrain.Level, update.Held, update.Camera, update.Terrain.RoomObjects, TrailInterval);
+        update.Shots.Motion.FlyWaveBeam(update.Terrain, update.Held, update.Camera, TrailInterval);
 }

@@ -4,12 +4,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static partial class MotherBrainWalkDefinitions
 {
     /// <summary>Each walking speed's animations: every speed walks in a forward and a backward animation of its own.</summary>
-    internal static IReadOnlyDictionary<MotherBrainWalkSpeed, MotherBrainWalkGait> Gaits { get; } = new Dictionary<MotherBrainWalkSpeed, MotherBrainWalkGait>
+    internal static IdentityTable<MotherBrainWalkSpeed, MotherBrainWalkGait> Gaits { get; } = new(new Dictionary<MotherBrainWalkSpeed, MotherBrainWalkGait>
     {
         [MotherBrainWalkSpeed.ReallyFast] = new(MotherBrainBodySegment.WalkForwardReallyFast, MotherBrainBodySegment.WalkBackwardReallyFast),
         [MotherBrainWalkSpeed.Fast] = new(MotherBrainBodySegment.WalkForwardFast, MotherBrainBodySegment.WalkBackwardFast),
         [MotherBrainWalkSpeed.Medium] = new(MotherBrainBodySegment.WalkForwardMedium, MotherBrainBodySegment.WalkBackwardMedium),
         [MotherBrainWalkSpeed.Slow] = new(MotherBrainBodySegment.WalkForwardSlow, MotherBrainBodySegment.WalkBackwardSlow),
         [MotherBrainWalkSpeed.ReallySlow] = new(MotherBrainBodySegment.WalkForwardReallySlow, MotherBrainBodySegment.WalkBackwardReallySlow),
-    };
+    });
 }

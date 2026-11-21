@@ -44,7 +44,7 @@ internal static class TypedTextGlyphsVerification
         // frame of the family would picture a typing step whole.
         var resultFrames = new HashSet<string>(StringComparer.Ordinal);
         foreach (CinematicSpriteFrameDefinition whole in EndingCompletionTextSpriteDefinitions.Frames)
-            resultFrames.Add(CinematicSpriteSheet.FrameName(EndingTextAnimations.Family, whole.Pose));
+            resultFrames.Add(CinematicSpriteSheet.FrameName(EndingSpriteSheets.Cinematic(EndingTextAnimations.Family), whole.Pose));
         foreach (EndingTypedText text in Enum.GetValues<EndingTypedText>())
         {
             foreach (EndingTextTyping step in EndingTextAnimations.Typings(text))

@@ -523,9 +523,9 @@ internal static class SaveSchemaTranslationVerification
         // Boot fixes the demo playlist, so each marker state boots a session.
         ram.SelectSlot(SaveSlot.C);
         ram.RestoreHistory(SaveFileHistory.None);
-        AssertEqual(StockAttractDemoScenes.OrdinaryPlaylist, new SuperMetroidGame(ram).Session.DemoPlaylist, "incomplete save plays the ordinary demo sets");
+        AssertTrue(new SuperMetroidGame(ram).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)), "incomplete save plays the ordinary demo sets");
         ram.CompleteGame();
-        AssertEqual(StockAttractDemoScenes.CompletedGamePlaylist, new SuperMetroidGame(ram).Session.DemoPlaylist, "completed save unlocks the completion demo set");
+        AssertTrue(new SuperMetroidGame(ram).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: true)), "completed save unlocks the completion demo set");
         AssertEqual(SaveSlot.C, ram.ReadSelectedSlot(), "twelve-byte completion signature preserves selected slot");
         ram.RestoreHistory(SaveFileHistory.None);
         var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -536,7 +536,7 @@ internal static class SaveSchemaTranslationVerification
             text, InstalledFixtures.EndingBackdrops, InstalledFixtures.SpriteSheets);
         // The ending stands on the item percentage's last move-down update, below the final logo.
         _ = ending.CreditsRoll.StartItemPercentage();
-        ending.Scene = new EndingLogoScene(new EndingLogo(ending.Stage, () => { }), EndingCreditsPhase.ItemPercentageScrollDown);
+        ending.Scene = new EndingItemPercentageDropScene();
         ending.PhaseHold = UpdateCountdown.Lasting(1);
         frontend.Session.Show(ending);
         frontend.Session.Enter(EndingStep.Credits);

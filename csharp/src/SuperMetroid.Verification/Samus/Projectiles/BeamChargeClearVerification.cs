@@ -56,7 +56,7 @@ internal static class BeamChargeClearVerification
         }
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.EquippedBeams = SamusBeamFlags.Charge;
         samus.Position = samus.Position.WithWhole(new(512, 490));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -66,7 +66,7 @@ internal static class BeamChargeClearVerification
             runtime.StepFrame(shoot);
         built = samus.BeamCharge.UpdatesHeld;
 
-        samus.Pose = SamusPoseId.GrappleWallContactRightPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.GrappleWallContactRightPose);
         SamusAerialPoseTransitions.ApplyGrappleWallJump(samus);
         if (alsoClearThroughHudSelection)
         {

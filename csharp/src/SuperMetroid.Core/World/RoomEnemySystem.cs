@@ -75,6 +75,9 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
     /// <summary>Samus's touches, shots, bombs and power bombs against the room's enemies, and the enemies' reactions to them.</summary>
     internal EnemyCollision Collision { get; }
 
+    /// <summary>The collision as the species' shared responses resolve it at use (#1759).</summary>
+    private EnemyCollision CurrentCollision() => Collision;
+
     /// <summary>Enemy deaths and their drops: the death explosions, the scattered pickups and Samus collecting them.</summary>
     internal EnemyDeathsAndDrops DeathsAndDrops { get; }
 
@@ -105,8 +108,11 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
     /// </summary>
     internal RoomEnemySpecies SpeciesComposition { get; }
 
-    /// <summary>The species registry that binds each installed occupant's entity.</summary>
-    internal EnemySpeciesRegistry Species => SpeciesComposition.Registry;
+    /// <summary>
+    /// The species registry that binds each installed occupant's entity: made before the places, which reach it, and
+    /// given the factories of the species composed over them.
+    /// </summary>
+    private EnemySpeciesRegistry Species { get; } = new();
 
     /// <summary>The loaded room's enemy definitions, services and artwork, shared with the composed owners.</summary>
     internal EnemyRoomBinding Room { get; }
@@ -299,7 +305,7 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
         FrameContext = new EnemyFrameContext(session);
         Presentation = new EnemyPresentation(session, Ensure.NotNull(dependencies.Looks), compatibility.FadeStepCount);
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
-        Places = new EnemyPlaces();
+        Places = new EnemyPlaces(Species);
         Audio = new EnemyAudioQueue(session.AudioRequests);
         ProcessingWindow = new EnemyProcessingWindow(FrameContext, Places);
         Lifecycle = new EnemyLifecycle(Room, Places, ProcessingWindow);
@@ -325,9 +331,9 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
             UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence, YardKickDistance = compatibility.YardKickDistance,
             FallingSparkFloorProbe = compatibility.FallingSparkFloorProbe,
         });
+        Species.AddRoomSpecies(new EnemyCommonParticipation(CurrentCollision), SpeciesComposition.Factories, SpeciesComposition.WithoutScenery);
         AnimationPlayer = new EnemyAnimationPlayer(Presentation);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { LateDraws = SpeciesComposition.LateDraws, FrameContext = FrameContext, AnimationPlayer = AnimationPlayer, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
-        Places.InstallPlaces(Species);
     }
 
     /// <summary>

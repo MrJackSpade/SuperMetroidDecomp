@@ -11,9 +11,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 public static partial class ColourEffectHeatAnimations
 {
     /// <summary>The heat pulse the shimmer for <paramref name="suit"/> plays, in whose frames it shows.</summary>
-    internal static ColourEffectId Pulse(ColourEffectHeatSuit suit) =>
-        ColourEffectAnimations.HeatPulses.TryGetValue(suit, out ColourEffectId pulse) ? pulse
-            : throw new ArgumentOutOfRangeException(nameof(suit), suit, "Unknown heat suit.");
+    internal static ColourEffectId Pulse(ColourEffectHeatSuit suit) => ColourEffectAnimations.HeatPulses[suit];
 
     /// <summary>How the heat shimmer for <paramref name="suit"/> plays: its pulse's animation, which loops.</summary>
     internal static Animation<ColourEffectSegment> Shimmer(ColourEffectHeatSuit suit) => ColourEffectAnimations.Definition(Pulse(suit)).Frames.Played;

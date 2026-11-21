@@ -24,7 +24,7 @@ internal static class GrappleBodyPlacementVerification
         {
             var g = samus.Grapple;
             samus.Artwork.GrappleSwingFrames = installed ? InstalledFixtures.Projectiles.Grapple.SwingFrames : stock;
-            samus.Pose = left ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose;
+            samus.ChangePoseKeepingAnimation(left ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose);
             // Anchors range over four screens on each axis, at least a rope and a body inside the room's top and left edges,
             // as a swing's are: its anchor and the body line it sweeps lie in the room.
             g.Anchor = g.Anchor.WithX(AnchorMargin + (raw & AnchorSpread)); g.Anchor = g.Anchor.WithY(AnchorMargin + (~raw & AnchorSpread));

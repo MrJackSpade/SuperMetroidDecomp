@@ -16,10 +16,13 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metroid];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Metroid], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MetroidEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MetroidEntity(this, occupant, place, common));
 
     /// <summary>Supplies room RNG for the scattered death drops and idle cries.</summary>
     private readonly EnemyRoomBinding _room;
@@ -45,22 +48,25 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
         _deathsAndDrops = deathsAndDrops;
     }
 
+    /// <summary>What <see cref="ApplyMetroidCue"/> does for each <see cref="MetroidCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<MetroidCueKind, Action> ApplyMetroidCueForMetroidCueKind => field ??= new(new Dictionary<MetroidCueKind, Action>
+    {
+        [MetroidCueKind.PlayDrainingSound] = () =>
+        {
+            // The attached loop emits the Metroid's animation sound.
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.MetroidAnimationSoundEffect, priority: SoundRequestPriority.Normal);
+        },
+        [MetroidCueKind.PlayRandomCry] = () =>
+        {
+            // One random number, drawn from the shared random sequence, chooses one of the eight idle cries.
+            _audio.QueueEnemySound(MetroidBehaviorDefinitions.Cry.Choose(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
+        },
+    });
+
     /// <summary>Carries out one cue of the Metroid's animations: each pulse loop ends with a sound.</summary>
     private void ApplyMetroidCue(MetroidCue cue)
     {
-        switch (cue.Kind)
-        {
-            case MetroidCueKind.PlayDrainingSound:
-                // The attached loop emits the Metroid's animation sound.
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.MetroidAnimationSoundEffect, priority: SoundRequestPriority.Normal);
-                break;
-            case MetroidCueKind.PlayRandomCry:
-                // One random number, drawn from the shared random sequence, chooses one of the eight idle cries.
-                _audio.QueueEnemySound(MetroidBehaviorDefinitions.Cry.Choose(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(MetroidCueKind)} {cue.Kind}.");
-        }
+        ApplyMetroidCueForMetroidCueKind[cue.Kind]();
     }
 
     /// <summary>Initializes the Metroid.</summary>
@@ -86,29 +92,21 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
         state.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation);
     }
 
+    /// <summary>What <see cref="RunMetroidMain"/> does for each <see cref="MetroidMovement"/> member, each member's own arm.</summary>
+    private IdentityTable<MetroidMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, MetroidEnemyState, int>> RunMetroidMainForMetroidMovement => field ??= new(new Dictionary<MetroidMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, MetroidEnemyState, int>>
+    {
+        [MetroidMovement.Homing] = (place, samus, level, state, targetY) => RunMetroidHoming(place, state, samus, targetY, level),
+        [MetroidMovement.ClosingOnSamus] = (place, samus, level, state, targetY) => RunMetroidClosing(place, state, samus, targetY, level),
+        [MetroidMovement.AttachedToSamus] = (place, samus, level, state, targetY) => RunMetroidAttached(place, state, samus, targetY),
+        [MetroidMovement.PowerBombEscape] = (place, samus, level, state, targetY) => RunMetroidPowerBombEscape(place, state),
+    });
+
     /// <summary>Runs a Metroid for one update and whichever of its four movements it is in.</summary>
     private void RunMetroidMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus, RoomLevelData level)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         int targetY = samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus;
-        switch (state.Movement)
-        {
-            case MetroidMovement.Homing:
-                RunMetroidHoming(place, state, samus, targetY, level);
-                break;
-            case MetroidMovement.ClosingOnSamus:
-                RunMetroidClosing(place, state, samus, targetY, level);
-                break;
-            case MetroidMovement.AttachedToSamus:
-                RunMetroidAttached(place, state, samus, targetY);
-                break;
-            case MetroidMovement.PowerBombEscape:
-                RunMetroidPowerBombEscape(place, state);
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Metroid movement {state.Movement} is not one of its four movements.");
-        }
+        RunMetroidMainForMetroidMovement[state.Movement](place, samus, level, state, targetY);
 
         // The ordinary body shows the central picture. Both outer objects are
         // repositioned and re-enabled every update the Metroid is not frozen, right after it moves.

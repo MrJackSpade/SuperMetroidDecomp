@@ -55,8 +55,7 @@ internal static class CeresEscapeHandoffVerification
         FixedCoordinate xBeforeInitialization = samus.Kinematics.Position.X;
         FixedCoordinate yBeforeInitialization = samus.Kinematics.Position.Y;
         samus.CeresRidleyEjection.Step(
-            emptyRoom,
-            SamusRoomObjectFixtures.Uninstalled,
+            SamusTerrain.InRoom(emptyRoom, SamusRoomObjectFixtures.Uninstalled),
             samus,
             cameraX: 0,
             frameCounter: 0);
@@ -80,8 +79,7 @@ internal static class CeresEscapeHandoffVerification
         // Leftover extra-run speed from before the shove (retail 100% movie: `.4000`).
         samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(samus.HorizontalSpeed.ExtraRunSpeed.Whole, 0x4000);
         samus.CeresRidleyEjection.Step(
-            emptyRoom,
-            SamusRoomObjectFixtures.Uninstalled,
+            SamusTerrain.InRoom(emptyRoom, SamusRoomObjectFixtures.Uninstalled),
             samus,
             cameraX: 0,
             frameCounter: 1);
@@ -94,7 +92,7 @@ internal static class CeresEscapeHandoffVerification
         // movie: `$53` on the wall frame, then landing `$A4`).
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose,
             "wall handoff keeps the hurt pose for ordinary movement");
-        AssertEqual(SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None, samus.KnockbackDirection, "Ceres push never publishes knockback direction");
+        AssertEqual((SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection?)null, samus.KnockbackDirection, "Ceres push never publishes knockback direction");
         AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "$90:DF85 clears Y speed");
         AssertEqual(0, samus.HorizontalSpeed.ExtraRunSpeed.Fraction,
             "Kill_SamusXSpeed_IfCollisionDetected clears extra-run speed at the wall");
@@ -110,7 +108,7 @@ internal static class CeresEscapeHandoffVerification
         SamusPresentation.InitializeAnimation(airborne);
         airborne.PoseHistory.Restore(SamusPoseId.FallingRightPose, airborne.PoseHistory.PreviousMovement, airborne.PoseHistory.MovementBeforePrevious);
         airborne.CeresRidleyEjection.Request(airborne);
-        airborne.CeresRidleyEjection.Step(emptyRoom, SamusRoomObjectFixtures.Uninstalled, airborne, cameraX: 0, frameCounter: 0);
+        airborne.CeresRidleyEjection.Step(SamusTerrain.InRoom(emptyRoom, SamusRoomObjectFixtures.Uninstalled), airborne, cameraX: 0, frameCounter: 0);
         AssertEqual(98, airborne.Kinematics.Position.Y.Whole, "ejection alignment uses the interrupted pose's live radius");
         AssertEqual(0x13, airborne.Kinematics.Radius.Y, "ejection initialization leaves the live radius for the pose epilogue");
     }
@@ -184,20 +182,19 @@ internal static class CeresEscapeHandoffVerification
     private static void VerifyCeresDepartureDispatcherTiming()
     {
         var departure = new CeresDepartureState();
-        departure.Begin();
+        AssertEqual(CeresDeparturePhase.HoldingOnElevator, departure.Phase, "a departure begins holding on the elevator");
         AssertEqual(60, departure.Hold.UpdatesLeft, "Ceres state 20 starts at 60");
 
         StepFrames(59, _ =>
-            AssertTrue(!departure.StepHoldAfterGameplay(), "first 59 state-20 calls retain hold"));
+            AssertTrue(!departure.StepAfterGameplay(), "first 59 state-20 calls retain hold"));
         AssertEqual(1, departure.Hold.UpdatesLeft, "state 20 has one call remaining");
-        AssertTrue(departure.StepHoldAfterGameplay(), "60th state-20 call enters blackout");
+        AssertTrue(!departure.StepAfterGameplay(), "60th state-20 call enters the blackout without completing it");
         AssertEqual(CeresDeparturePhase.FadingToBlack, departure.Phase, "state 21 is active");
 
         StepFrames(14, _ =>
-            AssertTrue(!departure.StepFadeAfterGameplay(), "first 14 fade calls are visible"));
+            AssertTrue(!departure.StepAfterGameplay(), "first 14 fade calls are visible"));
         AssertEqual(1, departure.Brightness.StepsAboveBlack, "14 fade calls leave brightness one");
-        AssertTrue(departure.StepFadeAfterGameplay(), "15th fade call reaches forced blank");
-        AssertEqual(CeresDeparturePhase.Complete, departure.Phase, "Ceres blackout completes");
+        AssertTrue(departure.StepAfterGameplay(), "15th fade call reaches forced blank and completes the departure");
     }
 
     /// <summary>Synthetic cartridge with the knockback and falling poses the Ridley ejection handler installs.</summary>

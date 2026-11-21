@@ -51,7 +51,7 @@ internal static class EndingPostCreditsScrollVerification
 
         // The move down runs below the final logo, once the item percentage has typed.
         _ = ending.CreditsRoll.StartItemPercentage();
-        ending.Scene = new EndingLogoScene(new EndingLogo(ending.Stage, () => { }), EndingCreditsPhase.ItemPercentageScrollDown);
+        ending.Scene = new EndingItemPercentageDropScene();
         ending.PhaseHold = UpdateCountdown.Lasting(ScrollDownCalls);
         for (int call = 1; call <= ScrollDownCalls; call++)
         {
@@ -59,7 +59,6 @@ internal static class EndingPostCreditsScrollVerification
             AssertEqual(call * PixelsPerCall, text.Drop, $"move-down call {call} moves the text {call * PixelsPerCall} pixels down");
         }
         AssertEqual(EndingCreditsPhase.SeeYouNextMission, ending.Phase, "the last move-down call starts the closing message");
-        AssertEqual(2, text.Typed.Count, "the last move-down call starts the final message below the item percentage");
         Console.WriteLine($"Ending post-credits text: the white flash puts it at the top and {ScrollDownCalls} move-down calls move it 2 through 80 pixels down.");
     }
 

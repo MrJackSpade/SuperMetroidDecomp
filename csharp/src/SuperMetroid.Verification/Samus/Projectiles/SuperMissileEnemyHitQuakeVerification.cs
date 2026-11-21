@@ -27,13 +27,13 @@ internal static class SuperMissileEnemyHitQuakeVerification
         var room = CreateRoom(new(64, 16), new RoomTerrainBlock[64 * 16], new RoomBlockBehavior[64 * 16]);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
             SelectedHudItem = HudItem.SuperMissile, SuperMissiles = 3,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         var earthquake = new RoomEarthquake();
         SamusProjectileSystem projectiles = InstalledFixtures.CreateProjectileSystem(earthquake);
         SamusBombProjectileSystem bombs = CreateBombFixture();
-        projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
+        projectiles.StepFrame(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
         AssertEqual(SamusProjectileFamily.SuperMissile, projectiles.Shots[0].HeldShot().Type.Family, "X fires a Super Missile");
 
         projectiles.EnemyImpacts.TouchEnemyWithoutImpact(projectiles.Shots[0].HeldShot(), markCollisionState: true);

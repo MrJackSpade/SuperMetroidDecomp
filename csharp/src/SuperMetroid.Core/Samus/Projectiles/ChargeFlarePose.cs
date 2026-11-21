@@ -17,6 +17,6 @@ internal readonly partial record struct ChargeFlarePose
     /// </summary>
     public required int PoseYOffset { get; init; }
 
-    /// <summary>Facing left.</summary>
-    public required bool FacingLeft { get; init; }
+    /// <summary>The way the flare faces: left while Samus faces left, right otherwise.</summary>
+    public required HorizontalDirection Facing { get; init; }
 }

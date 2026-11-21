@@ -25,5 +25,5 @@ public sealed partial record HorizontalBlockMove
     /// direction, even for no displacement, while the displacement's sign still selects the side entered (none enters on
     /// the right). Null probes in the displacement's own direction and skips the probe for no displacement.
     /// </summary>
-    public SamusCollisionDirection? CollisionMovementDirection { get; init; } = null;
+    public HorizontalDirection? CollisionMovementDirection { get; init; } = null;
 }

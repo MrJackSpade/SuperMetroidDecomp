@@ -33,20 +33,17 @@ internal sealed partial class CeresDestructionGameSequence(FrontendSession sessi
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => session.ScreenAs<CeresDestructionCinematicState>()?.IsWaitingOutDisplayFrame == true;
 
+    /// <summary>What <c>Step</c> does for each <see cref="CeresDestructionOutcome"/> member, each member's own arm.</summary>
+    private IdentityTable<CeresDestructionOutcome, Action<ControllerButton>> StepForCeresDestructionOutcome => field ??= new(new Dictionary<CeresDestructionOutcome, Action<ControllerButton>>
+    {
+        [CeresDestructionOutcome.SamusEscaped] = controllerInput => StepEscaped(controllerInput),
+        [CeresDestructionOutcome.SamusAboard] = controllerInput => StepWithSamusAboard(controllerInput),
+    });
+
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        switch (session.CeresDestructionOutcome)
-        {
-            case CeresDestructionOutcome.SamusEscaped:
-                StepEscaped(controllerInput);
-                break;
-            case CeresDestructionOutcome.SamusAboard:
-                StepWithSamusAboard(controllerInput);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresDestructionOutcome)} {session.CeresDestructionOutcome}.");
-        }
+        StepForCeresDestructionOutcome[session.CeresDestructionOutcome](controllerInput);
     }
 
     /// <summary>One update of the escaped destruction, which loads the Zebes landing once finished.</summary>

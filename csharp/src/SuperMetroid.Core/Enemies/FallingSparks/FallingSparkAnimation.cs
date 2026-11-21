@@ -15,5 +15,5 @@ internal sealed partial class FallingSparkAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FallingSparkAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FallingSparkAnimations.Segments;
 }

@@ -58,7 +58,7 @@ internal static class EnemySystemFixtures
                 InstalledFixtures.Maps.MotherBrainRainbowBeamColours, InstalledFixtures.KraidEyes, InstalledFixtures.BossBodySheets),
             BreakableTerrain = breakableTerrain ?? new EnemyBreakableTerrainObjects(new RoomObjectPlaceList()),
             DoorPassage = doorPassage ?? new DoorPassage(),
-            RoomFx = roomFx ?? new global::SuperMetroid.Core.Fx.RoomFxOverlayState(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()),
+            RoomFx = roomFx ?? global::SuperMetroid.Core.Fx.RoomFxOverlayState.ForRoom(fx: null, door: null, randomNumber: 0, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()),
             Earthquake = new RoomEarthquake(),
             Scenery = new RoomEnemyScenery(floor, shaftTurn, statueRoom),
         });

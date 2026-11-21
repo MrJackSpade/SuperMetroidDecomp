@@ -12,10 +12,10 @@ internal static partial class MotherBrainContactHitboxDefinitions
     /// The ordered collision rectangles of each physical component: the body's lower body, then its narrower upper body;
     /// the brain's upper and lower regions, which meet between local Y zero and one; and the neck joint's one region.
     /// </summary>
-    internal static readonly Dictionary<MotherBrainContactPart, IReadOnlyList<EnemyHitboxRectangle>> Parts = new()
+    internal static readonly IdentityTable<MotherBrainContactPart, IReadOnlyList<EnemyHitboxRectangle>> Parts = new(new Dictionary<MotherBrainContactPart, IReadOnlyList<EnemyHitboxRectangle>>
     {
         [MotherBrainContactPart.Body] = [new(-32, -24, 42, 56), new(-24, -42, 28, -25)],
         [MotherBrainContactPart.Brain] = [new(-24, -22, 22, 0), new(-22, 1, 16, 20)],
         [MotherBrainContactPart.Neck] = [new(-8, -8, 8, 8)],
-    };
+    });
 }

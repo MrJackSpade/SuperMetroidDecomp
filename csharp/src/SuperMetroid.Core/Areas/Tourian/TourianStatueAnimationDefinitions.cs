@@ -10,8 +10,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 public static partial class TourianStatueAnimationDefinitions
 {
     /// <summary>Each statue's event, first-frame duration, boss test, shades, eye and colour effect, by statue.</summary>
-    internal static readonly IReadOnlyDictionary<TourianStatue, TourianStatueAnimationDefinition> Statues =
-        new Dictionary<TourianStatue, TourianStatueAnimationDefinition>
+    internal static readonly IdentityTable<TourianStatue, TourianStatueAnimationDefinition> Statues = new(new Dictionary<TourianStatue, TourianStatueAnimationDefinition>
     {
         [TourianStatue.Phantoon] = new()
         {
@@ -65,5 +64,5 @@ public static partial class TourianStatueAnimationDefinitions
             GreyedSprite = null,
             GreyShade = TourianStatueShades.DraygonGrey,
         },
-    };
+    });
 }

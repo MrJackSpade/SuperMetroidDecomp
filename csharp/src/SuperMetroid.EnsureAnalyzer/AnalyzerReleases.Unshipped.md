@@ -78,6 +78,7 @@ SME6476 | Design | Error | MagicAbsenceAnalyzer
 SME6482 | Design | Error | ListPositionAnalyzer
 SME6485 | Design | Error | ClosedChoiceAsBoolAnalyzer
 SME6479 | Design | Error | CoreDocumentationStorageAndHistoryAnalyzer
+SME6481 | Design | Error | ImpossibleGuardAnalyzer
 SME6483 | Design | Error | RepeatedDefinitionStructureAnalyzer
 SME6484 | Design | Error | IdentityListingAnalyzer
 SME6486 | Design | Error | RandomPlaceSelectionAnalyzer

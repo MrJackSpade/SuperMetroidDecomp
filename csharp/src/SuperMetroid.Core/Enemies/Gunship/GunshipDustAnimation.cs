@@ -16,5 +16,5 @@ internal sealed partial class GunshipDustAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<GunshipDustSegment, EnemyProjectileFrameId, GunshipDustCue> Segments => GunshipDustAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<GunshipDustSegment, EnemyProjectileFrameId, GunshipDustCue> Segments => GunshipDustAnimations.Segments;
 }

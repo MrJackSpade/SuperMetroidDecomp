@@ -58,11 +58,10 @@ internal sealed partial class DraygonTurrets
             _disabledCannons.Contains(cannon))
             return;
 
-        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonWallTurret, _shots.WallTurretShot, graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
+        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonWallTurret, _shots.WallTurretShot, graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook), new DraygonProjectileAnimation(_shots.WallTurretShot, DraygonProjectileSegment.WallTurretBloom));
         if (turret is null)
             return;
 
-        turret.StartAnimation(new DraygonProjectileAnimation(_shots.WallTurretShot, DraygonProjectileSegment.WallTurretBloom));
         turret.Position = FixedPosition<RoomPixels>.FromWhole(DraygonCannonData.FiringOrigins[cannon]);
 
         // The shot flies along the direction from the turret to Samus at the wall turret's speed, its direction on

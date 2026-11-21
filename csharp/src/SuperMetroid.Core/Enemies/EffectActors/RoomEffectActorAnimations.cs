@@ -30,8 +30,8 @@ internal static partial class RoomEffectActorAnimations
     /// Every room effect actor's runs (#2275, #2369): the run each actor starts with, the beats it shows, and a Metroid's
     /// electricity's and shell's cycles, which their first pass runs on into.
     /// </summary>
-    internal static AnimationSegments<RoomEffectActorSegment, RoomEffectActorPicture, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<RoomEffectActorSegment, AnimationBeat<RoomEffectActorPicture, NoAnimationCue>[]>
+    internal static UnpausedAnimationSegments<RoomEffectActorSegment, RoomEffectActorPicture, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<RoomEffectActorSegment, AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Unpaused[]>
     {
         [P.Of(K.DraygonFoam)] =
         [
@@ -322,19 +322,19 @@ internal static partial class RoomEffectActorAnimations
     /// A Metroid's shell flickering <paramref name="times"/> times (#2369): <paramref name="frame"/> for an update, then
     /// nothing for an update.
     /// </summary>
-    private static IEnumerable<AnimationBeat<RoomEffectActorPicture, NoAnimationCue>> Flickering(EnemyFrameId frame, int times) =>
-        Enumerable.Repeat<AnimationBeat<RoomEffectActorPicture, NoAnimationCue>[]>([Show(frame, 1), Show(EnemyFrameId.PointAtOrigin, 1)], times)
+    private static IEnumerable<AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Unpaused> Flickering(EnemyFrameId frame, int times) =>
+        Enumerable.Repeat<AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Unpaused[]>([Show(frame, 1), Show(EnemyFrameId.PointAtOrigin, 1)], times)
             .SelectMany(flicker => flicker);
 
     /// <summary>A still picture (#2275): enemy-sheet frame <paramref name="frame"/>, held from the update it shows.</summary>
-    private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue> Hold(EnemyFrameId frame) =>
+    private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Unpaused Hold(EnemyFrameId frame) =>
         new AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.HeldFrame(RoomEffectActorPicture.OfEnemyFrame(frame));
 
     /// <summary>Shows enemy-sheet frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue> Show(EnemyFrameId frame, int duration) =>
+    private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Unpaused Show(EnemyFrameId frame, int duration) =>
         new AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Frame(RoomEffectActorPicture.OfEnemyFrame(frame), duration);
 
     /// <summary>Shows Samus's hit-burst sprite <paramref name="sprite"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue> Burst(ProjectileSpriteId sprite, int duration) =>
+    private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Unpaused Burst(ProjectileSpriteId sprite, int duration) =>
         new AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Frame(RoomEffectActorPicture.OfHitBurst(sprite), duration);
 }

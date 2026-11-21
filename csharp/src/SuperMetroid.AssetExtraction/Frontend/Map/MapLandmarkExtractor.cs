@@ -34,17 +34,16 @@ public static partial class MapLandmarkExtractor
                 int x = Read(boss + slot * 4);
                 if (x == MapSourceDefinitions.Landmarks.UnusedBossSlot)
                     continue;
-                if (shown >= markers.Length || Ensure.Listed(AreaBossDefinitions.Bosses, markers[shown].Boss).RecordedAs != MapSourceDefinitions.Landmarks.BossSlotFlags[slot])
+                if (shown >= markers.Length || AreaBossDefinitions.Bosses[markers[shown].Boss].RecordedAs != MapSourceDefinitions.Landmarks.BossSlotFlags[slot])
                     throw new InvalidDataException($"{area}'s boss slot {slot} differs from the named boss markers.");
                 points.Add(markers[shown].Id, Position16<MapPixels>.Of(x, Read(boss + slot * 4 + 2)));
                 shown++;
             }
             if (shown != markers.Length)
                 throw new InvalidDataException($"Missing map boss {markers[shown].Id}.");
-            // An area with no elevator labels has no list of them in the cartridge.
-            var elevators = MapLandmarks.Elevators(area);
-            if (elevators.IsEmpty) continue;
+            if (!AreaIds.IsZebes(area, out ZebesArea zebes)) continue;
             int elevator = Pointer(SnesAddress.FromBusAddress(MapSourceDefinitions.Landmarks.ElevatorLists), area);
+            var elevators = MapLandmarks.Elevators(zebes);
             // The cartridge lists each area's labels in the named labels' drawing order.
             for (int i = 0; i < elevators.Length; i++)
             {

@@ -371,9 +371,9 @@ internal static class TitleGradientVerification
         for (ushort zoom = 0; zoom <= FloorZoom.OwnSize.TwoHundredFiftySixths; zoom++)
         {
             ScreenGradient decoded = TitleGradientDecoder.Decode(CartridgeImportSource.Require(bus), zoom);
-            if (!presentation.Resolve(FloorZoomConstants.FromTwoHundredFiftySixths(zoom)).Equals(decoded))
+            if (!presentation.Resolve(TitleFloorZoom.Starting(FloorZoomConstants.FromTwoHundredFiftySixths(zoom))).Equals(decoded))
                 throw new InvalidDataException($"Extracted title gradient differs at zoom ${zoom:X2}.");
-            if (!installed.Resolve(FloorZoomConstants.FromTwoHundredFiftySixths(zoom)).Equals(decoded))
+            if (!installed.Resolve(TitleFloorZoom.Starting(FloorZoomConstants.FromTwoHundredFiftySixths(zoom))).Equals(decoded))
                 throw new InvalidDataException($"Installed title gradient differs at zoom ${zoom:X2}.");
         }
         Suite(nameof(VerifyTitleGradientValidation), () => VerifyTitleGradientValidation(extracted));
@@ -391,7 +391,7 @@ internal static class TitleGradientVerification
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.BabyTilesFile]));
         CaptureInstalledTitleGradientResult capture = CaptureInstalledTitleGradient(presentation, palette.Backdrop, graphics);
-        if (!capture.Gradient.Equals(presentation.Resolve(capture.Zoom)) ||
+        if (!capture.Gradient.Equals(presentation.Resolve(TitleFloorZoom.Starting(capture.Zoom))) ||
             guardedBus.ForbiddenReadAttempts != 0)
         {
             throw new InvalidDataException(
@@ -523,7 +523,8 @@ internal static class TitleGradientVerification
             title.Step(0);
             FloorScene snapshot = title.ComposeScene();
             if (snapshot.Gradient is { } shown)
-                return new CaptureInstalledTitleGradientResult(shown.Gradient, title.FloorZoom, snapshot);
+                return new CaptureInstalledTitleGradientResult(shown.Gradient,
+                    title.FloorZoom ?? throw new InvalidDataException("The title's gradient frame shows its floor."), snapshot);
         }
         throw new InvalidDataException("Production title rendering never reached a gradient frame.");
     }

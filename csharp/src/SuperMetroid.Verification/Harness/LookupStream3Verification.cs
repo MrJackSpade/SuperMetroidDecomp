@@ -331,11 +331,11 @@ internal static class LookupStream3Verification
         {
             foreach (var transfer in transfers)
             {
-                AssertTrue(planar.AsSpan(transfer.AtlasOffset, transfer.ByteCount).SequenceEqual(atlas.Resolve(transfer.Asset).Span),
+                AssertTrue(planar.AsSpan(transfer.AtlasOffset, transfer.ByteCount).SequenceEqual(atlas.Shown(transfer).Span),
                     "stream 3 exact Grapple calculated/upload bytes");
                 AssertTrue(atlas.TryResolve(transfer.SourceAddress, transfer.ByteCount, out var resolved),
                     "stream 3 existing Grapple transfer identity binding");
-                AssertTrue(resolved.Span.SequenceEqual(atlas.Resolve(transfer.Asset).Span),
+                AssertTrue(resolved.Span.SequenceEqual(atlas.Shown(transfer).Span),
                     "stream 3 rebound Grapple bytes preserve transfer boundaries");
             }
         }
@@ -813,8 +813,7 @@ internal static class LookupStream3Verification
         {
             int address = 0x9bc346 + 2 * (angle >> 10);
             int expected = (0x9a0000|CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-            var asset = GrappleTileSelection.SegmentAssetFor(RotationAngleConstants.FromRaw((ushort)angle));
-            AssertEqual(expected, GrappleTileSelection.TransferFor(asset).SourceAddress,
+            AssertEqual(expected, GrappleTileSelection.SegmentTransferFor(RotationAngleConstants.FromRaw((ushort)angle)).SourceAddress,
                 "stream 3 native grapple angle sector");
         }
 
@@ -836,12 +835,8 @@ internal static class LookupStream3Verification
         {
             AssertEqual(expectedTransfers[index], actualTransfers[index],
                 "stream 3 grapple transfer index");
-            AssertEqual(expectedTransfers[index], GrappleTileSelection.TransferFor(expectedTransfers[index].Asset),
-                "stream 3 grapple transfer asset dispatch");
             AssertEqual(expectedSources[index], actualTransfers[index].SourceAddress, "stream 3 grapple transfer cartridge source");
         }
-        AssertThrows<InvalidDataException>(() => GrappleTileSelection.TransferFor((InstalledArtworkId)(-1)),
-            "stream 3 invalid grapple asset");
 
         for (int parameter = 0; parameter < 3; parameter++)
         {
@@ -1017,7 +1012,7 @@ internal static class LookupStream3Verification
         }
         var sequence = MotherBrainLateFightFixtures.NewSequence();
         // The escape's start begins with its wait, as the hold before the escape starts it (#2469).
-        sequence.Encounter.DeathPhase = MotherBrainDeathPhase.StartEscape;
+        sequence.State.DeathPhase = MotherBrainDeathPhase.StartEscape;
         sequence.Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.EscapeStartUpdates);
         var bus = new TestAddressSpace();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99 };
@@ -1068,7 +1063,7 @@ internal static class LookupStream3Verification
             // stagger's front, and the backward ones stand at the room's left.
             sequence.Encounter.Body.Position = sequence.Encounter.Body.Position.WithWholeX(
                 stage % 2 == 0 ? MotherBrainFightDefinitions.StaggerFrontX + 1 : 0);
-            sequence.DrainedByBaby.PainfulWalkingStage = SuperMetroid.Core.Bosses.ListStep<MotherBrainStaggerStage>.At(stages, stage);
+            sequence.DrainedByBaby.PainfulWalkingStage = SuperMetroid.Core.ListStep<MotherBrainStaggerStage>.At(stages, stage);
             // As the stagger's setup does before each walk: the stage selects its speed.
             sequence.DrainedByBaby.PainfulWalkingSpeed = stages[stage].Speed;
             sequence.DrainedByBaby.StepPainfulWalking();

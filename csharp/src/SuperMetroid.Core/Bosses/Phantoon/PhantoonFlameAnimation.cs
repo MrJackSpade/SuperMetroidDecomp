@@ -16,6 +16,6 @@ internal sealed partial class PhantoonFlameAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments =>
+    private protected override IUnpausedAnimationPlay<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments =>
         PhantoonFlameAnimations.Segments;
 }

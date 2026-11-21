@@ -21,12 +21,9 @@ internal sealed partial class BotwoonWallObjects(RoomObjectPlaceList places)
     public void Spawn(RoomLevelData level, BotwoonWallMutation mutation)
     {
         Ensure.NotNull(level);
-        RoomObjectBehaviour wall = mutation switch
-        {
-            BotwoonWallMutation.Clear => new TerrainChangeObject(BotwoonWallMutationDefinitions.Clear),
-            BotwoonWallMutation.Crumble => new BotwoonWallCrumbleObject(),
-            _ => throw new ArgumentOutOfRangeException(nameof(mutation), mutation, null),
-        };
+        RoomObjectBehaviour wall = mutation == BotwoonWallMutation.Clear
+            ? new TerrainChangeObject(BotwoonWallMutationDefinitions.Clear)
+            : new BotwoonWallCrumbleObject();
 
         // Resolve the block through the level so a malformed room cannot install a wall whose later vertical draws
         // fall outside the room.

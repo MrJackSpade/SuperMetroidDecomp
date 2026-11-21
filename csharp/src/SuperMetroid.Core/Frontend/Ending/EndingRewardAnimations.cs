@@ -17,7 +17,7 @@ internal static partial class EndingRewardAnimations
     private const int ArmHiddenUpdates = 64;
 
     /// <summary>The hair release's pictures before Samus stands whole: her suitless legs stand still beneath them for as long.</summary>
-    private static AnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[] HairLoosening =>
+    private static IHidingAnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[] HairLoosening =>
     [
         G.Show(S.SuitlessIdleUpper, 90),
         G.Show(S.SuitlessPonytailTied, 8),
@@ -34,7 +34,7 @@ internal static partial class EndingRewardAnimations
     /// The suited arm's gesture before it hands off to the jump: the body, the helmet and the helmetless head play beside it
     /// for exactly as long (#2557).
     /// </summary>
-    private static AnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[] ArmGesture =>
+    private static IHidingAnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[] ArmGesture =>
     [
         G.Hide(ArmHiddenUpdates),
         G.Show(S.SuitedArmLowered, 8),
@@ -53,7 +53,7 @@ internal static partial class EndingRewardAnimations
     ];
 
     /// <summary>The helmetless head's pictures before its smile holds to the end of the arm's gesture.</summary>
-    private static AnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[] HeadStartingToSmile =>
+    private static IHidingAnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[] HeadStartingToSmile =>
     [
         G.Show(S.HelmetlessHeadResting, 128),
         G.Show(S.HelmetlessHeadSmileStarting, 5),
@@ -68,7 +68,7 @@ internal static partial class EndingRewardAnimations
     /// body, helmet and helmetless head last as long as the arm's gesture, so no duration restates another animation's length.
     /// </summary>
     internal static CinematicAnimations<EndingRewardAnimation, CinematicSpritePose, EndingRewardGestureCue> Gesture { get; } = new(
-        new Dictionary<EndingRewardAnimation, AnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[]>
+        new Dictionary<EndingRewardAnimation, IHidingAnimationBeat<CinematicSpritePose, EndingRewardGestureCue>[]>
         {
             [A.HairRelease] =
             [
@@ -107,7 +107,7 @@ internal static partial class EndingRewardAnimations
 
     /// <summary>The jump's animations: each launch ends in flight, which holds its picture; the fall holds; the landing shoots.</summary>
     internal static CinematicAnimations<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> Jump { get; } = new(
-        new Dictionary<EndingRewardAnimation, AnimationBeat<CinematicSpritePose, EndingRewardJumpCue>[]>
+        new Dictionary<EndingRewardAnimation, IHidingAnimationBeat<CinematicSpritePose, EndingRewardJumpCue>[]>
         {
             [A.SuitlessJump] =
             [

@@ -74,7 +74,7 @@ internal static class CeresMode7MapVerification
         AssertTrue(first.DrawnOver.SequenceEqual(resting), "the earlier published floor keeps what it showed");
 
         // The station's escape owns the getaway's floor (#2228).
-        runtime.Enemies.CeresEscape.Stage = SuperMetroid.Core.Bosses.Ridley.CeresEscapeStage.Getaway;
+        runtime.Enemies.CeresEscape.BeginGetaway();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         LayeredScene captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var mode7 = (TurningRoomLayer)captured.Layers[0];

@@ -948,35 +948,36 @@ internal sealed partial class EnemyCollision
         int baseDamage;
         EnemyContactVulnerability contact = EnemyVulnerabilities.Of(touched.Definition).Contact;
         EnemyWeaponVulnerability vulnerability;
-        switch (bodyAttack)
+        if (bodyAttack == SamusBodyAttack.None)
         {
-            case SamusBodyAttack.None:
-                ApplyOrdinaryTouchDamage(
-                    samus,
-                    touched.Definition.Damage,
-                    enemy.Position.X.Whole);
-                return;
-            case SamusBodyAttack.SpeedBooster:
-                baseDamage = EnemyCollisionDefinitions.SpeedBoosterContactDamage;
-                vulnerability = contact.SpeedBooster;
-                break;
-            case SamusBodyAttack.Shinespark:
-                baseDamage = EnemyCollisionDefinitions.ShinesparkContactDamage;
-                vulnerability = contact.Shinespark;
-                break;
-            case SamusBodyAttack.ScrewAttack:
-                baseDamage = EnemyCollisionDefinitions.ScrewAttackContactDamage;
-                vulnerability = contact.ScrewAttack;
-                break;
-            case SamusBodyAttack.PseudoScrew:
-                // The game consumes charge before checking vulnerability. Even immune
-                // contact removes Pseudo Screw's flare; genuine Screw Attack does not.
-                pseudoScrew.Spend(samus);
-                baseDamage = EnemyCollisionDefinitions.PseudoScrewContactDamage;
-                vulnerability = contact.PseudoScrew;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SamusBodyAttack)} {bodyAttack}.");
+            ApplyOrdinaryTouchDamage(
+                samus,
+                touched.Definition.Damage,
+                enemy.Position.X.Whole);
+            return;
+        }
+        if (bodyAttack == SamusBodyAttack.SpeedBooster)
+        {
+            baseDamage = EnemyCollisionDefinitions.SpeedBoosterContactDamage;
+            vulnerability = contact.SpeedBooster;
+        }
+        else if (bodyAttack == SamusBodyAttack.Shinespark)
+        {
+            baseDamage = EnemyCollisionDefinitions.ShinesparkContactDamage;
+            vulnerability = contact.Shinespark;
+        }
+        else if (bodyAttack == SamusBodyAttack.ScrewAttack)
+        {
+            baseDamage = EnemyCollisionDefinitions.ScrewAttackContactDamage;
+            vulnerability = contact.ScrewAttack;
+        }
+        else
+        {
+            // Pseudo Screw: the game consumes charge before checking vulnerability. Even immune
+            // contact removes Pseudo Screw's flare; genuine Screw Attack does not.
+            pseudoScrew.Spend(samus);
+            baseDamage = EnemyCollisionDefinitions.PseudoScrewContactDamage;
+            vulnerability = contact.PseudoScrew;
         }
         int damage = vulnerability.DamageFrom(baseDamage);
         if (damage == 0)

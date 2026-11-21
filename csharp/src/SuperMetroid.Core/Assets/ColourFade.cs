@@ -13,8 +13,6 @@ public sealed partial record ColourFade : ColourEffect
     /// <param name="progress">How far the fade has come.</param>
     public ColourFade(RgbColor endpoint, GradualFadeDirection direction, FadeLevel progress)
     {
-        if (!Enum.IsDefined(direction))
-            throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined gradual fade direction.");
         Endpoint = endpoint;
         Direction = direction;
         Progress = progress;

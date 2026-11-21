@@ -16,6 +16,6 @@ internal sealed partial class CrocomireProjectileAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<CrocomireProjectileSegment, EnemyProjectileFrameId, CrocomireProjectileCue> Segments =>
+    private protected override IUnpausedAnimationPlay<CrocomireProjectileSegment, EnemyProjectileFrameId, CrocomireProjectileCue> Segments =>
         CrocomireAnimations.ProjectileSegments;
 }

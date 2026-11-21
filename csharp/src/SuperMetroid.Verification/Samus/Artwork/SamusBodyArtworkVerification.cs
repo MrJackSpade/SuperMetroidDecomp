@@ -195,15 +195,15 @@ internal static class SamusBodyArtworkVerification
             "atmospheric type two retains its retail pointer-zero address-space path");
         var deathSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-        };
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         deathSamus.DeathSequence.Begin(deathSamus, cameraPosition: new(0, 0));
         var deathCgram = new SamusColours();
-        for (int frame = 0; deathSamus.DeathSequence.Phase != SamusDeathSequencePhase.SuitExplosion;
+        for (int frame = 0; deathSamus.DeathSequence.Phase is not SamusDeathSequencePhase.Begun.SuitExplosion;
             frame++)
         {
             AssertTrue(frame < 200, "retail Samus death reaches the explosion draw phase");
-            deathSamus.DeathSequence.Step(deathSamus, deathCgram, stock.Gameplay.DeathSteps);
+            deathSamus.DeathSequence.Step(deathSamus, (SamusDeathSequencePhase.Begun)deathSamus.DeathSequence.Phase, deathCgram, stock.Gameplay.DeathSteps);
         }
         OamBuffer nativeDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
             deathSamus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(stock)));
@@ -257,12 +257,12 @@ internal static class SamusBodyArtworkVerification
             };
             var nativeSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment),
-            };
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment),
+            }.InPose(SamusPoseId.FacingRightNormalPose);
             var installedSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment),
-            };
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment),
+            }.InPose(SamusPoseId.FacingRightNormalPose);
             nativeSamus.DeathSequence.Begin(nativeSamus, Position16<RoomPixels>.Zero);
             installedSamus.DeathSequence.Begin(installedSamus, Position16<RoomPixels>.Zero);
             var nativeColors = new SamusColours();
@@ -271,16 +271,16 @@ internal static class SamusBodyArtworkVerification
             // palette ownership passes to the independent bank-$9B sequence.
             for (int frame = 0; frame < 16; frame++)
             {
-                nativeSamus.DeathSequence.Step(nativeSamus, nativeColors, stock.Gameplay.DeathSteps);
-                installedSamus.DeathSequence.Step(installedSamus, installedColors, stock.Gameplay.DeathSteps);
+                nativeSamus.DeathSequence.Step(nativeSamus, (SamusDeathSequencePhase.Begun)nativeSamus.DeathSequence.Phase, nativeColors, stock.Gameplay.DeathSteps);
+                installedSamus.DeathSequence.Step(installedSamus, (SamusDeathSequencePhase.Begun)installedSamus.DeathSequence.Phase, installedColors, stock.Gameplay.DeathSteps);
             }
             int pairFrames = 0;
             for (int frame = 0; frame < 240; frame++)
             {
                 SamusDeathSequenceStepResult nativeStep = nativeSamus.DeathSequence.Step(
-                    nativeSamus, nativeColors, stock.Gameplay.DeathSteps);
+                    nativeSamus, (SamusDeathSequencePhase.Begun)nativeSamus.DeathSequence.Phase, nativeColors, stock.Gameplay.DeathSteps);
                 SamusDeathSequenceStepResult installedStep = installedSamus.DeathSequence.Step(
-                    installedSamus, installedColors, stock.Gameplay.DeathSteps);
+                    installedSamus, (SamusDeathSequencePhase.Begun)installedSamus.DeathSequence.Phase, installedColors, stock.Gameplay.DeathSteps);
                 // Samus's death colours are her shades and the whiteout a colour the display shows (#1512): each frame
                 // her shown suit and suitless colours are one of the cartridge's death palette pairs for her suit, and the
                 // whiteout one of the cartridge's whiteout shades.
@@ -454,15 +454,14 @@ internal static class SamusBodyArtworkVerification
 
         var nativeSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             AnimationNumber = 0, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         var installedSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = nativeSamus.Pose, AnimationFrame = nativeSamus.AnimationFrame,
+            AnimationFrame = nativeSamus.AnimationFrame,
             Position = FixedPosition<RoomPixels>.FromWhole(nativeSamus.Position.Whole),
             SelectedHudItem = nativeSamus.SelectedHudItem,
-        };
+        }.InPose(nativeSamus.Pose);
         // The imported bytes above are the independent stock oracle. Both runtime
         // owners must now receive the installed catalog; no ROM fallback remains.
         nativeSamus.BindBodyFixture(body);

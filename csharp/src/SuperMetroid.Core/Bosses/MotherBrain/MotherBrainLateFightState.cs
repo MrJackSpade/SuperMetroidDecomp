@@ -16,6 +16,88 @@ internal sealed partial class MotherBrainLateFightState
     /// <summary>The encounter the late fight runs: her body, her brain and the state they share.</summary>
     internal MotherBrainEnemyState Encounter { get; }
 
+    /// <summary>
+    /// The stage the late fight runs her body in (#2208), which names the type of the phase it runs on its next AI turn;
+    /// setting a stage's phase enters that stage. The fight begins with her rainbow beam.
+    /// </summary>
+    public MotherBrainLateFightStage Stage { get; private set; }
+
+    /// <summary>The phase of the <see cref="MotherBrainLateFightStage.RainbowBeam"/> stage the late fight runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The late fight is in another stage.</exception>
+    public MotherBrainRainbowPhase RainbowPhase
+    {
+        get => Stage == MotherBrainLateFightStage.RainbowBeam ? field : throw NotIn(MotherBrainLateFightStage.RainbowBeam);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainLateFightStage.RainbowBeam;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainLateFightStage.FinishingSamusOff"/> stage the late fight runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The late fight is in another stage.</exception>
+    public MotherBrainFinishOffPhase FinishOffPhase
+    {
+        get => Stage == MotherBrainLateFightStage.FinishingSamusOff ? field : throw NotIn(MotherBrainLateFightStage.FinishingSamusOff);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainLateFightStage.FinishingSamusOff;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainLateFightStage.DrainedByBaby"/> stage the late fight runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The late fight is in another stage.</exception>
+    public MotherBrainDrainedPhase DrainedPhase
+    {
+        get => Stage == MotherBrainLateFightStage.DrainedByBaby ? field : throw NotIn(MotherBrainLateFightStage.DrainedByBaby);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainLateFightStage.DrainedByBaby;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainLateFightStage.Reviving"/> stage the late fight runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The late fight is in another stage.</exception>
+    public MotherBrainRevivalPhase RevivalPhase
+    {
+        get => Stage == MotherBrainLateFightStage.Reviving ? field : throw NotIn(MotherBrainLateFightStage.Reviving);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainLateFightStage.Reviving;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainLateFightStage.Phase3Fight"/> stage the late fight runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The late fight is in another stage.</exception>
+    public MotherBrainPhase3FightPhase Phase3FightPhase
+    {
+        get => Stage == MotherBrainLateFightStage.Phase3Fight ? field : throw NotIn(MotherBrainLateFightStage.Phase3Fight);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainLateFightStage.Phase3Fight;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainLateFightStage.Dying"/> stage the late fight runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The late fight is in another stage.</exception>
+    public MotherBrainDeathPhase DeathPhase
+    {
+        get => Stage == MotherBrainLateFightStage.Dying ? field : throw NotIn(MotherBrainLateFightStage.Dying);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainLateFightStage.Dying;
+        }
+    }
+
+    /// <summary>The failure of reading a stage's phase while the late fight is in another.</summary>
+    private InvalidOperationException NotIn(MotherBrainLateFightStage stage) =>
+        new($"Mother Brain's late fight is in its {Stage} stage, not {stage}.");
+
     /// <summary>Where her body stands in the room.</summary>
     internal Position16<RoomPixels> BodyPosition => Encounter.Body.Position.Whole;
 
@@ -90,20 +172,24 @@ internal sealed partial class MotherBrainLateFightState
             MakeBodyStandUp();
     }
 
+    /// <summary>The animation that stands the body up from each pose, or null for a pose that has none.</summary>
+    private static IdentityTable<MotherBrainBodyPose, MotherBrainBodySegment?> StandingAnimations => field ??= new(new Dictionary<MotherBrainBodyPose, MotherBrainBodySegment?>
+    {
+        [MotherBrainBodyPose.Crouched] = MotherBrainBodySegment.StandAfterCrouchFast,
+        [MotherBrainBodyPose.LeaningDown] = MotherBrainBodySegment.StandAfterLeaning,
+        [MotherBrainBodyPose.Standing] = null,
+        [MotherBrainBodyPose.Walking] = null,
+        [MotherBrainBodyPose.CrouchingTransition] = null,
+        [MotherBrainBodyPose.DeathBeam] = null,
+    });
+
     /// <summary>Starts the pose-specific standing animation and reports whether the body is already standing.</summary>
     internal bool MakeBodyStandUp()
     {
         if (Encounter.Pose == MotherBrainBodyPose.Standing)
             return true;
 
-        MotherBrainBodySegment? segment = Encounter.Pose switch
-        {
-            MotherBrainBodyPose.Crouched => MotherBrainBodySegment.StandAfterCrouchFast,
-            MotherBrainBodyPose.LeaningDown => MotherBrainBodySegment.StandAfterLeaning,
-            MotherBrainBodyPose.Standing or MotherBrainBodyPose.Walking or
-                MotherBrainBodyPose.CrouchingTransition or MotherBrainBodyPose.DeathBeam => null,
-            _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainBodyPose)} {Encounter.Pose}."),
-        };
+        MotherBrainBodySegment? segment = StandingAnimations[Encounter.Pose];
         if (segment is { } standUp)
             SetBodyAnimation(standUp);
 

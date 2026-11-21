@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static partial class ElevatorPlatformObjectDefinitions
 {
     /// <summary>The platform's loop, which it plays from its first update for as long as it stays: each layout four updates, there and back.</summary>
-    internal static IReadOnlyList<TerrainChangeFrame> Cycle { get; } =
+    internal static IReadOnlyList<ElevatorPlatformFrame> Cycle { get; } =
     [
         new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.Dim), 4),
         new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.Glowing), 4),

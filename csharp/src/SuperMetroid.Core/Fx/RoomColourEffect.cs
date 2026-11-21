@@ -55,7 +55,7 @@ internal sealed partial class RoomColourEffect
     internal ColourEffectColours Colours { get; }
 
     /// <summary>The condition the effect's definition names: <see cref="ColourEffectCondition.WatchesNothing"/> for an effect that watches nothing.</summary>
-    internal ColourEffectCondition Condition { get; }
+    private ColourEffectCondition Condition { get; }
 
     /// <summary>
     /// The condition the effect checks at the start of its turn: its condition from the update after it shows its first
@@ -108,9 +108,13 @@ internal sealed partial class RoomColourEffect
         play.StartAt(ColourEffectAnimations.Definition(framesOf).Frames.Played, place);
     }
 
-    /// <summary>Restarts the effect at the start of its cycle, the phase its animation loops from, due on this turn.</summary>
-    /// <exception cref="InvalidOperationException">The effect's animation does not loop.</exception>
-    internal void RestartCycle() => play.StartAt(Animation, AnimationPlace.Before(Animation.CyclePhase));
+    /// <summary>
+    /// Restarts the effect's animation from its first phase, due on this turn: the landing site's lightning starts its calm
+    /// over (<see cref="ColourEffectCondition.RestartsWhileSamusIsHigh"/>). The game's restart sends the lightning back to
+    /// the calm its cycle loops to, with one update left on it, so the calm shows anew on the update the restart runs; the
+    /// lightning's cycle has no lead-in, so the calm is its first phase.
+    /// </summary>
+    internal void Restart() => play.StartAt(Animation, AnimationPlace.Before(0));
 
     /// <summary>
     /// Takes the effect's turn: counts one update off its shown frame and, once it is due, plays on to its next frame, which
@@ -118,7 +122,6 @@ internal sealed partial class RoomColourEffect
     /// <paramref name="carryOut"/>.
     /// </summary>
     /// <returns>The frame the turn shows anew, of the effect that shows it, or null while a frame holds or once the effect ended.</returns>
-    /// <exception cref="InvalidOperationException">The animation comes to rest without ending, which no colour effect's does.</exception>
     internal ColourEffectFrame? TakeTurn(Action<ColourEffectCue> carryOut)
     {
         Ensure.NotNull(carryOut);
@@ -127,10 +130,9 @@ internal sealed partial class RoomColourEffect
             Frame = new ColourEffectFrame(FramesOf, shown);
             return Frame;
         }
+        // An animation that comes to rest without ending shows nothing new: its frame stays.
         if (play.HasStopped)
             progress = RoomColourEffectProgress.Settled;
-        else if (play.IsResting)
-            throw new InvalidOperationException($"Colour effect {Effect}'s animation came to rest without ending.");
         return null;
     }
 }

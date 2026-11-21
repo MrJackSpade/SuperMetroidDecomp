@@ -16,5 +16,5 @@ internal sealed partial class TourianStatueProjectileAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments => TourianStatueProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments => TourianStatueProjectileAnimations.Segments;
 }

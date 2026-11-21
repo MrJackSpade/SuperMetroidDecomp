@@ -14,5 +14,5 @@ internal sealed partial class DustExplosionProjectileAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DustExplosionProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DustExplosionProjectileAnimations.Segments;
 }

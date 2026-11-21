@@ -5,5 +5,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal sealed partial record SamusAnimationTransition(SamusPoseId Pose) : SamusAnimationCue
 {
     /// <inheritdoc/>
+    internal override TResult Match<TContext, TResult>(SamusAnimationCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Transition(this, context);
+
+    /// <inheritdoc/>
     internal override IReadOnlyList<SamusPoseId> PublishedPoses => [Pose];
 }

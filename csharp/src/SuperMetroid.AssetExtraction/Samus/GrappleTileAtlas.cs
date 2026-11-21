@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The grapple's characters, which only the import reads (#1636): the grapple sheet is composed from them. Its sprite,
 /// flare and swing documents are the installed grapple presentation (<see cref="InstalledGrapplePresentation"/>).
 /// </summary>
-public sealed partial class GrappleTileAtlas : IInstalledArtworkContent
+public sealed partial class GrappleTileAtlas
 {
     /// <summary>
     /// The grapple characters as encoded 4-bpp bytes (#1596): the four endpoint characters, then the horizontal, diagonal
@@ -28,25 +28,20 @@ public sealed partial class GrappleTileAtlas : IInstalledArtworkContent
         return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4));
     }
     /// <summary>Resolves one endpoint character or four-character rope-orientation transfer.</summary>
-    /// <param name="asset">One of the seven Grapple-owned VRAM asset identities.</param>
+    /// <param name="transfer">One of the seven grapple transfers (<see cref="GrappleTileDefinitions.Transfers"/>).</param>
     /// <returns>The current 32-byte endpoint or 128-byte segment transfer.</returns>
-    public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset)
-    {
-        // The transfer names only Grapple-owned assets; any other asset is rejected there.
-        GrappleTileTransfer transfer = GrappleTileSelection.TransferFor(asset);
-        return tiles.AsMemory(transfer.AtlasOffset, transfer.ByteCount);
-    }
+    private ReadOnlyMemory<byte> Resolve(GrappleTileTransfer transfer) => tiles.AsMemory(transfer.AtlasOffset, transfer.ByteCount);
     /// <summary>
     /// The endpoint character of <paramref name="pointFrame"/> followed by the four rope characters the rope
     /// <paramref name="orientation"/> selects: OBJ characters $20-$24 as the beam's sprites name them.
     /// </summary>
     internal SpriteArtwork Tiles(GrappleEndpointFrame pointFrame, GrappleRopeOrientation orientation)
     {
-        InstalledArtworkId point = GrappleTileSelection.PointAssetFor(pointFrame);
-        InstalledArtworkId segments = GrappleTileSelection.SegmentAssetFor(orientation);
-        return tileSets.GetOrAdd(new GrappleTileSetKey(point, segments), key => new SpriteArtwork(
+        GrappleTileTransfer point = GrappleTileSelection.PointTransferFor(pointFrame);
+        GrappleTileTransfer segments = GrappleTileSelection.SegmentTransferFor(orientation);
+        return tileSets.GetOrAdd(new GrappleTileSetKey(point.Asset, segments.Asset), key => new SpriteArtwork(
             new SpriteArtworkId(SpriteArtworkKind.GrappleTiles, new GrappleTilesVariant(key.Point, key.Segments)),
-            [.. Resolve(key.Point).Span, .. Resolve(key.Segments).Span]));
+            [.. Resolve(point).Span, .. Resolve(segments).Span]));
     }
 
     /// <summary>

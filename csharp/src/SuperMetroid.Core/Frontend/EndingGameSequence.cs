@@ -13,45 +13,46 @@ internal sealed partial class EndingGameSequence(FrontendSession session) : IGam
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.Ending;
 
+    /// <summary>How each step of the ending advances the random generator.</summary>
+    private static IdentityTable<EndingStep, PhaseRandomStep> RandomSteps => field ??= new(new Dictionary<EndingStep, PhaseRandomStep>
+    {
+        [EndingStep.LeavingZebes] = PhaseRandomStep.RuntimeOwned,
+        [EndingStep.Credits] = PhaseRandomStep.Advance,
+    });
+
     /// <inheritdoc/>
     /// <remarks>Leaving Zebes runs gameplay, which advances the generator itself; the credits advance it once per update.</remarks>
-    public PhaseRandomStep RandomStep => session.EndingStep switch
-    {
-        EndingStep.LeavingZebes => PhaseRandomStep.RuntimeOwned,
-        EndingStep.Credits => PhaseRandomStep.Advance,
-        _ => throw new InvalidOperationException($"Undefined {nameof(EndingStep)} {session.EndingStep}."),
-    };
+    public PhaseRandomStep RandomStep => RandomSteps[session.EndingStep];
 
     /// <inheritdoc/>
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
-    /// <inheritdoc/>
-    public string Name => session.EndingStep switch
+    /// <summary>The diagnostic name of each step of the ending, read from the session it runs against.</summary>
+    private static IdentityTable<EndingStep, Func<FrontendSession, string>> Names => field ??= new(new Dictionary<EndingStep, Func<FrontendSession, string>>
     {
-        EndingStep.LeavingZebes => $"Zebes escape fade-out ({session.EscapeFade.Level})",
-        EndingStep.Credits => $"Ending: {session.ScreenAs<EndingCreditsState>()?.Phase}",
-        _ => throw new InvalidOperationException($"Undefined {nameof(EndingStep)} {session.EndingStep}."),
-    };
+        [EndingStep.LeavingZebes] = static running => $"Zebes escape fade-out ({running.EscapeFade.Level})",
+        [EndingStep.Credits] = static running => $"Ending: {running.ScreenAs<EndingCreditsState>()?.Phase}",
+    });
+
+    /// <inheritdoc/>
+    public string Name => Names[session.EndingStep](session);
 
     /// <inheritdoc/>
     /// <remarks>The credits' setup waits out frames of the display.</remarks>
     public bool IsWaitingOutDisplayFrame =>
         session.EndingStep == EndingStep.Credits && session.ScreenAs<EndingCreditsState>()?.IsWaitingOutDisplayFrame == true;
 
+    /// <summary>What <c>Step</c> does for each <see cref="EndingStep"/> member, each member's own arm.</summary>
+    private IdentityTable<EndingStep, Action<ControllerButton>> StepForEndingStep => field ??= new(new Dictionary<EndingStep, Action<ControllerButton>>
+    {
+        [EndingStep.LeavingZebes] = controllerInput => LeaveZebes(controllerInput),
+        [EndingStep.Credits] = controllerInput => RunCredits(),
+    });
+
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        switch (session.EndingStep)
-        {
-            case EndingStep.LeavingZebes:
-                LeaveZebes(controllerInput);
-                break;
-            case EndingStep.Credits:
-                RunCredits();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingStep)} {session.EndingStep}.");
-        }
+        StepForEndingStep[session.EndingStep](controllerInput);
     }
 
     /// <summary>One update of the departing gunship's gameplay while the screen darkens, which starts the credits once black.</summary>

@@ -81,7 +81,7 @@ internal static class YardAirborneVerification
 
         var attract = CreateRetailRuntimeFixture();
         attract.YardKickDistance.Record(stale);
-        attract.AttractDemo.InitializeAttractDemo(StockAttractDemoScenes.FirstSet.Scenes[0]);
+        attract.AttractDemo.InitializeAttractDemo(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)[0].Scenes[0]);
         AssertEqual(initial, attract.YardKickDistance.HorizontalDistancePlusOne, "loading an attract demo initialises Samus with one pixel");
     }
 
@@ -113,7 +113,7 @@ internal static class YardAirborneVerification
         RoomEnemyPlace actor = enemies.Places.InUpdateOrder[yard];
         YardEnemyState state = enemies.YardStates[yard] ?? throw new InvalidOperationException("The Aqueduct's Yard has no state.");
         SamusState samus = runtime.Player.IntroducedSamus;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         // One enemy pass over the Yard, with the camera on it, makes it an enemy the touch pass reaches, as the room's
         // contact check does; the scrolling, which would record a new measure, does not run.
@@ -159,7 +159,7 @@ internal static class YardAirborneVerification
                 SixteenSixteenWords.ToDisplacement(unchecked((int)initialX)),
                 SixteenSixteenWords.ToDisplacement(unchecked((int)initialY)));
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
-                Pose = SamusPoseId.FacingRightNormalPose, Health = 999, MaxHealth = 999 };
+                Health = 999, MaxHealth = 999 }.InPose(SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             uint x = 0x0200F000, y = 0x0200F000, vx = initialX, vy = initialY;
             for (int frame = 0; frame < 24; frame++)

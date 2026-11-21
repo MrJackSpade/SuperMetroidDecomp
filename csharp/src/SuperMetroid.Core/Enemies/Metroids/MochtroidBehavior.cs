@@ -10,10 +10,13 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 internal sealed partial class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mochtroid];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Mochtroid], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MochtroidEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MochtroidEntity(this, occupant, place, common));
 
     /// <summary>Resolves axis movement against terrain in the order for each flight mode.</summary>
     private readonly EnemyTerrain _terrain;
@@ -47,6 +50,13 @@ internal sealed partial class MochtroidBehavior : IEnemySpecies, IEnemyEntityFac
             place, state, MochtroidSegment.FreeFlight);
     }
 
+    /// <summary>What <see cref="RunMochtroidMain"/> does for each <see cref="MochtroidMovementMode"/> member, each member's own arm.</summary>
+    private IdentityTable<MochtroidMovementMode, Action<RoomEnemyPlace, SamusState, RoomLevelData, MochtroidEnemyState>> RunMochtroidMainForMochtroidMovementMode => field ??= new(new Dictionary<MochtroidMovementMode, Action<RoomEnemyPlace, SamusState, RoomLevelData, MochtroidEnemyState>>
+    {
+        [MochtroidMovementMode.NotTouchingSamus] = (place, samus, level, state) => RunMochtroidFreeFlight(place, state, samus, level),
+        [MochtroidMovementMode.TouchingSamus] = (place, samus, level, state) => RunMochtroidAttachedFlight(place, state, samus, level),
+    });
+
     /// <summary>Runs a Mochtroid for one update, resetting its movement before it moves.</summary>
     private void RunMochtroidMain(
         RoomEnemyPlace place,
@@ -56,18 +66,7 @@ internal sealed partial class MochtroidBehavior : IEnemySpecies, IEnemyEntityFac
         MochtroidEnemyState state = place.RequireSpeciesState<MochtroidEnemyState>();
         MochtroidMovementMode selectedMode = state.MovementMode;
         state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
-        switch (selectedMode)
-        {
-            case MochtroidMovementMode.NotTouchingSamus:
-                RunMochtroidFreeFlight(place, state, samus, level);
-                return;
-            case MochtroidMovementMode.TouchingSamus:
-                RunMochtroidAttachedFlight(place, state, samus, level);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Mochtroid movement {selectedMode} is not one of its two movements.");
-        }
+        RunMochtroidMainForMochtroidMovementMode[selectedMode](place, samus, level, state);
     }
 
     /// <summary>Accelerates toward Samus, resolving Y before X and clearing velocity on terrain contact.</summary>
@@ -194,9 +193,8 @@ internal sealed partial class MochtroidBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>Advances Mochtroid's typed animation.</summary>
     internal static void AdvanceMochtroidTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, MochtroidAnimations.Segments,
-            static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (state, cue) => throw new InvalidOperationException($"Mochtroid's cue-free animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, MochtroidAnimations.Segments,
+            static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Mochtroid's main AI.</summary>
     internal void RunMochtroidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

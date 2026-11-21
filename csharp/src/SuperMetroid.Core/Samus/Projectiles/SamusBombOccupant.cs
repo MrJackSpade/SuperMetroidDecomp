@@ -12,16 +12,27 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 [ArchitectureReview("back-reference", "The bomb holding a place and the place it holds (#2558): the place's taking creates the occupant, and the place's queries read the occupant, so the two share the bomb's lifetime.")]
 public sealed partial class SamusBombOccupant
 {
-    /// <summary>The bomb of <paramref name="type"/> dealing <paramref name="damage"/> taking <paramref name="bomb"/>'s place.</summary>
-    /// <param name="bomb">The place the bomb holds.</param>
-    /// <param name="type">What the bomb is.</param>
-    /// <param name="damage">The damage the bomb deals, from its family's bomb definition.</param>
-    internal SamusBombOccupant(SamusBomb bomb, SamusProjectileType type, int damage)
+    /// <summary>The bomb of <paramref name="kind"/> dealing <paramref name="damage"/> taking <paramref name="bomb"/>'s place.</summary>
+    /// <param name="bomb">The place the bomb holds, with its position, fuse and animation.</param>
+    /// <param name="kind">What the bomb is.</param>
+    /// <param name="damage">The damage the bomb deals, from its kind's bomb definition.</param>
+    internal SamusBombOccupant(SamusBomb bomb, SamusBombKind kind, int damage)
     {
         Bomb = Ensure.NotNull(bomb);
-        Type = type;
+        Kind = kind;
+        Type = TypeOf[kind];
         Damage = Ensure.AtLeastZero(damage);
     }
+
+    /// <summary>The projectile type of each kind of bomb.</summary>
+    private static IdentityTable<SamusBombKind, SamusProjectileType> TypeOf { get; } = new(new Dictionary<SamusBombKind, SamusProjectileType>
+    {
+        [SamusBombKind.Bomb] = SamusProjectileType.Of(SamusProjectileFamily.Bomb),
+        [SamusBombKind.PowerBomb] = SamusProjectileType.Of(SamusProjectileFamily.PowerBomb),
+    });
+
+    /// <summary>What the bomb is: a Morph Ball bomb or a Power Bomb.</summary>
+    public SamusBombKind Kind { get; }
 
     /// <summary>The damage the bomb deals, from its family's bomb definition.</summary>
     public int Damage { get; }
@@ -29,7 +40,7 @@ public sealed partial class SamusBombOccupant
     /// <summary>The place the bomb holds.</summary>
     public SamusBomb Bomb { get; }
 
-    /// <summary>What the bomb is.</summary>
+    /// <summary>The projectile type of the bomb's kind, which its contacts strike with.</summary>
     public SamusProjectileType Type { get; }
 
     /// <summary>Room position, to a fraction of a pixel.</summary>

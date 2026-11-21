@@ -16,7 +16,7 @@ internal static partial class CeresAnimations
 {
     /// <summary>The flight's, the destruction's and the Zebes reveal's actors.</summary>
     internal static CinematicAnimations<CeresAnimation, CinematicSpritePose, CeresCue> Scenes { get; } = new(
-        new Dictionary<CeresAnimation, AnimationBeat<CinematicSpritePose, CeresCue>[]>
+        new Dictionary<CeresAnimation, IHidingAnimationBeat<CinematicSpritePose, CeresCue>[]>
         {
             [A.Stars] = [B.Hold(S.FlightStars)],
             [A.LargeAsteroid] = [B.Hold(S.LargeAsteroid)],
@@ -94,7 +94,7 @@ internal static partial class CeresAnimations
     /// the final wave and ends.
     /// </summary>
     internal static CinematicAnimations<CeresAnimation, CinematicSpritePose, CeresExplosionSpawnerCue> ExplosionSpawner { get; } = new(
-        new Dictionary<CeresAnimation, AnimationBeat<CinematicSpritePose, CeresExplosionSpawnerCue>[]>
+        new Dictionary<CeresAnimation, IHidingAnimationBeat<CinematicSpritePose, CeresExplosionSpawnerCue>[]>
         {
             [A.ExplosionSpawner] =
             [

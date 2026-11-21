@@ -30,8 +30,8 @@ internal static class TorizoBellyGlowEndVerification
     internal static void VerifyTorizoBellyGlowEnd()
     {
         VerifyTorizoRooms();
-        VerifyGlowEnd(EnemyDefinitionId.BombTorizo, TorizoCueKind.StartBombTorizoFight, ColourEffectId.BombTorizoBelly, TorizoVariant.Bomb);
-        VerifyGlowEnd(EnemyDefinitionId.GoldenTorizo, TorizoCueKind.StartGoldenTorizoFight, ColourEffectId.GoldenTorizoBelly, TorizoVariant.Golden);
+        VerifyGlowEnd(EnemyDefinitionId.BombTorizo, TorizoCueKind.StartBombTorizoFight, TorizoBellyGlow.BombTorizo, ColourEffectId.BombTorizoBelly, TorizoVariant.Bomb);
+        VerifyGlowEnd(EnemyDefinitionId.GoldenTorizo, TorizoCueKind.StartGoldenTorizoFight, TorizoBellyGlow.GoldenTorizo, ColourEffectId.GoldenTorizoBelly, TorizoVariant.Golden);
         Console.WriteLine("Torizo belly glow: the Bomb and Golden Torizo rooms hold their Torizo alone in the first place, and each glow ends on the update its Torizo has no health left, as the original's first-place test ends it.");
     }
 
@@ -60,7 +60,7 @@ internal static class TorizoBellyGlowEndVerification
     /// <see cref="Updates"/> updates, its health dropping to one and then to zero, and checks each update against the
     /// original's test: the glow runs until the first update the first place's health reads zero, and ends on it.
     /// </summary>
-    private static void VerifyGlowEnd(EnemyDefinitionId definition, TorizoCueKind fightStart, ColourEffectId glow, TorizoVariant variant)
+    private static void VerifyGlowEnd(EnemyDefinitionId definition, TorizoCueKind fightStart, TorizoBellyGlow bellyGlow, ColourEffectId glow, TorizoVariant variant)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -76,7 +76,7 @@ internal static class TorizoBellyGlowEndVerification
             $"{definition}'s fight start plays on");
         TorizoBellyGlowRequest request = enemies.LastEnemyFrame.All<TorizoBellyGlowRequest>().LastOrDefault()
             ?? throw new InvalidOperationException($"{definition}'s fight start asks for no belly glow.");
-        AssertEqual(glow, request.Glow, $"{definition}'s fight start asks for its own belly glow");
+        AssertEqual(bellyGlow, request.Glow, $"{definition}'s fight start asks for its own belly glow");
         AssertTrue(ReferenceEquals(torizo.Entity, request.Torizo), $"{definition}'s glow lights the Torizo whose fight started it");
 
         var fx = new global::SuperMetroid.Core.Fx.ColourEffectSystem(new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());

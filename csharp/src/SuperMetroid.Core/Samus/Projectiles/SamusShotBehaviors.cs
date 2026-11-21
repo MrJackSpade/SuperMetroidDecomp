@@ -49,15 +49,15 @@ internal static partial class SamusShotBehaviors
     internal static SamusShotBehavior ChainsawPowerBomb { get; } = new ChainsawPowerBombShot();
 
     /// <summary>The uncharged Spazer and Plasma shot, whose behaviour lies outside the emulation scope limit.</summary>
-    internal static SamusShotBehavior UnchargedSpazerPlasma { get; } =
+    internal static SamusShotFiring UnchargedSpazerPlasma { get; } =
         new ShotRefusedWhenFired("whatever an unconnected region holds");
 
     /// <summary>The uncharged all-beams shot, which runs whatever the game's live state holds.</summary>
-    internal static SamusShotBehavior UnchargedAllBeams { get; } =
+    internal static SamusShotFiring UnchargedAllBeams { get; } =
         new ShotRefusedWhenFired("whatever the game's live state holds");
 
     /// <summary>The charged Spazer and Plasma shot, which runs whatever the game's live state holds.</summary>
-    internal static SamusShotBehavior ChargedSpazerPlasma { get; } =
+    internal static SamusShotFiring ChargedSpazerPlasma { get; } =
         new ShotRefusedWhenFired("whatever the game's live state holds");
 
     /// <summary>

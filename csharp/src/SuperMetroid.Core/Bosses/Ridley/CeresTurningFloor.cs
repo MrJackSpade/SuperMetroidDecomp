@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 public sealed partial class CeresTurningFloor
 {
     /// <summary>
-    /// The getaway's flight along its curves, counted once each getaway update: its age is the update of the getaway the
-    /// next update flies, and the update after it is over ends the getaway.
+    /// The getaway's flight along its curves (#2553): not begun until Ridley hands the room to it, then the step the next
+    /// getaway update flies, and flown once every step is, which ends the getaway on the update after the last.
     /// </summary>
-    public UpdateCountdown Flight { get; internal set; } = UpdateCountdown.Ended();
+    public CeresGetawayFlight Flight { get; internal set; } = CeresGetawayFlight.NotBegun;
     /// <summary>Gets how far the getaway has turned its floor clockwise, wrapping at a full turn.</summary>
     public RotationAngle Angle { get; internal set; }
     /// <summary>Gets the floor point the getaway places at the screen's top-left before turning and zooming the floor.</summary>
@@ -30,12 +30,12 @@ public sealed partial class CeresTurningFloor
     public Offset16<FloorPixels> Center { get; internal set; }
     /// <summary>Gets the picture of the Baby capsule's cycle the floor shows (#2329).</summary>
     public ListStep<CeresFloorActorPicture> Capsule { get; internal set; } = FirstCapsulePicture;
-    /// <summary>Gets the picture of the wings' two-beat cycle the floor shows (#2329).</summary>
-    public ListStep<CeresFloorActorPicture> Wings { get; internal set; } = FirstWingPicture;
+    /// <summary>Gets the beat of the wings' two-beat cycle the floor shows (#2329).</summary>
+    public ListStep<CeresGetawayWingBeat> Wings { get; internal set; } = FirstWingPicture;
 
     /// <summary>The capsule's picture as a getaway starts: the first of its cycle.</summary>
     internal static ListStep<CeresFloorActorPicture> FirstCapsulePicture => ListStep<CeresFloorActorPicture>.FirstOf(CeresFloorAnimationDefinitions.CapsuleCycle);
 
     /// <summary>The wings' picture as a getaway starts: the first of their cycle.</summary>
-    internal static ListStep<CeresFloorActorPicture> FirstWingPicture => ListStep<CeresFloorActorPicture>.FirstOf(CeresFloorAnimationDefinitions.WingCycle);
+    internal static ListStep<CeresGetawayWingBeat> FirstWingPicture => ListStep<CeresGetawayWingBeat>.FirstOf(CeresFloorAnimationDefinitions.WingCycle);
 }

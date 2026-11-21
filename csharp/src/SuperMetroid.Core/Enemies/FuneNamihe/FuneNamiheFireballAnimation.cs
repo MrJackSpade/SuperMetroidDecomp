@@ -15,5 +15,5 @@ internal sealed partial class FuneNamiheFireballAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<FuneNamiheFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FuneNamiheFireballAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<FuneNamiheFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FuneNamiheFireballAnimations.Segments;
 }

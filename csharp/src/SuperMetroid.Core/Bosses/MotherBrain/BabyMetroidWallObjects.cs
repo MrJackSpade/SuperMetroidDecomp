@@ -16,7 +16,7 @@ internal sealed partial class BabyMetroidWallObjects(RoomObjectPlaceList places)
     public void Spawn(RoomLevelData level, RoomObjectSpawnRequest<BabyMetroidWallMutation> request)
     {
         Ensure.NotNull(level);
-        RoomBlockShape shape = Ensure.Listed(Shapes, request.RoomObject);
+        RoomBlockShape shape = Shapes[request.RoomObject];
 
         if (places.Spawn() is not { } place)
             return;

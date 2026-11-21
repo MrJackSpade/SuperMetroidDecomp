@@ -40,7 +40,7 @@ internal static class XrayRevealFixtures
 
         void Add(RoomCollisionType type, BlockReaction? reaction)
         {
-            if (XrayReveals.Find(type, reaction) is { } command && InstalledXrayReveals.IsDrawable(command))
+            if (XrayReveals.Find(type, reaction) is { } command && InstalledXrayReveals.IsDrawable(command, out _))
                 entries.Add(new(type, reaction, shown(command)));
         }
     }

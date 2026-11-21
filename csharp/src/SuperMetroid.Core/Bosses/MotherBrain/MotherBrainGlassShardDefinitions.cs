@@ -53,12 +53,12 @@ internal static partial class MotherBrainGlassShardDefinitions
     /// The three horizontal emitter positions on the glass: right, half a block right of the glass's origin block;
     /// left, two and a half blocks left; centre, one block left.
     /// </summary>
-    internal static readonly Dictionary<MotherBrainGlassShard, int> EmitterXs = new()
+    internal static readonly IdentityTable<MotherBrainGlassShard, int> EmitterXs = new(new Dictionary<MotherBrainGlassShard, int>
     {
         [MotherBrainGlassShard.Right] = 8,
         [MotherBrainGlassShard.Left] = -40,
         [MotherBrainGlassShard.Centre] = -16,
-    };
+    });
 
     /// <summary>Every emitter sits two blocks below the glass's origin block.</summary>
     internal const int EmitterY = 2 * RoomGridConversions.BlockPixels;

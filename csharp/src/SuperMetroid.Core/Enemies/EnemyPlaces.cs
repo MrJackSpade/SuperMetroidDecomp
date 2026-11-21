@@ -6,28 +6,26 @@
 /// </summary>
 internal sealed partial class EnemyPlaces
 {
+    /// <summary>
+    /// Creates the places once, each given its ordinal and the record of what its removed occupants leave for their
+    /// neighbours, and reaching through <paramref name="species"/> the registry that creates its entities, which the room's
+    /// species are composed with these places to build.
+    /// </summary>
+    internal EnemyPlaces(IEnemySpeciesSource species)
+    {
+        Ensure.NotNull(species);
+        _places = [.. Enumerable.Range(0, EnemyPlaceOrder.Capacity).Select(ordinal =>
+            new RoomEnemyPlace(ordinal, species, new RemovedEnemyLeftovers<EnemyOccupantStates>()))];
+    }
+
     /// <summary>The places, each created once with its ordinal.</summary>
-    private readonly RoomEnemyPlace[] _places = new RoomEnemyPlace[EnemyPlaceOrder.Capacity];
+    private readonly RoomEnemyPlace[] _places;
 
     /// <summary>Every place, empty ones included, in place order.</summary>
     public IReadOnlyList<RoomEnemyPlace> InUpdateOrder => _places;
 
     /// <summary>The empty place a newly spawned enemy takes, or null when every place is taken.</summary>
     internal RoomEnemyPlace? FindFreePlace() => EnemyPlaceOrder.FirstFree(_places);
-
-    /// <summary>
-    /// Creates the places once, each bound to the species registry that creates its entity and given the record of what
-    /// its removed occupants leave for their neighbours.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The places already exist.</exception>
-    internal void InstallPlaces(EnemySpeciesRegistry species)
-    {
-        Ensure.NotNull(species);
-        if (_places[0] is not null)
-            throw new InvalidOperationException("The enemy places are installed once, when the room enemy system is built.");
-        for (int ordinal = 0; ordinal < _places.Length; ordinal++)
-            _places[ordinal] = new RoomEnemyPlace(ordinal, species, new RemovedEnemyLeftovers<EnemyOccupantStates>());
-    }
 
     /// <summary>
     /// How many places, from the first, the room's enemies have filled: the population's size at room load, extended to

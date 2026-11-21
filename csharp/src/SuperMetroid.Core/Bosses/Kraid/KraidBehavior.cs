@@ -11,31 +11,19 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 [RoomLifetime]
 internal sealed partial class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    {
+        [EnemyDefinitionId.Kraid] = (occupant, place, common) => EnemyOccupant.Of(new KraidBodyEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.KraidArm] = (occupant, place, common) => EnemyOccupant.Of(new KraidArmEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.KraidFoot] = (occupant, place, common) => EnemyOccupant.Of(new KraidFootEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.KraidLintBottom] = (occupant, place, common) => EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.BottomLintReference, KraidLintPart.Bottom)),
+        [EnemyDefinitionId.KraidLintMiddle] = (occupant, place, common) => EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.MiddleLintReference, KraidLintPart.Middle)),
+        [EnemyDefinitionId.KraidLintTop] = (occupant, place, common) => EnemyOccupant.Of(new KraidLintEntity(this, occupant, place, common, Parts.TopLintReference, KraidLintPart.Top)),
+        [EnemyDefinitionId.KraidFirstNail] = (occupant, place, common) => EnemyOccupant.Of(new KraidNailEntity(this, occupant, place, common, Parts.FirstNailReference, KraidNailPart.First)),
+        [EnemyDefinitionId.KraidSecondNail] = (occupant, place, common) => EnemyOccupant.Of(new KraidNailEntity(this, occupant, place, common, Parts.SecondNailReference, KraidNailPart.Second)),
+    };
 
-    /// <summary>One of Kraid's eight parts, each joining its own reference as it initializes (#1877, #2146).</summary>
-    /// <exception cref="KeyNotFoundException">The place holds no Kraid definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
-
-    /// <summary>
-    /// The factory of each part the species creates, by the definition that places it: the species serves these
-    /// definitions, and each builds its own part from the species it is given.
-    /// </summary>
-    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<KraidBehavior>> PartFactories =
-        new()
-        {
-            [EnemyDefinitionId.Kraid] = static (species, occupant, place, common) => EnemyOccupant.Of(new KraidBodyEntity(species, occupant, place, common)),
-            [EnemyDefinitionId.KraidArm] = static (species, occupant, place, common) => EnemyOccupant.Of(new KraidArmEntity(species, occupant, place, common)),
-            [EnemyDefinitionId.KraidFoot] = static (species, occupant, place, common) => EnemyOccupant.Of(new KraidFootEntity(species, occupant, place, common)),
-            [EnemyDefinitionId.KraidLintBottom] = static (species, occupant, place, common) => EnemyOccupant.Of(new KraidLintEntity(species, occupant, place, common, species.Parts.BottomLintReference, KraidLintPart.Bottom)),
-            [EnemyDefinitionId.KraidLintMiddle] = static (species, occupant, place, common) => EnemyOccupant.Of(new KraidLintEntity(species, occupant, place, common, species.Parts.MiddleLintReference, KraidLintPart.Middle)),
-            [EnemyDefinitionId.KraidLintTop] = static (species, occupant, place, common) => EnemyOccupant.Of(new KraidLintEntity(species, occupant, place, common, species.Parts.TopLintReference, KraidLintPart.Top)),
-            [EnemyDefinitionId.KraidFirstNail] = static (species, occupant, place, common) => EnemyOccupant.Of(new KraidNailEntity(species, occupant, place, common, species.Parts.FirstNailReference, KraidNailPart.First)),
-            [EnemyDefinitionId.KraidSecondNail] = static (species, occupant, place, common) => EnemyOccupant.Of(new KraidNailEntity(species, occupant, place, common, species.Parts.SecondNailReference, KraidNailPart.Second)),
-        };
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
     internal KraidBodyLayer BodyLayer { get; }
 
@@ -67,8 +55,6 @@ internal sealed partial class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal KraidCombat Combat { get; }
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
-
-
 
     /// <summary>Binds Kraid's room systems and shared actor services.</summary>
     internal KraidBehavior(KraidBehaviorDependencies dependencies)
@@ -196,6 +182,14 @@ internal sealed partial class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="IsPlacedBomb">Whether the projectile is a placed bomb or Power Bomb rather than a fired or spread one.</param>
     internal readonly partial record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileType Type, int Damage, bool IsPlacedBomb);
 
+    /// <summary>What <see cref="RunKraidBodyStage"/> does for each <see cref="KraidBodyStage"/> member, each member's own arm.</summary>
+    private IdentityTable<KraidBodyStage, Action<RoomEnemyPlace, KraidEnemyState, int, SamusState>> RunKraidBodyStageForKraidBodyStage => field ??= new(new Dictionary<KraidBodyStage, Action<RoomEnemyPlace, KraidEnemyState, int, SamusState>>
+    {
+        [KraidBodyStage.Rising] = (body, state, cameraX, samus) => Rise.RunKraidRisePhase(body, state, samus),
+        [KraidBodyStage.Fighting] = (body, state, cameraX, samus) => RunKraidFightPhase(body, state),
+        [KraidBodyStage.Growing] = (body, state, cameraX, samus) => Rise.RunKraidGrowthPhase(body, state),
+        [KraidBodyStage.Dying] = (body, state, cameraX, samus) => Death.RunKraidDeathPhase(body, state, cameraX, samus),
+    });
     /// <summary>The projectile holding a place one of Kraid's passes tests, and the marking of its collision with him.</summary>
     /// <param name="Shot">Its position, radius, type and damage.</param>
     /// <param name="MarkCollision">Marks the projectile holding the place as having collided with Kraid.</param>
@@ -209,75 +203,42 @@ internal sealed partial class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int cameraX,
         SamusState samus)
     {
-        switch (state.BodyState.Stage)
-        {
-            case KraidBodyStage.Rising:
-                Rise.RunKraidRisePhase(body, state, samus);
-                return;
-            case KraidBodyStage.Fighting:
-                RunKraidFightPhase(body, state);
-                return;
-            case KraidBodyStage.Growing:
-                Rise.RunKraidGrowthPhase(body, state);
-                return;
-            case KraidBodyStage.Dying:
-                Death.RunKraidDeathPhase(body, state, cameraX, samus);
-                return;
-            default:
-                throw new InvalidDataException($"Undefined {nameof(KraidBodyStage)} {state.BodyState.Stage}.");
-        }
+        RunKraidBodyStageForKraidBodyStage[state.BodyState.Stage](body, state, cameraX, samus);
     }
+
+    /// <summary>What <see cref="RunKraidFightPhase"/> does for each <see cref="KraidFightPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<KraidFightPhase, Action<RoomEnemyPlace, KraidEnemyState>> RunKraidFightPhaseForKraidFightPhase => field ??= new(new Dictionary<KraidFightPhase, Action<RoomEnemyPlace, KraidEnemyState>>
+    {
+        [KraidFightPhase.FirstPhaseThinking] = (body, state) =>
+        {
+            if (state.ThinkingWait.StepRunsOut())
+            {
+                state.BodyState.FightPhase = KraidFightPhase.MainAttackWithMouthOpen;
+                state.StartHeadAnimation(KraidHeadSegment.Roar);
+            }
+        },
+        [KraidFightPhase.MainAttackWithMouthOpen] = (body, state) => Head.RunKraidMouthOpenAttack(body, state),
+        [KraidFightPhase.MouthOpenReaction] = (body, state) => Head.RunKraidMouthOpenReaction(state),
+        [KraidFightPhase.InitializeEyeGlow] = (body, state) => Head.InitializeKraidEyeGlow(state),
+        [KraidFightPhase.GlowEye] = (body, state) => Head.GlowKraidEye(state),
+        [KraidFightPhase.UnglowEye] = (body, state) => Head.UnglowKraidEye(body, state),
+        [KraidFightPhase.WaitBeforeEyeGlow] = (body, state) =>
+        {
+            if (state.BodyState.PhaseWait.StepRunsOut())
+                state.BodyState.FightPhase = KraidFightPhase.InitializeEyeGlow;
+        },
+        [KraidFightPhase.HeadAnimationBeforeGrowth] = (body, state) =>
+        {
+            Head.AdvanceKraidHeadAnimation(state);
+            if (state.BodyState.PhaseWait.StepRunsOut())
+                state.BodyState.GrowthPhase = KraidGrowthPhase.ReleaseCamera;
+        },
+        [KraidFightPhase.SecondPhaseThinking] = (body, state) => KraidLimbs.RunKraidSecondPhaseThinking(state),
+    });
 
     /// <summary>Runs the body's first- or second-phase fight phase.</summary>
     internal void RunKraidFightPhase(RoomEnemyPlace body, KraidEnemyState state)
     {
-        switch (state.BodyState.FightPhase)
-        {
-            case KraidFightPhase.FirstPhaseThinking:
-                if (state.ThinkingWait.StepRunsOut())
-                {
-                    state.BodyState.FightPhase = KraidFightPhase.MainAttackWithMouthOpen;
-                    state.StartHeadAnimation(KraidHeadSegment.Roar);
-                }
-                return;
-
-            case KraidFightPhase.MainAttackWithMouthOpen:
-                Head.RunKraidMouthOpenAttack(body, state);
-                return;
-
-            case KraidFightPhase.MouthOpenReaction:
-                Head.RunKraidMouthOpenReaction(state);
-                return;
-
-            case KraidFightPhase.InitializeEyeGlow:
-                Head.InitializeKraidEyeGlow(state);
-                return;
-
-            case KraidFightPhase.GlowEye:
-                Head.GlowKraidEye(state);
-                return;
-
-            case KraidFightPhase.UnglowEye:
-                Head.UnglowKraidEye(body, state);
-                return;
-
-            case KraidFightPhase.WaitBeforeEyeGlow:
-                if (state.BodyState.PhaseWait.StepRunsOut())
-                    state.BodyState.FightPhase = KraidFightPhase.InitializeEyeGlow;
-                return;
-
-            case KraidFightPhase.HeadAnimationBeforeGrowth:
-                Head.AdvanceKraidHeadAnimation(state);
-                if (state.BodyState.PhaseWait.StepRunsOut())
-                    state.BodyState.GrowthPhase = KraidGrowthPhase.ReleaseCamera;
-                return;
-
-            case KraidFightPhase.SecondPhaseThinking:
-                KraidLimbs.RunKraidSecondPhaseThinking(state);
-                return;
-
-            default:
-                throw new InvalidDataException($"Undefined {nameof(KraidFightPhase)} {state.BodyState.FightPhase}.");
-        }
+        RunKraidFightPhaseForKraidFightPhase[state.BodyState.FightPhase](body, state);
     }
 }

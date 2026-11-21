@@ -11,11 +11,5 @@ internal static partial class SamusPoseMirror
         .ToFrozenDictionary();
 
     /// <summary>The same pose facing the other way; a pose without a facing is its own mirror.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="pose"/> is not a defined pose.</exception>
-    internal static SamusPoseId Of(SamusPoseId pose)
-    {
-        if (!Enum.IsDefined(pose))
-            throw new ArgumentOutOfRangeException(nameof(pose), pose, "Only a defined pose has a mirror image.");
-        return Opposites.TryGetValue(pose, out SamusPoseId opposite) ? opposite : pose;
-    }
+    internal static SamusPoseId Of(SamusPoseId pose) => Opposites.TryGetValue(pose, out SamusPoseId opposite) ? opposite : pose;
 }

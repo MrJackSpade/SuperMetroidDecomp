@@ -31,18 +31,15 @@ internal sealed partial class WreckedShipTreadmillObjects
         bool areaBossDefeated)
     {
         Ensure.NotNull(level);
-        if (direction is not (WreckedShipTreadmillDirection.Rightwards or WreckedShipTreadmillDirection.Leftwards))
-            throw new ArgumentOutOfRangeException(nameof(direction), direction, "Unknown Wrecked Ship treadmill direction.");
 
-        Position16<RoomBlocks> origin = level.GridBlock(
-            new(WreckedShipTreadmillBlockDefinitions.BlockX, WreckedShipTreadmillBlockDefinitions.BlockY));
-        EnsureHorizontalRangeFits(level, origin, WreckedShipTreadmillBlockDefinitions.BlockCount);
+        WreckedShipTreadmillRow row = WreckedShipTreadmillRow.In(level);
+        Position16<RoomBlocks> origin = row.Origin;
 
         if (_places.Spawn() is not { } place)
             return false;
 
         place.Block = origin;
-        place.Become(new WreckedShipTreadmillObject(direction, areaBossDefeated));
+        place.Become(new WreckedShipTreadmillObject(row, direction, areaBossDefeated));
 
         // The setup writes the idle row's installed picture as air and deliberately leaves the blocks' behaviour alone.
         var idle = new RoomTerrainBlock(_drawing.SetupBlock(RoomObjectSetupBlock.TreadmillIdle), WreckedShipTreadmillBlockDefinitions.IdleCollision);
@@ -51,16 +48,16 @@ internal sealed partial class WreckedShipTreadmillObjects
         return true;
     }
 
-    /// <summary>Turns the treadmill's row, from <paramref name="origin"/>, into a running belt pushing in <paramref name="direction"/>.</summary>
+    /// <summary>Turns the treadmill's <paramref name="row"/> into a running belt pushing in <paramref name="direction"/>.</summary>
     /// <param name="level">The treadmill's room.</param>
-    /// <param name="origin">The row's first block.</param>
+    /// <param name="row">The row the belt writes, checked to fit the room as the treadmill spawned.</param>
     /// <param name="direction">The belt's push direction.</param>
     /// <param name="drawing">The installed pictures, which give what the running row shows.</param>
-    internal static void RunBelt(RoomLevelData level, Position16<RoomBlocks> origin, WreckedShipTreadmillDirection direction, IRoomObjectDrawing drawing)
+    internal static void RunBelt(RoomLevelData level, WreckedShipTreadmillRow row, WreckedShipTreadmillDirection direction, IRoomObjectDrawing drawing)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(drawing);
-        EnsureHorizontalRangeFits(level, origin, WreckedShipTreadmillBlockDefinitions.BlockCount);
+        Position16<RoomBlocks> origin = row.Origin;
         bool rightwards = direction == WreckedShipTreadmillDirection.Rightwards;
 
         // Both directions write the same row: the running row's installed picture as special air, with the direction
@@ -74,20 +71,5 @@ internal sealed partial class WreckedShipTreadmillObjects
                 ? WreckedShipTreadmillBlockDefinitions.RightwardsBehavior
                 : WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior);
         }
-    }
-
-    /// <summary>Rejects a treadmill row that would wrap into the next room block row.</summary>
-    private static void EnsureHorizontalRangeFits(
-        RoomLevelData level,
-        Position16<RoomBlocks> origin,
-        int count)
-    {
-        int originX = origin.X;
-        int originY = origin.Y;
-        if (originX + count <= level.Size.X)
-            return;
-        throw new InvalidDataException(
-            $"Wrecked Ship treadmill row ({originX},{originY}).." +
-            $"({originX + count - 1},{originY}) exceeds a {level.Size.X}-block room row.");
     }
 }

@@ -51,7 +51,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
     /// the wall begins and ends as Samus is let fall, so it holds from that push through the beam's finish and in no other
     /// phase or stage.
     /// </summary>
-    public bool BeamActive => Encounter.Stage == MotherBrainBodyStage.RainbowBeam && Encounter.RainbowPhase is
+    public bool BeamActive => _state.Stage == MotherBrainLateFightStage.RainbowBeam && _state.RainbowPhase is
         MotherBrainRainbowPhase.MoveSamusTowardWall or MotherBrainRainbowPhase.PinSamusToWall or
         MotherBrainRainbowPhase.StartDrainingSamus or MotherBrainRainbowPhase.DrainingSamus or MotherBrainRainbowPhase.FinishFiring;
 
@@ -80,7 +80,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
         else
             samus.Drained.SetupForRainbowBeamUnableToStand(samus);
 
-        Encounter.RainbowPhase = MotherBrainRainbowPhase.MoveSamusTowardWall;
+        _state.RainbowPhase = MotherBrainRainbowPhase.MoveSamusTowardWall;
     }
 
     /// <summary>Resets the phase-two head animation and starts the neck extension before beam charging.</summary>
@@ -92,7 +92,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
         Encounter.NeckMovementEnabled = true;
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
-        Encounter.RainbowPhase = MotherBrainRainbowPhase.StartCharging;
+        _state.RainbowPhase = MotherBrainRainbowPhase.StartCharging;
         Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.NeckExtendUpdates);
     }
 
@@ -221,7 +221,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.ChargingRainbowBeam);
-            Encounter.RainbowPhase = MotherBrainRainbowPhase.RetractNeck;
+            _state.RainbowPhase = MotherBrainRainbowPhase.RetractNeck;
             return true;
         }
         return false;
@@ -236,7 +236,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
         if (_state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.ReallySlow))
         {
             _state.RetractHead();
-            Encounter.RainbowPhase = MotherBrainRainbowPhase.WaitForCharge;
+            _state.RainbowPhase = MotherBrainRainbowPhase.WaitForCharge;
             Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.ChargeWaitUpdates);
             return true;
         }
@@ -251,7 +251,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             requests.Start(MotherBrainStepEffect.ChargeSound); // The rainbow beam's charge sound.
-            Encounter.RainbowPhase = MotherBrainRainbowPhase.ExtendNeckDown;
+            _state.RainbowPhase = MotherBrainRainbowPhase.ExtendNeckDown;
             return true;
         }
         return false;
@@ -268,7 +268,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.Lower;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
-        Encounter.RainbowPhase = MotherBrainRainbowPhase.StartFiring;
+        _state.RainbowPhase = MotherBrainRainbowPhase.StartFiring;
         Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.NeckLoweringUpdates);
         return true;
     }
@@ -306,7 +306,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
         requests.Movement = _movement.MoveTowardWall(samus);
         if (requests.Movement.Value.ReachedVerticalBoundary)
         {
-            Encounter.RainbowPhase = MotherBrainRainbowPhase.PinSamusToWall;
+            _state.RainbowPhase = MotherBrainRainbowPhase.PinSamusToWall;
             Encounter.PhaseTimer.LastFor(1);
         }
         return false;
@@ -328,7 +328,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, MotherBrainLateFightDefinitions.BeamPinShakeUpdates);
-            Encounter.RainbowPhase = MotherBrainRainbowPhase.StartDrainingSamus;
+            _state.RainbowPhase = MotherBrainRainbowPhase.StartDrainingSamus;
         }
         return false;
     }
@@ -340,7 +340,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
     internal bool StartDrainingSamus(MotherBrainRainbowBeamStepRequests requests)
     {
         // The drain starts with the earthquake, which ends on the drain's last update but one, and drains in this same update.
-        Encounter.RainbowPhase = MotherBrainRainbowPhase.DrainingSamus;
+        _state.RainbowPhase = MotherBrainRainbowPhase.DrainingSamus;
         Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.DrainUpdates);
         requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, MotherBrainLateFightDefinitions.DrainShakeUpdates);
         return true;
@@ -361,7 +361,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
         requests.Movement = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
 
         if (Encounter.PhaseTimer.StepRunsOut())
-            Encounter.RainbowPhase = MotherBrainRainbowPhase.FinishFiring;
+            _state.RainbowPhase = MotherBrainRainbowPhase.FinishFiring;
         return false;
     }
 
@@ -389,7 +389,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
             samus.Control.Unlock(); // Restores Samus's control.
             // Released, Samus waits out the beam's cooldown before her next shot.
             requests.SamusProjectileCooldown = MotherBrainBeamDefinitions.BeamEndedSamusCooldown;
-            Encounter.RainbowPhase = MotherBrainRainbowPhase.LetSamusFall;
+            _state.RainbowPhase = MotherBrainRainbowPhase.LetSamusFall;
         }
         return false;
     }
@@ -402,7 +402,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
     {
         // Samus is let fall, and the wait for her landing moves her in this same update.
         samus.Drained.LetFall(samus);
-        Encounter.RainbowPhase = MotherBrainRainbowPhase.WaitForSamusToLand;
+        _state.RainbowPhase = MotherBrainRainbowPhase.WaitForSamusToLand;
         return true;
     }
 
@@ -413,7 +413,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
     {
         requests.Movement = _movement.StepFallingAfterRainbowBeam(samus);
         if (requests.Movement.Value.ReachedVerticalBoundary)
-            Encounter.RainbowPhase = MotherBrainRainbowPhase.LowerHead;
+            _state.RainbowPhase = MotherBrainRainbowPhase.LowerHead;
         return false;
     }
 
@@ -423,7 +423,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
     internal bool StartPauseBeforeDeciding()
     {
         // Lowering the head waits before Mother Brain decides what comes next.
-        Encounter.RainbowPhase = MotherBrainRainbowPhase.DecideNextAction;
+        _state.RainbowPhase = MotherBrainRainbowPhase.DecideNextAction;
         Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.LowerHeadUpdates);
         return false;
     }
@@ -438,7 +438,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
         {
             if (samus.Health >= MotherBrainLateFightDefinitions.FinishOffSamusHealth)
             {
-                Encounter.RainbowPhase = MotherBrainRainbowPhase.ExtendNeck;
+                _state.RainbowPhase = MotherBrainRainbowPhase.ExtendNeck;
             }
             else
             {
@@ -447,7 +447,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
                 _state.RequestWalkForward(
                     _state.BodyPosition.X + MotherBrainLateFightDefinitions.FinishOffStepX, MotherBrainWalkSpeed.ReallySlow);
                 _state.BabyMetroidSpawned = false;
-                Encounter.FinishOffPhase = MotherBrainFinishOffPhase.AttackUntilSamusIsLow;
+                _state.FinishOffPhase = MotherBrainFinishOffPhase.AttackUntilSamusIsLow;
             }
         }
         return false;
@@ -457,7 +457,7 @@ internal sealed partial class MotherBrainRainbowAttackPhases
     /// Runs the body's current <see cref="MotherBrainRainbowPhase"/> phase. True when it moves to the next body phase and the game runs on
     /// into it in the same update.
     /// </summary>
-    internal bool Run(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => Encounter.RainbowPhase switch
+    internal bool Run(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => _state.RainbowPhase switch
     {
         MotherBrainRainbowPhase.ExtendNeck => SetUpBeamAttack(),
         MotherBrainRainbowPhase.StartCharging => ChargeOnceNeckExtends(),
@@ -474,6 +474,6 @@ internal sealed partial class MotherBrainRainbowAttackPhases
         MotherBrainRainbowPhase.WaitForSamusToLand => WaitForSamusToLand(samus, requests),
         MotherBrainRainbowPhase.LowerHead => StartPauseBeforeDeciding(),
         MotherBrainRainbowPhase.DecideNextAction => FireAgainOrFinishSamusOff(samus),
-        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainRainbowPhase)} {Encounter.RainbowPhase}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainRainbowPhase)} {_state.RainbowPhase}."),
     };
 }

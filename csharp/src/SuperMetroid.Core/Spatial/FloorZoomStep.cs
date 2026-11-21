@@ -22,6 +22,9 @@ public readonly partial record struct FloorZoomStep
     public static FloorZoomStep FromFloorPixelsPerScreenPixel(int numerator, int denominator) =>
         new(PowerOfTwoFraction.InFinestUnits(numerator, denominator, TwoHundredFiftySixthsPerFloorPixel));
 
+    /// <summary>The finest step a zoom takes, its smallest change of floor pixels per screen pixel: the title's final zoom grows by it.</summary>
+    public static FloorZoomStep Finest { get; } = new(1);
+
     /// <summary>The 256ths one floor pixel per screen pixel counts.</summary>
     private const int TwoHundredFiftySixthsPerFloorPixel = 256;
 

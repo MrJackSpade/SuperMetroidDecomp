@@ -20,7 +20,7 @@ internal static class BabyMetroidThemeVerification
         var sequence = MotherBrainLateFightFixtures.NewSequence();
         // The Baby's health lives in the place the final beam's spawn makes it in (#2572).
         var baby = MotherBrainLateFightFixtures.Arrive(sequence, FixedPosition<RoomPixels>.Zero);
-        baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
+        baby.Phase = new BabyMetroidCutscenePhase.Flying.FinalCharge();
         baby.Health = 0;
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         Action<BabyMetroidCutsceneStepResult> apply = step => enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(state.Colours, step);
@@ -45,7 +45,7 @@ internal static class BabyMetroidThemeVerification
             }
             if (frame == 72)
             {
-                AssertEqual(BabyMetroidCutscenePhase.PrepareSamusForHyperBeam, step.PhaseAfter, "Theme starts at preparation transition");
+                AssertEqual(new BabyMetroidCutscenePhase.Flying.PrepareSamusForHyperBeam(), step.PhaseAfter, "Theme starts at preparation transition");
                 AssertEqual(11, baby.PhaseTimer.CartridgeCount, "Theme transition retains same-call Hyper Beam preparation decrement");
             }
         }

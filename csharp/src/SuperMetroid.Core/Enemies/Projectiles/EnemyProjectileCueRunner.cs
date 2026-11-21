@@ -24,7 +24,7 @@ internal abstract partial class EnemyProjectileCueRunner<TSegment, TEvent>
     /// next play resumes.
     /// </summary>
     /// <typeparam name="TFrame">The family's frame identity.</typeparam>
-    internal abstract AnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(AnimationSegments<TSegment, TFrame, TEvent> segments,
+    internal abstract IUnpausedHidingAnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(IUnpausedAnimationPlay<TSegment, TFrame, TEvent> segments,
         EnemyProjectileCueContext context, ref Animation<TSegment> animation, ref AnimationPlace place)
         where TFrame : struct;
 
@@ -40,9 +40,9 @@ internal abstract partial class EnemyProjectileCueRunner<TSegment, TEvent>
     private sealed partial class ByOwner(IEnemyProjectileCues<TEvent> owner) : EnemyProjectileCueRunner<TSegment, TEvent>
     {
         /// <inheritdoc/>
-        internal override AnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(AnimationSegments<TSegment, TFrame, TEvent> segments,
+        internal override IUnpausedHidingAnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(IUnpausedAnimationPlay<TSegment, TFrame, TEvent> segments,
             EnemyProjectileCueContext context, ref Animation<TSegment> animation, ref AnimationPlace place) =>
-            Ensure.NotNull(segments).PlayToNextFrame(ref animation, ref place, cue =>
+            Ensure.NotNull(segments).PlayToNextFrame(ref animation, ref place, (cue, _) =>
             {
                 owner.RunCue(context, cue);
                 return null;
@@ -54,7 +54,7 @@ internal abstract partial class EnemyProjectileCueRunner<TSegment, TEvent>
     private sealed partial class ByBranchingOwner(IEnemyProjectileBranchingCues<TSegment, TEvent> owner) : EnemyProjectileCueRunner<TSegment, TEvent>
     {
         /// <inheritdoc/>
-        internal override AnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(AnimationSegments<TSegment, TFrame, TEvent> segments,
+        internal override IUnpausedHidingAnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(IUnpausedAnimationPlay<TSegment, TFrame, TEvent> segments,
             EnemyProjectileCueContext context, ref Animation<TSegment> animation, ref AnimationPlace place) =>
             Ensure.NotNull(segments).PlayToNextFrame(ref animation, ref place, (cue, pastCue) => owner.RunCue(context, cue, pastCue));
     }

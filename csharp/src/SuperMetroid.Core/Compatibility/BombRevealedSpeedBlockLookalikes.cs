@@ -47,20 +47,9 @@ public sealed partial class BombRevealedSpeedBlockLookalikes<TReaction, TChange>
         this.speedBlockReveal = Ensure.NotNull(speedBlockReveal);
     }
 
-    /// <summary>
-    /// The Speed Booster block's bomb reveal, when a normal bomb shows a special block with <paramref name="reaction"/> as a
-    /// Speed Booster block; otherwise false, and the block's own bombed reaction applies.
-    /// </summary>
-    /// <param name="reaction">The bombed special block's reaction.</param>
-    /// <param name="change">The reveal, when the bomb shows the block as a Speed Booster block.</param>
-    public bool TryShowAsSpeedBlock(TReaction reaction, [MaybeNullWhen(false)] out TChange change)
-    {
-        if (shownAsSpeedBlocks.Contains(reaction))
-        {
-            change = speedBlockReveal;
-            return true;
-        }
-        change = null;
-        return false;
-    }
+    /// <summary>The plain solid special blocks' reactions a bomb shows as Speed Booster blocks.</summary>
+    public IReadOnlySet<TReaction> ShownAsSpeedBlocks => shownAsSpeedBlocks;
+
+    /// <summary>The Speed Booster block's bomb reveal, which a normal bomb sets off at each of <see cref="ShownAsSpeedBlocks"/>.</summary>
+    public TChange SpeedBlockReveal => speedBlockReveal;
 }

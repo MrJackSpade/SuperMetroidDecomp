@@ -11,10 +11,13 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal sealed partial class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DeadTourianCorpseSpeciesDefinitions.Species.Keys];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([.. DeadTourianCorpseSpeciesDefinitions.Species.Keys], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new DeadTourianEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new DeadTourianEntity(this, occupant, place, common));
 
     /// <summary>Supplies the room RNG used during decomposition.</summary>
     private readonly EnemyRoomBinding _room;
@@ -59,25 +62,24 @@ internal sealed partial class DeadTourianBehavior : IEnemySpecies, IEnemyEntityF
         state.Playback = DeadSidehopperBehavior.StartDeadTourianAnimation(place, definition.InitialAnimation);
     }
 
+    /// <summary>What <see cref="RunDeadTourianCorpseMain"/> does for each <see cref="CorpsePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTourianCorpseEnemyState>> RunDeadTourianCorpseMainForDeadTourianCorpsePhase => field ??= new(new Dictionary<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTourianCorpseEnemyState>>
+    {
+        [CorpsePhase.Waiting] = WaitToRot,
+        [CorpsePhase.PreRotDelay] = WaitToRot,
+        [CorpsePhase.Rotting] = (place, samus, state) => RunDeadTourianCorpseRotting(place, state),
+        [CorpsePhase.Finished] = (place, samus, state) => { },
+    });
+
+    /// <summary>Waits for Samus's touch and then the delay before the corpse rots.</summary>
+    private static void WaitToRot(RoomEnemyPlace place, SamusState samus, DeadTourianCorpseEnemyState state) =>
+        state.Phase = CorpseRotWait.Step(state.Phase, place, samus, state.PreRotDelay);
+
     /// <summary>Runs the shared corpse behaviour: Samus touching it starts its wait before rotting (<see cref="CorpseRotScheduleDefinitions.PreRotDelayUpdates"/>), then the corpse rots until its last row has fallen.</summary>
     private void RunDeadTourianCorpseMain(RoomEnemyPlace place, SamusState samus)
     {
         DeadTourianCorpseEnemyState state = place.RequireSpeciesState<DeadTourianCorpseEnemyState>();
-        switch (state.Phase)
-        {
-            case CorpsePhase.Waiting:
-            case CorpsePhase.PreRotDelay:
-                state.Phase = CorpseRotWait.Step(state.Phase, place, samus, state.PreRotDelay);
-                return;
-            case CorpsePhase.Rotting:
-                RunDeadTourianCorpseRotting(place, state);
-                return;
-            case CorpsePhase.Finished:
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Dead Tourian enemy in place {place.Ordinal} has no behaviour for phase {state.Phase}.");
-        }
+        RunDeadTourianCorpseMainForDeadTourianCorpsePhase[state.Phase](place, samus, state);
     }
 
     /// <summary>Touch and shot reactions for these three corpse-only actors are identical.</summary>

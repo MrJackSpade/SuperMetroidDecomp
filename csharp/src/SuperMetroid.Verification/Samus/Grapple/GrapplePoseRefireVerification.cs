@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -21,15 +22,14 @@ internal static class GrapplePoseRefireVerification
         foreach (int changeFrame in Enumerable.Range(1, 10))
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) {
-                Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
-            };
+            }.InPose(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose);
             SamusGrappleMovement.BeginFiring(samus, SuperMetroid.Core.Input.GameplayAction.None);
             for (int frame = 1; frame < changeFrame; frame++)
-                SamusGrappleMovement.StepFiringAndCommit(level, samus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
-            samus.Pose = left ? SamusPoseId.StandingAimDiagonalUpLeftPose : SamusPoseId.StandingAimDiagonalUpRightPose;
+                SamusGrappleMovement.StepFiringAndCommit(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+            samus.ChangePoseKeepingAnimation(left ? SamusPoseId.StandingAimDiagonalUpLeftPose : SamusPoseId.StandingAimDiagonalUpRightPose);
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusGrappleMovement.StepFiringAndCommit(level, samus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+            SamusGrappleMovement.StepFiringAndCommit(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
             if (changeFrame == 10)
             {
                 AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "expired direction change cancels in same call");
@@ -47,7 +47,7 @@ internal static class GrapplePoseRefireVerification
             AssertEqual(0, grapple.EndpointOffset.Y.RawValue, "restart clears old Y endpoint displacement");
             AssertEqual(samus.Position.X.Whole + grapple.OriginOffset.X, grapple.Anchor.X, "restart hand origin X");
             AssertEqual(samus.Position.Y.Whole + grapple.OriginOffset.Y, grapple.Anchor.Y, "restart hand origin Y");
-            SamusGrappleMovement.StepFiringAndCommit(level, samus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+            SamusGrappleMovement.StepFiringAndCommit(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
             AssertTrue(grapple.Anchor.Y < samus.Position.Y.Whole + grapple.OriginOffset.Y, "restarted beam actually travels up");
             AssertTrue(left ? grapple.EndpointOffset.X.RawValue < 0 : grapple.EndpointOffset.X.RawValue > 0, "restarted beam travels toward aimed side");
         }

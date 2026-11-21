@@ -9,11 +9,11 @@ public static partial class GameOverPresentationDefinitions
     public const string PageFrame = "GameOver.Page";
 
     /// <summary>Maps a Baby animation frame to its authored sprite composition identity.</summary>
-    internal static readonly IReadOnlyDictionary<GameOverBabyFrame, string> BabyFrameNames =
-        new Dictionary<GameOverBabyFrame, string>
+    internal static readonly IdentityTable<GameOverBabyFrame, string> BabyFrameNames =
+        new(new Dictionary<GameOverBabyFrame, string>
         {
             [GameOverBabyFrame.Closed] = "Baby.Closed",
             [GameOverBabyFrame.Middle] = "Baby.Middle",
             [GameOverBabyFrame.Open] = "Baby.Open",
-        };
+        });
 }

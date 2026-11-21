@@ -65,9 +65,9 @@ internal static class CeresExplosionVerification
         if (colors is not null)
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed Ceres explosion does not read native Power Bomb colors");
-        foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite,
-        PowerBombExplosionPhase.PreExplosionYellow, PowerBombExplosionPhase.ExplosionYellow,
-        PowerBombExplosionPhase.ExplosionWhite, PowerBombExplosionPhase.Afterglow })
+        foreach (var phase in new PowerBombExplosionPhase[] { new PowerBombExplosionPhase.Running.PreExplosionWhite(),
+        new PowerBombExplosionPhase.Running.PreExplosionYellow(), new PowerBombExplosionPhase.Running.ExplosionYellow(),
+        new PowerBombExplosionPhase.Running.ExplosionWhite(), new PowerBombExplosionPhase.Running.Afterglow() })
             AssertTrue(phases.Contains(phase), $"station blast includes {phase}");
         Console.WriteLine($"  Ceres explosion: {compared} frames match shared cartridge curves/colors, fixed screen origin, phase timing and cleanup.");
     }

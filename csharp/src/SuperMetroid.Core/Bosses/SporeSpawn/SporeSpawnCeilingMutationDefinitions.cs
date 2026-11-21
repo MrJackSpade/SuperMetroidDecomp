@@ -21,8 +21,8 @@ internal static partial class SporeSpawnCeilingMutationDefinitions
     /// The change each mutation makes: the crumble plays its sound with the first of three crumble images and ends on
     /// the cleared ceiling; the clear of an already-defeated room shows only the cleared ceiling.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<SporeSpawnCeilingMutation, TerrainChange> Changes =
-        new Dictionary<SporeSpawnCeilingMutation, TerrainChange>
+    internal static readonly IdentityTable<SporeSpawnCeilingMutation, TerrainChange> Changes =
+        new(new Dictionary<SporeSpawnCeilingMutation, TerrainChange>
         {
             [SporeSpawnCeilingMutation.Crumble] = new(1,
             [
@@ -32,5 +32,5 @@ internal static partial class SporeSpawnCeilingMutationDefinitions
                 Cleared,
             ]),
             [SporeSpawnCeilingMutation.Clear] = new(1, [Cleared]),
-        };
+        });
 }

@@ -43,7 +43,7 @@ internal static partial class EndingSceneAnimations
             [A.HelmetIdle] = S.SuitedHelmetHead,
             [A.HeadIdle] = S.HelmetlessHeadResting,
         },
-        new Dictionary<EndingSceneAnimation, AnimationBeat<CinematicSpritePose, EndingSceneCue>[]>
+        new Dictionary<EndingSceneAnimation, IHidingAnimationBeat<CinematicSpritePose, EndingSceneCue>[]>
         {
             [A.PlanetRumbling] =
             [

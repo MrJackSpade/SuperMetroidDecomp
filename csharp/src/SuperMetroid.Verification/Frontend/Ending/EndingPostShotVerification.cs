@@ -54,11 +54,11 @@ internal static class EndingPostShotVerification
         byte[] map = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x99ecc4, 0x8000);
         for (int frame = 1; frame <= 216; frame++)
         {
-            shot.Step(screen);
+            bool ready = shot.Step(screen);
             AssertEqual(FloorZoomConstants.FromTwoHundredFiftySixths(Math.Max(24, 2304 - Math.Min(frame, 36) * 64)), shot.Zoom, "native post-shot zoom trajectory");
             AssertEqual(RotationAngle.FromSteps(unchecked((byte)(-8 * Math.Min(frame, 36)))), shot.Angle, "native post-shot rotation trajectory, wrapping below zero");
             AssertEqual(frame >= 36, shot.RotationFinished, "rotation handoff occurs on call 36");
-            AssertEqual(frame == 216, shot.ReadyForWhiteFlash, "white-flash handoff follows a full 180-frame hold");
+            AssertEqual(frame == 216, ready, "white-flash handoff follows a full 180-frame hold");
             // The screen names the shot's and Samus's fade levels, Samus's after its delay (#1512).
             AssertTrue(screen.Colours.Shading.Shades.Contains(EndingShades.Faded(EndingFade.Shot, 32 - Math.Clamp(frame, 0, 32))),
                 "post-shot shot fade level");

@@ -132,7 +132,7 @@ internal static partial class EndingSpriteSheetComposer
             frames.Add(new ColouredFrame<EndingSpriteColouring>(
                 new SheetFrameSource(name, composition.ToFrame(name, 0, sizes), characters, EndingScreenInks.SpriteSet(colourings[0])), colourings[0], colourings));
         }
-        if (family.Family != EndingTextAnimations.Family)
+        if (family.Family != EndingSpriteSheets.Cinematic(EndingTextAnimations.Family))
             return;
         // Each typed text's letters, each the parts its step adds, drawn in every colouring the scene types the text in.
         foreach ((EndingTypedText text, List<EndingSpriteColouring> colourings) in draws.Texts)
@@ -155,7 +155,7 @@ internal static partial class EndingSpriteSheetComposer
     }
 
     /// <summary>The names of the letter frames of every text the scene types in <paramref name="family"/>; none for another family.</summary>
-    private static IEnumerable<string> LetterNames(CinematicSpriteFamily family, EndingSheetDraws draws) => family == EndingTextAnimations.Family
+    private static IEnumerable<string> LetterNames(CinematicSpriteFamily family, EndingSheetDraws draws) => family == EndingSpriteSheets.Cinematic(EndingTextAnimations.Family)
         ? draws.Texts.SelectMany(text => EndingTextAnimations.Typings(text.Key).Select(EndingTypedTextDrawing.LetterFrameName))
         : [];
 

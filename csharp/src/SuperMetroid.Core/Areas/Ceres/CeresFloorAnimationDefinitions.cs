@@ -20,6 +20,13 @@ public static partial class CeresFloorAnimationDefinitions
         [CeresFloorActorPicture.ElevatorLight, CeresFloorActorPicture.ElevatorDark];
 
     /// <summary>The wings' two beats: raised, then lowered.</summary>
-    internal static readonly CeresFloorActorPicture[] WingCycle =
-        [CeresFloorActorPicture.WingsRaised, CeresFloorActorPicture.WingsLowered];
+    internal static readonly CeresGetawayWingBeat[] WingCycle = [CeresGetawayWingBeat.Raised, CeresGetawayWingBeat.Lowered];
+
+    /// <summary>The floor picture each wing beat shows.</summary>
+    internal static readonly IdentityTable<CeresGetawayWingBeat, CeresFloorActorPicture> WingPictures = new(
+        new Dictionary<CeresGetawayWingBeat, CeresFloorActorPicture>
+        {
+            [CeresGetawayWingBeat.Raised] = CeresFloorActorPicture.WingsRaised,
+            [CeresGetawayWingBeat.Lowered] = CeresFloorActorPicture.WingsLowered,
+        });
 }

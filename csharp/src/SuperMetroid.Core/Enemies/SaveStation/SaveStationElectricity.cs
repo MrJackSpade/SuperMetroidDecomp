@@ -23,7 +23,7 @@ internal sealed partial class SaveStationElectricity
     internal void Spawn(Position16<RoomBlocks> roomObjectBlock)
     {
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SaveStationElectricity, EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SaveStationElectricity, EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard, new SaveStationElectricityAnimation());
         if (projectile is null)
         {
             // The projectile spawn deliberately drops a spawn when every place
@@ -31,7 +31,6 @@ internal sealed partial class SaveStationElectricity
             return;
         }
 
-        projectile.StartAnimation(new SaveStationElectricityAnimation());
         projectile.Position = projectile.Position.WithWhole((roomObjectBlock + SaveStationElectricityDefinitions.BlocksFromTrigger).ToRoomPixels());
     }
 }

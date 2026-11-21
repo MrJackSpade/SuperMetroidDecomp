@@ -16,7 +16,7 @@ internal sealed partial class CeresFallingDebrisAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<CeresFallingDebrisSegment, CeresFallingDebrisLook, NoAnimationCue> Segments => CeresFallingDebrisAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<CeresFallingDebrisSegment, CeresFallingDebrisLook, NoAnimationCue> Segments => CeresFallingDebrisAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(CeresFallingDebrisLook frame) =>

@@ -109,9 +109,16 @@ internal sealed partial class SamusPoseAnimation
     internal SamusPoseAnimationStep? TryStepAt(SamusAnimationFrame frame)
     {
         SamusAnimationSegment segment = Segment(Require(frame).Segment);
-        return frame.Frame < segment.Delays.Count ? new SamusAnimationDelay(segment.Delays[frame.Frame])
-            : frame.Frame == segment.CueFrame ? segment.End
-            : null;
+        if (TryDelayAt(frame) is { } delay)
+            return delay;
+        return frame.Frame == segment.CueFrame ? segment.End : null;
+    }
+
+    /// <summary>The delay <paramref name="frame"/> holds as one of its segment's delays, or null for a frame on or past its segment's end cue.</summary>
+    internal SamusAnimationDelay? TryDelayAt(SamusAnimationFrame frame)
+    {
+        SamusAnimationSegment segment = Segment(Require(frame).Segment);
+        return frame.Frame < segment.Delays.Count ? new SamusAnimationDelay(segment.Delays[frame.Frame]) : null;
     }
 
     /// <summary>

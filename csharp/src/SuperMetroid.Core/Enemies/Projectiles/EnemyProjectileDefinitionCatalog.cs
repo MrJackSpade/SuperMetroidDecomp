@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal static partial class EnemyProjectileDefinitionCatalog
 {
     /// <summary>The complete definition of each enemy projectile identity.</summary>
-    internal static readonly Dictionary<RoomEnemyProjectileKind, EnemyProjectileDefinition> Definitions = new()
+    internal static readonly IdentityTable<RoomEnemyProjectileKind, EnemyProjectileDefinition> Definitions = new(new Dictionary<RoomEnemyProjectileKind, EnemyProjectileDefinition>()
     {
         [RoomEnemyProjectileKind.YappingMawBody] = new(
             new(2, 2), 5, EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.BehindSamus),
@@ -175,5 +175,5 @@ internal static partial class EnemyProjectileDefinitionCatalog
         [RoomEnemyProjectileKind.MotherBrainDeathExplosion] = EnemyProjectileDefinition.Decorative(EnemyProjectilePropertyFlags.HarmlessToSamus, EnemyProjectileDepth.BehindSamus),
         [RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment] = EnemyProjectileDefinition.Decorative(EnemyProjectilePropertyFlags.HarmlessToSamus, EnemyProjectileDepth.InFrontOfSamus),
         [RoomEnemyProjectileKind.MotherBrainEscapeSubtitle] = EnemyProjectileDefinition.Decorative(EnemyProjectilePropertyFlags.None, EnemyProjectileDepth.InFrontOfSamus),
-    };
+    });
 }

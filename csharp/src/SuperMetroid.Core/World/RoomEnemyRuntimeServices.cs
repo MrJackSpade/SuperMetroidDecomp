@@ -74,6 +74,9 @@ internal sealed partial class RoomEnemyRuntimeServices(
     /// <inheritdoc/>
     public void CountHeadShotOnGlass() => roomObjects.MotherBrainGlass.CountHeadShotOnGlass();
 
+    /// <inheritdoc/>
+    public void ConfirmGlassLoaded() => roomObjects.MotherBrainGlass.ConfirmGlassLoaded();
+
     /// <summary>Checks whether a requested Bomb Torizo hand room object remains active.</summary>
     public bool BombTorizoHandRemains => roomObjects.BombTorizoHand.HandRemains;
 }

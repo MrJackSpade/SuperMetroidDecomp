@@ -9,10 +9,13 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 internal sealed partial class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skultera];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Skultera], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SkulteraEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SkulteraEntity(this, occupant, place, common));
 
     /// <summary>The room's blocks Skultera's horizontal and vertical swim steps meet.</summary>
     private readonly EnemyTerrain _terrain;
@@ -23,23 +26,19 @@ internal sealed partial class SkulteraBehavior : IEnemySpecies, IEnemyEntityFact
         _terrain = terrain;
     }
 
+    /// <summary>What <see cref="ApplySkulteraCue"/> does for each <see cref="SkulteraCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<SkulteraCueKind, Action<SkulteraEnemyState>> ApplySkulteraCueForSkulteraCueKind => field ??= new(new Dictionary<SkulteraCueKind, Action<SkulteraEnemyState>>
+    {
+        // Turns rest immediately after finishing (#2450): the cue moves the Skultera into its finished turn, which main AI
+        // consumes on the following update, starting the steady swim.
+        [SkulteraCueKind.FinishTurn] = static state => state.Action = SkulteraAction.TurnFinished,
+    });
+
     /// <summary>Carries out one cue of Skultera's animations.</summary>
     private static void ApplySkulteraCue(SkulteraEnemyState state, SkulteraCue cue)
     {
-        switch (cue.Kind)
-        {
-            case SkulteraCueKind.FinishTurn:
-                // Turns rest immediately after finishing (#2450). Main AI starts the steady swim on the following
-                // update.
-                if (state.Action != SkulteraAction.Turning)
-                    throw new InvalidOperationException($"A Skultera's turn finished while it was {state.Action}.");
-                state.Action = SkulteraAction.TurnFinished;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SkulteraCueKind)} {cue.Kind}.");
-        }
+        ApplySkulteraCueForSkulteraCueKind[cue.Kind](state);
     }
-
 
     /// <summary>Initializes the Skultera.</summary>
     internal static void InitializeSkultera(RoomEnemyOccupant occupant, RoomEnemyPlace place)
@@ -57,26 +56,21 @@ internal sealed partial class SkulteraBehavior : IEnemySpecies, IEnemyEntityFact
         state.PreviousYOffset = EnemyMath.CircleNegativeSinePixels(state.Angle.ToTrigonometryAngle(), settings.Radius);
     }
 
+    /// <summary>What <see cref="RunSkulteraMain"/> does for each <see cref="SkulteraAction"/> member, each member's own arm.</summary>
+    private IdentityTable<SkulteraAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SkulteraEnemyState, RoomLevelData>> RunSkulteraMainForSkulteraAction => field ??= new(new Dictionary<SkulteraAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SkulteraEnemyState, RoomLevelData>>
+    {
+        [SkulteraAction.Swimming] = (occupant, place, state, level) => SwimSkultera(occupant, place, state, level, state.Heading),
+        [SkulteraAction.Turning] = (_, place, state, level) => { },
+        [SkulteraAction.TurnFinished] = (_, place, state, level) => FinishSkulteraTurn(place, state, state.Heading),
+    });
+
     /// <summary>Runs the Skultera's main AI.</summary>
     private void RunSkulteraMain(
         RoomEnemyOccupant occupant, RoomEnemyPlace place,
         SkulteraEnemyState state,
         RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case SkulteraAction.Swimming:
-                SwimSkultera(occupant, place, state, level, state.Heading);
-                return;
-            case SkulteraAction.Turning:
-                return;
-            case SkulteraAction.TurnFinished:
-                FinishSkulteraTurn(place, state, state.Heading);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Skultera has no behaviour for action {state.Action}.");
-        }
+        RunSkulteraMainForSkulteraAction[state.Action](occupant, place, state, level);
     }
 
     /// <summary>Runs the mirrored swimming actions.</summary>

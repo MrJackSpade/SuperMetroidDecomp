@@ -16,5 +16,5 @@ internal sealed partial class SpacePirateProjectileAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<SpacePirateProjectileSegment, EnemyProjectileFrameId, SpacePirateProjectileCue> Segments => SpacePirateProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<SpacePirateProjectileSegment, EnemyProjectileFrameId, SpacePirateProjectileCue> Segments => SpacePirateProjectileAnimations.Segments;
 }

@@ -53,6 +53,12 @@ public sealed partial class SamusShinesparkState
         _orbitTravel = Ensure.NotNull(orbitTravel);
     }
 
+    /// <summary>
+    /// The spark's hold on Samus's movement while it moves her (<see cref="OwnsMovement"/>), a view of this spark made
+    /// when it is reached; none otherwise.
+    /// </summary>
+    internal SparkMovement? Movement => OwnsMovement ? new SparkMovement(this) : null;
+
     /// <summary>The special colouring timer: <see cref="ShinesparkDefinitions.StoredShineFrames"/> stored, <see cref="ShinesparkDefinitions.WindupShadeFrames"/> in windup, and <see cref="ShinesparkDefinitions.SparkShadeFrames"/> during active motion.</summary>
     public UpdateCountdown ShineTimer { get; private set; } = UpdateCountdown.Ended();
 
@@ -142,10 +148,10 @@ public sealed partial class SamusShinesparkState
     public Position16<RoomPixels> SecondOrbitingCopy { get; private set; }
 
     /// <summary>The echo the crash releases first, only when Samus's shot count leaves room for both.</summary>
-    public ShinesparkCrashEcho FirstReleasedEcho { get; } = new();
+    public ShinesparkCrashEcho FirstReleasedEcho { get; } = new(ShinesparkCrashEchoRelease.First);
 
     /// <summary>The echo the crash releases second, whenever the shot count leaves room for one; it is drawn before the first.</summary>
-    public ShinesparkCrashEcho SecondReleasedEcho { get; } = new();
+    public ShinesparkCrashEcho SecondReleasedEcho { get; } = new(ShinesparkCrashEchoRelease.Second);
 
     /// <summary>
     /// Starting the X-ray scope clears the special suit-colouring timer and X-ray's colouring
@@ -193,23 +199,25 @@ public sealed partial class SamusShinesparkState
     }
 
     /// <summary>
-    /// Starts the shinespark windup after Samus's pose handling has
-    /// selected windup <see cref="SamusPoseId.ShinesparkWindupRightPose"/> and <see cref="SamusPoseId.ShinesparkWindupLeftPose"/>.
+    /// Starts the shinespark windup from a live stored shine (<see cref="SamusInputSnapshot.HoldsShine"/>), whose pose
+    /// handling then changes her to the windup's pose (<see cref="WindupPose"/>).
     /// </summary>
-    public void BeginWindup(SamusState samus)
-    {
-        Ensure.NotNull(samus);
-        if (!SamusInputSnapshot.HoldsShine(samus))
-            throw new InvalidOperationException("Shinespark windup requires a live stored shine.");
+    /// <param name="samus">Samus, whose pose handling chose a normal jump that begins a shinespark from a stored shine.</param>
+    internal void BeginWindup(SamusState samus) => InitializeWindup(Ensure.NotNull(samus));
 
-        InitializeWindup(samus);
-    }
+    /// <summary>
+    /// The windup's pose for a jump facing <paramref name="facing"/>: <see cref="SamusPoseId.ShinesparkWindupRightPose"/>
+    /// facing right and <see cref="SamusPoseId.ShinesparkWindupLeftPose"/> otherwise.
+    /// </summary>
+    /// <param name="facing">The way the chosen jump faces.</param>
+    internal static SamusPoseId WindupPose(SamusFacingDirection facing) =>
+        facing == SamusFacingDirection.Right ? SamusPoseId.ShinesparkWindupRightPose : SamusPoseId.ShinesparkWindupLeftPose;
 
     /// <summary>The two shinespark demos start the windup without a stored shine.</summary>
-    internal void BeginDemoLaunch(SamusState samus, SamusPoseId targetPose)
+    internal void BeginDemoLaunch(SamusState samus, ShinesparkLaunch launch)
     {
         InitializeWindup(samus);
-        BeginDirectionalLaunch(samus, targetPose);
+        BeginDirectionalLaunch(samus, launch);
     }
 
     /// <summary>Cancels beam charge and installs the spark windup, shade and boost state.</summary>
@@ -228,7 +236,7 @@ public sealed partial class SamusShinesparkState
 
         // The windup takes over Samus's movement and suit colouring. Flash's live
         // colouring timer can admit this launch even after its movement was interrupted.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.Shinespark);
+        SamusMovementHandOver.ToShinespark(samus);
         samus.CrystalFlash.RelinquishSuitColouring();
         // A Reserve-Mode X-Ray cone effect survives, but directional spark setup replaces
         // X-ray's suit colouring with the shinespark's.
@@ -237,7 +245,7 @@ public sealed partial class SamusShinesparkState
         // The windup sets these whatever they held. The speed boost stays at its full stage through the windup
         // even though her base speed is zero and her extra speed becomes exactly the windup's run speed.
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(UnsignedSixteenSixteen.Zero);
-        samus.Knockback = Movement.SamusKnockback.None;
+        samus.Knockback = SuperMetroid.Core.Samus.Movement.SamusKnockback.None;
         samus.HorizontalSpeed.SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage;
         samus.HorizontalSpeed.ExtraRunSpeed = ShinesparkDefinitions.WindupRunSpeed;
         samus.HorizontalSpeed.BaseSpeed = default;
@@ -252,32 +260,25 @@ public sealed partial class SamusShinesparkState
         samus.HurtFlash.Clear();
     }
 
-    /// <summary>
-    /// Starts the launch the shinespark's direction selects for a horizontal, vertical or diagonal shinespark pose,
-    /// taking its pose at once.
-    /// </summary>
-    public void BeginDirectionalLaunch(SamusState samus, SamusPoseId targetPose)
+    /// <summary>Starts <paramref name="launch"/>'s horizontal, vertical or diagonal spark, taking its pose at once.</summary>
+    public void BeginDirectionalLaunch(SamusState samus, ShinesparkLaunch launch)
     {
-        BeginLaunchAwaitingPose(samus, targetPose);
-        ApplyDirectionalLaunchPose(samus, targetPose);
+        Ensure.NotNull(launch);
+        BeginLaunchAwaitingPose(samus, launch);
+        ApplyDirectionalLaunchPose(samus, launch.Pose);
     }
 
     /// <summary>
-    /// Starts the launch <paramref name="targetPose"/> selects, leaving the pose itself for the frame's pose update
+    /// Starts <paramref name="launch"/>'s spark, leaving its pose for the frame's pose update
     /// (<see cref="ApplyDirectionalLaunchPose"/>).
     /// </summary>
-    private void BeginLaunchAwaitingPose(SamusState samus, SamusPoseId targetPose)
+    private void BeginLaunchAwaitingPose(SamusState samus, ShinesparkLaunch launch)
     {
         Ensure.NotNull(samus);
         // The launch takes Samus's movement from whoever holds it. A windup whose hold
         // her pose's movement took back (a knockback ending in a windup pose) keeps its
         // pose and the windup's speeds, and a direction still launches from it.
-        // Only the six directional shinespark poses launch a spark; any other pose is a broken contract, not another
-        // launch the game has.
-        Phase = ShinesparkDefinitions.LaunchPhases.TryGetValue(targetPose, out ShinesparkPhase launch)
-            ? launch
-            : throw new ArgumentOutOfRangeException(nameof(targetPose), targetPose,
-                "Only the six directional shinespark poses launch a spark.");
+        Phase = launch.Phase;
 
         samus.InputSnapshot.ShinesparkPoseInputLocked = true;
         samus.InputSnapshot.AutoJump.Reinstate();
@@ -288,22 +289,18 @@ public sealed partial class SamusShinesparkState
     /// <summary>Commits the interrupted launch pose after the current frame's animation.</summary>
     internal static void ApplyDirectionalLaunchPose(SamusState samus, SamusPoseId pose)
     {
-        samus.Pose = pose;
+        samus.ChangePose(pose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>Runs one frame of the spark's windup, flight or crash.</summary>
     /// <param name="terrain">The room terrain Samus's block collision probes: the level data and the room objects that react to touched blocks (#633).</param>
     /// <param name="samus">Live player state; movement, energy, contact damage, pose state, and echo coordinates may change during the call.</param>
     /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility and the previous checkpoint (#633).</param>
-    /// <exception cref="InvalidOperationException">The spark does not move Samus (<see cref="OwnsMovement"/>): a stored shine or no spark.</exception>
-    internal ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
+    private ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
-        if (!OwnsMovement)
-            throw new InvalidOperationException("The shinespark does not move Samus.");
 
         if (Phase == ShinesparkPhase.Windup)
         {
@@ -312,12 +309,10 @@ public sealed partial class SamusShinesparkState
             SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
             {
-                SamusPoseId verticalPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
-                    ? SamusPoseId.ShinesparkVerticalLeftPose
-                    : SamusPoseId.ShinesparkVerticalRightPose;
+                ShinesparkLaunch verticalLaunch = ShinesparkLaunchDirection.Vertical.For(SamusPoseMetadata.ReadFacingDirection(samus));
                 // The launch's pose waits for the frame's pose update, so Samus's animation still sees the windup body.
-                BeginLaunchAwaitingPose(samus, verticalPose);
-                pendingLaunchPose = verticalPose;
+                BeginLaunchAwaitingPose(samus, verticalLaunch);
+                pendingLaunchPose = verticalLaunch.Pose;
             }
 
             return new ShinesparkMovementResult(
@@ -406,7 +401,7 @@ public sealed partial class SamusShinesparkState
         SamusGlowSegment glow = SamusGlowSegment.In(
             colouring == SamusSpecialColouringKind.SpeedBoosterShine ? SamusGlow.StoredShine : SamusGlow.ActiveShinespark, suit);
         AnimationPlayback<SamusGlowSegment> playback = ShineGlow;
-        colours.ShowSuit(SamusGlowPlay.NextShade(glow, ref playback).Shown);
+        SamusGlowPlay.ShowNextShade(glow, ref playback, colours);
         ShineGlow = playback;
         return true;
     }
@@ -447,41 +442,34 @@ public sealed partial class SamusShinesparkState
         SamusState samus)
     {
         ShineTimer = UpdateCountdown.For(ShinesparkDefinitions.SparkShadeFrames);
-        switch (CrashOrbitStage)
+        if (CrashOrbitStage == ShinesparkCrashOrbitStage.Expanding)
         {
-            case ShinesparkCrashOrbitStage.Expanding:
+            // The crash tests the old radius against the orbit's start, after expanding.
+            // The transition frame therefore publishes the orbiting radius and the orbiting stage.
+            int oldRadius = CrashRadius;
+            CrashRadius += ShinesparkDefinitions.CrashRadiusStep;
+            if (oldRadius >= ShinesparkDefinitions.CrashOrbitStartRadius)
+                CrashOrbitStage = ShinesparkCrashOrbitStage.Orbiting;
+        }
+        else if (CrashOrbitStage == ShinesparkCrashOrbitStage.Orbiting)
+        {
+            FirstCrashEchoAngle = _crashOrbitTurn.Turn(FirstCrashEchoAngle);
+            SecondCrashEchoAngle = _crashOrbitTurn.Turn(SecondCrashEchoAngle);
+            if (_orbitTravel.Advance())
+                CrashOrbitStage = ShinesparkCrashOrbitStage.Contracting;
+        }
+        else
+        {
+            // The remaining member, ShinesparkCrashOrbitStage.Contracting.
+            CrashRadius -= ShinesparkDefinitions.CrashRadiusStep;
+            if (CrashRadius == 0)
             {
-                // The crash tests the old radius against the orbit's start, after expanding.
-                // The transition frame therefore publishes the orbiting radius and the orbiting stage.
-                int oldRadius = CrashRadius;
-                CrashRadius += ShinesparkDefinitions.CrashRadiusStep;
-                if (oldRadius >= ShinesparkDefinitions.CrashOrbitStartRadius)
-                    CrashOrbitStage = ShinesparkCrashOrbitStage.Orbiting;
-                break;
+                Phase = ShinesparkPhase.CrashHold;
+                CrashHoldCountdown = UpdateCountdown.For(ShinesparkDefinitions.CrashHoldFrames);
+                CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
+                FirstCrashEchoAngle = RotationAngle.Zero;
+                SecondCrashEchoAngle = RotationAngle.Zero;
             }
-
-            case ShinesparkCrashOrbitStage.Orbiting:
-                FirstCrashEchoAngle = _crashOrbitTurn.Turn(FirstCrashEchoAngle);
-                SecondCrashEchoAngle = _crashOrbitTurn.Turn(SecondCrashEchoAngle);
-                if (_orbitTravel.Advance())
-                    CrashOrbitStage = ShinesparkCrashOrbitStage.Contracting;
-                break;
-
-            case ShinesparkCrashOrbitStage.Contracting:
-                CrashRadius -= ShinesparkDefinitions.CrashRadiusStep;
-                if (CrashRadius == 0)
-                {
-                    Phase = ShinesparkPhase.CrashHold;
-                    CrashHoldCountdown = UpdateCountdown.For(ShinesparkDefinitions.CrashHoldFrames);
-                    CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
-                    FirstCrashEchoAngle = RotationAngle.Zero;
-                    SecondCrashEchoAngle = RotationAngle.Zero;
-                }
-                break;
-
-            default:
-                throw new InvalidOperationException(
-                    $"Shinespark crash orbit stage {CrashOrbitStage} is undefined.");
         }
 
         // The copies stand the crash radius from Samus along their angles; placing them past the room's edge
@@ -532,21 +520,20 @@ public sealed partial class SamusShinesparkState
         // Finishing the crash returns Samus's input and movement to her pose, and so frees a
         // Samus drained mid-crash too.
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
-        SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Shinespark);
+        SamusMovementHandOver.FromShinespark(samus);
         SamusPoseId standingPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;
         int previousRadius = samus.Kinematics.Radius.Y;
-        samus.Pose = standingPose;
         // The transitional pose returns Samus to her pose's movement and
-        // aligns the standing body's bottom with the old crash body. The input phase alone
-        // publishes the new live radius on the following frame.
+        // aligns the standing body's bottom with the old crash body; the animation starts where she then stands. The input
+        // phase alone publishes the new live radius on the following frame.
         samus.AlignBottomAfterPoseChange(previousRadius, SamusPoseMetadata.ReadPoseYRadius(standingPose));
-        SamusPresentation.InitializeAnimation(samus);
+        samus.ChangePose(standingPose);
     }
 
     /// <summary>
-    /// Runs one update of the released echo <paramref name="shot"/> carries: its radius grows by <see cref="ShinesparkDefinitions.EchoRadiusStep"/>, and the echo is
+    /// Runs one update of the released echo <paramref name="flight"/> carries: its radius grows by <see cref="ShinesparkDefinitions.EchoRadiusStep"/>, and the echo is
     /// placed that far from Samus's current position along its angle, at the radius <see cref="ShinesparkEchoReturn"/>
     /// places it at, which brings an echo still on the screen back to Samus. An echo placed left of or above the camera's corner, or <see cref="ShinesparkDefinitions.EchoScreenReach"/> or more right of
     /// or below it, has left the screen; the first echo leaves its height for the crash's orbit, or nothing once it has
@@ -555,25 +542,22 @@ public sealed partial class SamusShinesparkState
     /// <param name="samus">Samus, around whom the echo is placed.</param>
     /// <param name="cameraPosition">The camera's room position.</param>
     /// <param name="held">The shot carrying one of the crash's released echoes.</param>
+    /// <param name="flight">The shot's flight, which carries its echo.</param>
     /// <returns>Whether the echo is still on the screen; its shot is cleared otherwise.</returns>
-    /// <exception cref="InvalidOperationException">The shot carries neither of the crash's released echoes.</exception>
-    internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectileOccupant held)
+    internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectileOccupant held, ShinesparkEchoShotState flight)
     {
         SamusProjectile shot = Ensure.NotNull(held).Projectile;
-        ShinesparkCrashEcho echo = FirstReleasedEcho.IsCarriedBy(shot) ? FirstReleasedEcho
-            : SecondReleasedEcho.IsCarriedBy(shot) ? SecondReleasedEcho
-            : throw new InvalidOperationException("The shot carries none of the crash's released echoes.");
+        ShinesparkCrashEcho echo = flight.Echo;
 
         // The point is recalculated from Samus's current position on every update; these are expanding radial
         // copies, not ordinary projectiles with independent velocity.
-        ShinesparkEchoShotState flight = shot.KindStateAs<ShinesparkEchoShotState>();
         flight.Radius += ShinesparkDefinitions.EchoRadiusStep;
         Position16<RoomPixels> point = samus.Position.Whole +
             OffsetAlong(flight.Angle.ToAngle(), ShinesparkEchoReturn.PlacementRadius(flight.Radius));
         bool onScreen = CameraPastRoomEdge.FromCamera(point.X, cameraPosition.X) is >= 0 and < ShinesparkDefinitions.EchoScreenReach &&
             CameraPastRoomEdge.FromCamera(point.Y, cameraPosition.Y) is >= 0 and < ShinesparkDefinitions.EchoScreenReach;
 
-        if (echo == FirstReleasedEcho)
+        if (echo.Release == ShinesparkCrashEchoRelease.First)
         {
             if (onScreen)
                 _orbitTravel.LeaveEchoHeight(point.Y);
@@ -696,5 +680,16 @@ public sealed partial class SamusShinesparkState
             return new BlockMoveResult(SignedSixteenSixteen.Zero, true, EnemyCollision: enemy);
 
         return SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), CanBreakBombBlocks = true, IncludeSolidEnemies = false });
+    }
+
+    /// <summary>The spark's hold on Samus's movement (<see cref="Movement"/>): from the windup, through the launch and the crash.</summary>
+    /// <param name="spark">The shinespark that holds her movement.</param>
+    internal readonly struct SparkMovement(SamusShinesparkState spark)
+    {
+        /// <summary>Runs one frame of the spark's windup, flight or crash.</summary>
+        /// <param name="terrain">The room terrain Samus's block collision probes: the level data and the room objects that react to touched blocks (#633).</param>
+        /// <param name="samus">Live player state; movement, energy, contact damage, pose state, and echo coordinates may change during the call.</param>
+        /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility and the previous checkpoint (#633).</param>
+        internal ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame) => spark.Step(terrain, samus, frame);
     }
 }

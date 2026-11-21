@@ -29,6 +29,17 @@ public sealed partial record RoomObjectPlacement
     /// <summary>The setup the placement's family runs, with what the placement gives it, decoded at import.</summary>
     internal RoomObjectPlacementSetup Setup { get; }
 
-    /// <summary>Whether <see cref="Block"/> is a block of the room's grid or of the terrain beyond the room, decoded at import.</summary>
-    public RoomObjectSite Site { get; init; }
+    /// <summary>
+    /// Whether <see cref="Block"/> is a block of the room's grid or of the terrain beyond the room, decoded at import: only a
+    /// setup that stands off the room (<see cref="RoomObjectPlacementSetup.StandsOffTheRoom"/>) is placed beyond it, checked
+    /// once as the placement is decoded (#2553).
+    /// </summary>
+    /// <exception cref="ArgumentException">The placement stands off the room with a setup that does not.</exception>
+    public RoomObjectSite Site
+    {
+        get;
+        init => field = value == RoomObjectSite.OffTheRoom && !Setup.StandsOffTheRoom
+            ? throw new ArgumentException($"A {Kind} placement stands off the room; only a coloured door, whose place is all the room observes, is placed there.", nameof(value))
+            : value;
+    }
 }

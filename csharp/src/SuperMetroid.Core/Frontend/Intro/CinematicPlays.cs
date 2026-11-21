@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <typeparam name="TFrame">What the family's actors show.</typeparam>
 /// <typeparam name="TCue">The cues the family's animations publish.</typeparam>
 /// <param name="segments">The family's segments, which the plays read their lengths from.</param>
-internal sealed partial class CinematicPlays<TAnimation, TFrame, TCue>(AnimationSegments<TAnimation, TFrame, TCue> segments)
+internal sealed partial class CinematicPlays<TAnimation, TFrame, TCue>(HidingAnimationSegments<TAnimation, TFrame, TCue> segments)
     where TAnimation : struct
     where TFrame : struct
     where TCue : notnull
 {
     /// <summary>The family's segments.</summary>
-    private readonly AnimationSegments<TAnimation, TFrame, TCue> segments = Ensure.NotNull(segments);
+    private readonly HidingAnimationSegments<TAnimation, TFrame, TCue> segments = Ensure.NotNull(segments);
 
     /// <summary>The animation of a still picture: <paramref name="animation"/>'s one held frame.</summary>
     /// <exception cref="ArgumentException"><paramref name="animation"/>'s segment is not one held frame.</exception>

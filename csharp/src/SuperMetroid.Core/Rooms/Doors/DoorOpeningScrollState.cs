@@ -59,14 +59,14 @@ internal sealed partial class DoorOpeningScrollState
         DoorDirection direction = door.Orientation.Direction;
         FixedPosition<RoomPixels> samus = RebaseSamus(door, ApplySetupMovement(door, sourceSamus));
 
-        Offset16<BackgroundPixels> backgroundSetup = Ensure.Listed(DoorOpeningScrollDefinitions.SetupBackgroundOffsets, direction);
+        Offset16<BackgroundPixels> backgroundSetup = DoorOpeningScrollDefinitions.SetupBackgroundOffsets[direction];
 
         return new DoorOpeningScrollState(new DoorOpeningScrollSetup { Direction = direction, SamusScrollStep = GetSamusStep(door), ScrollUpdates = MovingScrollUpdates(direction), CameraPosition = GetSetupCamera(door), BackgroundPosition = finalBackground + backgroundSetup, SamusPosition = samus, FinalCameraPosition = finalCamera });
     }
 
     /// <summary>The scroll updates that remain after setup (<see cref="DoorOpeningScrollDefinitions.MovingScrollUpdates"/>).</summary>
     internal static int MovingScrollUpdates(DoorDirection direction) =>
-        Ensure.Listed(DoorOpeningScrollDefinitions.MovingScrollUpdates, direction);
+        DoorOpeningScrollDefinitions.MovingScrollUpdates[direction];
 
     /// <summary>The room-pixel origin of the door's destination screen.</summary>
     internal static Position16<RoomPixels> GetDestination(DoorDefinition door) =>
@@ -74,7 +74,7 @@ internal sealed partial class DoorOpeningScrollState
 
     /// <summary>Where the camera stands after the scroll setup's first update.</summary>
     internal static Position16<RoomPixels> GetSetupCamera(DoorDefinition door) =>
-        GetDestination(door) + Ensure.Listed(DoorOpeningScrollDefinitions.SetupCameraOffsets, door.Orientation.Direction);
+        GetDestination(door) + DoorOpeningScrollDefinitions.SetupCameraOffsets[door.Orientation.Direction];
 
     /// <summary>
     /// The door setup places Samus at the setup camera plus her place within the screen she stood in, on both axes,
@@ -98,14 +98,12 @@ internal sealed partial class DoorOpeningScrollState
     {
         SignedSixteenSixteen step = door.SamusSpeed.Step(door.Orientation.Direction).ToSixteenSixteenDelta();
         SignedSixteenSixteen back = -step;
-        return door.Orientation.Direction switch
-        {
-            DoorDirection.Right => new(step, SignedSixteenSixteen.Zero),
-            DoorDirection.Left => new(back, SignedSixteenSixteen.Zero),
-            DoorDirection.Down => new(SignedSixteenSixteen.Zero, step),
-            DoorDirection.Up => new(SignedSixteenSixteen.Zero, back),
-            _ => throw new ArgumentOutOfRangeException(nameof(door), door.Orientation.Direction, "Undefined door direction."),
-        };
+        DoorDirection direction = door.Orientation.Direction;
+        return direction == DoorDirection.Right ? new(step, SignedSixteenSixteen.Zero)
+            : direction == DoorDirection.Left ? new(back, SignedSixteenSixteen.Zero)
+            : direction == DoorDirection.Down ? new(SignedSixteenSixteen.Zero, step)
+            // The remaining member, DoorDirection.Up.
+            : new(SignedSixteenSixteen.Zero, back);
     }
 
     /// <summary>
@@ -118,14 +116,12 @@ internal sealed partial class DoorOpeningScrollState
 
     /// <summary>The signed layer step of one scroll update along the travel axis.</summary>
     internal static Offset16<TSpace> LayerStep<TSpace>(DoorDirection direction)
-        where TSpace : ISpatialSpace => direction switch
-        {
-            DoorDirection.Right => new(DoorOpeningScrollDefinitions.LayerStepPixels, 0),
-            DoorDirection.Left => new(-DoorOpeningScrollDefinitions.LayerStepPixels, 0),
-            DoorDirection.Down => new(0, DoorOpeningScrollDefinitions.LayerStepPixels),
-            DoorDirection.Up => new(0, -DoorOpeningScrollDefinitions.LayerStepPixels),
-            _ => throw new InvalidOperationException($"Undefined door direction {direction}."),
-        };
+        where TSpace : ISpatialSpace =>
+        direction == DoorDirection.Right ? new(DoorOpeningScrollDefinitions.LayerStepPixels, 0)
+        : direction == DoorDirection.Left ? new(-DoorOpeningScrollDefinitions.LayerStepPixels, 0)
+        : direction == DoorDirection.Down ? new(0, DoorOpeningScrollDefinitions.LayerStepPixels)
+        // The remaining member, DoorDirection.Up.
+        : new(0, -DoorOpeningScrollDefinitions.LayerStepPixels);
 
     /// <summary>Runs one scroll update and reports whether it is the one that finishes the scroll.</summary>
     public bool Advance()

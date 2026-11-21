@@ -64,13 +64,13 @@ public static partial class BeamComboDefinitions
     public static readonly SoundEffectId WavePulseSound = SamusSound.WaveSpecialAttack;
 
     /// <summary>The sound each special beam attack starts with.</summary>
-    internal static readonly IReadOnlyDictionary<SamusComboKind, SoundEffectId> ActivationSounds = new Dictionary<SamusComboKind, SoundEffectId>
+    internal static readonly IdentityTable<SamusComboKind, SoundEffectId> ActivationSounds = new(new Dictionary<SamusComboKind, SoundEffectId>
     {
         [SamusComboKind.Wave] = SamusSound.WaveSpecialAttack,
         [SamusComboKind.Ice] = SamusSound.IceSpecialAttack,
         [SamusComboKind.Spazer] = SamusSound.SpazerSpecialAttack,
         [SamusComboKind.Plasma] = SamusSound.PlasmaSpecialAttack,
-    };
+    });
 
     /// <summary>How far above Samus the Spazer special attack's particles centre their flight once they stop circling her.</summary>
     public const int SpazerFlightCentreHeight = 114;

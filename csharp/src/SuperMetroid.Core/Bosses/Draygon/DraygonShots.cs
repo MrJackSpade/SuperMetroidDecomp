@@ -111,28 +111,24 @@ internal sealed partial class DraygonShots
             DeleteDraygonProjectileOutsideRoom(context.Projectile);
         }
 
+        /// <summary>What <see cref="RunCue"/> does for each <see cref="DraygonProjectileCue"/> member, each member's own arm.</summary>
+        private IdentityTable<DraygonProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForDraygonProjectileCue => field ??= new(new Dictionary<DraygonProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
+        {
+            [DraygonProjectileCue.StickToSamus] = (context, projectile) => AttachDraygonGoopToSamus(projectile, context.Samus, context.SamusBombs.PowerBombExplosion),
+            [DraygonProjectileCue.SpawnDrops] = (context, projectile) =>
+            {
+                // The drop is spawned before the deletion frees this projectile's place, so it takes another place.
+                deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.DraygonEye, context.Samus);
+            },
+            [DraygonProjectileCue.Delete] = (context, projectile) => projectile.Delete(),
+            [DraygonProjectileCue.Fire] = (context, projectile) => projectile.StartMotion(TurretShotFlying),
+        });
+
         /// <summary>Carries out a cue of the goop's and turret shot's animations.</summary>
         public void RunCue(EnemyProjectileCueContext context, DraygonProjectileCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
-            switch (cue)
-            {
-                case DraygonProjectileCue.StickToSamus:
-                    AttachDraygonGoopToSamus(projectile, context.Samus, context.SamusBombs.PowerBombExplosion);
-                    return;
-                case DraygonProjectileCue.SpawnDrops:
-                    // The drop is spawned before the deletion frees this projectile's place, so it takes another place.
-                    deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.DraygonEye, context.Samus);
-                    return;
-                case DraygonProjectileCue.Delete:
-                    projectile.Delete();
-                    return;
-                case DraygonProjectileCue.Fire:
-                    projectile.StartMotion(TurretShotFlying);
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(DraygonProjectileCue)} {cue}.");
-            }
+            RunCueForDraygonProjectileCue[cue](context, projectile);
         }
 
         /// <summary>Advances airborne goop, including the power bomb freeing its place and Samus contact setup.</summary>

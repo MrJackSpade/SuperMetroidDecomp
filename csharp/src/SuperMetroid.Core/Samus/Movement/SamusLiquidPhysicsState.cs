@@ -19,6 +19,58 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </remarks>
 public sealed partial class SamusLiquidPhysicsState
 {
+    /// <summary>What <see cref="ConfigureFor"/> does for each <see cref="RoomFxType"/> member, each member's own arm.</summary>
+    private IdentityTable<RoomFxType, Action<RoomLiquidReading>> ConfigureForForRoomFxType => field ??= new(new Dictionary<RoomFxType, Action<RoomLiquidReading>>
+    {
+        [RoomFxType.Water] = liquid => ConfigureWater(liquid.Surface, liquid.IgnoresSurfaceUntilEnabled, WaterRoomFx.Water),
+        [RoomFxType.TourianEntranceStatue] = liquid => ConfigureWater(liquid.Surface, liquid.IgnoresSurfaceUntilEnabled, WaterRoomFx.TourianEntranceStatue),
+        [RoomFxType.Lava] = liquid => ConfigureLavaAcid(liquid.Surface, LavaAcidRoomFx.Lava),
+        [RoomFxType.Acid] = liquid => ConfigureLavaAcid(liquid.Surface, LavaAcidRoomFx.Acid),
+        [RoomFxType.None] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.None),
+        [RoomFxType.Spores] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.Spores),
+        [RoomFxType.Rain] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.Rain),
+        [RoomFxType.Fog] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.Fog),
+        [RoomFxType.ScrollingSky] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.ScrollingSky),
+        [RoomFxType.Fireflea] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.Fireflea),
+        [RoomFxType.CeresRidley] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.CeresRidley),
+        [RoomFxType.CeresElevator] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.CeresElevator),
+        [RoomFxType.CeresHaze] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.CeresHaze),
+    });
+
+    /// <summary>What Samus's physics reads of the room effect's liquid as the effect is applied.</summary>
+    /// <param name="Surface">The liquid's surface as her physics sees it (<see cref="LiveSurface"/>), or null when none shows.</param>
+    /// <param name="IgnoresSurfaceUntilEnabled">Whether the effect's water ignores its surface until the surface is enabled.</param>
+    [IndependentFlag("Whether the water ignores its surface until it is enabled is the effect's own property, read as it is applied.")]
+    private readonly record struct RoomLiquidReading(int? Surface, bool IgnoresSurfaceUntilEnabled);
+
+    /// <summary>The two water effects, each as its room effect type.</summary>
+    private static IdentityTable<WaterRoomFx, RoomFxType> WaterRoomFxTypes => field ??= new(new Dictionary<WaterRoomFx, RoomFxType>
+    {
+        [WaterRoomFx.Water] = RoomFxType.Water,
+        [WaterRoomFx.TourianEntranceStatue] = RoomFxType.TourianEntranceStatue,
+    });
+
+    /// <summary>The effects with no liquid, each as its room effect type.</summary>
+    private static IdentityTable<DryRoomFx, RoomFxType> DryRoomFxTypes => field ??= new(new Dictionary<DryRoomFx, RoomFxType>
+    {
+        [DryRoomFx.None] = RoomFxType.None,
+        [DryRoomFx.Spores] = RoomFxType.Spores,
+        [DryRoomFx.Rain] = RoomFxType.Rain,
+        [DryRoomFx.Fog] = RoomFxType.Fog,
+        [DryRoomFx.ScrollingSky] = RoomFxType.ScrollingSky,
+        [DryRoomFx.Fireflea] = RoomFxType.Fireflea,
+        [DryRoomFx.CeresRidley] = RoomFxType.CeresRidley,
+        [DryRoomFx.CeresElevator] = RoomFxType.CeresElevator,
+        [DryRoomFx.CeresHaze] = RoomFxType.CeresHaze,
+    });
+
+    /// <summary>The two lava-and-acid effects, each as its room effect type.</summary>
+    private static IdentityTable<LavaAcidRoomFx, RoomFxType> LavaAcidRoomFxTypes => field ??= new(new Dictionary<LavaAcidRoomFx, RoomFxType>
+    {
+        [LavaAcidRoomFx.Lava] = RoomFxType.Lava,
+        [LavaAcidRoomFx.Acid] = RoomFxType.Acid,
+    });
+
     /// <summary>
     /// Takes the room's selected effect into Samus's liquid state, so what the room shows and how Samus moves read one
     /// liquid surface.
@@ -26,34 +78,7 @@ public sealed partial class SamusLiquidPhysicsState
     public void ConfigureFor(RoomFxOverlayState fx)
     {
         Ensure.NotNull(fx);
-        switch (fx.Type)
-        {
-            case RoomFxType.Water:
-            case RoomFxType.TourianEntranceStatue:
-                ConfigureWater(LiveSurface(fx), fx.Liquid is RoomWater { IgnoresSurfaceUntilEnabled: true }, fx.Type);
-                return;
-            case RoomFxType.Lava:
-                ConfigureLavaAcid(LiveSurface(fx));
-                return;
-            case RoomFxType.Acid:
-                ConfigureLavaAcid(LiveSurface(fx), RoomFxType.Acid);
-                return;
-            case RoomFxType.None:
-            case RoomFxType.Spores:
-            case RoomFxType.Rain:
-            case RoomFxType.Fog:
-            case RoomFxType.ScrollingSky:
-            case RoomFxType.Fireflea:
-            case RoomFxType.CeresRidley:
-            case RoomFxType.CeresElevator:
-            case RoomFxType.CeresHaze:
-                // Non-liquid FX still own the FX type, which atmospheric effects keep while the
-                // room has neither liquid surface.
-                ConfigureNonLiquidRoomFx(fx.Type);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined RoomFxType {fx.Type}.");
-        }
+        ConfigureForForRoomFxType[fx.Type](new RoomLiquidReading(LiveSurface(fx), fx.Liquid is RoomWater { IgnoresSurfaceUntilEnabled: true }));
     }
 
     /// <summary>
@@ -132,33 +157,28 @@ public sealed partial class SamusLiquidPhysicsState
     /// Configures the water surface, or none, and whether Samus ignores it, while preserving the ordinary or statue room's
     /// FX identity; the room has no lava or acid surface.
     /// </summary>
-    internal void ConfigureWater(int? surfaceY, bool ignoresSurface, RoomFxType type)
+    internal void ConfigureWater(int? surfaceY, bool ignoresSurface, WaterRoomFx type)
     {
-        if (!RoomFxTypes.UsesWater(type))
-            throw new ArgumentOutOfRangeException(nameof(type), type, "A water configuration requires a water effect.");
-        FxType = type;
+        FxType = WaterRoomFxTypes[type];
         Surface = surfaceY is int line ? new SamusLiquidSurface.Water(line, ignoresSurface) : SamusLiquidSurface.None;
     }
 
     /// <summary>Configures a lava or acid surface, or none; the room has no water surface.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="type"/> is neither lava nor acid.</exception>
-    internal void ConfigureLavaAcid(int? surfaceY, RoomFxType type = RoomFxType.Lava)
+    internal void ConfigureLavaAcid(int? surfaceY, LavaAcidRoomFx type)
     {
-        FxType = type is RoomFxType.Lava or RoomFxType.Acid ? type : throw new ArgumentOutOfRangeException(nameof(type), type, "Only lava or acid has a lava/acid surface.");
+        FxType = LavaAcidRoomFxTypes[type];
         Surface = surfaceY is int line ? new SamusLiquidSurface.LavaOrAcid(line) : SamusLiquidSurface.None;
     }
 
     /// <summary>
-    /// Selects a non-liquid room FX, which leaves the room with neither liquid surface.
+    /// Selects non-liquid room FX <paramref name="type"/>, which leaves the room with neither liquid surface.
     /// Rain and other atmospheric owners still need their FX type,
     /// so clearing the entire state would discard observable animation behavior.
     /// </summary>
-    internal void ConfigureNonLiquidRoomFx(RoomFxType type)
+    internal void ConfigureNonLiquidRoomFx(DryRoomFx type)
     {
-        if (type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid)
-            throw new ArgumentOutOfRangeException(nameof(type), type, "Use the liquid-specific configuration method.");
         Clear();
-        FxType = type;
+        FxType = DryRoomFxTypes[type];
     }
 
     /// <summary>Restores the no-FX state of a dry room, which has neither liquid surface.</summary>
@@ -239,13 +259,10 @@ public sealed partial class SamusLiquidPhysicsState
             return samus.SlowdownLevel;
 
         SamusLiquidMedium medium = DetermineRawMediumAtBoundary(PoseBottomPixel(samus));
-        return medium switch
-        {
-            SamusLiquidMedium.Water => SamusAnimationDelayDefinitions.WaterAnimationDelay,
-            SamusLiquidMedium.LavaOrAcid => SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay,
-            SamusLiquidMedium.Air => samus.SlowdownLevel,
-            _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
-        };
+        return medium == SamusLiquidMedium.Water ? SamusAnimationDelayDefinitions.WaterAnimationDelay
+            : medium == SamusLiquidMedium.LavaOrAcid ? SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay
+            // The remaining member, SamusLiquidMedium.Air.
+            : samus.SlowdownLevel;
     }
 
     /// <summary>
@@ -412,18 +429,20 @@ public sealed partial class SamusLiquidPhysicsState
             EndLandingEffectWait();
     }
 
+    /// <summary>Whether the ground of each wetness is wet under Samus.</summary>
+    private IdentityTable<RoomGroundWetness, Func<SamusState, bool>> WetnessTests => field ??= new(new Dictionary<RoomGroundWetness, Func<SamusState, bool>>
+    {
+        [RoomGroundWetness.Dry] = samus => false,
+        [RoomGroundWetness.Wet] = samus => true,
+        [RoomGroundWetness.WetWhileRaining] = samus => FxType == RoomFxType.Rain,
+        [RoomGroundWetness.WetBelowWaterline] = samus => samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY,
+    });
+
     /// <summary>
     /// Whether ground of <paramref name="wetness"/> is wet where Samus stands: the Landing Site only while it rains, which
     /// is not a generic water test, and the Wrecked Ship entrance at and below its waterline.
     /// </summary>
-    private bool IsWet(SamusState samus, RoomGroundWetness wetness) => wetness switch
-    {
-        RoomGroundWetness.Dry => false,
-        RoomGroundWetness.Wet => true,
-        RoomGroundWetness.WetWhileRaining => FxType == RoomFxType.Rain,
-        RoomGroundWetness.WetBelowWaterline => samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY,
-        _ => throw new InvalidOperationException($"Undefined ground wetness {wetness}."),
-    };
+    private bool IsWet(SamusState samus, RoomGroundWetness wetness) => WetnessTests[wetness](samus);
 
     /// <summary>
     /// Starts the landing's pair of dust or splash particles when Samus's last occupied pixel is above active liquid; the

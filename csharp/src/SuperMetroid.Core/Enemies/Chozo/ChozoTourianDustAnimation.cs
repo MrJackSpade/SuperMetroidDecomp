@@ -18,5 +18,5 @@ internal sealed partial class ChozoTourianDustAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<ChozoTourianDustSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => ChozoTourianDustAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<ChozoTourianDustSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => ChozoTourianDustAnimations.Segments;
 }

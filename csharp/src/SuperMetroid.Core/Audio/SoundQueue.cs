@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Audio;
 /// the oldest waiting request when the library is ready for one (<see cref="TakeOldest"/>).
 /// </summary>
 /// <remarks>
-/// A queue never holds more than <see cref="SoundQueueAdmission.MaximumOccupancy"/> requests: every request is admitted
-/// by <see cref="SoundQueueAdmission.For"/> from <see cref="Count"/>, and every priority turns a request away once that
-/// many wait, so a request always finds room (<see cref="Add"/>).
+/// A queue never holds more than <see cref="SoundQueueAdmission.MaximumOccupancy"/> requests: a request joins only through
+/// <see cref="Admit"/>, which admits it by <see cref="SoundQueueAdmission.For"/> from the queue's own count, and every
+/// priority turns a request away once that many wait, so no request ever arrives at a queue with no room.
 /// </remarks>
 internal sealed partial class SoundQueue
 {
@@ -17,19 +17,19 @@ internal sealed partial class SoundQueue
     /// <summary>The waiting requests, 0 through <see cref="SoundQueueAdmission.MaximumOccupancy"/>.</summary>
     internal int Count => Waiting.Count;
 
-    /// <summary>Queues <paramref name="sound"/> behind every request already waiting.</summary>
-    /// <param name="sound">An admitted request.</param>
-    /// <exception cref="InvalidOperationException">
-    /// <see cref="SoundQueueAdmission.MaximumOccupancy"/> requests already wait, so the request was never admitted.
-    /// </exception>
-    internal void Add(SoundEffectId sound)
+    /// <summary>
+    /// Admits <paramref name="sound"/> by its <paramref name="priority"/> and how many requests wait, and queues it behind
+    /// every request already waiting when it is admitted and <paramref name="suppression"/> lets it join.
+    /// </summary>
+    /// <param name="sound">The request.</param>
+    /// <param name="priority">How full the queue may be for the request to be admitted; tested before suppression.</param>
+    /// <param name="suppression">What turns sounds away now.</param>
+    internal SoundQueueAdmission Admit(SoundEffectId sound, SoundRequestPriority priority, SoundSuppression suppression)
     {
-        if (Waiting.Count >= SoundQueueAdmission.MaximumOccupancy)
-        {
-            throw new InvalidOperationException(
-                $"{sound} joined a sound queue already holding {Waiting.Count} requests; admission turns it away first.");
-        }
-        Waiting.Add(sound);
+        SoundQueueAdmission admission = SoundQueueAdmission.For(Waiting.Count, priority);
+        if (admission.Joins(suppression))
+            Waiting.Add(sound);
+        return admission;
     }
 
     /// <summary>Removes and returns the oldest waiting request, or none when nothing waits.</summary>

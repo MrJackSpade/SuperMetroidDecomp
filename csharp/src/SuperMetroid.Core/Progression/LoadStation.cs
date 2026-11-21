@@ -14,7 +14,7 @@ public sealed partial class LoadStation
     internal LoadStation([InstalledKey] string name, AreaId area)
     {
         Name = Ensure.NotNull(name);
-        Area = AreaIds.Require(area);
+        Area = area;
     }
 
     /// <summary>The station's name.</summary>

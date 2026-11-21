@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 internal static partial class MagdolliteLavaAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MagdolliteLavaSegment, EnemyProjectileFrameId, MagdolliteLavaCue> Segments { get; } = new(
-        new Dictionary<MagdolliteLavaSegment, AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>[]>
+    internal static UnpausedAnimationSegments<MagdolliteLavaSegment, EnemyProjectileFrameId, MagdolliteLavaCue> Segments { get; } = new(
+        new Dictionary<MagdolliteLavaSegment, AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.Unpaused[]>
     {
         [P.Left] =
         [
@@ -39,8 +39,8 @@ internal static partial class MagdolliteLavaAnimations
     };
 
     /// <summary>Shows <paramref name="frame"/> for good (#2337): a still picture rests on it until its owner plays another.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.HeldFrame(frame);
+    private static AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.Unpaused Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue> Cue(MagdolliteLavaCue cue) => new AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.Unpaused Cue(MagdolliteLavaCue cue) => new AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.Event(cue);
 }

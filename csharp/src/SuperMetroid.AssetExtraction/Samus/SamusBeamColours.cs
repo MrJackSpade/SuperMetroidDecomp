@@ -22,25 +22,17 @@ internal static partial class SamusBeamColours
 
     /// <summary>The beam combinations with a beam shade of their own: the retail combinations and SpaceTime.</summary>
     internal static IEnumerable<SamusBeamCombination> Shown =>
-        SamusBeamCombinationKeys.ListedOrder.Where(combination =>
-            SamusBeamGraphicsDefinitions.ShownShades.TryGetValue(combination, out SamusBeamCombination shown) && shown == combination);
+        SamusBeamCombinationKeys.ListedOrder.Where(combination => SamusShades.ShownBeamShade(combination) == combination);
 
-    /// <summary>The sixteen colours <paramref name="combination"/>'s beams show.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The game shows no palette for the combination.</exception>
+    /// <summary>
+    /// The sixteen colours <paramref name="combination"/>'s beams show: SpaceTime's defined black, or the installed palette
+    /// of the retail combination whose shade it shows (<see cref="SamusShades.ShownBeamShade"/>).
+    /// </summary>
     internal static RgbColor[] Of(SamusBeamCombination combination, InstalledBeamPalettes palettes)
     {
         Ensure.NotNull(palettes);
-        return combination switch
-        {
-            ChainsawBeamGraphicsDefinitions.Selection => palettes.Colours(SamusShades.ShownBeamShade(combination)),
-            SpacetimeBeamGraphicsDefinitions.Selection => Enumerable.Repeat(SpacetimeColour, BeamPaletteDefinitions.ColorCount).ToArray(),
-            SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or SamusBeamCombination.IceWave
-                or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or SamusBeamCombination.SpazerIce
-                or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.Plasma or SamusBeamCombination.PlasmaWave
-                or SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave => palettes.Colours(combination),
-            SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave =>
-                throw new ArgumentOutOfRangeException(nameof(combination), combination, "The game shows no palette for this beam combination."),
-            _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
-        };
+        return combination == SpacetimeBeamGraphicsDefinitions.Selection
+            ? Enumerable.Repeat(SpacetimeColour, BeamPaletteDefinitions.ColorCount).ToArray()
+            : palettes.Colours(SamusShades.ShownBeamShade(combination));
     }
 }

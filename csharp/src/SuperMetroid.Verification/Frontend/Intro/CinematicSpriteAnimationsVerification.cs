@@ -111,7 +111,7 @@ internal static class CinematicSpriteAnimationsVerification
         for (; native.Active && update < PlaybackUpdates; update++)
         {
             int before = system.LiveRinkas.Count;
-            system.Step(samus, motherBrainExploding: false, explosionsAllocated: false);
+            system.Step(samus, motherBrainExploding: false);
             native.Step();
             AssertEqual(native.Cues.Count * 2, system.LiveRinkas.Count - before, $"Rinka launch update {update}: the pairs the spawner's list launches");
             launched += system.LiveRinkas.Count - before;

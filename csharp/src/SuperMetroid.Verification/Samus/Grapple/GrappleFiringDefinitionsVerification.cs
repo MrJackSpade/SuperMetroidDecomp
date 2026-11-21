@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -30,7 +31,7 @@ internal static class GrappleFiringDefinitionsVerification
         Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         SamusPoseId sourcePose = SamusPoseId.FacingRightNormalPose;
         var bus = NewGrappleFiringReadGuard(rom, () => sourcePose);
-        var samus = (new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose });
+        var samus = (new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FacingRightNormalPose));
         var grapple = samus.Grapple;
         // Exercise each compiled movement family with a real pose instead of rewriting
         // the immutable movement byte of standing pose $01.
@@ -58,7 +59,7 @@ internal static class GrappleFiringDefinitionsVerification
             {
                 // Every authored aim/movement pose for the direction, each signed graphics-Y
                 // class and the X/Y position wrap boundaries.
-                samus.Pose = sourcePose = pose;
+                samus.ChangePoseKeepingAnimation(sourcePose = pose);
                 byte movement = GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(samus.Pose) * 8 + 1);
                 bool running = movement == 1;
                 short x = Word((running ? 0x9bc172 : 0x9bc122) + offset);
@@ -97,9 +98,9 @@ internal static class GrappleFiringDefinitionsVerification
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
         for (byte direction = 0; direction < 10; direction++)
         {
-            samus.Pose = sourcePose = SamusPoseNumbering.FromNumber(Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose).First(pose =>
+            samus.ChangePoseKeepingAnimation(sourcePose = SamusPoseNumbering.FromNumber(Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose).First(pose =>
                 GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction &&
-                GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != 1));
+                GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != 1)));
             samus.Artwork.Body = SamusGraphicsOffsetFixture(0).Gameplay;
             samus.Position = samus.Position.WithWhole(new(512, 512));
             grapple.Phase = GrapplePhase.Inactive;
@@ -107,7 +108,7 @@ internal static class GrappleFiringDefinitionsVerification
             SamusGrappleMovement.BeginFiring(samus, SuperMetroid.Core.Input.GameplayAction.None);
             for (int frame = 1; frame <= 10; frame++)
             {
-                SamusGrappleMovement.StepFiringAndCommit(empty, samus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+                SamusGrappleMovement.StepFiringAndCommit(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
                 int dx = Word(0x9bc0db + direction * 2) * 256 * frame;
                 int dy = Word(0x9bc0ef + direction * 2) * 256 * frame;
                 AssertEqual(dx, grapple.EndpointOffset.X.RawValue, "Native extension X trajectory");
@@ -135,7 +136,7 @@ internal static class GrappleFiringDefinitionsVerification
         foreach (bool left in new[] { false, true })
         foreach (GameplayAction input in heldInputs)
         {
-            samus.Pose = left ? SamusPoseId.DraygonGrabbedMovingLeftPose : SamusPoseId.DraygonGrabbedMovingRightPose;
+            samus.ChangePoseKeepingAnimation(left ? SamusPoseId.DraygonGrabbedMovingLeftPose : SamusPoseId.DraygonGrabbedMovingRightPose);
             samus.Position = samus.Position.WithWhole(new(512, 512));
             bool outward = input.HasAny(left ? GameplayAction.Left : GameplayAction.Right);
             int direction = outward && input.HasAny(GameplayAction.Down) ? (left ? 6 : 3) :
@@ -157,7 +158,7 @@ internal static class GrappleFiringDefinitionsVerification
         for (byte direction = 0; direction < 10; direction++)
         foreach (ushort coordinate in new ushort[] { 0, 512, ushort.MaxValue })
         {
-            samus.Pose = sourcePose = movementPoses[movement];
+            samus.ChangePoseKeepingAnimation(sourcePose = movementPoses[movement]);
             samus.Artwork.Body = SamusGraphicsOffsetFixture(127).Gameplay;
             samus.Position = samus.Position.WithWhole(new(coordinate, coordinate));
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();

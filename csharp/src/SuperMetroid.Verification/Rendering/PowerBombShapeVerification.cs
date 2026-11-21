@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Rendering;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Verification.Samus.Projectiles;
+using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks the Power Bomb's blast oval: its authored radii and aspect against the cartridge, its capture and its drawing.</summary>
@@ -64,7 +64,7 @@ internal static class PowerBombShapeVerification
         var explosion = new SamusPowerBombExplosionState();
         explosion.Spawn(new(100, 120));
         int cases = 0;
-        foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite, PowerBombExplosionPhase.ExplosionYellow })
+        foreach (var phase in new PowerBombExplosionPhase[] { new PowerBombExplosionPhase.Running.PreExplosionWhite(), new PowerBombExplosionPhase.Running.ExplosionYellow() })
         {
             explosion.Blast.RenderedPhase = phase;
             for (int radius = 0; radius < 256; radius++)
@@ -86,7 +86,7 @@ internal static class PowerBombShapeVerification
         foreach (short centerY in new short[] { -16, 128, 240 })
         {
             explosion.Spawn(new(unchecked((ushort)centerX), unchecked((ushort)centerY)));
-            explosion.Blast.RenderedPhase = PowerBombExplosionPhase.ExplosionYellow;
+            explosion.Blast.RenderedPhase = new PowerBombExplosionPhase.Running.ExplosionYellow();
             explosion.Blast.RenderedExplosionRadius = PowerBombRadius.FromWholePixels(radius);
             explosion.Blast.GlowColor = explosion.Blast.GlowColor.FadeLevels.WithRed(31).ToColour();
             ColourAddWindowLayer layer = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))

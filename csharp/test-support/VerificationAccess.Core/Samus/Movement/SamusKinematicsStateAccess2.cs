@@ -12,9 +12,8 @@ internal static class SamusKinematicsStateAccess2
         /// The solid enemy Samus met moving in <paramref name="direction"/>, or null where she met none since the enemy pass
         /// last cleared them.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not left, right, up or down.</exception>
         public ISolidEnemy? SolidEnemyContact(SamusCollisionDirection direction) =>
             self.SolidEnemyContactsByDirection
-                .GetValueOrDefault(SamusKinematicsState.RequireContactDirection(direction));
+                .GetValueOrDefault(direction);
     }
 }

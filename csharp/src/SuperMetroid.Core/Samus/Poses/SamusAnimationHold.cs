@@ -7,5 +7,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal sealed partial record SamusAnimationHold : SamusAnimationCue
 {
     /// <inheritdoc/>
+    internal override TResult Match<TContext, TResult>(SamusAnimationCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Hold(this, context);
+
+    /// <inheritdoc/>
     internal override bool ContinuesToNextSegment => true;
 }

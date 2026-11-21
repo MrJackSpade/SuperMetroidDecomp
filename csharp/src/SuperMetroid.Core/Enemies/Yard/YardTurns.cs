@@ -14,9 +14,7 @@ internal static partial class YardTurns
     {
         if (turnsSuppressed && YardTurnDefinitions.SuppressedCrawls.TryGetValue(crawl, out YardSuppressedCrawl suppressed))
             return new(Offset16<RoomPixels>.Zero, suppressed.WhenSurfaceEnds, suppressed.WhenSurfaceMet);
-        return YardTurnDefinitions.Turns.TryGetValue(crawl, out YardTurnDefinition turn)
-            ? new(turn.Lookahead, turn.OutsideTurnAnimation, turn.InsideTurnAnimation)
-            : throw new InvalidDataException(
-                $"Yard crawl {crawl} has no turn definition.");
+        YardTurnDefinition turn = YardTurnDefinitions.Turns[crawl];
+        return new(turn.Lookahead, turn.OutsideTurnAnimation, turn.InsideTurnAnimation);
     }
 }

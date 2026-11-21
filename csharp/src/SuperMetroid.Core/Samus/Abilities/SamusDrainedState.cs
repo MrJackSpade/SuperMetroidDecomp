@@ -225,25 +225,20 @@ public sealed partial class SamusDrainedState
         // The game raises her center by the drained pose's radius less her previous one before changing the
         // pose. This preserves the previous bottom boundary even when the source body did
         // not already have the drained pose's radius.
-        int sourceRadius = samus.Kinematics.Radius.Y;
-        samus.Position = samus.Position.WithWholeY(
-            samus.Position.Y.Whole - (SamusDrainedAnimationDefinitions.CrouchingYRadius - sourceRadius));
-
         // A left-facing pose chooses the left-facing drained pose; every other facing chooses the right-facing one.
         // Read it before replacing the pose, exactly as the drained setup does.
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        samus.Pose = facingLeft
+        SamusPoseId drainedPose = facingLeft
             ? SamusPoseId.DrainedCrouchingLeftPose
             : SamusPoseId.DrainedCrouchingRightPose;
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Special ||
-            samus.Kinematics.Radius.Y != SamusDrainedAnimationDefinitions.CrouchingYRadius)
-            throw new InvalidDataException("The drained crouching poses' metadata changed unexpectedly.");
-
+        int sourceRadius = samus.Kinematics.Radius.Y;
+        samus.Position = samus.Position.WithWholeY(
+            samus.Position.Y.Whole - (SamusPoseMetadata.ReadPoseYRadius(drainedPose) - sourceRadius));
         // The new pose starts on the collapse's third frame. The animation is initialized here,
         // but the special movement type keeps her still until the drained-fall
         // animation step appears.
-        SamusPresentation.InitializeAnimation(samus, SamusDrainedAnimationDefinitions.FallInitialFrame);
+        samus.ChangePose(drainedPose, SamusDrainedAnimationDefinitions.FallInitialFrame);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.TurnedDownward();
         _colouringStage = SpecialColouringStage.Ending;
@@ -267,26 +262,30 @@ public sealed partial class SamusDrainedState
         // either special owner: an ordinary uncrashed spark retains its boost state as Blue Suit,
         // while Crystal Flash retains its independent colour/input state as Shinespark Suit.
         // Neither old movement behaviour may resume.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.Drained);
+        SamusMovementHandOver.ToDrained(samus);
         Phase = DrainedSamusPhase.Falling;
     }
 
     /// <summary>
-    /// Runs one update of drained Samus's fall, using
+    /// Runs one update of drained Samus's fall while she falls, using
     /// the shared Y-speed calculation and block collision.
     /// </summary>
-    internal DrainedSamusMovementResult StepFalling(
-        RoomLevelData level,
-        ISamusRoomObjects roomObjects,
+    /// <returns>Whether she was falling and the fall stepped.</returns>
+    internal bool TryStepFalling(
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter)
+        int frameCounter,
+        out DrainedSamusMovementResult result)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
         if (Phase != DrainedSamusPhase.Falling)
-            throw new InvalidOperationException("Drained Samus is not falling.");
+        {
+            result = default;
+            return false;
+        }
 
-        BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter, out _, out bool downwardDisplacement);
+        BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(terrain, samus, frameCounter, out _, out bool downwardDisplacement);
 
         // Generic Y movement has already applied gravity when it reports the collision.
         // Capture the exact velocity before the landing erases its speed for on-floor art.
@@ -303,9 +302,10 @@ public sealed partial class SamusDrainedState
             Phase = DrainedSamusPhase.OnFloor;
         }
 
-        return new DrainedSamusMovementResult(
+        result = new DrainedSamusMovementResult(
             downwardDisplacement && vertical.Collided,
             impact);
+        return true;
     }
 
     /// <summary>Stands drained Samus up.</summary>
@@ -368,7 +368,7 @@ public sealed partial class SamusDrainedState
             SamusBeamFlags.Charge |
             SamusBeamFlags.Wave |
             SamusBeamFlags.Plasma;
-        samus.HyperBeamEnabled = true;
+        samus.EnableHyperBeam();
         HyperBeamColourEffect = new();
         samus.ChargingSound.Cancel();
     }
@@ -383,9 +383,8 @@ public sealed partial class SamusDrainedState
 
         // The rainbow setup unconditionally chooses left-facing knockback KnockbackLeftPose, even when
         // Samus had faced right. This is why letting her fall later selects DrainedCrouchingLeftPose.
-        samus.Pose = SamusPoseId.KnockbackLeftPose;
+        samus.ChangePose(SamusPoseId.KnockbackLeftPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         // The shared rainbow setup records the pose history before the lock.
         samus.CommitPoseHistory();
         // The shared rainbow setup locks Samus's input and movement after changing art.

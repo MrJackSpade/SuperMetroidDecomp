@@ -58,10 +58,9 @@ internal sealed partial class TourianUnlockBehavior : TourianStatueProjectileBeh
     {
         for (int count = 0; count < TourianStatueSequenceDefinitions.DescentDustPuffs; count++)
         {
-            var projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TourianStatueDescentDust, Effects, _statue.SceneGraphics);
+            var projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.TourianStatueDescentDust, Effects, _statue.SceneGraphics, new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust));
             if (projectile is null) continue;
             _statue.HoldSceneProjectile(projectile);
-            projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust));
             projectile.Anchor = TourianStatueSequenceDefinitions.DescentDustAnchor;
         }
     }
@@ -87,10 +86,9 @@ internal sealed partial class TourianUnlockBehavior : TourianStatueProjectileBeh
     private EnemyProjectile? SpawnAtStatueEye(RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start, TourianStatueEye eye)
     {
         Ensure.NotNull(eye);
-        var projectile = _projectiles.AllocateEnemyProjectile(kind, Effects, _statue.SceneGraphics);
+        var projectile = _projectiles.AllocateEnemyProjectile(kind, Effects, _statue.SceneGraphics, new TourianStatueProjectileAnimation(this, start));
         if (projectile is null) return null;
         _statue.HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(this, start));
         projectile.Position = projectile.Position.WithWhole(eye.Position);
         return projectile;
     }
@@ -129,10 +127,9 @@ internal sealed partial class TourianUnlockBehavior : TourianStatueProjectileBeh
     private EnemyProjectile? SpawnAtParent(EnemyProjectile parent, RoomEnemyProjectileKind kind, TourianStatueProjectileSegment start)
     {
         Ensure.NotNull(parent);
-        var projectile = _projectiles.AllocateEnemyProjectile(kind, Effects, _statue.SceneGraphics);
+        var projectile = _projectiles.AllocateEnemyProjectile(kind, Effects, _statue.SceneGraphics, new TourianStatueProjectileAnimation(this, start));
         if (projectile is null) return null;
         _statue.HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(this, start));
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         return projectile;
     }
@@ -189,25 +186,20 @@ internal sealed partial class TourianUnlockBehavior : TourianStatueProjectileBeh
         [RoomEnemyProjectileKind.TourianStatueDescentDust] = null,
     };
 
+    /// <summary>What <c>Move</c> does for each <see cref="TourianStatueEffectMotion"/> member, each member's own arm.</summary>
+    private IdentityTable<TourianStatueEffectMotion, Action<EnemyProjectileMotionContext>> MoveForTourianStatueEffectMotion => field ??= new(new Dictionary<TourianStatueEffectMotion, Action<EnemyProjectileMotionContext>>
+    {
+        [TourianStatueEffectMotion.SplashHolding] = context => HoldTourianStatueSplash(context.Projectile),
+        [TourianStatueEffectMotion.ParticleFalling] = context => DropTourianStatueParticle(context.Projectile),
+        [TourianStatueEffectMotion.SoulRising] = context => RaiseTourianStatueSoul(context.Projectile),
+    });
+
     /// <summary>Moves one of the unlock's effects: the splash's hold, the particle's fall and the soul's rise.</summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
     /// <param name="motion">The effect's motion.</param>
     internal override void Move(EnemyProjectileMotionContext context, TourianStatueEffectMotion motion)
     {
-        switch (motion)
-        {
-            case TourianStatueEffectMotion.SplashHolding:
-                HoldTourianStatueSplash(context.Projectile);
-                break;
-            case TourianStatueEffectMotion.ParticleFalling:
-                DropTourianStatueParticle(context.Projectile);
-                break;
-            case TourianStatueEffectMotion.SoulRising:
-                RaiseTourianStatueSoul(context.Projectile);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(TourianStatueEffectMotion)} {motion}.");
-        }
+        MoveForTourianStatueEffectMotion[motion](context);
     }
 
     /// <summary>

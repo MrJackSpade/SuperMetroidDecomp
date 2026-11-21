@@ -44,16 +44,11 @@ internal sealed partial class RinkaSpawnReservations
     internal void Release(RinkaSpawnPoint point) => _reserved.Remove(point);
 
     /// <summary>Where a Rinka placed at <paramref name="point"/> appears.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="point"/> is not one of the room's spawn points.</exception>
-    internal static Position16<RoomPixels> Centre(RinkaSpawnPoint point)
-    {
-        foreach (RinkaSpawnPointDefinition definition in RinkaSpawnPointDefinitions.SearchOrder)
-        {
-            if (definition.Point == point)
-                return definition.Centre;
-        }
-        throw new InvalidOperationException($"Rinka spawn point {point} has no place in Mother Brain's room.");
-    }
+    internal static Position16<RoomPixels> Centre(RinkaSpawnPoint point) => Centres[point];
+
+    /// <summary>Each spawn point's centre, from the definitions, which name every point (#2553).</summary>
+    private static IdentityTable<RinkaSpawnPoint, Position16<RoomPixels>> Centres { get; } = new(
+        RinkaSpawnPointDefinitions.SearchOrder.ToDictionary(definition => definition.Point, definition => definition.Centre));
 
     /// <summary>Reserves <paramref name="point"/> and returns it.</summary>
     private RinkaSpawnPoint Take(RinkaSpawnPoint point)

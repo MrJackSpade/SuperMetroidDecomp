@@ -24,16 +24,9 @@ internal static partial class ColourEffectShownFrames
             ColourEffectColours colours = ColourEffectAnimations.Definition(effect).Colours;
             foreach (AnimationBeat<int, ColourEffectCue> beat in Steps(effect))
             {
-                switch (beat)
-                {
-                    case AnimationBeat<int, ColourEffectCue>.Frame frame:
-                        shown.Add(new ShownColourEffectFrame(colours, new ColourEffectFrame(effect, frame.Shown)));
-                        break;
-                    case AnimationBeat<int, ColourEffectCue>.Event:
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Colour effect {effect} has an undefined step {beat}.");
-                }
+                // A pause, an event or a marker shows no frame.
+                if (beat.ShownFrame is { } frame)
+                    shown.Add(new ShownColourEffectFrame(colours, new ColourEffectFrame(effect, frame)));
             }
         }
         return [.. shown

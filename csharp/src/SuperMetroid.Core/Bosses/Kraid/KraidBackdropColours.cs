@@ -62,20 +62,15 @@ internal sealed partial class KraidBackdropColours : IGameplayShadingSource
     public void ShadeGameplay(GameplayShadingBuilder frame)
     {
         Ensure.NotNull(frame);
-        switch (Shows)
-        {
-            case KraidBackdropShown.Settled { Colours: KraidBackdropSettledColours.RoomColours }:
-                return;
-            case KraidBackdropShown.Settled settled:
-                frame.Shade(GameplayPictures.Room, ShadeOf(settled.Colours)
-                    ?? throw new InvalidOperationException($"Kraid's backdrop colours {settled.Colours} have no shade."));
-                return;
-            case KraidBackdropShown.Fading fading:
-                frame.Shade(GameplayPictures.Room, FadeOf(fading));
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined Kraid backdrop colours {Shows}.");
-        }
+        // The room's own colours are its pictures' standard colours, which no shade changes.
+        Shows.React(
+            static (settled, shaded) =>
+            {
+                if (ShadeOf(settled.Colours) is { } shade)
+                    shaded.Shade(GameplayPictures.Room, shade);
+            },
+            static (fading, shaded) => shaded.Shade(GameplayPictures.Room, FadeOf(fading)),
+            frame);
     }
 
     /// <summary>The fade between the backdrop's shadings that <paramref name="fading"/> shows.</summary>
@@ -87,21 +82,20 @@ internal sealed partial class KraidBackdropColours : IGameplayShadingSource
     }
 
     /// <summary>The room pictures' shading that shows <paramref name="shown"/>.</summary>
-    private static PictureShading ShadingOf(KraidBackdropShown shown) => shown switch
+    private static PictureShading ShadingOf(KraidBackdropShown shown) => shown.Match(
+        static settled => ShadeOf(settled.Colours) is { } shade ? PictureShading.Shaded(shade) : PictureShading.Standard,
+        static fading => PictureShading.Standard.With(FadeOf(fading)));
+
+    /// <summary>The shade of each colours.</summary>
+    private static IdentityTable<KraidBackdropSettledColours, PictureShade?> ShadeByColours => field ??= new(new Dictionary<KraidBackdropSettledColours, PictureShade?>
     {
-        KraidBackdropShown.Settled settled => ShadeOf(settled.Colours) is { } shade ? PictureShading.Shaded(shade) : PictureShading.Standard,
-        KraidBackdropShown.Fading fading => PictureShading.Standard.With(FadeOf(fading)),
-        _ => throw new ArgumentOutOfRangeException(nameof(shown), shown, "Undefined Kraid backdrop colours."),
-    };
+        [KraidBackdropSettledColours.RoomColours] = null,
+        [KraidBackdropSettledColours.KraidColours] = KraidShades.Backdrop,
+        [KraidBackdropSettledColours.Black] = KraidShades.BackdropBlack,
+    });
 
     /// <summary>The installed shade of settled backdrop colours; none for the room's own, its pictures' standard colours.</summary>
-    private static PictureShade? ShadeOf(KraidBackdropSettledColours colours) => colours switch
-    {
-        KraidBackdropSettledColours.RoomColours => null,
-        KraidBackdropSettledColours.KraidColours => KraidShades.Backdrop,
-        KraidBackdropSettledColours.Black => KraidShades.BackdropBlack,
-        _ => throw new ArgumentOutOfRangeException(nameof(colours), colours, "Undefined Kraid backdrop colours."),
-    };
+    private static PictureShade? ShadeOf(KraidBackdropSettledColours colours) => ShadeByColours[colours];
 
     /// <summary>The fade that took the backdrop's latest step.</summary>
     /// <param name="Goal">The colours it ends on.</param>

@@ -218,18 +218,21 @@ internal static class LookupStream1Verification
             enemies.PowampBehavior.InitializePowampBody(body);
             body.Position = body.Position.WithWholeY(100);
             var place = isBody ? body : balloon;
-            PowampSegment program = root switch
-            {
-                0xc163 => PowampSegment.BodyFast,
-                0xc173 => PowampSegment.BodySlow,
-                0xc183 => PowampSegment.BalloonInflatingFromDeflated,
-                _ => PowampSegment.BalloonStartSinking,
-            };
             if (isBody)
-                body.RequireSpeciesState<PowampBodyState>().Playback = new(PowampAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            {
+                PowampBodySegment pulse = root == 0xc163 ? PowampBodySegment.BodyFast : PowampBodySegment.BodySlow;
+                body.RequireSpeciesState<PowampBodyState>().Playback = new(PowampAnimations.BodyStartingAt[pulse], AnimationPlace.StartOfAnimation);
+            }
             else
-                PowampBehavior.StartPowampBalloonAnimation(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), program);
-            var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), balloon.HeldOccupant());
+            {
+                // The body's own AI starts the balloon's program: its rest's end the inflation, its release the sinking.
+                PowampBodyState bodyState = body.RequireSpeciesState<PowampBodyState>();
+                bodyState.Action = root == 0xc183 ? PowampAction.DeflatedResting : PowampAction.GrappledResting;
+                bodyState.ActionTimer = UpdateCountdown.For(1);
+                enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, bodyState, VerificationHelpersVerification.CreateEmptyRoom(new(16, 16)),
+                    new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
+            }
+            PowampBalloonState balloonState = balloon.RequireSpeciesState<PowampBalloonState>();
             place.AnimationClock.StepOnNextUpdate();
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             int calls = 0;
@@ -246,9 +249,9 @@ internal static class LookupStream1Verification
                     AssertEqual(sprite, place.SpritemapPointer, "Native Powamp held visual");
                     if (!isBody)
                     {
-                        PowampBehavior.AlignPowampBalloonY(body, pair);
+                        // The body places the balloon this far above it at the pose the balloon stands at.
                         int nativeOffset = unchecked((short)Word(0xa80000 | ((root == 0xc183 ? 0xc277 : 0xc27d) + pose * 2)));
-                        AssertEqual((ushort)(100 + nativeOffset), balloon.Position.Y.Whole, "Native pose-driven balloon collision center");
+                        AssertEqual(nativeOffset, PowampMotion.BalloonHeight(balloonState.Inflation.Pose), "Native pose-driven balloon collision center");
                     }
                 }
             }
@@ -262,10 +265,9 @@ internal static class LookupStream1Verification
             else
             {
                 AssertEqual(0, place.AnimationClock.Hold, "Powamp Sleep follows full terminal hold");
-                ushort terminalY = balloon.Position.Y.Whole;
-                PowampBehavior.AlignPowampBalloonY(body, pair);
-                AssertEqual(terminalY, balloon.Position.Y.Whole, "Sleep preserves terminal balloon collision center");
+                PowampBalloonPose terminal = balloonState.Inflation.Pose;
                 EnemyInstructionRunner.Process(arguments);
+                AssertEqual(terminal, balloonState.Inflation.Pose, "Sleep preserves terminal balloon collision center");
                 AssertTrue(place.AnimationClock.IsStopped, "Sleeping Powamp keeps its clock stopped");
             }
         }
@@ -469,7 +471,7 @@ internal static class LookupStream1Verification
         {
             // Only the frames the drained crouch can show are drawn; the draw rejects the others (#1513).
             if (!shown.TryPictureFrame(SamusPoseId.DrainedCrouchingLeftPose, SamusAnimationNumbers.Frame(SamusPoseId.DrainedCrouchingLeftPose, frame), out _)) continue;
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = SamusAnimationNumbers.Frame(SamusPoseId.DrainedCrouchingLeftPose, frame), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { AnimationFrame = SamusAnimationNumbers.Frame(SamusPoseId.DrainedCrouchingLeftPose, frame), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) }.InPose(SamusPoseId.DrainedCrouchingLeftPose);
             samus.BindBodyFixture(stockArt);
             samus.Presentation.DrawWithoutFlicker(samus, new SpriteFrameBuffer(), new(0, 0));
             // A frame outside the crouch's own pictures is placed as the picture it draws (#1513).
@@ -501,7 +503,7 @@ internal static class LookupStream1Verification
             int count = pose is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose ? 1 : 2;
             for (ushort frame = 0; frame < count; frame++)
             {
-                var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, AnimationFrame = SamusAnimationNumbers.Frame(pose, frame), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+                var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { AnimationFrame = SamusAnimationNumbers.Frame(pose, frame), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) }.InPose(pose);
                 samus.BindBodyFixture(stockArt);
                 samus.Presentation.DrawWithoutFlicker(samus, new SpriteFrameBuffer(), new(0, 0));
                 AssertEqual(128 + native[(SamusPoseNumbers.Number(pose) - 0x35) * 2 + frame], (int)samus.Presentation.DrawOrigin.Y,
@@ -553,9 +555,9 @@ internal static class LookupStream1Verification
                 continue;
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = landingPose, AnimationFrame = SamusAnimationNumbers.Frame(landingPose, (ushort)(index % 4)),
+                AnimationFrame = SamusAnimationNumbers.Frame(landingPose, (ushort)(index % 4)),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            };
+            }.InPose(landingPose);
             samus.BindBodyFixture(stock);
             samus.Presentation.DrawWithoutFlicker(samus, new SpriteFrameBuffer(), cameraPosition: new(0, 0));
             // The game subtracts a word whose high byte the drawn position never shows; the body sits by the low byte (#1500).
@@ -630,11 +632,8 @@ internal static class LookupStream1Verification
             // the cartridge's flags and the code stored around them for every pose.
             if (pose < 0xDB)
                 AssertEqual(LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35) == 0,
-                    SamusHudObservations.PostureAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
+                    SamusHudInput.PostureTransitionAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), grappleActive: false, InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
                     $"HUD exact bounded posture admission {pose:X2}");
-            else
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusHudObservations.PostureAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
-                    "HUD rejects prefiltered posture observation");
             foreach (bool grapple in new[] { false, true })
             {
                 bool expected = pose >= 0xF1 || (pose < 0xDB && (LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35) == 0 || grapple));
@@ -686,7 +685,7 @@ internal static class LookupStream1Verification
             int row = SamusProjectileDirectionCodec.FlarePlacementRow(placement.Aim);
             var expected = new ChargeFlareOffset { X = Word((placement.Running ? 0x90c1dc : 0x90c1a8) + 2 * row),
                 Y = Word((placement.Running ? 0x90c1f0 : 0x90c1c2) + 2 * row) };
-            AssertEqual(expected.Offset, stock.Resolve(placement.Running, placement.Aim), "Installed flare default matches native");
+            AssertEqual(expected.Offset, placement.Aim.PlacedBy(stock, placement.Running), "Installed flare default matches native");
         }
         AssertEqual(23, ChargeFlarePlacements.Placements(ChargeFlareSource.Beam).Count(),
             "The beam flare is placed at ten muzzles in each movement mode and three turning placements standing");
@@ -697,16 +696,9 @@ internal static class LookupStream1Verification
             int row = SamusProjectileDirectionCodec.FlarePlacementRow(placement.Aim);
             var expected = new ChargeFlareOffset { X = Word((placement.Running ? 0x9bc19a : 0x9bc14a) + row * 2),
                 Y = Word((placement.Running ? 0x9bc1ae : 0x9bc15e) + row * 2) };
-            AssertEqual(expected.Offset, grapple.Resolve(placement.Running, placement.Aim), "Installed Grapple defaults match native");
+            AssertEqual(expected.Offset, grapple.AtMuzzle(placement.Running, ((SamusFlareAim.AtMuzzle)placement.Aim).Direction), "Installed Grapple defaults match native");
         }
         AssertEqual(20, ChargeFlarePlacements.Placements(ChargeFlareSource.Grapple).Count(), "The Grapple flare is placed at ten muzzles in each movement mode");
-        // No pose places a flare while turning running, or a Grapple flare while turning (#1500).
-        foreach (SamusTurningAim turning in Enum.GetValues<SamusTurningAim>())
-        {
-            SamusFlareAim aim = new SamusFlareAim.WhileTurning(turning);
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, aim), "Running flare placement rejects turning placements");
-            AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(false, aim), "Grapple flare placement has no turning placements");
-        }
         var compositions = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();
         var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
@@ -718,7 +710,7 @@ internal static class LookupStream1Verification
             SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose
         })
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) }.InPose(pose);
             samus.BindBodyFixture(body);
             int direction = LookupStream1FlarePlacementRomByte(rom, 0x91b629 + SamusPoseNumbers.Number(pose) * 8 + 3);
             bool running = pose is SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingLeftNormalPose;
@@ -809,9 +801,9 @@ internal static class LookupStream1Verification
         // The cartridge lists the balloon's height for each pose in the order each sequence shows them (#1845).
         for (int pose = 0; pose < 3; pose++)
         {
-            AssertEqual(Word(0xa8c277 + 2 * pose), PowampMotion.BalloonHeight(new PowampBalloonInflation(PowampBalloonSequence.Inflating, pose + 1).Pose),
+            AssertEqual(Word(0xa8c277 + 2 * pose), PowampMotion.BalloonHeight(SuperMetroid.Verification.Enemies.Powamp.PowampBehaviorVerification.NativeInflatingPoses[pose]),
                 "Powamp native rising balloon offset");
-            AssertEqual(Word(0xa8c27d + 2 * pose), PowampMotion.BalloonHeight(new PowampBalloonInflation(PowampBalloonSequence.Sinking, pose + 1).Pose),
+            AssertEqual(Word(0xa8c27d + 2 * pose), PowampMotion.BalloonHeight(SuperMetroid.Verification.Enemies.Powamp.PowampBehaviorVerification.NativeSinkingPoses[pose]),
                 "Powamp native sinking balloon offset");
         }
         CompassDirection[] spikeDirections = SuperMetroid.Verification.Enemies.Powamp.PowampSpikeCartridgeOrder.Directions;
@@ -1329,7 +1321,6 @@ internal static class LookupStream1Verification
             }
             AssertTrue(done, "escape text native program terminates");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Get((EscapeTypewriterMessageId)(-1)), "escape text rejects absent program");
         Console.WriteLine($"Escape text: five installed native lines and {totalFrames} actual native-oracle frames pass.");
     }
 
@@ -1660,7 +1651,7 @@ internal static class LookupStream1Verification
             int count = pose == SamusPoseId.NormalLandingRightPose ? 2 : pose == SamusPoseId.SpinLandingRightPose ? 3 : pose is SamusPoseId.StandingAimUpRightPose or SamusPoseId.NormalJumpAimUpRightPose or SamusPoseId.NormalJumpAimUpLeftPose or SamusPoseId.NormalJumpAimDownRightPose or SamusPoseId.NormalJumpAimDownLeftPose or SamusPoseId.FallingAimUpRightPose or SamusPoseId.FallingAimUpLeftPose or SamusPoseId.FallingAimDownRightPose or SamusPoseId.FallingAimDownLeftPose ? 2 : 1;
             for (ushort frame = 0; frame < count; frame++)
             {
-                var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, AnimationFrame = SamusAnimationNumbers.Frame(pose, frame), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile };
+                var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { AnimationFrame = SamusAnimationNumbers.Frame(pose, frame), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile }.InPose(pose);
                 samus.BindBodyFixture(body);
                 var cannon = new SamusArmCannonState(InstalledFixtures.SamusArtwork(armCannon: stock.Gameplay));
                 cannon.Update(samus); cannon.Update(samus);

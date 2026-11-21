@@ -7,23 +7,10 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static partial class PirateHitboxShotActions
 {
     /// <summary>
-    /// Fails for a reaction no Pirate hitbox names. The empty frame still has a real point hitbox for a pirate, whose
-    /// common reaction bypasses the Ninja-specific armor tests; it is not rejected as unknown. Only the gold Ninja
-    /// (<see cref="SelectGoldNinjaHitboxShotAction"/>) gives the two Ninja body reactions special meaning: every other
-    /// Pirate takes the ordinary shot reaction even when it shows one of the frames it shares with the Ninja (#2453).
-    /// </summary>
-    internal static void RequirePirateShotReaction(EnemyReaction hitboxShot)
-    {
-        if (!Ensure.NotNull(hitboxShot).IsOrdinary && !SpacePirateReactions.Own.Contains(hitboxShot))
-        {
-            throw new InvalidDataException(
-                $"Space Pirate has no response to shot reaction {hitboxShot}.");
-        }
-    }
-
-    /// <summary>
     /// Runs the gold Ninja's hitbox shot reactions: its two body reactions reflect or ignore what does it no damage, and
-    /// the common and Pirate reactions run the ordinary shot reaction.
+    /// the common and Pirate reactions, the only others a Pirate hitbox names (<see cref="SpacePirateHitboxes"/>), run the
+    /// ordinary shot reaction. Only the gold Ninja gives the two Ninja body reactions special meaning: every other Pirate
+    /// takes the ordinary shot reaction even when it shows one of the frames it shares with the Ninja (#2453).
     /// </summary>
     internal static PirateHitboxShotAction SelectGoldNinjaHitboxShotAction(
         RoomEnemyOccupant enemy,
@@ -31,7 +18,6 @@ internal static partial class PirateHitboxShotActions
         EnemyReaction hitboxShot)
     {
         SamusProjectile projectile = held.Projectile;
-        RequirePirateShotReaction(hitboxShot);
         if (SpacePirateReactions.GoldNinjaOrdinary.Contains(hitboxShot))
             return PirateHitboxShotAction.Normal;
 
@@ -41,46 +27,22 @@ internal static partial class PirateHitboxShotActions
             if (family == SamusProjectileFamily.SuperMissile &&
                 projectile.KindStateAs<SuperMissileShotState>().Ignition is SamusMissileIgnition.Pending)
                 return PirateHitboxShotAction.Ignore;
-            return IsBeamOrMissile(family)
-                ? PirateHitboxShotAction.Reflect
+            return BeamAndMissileVulnerabilities.TryGetValue(family, out ReflectableShot? reflectable)
+                ? PirateHitboxShotAction.Reflect(reflectable.Family)
                 : PirateHitboxShotAction.Ignore;
         }
 
-        if (!IsBeamOrMissile(family))
+        // Only beams and missiles have a vulnerability the Gold Ninja reads; it ignores bombs and explosions.
+        if (!BeamAndMissileVulnerabilities.TryGetValue(family, out ReflectableShot? shot))
             return PirateHitboxShotAction.Ignore;
 
-        EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(Ensure.NotNull(enemy).Definition);
-        EnemyWeaponVulnerability vulnerability = family switch
-        {
-            SamusProjectileFamily.Beam => vulnerabilities.ForBeam(held.Type.BeamCombination),
-            SamusProjectileFamily.Missile => vulnerabilities.Ordnance.Missile,
-            SamusProjectileFamily.SuperMissile => vulnerabilities.Ordnance.SuperMissile,
-            SamusProjectileFamily.PowerBomb or
-                SamusProjectileFamily.Bomb or
-                SamusProjectileFamily.BeamExplosion or
-                SamusProjectileFamily.MissileExplosion => throw new InvalidDataException(
-                $"Gold Ninja projectile family {family} has no vulnerability field."),
-            _ => throw new InvalidDataException(
-                $"Gold Ninja projectile family {family} has no vulnerability field."),
-        };
+        EnemyWeaponVulnerability vulnerability = shot.VulnerabilityOf(EnemyVulnerabilities.Of(Ensure.NotNull(enemy).Definition), held);
         // The Gold Ninja reflects what does it no damage, freezing beams included.
         return !vulnerability.Multiplier.IsNone && !vulnerability.FreezesWithoutDamage
             ? PirateHitboxShotAction.Normal
-            : PirateHitboxShotAction.Reflect;
+            : PirateHitboxShotAction.Reflect(shot.Family);
     }
 
-    /// <summary>
-    /// Fails for a reaction no Pirate hitbox gives a normal bomb: a Gold Ninja's body answers only a Power Bomb, so a normal
-    /// bomb neither hurts it nor reflects from it.
-    /// </summary>
-    internal static void RequireGoldNinjaNormalBombReaction(EnemyReaction hitboxShot)
-    {
-        if (!SpacePirateReactions.Own.Contains(hitboxShot))
-        {
-            throw new InvalidDataException(
-                $"Space Pirate has no response to normal-bomb reaction {hitboxShot}.");
-        }
-    }
 
     /// <summary>
     /// Whether a shot or bomb whose hit runs through <paramref name="reaction"/> and hurts a Pirate other than the gold
@@ -110,18 +72,47 @@ internal static partial class PirateHitboxShotActions
     /// <summary>Whether a shot's hurting hit shows the hit burst on the gold Ninja: where its hitbox's reaction shows it.</summary>
     internal static bool GoldNinjaShowsHitBurst(EnemyShotHitContext context) => GoldNinjaShowsHitBurst(Ensure.NotNull(context).HitboxShot);
 
-    /// <summary>Whether a shot is a beam, missile or Super Missile, the families the gold ninja reflects or is hurt by.</summary>
-    private static bool IsBeamOrMissile(SamusProjectileFamily family) =>
-        family is SamusProjectileFamily.Beam or SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile;
+    /// <summary>
+    /// The families the gold ninja reflects or is hurt by, a beam, missile or Super Missile: each as the family a reflection
+    /// carries and the vulnerability the ninja reads for it.
+    /// </summary>
+    private static IReadOnlyDictionary<SamusProjectileFamily, ReflectableShot> BeamAndMissileVulnerabilities => field ??=
+        new Dictionary<SamusProjectileFamily, ReflectableShot>
+        {
+            [SamusProjectileFamily.Beam] = new(ReflectableShotFamily.Beam, static (vulnerabilities, held) => vulnerabilities.ForBeam(held.Type.BeamCombination)),
+            [SamusProjectileFamily.Missile] = new(ReflectableShotFamily.Missile, static (vulnerabilities, held) => vulnerabilities.Ordnance.Missile),
+            [SamusProjectileFamily.SuperMissile] = new(ReflectableShotFamily.SuperMissile, static (vulnerabilities, held) => vulnerabilities.Ordnance.SuperMissile),
+        };
 
-    /// <summary>Outcome chosen from a Pirate component's shot reaction before ordinary damage processing.</summary>
-    internal enum PirateHitboxShotAction
+    /// <summary>A family the gold ninja reflects, and the vulnerability it reads for it.</summary>
+    /// <param name="Family">The family a reflection of the shot carries.</param>
+    /// <param name="VulnerabilityOf">The ninja's vulnerability to the shot.</param>
+    private sealed record ReflectableShot(ReflectableShotFamily Family, Func<EnemyVulnerabilities, SamusProjectileOccupant, EnemyWeaponVulnerability> VulnerabilityOf);
+
+    /// <summary>
+    /// Outcome chosen from a Pirate component's shot reaction before ordinary damage processing (#2553): the Pirate's
+    /// normal shot reaction, the hit consumed with no damage, or the shot reflected, carrying its reflectable family.
+    /// </summary>
+    internal sealed record PirateHitboxShotAction
     {
+        /// <summary>Only the outcomes below exist.</summary>
+        private PirateHitboxShotAction()
+        {
+        }
+
         /// <summary>Continue through the Pirate's normal shot reaction.</summary>
-        Normal,
+        internal static PirateHitboxShotAction Normal { get; } = new() { RunsNormalReaction = true };
+
         /// <summary>Consume the hit without damage or projectile reflection.</summary>
-        Ignore,
-        /// <summary>Reflect the projectile from the authored hitbox region.</summary>
-        Reflect,
+        internal static PirateHitboxShotAction Ignore { get; } = new();
+
+        /// <summary>Reflect the projectile, of <paramref name="family"/>, from the authored hitbox region.</summary>
+        internal static PirateHitboxShotAction Reflect(ReflectableShotFamily family) => new() { Reflected = family };
+
+        /// <summary>Whether the hit continues through the Pirate's normal shot reaction.</summary>
+        internal bool RunsNormalReaction { get; private init; }
+
+        /// <summary>The family of the shot the hitbox reflects; null when it reflects none.</summary>
+        internal ReflectableShotFamily? Reflected { get; private init; }
     }
 }

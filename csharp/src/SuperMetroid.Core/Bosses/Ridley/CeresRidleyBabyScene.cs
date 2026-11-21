@@ -109,11 +109,30 @@ internal sealed partial class CeresRidleyBabyScene
                 ? new AnimationContinuation<CeresBabySegment>(CeresBabyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         baby.Playback = new AnimationPlayback<CeresBabySegment>(animation, place);
-        if (outcome is not AnimationShown<CeresBabySegment, CeresBabyPose>.Frame shown)
-            throw new InvalidOperationException($"The Ceres Baby's animation ended an update with {outcome}.");
-        baby.Clock.Show(shown.Duration);
-        baby.ShownPose = shown.Shown;
+        outcome.React(AdvanceCeresBabyAnimationReactions, new AdvanceCeresBabyAnimationContext(baby, ridley, this));
     }
+
+    /// <summary>What <see cref="AdvanceCeresBabyAnimation"/> does on each <see cref="AnimationShown{CeresBabySegment, CeresBabyPose}"/>, built once (#2553).</summary>
+    private static AnimationShownReactions<CeresBabySegment, CeresBabyPose, AdvanceCeresBabyAnimationContext> AdvanceCeresBabyAnimationReactions { get; } = new(
+        Frame: static (shown, context) =>
+        {
+            context.Baby.Clock.Show(shown.Duration);
+            context.Baby.ShownPose = shown.Shown;
+        },
+        HeldFrame: static (held, context) =>
+        {
+            context.Baby.ShownPose = held.Shown;
+            context.Baby.Clock.ShowForGood();
+        },
+        Paused: static (paused, context) => context.Baby.Clock.Pause(paused.Duration),
+        Held: static (_, context) => context.Baby.Clock.Stop(),
+        Ended: static (_, context) => context.Baby.Clock.Stop());
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Baby">The <c>baby</c> <see cref="AdvanceCeresBabyAnimation"/> works with.</param>
+    /// <param name="Ridley">Ceres Ridley's encounter, which holds the Baby and the colours its cues show.</param>
+    /// <param name="Owner">The <see cref="CeresRidleyBabyScene"/> reacting.</param>
+    private readonly record struct AdvanceCeresBabyAnimationContext(CeresBaby Baby, CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
 
     /// <summary>The frame the Baby shows for <paramref name="pose"/>, or none before the Baby's first pose.</summary>
     private static EnemyFrameId? CeresBabyFrame(CeresBabyPose? pose) =>
@@ -126,24 +145,29 @@ internal sealed partial class CeresRidleyBabyScene
     internal const CeresBabySegment SilentAnimation = CeresBabySegment.IdleSquish;
 
     /// <summary>Carries out one cue of the Baby's animation, returning the segment whose animation its owner starts, or null to play on.</summary>
-    private CeresBabySegment? ApplyCeresBabyCue(CeresRidleyState ridley, CeresBabyCue cue)
-    {
-        switch (cue)
-        {
-            case CeresBabyCue.Cries:
+    private CeresBabySegment? ApplyCeresBabyCue(CeresRidleyState ridley, CeresBabyCue cue) =>
+        cue.Match(ApplyCeresBabyCueCases, new ApplyCeresBabyCueContext(ridley, this));
+
+    /// <summary>What <see cref="ApplyCeresBabyCue"/> does on each <see cref="CeresBabyCue"/>, built once (#2553).</summary>
+    private static CeresBabyCueCases<ApplyCeresBabyCueContext, CeresBabySegment?> ApplyCeresBabyCueCases { get; } = new(
+            ReactsToMotion: static (_, context) => !context.Ridley.Baby.VerticalVelocity.IsZero ? MovingAnimation : null,
+            UpdateColors: static (updateColors, context) =>
+            {
+                context.Ridley.Colours.ShowBaby(updateColors.Shade);
+                return null;
+            },
+            Cries: static (_, context) =>
+            {
                 // While the Baby is falling it always cries and plays on. Otherwise the current random number, read without
                 // drawing a new one, makes it jump silently one time in two.
-                if (ridley.Baby.VerticalVelocity.IsZero && RidleyRandomDefinitions.CeresBabySilentJump.IsTakenBy(_room.Random.Read()))
+                if (context.Ridley.Baby.VerticalVelocity.IsZero && RidleyRandomDefinitions.CeresBabySilentJump.IsTakenBy(context.Owner._room.Random.Read()))
                     return SilentAnimation;
-                _audio.QueueEnemySound(RoomSound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
+                context.Owner._audio.QueueEnemySound(RoomSound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
                 return null;
-            case CeresBabyCue.UpdateColors updateColors:
-                ridley.Colours.ShowBaby(updateColors.Shade);
-                return null;
-            case CeresBabyCue.ReactsToMotion:
-                return !ridley.Baby.VerticalVelocity.IsZero ? MovingAnimation : null;
-            default:
-                throw new InvalidOperationException($"Undefined Ceres Baby cue {cue}.");
-        }
-    }
+            });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Ridley">The ridley the cases read.</param>
+    /// <param name="Owner">The <see cref="CeresRidleyBabyScene"/> reacting.</param>
+    private readonly record struct ApplyCeresBabyCueContext(CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
 }

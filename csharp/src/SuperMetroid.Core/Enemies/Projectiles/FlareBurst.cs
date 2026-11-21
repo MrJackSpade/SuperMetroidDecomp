@@ -24,7 +24,7 @@ internal sealed partial record FlareBurst(
     /// <typeparam name="TCue">The owner's cue type.</typeparam>
     /// <param name="pictures">The owner's burst pictures.</param>
     /// <param name="updates">The updates each picture shows for.</param>
-    internal static AnimationBeat<EnemyProjectileFrameId, TCue>[] Steady<TCue>(FlareBurst pictures, int updates)
+    internal static AnimationBeat<EnemyProjectileFrameId, TCue>.Unpaused[] Steady<TCue>(FlareBurst pictures, int updates)
         where TCue : notnull =>
         AnimationBeats<EnemyProjectileFrameId, TCue>.Steady(updates, pictures.Spark, pictures.FlareBall,
             pictures.FlareRingCored, pictures.FlareRing, pictures.FlareRingFading);
@@ -36,7 +36,7 @@ internal sealed partial record FlareBurst(
     /// <typeparam name="TCue">The owner's cue type.</typeparam>
     /// <param name="pictures">The owner's burst pictures.</param>
     /// <param name="updates">The updates each picture shows for.</param>
-    internal static AnimationBeat<EnemyProjectileFrameId, TCue>[] Gathering<TCue>(FlareBurst pictures, int updates)
+    internal static AnimationBeat<EnemyProjectileFrameId, TCue>.Unpaused[] Gathering<TCue>(FlareBurst pictures, int updates)
         where TCue : notnull =>
         AnimationBeats<EnemyProjectileFrameId, TCue>.Steady(updates, pictures.FlareRingFading, pictures.FlareRing,
             pictures.FlareRingCored, pictures.FlareBall, pictures.Spark);
@@ -52,7 +52,7 @@ internal sealed partial record FlareBurst(
     /// <param name="flareRingCored">The updates the cored ring shows for.</param>
     /// <param name="flareRing">The updates the ring shows for.</param>
     /// <param name="flareRingFading">The updates the fading ring shows for.</param>
-    internal static AnimationBeat<EnemyProjectileFrameId, TCue>[] Paced<TCue>(FlareBurst pictures, int spark, int flareBall,
+    internal static AnimationBeat<EnemyProjectileFrameId, TCue>.Unpaused[] Paced<TCue>(FlareBurst pictures, int spark, int flareBall,
         int flareRingCored, int flareRing, int flareRingFading)
         where TCue : notnull =>
     [

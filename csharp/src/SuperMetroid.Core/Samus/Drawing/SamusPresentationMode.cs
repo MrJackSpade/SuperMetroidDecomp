@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// <summary>How Samus is presented: as the player's Samus in play, or as a figure a cinematic shows.</summary>
 public enum SamusPresentationMode
 {
-    /// <summary>Samus in play: how every Samus is presented until a cinematic shows her (<see cref="SamusPresentation.Mode"/>).</summary>
+    /// <summary>The player's Samus in play: her footsteps, landings and hurt make their sounds and effects.</summary>
     Gameplay,
 
     /// <summary>

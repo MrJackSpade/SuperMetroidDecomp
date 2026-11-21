@@ -9,10 +9,13 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 internal sealed partial class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fireflea];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Fireflea], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new FirefleaEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new FirefleaEntity(this, occupant, place, common));
 
     /// <summary>Runs the common touch, after which the Fireflea always dies.</summary>
     private readonly EnemyCollision _collision;
@@ -33,12 +36,9 @@ internal sealed partial class FirefleaBehavior : IEnemySpecies, IEnemyEntityFact
     internal static void InitializeFireflea(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         FirefleaSpawnSettings settings = occupant.SpawnSettings<FirefleaSpawnSettings>();
-        FirefleaFlightState flight = settings.Flight switch
-        {
-            FirefleaFlight.Circling circling => StartCircling(place, circling, settings.Radius),
-            FirefleaFlight.Bobbing bobbing => StartBobbing(place, bobbing, settings.Radius),
-            _ => throw new InvalidOperationException($"Undefined {nameof(FirefleaFlight)} {settings.Flight}."),
-        };
+        FirefleaFlightState flight = settings.Flight.Match<FirefleaFlightState>(
+            bobbing => StartBobbing(place, bobbing, settings.Radius),
+            circling => StartCircling(place, circling, settings.Radius));
         place.SetSpeciesState(new FirefleaEnemyState(flight)
         {
             Playback = new(FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), AnimationPlace.StartOfAnimation),
@@ -70,30 +70,31 @@ internal sealed partial class FirefleaBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Runs the Fireflea's main AI, advancing circular angle or vertical travel.</summary>
-    private static void RunFirefleaMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, FirefleaEnemyState state)
+    private static void RunFirefleaMain(RoomEnemyOccupant occupant, FirefleaEnemyState state)
     {
-        switch (state.Flight)
-        {
-            case CirclingFirefleaState circling:
-                place.Position = place.Position.WithWhole(circling.Center
-                    + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), occupant.SpawnSettings<FirefleaSpawnSettings>().Radius));
-                circling.Angle = circling.Angle.TurnedBy(circling.Definition.TurnPerUpdate);
-                return;
-
-            case BobbingFirefleaState bobbing:
-                place.Position = place.Position.AdvanceY(bobbing.Velocity);
-
-                // The Fireflea overshoots a bound before its way reverses.
-                bool crossedMinimum = place.Position.Y.Whole < bobbing.MinimumY;
-                bool reachedMaximum = place.Position.Y.Whole >= bobbing.MaximumY;
-                if (crossedMinimum || reachedMaximum)
-                    bobbing.Direction = bobbing.Direction.Reversed();
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined Fireflea flight {state.Flight}.");
-        }
+        state.Flight.React(RunFirefleaMainReactions, occupant);
     }
+
+    /// <summary>What <see cref="RunFirefleaMain"/> does on each <see cref="FirefleaFlightState"/>, built once (#2553).</summary>
+    private static FirefleaFlightStateReactions<RoomEnemyOccupant> RunFirefleaMainReactions { get; } = new(
+        BobbingFirefleaState: static (bobbing, occupant) =>
+        {
+            RoomEnemyPlace place = occupant.Place;
+            place.Position = place.Position.AdvanceY(bobbing.Velocity);
+
+            // The Fireflea overshoots a bound before its way reverses.
+            bool crossedMinimum = place.Position.Y.Whole < bobbing.MinimumY;
+            bool reachedMaximum = place.Position.Y.Whole >= bobbing.MaximumY;
+            if (crossedMinimum || reachedMaximum)
+                bobbing.Direction = bobbing.Direction.Reversed();
+        },
+        CirclingFirefleaState: static (circling, occupant) =>
+        {
+            RoomEnemyPlace place = occupant.Place;
+            place.Position = place.Position.WithWhole(circling.Center
+                + EnemyMath.CircleOffset(circling.Angle.ToTrigonometryAngle(), occupant.SpawnSettings<FirefleaSpawnSettings>().Radius));
+            circling.Angle = circling.Angle.TurnedBy(circling.Definition.TurnPerUpdate);
+        });
 
     /// <summary>
     /// Runs the Fireflea's reaction to Samus's touch, including its double death. The
@@ -149,14 +150,13 @@ internal sealed partial class FirefleaBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>Advances Fireflea's typed animation.</summary>
     internal static void AdvanceFirefleaTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, FirefleaAnimations.Segments,
-            static (FirefleaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free Fireflea animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, FirefleaAnimations.Segments,
+            static (FirefleaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Fireflea's main AI.</summary>
     internal static void RunFirefleaMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        RunFirefleaMain(occupant, place, place.RequireSpeciesState<FirefleaEnemyState>());
+        RunFirefleaMain(occupant, place.RequireSpeciesState<FirefleaEnemyState>());
     }
 
     /// <summary>Advances darkness before a lethal common power-bomb death is finalized.</summary>

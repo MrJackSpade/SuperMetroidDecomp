@@ -18,7 +18,7 @@ internal static partial class RidleySamusInteractionDefinitions
     }
 
     /// <summary>Classifies each of Samus's 26 movement types by grab policy.</summary>
-    internal static readonly Dictionary<SamusMovementType, GrabPolicy> GrabPolicies = new()
+    internal static readonly IdentityTable<SamusMovementType, GrabPolicy> GrabPolicies = new(new Dictionary<SamusMovementType, GrabPolicy>
     {
         [SamusMovementType.MorphBallGround] = GrabPolicy.Morphed,
         [SamusMovementType.GlitchBall] = GrabPolicy.Morphed,
@@ -46,7 +46,7 @@ internal static partial class RidleySamusInteractionDefinitions
         [SamusMovementType.Grappling] = GrabPolicy.Immune,
         [SamusMovementType.DamageBoost] = GrabPolicy.Immune,
         [SamusMovementType.DraygonHeld] = GrabPolicy.Immune,
-    };
+    });
 
     /// <summary>How long Samus stays out of Ridley's reach after he releases her in ball form: six frames.</summary>
     internal const int MorphedReleaseIntangibilityFrames = 6;

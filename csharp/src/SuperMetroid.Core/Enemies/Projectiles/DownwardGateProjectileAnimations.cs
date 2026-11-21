@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal static partial class DownwardGateProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<DownwardGateProjectileSegment, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments { get; } = new(
-        new Dictionary<DownwardGateProjectileSegment, AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>[]>
+    internal static UnpausedAnimationSegments<DownwardGateProjectileSegment, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments { get; } = new(
+        new Dictionary<DownwardGateProjectileSegment, AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>.Unpaused[]>
     {
         [P.Moving] =
         [
@@ -76,7 +76,8 @@ internal static partial class DownwardGateProjectileAnimations
     /// <summary>
     /// The gate's travel, each stage named by the animation that starts it, and the stage each takes the gate on to
     /// (#2284): the moving gate slides down three blocks and stops closed; once woken, the closed gate rises three blocks
-    /// and vanishes. Each block the gate passes, and the wake, takes it on to the next stage; the vanishing gate has none.
+    /// and vanishes. Each block the gate passes, and the wake, takes it on to the next stage. The vanishing gate deletes
+    /// itself as its stage starts, so it goes on to no other: it stays vanishing.
     /// </summary>
     internal static IReadOnlyDictionary<DownwardGateProjectileSegment, DownwardGateProjectileSegment> NextStage { get; } =
         new Dictionary<DownwardGateProjectileSegment, DownwardGateProjectileSegment>
@@ -90,6 +91,7 @@ internal static partial class DownwardGateProjectileAnimations
             [P.RisenOneBlock] = P.RisenTwoBlocks,
             [P.RisenTwoBlocks] = P.RisenThreeBlocks,
             [P.RisenThreeBlocks] = P.Vanishing,
+            [P.Vanishing] = P.Vanishing,
         };
 
     /// <summary>The stage a moving gate starts at, sliding down.</summary>
@@ -102,8 +104,8 @@ internal static partial class DownwardGateProjectileAnimations
     internal const DownwardGateProjectileSegment ClosedStage = P.Stopping;
 
     /// <summary>Shows <paramref name="frame"/> for good (#2276): a still picture rests on it until its owner plays another.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>.HeldFrame(frame);
+    private static AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>.Unpaused Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue> Cue(DownwardGateProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>.Unpaused Cue(DownwardGateProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>.Event(cue);
 }

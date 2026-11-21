@@ -23,8 +23,12 @@ internal sealed partial class ProjectileTriggerObjects
     /// grapple beam's touch (<see cref="BlockStrike.GrappleTouch"/>) lands as a beam.
     /// </summary>
     /// <remarks>
-    /// A resident-trigger block can outlive its object: the n00b tube's setup writes its origin before the already-broken
-    /// tube deletes itself. A hit on a block no active place holds lands on the object that left it and changes nothing.
+    /// A hit on a block no active place lies at changes nothing (#2553): a resident-trigger block can outlive its object, as
+    /// the n00b tube's setup writes its origin before the already-broken tube deletes itself. The game's generic trigger
+    /// then finds no object and decides nothing, and every reaction goes on as it does after any trigger: the shot, bomb and grapple reactions
+    /// set the shootable block's collision and clear shootable air's after the spawn whatever the setup
+    /// returned, and the trigger deletes itself. The block's own collision decides whether the strike stops, as
+    /// it does with an object there.
     /// </remarks>
     public void NotifyResidentProjectileHit(
         Position16<RoomBlocks> block,

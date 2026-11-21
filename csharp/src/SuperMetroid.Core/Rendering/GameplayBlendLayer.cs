@@ -40,7 +40,6 @@ public sealed partial record GameplayBlendLayer : DisplayLayer
     {
         Ensure.NotNull(gameplay);
         Ensure.NotNull(window);
-        Ensure.NotNull(blend);
         Gameplay = gameplay;
         Window = window;
         RevealBlocks = revealBlocks;

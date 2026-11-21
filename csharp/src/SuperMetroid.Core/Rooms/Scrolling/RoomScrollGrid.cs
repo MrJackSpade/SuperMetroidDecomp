@@ -84,7 +84,6 @@ public sealed partial class RoomScrollGrid
                 $"The scroll layout {scroll.Name} holds {scroll.Cells.Count} screens for a room of {grid.ScreenCount}.", nameof(scroll));
         RoomScrollState[] loaded = [.. scroll.Cells, .. pastScreens.After(scroll.Name)];
         foreach (RoomScrollState state in loaded)
-            Validate(state, nameof(scroll));
         cells.LoadAll(loaded);
         return grid;
     }
@@ -102,7 +101,6 @@ public sealed partial class RoomScrollGrid
         Extent16<RoomScreens> size,
         RoomScrollState lastRowState)
     {
-        Validate(lastRowState, nameof(lastRowState));
         var grid = new RoomScrollGrid(cells, size);
         for (int index = 0; index < grid.ScreenCount; index++)
             cells.Write(index, size.CellAtRowMajorIndex(index).Y == size.Y - 1 ? lastRowState : RoomScrollState.Open);
@@ -155,7 +153,6 @@ public sealed partial class RoomScrollGrid
     {
         if (screen.X >= Size.X)
             throw new ArgumentOutOfRangeException(nameof(screen), screen, "The screen's column lies outside the room.");
-        Validate(state, nameof(state));
         KeptCells.Write(Size.RowMajorIndex(screen), state);
     }
 
@@ -165,19 +162,7 @@ public sealed partial class RoomScrollGrid
     {
         if (screen.X >= Size.X || screen.Y >= Size.Y)
             throw new ArgumentOutOfRangeException(nameof(screen));
-        Validate(state, nameof(state));
         KeptCells.Write(Size.RowMajorIndex(screen), state);
     }
 
-    /// <summary>Rejects a value that is not one of the three scroll states.</summary>
-    private static void Validate(RoomScrollState state, string parameterName)
-    {
-        if (!Enum.IsDefined(state))
-        {
-            throw new ArgumentOutOfRangeException(
-                parameterName,
-                state,
-                "Known room scroll states are closed, open, and open with the camera aligned to the screen's top.");
-        }
-    }
 }

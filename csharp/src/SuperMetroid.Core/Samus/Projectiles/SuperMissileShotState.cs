@@ -9,7 +9,7 @@ internal sealed partial class SuperMissileShotState : MissileShotState
     /// <summary>Creates a <see cref="SuperMissileShotState"/>.</summary>
     /// <param name="ignition">Where the shot starts in its ignition.</param>
     /// <param name="linkPlace">The link's position in its chain the shot starts naming, or null when it names none.</param>
-    public SuperMissileShotState(SamusMissileIgnition ignition, int? linkPlace)
+    public SuperMissileShotState(SamusMissileIgnition.Unignited ignition, int? linkPlace)
         : base(ignition)
     {
         this.LinkChainPosition = linkPlace;
@@ -24,5 +24,5 @@ internal sealed partial class SuperMissileShotState : MissileShotState
     internal int? LinkChainPosition { get; set; }
 
     /// <inheritdoc/>
-    private protected override int? IgnitedLinkPlace => LinkChainPosition;
+    private protected override int? LinkPlaceFound => LinkChainPosition;
 }

@@ -161,13 +161,13 @@ internal static partial class SamusHorizontalSpeedDefinitions
     };
 
     /// <summary>Each medium's movement speeds.</summary>
-    internal static IReadOnlyDictionary<SamusLiquidMedium, IReadOnlyDictionary<M, SamusHorizontalSpeeds>> ByMedium { get; } =
-        new Dictionary<SamusLiquidMedium, IReadOnlyDictionary<M, SamusHorizontalSpeeds>>
+    internal static IdentityTable<SamusLiquidMedium, IReadOnlyDictionary<M, SamusHorizontalSpeeds>> ByMedium { get; } =
+        new(new Dictionary<SamusLiquidMedium, IReadOnlyDictionary<M, SamusHorizontalSpeeds>>
         {
             [SamusLiquidMedium.Air] = Air,
             [SamusLiquidMedium.Water] = Water,
             [SamusLiquidMedium.LavaOrAcid] = LavaOrAcid,
-        };
+        });
 
     /// <summary>
     /// The speeds Draygon's hold and special movement take in air (<see cref="WaterSpeedsInAir{TMovement, TSpeeds}"/>):

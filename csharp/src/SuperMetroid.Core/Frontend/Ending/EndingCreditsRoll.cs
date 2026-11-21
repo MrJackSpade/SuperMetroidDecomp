@@ -65,7 +65,7 @@ internal sealed partial class EndingCreditsRoll
     }
 
     /// <summary>Replaces the producer result rows with the copyright panel.</summary>
-    internal void ShowRewardCopyright() => _artwork.PostCreditsText.ReplaceResultWithCopyright();
+    internal void ShowRewardCopyright() => _artwork.PostCreditsText.ShowNextPanel();
 
     /// <summary>Whether the reward copyright is showing, which it does from the reveal's first half's end on.</summary>
     internal bool RewardCopyrightShown => _artwork.PostCreditsText.Panel == EndingPostCreditsPanel.Copyright;
@@ -109,7 +109,7 @@ internal sealed partial class EndingCreditsRoll
     {
         _stage.LoadColours(EndingColourLoad.RestoredShot);
         _artwork.PostCreditsText.Drop = 0;
-        _artwork.PostCreditsText.ClearCopyright();
+        _artwork.PostCreditsText.ShowNextPanel();
         return WhiteWash.FullWhite(EndingCadenceDefinitions.PostCreditsFlashUpdatesPerStep, EndingCadenceDefinitions.PostCreditsFlashFirstStepUpdate);
     }
 

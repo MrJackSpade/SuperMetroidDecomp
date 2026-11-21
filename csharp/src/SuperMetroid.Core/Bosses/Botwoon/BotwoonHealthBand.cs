@@ -10,11 +10,16 @@ public sealed partial class BotwoonHealthBand
     /// <summary>Defines a band.</summary>
     /// <param name="healthBelow">The health his health must fall below for the band to show.</param>
     /// <param name="key">The band's name in its shade's name.</param>
-    internal BotwoonHealthBand(int healthBelow, [InstalledKey] string key)
+    /// <param name="next">The band he shows after this one; null for his last.</param>
+    internal BotwoonHealthBand(int healthBelow, [InstalledKey] string key, BotwoonHealthBand? next)
     {
         HealthBelow = healthBelow;
         Key = key;
+        Next = next;
     }
+
+    /// <summary>The band he shows after this one; null for his last.</summary>
+    private BotwoonHealthBand? Next { get; }
 
     /// <summary>The health his health must fall below for the band to show.</summary>
     public int HealthBelow { get; }
@@ -26,18 +31,8 @@ public sealed partial class BotwoonHealthBand
     /// The band Botwoon shows after <paramref name="shown"/>, or his first band when he still shows his own colours (null);
     /// null once he shows his last.
     /// </summary>
-    internal static BotwoonHealthBand? After(BotwoonHealthBand? shown)
-    {
-        IReadOnlyList<BotwoonHealthBand> bands = BotwoonHealthBandDefinitions.InOrderShown;
-        if (shown is null)
-            return bands[0];
-        for (int band = 0; band < bands.Count - 1; band++)
-        {
-            if (bands[band] == shown)
-                return bands[band + 1];
-        }
-        return bands[^1] == shown ? null : throw new InvalidDataException($"Botwoon shows health band {shown}, which is not one of his.");
-    }
+    internal static BotwoonHealthBand? After(BotwoonHealthBand? shown) =>
+        shown is null ? BotwoonHealthBandDefinitions.InOrderShown[0] : shown.Next;
 
     /// <inheritdoc/>
     public override string ToString() => Key;

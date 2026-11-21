@@ -15,5 +15,5 @@ internal sealed partial class SkreeMetareeParticleAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<SkreeMetareeParticleSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SkreeMetareeParticleAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<SkreeMetareeParticleSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SkreeMetareeParticleAnimations.Segments;
 }

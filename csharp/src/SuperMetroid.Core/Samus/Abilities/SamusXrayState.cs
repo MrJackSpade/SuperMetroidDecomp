@@ -29,7 +29,22 @@ public sealed partial class SamusXrayState
 
     /// <summary>Creates an X-ray owner whose visor colours take Samus's special suit colouring.</summary>
     /// <param name="colouring">Samus's special suit colouring, which the visor takes.</param>
-    internal SamusXrayState(SamusSpecialColouring colouring) => _colouring = Ensure.NotNull(colouring);
+    internal SamusXrayState(SamusSpecialColouring colouring)
+    {
+        _colouring = Ensure.NotNull(colouring);
+    }
+
+    /// <summary>
+    /// The live scope, whose beam steps: from its activation until its teardown, including Reserve Mode, a view of this
+    /// X-ray made when it is reached; none while it is off.
+    /// </summary>
+    internal LiveScope? Scope => IsActive ? new LiveScope(this) : null;
+
+    /// <summary>
+    /// The X-ray's hold on Samus's pose input and movement while it has them (<see cref="OwnsSamusControl"/>), a view of
+    /// this X-ray made when it is reached; none otherwise.
+    /// </summary>
+    internal SamusControl? Control => OwnsSamusControl ? new SamusControl(this) : null;
 
     /// <summary>Where the scope stands: off, or live with whether it holds Samus and whether time is frozen (#2560).</summary>
     public XrayScopeMode Mode { get; private set; }
@@ -226,9 +241,8 @@ public sealed partial class SamusXrayState
     /// </summary>
     private void InstallSamusControl(SamusState samus, SamusPoseId targetPose)
     {
-        samus.Pose = targetPose;
+        samus.ChangePose(targetPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
 
         // X-ray's activation pose immediately overrides the freshly selected
         // delay with its level aim and the activation's hold, takes her pose input and movement, starts the
@@ -239,7 +253,7 @@ public sealed partial class SamusXrayState
         // X-ray's activation takes both Samus's pose input and her movement, so an interrupted Flash's
         // lock on her pose input is gone as well as its hold on her movement. Keeping the Crystal Flash input lock
         // would make Samus immobile again when X-Ray teardown restores ordinary input.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.Xray);
+        SamusMovementHandOver.ToXray(samus);
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // The same step takes over Samus's suit colouring and clears
         // the special colouring timer even when an interrupted Flash, not a normal charge, owns it.
@@ -323,12 +337,11 @@ public sealed partial class SamusXrayState
     /// Runs X-ray's own pose input, including the exact standing and crouching turns and their completion on the
     /// update the turn's last frame has one update left to show.
     /// </summary>
-    public void HandlePoseInput(
+    private void HandlePoseInput(
         SamusState samus,
         GameplayAction controllerInput)
     {
         Ensure.NotNull(samus);
-        EnsureActive();
 
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         if (movementType != SamusMovementType.TurningOnGround)
@@ -371,10 +384,9 @@ public sealed partial class SamusXrayState
     /// Executes the X-ray scope's movement: turning does nothing, while
     /// stable X-ray poses force the aim's hold and one of the five aims the angle selects.
     /// </summary>
-    internal void StepMovement(SamusState samus)
+    private void StepMovement(SamusState samus)
     {
         Ensure.NotNull(samus);
-        EnsureActive();
 
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.TurningOnGround)
             return;
@@ -390,12 +402,11 @@ public sealed partial class SamusXrayState
     /// step. The reveal itself remains outside this movement state; the display reads the beam's angle and width only
     /// once the warm-up is over.
     /// </summary>
-    public XrayBeamStepResult StepBeam(
+    private XrayBeamStepResult StepBeam(
         SamusState samus,
         GameplayAction controllerInput)
     {
         Ensure.NotNull(samus);
-        EnsureActive();
 
         XrayBeamPhase phaseAtStart = BeamPhase;
 
@@ -408,20 +419,23 @@ public sealed partial class SamusXrayState
         }
 
         bool holdingDash = (controllerInput & GameplayAction.Dash) != GameplayAction.None;
-        switch (BeamPhase)
+        StepBeamPhase();
+
+        void StepBeamPhase()
         {
-            case XrayBeamPhase.NoBeam:
+            if (BeamPhase == XrayBeamPhase.NoBeam)
+            {
                 if (holdingDash)
                     BeamPhase = XrayBeamPhase.Widening;
                 else
                     StartClosing();
-                break;
-
-            case XrayBeamPhase.Widening:
+            }
+            else if (BeamPhase == XrayBeamPhase.Widening)
+            {
                 if (!holdingDash)
                 {
                     StartClosing();
-                    break;
+                    return;
                 }
 
                 // The widening speed grows each update, and the width grows by it until it passes the widest
@@ -433,13 +447,13 @@ public sealed partial class SamusXrayState
                     AngularHalfWidth = XrayScopeDefinitions.Cone.WidestHalfWidth;
                     BeamPhase = XrayBeamPhase.Full;
                 }
-                break;
-
-            case XrayBeamPhase.Full:
+            }
+            else if (BeamPhase == XrayBeamPhase.Full)
+            {
                 if (!holdingDash)
                 {
                     StartClosing();
-                    break;
+                    return;
                 }
 
                 // Aiming gives Up priority when opposite directions are both held, turning the beam one angle unit
@@ -448,24 +462,22 @@ public sealed partial class SamusXrayState
                     Angle = AimedUp(Angle, AngularWidth);
                 else if ((controllerInput & GameplayAction.Down) != GameplayAction.None)
                     Angle = AimedDown(Angle, AngularWidth);
-                break;
-
-            case XrayBeamPhase.Closing:
+            }
+            else if (BeamPhase == XrayBeamPhase.Closing)
+            {
                 // Each closing update keeps time frozen and Samus held; the update after the last releases her.
                 Closing = Closing.Spend();
                 if (Closing.IsOver)
                     BeamPhase = XrayBeamPhase.Finish;
-                break;
-
-            case XrayBeamPhase.Finish:
+            }
+            else
+            {
+                // The remaining member, XrayBeamPhase.Finish.
                 // The beam's last step ends the scope only while time is frozen. Automatic Reserve completion lets time
                 // run first, so the finishing beam then stays forever and the screen greys out.
                 if (TimeIsFrozen)
                     Finish(samus);
-                break;
-
-            default:
-                throw new InvalidOperationException($"Unknown active X-ray beam phase {BeamPhase}.");
+            }
         }
 
         return SnapshotBeamStep(
@@ -593,9 +605,8 @@ public sealed partial class SamusXrayState
             ? facingLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose
             : facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
 
-        samus.Pose = targetPose;
+        samus.ChangePose(targetPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         int radiusDifference = samus.Kinematics.Radius.Y - oldRadius;
         // Teardown owns a direct history shift, including the crouched-
         // turn stand-up glitch. It does not consume an ordinary input transition.
@@ -606,7 +617,7 @@ public sealed partial class SamusXrayState
         // The teardown returns both Samus's pose input and her movement to her pose. X-Mode can arrange for
         // an active spark to hold her movement while the old visor effect reaches this
         // teardown; ending that spark while retaining the spark's colouring timer is the Blue Suit result.
-        SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.Xray);
+        SamusMovementHandOver.FromXray(samus);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         SuspendedSubsystems = XraySuspendedSubsystems.None;
         Mode = XrayScopeMode.Off;
@@ -626,9 +637,8 @@ public sealed partial class SamusXrayState
         SamusState samus,
         SamusPoseId targetPose)
     {
-        samus.Pose = targetPose;
+        samus.ChangePose(targetPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         // X-ray's frozen-time pose input, turning or aiming, shifts her pose history after setting up her pose; the
         // ordinary pose transitions do not run.
         samus.CommitPoseHistory();
@@ -639,9 +649,7 @@ public sealed partial class SamusXrayState
     /// and crouching movement types take different visor poses.
     /// </summary>
     private static XrayPosture ClassifyAllowedMovement(SamusMovementType movementType) =>
-        SamusMovementTypeDefinitions.Movements.TryGetValue(movementType, out SamusMovementTypeDefinition? definition)
-            ? definition.Xray
-            : throw new InvalidOperationException($"Undefined SamusMovementType {movementType}.");
+        SamusMovementTypeDefinitions.Movements[movementType].Xray;
 
     /// <summary>Starts the beam's closing on the update its step reads Run released.</summary>
     private void StartClosing()
@@ -657,10 +665,32 @@ public sealed partial class SamusXrayState
             phaseAtStart,
             completed);
 
-    /// <summary>Rejects movement or pose input after the X-ray scope has closed.</summary>
-    private void EnsureActive()
+    /// <summary>The live X-ray scope (<see cref="Scope"/>): its cone effect steps from its activation until its teardown.</summary>
+    /// <param name="xray">The X-ray state the scope belongs to.</param>
+    internal readonly struct LiveScope(SamusXrayState xray)
     {
-        if (!IsActive)
-            throw new InvalidOperationException("X-ray is not active, so it neither moves Samus nor reads her pose input.");
+        /// <summary>
+        /// Advances the cone effect by one update: an update of the beam's warm-up, until that is over, and then the beam's
+        /// own step. The reveal itself remains outside this movement state; the display reads the beam's angle and width
+        /// only once the warm-up is over.
+        /// </summary>
+        internal XrayBeamStepResult StepBeam(SamusState samus, GameplayAction controllerInput) => xray.StepBeam(samus, controllerInput);
+    }
+
+    /// <summary>The X-ray's hold on Samus's pose input and movement (<see cref="Control"/>).</summary>
+    /// <param name="xray">The X-ray state that holds them.</param>
+    internal readonly struct SamusControl(SamusXrayState xray)
+    {
+        /// <summary>
+        /// Runs X-ray's own pose input, including the exact standing and crouching turns and their completion on the
+        /// update the turn's last frame has one update left to show.
+        /// </summary>
+        internal void HandlePoseInput(SamusState samus, GameplayAction controllerInput) => xray.HandlePoseInput(samus, controllerInput);
+
+        /// <summary>
+        /// Executes the X-ray scope's movement: turning does nothing, while stable X-ray poses force the aim's hold and one
+        /// of the five aims the angle selects.
+        /// </summary>
+        internal void StepMovement(SamusState samus) => xray.StepMovement(samus);
     }
 }

@@ -32,7 +32,6 @@ public static partial class AreaMapCatalogFormat
     [InstalledKey]
     public static string FileName(AreaId area)
     {
-        _ = AreaIds.Require(area);
         return AreaIdKeys.Installed.Of(area).ToLowerInvariant() + ".json";
     }
 }

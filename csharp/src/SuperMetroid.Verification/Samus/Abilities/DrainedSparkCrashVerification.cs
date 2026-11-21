@@ -33,7 +33,7 @@ internal static class DrainedSparkCrashVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingLeftNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingLeftNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         // Two calls left in the echo hold after the echoes finish circling Samus.

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -19,14 +20,19 @@ internal sealed partial class EndingLogo
     private readonly CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> upperCircle;
     /// <summary>The lower circle.</summary>
     private readonly CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> lowerCircle;
-    /// <summary>Where the logo stands (#2560): assembling, its crossfade requested or showing a step, or handed off.</summary>
-    private Progress progress = new Progress.Assembling();
+    /// <summary>
+    /// The crossfade step the logo shows next (#2553): none until the grey-out cue begins paired background and sprite
+    /// changes, then each in turn, the last held once shown.
+    /// </summary>
+    private EndingLogoCrossfadeStep? NextCrossfade { get; set; }
 
-    /// <summary>Whether the grey-out cue has begun the paired background and sprite changes.</summary>
-    public bool CrossfadeStarted => progress is not Progress.Assembling;
+    /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
+    public bool CrossfadeStarted => NextCrossfade is not null;
 
+    /// <summary>How the logo's sprites show: drawn until the grey-out cue begins the crossfade, then glowing over its picture.</summary>
+    public SpriteBlend Sprites { get; private set; } = SpriteBlend.Drawn;
     /// <summary>Whether the logo has shown its crossfade's last step and hands off to the percentage text.</summary>
-    public bool Completed => progress is Progress.HandedOff;
+    private bool Completed { get; set; }
 
     /// <summary>Creates the four logo actors, blacks out the logo's background colours and shows the assembling logo's first colours (#1512).</summary>
     /// <param name="stage">The stage whose colours the logo shows.</param>
@@ -47,27 +53,19 @@ internal sealed partial class EndingLogo
 
     /// <summary>Shows the pending crossfade step before moving actors and running their next cues.</summary>
     /// <param name="colours">The ending's colours, which show the crossfade's step.</param>
-    public void Step(EndingColours colours)
+    /// <returns>Whether the update showed the crossfade's last step, which completes the logo and hands off to the percentage text.</returns>
+    public bool Step(EndingColours colours)
     {
         // The crossfade's first step shows on the update after the grey-out cue, not on the update that requests it.
-        EndingLogoCrossfadeStep? step = progress switch
+        if (NextCrossfade is { } step)
         {
-            Progress.Assembling => null,
-            Progress.CrossfadeRequested => EndingLogoCrossfadeStep.First,
-            Progress.Crossfading crossfading => crossfading.Shown.Following
-                ?? throw new InvalidOperationException("The logo's crossfade showed its last step."),
-            Progress.HandedOff => throw new InvalidOperationException("Completed logo must hand off to percentage text."),
-            _ => throw new InvalidOperationException($"Undefined logo progress {progress}."),
-        };
-        if (step is { } shown)
-        {
-            Ensure.NotNull(colours).LogoCrossfade(shown);
-            if (shown.Following is null)
+            Ensure.NotNull(colours).LogoCrossfade(step);
+            if (step.Following is not { } following)
             {
-                progress = new Progress.HandedOff();
-                return;
+                Completed = true;
+                return true;
             }
-            progress = new Progress.Crossfading(shown);
+            NextCrossfade = following;
         }
         // Each S half moves just before its own animation steps.
         upperS.Move();
@@ -76,19 +74,23 @@ internal sealed partial class EndingLogo
         lowerS.Actor.Step(HandleCue);
         upperCircle.Step(HandleCue);
         lowerCircle.Step(HandleCue);
+        return false;
     }
+
+    /// <summary>What <see cref="HandleCue"/> does for each <see cref="EndingLogoCue"/> member, each member's own arm.</summary>
+    private IdentityTable<EndingLogoCue, Action> HandleCueForEndingLogoCue => field ??= new(new Dictionary<EndingLogoCue, Action>
+    {
+        [EndingLogoCue.GreyOut] = () =>
+        {
+            NextCrossfade = EndingLogoCrossfadeStep.First;
+            Sprites = SpriteBlend.Glows;
+        },
+    });
 
     /// <summary>Starts the crossfade on the step after the grey-out cue.</summary>
     private void HandleCue(EndingLogoCue cue)
     {
-        switch (cue)
-        {
-            case EndingLogoCue.GreyOut:
-                progress = new Progress.CrossfadeRequested();
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingLogoCue)} {cue}.");
-        }
+        HandleCueForEndingLogoCue[cue]();
     }
 
     /// <summary>Draws the logo's actors among the screen's sprites until the logo completes.</summary>
@@ -103,23 +105,6 @@ internal sealed partial class EndingLogo
     /// <summary>Creates the actor <paramref name="definition"/> describes, in the logo's colouring.</summary>
     private static CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> Create(EndingLogoActorDefinition definition) =>
         new(definition.Origin, EndingShades.Drawn(EndingLogoDefinitions.Colouring), EndingLogoAnimations.Logo, definition.Animation);
-
-    /// <summary>Where the logo stands (#2560), one value: each case carries only its own data.</summary>
-    private abstract partial record Progress
-    {
-        /// <summary>The halves move and the circles draw in; the grey-out cue has not run.</summary>
-        internal sealed partial record Assembling : Progress;
-
-        /// <summary>The grey-out cue has run; the crossfade shows its first step on the next update.</summary>
-        internal sealed partial record CrossfadeRequested : Progress;
-
-        /// <summary>The crossfade shows its steps in turn.</summary>
-        /// <param name="Shown">The step the logo showed last.</param>
-        internal sealed partial record Crossfading(EndingLogoCrossfadeStep Shown) : Progress;
-
-        /// <summary>The logo has shown its crossfade's last step and hands off to the percentage text.</summary>
-        internal sealed partial record HandedOff : Progress;
-    }
 
     /// <summary>
     /// An S half accelerating diagonally toward its landing point: the upper half down and left, the lower half up and
@@ -143,12 +128,7 @@ internal sealed partial class EndingLogo
         {
             if (settled)
                 return;
-            int across = Direction switch
-            {
-                HorizontalDirection.Left => -speed,
-                HorizontalDirection.Right => speed,
-                _ => throw new InvalidOperationException($"Undefined {nameof(HorizontalDirection)} {Direction}."),
-            };
+            int across = speed * AcrossSign[Direction];
             Offset16<ScreenPixels> moved = Actor.ScreenPlace + new Offset16<ScreenPixels>(across, -across);
             Actor.ScreenPlace = moved;
             // The half lands once it reaches or passes its landing point's X in its own direction.
@@ -162,4 +142,11 @@ internal sealed partial class EndingLogo
             else speed += EndingLogoDefinitions.Acceleration;
         }
     }
+
+    /// <summary>The sign the logo's way gives its speed across the screen.</summary>
+    private static IdentityTable<HorizontalDirection, int> AcrossSign => field ??= new(new Dictionary<HorizontalDirection, int>
+    {
+        [HorizontalDirection.Left] = -1,
+        [HorizontalDirection.Right] = 1,
+    });
 }

@@ -21,10 +21,13 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Botwoon];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Botwoon], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BotwoonEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BotwoonEntity(this, occupant, place, common));
 
     /// <summary>Active room services and RNG used by path and drop decisions.</summary>
     private readonly EnemyRoomBinding _room;
@@ -38,7 +41,6 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Receives Botwoon's sound and music requests.</summary>
     private readonly EnemyAudioQueue _audio;
-
 
     /// <summary>Binds Botwoon's head, body, colours, collision, and drop services.</summary>
     internal BotwoonBehavior(BotwoonBehaviorDependencies dependencies)
@@ -89,6 +91,31 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
         // trailing past its written places stands at the room's origin, (0,0).
     }
 
+    /// <summary>What <see cref="RunBotwoonMain"/> does for each <see cref="BotwoonPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<BotwoonPhase, Action<RoomEnemyOccupant, RoomEnemyPlace, BotwoonEnemyState, SamusState>> RunBotwoonMainForBotwoonPhase => field ??= new(new Dictionary<BotwoonPhase, Action<RoomEnemyOccupant, RoomEnemyPlace, BotwoonEnemyState, SamusState>>
+    {
+        [BotwoonPhase.InitialDelay] = (_, head, state, samus) =>
+        {
+            if (state.OpeningWait.StepRunsOut())
+                state.Phase = BotwoonPhase.ChooseNextAction;
+        },
+        [BotwoonPhase.ChooseNextAction] = (occupant, head, state, samus) => RunBotwoonActionSelector(occupant, head, state, samus),
+        [BotwoonPhase.FollowAuthoredPath] = (occupant, head, state, samus) => RunBotwoonAuthoredPathState(occupant, head, state, samus),
+        [BotwoonPhase.SpitWhileHidden] = (occupant, head, state, samus) => RunBotwoonHiddenSpitState(occupant, head, state, samus),
+        [BotwoonPhase.DeathDelay] = (_, head, state, samus) =>
+        {
+            if (state.PreFallWait.StepRunsOut())
+                state.Phase = BotwoonPhase.HeadFalling;
+        },
+        [BotwoonPhase.HeadFalling] = (_, head, state, samus) => RunBotwoonHeadFall(head, state),
+        [BotwoonPhase.WaitForBody] = (_, head, state, samus) =>
+        {
+            if (state.LastBodySegmentLanded)
+                BeginBotwoonWallExplosions(state, samus);
+        },
+        [BotwoonPhase.WallExplosions] = (_, head, state, samus) => RunBotwoonWallExplosions(head, state),
+    });
+
     /// <summary>Runs Botwoon's main AI and its movement-phase step for one update.</summary>
     private void RunBotwoonMain(RoomEnemyOccupant occupant, RoomEnemyPlace head, BotwoonEnemyState state, SamusState samus)
     {
@@ -102,47 +129,7 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
             state.ExitTransitionComplete = false;
         }
 
-        switch (state.Phase)
-        {
-            case BotwoonPhase.InitialDelay:
-                if (state.OpeningWait.StepRunsOut())
-                    state.Phase = BotwoonPhase.ChooseNextAction;
-                break;
-
-            case BotwoonPhase.ChooseNextAction:
-                RunBotwoonActionSelector(occupant, head, state, samus);
-                break;
-
-            case BotwoonPhase.FollowAuthoredPath:
-                RunBotwoonAuthoredPathState(occupant, head, state, samus);
-                break;
-
-            case BotwoonPhase.SpitWhileHidden:
-                RunBotwoonHiddenSpitState(occupant, head, state, samus);
-                break;
-
-            case BotwoonPhase.DeathDelay:
-                if (state.PreFallWait.StepRunsOut())
-                    state.Phase = BotwoonPhase.HeadFalling;
-                break;
-
-            case BotwoonPhase.HeadFalling:
-                RunBotwoonHeadFall(head, state);
-                break;
-
-            case BotwoonPhase.WaitForBody:
-                if (state.LastBodySegmentLanded)
-                    BeginBotwoonWallExplosions(state, samus);
-                break;
-
-            case BotwoonPhase.WallExplosions:
-                RunBotwoonWallExplosions(head, state);
-                break;
-
-            default:
-                throw new InvalidDataException(
-                    $"Botwoon has no behaviour for phase {state.Phase}.");
-        }
+        RunBotwoonMainForBotwoonPhase[state.Phase](occupant, head, state, samus);
 
         UpdateBotwoonHealthBand(head, state);
     }
@@ -240,23 +227,21 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
         state.RingIndex = BotwoonTrailRing.PlaceAt(state.RingIndex + 1);
     }
 
+    /// <summary>What <see cref="RunBotwoonMovement"/> does for each <see cref="BotwoonMovement"/> member, each member's own arm.</summary>
+    private static IdentityTable<BotwoonMovement, Action<RoomEnemyPlace, BotwoonEnemyState>> RunBotwoonMovementForBotwoonMovement => field ??= new(new Dictionary<BotwoonMovement, Action<RoomEnemyPlace, BotwoonEnemyState>>
+    {
+        [BotwoonMovement.MoveTowardHole] = static (head, state) => MoveBotwoonTowardHole(head, state),
+        [BotwoonMovement.FollowAuthoredPath] = static (head, state) => FollowBotwoonPath(head, state),
+        [BotwoonMovement.Finished] = static (head, state) =>
+        {
+            throw new InvalidOperationException("Botwoon moves after finishing his movement, before choosing what follows.");
+        },
+    });
+
     /// <summary>Moves Botwoon toward a hole or along one of his authored paths, as his movement says.</summary>
     internal static void RunBotwoonMovement(RoomEnemyPlace head, BotwoonEnemyState state)
     {
-        switch (state.Movement)
-        {
-            case BotwoonMovement.MoveTowardHole:
-                MoveBotwoonTowardHole(head, state);
-                return;
-            case BotwoonMovement.FollowAuthoredPath:
-                FollowBotwoonPath(head, state);
-                return;
-            case BotwoonMovement.Finished:
-                throw new InvalidOperationException("Botwoon moves after finishing his movement, before choosing what follows.");
-            default:
-                throw new InvalidDataException(
-                    $"Botwoon has no behaviour for movement {state.Movement}.");
-        }
+        RunBotwoonMovementForBotwoonMovement[state.Movement](head, state);
     }
 
     /// <summary>Steers the head toward its selected hole until inside/outside state changes.</summary>
@@ -320,9 +305,8 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
     /// </summary>
     internal static void StartBotwoonWalk(BotwoonEnemyState state, BotwoonPathWalk walk)
     {
-        state.Path = walk.Path;
+        state.PathPosition = BotwoonPathPosition.StartOf(walk);
         state.PathTraversal = walk.Traversal;
-        state.PathStep = walk.FirstStep;
         state.TargetHole = walk.Destination;
         state.Movement = BotwoonMovement.FollowAuthoredPath;
     }
@@ -333,17 +317,17 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
     /// </summary>
     private static void FollowBotwoonPath(RoomEnemyPlace head, BotwoonEnemyState state)
     {
-        BotwoonPathDefinition path = state.Path ?? throw new InvalidOperationException("Botwoon follows a path before choosing one.");
+        BotwoonPathPosition position = state.PathPosition ?? throw new InvalidOperationException("Botwoon follows a path before choosing one.");
         Offset16<RoomPixels> total = Offset16<RoomPixels>.Zero;
         for (int taken = 0; taken < state.SpeedStage.MovementSpeed; taken++)
         {
-            if (!BotwoonNavigation.HasStep(path, state.PathStep))
+            if (!position.TryTake(state.PathTraversal, out Offset16<RoomPixels> movement, out position))
             {
                 state.Movement = BotwoonMovement.Finished;
                 return;
             }
-            total += BotwoonNavigation.Step(path, state.PathStep);
-            state.PathStep += AlongTraversal(state.PathTraversal, 1);
+            total += movement;
+            state.PathPosition = position;
         }
 
         head.Position += AlongTraversal(state.PathTraversal, total);
@@ -448,36 +432,28 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
         state.HoleLatch = false;
     }
 
+    /// <summary>What <see cref="RunBotwoonHeadAction"/> does for each <see cref="BotwoonHeadAction"/> member, each member's own arm.</summary>
+    private IdentityTable<BotwoonHeadAction, Action<RoomEnemyOccupant, RoomEnemyPlace, BotwoonEnemyState, SamusState>> RunBotwoonHeadActionForBotwoonHeadAction => field ??= new(new Dictionary<BotwoonHeadAction, Action<RoomEnemyOccupant, RoomEnemyPlace, BotwoonEnemyState, SamusState>>
+    {
+        [BotwoonHeadAction.AnimateFromMovement] = (_, head, state, samus) => AnimateBotwoonHeadFromMovement(head, state),
+        [BotwoonHeadAction.AimAtSamus] = (occupant, head, state, samus) => AimBotwoonAtSamus(occupant, head, state, samus),
+        [BotwoonHeadAction.WaitForSpitFrame] = (_, head, state, samus) => { },
+        [BotwoonHeadAction.SpitAimedVolley] = (occupant, head, state, samus) => SpawnBotwoonSpitVolley(occupant, head, state, BotwoonFightDefinitions.AimedVolley),
+        [BotwoonHeadAction.SpawnImmediateVolley] = (occupant, head, state, samus) => SpawnBotwoonSpitVolley(occupant, head, state, BotwoonFightDefinitions.ImmediateVolley),
+        [BotwoonHeadAction.AttackCooldown] = (_, head, state, samus) =>
+        {
+            if (state.SpitCooldown.StepRunsOut())
+                state.HeadAction = BotwoonHeadAction.AnimateFromMovement;
+        },
+    });
+
     /// <summary>Runs Botwoon's head action: animating, aiming, waiting for the spit frame, an immediate volley or the cooldown.</summary>
     private void RunBotwoonHeadAction(
         RoomEnemyOccupant occupant, RoomEnemyPlace head,
         BotwoonEnemyState state,
         SamusState samus)
     {
-        switch (state.HeadAction)
-        {
-            case BotwoonHeadAction.AnimateFromMovement:
-                AnimateBotwoonHeadFromMovement(head, state);
-                return;
-            case BotwoonHeadAction.AimAtSamus:
-                AimBotwoonAtSamus(occupant, head, state, samus);
-                return;
-            case BotwoonHeadAction.WaitForSpitFrame:
-                return;
-            case BotwoonHeadAction.SpitAimedVolley:
-                SpawnBotwoonSpitVolley(occupant, head, state, BotwoonFightDefinitions.AimedVolley);
-                return;
-            case BotwoonHeadAction.SpawnImmediateVolley:
-                SpawnBotwoonSpitVolley(occupant, head, state, BotwoonFightDefinitions.ImmediateVolley);
-                return;
-            case BotwoonHeadAction.AttackCooldown:
-                if (state.SpitCooldown.StepRunsOut())
-                    state.HeadAction = BotwoonHeadAction.AnimateFromMovement;
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Undefined Botwoon head behaviour {state.HeadAction}.");
-        }
+        RunBotwoonHeadActionForBotwoonHeadAction[state.HeadAction](occupant, head, state, samus);
     }
 
     /// <summary>Uses recent head displacement to select visible facing or hidden hole animation.</summary>
@@ -553,38 +529,41 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
             state.HeadPlayback.Animation, ref place, cue => ApplyBotwoonHeadCue(head, state, cue));
         state.HeadPlayback = state.HeadPlayback with { Place = place };
         // A hold keeps the last frame shown and stops the clock (#2454): the head waits on it until a new animation is
-        // installed.
-        if (advance is AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame>.Held)
-        {
-            head.AnimationClock.Stop();
-            return;
-        }
-        if (advance is not AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame>.Frame shown)
-            throw new InvalidOperationException($"Botwoon's head animation ended an update with {advance}.");
-        head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(shown.Shown);
-        head.AnimationClock.Show(shown.Duration);
+        // installed. Every outcome takes the shared enemy animation's meaning.
+        EnemyAnimationPlayback.Show(head, advance, static frame => BotwoonVisualDefinitions.HeadFrames.Of(frame));
     }
+
+    /// <summary>What <see cref="ApplyBotwoonHeadCue"/> does for each <see cref="BotwoonHeadCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<BotwoonHeadCueKind, Action<BotwoonEnemyState>> ApplyBotwoonHeadCueForBotwoonHeadCueKind => field ??= new(new Dictionary<BotwoonHeadCueKind, Action<BotwoonEnemyState>>
+    {
+        [BotwoonHeadCueKind.QueueSpitSound] = state => RequestBotwoonSound(BotwoonSoundDefinitions.Spit),
+        [BotwoonHeadCueKind.ReachSpitFrame] = state =>
+        {
+            // Only his aim starts the spitting animation, and it waits for the spit, so the spit always finds the
+            // head waiting; the volley follows on his next head step.
+            state.HeadAction = BotwoonHeadAction.SpitAimedVolley;
+        },
+    });
 
     /// <summary>Applies frame cues for facing radius, spit audio, or the volley trigger.</summary>
     private void ApplyBotwoonHeadCue(RoomEnemyPlace head, BotwoonEnemyState state, BotwoonHeadCue cue)
     {
-        switch (cue)
-        {
-            case BotwoonHeadCue.ApplyFacingRadius radius:
-                head.Radius = BotwoonAnimations.HeadRadius(radius.Facing);
-                return;
-            case BotwoonHeadCue.Signal { Kind: BotwoonHeadCueKind.QueueSpitSound }:
-                RequestBotwoonSound(BotwoonSoundDefinitions.Spit);
-                return;
-            case BotwoonHeadCue.Signal { Kind: BotwoonHeadCueKind.ReachSpitFrame }:
-                // Only his aim starts the spitting animation, and it waits for the spit, so the spit always finds the
-                // head waiting; the volley follows on his next head step.
-                state.HeadAction = BotwoonHeadAction.SpitAimedVolley;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BotwoonHeadCue)} {cue}.");
-        }
+        cue.React(ApplyBotwoonHeadCueReactions, new ApplyBotwoonHeadCueContext(head, state, this));
     }
+
+    /// <summary>What <see cref="ApplyBotwoonHeadCue"/> does on each <see cref="BotwoonHeadCue"/>, built once (#2553).</summary>
+    private static BotwoonHeadCueReactions<ApplyBotwoonHeadCueContext> ApplyBotwoonHeadCueReactions { get; } = new(
+        ApplyFacingRadius: static (radius, context) => context.Head.Radius = BotwoonAnimations.HeadRadius(radius.Facing),
+        Signal: static (signal, context) =>
+        {
+            context.Owner.ApplyBotwoonHeadCueForBotwoonHeadCueKind[signal.Kind](context.State);
+        });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Head">The head the cases read.</param>
+    /// <param name="State">The state the cases read.</param>
+    /// <param name="Owner">The <see cref="BotwoonBehavior"/> reacting.</param>
+    private readonly record struct ApplyBotwoonHeadCueContext(RoomEnemyPlace Head, BotwoonEnemyState State, BotwoonBehavior Owner);
 
     /// <summary>Emits a volley's spit projectiles, fanned out across the aimed direction, and starts his head's cooldown after it.</summary>
     private void SpawnBotwoonSpitVolley(
@@ -766,6 +745,13 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
         [RoomEnemyProjectileKind.BotwoonSpit] = BotwoonProjectileMotion.SpitFlying,
     };
 
+    /// <summary>What <c>Move</c> does for each <see cref="BotwoonProjectileMotion"/> member, each member's own arm.</summary>
+    private IdentityTable<BotwoonProjectileMotion, Action<EnemyProjectileMotionContext>> MoveForBotwoonProjectileMotion => field ??= new(new Dictionary<BotwoonProjectileMotion, Action<EnemyProjectileMotionContext>>
+    {
+        [BotwoonProjectileMotion.BodySegment] = context => MoveBotwoonBodySegment(context.Projectile, context.ShortCounter),
+        [BotwoonProjectileMotion.SpitFlying] = context => FlyBotwoonSpit(context.Projectile, context.Camera),
+    });
+
     /// <summary>
     /// Moves a body segment, oriented and coloured with his hurt and run through its death, or a spit flying until it
     /// leaves the camera.
@@ -774,17 +760,7 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
     /// <param name="motion">The motion the projectile holds.</param>
     internal override void Move(EnemyProjectileMotionContext context, BotwoonProjectileMotion motion)
     {
-        switch (motion)
-        {
-            case BotwoonProjectileMotion.BodySegment:
-                MoveBotwoonBodySegment(context.Projectile, context.ShortCounter);
-                break;
-            case BotwoonProjectileMotion.SpitFlying:
-                FlyBotwoonSpit(context.Projectile, context.Camera);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BotwoonProjectileMotion)} {motion}.");
-        }
+        MoveForBotwoonProjectileMotion[motion](context);
     }
 
     /// <summary>Runs Botwoon's main AI.</summary>
@@ -838,7 +814,9 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
     /// <returns>The segment, alive and inside the wall.</returns>
     internal BotwoonSegmentState SpawnBotwoonBodySegment(RoomEnemyOccupant occupant, RoomEnemyPlace head, int segmentIndex)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BotwoonBody, BodyAndSpit, SpriteGraphics.SpawnedBy(occupant, head.Shading));
+        // Every segment, the tail cap included, starts hidden inside the wall.
+        var animation = new BotwoonSegmentAnimation(BotwoonBodyAnimationSegment.Hidden);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BotwoonBody, BodyAndSpit, SpriteGraphics.SpawnedBy(occupant, head.Shading), animation);
         if (projectile is null)
         {
             throw new InvalidOperationException(
@@ -846,10 +824,6 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
         }
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
-
-        // Every segment, the tail cap included, starts hidden inside the wall.
-        var animation = new BotwoonSegmentAnimation(BotwoonBodyAnimationSegment.Hidden);
-        projectile.StartAnimation(animation);
         var segment = new BotwoonSegmentState(head, segmentIndex, projectile, animation);
         Segments.Start(projectile, segment);
         projectile.CollisionOption = EnemyProjectileCollisionOption.NoCollision;
@@ -866,36 +840,32 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
         if (segment.Phase == BotwoonBodyPhase.Main && Encounter(segment).Death == BotwoonDeathProgress.Dying)
             segment.Phase = BotwoonBodyPhase.BeginDying;
 
-        switch (segment.Phase)
+        BotwoonBodyPhase phase = segment.Phase;
+        if (phase == BotwoonBodyPhase.Main)
         {
-            case BotwoonBodyPhase.Main:
-                AnimateBotwoonBodySegment(projectile, hurtFlashCadence);
-                return;
-
-            case BotwoonBodyPhase.BeginDying:
-                // The wait follows the segment's projectile place, not its place in the body, and its first update is this
-                // one. The dying segment holds the picture it shows until it lands.
-                segment.FallWait.LastFor(BotwoonSegmentFallDelay.WaitUpdates(projectile.Place));
-                segment.Phase = BotwoonBodyPhase.DyingDelay;
-                projectile.StopFrameHold();
-                goto case BotwoonBodyPhase.DyingDelay;
-
-            case BotwoonBodyPhase.DyingDelay:
-                if (!segment.FallWait.StepKeepsRunning())
-                    segment.Phase = BotwoonBodyPhase.Falling;
-                ShowBotwoonBodyHurtFlash(projectile, hurtFlashCadence);
-                return;
-
-            case BotwoonBodyPhase.Falling:
-                RunBotwoonBodyFall(segment, hurtFlashCadence);
-                return;
-
-            case BotwoonBodyPhase.Landed:
-                return;
-
-            default:
-                throw new InvalidOperationException($"Botwoon's body has no behaviour for phase {segment.Phase}.");
+            AnimateBotwoonBodySegment(projectile, hurtFlashCadence);
+            return;
         }
+        if (phase == BotwoonBodyPhase.Falling)
+        {
+            RunBotwoonBodyFall(segment, hurtFlashCadence);
+            return;
+        }
+        // A landed segment rests where it fell.
+        if (phase == BotwoonBodyPhase.Landed)
+            return;
+        if (phase == BotwoonBodyPhase.BeginDying)
+        {
+            // The wait follows the segment's projectile place, not its place in the body, and its first update is this
+            // one. The dying segment holds the picture it shows until it lands.
+            segment.FallWait.LastFor(BotwoonSegmentFallDelay.WaitUpdates(projectile.Place));
+            segment.Phase = BotwoonBodyPhase.DyingDelay;
+            projectile.StopFrameHold();
+        }
+        // The dying wait, from the update that began it.
+        if (!segment.FallWait.StepKeepsRunning())
+            segment.Phase = BotwoonBodyPhase.Falling;
+        ShowBotwoonBodyHurtFlash(projectile, hurtFlashCadence);
     }
 
     /// <summary>The state of the Botwoon whose body <paramref name="segment"/> is part of: his head's.</summary>
@@ -960,12 +930,11 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
     /// <param name="speed">The spit's speed.</param>
     internal void SpawnBotwoonSpit(RoomEnemyOccupant occupant, RoomEnemyPlace head, TrigonometryAngle angle, int speed)
     {
-        EnemyProjectile? spit = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BotwoonSpit, BodyAndSpit, SpriteGraphics.SpawnedBy(occupant, head.Shading));
+        EnemyProjectile? spit = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.BotwoonSpit, BodyAndSpit, SpriteGraphics.SpawnedBy(occupant, head.Shading), new BotwoonSpitAnimation());
         if (spit is null)
             return;
 
         spit.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
-        spit.StartAnimation(new BotwoonSpitAnimation());
 
         // The spit flies along its heading at its speed, split across and down, keeping each step's fraction of a pixel
         // so a shallow flight keeps its slow drift.

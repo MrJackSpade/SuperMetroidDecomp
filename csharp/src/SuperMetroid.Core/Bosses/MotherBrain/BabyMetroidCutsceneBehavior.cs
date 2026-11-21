@@ -14,10 +14,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed partial class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroidCutscene];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.BabyMetroidCutscene], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BabyMetroidCutsceneEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BabyMetroidCutsceneEntity(this, occupant, place, common));
 
     /// <summary>Initializes the dynamically allocated Baby through the ordinary enemy lifecycle.</summary>
     private readonly IEnemyLifecycle _lifecycle;
@@ -34,7 +37,6 @@ internal sealed partial class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>Shares Mother Brain's body, head, rainbow sequence, and requested music state with her.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
-
 
     /// <summary>Connects the cutscene Baby to its Mother Brain encounter and room services.</summary>
     internal BabyMetroidCutsceneBehavior(BabyMetroidCutsceneBehaviorDependencies dependencies)
@@ -112,8 +114,8 @@ internal sealed partial class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         place.Shake.End();
         if (state.PendingBabyCryCount != 0 &&
-            baby.Phase is BabyMetroidCutscenePhase.HealSamusToFullHealth or
-                BabyMetroidCutscenePhase.IdleUntilNoHealth)
+            baby.Phase is BabyMetroidCutscenePhase.Flying.HealSamusToFullHealth or
+                BabyMetroidCutscenePhase.Flying.IdleUntilNoHealth)
         {
             // However many rings struck it since its last turn, the Baby cries once, and every one of those cries is spent.
             state.PendingBabyCryCount = 0;
@@ -127,11 +129,10 @@ internal sealed partial class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             randomNumber: _room.Random.Read());
         // Both outcomes of healing Samus queue the energy sound after her energy rises.
         // Use the phase that ran, including its final full-health update.
-        if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
+        if (step.PhaseBefore is BabyMetroidCutscenePhase.Flying.HealSamusToFullHealth &&
             samus.Health >= MotherBrainHealthSounds.MinimumEnergy &&
             MotherBrainCadenceDefinitions.BabyHealSound.IsDue(_frameContext.EnemyPassCount))
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
-
 
         if (step.StartedAnimation is { } started)
             baby.Playback = EnemyAnimationPlayback.Start(place, MotherBrainBabyAnimations.StartingAt[started]);
@@ -140,25 +141,23 @@ internal sealed partial class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         ApplyBabyMetroidFrameEffects(state.Colours, step);
     }
 
+    /// <summary>What <see cref="ShowOrDeleteBabyMetroid"/> does for each <see cref="BabyMetroidVisibilityRequest"/> member, each member's own arm.</summary>
+    private static IdentityTable<BabyMetroidVisibilityRequest, Action<RoomEnemyPlace>> ShowOrDeleteBabyMetroidForBabyMetroidVisibilityRequest => field ??= new(new Dictionary<BabyMetroidVisibilityRequest, Action<RoomEnemyPlace>>
+    {
+        [BabyMetroidVisibilityRequest.Show] = static place => place.Presence = place.Presence.Without(EnemyPresence.Hidden),
+        [BabyMetroidVisibilityRequest.Hide] = static place => place.Presence = place.Presence.With(EnemyPresence.Hidden),
+        [BabyMetroidVisibilityRequest.Unchanged] = static place =>
+        {
+        },
+    });
+
     /// <summary>
     /// Shows, hides or deletes the Baby's place as <paramref name="step"/> asks: its death's flicker and finished fade
     /// show and hide it, and the cutscene's end deletes it (#2310).
     /// </summary>
     private static void ShowOrDeleteBabyMetroid(RoomEnemyPlace place, BabyMetroidCutsceneStepResult step)
     {
-        switch (step.Visibility)
-        {
-            case BabyMetroidVisibilityRequest.Show:
-                place.Presence = place.Presence.Without(EnemyPresence.Hidden);
-                break;
-            case BabyMetroidVisibilityRequest.Hide:
-                place.Presence = place.Presence.With(EnemyPresence.Hidden);
-                break;
-            case BabyMetroidVisibilityRequest.Unchanged:
-                break;
-            default:
-                throw new InvalidOperationException($"Unsupported Baby visibility request {step.Visibility}.");
-        }
+        ShowOrDeleteBabyMetroidForBabyMetroidVisibilityRequest[step.Visibility](place);
         if (step.BabyDeleted)
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
     }
@@ -206,13 +205,12 @@ internal sealed partial class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             ShowBabyMetroidFade(colours, image);
 
         if (step.RecoveryLightsImage is { } lights)
-            colours.ShowLightsRecovering(lights);
+            colours.ShowFade(lights);
     }
 
     /// <summary>Shows <paramref name="image"/> of the Baby's fade to black from its installed colours.</summary>
-    /// <exception cref="ArgumentException">The image is not one of the Baby's fade's.</exception>
     internal static void ShowBabyMetroidFade(MotherBrainColours colours, MotherBrainFadeImage image) =>
-        Ensure.NotNull(colours).ShowBabyFade(image);
+        Ensure.NotNull(colours).ShowFade(image);
 
     /// <summary>Runs BabyMetroidCutscene's main AI.</summary>
     internal void RunBabyMetroidCutsceneMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
@@ -231,8 +229,7 @@ internal sealed partial class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<MotherBrainBabySegment> playback = baby.Playback;
-        EnemyAnimationPlayback.Play(place, MotherBrainBabyAnimations.Segments, ref playback, BabyMetroidVisualDefinitions.ShownFrames.Of,
-            cue => throw new InvalidOperationException($"The cutscene Baby's animations raise no event {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, MotherBrainBabyAnimations.Segments, ref playback, BabyMetroidVisualDefinitions.ShownFrames.Of);
         baby.Playback = playback;
     }
 }

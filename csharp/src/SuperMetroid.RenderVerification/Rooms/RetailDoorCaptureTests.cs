@@ -49,7 +49,7 @@ internal static class RetailDoorCaptureTests
             int frames = 0, scrollFrames = 0;
             while (transition.IsActive && frames < 320)
             {
-                if (transition.Phase == DoorTransitionPhase.WaitForDoorOpeningScroll) scrollFrames++;
+                if (transition.Phase is DoorTransitionPhase.Running.WaitForDoorOpeningScroll) scrollFrames++;
                 transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 frames++;

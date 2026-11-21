@@ -16,19 +16,23 @@ internal sealed partial class IntroMotherBrainExplosionSystem
     /// <summary>Three small and five big actors retained in spawn and drawing order.</summary>
     internal readonly List<ExplosionActor> actors = [];
 
-    /// <summary>
-    /// Spawns the eight explosions of the fourth hit on Mother Brain, in the order they appear.
-    /// </summary>
-    public void SpawnFourthHitExplosions()
+    /// <summary>Keeps the explosions the fourth hit spawned.</summary>
+    private IntroMotherBrainExplosionSystem()
     {
-        if (actors.Count != 0)
-            throw new InvalidOperationException("The intro Mother Brain explosions were already spawned.");
+    }
 
+    /// <summary>
+    /// Spawns the eight explosions of the fourth hit on Mother Brain, in the order they appear, as the system that runs them.
+    /// </summary>
+    public static IntroMotherBrainExplosionSystem SpawnFourthHitExplosions()
+    {
+        var system = new IntroMotherBrainExplosionSystem();
         // The three small explosions spawn first and the five big ones second, each at its own placement.
         foreach (IntroMotherBrainExplosionPlacement placement in IntroMotherBrainDefinitions.SmallExplosions)
-            actors.Add(ExplosionActor.Create(placement, IntroMotherBrainDefinitions.SmallExplosionActor.Animation));
+            system.actors.Add(ExplosionActor.Create(placement, IntroMotherBrainDefinitions.SmallExplosionActor.Animation));
         foreach (IntroMotherBrainExplosionPlacement placement in IntroMotherBrainDefinitions.BigExplosions)
-            actors.Add(ExplosionActor.Create(placement, IntroMotherBrainDefinitions.BigExplosionActor.Animation));
+            system.actors.Add(ExplosionActor.Create(placement, IntroMotherBrainDefinitions.BigExplosionActor.Animation));
+        return system;
     }
 
     /// <summary>Advances every explosion; page two's crossfade reaching its final update (#1980) ends them.</summary>

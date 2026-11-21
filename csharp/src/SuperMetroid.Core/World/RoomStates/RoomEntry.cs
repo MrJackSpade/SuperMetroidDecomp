@@ -58,4 +58,22 @@ internal abstract partial record RoomEntry
         /// <inheritdoc/>
         internal override LoadedRoomAssets? PreloadedAssets => Preloaded;
     }
+
+    /// <summary>The Ceres elevator's arrival the Ceres start's room is built with (#2553); none for every other entry.</summary>
+    internal virtual SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState? CeresElevatorArrival => null;
+
+    /// <summary>
+    /// The Ceres start's entry (#2553): at its load station, its room built with the elevator's arrival, which carries Samus
+    /// down from the room's top.
+    /// </summary>
+    /// <param name="Station">The Ceres start's load station.</param>
+    /// <param name="Arrival">The elevator's arrival, starting under Samus.</param>
+    internal sealed record AtCeresStart(LoadStation Station, SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState Arrival) : RoomEntry
+    {
+        /// <inheritdoc/>
+        internal override LoadStation? LoadStation => Station;
+
+        /// <inheritdoc/>
+        internal override SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState? CeresElevatorArrival => Arrival;
+    }
 }

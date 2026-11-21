@@ -32,7 +32,7 @@ internal sealed partial class MotherBrainBodyEntity(MotherBrainBehavior species,
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Body.AdvanceMotherBrainBodyAnimation(Encounter, context.Samus);
 
     /// <summary>The body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.BodyShot ? Species.Combat.BodyShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.BodyShot ? (field ??= Species.Combat.BodyShotReactionOf(this)) : base.ShotReaction;
 
     /// <summary>
     /// Makes a dud of a bomb that selects the body's shot reaction, before the ignoring check: the bomb's explosion is
@@ -43,14 +43,6 @@ internal sealed partial class MotherBrainBodyEntity(MotherBrainBehavior species,
     public override bool TryReactToBomb(EnemyBombContext context) =>
         context.SelectedShot == MotherBrainReactions.BodyShot || base.TryReactToBomb(context);
 
-    /// <summary>
-    /// The shared Power Bomb reaction; the body leaves the blast to the species, which has no reaction to it, and fails
-    /// loudly if a blast reaches it.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The body's definition leaves the blast to the species.</exception>
-    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies
-        ? throw new InvalidDataException($"Enemy {Place.Occupant?.DefinitionId} has no response to its own Power Bomb reaction.")
-        : base.PowerBombReaction;
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>

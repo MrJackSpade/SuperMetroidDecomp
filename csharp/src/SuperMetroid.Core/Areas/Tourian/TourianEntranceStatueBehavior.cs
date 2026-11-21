@@ -15,11 +15,13 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal sealed partial class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
 {
     /// <inheritdoc/>
-    /// <remarks>Only the statue room can place these.</remarks>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.TourianStatue];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.TourianStatue], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.WithoutMainAi(new TourianEntranceStatueEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.WithoutMainAi(new TourianEntranceStatueEntity(this, occupant, place, common));
 
     /// <summary>Spawns the scene's decorations and its unlock effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -141,7 +143,6 @@ internal sealed partial class TourianEntranceStatueBehavior : IEnemySpecies, IEn
         _sceneProjectiles.Add(projectile);
     }
 
-
     /// <summary>
     /// Initializes one of the statue scene's three placements (#2014): the first spawns the scene's decorations, and each
     /// shows the scene's entrance look until it leaves its place.
@@ -173,12 +174,11 @@ internal sealed partial class TourianEntranceStatueBehavior : IEnemySpecies, IEn
         Position16<RoomPixels> position,
         DecorationBehavior decorations)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, decorations, graphics: SceneGraphics);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, decorations, graphics: SceneGraphics, new TourianStatueProjectileAnimation(decorations, start));
         if (projectile is null)
             return;
 
         HoldSceneProjectile(projectile);
-        projectile.StartAnimation(new TourianStatueProjectileAnimation(decorations, start));
         projectile.Position = projectile.Position.WithWhole(position);
         // The decoration stays tied to its authored spawn point as the statue descends.
         projectile.Anchor = position;
@@ -204,18 +204,17 @@ internal sealed partial class TourianEntranceStatueBehavior : IEnemySpecies, IEn
         private protected override void FollowReveal(EnemyProjectile projectile) =>
             projectile.StartMotion(this, TourianStatueDecorationMotion.FollowingReveal);
 
+        /// <summary>What <c>Move</c> does for each <see cref="TourianStatueDecorationMotion"/> member, each member's own arm.</summary>
+        private IdentityTable<TourianStatueDecorationMotion, Action<EnemyProjectileMotionContext>> MoveForTourianStatueDecorationMotion => field ??= new(new Dictionary<TourianStatueDecorationMotion, Action<EnemyProjectileMotionContext>>
+        {
+            [TourianStatueDecorationMotion.FollowingReveal] = context => PositionTourianEntranceStatueProjectile(context.Projectile),
+            [TourianStatueDecorationMotion.Settled] = context => PositionTourianEntranceStatueProjectile(context.Projectile),
+        });
+
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, TourianStatueDecorationMotion motion)
         {
-            switch (motion)
-            {
-                case TourianStatueDecorationMotion.FollowingReveal:
-                case TourianStatueDecorationMotion.Settled:
-                    PositionTourianEntranceStatueProjectile(context.Projectile);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(TourianStatueDecorationMotion)} {motion}.");
-            }
+            MoveForTourianStatueDecorationMotion[motion](context);
         }
 
         /// <summary>Follows the statue down as it sinks and, for the base decoration, marks the sinking finished once the statues rest.</summary>

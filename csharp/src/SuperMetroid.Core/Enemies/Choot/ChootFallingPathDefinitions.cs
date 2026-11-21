@@ -76,17 +76,17 @@ internal static partial class ChootFallingPathDefinitions
     ];
 
     /// <summary>
-    /// Each falling path: its samples and its loop origin's advance. Slow variants repeat normal-path plateau frames and use
-    /// the same vertical advance.
+    /// Each falling path: its samples, the update after its last ending one loop of the path, and its loop origin's advance.
+    /// Slow variants repeat normal-path plateau frames and use the same vertical advance.
     /// </summary>
-    internal static readonly Dictionary<ChootFallingPath, ChootFallingPathDefinition> Paths = new()
+    internal static readonly IdentityTable<ChootFallingPath, ChootFallingPathDefinition> Paths = new(new Dictionary<ChootFallingPath, ChootFallingPathDefinition>
     {
         [ChootFallingPath.Normal] = new(Normal, ChootPatternDefinitions.NormalLoopYDistance),
         [ChootFallingPath.Wide] = new(Wide, ChootPatternDefinitions.WideLoopYDistance),
         [ChootFallingPath.VeryWide] = new(VeryWide, ChootPatternDefinitions.VeryWideLoopYDistance),
         [ChootFallingPath.Slow] = new(Slow, ChootPatternDefinitions.NormalLoopYDistance),
         [ChootFallingPath.VerySlow] = new(VerySlow, ChootPatternDefinitions.NormalLoopYDistance),
-    };
+    });
 
     /// <summary>A sample at <paramref name="offset"/> from the falling origin, held <paramref name="updates"/> updates.</summary>
     private static ChootFallSample At(Offset16<RoomPixels> offset, int updates = 1) => new(offset, updates);

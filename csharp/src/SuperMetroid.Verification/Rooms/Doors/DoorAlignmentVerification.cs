@@ -143,11 +143,11 @@ internal static class DoorAlignmentVerification
         for (int frame = 0; transition.IsActive && frame < 500; frame++)
         {
             DoorTransitionPhase phaseBeforeStep = transition.Phase;
-            if (transition.Phase == DoorTransitionPhase.AlignSourceCamera)
+            if (transition.Phase is DoorTransitionPhase.Running.AlignSourceCamera)
                 alignmentCalls++;
             transition.Step(runtime, audio, heldLeftRight, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
-            if (phaseBeforeStep == DoorTransitionPhase.DrawFirstDestinationFrame &&
-                transition.Phase == DoorTransitionPhase.FadeInDestinationRoom)
+            if (phaseBeforeStep is DoorTransitionPhase.Running.DrawFirstDestinationFrame &&
+                transition.Phase is DoorTransitionPhase.Running.FadeInDestinationRoom)
             {
                 observedDestinationBuild = true;
                 AssertEqual(GameplayActions.HorizontalDirections, runtime.PlayerActions.Current,

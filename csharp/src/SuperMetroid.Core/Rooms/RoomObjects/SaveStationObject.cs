@@ -52,8 +52,6 @@ internal sealed partial class SaveStationObject(LoadStation savedAt) : RoomObjec
         if (_pod.Shown is not null)
             return;
         StationDraw? shown = _pod.StepToNewFrame();
-        if (_pod.IsResting)
-            throw new InvalidDataException("The save station's pod came to rest instead of showing its image.");
         if (shown is { } image)
             context.Draw(place, StationObjectDraws.Family, image);
     }

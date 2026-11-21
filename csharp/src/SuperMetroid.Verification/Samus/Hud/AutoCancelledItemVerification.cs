@@ -35,7 +35,7 @@ internal static class AutoCancelledItemVerification
         foreach (bool autoCancelled in new[] { true, false })
         {
             SamusState samus = InstalledFixtures.CreateSamus();
-            samus.Pose = pose;
+            samus.ChangePoseKeepingAnimation(pose);
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
@@ -47,7 +47,7 @@ internal static class AutoCancelledItemVerification
 
             GrappleMovementResult ended = phase == GrapplePhase.CancelPending
                 ? SamusGrappleMovement.CompleteFiringCancellation(air, samus)
-                : SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+                : SamusGrappleMovement.StepAndCommit(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
 
             AssertEqual(GrapplePhase.Inactive, ended.Phase, $"the grapple's {ending} ends it");
             AssertEqual(autoCancelled ? HudItem.Beam : HudItem.Grapple, samus.SelectedHudItem,
@@ -71,14 +71,13 @@ internal static class AutoCancelledItemVerification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
                 SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 Health = 99,
                 MaxHealth = 99,
                 EquippedItems = SamusEquipmentFlags.XrayScope,
                 SelectedHudItem = HudItem.XRay,
                 AutoCancelledItem = autoCancelled ? HudItem.XRay : null,
-            };
+            }.InPose(SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusMovementType.Standing,

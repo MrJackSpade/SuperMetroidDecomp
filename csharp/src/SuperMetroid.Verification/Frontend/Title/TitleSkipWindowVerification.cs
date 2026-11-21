@@ -204,5 +204,5 @@ internal static class TitleSkipWindowVerification
     /// <param name="Skip">How far the skip has run alongside the step (#1719).</param>
     /// <param name="Brightness">The screen brightness the update ends at.</param>
     /// <param name="Zoom">The floor's zoom the update ends at.</param>
-    private readonly record struct TitleUpdate(TitleSequencePhase Phase, TitleSkipStage Skip, int Brightness, FloorZoom Zoom);
+    private readonly record struct TitleUpdate(TitleSequencePhase Phase, TitleSkipStage Skip, int Brightness, FloorZoom? Zoom);
 }

@@ -321,12 +321,6 @@ internal static class RoomObjectSystemAccess
         {
             Ensure.NotNull(level);
             bool areaDependent = bts.Shootable == ShootableReaction.NothingWhenSolid;
-            if (bts.Shootable is null)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(bts),
-                    "The shootable BTS gives a shootable block no reaction.");
-            }
             if (!areaDependent && !ShotBlockReactions.IsWeaponReaction(bts.Shootable))
             {
                 throw new ArgumentOutOfRangeException(
@@ -424,7 +418,7 @@ internal static class RoomObjectSystemAccess
             => self.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
                 position,
-                RoomBlockBehaviorCodec.Decode(behavior),
+                ShotBlockReactions.ShotBlocks[RoomBlockBehaviorCodec.Decode(behavior).Shootable],
                 strike,
                 solidBlock);
 

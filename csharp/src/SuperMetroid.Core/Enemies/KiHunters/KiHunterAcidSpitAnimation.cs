@@ -16,5 +16,5 @@ internal sealed partial class KiHunterAcidSpitAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<KiHunterAcidSpitSegment, EnemyProjectileFrameId, KiHunterAcidSpitCue> Segments => KiHunterAcidSpitAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<KiHunterAcidSpitSegment, EnemyProjectileFrameId, KiHunterAcidSpitCue> Segments => KiHunterAcidSpitAnimations.Segments;
 }

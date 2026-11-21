@@ -48,9 +48,8 @@ public sealed partial class SharedGameState
     public PowerOnEarthquakeSoundDelay EarthquakeSoundDelay { get; }
 
     /// <summary>Restores the saved startup route from one save slot or a checkpoint.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="route"/> is not a defined route.</exception>
     public void LoadSavedStartupRoute(SaveStartupRoute route) =>
-        SavedStartupRoute = Enum.IsDefined(route) ? route : throw new ArgumentOutOfRangeException(nameof(route), route, "Undefined startup route.");
+        SavedStartupRoute = route;
 
     /// <summary>
     /// Applies the Spacetime Beam's progression overwrite (#1318, #1330, #1474, #1475): every story event, boss, item, door,

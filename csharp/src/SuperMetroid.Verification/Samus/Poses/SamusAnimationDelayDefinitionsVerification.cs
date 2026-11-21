@@ -80,12 +80,9 @@ internal static class SamusAnimationDelayDefinitionsVerification
 
         VerifyFramesBeyondAnimation(cartridge);
 
-        var flashbackSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
-        {
-            Pose = SamusPoseId.FacingLeftNormalPose,
-        };
+        var flashbackSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FacingLeftNormalPose);
         SamusPresentation.InitializeAnimation(flashbackSamus);
-        AssertEqual(SamusPoseId.FacingLeftNormalPose, flashbackSamus.AnimatedPose,
+        AssertEqual(SamusPoseId.FacingLeftNormalPose, flashbackSamus.Pose,
             "Mother Brain flashback pose starts its typed animation program");
         Console.WriteLine("Samus pose animation: every record's typed animation matches the cartridge's runs, delays and instructions.");
     }

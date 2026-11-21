@@ -43,7 +43,7 @@ internal static class FileSelectSourcePresentationAccess
         {
             Ensure.NotNull(shown);
             var tiles = new BackgroundTile[FileSelectPresentationFormat.CellCount];
-            self.CopyPage(shown.Page, tiles);
+            self.CopyPage(shown.Selected.Page, tiles);
             foreach (PlacedFrame placed in shown.Pictures(self.Presentation).Skip(1))
             {
                 ScreenPictureSubject glyph = self.FieldSubjects().First(subject => subject.Name == placed.Frame);

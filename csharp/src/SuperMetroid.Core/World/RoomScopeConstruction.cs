@@ -26,7 +26,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 [RoomLifetime]
 internal sealed partial class RoomScopeConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
-    LoadStation? loadStation, RoomMainHandOvers handOvers) : IDoorEventLoad
+    LoadStation? loadStation, CeresElevatorArrivalState? ceresElevatorArrival, RoomMainHandOvers handOvers) : IDoorEventLoad
 {
     /// <summary>What the previous room's main handed on, each hand-over given only to the main that carries it.</summary>
     private readonly RoomMainHandOvers _handOvers = Ensure.NotNull(handOvers);
@@ -199,6 +199,7 @@ internal sealed partial class RoomScopeConstruction(DoorDefinition door, Selecte
         Room = Room,
         Assets = Assets,
         LoadStation = LoadStation,
+        CeresElevatorArrival = ceresElevatorArrival,
         LevelData = LevelData ?? throw Missing(nameof(LevelData)),
         Camera = Camera ?? throw Missing(nameof(Camera)),
         ArtworkFrames = ArtworkFrames,

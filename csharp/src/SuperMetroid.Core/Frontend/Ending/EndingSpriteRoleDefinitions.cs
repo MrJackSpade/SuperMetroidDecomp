@@ -1,4 +1,4 @@
-using F = SuperMetroid.Core.Frontend.Intro.Artwork.CinematicSpriteFamily;
+using F = SuperMetroid.Core.Frontend.Ending.EndingSpriteFamily;
 using L = SuperMetroid.Core.Frontend.Ending.EndingSpriteLayer;
 using R = SuperMetroid.Core.Frontend.Ending.EndingSpriteRole;
 
@@ -11,8 +11,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static partial class EndingSpriteRoleDefinitions
 {
     /// <summary>Every ending actor role's definition.</summary>
-    internal static IReadOnlyDictionary<EndingSpriteRole, EndingSpriteRoleDefinition> Roles { get; } =
-        new Dictionary<EndingSpriteRole, EndingSpriteRoleDefinition>
+    internal static IdentityTable<EndingSpriteRole, EndingSpriteRoleDefinition> Roles { get; } = new(new Dictionary<EndingSpriteRole, EndingSpriteRoleDefinition>
         {
             [R.SideCloudRightLeading] = new(F.EndingCloud, L.Actors, () => EndingCloudDrift.SideCloud(HorizontalDirection.Left)),
             [R.SideCloudLeftLeading] = new(F.EndingCloud, L.Actors, () => EndingCloudDrift.SideCloud(HorizontalDirection.Right)),
@@ -36,5 +35,5 @@ internal static partial class EndingSpriteRoleDefinitions
             [R.ClearTimeDigit] = new(F.EndingCompletionText, L.Actors, () => new EndingStillMotion()),
             [R.RewardSamus] = new(F.EndingReward, L.Actors, () => new EndingStillMotion()),
             [R.AnimalEscape] = new(F.EndingAnimalEscape, L.Actors, () => new EndingAnimalPodMotion()),
-        };
+        });
 }

@@ -9,28 +9,17 @@ namespace SuperMetroid.Core.Enemies.Evir;
 internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
-
-    /// <summary>
+    /// <remarks>
     /// An Evir's body or arms, as the placement's settings name the part it is, or its spit (#2146). The arms share the
     /// body's definition; only their placement tells them apart.
-    /// </summary>
-    /// <exception cref="KeyNotFoundException">The place holds no Evir definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
-
-    /// <summary>
-    /// The factory of each part the species creates, by the definition that places it: the species serves these
-    /// definitions, and each builds its own part from the species it is given.
-    /// </summary>
-    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<EvirBehavior>> PartFactories =
-        new()
-        {
-            [EnemyDefinitionId.Evir] = static (species, occupant, place, common) => occupant.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
-                ? EnemyOccupant.Of(new EvirArmsEntity(species, occupant, place, common))
-                : EnemyOccupant.FromSurroundings(new EvirBodyEntity(species, occupant, place, common)),
-            [EnemyDefinitionId.EvirProjectile] = static (species, occupant, place, common) => EnemyOccupant.Of(new EvirSpitEntity(species, occupant, place, common)),
-        };
+    /// </remarks>
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    {
+        [EnemyDefinitionId.Evir] = (occupant, place, common) => occupant.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
+            ? EnemyOccupant.Of(new EvirArmsEntity(this, occupant, place, common))
+            : EnemyOccupant.FromSurroundings(new EvirBodyEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.EvirProjectile] = (occupant, place, common) => EnemyOccupant.Of(new EvirSpitEntity(this, occupant, place, common)),
+    };
 
     /// <summary>The room's enemy places, where each Evir part finds its partners when it is placed.</summary>
     private readonly EnemyPlaces _places;
@@ -53,26 +42,19 @@ internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         _collision = collision;
     }
 
+    /// <summary>What <see cref="ApplyEvirCue"/> does for each <see cref="EvirCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<EvirCueKind, Action<EvirSpitState>> ApplyEvirCueForEvirCueKind => field ??= new(new Dictionary<EvirCueKind, Action<EvirSpitState>>
+    {
+        [EvirCueKind.PlaySpitSound] = state => QueueEvirSpitSound(),
+        [EvirCueKind.SetInitialRegenerationOffset] = state => SetInitialEvirRegenerationOffset(state),
+        [EvirCueKind.AdvanceRegenerationOffset] = state => AdvanceEvirRegenerationOffset(state),
+        [EvirCueKind.FinishRegeneration] = state => FinishEvirRegeneration(state),
+    });
+
     /// <summary>Carries out one cue of the Evir spit's animations: the spit sound and the regeneration steps.</summary>
     private void ApplyEvirCue(EvirSpitState state, EvirCue cue)
     {
-        switch (cue.Kind)
-        {
-            case EvirCueKind.PlaySpitSound:
-                QueueEvirSpitSound();
-                break;
-            case EvirCueKind.SetInitialRegenerationOffset:
-                SetInitialEvirRegenerationOffset(state);
-                break;
-            case EvirCueKind.AdvanceRegenerationOffset:
-                AdvanceEvirRegenerationOffset(state);
-                break;
-            case EvirCueKind.FinishRegeneration:
-                FinishEvirRegeneration(state);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EvirCueKind)} {cue.Kind}.");
-        }
+        ApplyEvirCueForEvirCueKind[cue.Kind](state);
     }
 
     /// <summary>Initializes an Evir's arms.</summary>
@@ -186,6 +168,14 @@ internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
+    /// <summary>What <see cref="RunEvirProjectileMain"/> does for each <see cref="EvirSpitAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<EvirSpitAction, Action<RoomEnemyPlace, EvirSpitState, Position16<RoomPixels>>> RunEvirProjectileMainForEvirSpitAction => field ??= new(new Dictionary<EvirSpitAction, Action<RoomEnemyPlace, EvirSpitState, Position16<RoomPixels>>>
+    {
+        [EvirSpitAction.Idle] = static (place, state, camera) => ResetEvirProjectilePosition(place, state),
+        [EvirSpitAction.Moving] = static (place, state, camera) => RunMovingEvirProjectile(place, state, camera),
+        [EvirSpitAction.Regenerating] = static (place, state, camera) => RunRegeneratingEvirProjectile(place, state),
+    });
+
     /// <summary>Runs idle attachment, aimed flight or regeneration after selecting its animation.</summary>
     private static void RunEvirProjectileMain(
         RoomEnemyPlace place,
@@ -215,21 +205,7 @@ internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        switch (state.Action)
-        {
-            case EvirSpitAction.Idle:
-                ResetEvirProjectilePosition(place, state);
-                break;
-            case EvirSpitAction.Moving:
-                RunMovingEvirProjectile(place, state, camera);
-                break;
-            case EvirSpitAction.Regenerating:
-                RunRegeneratingEvirProjectile(place, state);
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Evir projectile has no behaviour for action {state.Action}.");
-        }
+        RunEvirProjectileMainForEvirSpitAction[state.Action](place, state, camera);
     }
 
     /// <summary>Selects left or right body artwork from Samus's signed horizontal side.</summary>

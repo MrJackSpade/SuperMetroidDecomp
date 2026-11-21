@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -45,11 +46,11 @@ internal sealed partial class ActiveRoomState
     /// <summary>Starts building a room's scope; until <see cref="Adopt"/>, the room views below read its parts.</summary>
     /// <exception cref="InvalidOperationException">A load is already in progress.</exception>
     internal RoomScopeConstruction BeginConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
-        LoadStation? loadStation)
+        LoadStation? loadStation, CeresElevatorArrivalState? ceresElevatorArrival)
     {
         if (Construction is not null)
             throw new InvalidOperationException("A room load is already building its scope.");
-        Construction = new RoomScopeConstruction(door, room, assets, loadStation, RoomMainHandOvers);
+        Construction = new RoomScopeConstruction(door, room, assets, loadStation, ceresElevatorArrival, RoomMainHandOvers);
         return Construction;
     }
 

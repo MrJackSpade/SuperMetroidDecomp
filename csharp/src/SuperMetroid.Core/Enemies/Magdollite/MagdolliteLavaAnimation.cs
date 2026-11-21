@@ -16,5 +16,5 @@ internal sealed partial class MagdolliteLavaAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<MagdolliteLavaSegment, EnemyProjectileFrameId, MagdolliteLavaCue> Segments => MagdolliteLavaAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<MagdolliteLavaSegment, EnemyProjectileFrameId, MagdolliteLavaCue> Segments => MagdolliteLavaAnimations.Segments;
 }

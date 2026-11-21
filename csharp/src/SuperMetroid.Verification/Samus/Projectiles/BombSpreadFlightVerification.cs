@@ -148,7 +148,7 @@ internal static class BombSpreadFlightVerification
     }
 
     /// <summary>A room of air but for solid blocks at <paramref name="solid"/>, holding no room objects.</summary>
-    private static SamusTerrain RoomWithSolidBlocks(IEnumerable<(int X, int Y)> solid)
+    private static RoomTerrain RoomWithSolidBlocks(IEnumerable<(int X, int Y)> solid)
     {
         var blocks = new RoomTerrainBlock[RoomSide * RoomSide];
         foreach ((int x, int y) in solid)
@@ -156,7 +156,7 @@ internal static class BombSpreadFlightVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(RoomSide, RoomSide),
             new RoomLevelPlanes(blocks, new RoomBlockBehavior[blocks.Length], new RoomBlockAppearance[blocks.Length]),
             RoomLevelData.NothingBeyondGrid(), []);
-        return new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled };
+        return SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled);
     }
 
     /// <summary>Samus rolled up at <paramref name="position"/> with bombs, falling under her ordinary gravity.</summary>
@@ -166,10 +166,9 @@ internal static class BombSpreadFlightVerification
             new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(),
             InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs,
             Position = position,
-        };
+        }.InPose(SamusPoseId.MorphBallGroundRightPose);
         samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00);
         return samus;
     }

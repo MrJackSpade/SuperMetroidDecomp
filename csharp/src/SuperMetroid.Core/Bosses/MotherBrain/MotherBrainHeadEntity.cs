@@ -39,7 +39,7 @@ internal sealed partial class MotherBrainHeadEntity(MotherBrainBehavior species,
     }
 
     /// <summary>The head's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.HeadShot ? Species.Combat.HeadShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.HeadShot ? (field ??= Species.Combat.HeadShotReactionOf(this)) : base.ShotReaction;
 
     /// <summary>Runs the head's own reaction to a bomb that selects its shot reaction, before the ignoring check.</summary>
     /// <param name="context">The bomb contact.</param>
@@ -47,18 +47,10 @@ internal sealed partial class MotherBrainHeadEntity(MotherBrainBehavior species,
     {
         if (context.SelectedShot != MotherBrainReactions.HeadShot)
             return base.TryReactToBomb(context);
-        Species.Combat.ReactToMotherBrainHeadBomb(context);
+        Species.Combat.ReactToMotherBrainHeadBomb(Encounter, context);
         return true;
     }
 
-    /// <summary>
-    /// The shared Power Bomb reaction; the head leaves the blast to the species, which has no reaction to it, and fails
-    /// loudly if a blast reaches it.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The head's definition leaves the blast to the species.</exception>
-    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies
-        ? throw new InvalidDataException($"Enemy {Place.Occupant?.DefinitionId} has no response to its own Power Bomb reaction.")
-        : base.PowerBombReaction;
 
     /// <summary>Shots meet the head's frames' hitboxes; its contact uses the definition's radius.</summary>
     public override EnemyCapabilities Capabilities => EnemyCapabilities.ProjectileFrameHitboxes;

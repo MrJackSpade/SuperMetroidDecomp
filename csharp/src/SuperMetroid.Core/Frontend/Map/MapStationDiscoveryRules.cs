@@ -36,6 +36,14 @@ public static partial class MapStationDiscoveryRules
         new("MaridiaMap", AreaId.Maridia, new(17, 18)),
     ];
 
+    /// <summary>The discovery rules of each kind of station.</summary>
+    private static IdentityTable<MapStationKind, MapStationDiscoveryRule[]> RulesByKind => field ??= new(new Dictionary<MapStationKind, MapStationDiscoveryRule[]>
+    {
+        [MapStationKind.Missile] = missile,
+        [MapStationKind.Energy] = energy,
+        [MapStationKind.Map] = map,
+    });
+
     /// <summary>Selects an area's marker family without testing exploration or consulting editable drawing positions.</summary>
     /// <param name="area">Validated area identity whose saved map owns the discovery cells.</param>
     /// <param name="kind">The mutually exclusive missile, energy, or map station family.</param>
@@ -43,14 +51,7 @@ public static partial class MapStationDiscoveryRules
     /// <exception cref="ArgumentOutOfRangeException">The area or station kind is not a supported identity.</exception>
     public static IEnumerable<MapStationDiscoveryRule> Get(AreaId area, MapStationKind kind)
     {
-        _ = AreaIds.Require(area);
-        MapStationDiscoveryRule[] source = kind switch
-        {
-            MapStationKind.Missile => missile,
-            MapStationKind.Energy => energy,
-            MapStationKind.Map => map,
-            _ => throw new ArgumentOutOfRangeException(nameof(kind))
-        };
+        MapStationDiscoveryRule[] source = RulesByKind[kind];
         return source.Where(rule => rule.Area == area);
     }
 }

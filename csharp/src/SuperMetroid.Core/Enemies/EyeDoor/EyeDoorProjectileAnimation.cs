@@ -17,5 +17,5 @@ internal sealed partial class EyeDoorProjectileAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<EyeDoorProjectileSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments => EyeDoorProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<EyeDoorProjectileSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments => EyeDoorProjectileAnimations.Segments;
 }

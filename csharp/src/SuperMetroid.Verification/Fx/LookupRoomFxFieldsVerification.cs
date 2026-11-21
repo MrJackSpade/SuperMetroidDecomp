@@ -82,14 +82,13 @@ internal static class LookupRoomFxFieldsVerification
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
+            // A selection the cartridge stores under two headers (the quicksand shafts') holds one record at both; the record
+            // names the first.
             if (identities.Contains(pointer) && !originalEnds.Contains(pointer))
             {
-                // A selection the cartridge stores under two headers (the quicksand shafts', #2574) is one selection: its
-                // records are the first header's, so a later header's record names the first header's pointer.
                 RoomEffectDefinition record = RoomFxDefinitions.RecordAt(pointer);
-                ushort named = RoomFxDefinitions.RecordPointerOf(record);
-                AssertTrue(named == pointer || named < pointer && ReferenceEquals(RoomFxDefinitions.RecordAt(named), record),
-                    $"FX selected identity ${pointer:X4} names ${named:X4}");
+                AssertEqual(RoomFxDefinitions.RecordPointers.First(first => ReferenceEquals(RoomFxDefinitions.RecordAt(first), record)),
+                    RoomFxDefinitions.RecordPointerOf(record), "FX selected identity");
             }
             else
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomFxDefinitions.RecordAt(pointer),
@@ -268,7 +267,9 @@ internal static class LookupRoomFxFieldsVerification
             foreach (DoorDefinition? door in DoorDefinitionsConstants.All.Append(null))
             {
                 ushort word = door is null ? (ushort)0 : DoorDefinitions.PointerOf(door);
-                ushort expected = firstByDoor.TryGetValue(word, out ushort matching) ? matching : fallback;
+                ushort native = firstByDoor.TryGetValue(word, out ushort matching) ? matching : fallback;
+                // A record the cartridge stores under two headers (the quicksand shafts') is named by the first.
+                ushort expected = native == 0 ? native : RoomFxDefinitions.RecordPointerOf(RoomFxDefinitions.RecordAt(native));
                 ushort actual = RoomFxDefinitions.SelectedRecordPointer(RoomFxDefinitions.Suffix(root), door);
                 // A selection the cartridge stores under two headers (the quicksand shafts', #2574) is one selection, whose
                 // records are named at the first header: the record selected is the same one.

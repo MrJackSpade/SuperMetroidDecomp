@@ -54,7 +54,7 @@ internal static class ChargeFlarePlacementVerification
         {
             // Exercise all original low-nibble operands at the renderer's metadata
             // boundary; compiled pose rules cannot be overridden by fake ROM bytes.
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) }.InPose(pose);
             int record = SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(pose) * 8;
             bool running = bus.ReadCartridgeByte(record + 1) == SamusMovementTypeNativeWords.Byte(SamusMovementType.Running);
             // The turning placements follow the standing rows only; no running pose selects past the named directions.
@@ -80,7 +80,7 @@ internal static class ChargeFlarePlacementVerification
             DrawImportedFlareSpritemap(bus, native, selector, new(x, onScreen ? y : (byte)y));
             OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => drawMetadata(frame, samus, Position16<RoomPixels>.Zero, component, transform,
                 new ChargeFlareArtwork { Placement = stock, Sheets = objects },
-                new ChargeFlarePose { Aim = aim, Running = running, PoseYOffset = yOffset, FacingLeft = facingLeft }));
+                new ChargeFlarePose { Aim = aim, Running = running, PoseYOffset = yOffset, Facing = facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right }));
             // The draw depth replaces each part's priority tier (#1514); everything else must match the cartridge.
             AssertEqual(native.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Flare placement publishes every native part");
             if (!onScreen)
@@ -99,7 +99,7 @@ internal static class ChargeFlarePlacementVerification
         })
         foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) }.InPose(pose);
             int record = SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(pose) * 8;
             int turnRow = bus.ReadCartridgeByte(record + 3) & 15;
             AssertTrue(SamusFlareRows.AimAtRow(turnRow) is SamusFlareAim.WhileTurning, $"{pose} selects a turn row");
@@ -126,15 +126,13 @@ internal static class ChargeFlarePlacementVerification
             int past = row;
             AssertThrows<ArgumentOutOfRangeException>(() => SamusFlareRows.AimAtRow(past), $"flare row {row} past the turning placements names no placement");
         }
-        foreach (SamusTurningAim turning in Enum.GetValues<SamusTurningAim>())
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(true, new SamusFlareAim.WhileTurning(turning)), $"running flare turning {turning} is rejected");
         AssertTrue(Enumerable.Range(0, byte.MaxValue + 1).Where(SamusPoseNumbering.NamesPose)
             .Select(number => SamusPoseMetadata.ReadAim(SamusPoseNumbering.FromNumber(number)))
             .OfType<SamusPoseAim.Armed>()
             .Select(armed => armed.Flare)
             .All(flare => ChargeFlarePlacements.Placements(ChargeFlareSource.Beam).Contains(new ChargeFlarePlacement(false, flare))),
             "every pose's flare aim is a standing beam flare placement");
-        var subject = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+        var subject = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) }.InPose(SamusPoseId.FacingRightNormalPose);
         byte[] beforeSamus = GraphDigest(subject, InstalledFixtures.BoundContent), beforeSystem = GraphDigest(system, InstalledFixtures.BoundContent);
         OamBuffer original = SpriteFrameBuffer.DrawnOam(frame => draw(frame, subject, Position16<RoomPixels>.Zero, ChargeFlareComponent.MainFlare, null,
             new ChargeFlareArtwork { Placement = stock, Sheets = objects }));
@@ -144,10 +142,10 @@ internal static class ChargeFlarePlacementVerification
         // raised it by 252 instead, a presentation quirk deleted (#1795).
         OamBuffer DrawnAtOffset(int samusY, int poseYOffset)
         {
-            var drawn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, samusY)) };
+            var drawn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, samusY)) }.InPose(SamusPoseId.FacingRightNormalPose);
             return SpriteFrameBuffer.DrawnOam(frame => drawMetadata(frame, drawn, Position16<RoomPixels>.Zero,
                 ChargeFlareComponent.MainFlare, null, new ChargeFlareArtwork { Placement = stock, Sheets = objects },
-                new ChargeFlarePose { Aim = SamusFlareRows.AimAtRow(0), Running = false, PoseYOffset = poseYOffset, FacingLeft = false }));
+                new ChargeFlarePose { Aim = SamusFlareRows.AimAtRow(0), Running = false, PoseYOffset = poseYOffset, Facing = HorizontalDirection.Right }));
         }
         OamBuffer negativeOffset = DrawnAtOffset(100, -4), noOffsetLower = DrawnAtOffset(104, 0);
         AssertTrue(negativeOffset.LastFinalizedSpriteCount > 0, "a flare at a negative pose offset draws visible sprites");
@@ -158,9 +156,8 @@ internal static class ChargeFlarePlacementVerification
         {
             var hyperSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             hyperSystem.Charge.SetFlareCount(30);
-            foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-                hyperSystem.Charge.Flare(component).ShowNative(2, hyperSystem.Charge.Flare(component).NativeWait);
-            subject.HyperBeamEnabled = hyper;
+            hyperSystem.Charge.PlayFlareTo([2, 2, 2], [0, 0, 0]);
+            if (hyper) subject.EnableHyperBeam();
             original = SpriteFrameBuffer.DrawnOam(frame => hyperSystem.DrawChargeFlare(frame, subject, new(0, 0),
                 hyperSystem.AdvanceChargeFlare(subject), null,
                 new ChargeFlareArtwork { Placement = stock, Sheets = objects }));
@@ -177,7 +174,7 @@ internal static class ChargeFlarePlacementVerification
         AssertThrows<InvalidDataException>(() => Load(document), "Flare placement cannot contain mechanics fields");
         AssertThrows<InvalidDataException>(() => ChargeFlarePlacementFile.Load(new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))), "Duplicate flare properties rejected");
         Console.WriteLine($"Flare placement: {cases} native OAM cases, whole-state isolation and invalid-resource rejection pass.");
-        static ChargeFlarePlacements Load(JsonNode node) => ChargeFlarePlacementFile.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
+        static BeamFlarePlacements Load(JsonNode node) => ChargeFlarePlacementFile.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
     }
     /// <summary>Invokes the renderer's private flare component path with explicit compiled pose metadata.</summary>
     internal delegate void FlareMetadataDraw(SpriteFrameBuffer sprites, SamusState samus,
@@ -185,19 +182,20 @@ internal static class ChargeFlarePlacementVerification
         ChargeFlareArtwork artwork, ChargeFlarePose pose);
 
     /// <summary>Confirms stock flare offsets flow through actor drawing and artwork rebinding.</summary>
-    private static void VerifyRuntimeFlarePlacement(ChargeFlarePlacements stock)
+    private static void VerifyRuntimeFlarePlacement(BeamFlarePlacements stock)
     {
         var random = new SharedRandom();
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), random: random);
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
+        runtime.Player.IntroducedSamus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         SamusPresentation.InitializeAnimation(runtime.Player.IntroducedSamus);
         runtime.Projectiles.Charge.SetFlareCount(30);
-        foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-            runtime.Projectiles.Charge.Flare(component).ShowNative(0, WrappingCountdown.Start(100));
+        // Each component's first picture with three updates of its wait left, so both draws, each of which plays the flare
+        // one update on, show it.
+        runtime.Projectiles.Charge.PlayFlareTo([0, 0, 0], [3, 3, 3]);
         game.AdoptRuntime(runtime);
         // The fixture game has no host artwork of its own; adopting the runtime cleared its projectile sheets.
         InstalledFixtures.BindProjectileArtwork(runtime);

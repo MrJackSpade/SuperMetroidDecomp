@@ -16,7 +16,7 @@ internal sealed partial class KraidRoomObjects(RoomObjectPlaceList places)
     public void Spawn(RoomLevelData level, RoomObjectSpawnRequest<KraidRoomMutation> request)
     {
         Ensure.NotNull(level);
-        TerrainChange change = Ensure.Listed(Changes, request.RoomObject);
+        TerrainChange change = Changes[request.RoomObject];
 
         Position16<RoomBlocks> block = level.GridBlock(request.Block);
         if (places.Spawn() is not { } place)

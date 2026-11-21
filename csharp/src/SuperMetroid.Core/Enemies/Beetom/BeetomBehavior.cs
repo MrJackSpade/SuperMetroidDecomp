@@ -11,10 +11,13 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Beetom];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Beetom], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new BeetomEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new BeetomEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared RNG seed and generation used by Beetom action choice.</summary>
     private readonly EnemyRoomBinding _room;
@@ -41,22 +44,18 @@ internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyEntityFactor
         _inheritance = inheritance;
     }
 
+    /// <summary>What <see cref="ApplyBeetomCue"/> does for each <see cref="BeetomCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<BeetomCueKind, Action<RoomEnemyPlace>> ApplyBeetomCueForBeetomCueKind => field ??= new(new Dictionary<BeetomCueKind, Action<RoomEnemyPlace>>
+    {
+        [BeetomCueKind.ProcessOffScreen] = static place => place.Processing = place.Processing.With(EnemyProcessing.OffScreen),
+        [BeetomCueKind.StopProcessingOffScreen] = static place => place.Processing = place.Processing.Without(EnemyProcessing.OffScreen),
+    });
+
     /// <summary>Carries out one cue of the Beetom's animations: whether it keeps processing off screen.</summary>
     private static void ApplyBeetomCue(RoomEnemyPlace place, BeetomCue cue)
     {
-        switch (cue.Kind)
-        {
-            case BeetomCueKind.ProcessOffScreen:
-                place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
-                break;
-            case BeetomCueKind.StopProcessingOffScreen:
-                place.Processing = place.Processing.Without(EnemyProcessing.OffScreen);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BeetomCueKind)} {cue.Kind}.");
-        }
+        ApplyBeetomCueForBeetomCueKind[cue.Kind](place);
     }
-
 
     /// <summary>Initializes the Beetom.</summary>
     internal void InitializeBeetom(RoomEnemyPlace place, SamusState samus, GameplayAction controllerInput)
@@ -79,6 +78,73 @@ internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyEntityFactor
                 : BeetomSegment.CrawlingRight);
     }
 
+    /// <summary>What <see cref="RunBeetomMain"/> does for each <see cref="BeetomAction"/> member, each member's own arm.</summary>
+    private IdentityTable<BeetomAction, Action<RoomEnemyPlace, BeetomEnemyState, SamusState, RoomLevelData, GameplayAction>> RunBeetomMainForBeetomAction => field ??= new(new Dictionary<BeetomAction, Action<RoomEnemyPlace, BeetomEnemyState, SamusState, RoomLevelData, GameplayAction>>
+    {
+        [BeetomAction.DecideAction] = (place, state, samus, level, controllerInput) =>
+        {
+            state.Action = Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) < BeetomMotionDefinitions.ProximityDistance
+                ? BeetomAction.StartLunge
+                : BeetomAction.ChooseIdleCrawlOrHop;
+        },
+        [BeetomAction.ChooseIdleCrawlOrHop] = (place, state, samus, level, controllerInput) => ChooseDistantBeetomAction(state),
+        [BeetomAction.StartIdling] = (place, state, samus, level, controllerInput) =>
+        {
+            state.ActionTimer = UpdateCountdown.For(BeetomMotionDefinitions.IdleDuration);
+            state.Action = BeetomAction.Idling;
+        },
+        [BeetomAction.StartCrawling] = (place, state, samus, level, controllerInput) => StartBeetomCrawling(place, state, state.Heading),
+        [BeetomAction.StartShortHop] = (place, state, samus, level, controllerInput) => StartBeetomHop(place, state, state.Heading, BeetomHopLength.Short),
+        [BeetomAction.StartLongHop] = (place, state, samus, level, controllerInput) => StartBeetomHop(place, state, state.Heading, BeetomHopLength.Long),
+        [BeetomAction.StartLunge] = (place, state, samus, level, controllerInput) => StartBeetomLunge(place, state, samus),
+        [BeetomAction.StartDraining] = (place, state, samus, level, controllerInput) => StartBeetomDrain(place, state, side: state.Heading),
+        [BeetomAction.StartDropping] = (place, state, samus, level, controllerInput) => StartBeetomDrop(place, state),
+        [BeetomAction.StartBeingFlung] = (place, state, samus, level, controllerInput) =>
+        {
+            state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
+            state.Action = BeetomAction.BeingFlung;
+        },
+        [BeetomAction.Idling] = (place, state, samus, level, controllerInput) =>
+        {
+            if (state.ActionTimer.Step())
+                state.Action = BeetomAction.DecideAction;
+        },
+        [BeetomAction.Crawling] = (place, state, samus, level, controllerInput) => RunBeetomCrawl(place, state, level, state.Heading),
+        [BeetomAction.ShortHopRising] = (place, state, samus, level, controllerInput) =>
+        {
+            RiseBeetom(place, state, level, BeetomMotionDefinitions.ShortHopMarks, fall: BeetomAction.ShortHopFalling);
+            MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Hop);
+        },
+        [BeetomAction.ShortHopFalling] = (place, state, samus, level, controllerInput) =>
+        {
+            FallBeetom(place, state, level, BeetomMotionDefinitions.ShortHopMarks);
+            MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Hop);
+        },
+        [BeetomAction.LongHopRising] = (place, state, samus, level, controllerInput) =>
+        {
+            RiseBeetom(place, state, level, BeetomMotionDefinitions.LongHopMarks, fall: BeetomAction.LongHopFalling);
+            MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Hop);
+        },
+        [BeetomAction.LongHopFalling] = (place, state, samus, level, controllerInput) =>
+        {
+            FallBeetom(place, state, level, BeetomMotionDefinitions.LongHopMarks);
+            MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Hop);
+        },
+        [BeetomAction.LungeRising] = (place, state, samus, level, controllerInput) =>
+        {
+            RiseBeetom(place, state, level, BeetomMotionDefinitions.LungeRisingMarks, fall: BeetomAction.LungeFalling);
+            MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Lunge);
+        },
+        [BeetomAction.LungeFalling] = (place, state, samus, level, controllerInput) =>
+        {
+            FallBeetom(place, state, level, BeetomMotionDefinitions.LungeFallingMarks);
+            MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Lunge);
+        },
+        [BeetomAction.Draining] = (place, state, samus, level, controllerInput) => RunBeetomDrain(place, state, samus, level, controllerInput, side: state.Heading),
+        [BeetomAction.Dropping] = (place, state, samus, level, controllerInput) => RunBeetomDrop(place, state, level),
+        [BeetomAction.BeingFlung] = (place, state, samus, level, controllerInput) => RunFlungBeetom(place, state, level),
+    });
+
     /// <summary>Runs a Beetom for one update through all of its actions.</summary>
     private void RunBeetomMain(
         RoomEnemyPlace place,
@@ -87,85 +153,7 @@ internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyEntityFactor
         RoomLevelData level,
         GameplayAction controllerInput)
     {
-        switch (state.Action)
-        {
-            case BeetomAction.DecideAction:
-                state.Action = Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) < BeetomMotionDefinitions.ProximityDistance
-                    ? BeetomAction.StartLunge
-                    : BeetomAction.ChooseIdleCrawlOrHop;
-                return;
-            case BeetomAction.ChooseIdleCrawlOrHop:
-                ChooseDistantBeetomAction(state);
-                return;
-            case BeetomAction.StartIdling:
-                state.ActionTimer = UpdateCountdown.For(BeetomMotionDefinitions.IdleDuration);
-                state.Action = BeetomAction.Idling;
-                return;
-            case BeetomAction.StartCrawling:
-                StartBeetomCrawling(place, state, state.Heading);
-                return;
-            case BeetomAction.StartShortHop:
-                StartBeetomHop(place, state, state.Heading, BeetomHopLength.Short);
-                return;
-            case BeetomAction.StartLongHop:
-                StartBeetomHop(place, state, state.Heading, BeetomHopLength.Long);
-                return;
-            case BeetomAction.StartLunge:
-                StartBeetomLunge(place, state, samus);
-                return;
-            case BeetomAction.StartDraining:
-                StartBeetomDrain(place, state, side: state.Heading);
-                return;
-            case BeetomAction.StartDropping:
-                StartBeetomDrop(place, state);
-                return;
-            case BeetomAction.StartBeingFlung:
-                state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-                state.Action = BeetomAction.BeingFlung;
-                return;
-            case BeetomAction.Idling:
-                if (state.ActionTimer.Step())
-                    state.Action = BeetomAction.DecideAction;
-                return;
-            case BeetomAction.Crawling:
-                RunBeetomCrawl(place, state, level, state.Heading);
-                return;
-            case BeetomAction.ShortHopRising:
-                RiseBeetom(place, state, level, BeetomMotionDefinitions.ShortHopMarks, fall: BeetomAction.ShortHopFalling);
-                MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Hop);
-                return;
-            case BeetomAction.ShortHopFalling:
-                FallBeetom(place, state, level, BeetomMotionDefinitions.ShortHopMarks);
-                MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Hop);
-                return;
-            case BeetomAction.LongHopRising:
-                RiseBeetom(place, state, level, BeetomMotionDefinitions.LongHopMarks, fall: BeetomAction.LongHopFalling);
-                MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Hop);
-                return;
-            case BeetomAction.LongHopFalling:
-                FallBeetom(place, state, level, BeetomMotionDefinitions.LongHopMarks);
-                MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Hop);
-                return;
-            case BeetomAction.LungeRising:
-                RiseBeetom(place, state, level, BeetomMotionDefinitions.LungeRisingMarks, fall: BeetomAction.LungeFalling);
-                MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Lunge);
-                return;
-            case BeetomAction.LungeFalling:
-                FallBeetom(place, state, level, BeetomMotionDefinitions.LungeFallingMarks);
-                MoveBeetomAcrossArc(place, state, level, state.Heading, BeetomArcKind.Lunge);
-                return;
-            case BeetomAction.Draining:
-                RunBeetomDrain(place, state, samus, level, controllerInput, side: state.Heading);
-                return;
-            case BeetomAction.Dropping:
-                RunBeetomDrop(place, state, level);
-                return;
-            case BeetomAction.BeingFlung:
-                RunFlungBeetom(place, state, level);
-                return;
-            default:
-                throw new InvalidDataException($"Beetom has no behaviour for action {state.Action}.");
-        }
+        RunBeetomMainForBeetomAction[state.Action](place, state, samus, level, controllerInput);
     }
 
     /// <summary>

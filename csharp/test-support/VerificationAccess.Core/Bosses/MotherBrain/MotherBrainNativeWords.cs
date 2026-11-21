@@ -205,8 +205,9 @@ internal static class MotherBrainNativeWords
 
     /// <summary>
     /// Installs the body phase a recorded bank-$A9 routine word names, entering the stage whose phase it is (#2208): one
-    /// of the mural's routines enters the ascent's drawing with the rows it has drawn, and the glass stage's word requires
-    /// the encounter still in it, the stage it begins in.
+    /// of the mural's routines enters the ascent's drawing with the rows it has drawn, the glass stage's word requires
+    /// the encounter still in it, the stage it begins in, and a phase of her late fight begins the fight and enters that
+    /// phase's stage in it (#2553).
     /// </summary>
     /// <exception cref="InvalidDataException">The word names no phase of her body's.</exception>
     internal static void ImportBodyPhase(MotherBrainEnemyState state, ushort word)
@@ -229,17 +230,17 @@ internal static class MotherBrainNativeWords
         else if (Phase2FightPhases.TryDecode(word, out MotherBrainPhase2FightPhase phase2FightPhase))
             state.Phase2FightPhase = phase2FightPhase;
         else if (RainbowPhases.TryDecode(word, out MotherBrainRainbowPhase rainbowPhase))
-            state.RainbowPhase = rainbowPhase;
+            state.BeginLateFight().State.RainbowPhase = rainbowPhase;
         else if (FinishOffPhases.TryDecode(word, out MotherBrainFinishOffPhase finishOffPhase))
-            state.FinishOffPhase = finishOffPhase;
+            state.BeginLateFight().State.FinishOffPhase = finishOffPhase;
         else if (DrainedPhases.TryDecode(word, out MotherBrainDrainedPhase drainedPhase))
-            state.DrainedPhase = drainedPhase;
+            state.BeginLateFight().State.DrainedPhase = drainedPhase;
         else if (RevivalPhases.TryDecode(word, out MotherBrainRevivalPhase revivalPhase))
-            state.RevivalPhase = revivalPhase;
+            state.BeginLateFight().State.RevivalPhase = revivalPhase;
         else if (Phase3FightPhases.TryDecode(word, out MotherBrainPhase3FightPhase phase3FightPhase))
-            state.Phase3FightPhase = phase3FightPhase;
+            state.BeginLateFight().State.Phase3FightPhase = phase3FightPhase;
         else if (DeathPhases.TryDecode(word, out MotherBrainDeathPhase deathPhase))
-            state.DeathPhase = deathPhase;
+            state.BeginLateFight().State.DeathPhase = deathPhase;
         else
             state.AscentPhase = AscentPhases.Decode(word, "recorded Mother Brain body phase");
     }

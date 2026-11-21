@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Progression;
 
@@ -12,39 +13,45 @@ public static partial class MapLandmarks
     /// <summary>Whether <paramref name="area"/>'s map shows the gunship, where it landed.</summary>
     public static bool ShowsGunship(AreaId area) => MapLandmarkDefinitions.GunshipAreas.Contains(area);
 
+    /// <summary>The boss markers of each area.</summary>
+    private static IdentityTable<AreaId, ImmutableArray<MapBossMarker>> BossMarkersByArea => field ??= new(new Dictionary<AreaId, ImmutableArray<MapBossMarker>>
+    {
+        [AreaId.Crateria] = [],
+        [AreaId.Tourian] = [],
+        [AreaId.Brinstar] = MapLandmarkDefinitions.BrinstarBosses,
+        [AreaId.Norfair] = MapLandmarkDefinitions.NorfairBosses,
+        [AreaId.WreckedShip] = MapLandmarkDefinitions.WreckedShipBosses,
+        [AreaId.Maridia] = MapLandmarkDefinitions.MaridiaBosses,
+        [AreaId.Ceres] = MapLandmarkDefinitions.CeresBosses,
+    });
+
     /// <summary>The boss markers of <paramref name="area"/>'s map; Crateria and Tourian show none.</summary>
-    public static ImmutableArray<MapBossMarker> BossMarkers(AreaId area) => area switch
-    {
-        AreaId.Crateria or AreaId.Tourian => [],
-        AreaId.Brinstar => MapLandmarkDefinitions.BrinstarBosses,
-        AreaId.Norfair => MapLandmarkDefinitions.NorfairBosses,
-        AreaId.WreckedShip => MapLandmarkDefinitions.WreckedShipBosses,
-        AreaId.Maridia => MapLandmarkDefinitions.MaridiaBosses,
-        AreaId.Ceres => MapLandmarkDefinitions.CeresBosses,
-        _ => throw new ArgumentOutOfRangeException(nameof(area)),
-    };
+    public static ImmutableArray<MapBossMarker> BossMarkers(AreaId area) => BossMarkersByArea[area];
 
-    /// <summary>The elevator labels of an area's map, in drawing order; Ceres has none.</summary>
-    public static ImmutableArray<MapElevatorLabel> Elevators(AreaId area) => area switch
-    {
-        AreaId.Crateria => MapLandmarkDefinitions.CrateriaElevators,
-        AreaId.Brinstar => MapLandmarkDefinitions.BrinstarElevators,
-        AreaId.Norfair => MapLandmarkDefinitions.NorfairElevators,
-        AreaId.WreckedShip => MapLandmarkDefinitions.WreckedShipElevators,
-        AreaId.Maridia => MapLandmarkDefinitions.MaridiaElevators,
-        AreaId.Tourian => MapLandmarkDefinitions.TourianElevators,
-        AreaId.Ceres => MapLandmarkDefinitions.CeresElevators,
-        _ => throw new ArgumentOutOfRangeException(nameof(area), "Undefined area."),
-    };
+    /// <summary>The elevator labels of one of the six Zebes areas' maps, in drawing order; Ceres has none.</summary>
+    public static ImmutableArray<MapElevatorLabel> Elevators(ZebesArea area) => ElevatorsByArea[area];
 
-    /// <summary>The map picture of the elevator label leading to <paramref name="destination"/>, one of the five for Crateria through Maridia.</summary>
-    public static MapSpriteId ElevatorPicture(AreaId destination) => destination switch
+    /// <summary>The elevator labels of each of the six Zebes areas' maps.</summary>
+    private static IdentityTable<ZebesArea, ImmutableArray<MapElevatorLabel>> ElevatorsByArea => field ??= new(new Dictionary<ZebesArea, ImmutableArray<MapElevatorLabel>>
     {
-        AreaId.Crateria => MapSpriteId.ElevatorCrateria, AreaId.Brinstar => MapSpriteId.ElevatorBrinstar,
-        AreaId.Norfair => MapSpriteId.ElevatorNorfair, AreaId.WreckedShip => MapSpriteId.ElevatorWreckedShip,
-        AreaId.Maridia => MapSpriteId.ElevatorMaridia,
-        AreaId.Tourian or
-            AreaId.Ceres => throw new ArgumentOutOfRangeException(nameof(destination)),
-        _ => throw new ArgumentOutOfRangeException(nameof(destination))
-    };
+        [ZebesArea.Crateria] = MapLandmarkDefinitions.CrateriaElevators,
+        [ZebesArea.Brinstar] = MapLandmarkDefinitions.BrinstarElevators,
+        [ZebesArea.Norfair] = MapLandmarkDefinitions.NorfairElevators,
+        [ZebesArea.WreckedShip] = MapLandmarkDefinitions.WreckedShipElevators,
+        [ZebesArea.Maridia] = MapLandmarkDefinitions.MaridiaElevators,
+        [ZebesArea.Tourian] = MapLandmarkDefinitions.TourianElevators,
+    });
+
+    /// <summary>The map picture of the elevator label leading to <paramref name="destination"/>.</summary>
+    public static MapSpriteId ElevatorPicture(MapElevatorDestination destination) => ElevatorPictures[destination];
+
+    /// <summary>The picture of each area an elevator label can lead to.</summary>
+    private static IdentityTable<MapElevatorDestination, MapSpriteId> ElevatorPictures => field ??= new(new Dictionary<MapElevatorDestination, MapSpriteId>
+    {
+        [MapElevatorDestination.Crateria] = MapSpriteId.ElevatorCrateria,
+        [MapElevatorDestination.Brinstar] = MapSpriteId.ElevatorBrinstar,
+        [MapElevatorDestination.Norfair] = MapSpriteId.ElevatorNorfair,
+        [MapElevatorDestination.WreckedShip] = MapSpriteId.ElevatorWreckedShip,
+        [MapElevatorDestination.Maridia] = MapSpriteId.ElevatorMaridia,
+    });
 }

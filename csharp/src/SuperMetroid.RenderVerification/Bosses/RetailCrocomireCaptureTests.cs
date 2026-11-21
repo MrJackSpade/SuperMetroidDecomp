@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
@@ -29,7 +30,7 @@ internal static class RetailCrocomireCaptureTests
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Crocomire, new Position16<RoomPixels>(CrocomireCaptureFixture.CameraX, 0));
         var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(CrocomireCaptureFixture.InitialSamusX, 120));
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         var boss = runtime.Enemies.BossEncounters.Crocomire ?? throw new InvalidOperationException("Crocomire did not initialize.");
         var death = boss.Death;

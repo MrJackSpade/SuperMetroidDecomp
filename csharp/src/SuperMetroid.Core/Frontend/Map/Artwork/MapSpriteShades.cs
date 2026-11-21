@@ -13,31 +13,31 @@ public static partial class MapSpriteShades
     /// Each map screen's name in its drawn shades' installed names (#2511), written out so renaming a screen's identity never
     /// changes a name on disk.
     /// </summary>
-    private static readonly FrozenDictionary<MapSpriteScreen, string> ScreenKeys =
-        new Dictionary<MapSpriteScreen, string>
+    private static readonly IdentityTable<MapSpriteScreen, string> ScreenKeys =
+        new(new Dictionary<MapSpriteScreen, string>
         {
             [MapSpriteScreen.FileSelect] = "FileSelect",
             [MapSpriteScreen.Pause] = "Pause",
-        }.ToFrozenDictionary();
+        });
 
     /// <summary>
     /// Each colouring's name in its drawn shades' installed names (#2511), written out so renaming a colouring's identity
     /// never changes a name on disk.
     /// </summary>
-    private static readonly FrozenDictionary<MapSpriteColouring, string> ColouringKeys =
-        new Dictionary<MapSpriteColouring, string>
+    private static readonly IdentityTable<MapSpriteColouring, string> ColouringKeys =
+        new(new Dictionary<MapSpriteColouring, string>
         {
             [MapSpriteColouring.Labels] = "Labels",
             [MapSpriteColouring.DimLabels] = "DimLabels",
             [MapSpriteColouring.Markers] = "Markers",
             [MapSpriteColouring.DefeatedBossMarker] = "DefeatedBossMarker",
             [MapSpriteColouring.Highlighted] = "Highlighted",
-        }.ToFrozenDictionary();
+        });
 
     /// <summary>A map sprite's recolourable parts drawn in <paramref name="colouring"/> on <paramref name="screen"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The screen or the colouring has no installed name.</exception>
     public static PictureShade Drawn(MapSpriteScreen screen, MapSpriteColouring colouring) =>
-        new($"MapSprite{Ensure.Listed(ScreenKeys, screen)}{Ensure.Listed(ColouringKeys, colouring)}", 0);
+        new($"MapSprite{ScreenKeys[screen]}{ColouringKeys[colouring]}", 0);
 
     /// <summary>
     /// A map sprite's recolourable parts drawn in the highlight colours, at frame <paramref name="frame"/> of the

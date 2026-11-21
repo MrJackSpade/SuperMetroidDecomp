@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static partial class RoomObjectBombedRevealDrawDefinitions
 {
     /// <summary>How the single block each bombed reveal draws collides.</summary>
-    internal static readonly IReadOnlyDictionary<RoomObjectBombedRevealDraw, RoomCollisionType> Collisions = new Dictionary<RoomObjectBombedRevealDraw, RoomCollisionType>
+    internal static readonly IdentityTable<RoomObjectBombedRevealDraw, RoomCollisionType> Collisions = new(new Dictionary<RoomObjectBombedRevealDraw, RoomCollisionType>
     {
         [RoomObjectBombedRevealDraw.PowerBomb] = RoomCollisionType.ShootableBlock,
         [RoomObjectBombedRevealDraw.SuperMissile] = RoomCollisionType.ShootableBlock,
         [RoomObjectBombedRevealDraw.CrumbleSingle] = RoomCollisionType.SpecialBlock,
-    };
+    });
 }

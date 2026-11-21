@@ -92,7 +92,7 @@ internal static class SpikeShinesparkSuitVerification
             "Reserve command zero freezes stored-shine palette progression");
         AssertEqual(frozenKnockbackTimer - 1, frozenSamus.KnockbackHold.UpdatesLeft,
             "global hurt timer continues while Reserve owns Samus");
-        AssertTrue(frozenSamus.KnockbackActive && frozenSamus.KnockbackDirection != 0,
+        AssertTrue(frozenSamus.KnockbackActive && frozenSamus.KnockbackDirection != null,
             "Reserve command zero retains the interrupted knockback movement owner");
 
         // With no Gravity Suit, a 60-point automatic refill creates the wider native
@@ -180,12 +180,12 @@ internal static class SpikeShinesparkSuitVerification
 
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.MorphBallGroundRightPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.MorphBallGroundRightPose);
         samus.EquippedItems = samus.CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpeedBooster);
         samus.Health = samus.MaxHealth = 199;
         samus.ReserveEnergy = 0;
         if (underwater)
-            samus.LiquidPhysics.ConfigureWater(8, ignoresSurface: false, type: SuperMetroid.Core.Fx.RoomFxType.Water);
+            samus.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(8));
         samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(200).WithFractionX(0).WithWholeY(166).WithFractionY(0);
         samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
         SamusPoseMetadata.RefreshCollisionRadii(samus);

@@ -13,9 +13,9 @@ internal static partial class AnimationBeats<TFrame, TEvent>
     /// <summary>Each of <paramref name="frames"/> in turn, every one shown for <paramref name="duration"/> updates.</summary>
     /// <param name="duration">The updates each frame shows for.</param>
     /// <param name="frames">The frames, in the order they show.</param>
-    internal static AnimationBeat<TFrame, TEvent>[] Steady(int duration, params ReadOnlySpan<TFrame> frames)
+    internal static AnimationBeat<TFrame, TEvent>.Unpaused[] Steady(int duration, params ReadOnlySpan<TFrame> frames)
     {
-        var beats = new AnimationBeat<TFrame, TEvent>[frames.Length];
+        var beats = new AnimationBeat<TFrame, TEvent>.Unpaused[frames.Length];
         for (int index = 0; index < frames.Length; index++)
             beats[index] = new AnimationBeat<TFrame, TEvent>.Frame(frames[index], duration);
         return beats;
@@ -27,19 +27,21 @@ internal static partial class AnimationBeats<TFrame, TEvent>
     /// </summary>
     /// <param name="beats">The beats, none of them a frame held for good.</param>
     /// <exception cref="ArgumentException">A beat holds its frame for good, so the run never ends.</exception>
-    internal static int UpdatesOf(IEnumerable<AnimationBeat<TFrame, TEvent>> beats) =>
+    internal static int UpdatesOf(IEnumerable<IHidingAnimationBeat<TFrame, TEvent>> beats) =>
         Ensure.NotNull(beats).Sum(beat => beat switch
         {
             AnimationBeat<TFrame, TEvent>.Frame frame => frame.Duration,
             AnimationBeat<TFrame, TEvent>.Pause pause => pause.Duration,
-            AnimationBeat<TFrame, TEvent>.Hidden hidden => hidden.Duration,
+            AnimationHiddenBeat<TFrame, TEvent> hidden => hidden.Duration,
             AnimationBeat<TFrame, TEvent>.HeldFrame => throw new ArgumentException("A frame held for good never ends its run.", nameof(beats)),
             _ => 0,
         });
 
     /// <summary><paramref name="beats"/> played the other way round: the last beat first.</summary>
     /// <param name="beats">The beats, in the order they play forwards.</param>
-    internal static AnimationBeat<TFrame, TEvent>[] Backwards(IReadOnlyList<AnimationBeat<TFrame, TEvent>> beats) =>
+    /// <typeparam name="TBeat">The kind of beat the run holds.</typeparam>
+    internal static TBeat[] Backwards<TBeat>(IReadOnlyList<TBeat> beats)
+        where TBeat : IHidingAnimationBeat<TFrame, TEvent> =>
         [.. Enumerable.Reverse(Ensure.NotNull(beats))];
 
     /// <summary>
@@ -47,6 +49,8 @@ internal static partial class AnimationBeats<TFrame, TEvent>
     /// the rest from the last back to the second, as a wheel turning the other way shows its spokes.
     /// </summary>
     /// <param name="beats">The cycle's beats, in the order they play turning one way.</param>
-    internal static AnimationBeat<TFrame, TEvent>[] OtherWayRound(IReadOnlyList<AnimationBeat<TFrame, TEvent>> beats) =>
+    /// <typeparam name="TBeat">The kind of beat the cycle holds.</typeparam>
+    internal static TBeat[] OtherWayRound<TBeat>(IReadOnlyList<TBeat> beats)
+        where TBeat : IHidingAnimationBeat<TFrame, TEvent> =>
         [Ensure.NotNull(beats)[0], .. Enumerable.Reverse(beats.Skip(1))];
 }

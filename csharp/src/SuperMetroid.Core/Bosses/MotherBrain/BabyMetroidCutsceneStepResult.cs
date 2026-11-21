@@ -3,6 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>What one step of the Baby's entrance did: its phase before and after and the requests it made.</summary>
 /// <param name="PhaseBefore">The phase the step ran.</param>
 /// <param name="PhaseAfter">The phase the step left.</param>
+/// <param name="BabyDeleted">Whether this is the step on which the Baby deletes itself, the last of the cutscene.</param>
 /// <param name="LatchSoundQueued">Whether the Baby latched on and the rainbow drain's sound starts.</param>
 /// <param name="ReleaseDustClouds">The dust clouds the Baby's release bursts, in spawn order.</param>
 /// <param name="AmbientCrySoundQueued">Whether the Baby cries its remorse cry.</param>
@@ -13,8 +14,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Visibility">Whether the step shows or hides the Baby on its place, or leaves it as it is (#2310).</param>
 [IndependentFlag("independent requests one cutscene step makes")]
 public readonly partial record struct BabyMetroidCutsceneStepResult(
-    BabyMetroidCutscenePhase PhaseBefore,
-    BabyMetroidCutscenePhase PhaseAfter,
+    BabyMetroidCutscenePhase.Flying PhaseBefore,
+    BabyMetroidCutscenePhase.Flying PhaseAfter,
+    bool BabyDeleted,
     bool LatchSoundQueued,
     IReadOnlyList<BabyMetroidReleaseDustRequest> ReleaseDustClouds,
     bool AmbientCrySoundQueued,
@@ -24,14 +26,11 @@ public readonly partial record struct BabyMetroidCutsceneStepResult(
     MotherBrainBabySegment? StartedAnimation,
     BabyMetroidVisibilityRequest Visibility)
 {
-    /// <summary>The step on which the Baby deletes itself, the last of the cutscene.</summary>
-    public bool BabyDeleted => PhaseAfter == BabyMetroidCutscenePhase.Deleted;
-
     /// <summary>The one-update fatal-impact edge, before the ongoing shake phase.</summary>
-    public bool FatalBlowStarted => PhaseBefore == BabyMetroidCutscenePhase.FinalCharge &&
-        PhaseAfter == BabyMetroidCutscenePhase.TakeFinalBlow;
+    public bool FatalBlowStarted => PhaseBefore is BabyMetroidCutscenePhase.Flying.FinalCharge &&
+        PhaseAfter is BabyMetroidCutscenePhase.Flying.TakeFinalBlow;
 
     /// <summary>The theme timer's expiry queues the theme before entering Hyper Beam preparation.</summary>
-    public bool SamusThemeStarted => PhaseBefore == BabyMetroidCutscenePhase.PlaySamusTheme &&
-        PhaseAfter == BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
+    public bool SamusThemeStarted => PhaseBefore is BabyMetroidCutscenePhase.Flying.PlaySamusTheme &&
+        PhaseAfter is BabyMetroidCutscenePhase.Flying.PrepareSamusForHyperBeam;
 }

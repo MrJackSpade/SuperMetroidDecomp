@@ -48,12 +48,12 @@ internal static class ChainsawFiringVerification
         pause.Step(0, (ControllerButton.Left | ControllerButton.A));
         AssertEqual((ushort)0x000d, samus.EquippedBeams.ToEquipmentWord(),
             "same-frame Boots Left+A equips Wave, Spazer, and Plasma without Ice");
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(128, 128));
         samus.SelectedHudItem = HudItem.Beam;
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
-        SoundRequest? firingSound = projectiles.StepFrameFiringSound(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+        SoundRequest? firingSound = projectiles.StepFrameFiringSound(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
 
         // A missing shot also leaves an empty slot, so checking deletion alone would
         // incorrectly pass the existing silent >=12 rejection in HandleBeamInput.
@@ -71,12 +71,11 @@ internal static class ChainsawFiringVerification
         var reactiveLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reactiveWords, new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid(), []);
         var reactiveSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             SelectedHudItem = HudItem.Beam,
-        };
-        AssertThrows<InvalidOperationException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Level = reactiveLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, reactiveSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), CreateBombFixture(), new SharedGameState(new SharedRandom())), "cleared Chainsaw still reaches Power Bomb boundary reactions");
+        }.InPose(SamusPoseId.FacingRightNormalPose);
+        AssertThrows<InvalidOperationException>(() => CreateProjectileFixture().StepFrame(SamusTerrain.InRoom(reactiveLevel, SamusRoomObjectFixtures.Uninstalled), reactiveSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), CreateBombFixture(), new SharedGameState(new SharedRandom())), "cleared Chainsaw still reaches Power Bomb boundary reactions");
 
         // Wave collision scans do not kill their owner, but they still run every touched
         // block's shot reaction before the B0AC callback deletes the no-Power-Bomb shot.
@@ -95,14 +94,13 @@ internal static class ChainsawFiringVerification
         var doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(doorWords, doorBts, new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid(), []);
         var doorSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             SelectedHudItem = HudItem.Beam,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         var doorObjects = RoomObjectFixtures.Unbound();
         var doorProjectiles = CreateProjectileFixture();
-        doorProjectiles.StepFrame(new SamusTerrain { Level = doorLevel, RoomObjects = doorObjects }, doorSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), CreateBombFixture(), new SharedGameState(new SharedRandom()));
+        doorProjectiles.StepFrame(SamusTerrain.InRoom(doorLevel, doorObjects), doorSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), CreateBombFixture(), new SharedGameState(new SharedRandom()));
         AssertEqual(1, doorObjects.Places.ActiveCount, "no-Power-Bomb Chainsaw opens blue door");
         AssertEqual(RoomCollisionType.SolidBlock,
             doorLevel.GetCollisionBlockByIndex(doorOrigin).CollisionType,
@@ -121,7 +119,7 @@ internal static class ChainsawFiringVerification
         ushort[] yRadii = [12, 12, 16, 16, 20, 20, 23, 23];
         for (int update = 0; update < nextLists.Length; update++)
         {
-            activeProjectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = update == 0 ? GameplayAction.Shoot : 0, ControllerNewInput = update == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), activeShared, new SharedGameState(new SharedRandom()));
+            activeProjectiles.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = update == 0 ? GameplayAction.Shoot : 0, ControllerNewInput = update == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), activeShared, new SharedGameState(new SharedRandom()));
             SamusProjectile slot = activeProjectiles.Shots[0];
             if (update == 0)
                 AssertTrue(slot.IsActive,
@@ -140,7 +138,7 @@ internal static class ChainsawFiringVerification
         var combatShared = CreateBombFixture();
         combatShared.PowerBombExplosion.Arm();
         var combatProjectiles = CreateProjectileFixture();
-        combatProjectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combatShared, new SharedGameState(new SharedRandom()));
+        combatProjectiles.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combatShared, new SharedGameState(new SharedRandom()));
         var combat = CreateEnemyDropFixture(samus, [1]);
         RoomEnemyPlace target = combat.System.Places.InUpdateOrder[0];
         target.Bind(EnemyPlaceFixtures.StandIn, target.KeptDefinition);
@@ -181,16 +179,14 @@ internal static class ChainsawFiringVerification
         interferenceObjects.Step(interferenceLevel);
 
         SamusBombProjectileSystem.ReactToPowerBombBoundary(
-            interferenceLevel,
+            SamusTerrain.InRoom(interferenceLevel, interferenceObjects),
             new(32, 32),
             PowerBombRadius.FromWholePixels(16),
-            interferenceObjects,
             SamusProjectileType.Of(SamusProjectileFamily.PowerBomb));
         SamusBombProjectileSystem.ReactToPowerBombBoundary(
-            interferenceLevel,
+            SamusTerrain.InRoom(interferenceLevel, interferenceObjects),
             new(32, 32),
             PowerBombRadius.FromWholePixels(16),
-            interferenceObjects,
             SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false));
         interferenceObjects.Step(interferenceLevel);
         ColoredDoorObjectSnapshot suppressedDoor = interferenceObjects.ColoredDoors.Single();
@@ -205,16 +201,14 @@ internal static class ChainsawFiringVerification
         var breakingLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(breakingWords, new RoomBlockBehavior[25], new RoomBlockAppearance[25]), RoomLevelData.NothingBeyondGrid(), []);
         var breakingObjects = RoomObjectFixtures.Unbound();
         SamusBombProjectileSystem.ReactToPowerBombBoundary(
-            breakingLevel,
+            SamusTerrain.InRoom(breakingLevel, breakingObjects),
             new(32, 32),
             PowerBombRadius.FromWholePixels(16),
-            breakingObjects,
             SamusProjectileType.Of(SamusProjectileFamily.PowerBomb));
         SamusBombProjectileSystem.ReactToPowerBombBoundary(
-            breakingLevel,
+            SamusTerrain.InRoom(breakingLevel, breakingObjects),
             new(32, 32),
             PowerBombRadius.FromWholePixels(16),
-            breakingObjects,
             SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false));
         AssertEqual(RoomCollisionType.SolidBlock,
             breakingLevel.GetCollisionBlockByIndex(bombableBlock).CollisionType,
@@ -234,20 +228,19 @@ internal static class ChainsawFiringVerification
         // destination and fail loudly rather than silently choosing ordinary Wave motion.
         var chargedSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         var chargedShared = CreateBombFixture();
         var chargedProjectiles = CreateProjectileFixture();
         for (int frame = 0; frame < 60; frame++)
         {
-            chargedShared.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargedSamus, 0, 0);
-            chargedProjectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargedSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargedShared, new SharedGameState(new SharedRandom()));
+            chargedShared.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), chargedSamus, 0, 0);
+            chargedProjectiles.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), chargedSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargedShared, new SharedGameState(new SharedRandom()));
         }
-        chargedShared.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargedSamus, 0, 0);
+        chargedShared.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), chargedSamus, 0, 0);
         NotSupportedException chargedFault = AssertThrows<NotSupportedException>(
-            () => chargedProjectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, chargedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargedShared, new SharedGameState(new SharedRandom())),
+            () => chargedProjectiles.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), chargedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargedShared, new SharedGameState(new SharedRandom())),
             "charged Chainsaw reaches mutable low-WRAM execution");
         AssertTrue(chargedFault.Message.Contains("runs whatever Samus's changing state holds", StringComparison.Ordinal),
             "charged Chainsaw diagnostic names the mutable state it would execute");

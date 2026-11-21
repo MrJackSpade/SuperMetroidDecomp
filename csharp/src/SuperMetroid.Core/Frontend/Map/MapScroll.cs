@@ -66,18 +66,20 @@ public sealed partial class MapScroll
         return new(framing, limits, new Offset16<MapPixels>(horizontal, vertical));
     }
 
+    /// <summary>Whether the map can scroll one step toward each direction.</summary>
+    private IdentityTable<MapScrollDirection, Func<bool>> ScrollsToward => field ??= new(new Dictionary<MapScrollDirection, Func<bool>>
+    {
+        [MapScrollDirection.Left] = () => Limits.Left - Scroll.X < Framing.LeftEdge,
+        [MapScrollDirection.Right] = () => Limits.Right - Scroll.X >= Framing.RightEdge,
+        [MapScrollDirection.Up] = () => Limits.Top - Scroll.Y < Framing.TopEdge,
+        [MapScrollDirection.Down] = () => Limits.Bottom - Scroll.Y >= Framing.BottomEdge,
+    });
+
     /// <summary>Whether another step in <paramref name="direction"/> fits the screen's edges, and its arrow shows.</summary>
     /// <param name="direction">The direction tested.</param>
     public bool CanScroll(MapScrollDirection direction)
     {
-        return direction switch
-        {
-            MapScrollDirection.Left => Limits.Left - Scroll.X < Framing.LeftEdge,
-            MapScrollDirection.Right => Limits.Right - Scroll.X >= Framing.RightEdge,
-            MapScrollDirection.Up => Limits.Top - Scroll.Y < Framing.TopEdge,
-            MapScrollDirection.Down => Limits.Bottom - Scroll.Y >= Framing.BottomEdge,
-            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined map scroll direction."),
-        };
+        return ScrollsToward[direction]();
     }
 
     /// <summary>

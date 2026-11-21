@@ -16,5 +16,5 @@ internal abstract partial record SequenceStep(IGamePhase Phase)
     /// <param name="Phase">The sequence's phase.</param>
     /// <param name="Step">The step it is at.</param>
     internal sealed partial record Of<TStep>(IGamePhase Phase, TStep Step) : SequenceStep(Phase)
-        where TStep : struct, Enum;
+        where TStep : notnull;
 }

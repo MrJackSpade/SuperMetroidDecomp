@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -58,7 +59,7 @@ internal static class GoldenTorizoCartridgeFallbackVerification
             // Golden Torizo animation is combat.
             TorizoAnimation playing = TorizoAnimations.Playing(state.BodyPlayback);
             enteredCombat |= playing is not (TorizoAnimation.GoldenTorizoDormant or TorizoAnimation.GoldenTorizoAwakening or TorizoAnimation.GoldenTorizoSettling)
-                || (playing == TorizoAnimation.GoldenTorizoSettling && state.BodyPlayback.Place.Phase >= TorizoAnimations.StartingWith(playing).CyclePhase);
+                || (playing == TorizoAnimation.GoldenTorizoSettling && state.BodyPlayback.Place.Phase >= ((AnimationEnd.Loop)TorizoAnimations.StartingWith(playing).End).Phase);
         }
         AssertTrue(enteredCombat,
             "cartridge-backed installed-art Golden Torizo reaches walking combat; " +

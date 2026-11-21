@@ -15,14 +15,8 @@ public static partial class AreaMapVisibility
         bool stationVisible,
         bool discoverable,
         MapRevealMode revealMode) =>
-        explored || revealMode switch
-        {
-            MapRevealMode.None => areaMapAcquired && stationVisible,
-            MapRevealMode.Public => stationVisible,
-            MapRevealMode.Secret => discoverable,
-            _ => throw new ArgumentOutOfRangeException(
-                nameof(revealMode),
-                revealMode,
-                "Map reveal mode is not defined."),
-        };
+        explored || (revealMode == MapRevealMode.None ? areaMapAcquired && stationVisible
+            : revealMode == MapRevealMode.Public ? stationVisible
+            // The remaining member, MapRevealMode.Secret.
+            : discoverable);
 }

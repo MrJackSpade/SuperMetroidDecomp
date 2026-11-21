@@ -16,6 +16,6 @@ internal sealed partial class MotherBrainHandBeamAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainHandBeamSegment, EnemyProjectileFrameId, MotherBrainHandBeamCue> Segments =>
+    private protected override IUnpausedAnimationPlay<MotherBrainHandBeamSegment, EnemyProjectileFrameId, MotherBrainHandBeamCue> Segments =>
         MotherBrainHandBeamAnimations.Segments;
 }

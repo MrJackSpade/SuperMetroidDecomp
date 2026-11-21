@@ -13,26 +13,11 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
-
-    /// <summary>
-    /// A powered or an unpowered work robot (#2146, #2179). The rooms place the powered robot's definition only in their
-    /// states once Phantoon is defeated, so it always has power (#2455).
-    /// </summary>
-    /// <exception cref="KeyNotFoundException">The place holds no work robot definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
-
-    /// <summary>
-    /// The factory of each part the species creates, by the definition that places it: the species serves these
-    /// definitions, and each builds its own part from the species it is given.
-    /// </summary>
-    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<WorkRobotBehavior>> PartFactories =
-        new()
-        {
-            [EnemyDefinitionId.WorkRobot] = static (species, occupant, place, common) => EnemyOccupant.Of(new PoweredWorkRobotEntity(species, occupant, place, common)),
-            [EnemyDefinitionId.UnpoweredWorkRobot] = static (species, occupant, place, common) => EnemyOccupant.Of(new UnpoweredWorkRobotEntity(species, occupant, place, common)),
-        };
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    {
+        [EnemyDefinitionId.WorkRobot] = (occupant, place, common) => EnemyOccupant.Of(new PoweredWorkRobotEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.UnpoweredWorkRobot] = (occupant, place, common) => EnemyOccupant.Of(new UnpoweredWorkRobotEntity(this, occupant, place, common)),
+    };
 
     /// <summary>Samples the room random number for laser timing.</summary>
     private readonly EnemyRoomBinding _room;
@@ -146,29 +131,37 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
     /// Carries out one cue of the Work Robot's animations. Steps that meet a wall or ledge and a laser that fires continue
     /// the animation elsewhere, as the cues replace the segment.
     /// </summary>
-    private WorkRobotSegment? ApplyWorkRobotCue(RoomEnemyPlace place, WorkRobotEnemyState state, EnemyAnimationCueContext context, WorkRobotCue cue)
-    {
-        SamusState samus = context.Samus;
-        RoomLevelData level = context.Level;
-        Position16<RoomPixels> camera = context.Camera;
-        if (cue is WorkRobotCue.Step step)
-            return MoveWorkRobot(place, state, samus, level, step.Move);
-        if (cue is WorkRobotCue.TryLaser laser)
-            return TryFireWorkRobotLaser(place, state, laser.Laser, laser.Firing, camera);
-        WorkRobotCueKind kind = ((WorkRobotCue.Signal)cue).Kind;
-        switch (kind)
+    private WorkRobotSegment? ApplyWorkRobotCue(RoomEnemyPlace place, WorkRobotEnemyState state, EnemyAnimationCueContext context, WorkRobotCue cue) =>
+        cue.Match(ApplyWorkRobotCueCases, new ApplyWorkRobotCueContext(place, state, context, this));
+
+    /// <summary>What <see cref="ApplyWorkRobotCue"/> does on each <see cref="WorkRobotCue"/>, built once (#2553).</summary>
+    private static WorkRobotCueCases<ApplyWorkRobotCueContext, WorkRobotSegment?> ApplyWorkRobotCueCases { get; } = new(
+            Step: static (step, reads) => reads.Owner.MoveWorkRobot(reads.Place, reads.State, reads.Context.Samus, reads.Context.Level, step.Move),
+            TryLaser: static (laser, reads) => reads.Owner.TryFireWorkRobotLaser(reads.Place, reads.State, laser.Laser, laser.Firing, reads.Context.Camera),
+            Signal: static (signal, reads) =>
+            {
+                reads.Owner.WorkRobotSignals[signal.Kind](reads.Place, reads.State, reads.Context.Camera);
+                return null;
+            });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Place">The place the cases read.</param>
+    /// <param name="State">The state the cases read.</param>
+    /// <param name="Context">The context the cases read.</param>
+    /// <param name="Owner">The <see cref="WorkRobotBehavior"/> reacting.</param>
+    private readonly record struct ApplyWorkRobotCueContext(RoomEnemyPlace Place, WorkRobotEnemyState State, EnemyAnimationCueContext Context, WorkRobotBehavior Owner);
+
+    /// <summary>What each of the Work Robot's signals does; each runs on.</summary>
+    private IdentityTable<WorkRobotCueKind, Action<RoomEnemyPlace, WorkRobotEnemyState, Position16<RoomPixels>>> WorkRobotSignals => field ??=
+        new(new Dictionary<WorkRobotCueKind, Action<RoomEnemyPlace, WorkRobotEnemyState, Position16<RoomPixels>>>
         {
-            case WorkRobotCueKind.Footstep:
+            [WorkRobotCueKind.Footstep] = (place, _, camera) =>
+            {
                 if (IsWorkRobotOriginStrictlyOnScreen(place, camera))
                     _audio.QueueEnemySound(EnemySoundEffectDefinitions.WorkRobotFootstepSound, priority: SoundRequestPriority.Normal);
-                return null;
-            case WorkRobotCueKind.CountDownLaserCooldown:
-                DecrementWorkRobotLaserCooldown(state);
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(WorkRobotCueKind)} {kind}.");
-        }
-    }
+            },
+            [WorkRobotCueKind.CountDownLaserCooldown] = (_, state, _) => DecrementWorkRobotLaserCooldown(state),
+        });
 
     /// <summary>Applies one walk step, carries Samus on contact, and branches to wall or fall animations when support ends.</summary>
     private WorkRobotSegment? MoveWorkRobot(RoomEnemyPlace place, WorkRobotEnemyState state, SamusState samus, RoomLevelData level, WorkRobotMoveStep step)
@@ -371,13 +364,12 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
         WorkRobotLaser laser,
         Position16<RoomPixels> camera)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(laser.ProjectileKind(), Laser, SpriteGraphics.SharedStandard);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(laser.ProjectileKind(), Laser, SpriteGraphics.SharedStandard, new WorkRobotLaserAnimation(WorkRobotLaserSegment.Flare));
         if (projectile is null)
             return;
 
         // The laser takes its kind's radii, damage and contact (the diagonal and horizontal lasers differ), and draws
         // from the room's shared sheet in its standard colours.
-        projectile.StartAnimation(new WorkRobotLaserAnimation(WorkRobotLaserSegment.Flare));
         projectile.Velocity = projectile.Velocity.WithX(WorkRobotLaserDefinitions.Speed.Toward(state.Facing));
         projectile.Velocity = projectile.Velocity.WithY(laser switch
         {

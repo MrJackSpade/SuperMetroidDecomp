@@ -26,7 +26,7 @@ public sealed partial class SamusCrystalFlashState
         GameplayAction.Down | GameplayAction.AimDown | GameplayAction.AimUp | GameplayAction.Shoot;
 
     /// <summary>The phase in which Crystal Flash moves Samus, or none once another owner has taken her movement.</summary>
-    public CrystalFlashPhase Phase { get; private set; }
+    public CrystalFlashPhase Phase { get; private set; } = new CrystalFlashPhase.Inactive();
 
     /// <summary>
     /// The rise's updates left, the one it finishes on included: <see cref="CrystalFlashDefinitions.RaiseUpdates"/> when
@@ -62,7 +62,7 @@ public sealed partial class SamusCrystalFlashState
     /// Ends Crystal Flash's hold on Samus's movement when another owner takes it (<see cref="SamusMovementHandOver"/>),
     /// without clearing the live Flash colouring and timer.
     /// </summary>
-    internal void RelinquishMovement() => Phase = CrystalFlashPhase.Inactive;
+    internal void RelinquishMovement() => Phase = new CrystalFlashPhase.Inactive();
 
     /// <summary>
     /// Another special suit colouring takes over from Crystal Flash's, along with its running timer. Its pulse and bubble
@@ -129,13 +129,10 @@ public sealed partial class SamusCrystalFlashState
         // Crystal Flash takes a left-facing pose as left and every other facing as right.
         // Read the facing from the source pose before replacing it with Crystal Flash art.
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        samus.Pose = facingLeft
+        samus.ChangePose(facingLeft
             ? SamusPoseId.CrystalFlashLeftPose
-            : SamusPoseId.CrystalFlashRightPose;
+            : SamusPoseId.CrystalFlashRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Special)
-            throw new InvalidDataException("The Crystal Flash poses no longer have the special movement type.");
-        SamusPresentation.InitializeAnimation(samus);
         // Successful activation publishes history directly, before
         // taking Samus's movement. Rejected activation must not shift it.
         samus.CommitPoseHistory();
@@ -148,7 +145,7 @@ public sealed partial class SamusCrystalFlashState
         samus.Xray.RelinquishSuitColouring();
         // Crystal Flash can start while the Baby Metroid drains Samus or while Draygon holds her; it takes her movement
         // from both, and when it ends the drain's stun is over.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.CrystalFlash);
+        SamusMovementHandOver.ToCrystalFlash(samus);
         samus.InputSnapshot.CrystalFlashPoseInputLocked = true;
         RaiseUpdatesLeft = UpdateCountdown.For(CrystalFlashDefinitions.RaiseUpdates);
         DrainingAmmo = CrystalFlashAmmoKind.Missiles;
@@ -159,52 +156,45 @@ public sealed partial class SamusCrystalFlashState
         SamusGlowPlay.Restart(BubbleTurn, SamusGlowSegment.Of(SamusGlow.CrystalFlashBubble));
         Colouring = SpecialColouringStage.Showing;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
-        EndHitImmunityAndKnockback(samus);
+        EndHitImmunity(samus);
         samus.Knockback = Movement.SamusKnockback.None;
-        Phase = CrystalFlashPhase.Raising;
+        Phase = new CrystalFlashPhase.Moving.Raising();
         return true;
     }
 
     /// <summary>Runs one update of Crystal Flash's current phase in Samus's movement phase.</summary>
     /// <param name="samus">Live actor receiving movement, ammunition/energy, animation, and phase-completion writes.</param>
+    /// <param name="moving">The phase Crystal Flash moves Samus in, its current <see cref="Phase"/>.</param>
     /// <param name="frameCounter">The frame counter; ammunition drains only at its cadence (<see cref="SamusCadenceDefinitions.CrystalFlashDrain"/>).</param>
     /// <returns>A value snapshot of the entry phase and retained bubble-effect request, even when this update changes phase.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
-    /// <exception cref="InvalidOperationException">Crystal Flash does not hold Samus's movement, or the phase/ammunition-family state is unsupported.</exception>
     public CrystalFlashMovementResult Step(
         SamusState samus,
+        CrystalFlashPhase.Moving moving,
         int frameCounter)
     {
         Ensure.NotNull(samus);
-        if (Phase == CrystalFlashPhase.Inactive)
-            throw new InvalidOperationException("Crystal Flash does not hold Samus's movement.");
-
-        CrystalFlashPhase phaseAtStart = Phase;
-
-        switch (Phase)
+        Ensure.NotNull(moving);
+        if (moving is CrystalFlashPhase.Moving.Raising)
         {
-            case CrystalFlashPhase.Raising:
-                StepRaising(samus);
-                break;
-
-            case CrystalFlashPhase.DrainingAmmo:
-                StepAmmoDrain(samus, frameCounter);
-                // The main phase clears both values after each ammunition drain,
-                // including its seven no-drain frames and the final phase-changing update.
-                EndHitImmunity(samus);
-                break;
-
-            case CrystalFlashPhase.Finishing:
-                StepFinish(samus);
-                break;
-
-            case CrystalFlashPhase.Inactive:
-            default:
-                throw new InvalidOperationException($"Unknown Crystal Flash phase {Phase}.");
+            StepRaising(samus);
+        }
+        else if (moving is CrystalFlashPhase.Moving.DrainingAmmo)
+        {
+            StepAmmoDrain(samus, frameCounter);
+            // The main phase clears both values after each ammunition drain,
+            // including its seven no-drain frames and the final phase-changing update.
+            samus.InvincibilityTimer = WrappingCountdown.Start(0);
+            samus.KnockbackHold = UpdateCountdown.Ended();
+        }
+        else
+        {
+            // The remaining member, CrystalFlashPhase.Moving.Finishing.
+            StepFinish(samus);
         }
 
         return new CrystalFlashMovementResult(
-            BubbleStarted: phaseAtStart == CrystalFlashPhase.Raising && Phase == CrystalFlashPhase.DrainingAmmo);
+            BubbleStarted: moving is CrystalFlashPhase.Moving.Raising && Phase is CrystalFlashPhase.Moving.DrainingAmmo);
     }
 
     /// <summary>Raises Samus by <see cref="CrystalFlashDefinitions.RaiseStep"/> for <see cref="CrystalFlashDefinitions.RaiseUpdates"/>, then starts the drain phase and requests the bubble effect.</summary>
@@ -221,11 +211,19 @@ public sealed partial class SamusCrystalFlashState
         // the glow's first frame and its hold so the glow begins on this precise transition frame.
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.CrystalFlashGlow, timer: CrystalFlashDefinitions.PhasePictureHold);
         RaisedHeight = samus.Position.Y.Whole;
-        Phase = CrystalFlashPhase.DrainingAmmo;
+        Phase = new CrystalFlashPhase.Moving.DrainingAmmo();
         // The raise becomes the main phase with one essential-priority request that silences the room library.
         samus.AudioRequests.QueueSound(RoomSoundStop.Any, SoundRequestPriority.Essential);
         EndHitImmunityAndKnockback(samus);
     }
+
+    /// <summary>What <see cref="StepAmmoDrain"/> does for each <see cref="CrystalFlashAmmoKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<CrystalFlashAmmoKind, Action<SamusState>> StepAmmoDrainForCrystalFlashAmmoKind => field ??= new(new Dictionary<CrystalFlashAmmoKind, Action<SamusState>>
+    {
+        [CrystalFlashAmmoKind.Missiles] = static samus => samus.Missiles = CountsRunBelowZero.DecrementWrapping(samus.Missiles),
+        [CrystalFlashAmmoKind.SuperMissiles] = static samus => samus.SuperMissiles = CountsRunBelowZero.DecrementWrapping(samus.SuperMissiles),
+        [CrystalFlashAmmoKind.PowerBombs] = static samus => samus.PowerBombs = CountsRunBelowZero.DecrementWrapping(samus.PowerBombs),
+    });
 
     /// <summary>
     /// Consumes missiles, supers, then power bombs at the drain's cadence and restores <see cref="CrystalFlashDefinitions.EnergyPerAmmunition"/> for each one spent.
@@ -237,21 +235,7 @@ public sealed partial class SamusCrystalFlashState
         if (!SamusCadenceDefinitions.CrystalFlashDrain.IsDue(frameCounter))
             return;
 
-        switch (DrainingAmmo)
-        {
-            case CrystalFlashAmmoKind.Missiles:
-                samus.Missiles = CountsRunBelowZero.DecrementWrapping(samus.Missiles);
-                break;
-            case CrystalFlashAmmoKind.SuperMissiles:
-                samus.SuperMissiles = CountsRunBelowZero.DecrementWrapping(samus.SuperMissiles);
-                break;
-            case CrystalFlashAmmoKind.PowerBombs:
-                samus.PowerBombs = CountsRunBelowZero.DecrementWrapping(samus.PowerBombs);
-                break;
-            default:
-                throw new InvalidOperationException(
-                    $"Crystal Flash ammunition kind {DrainingAmmo} is undefined.");
-        }
+        StepAmmoDrainForCrystalFlashAmmoKind[DrainingAmmo](samus);
 
         SamusEnergyRestoration.Restore(samus, CrystalFlashDefinitions.EnergyPerAmmunition);
         CountdownStep ammoTimer = _ammoCountdown.CountDownAmmo();
@@ -270,7 +254,7 @@ public sealed partial class SamusCrystalFlashState
 
         // The ammunition drain switches to finish art directly; it does not wait for the main
         // four-frame animation loop to reach a cue.
-        Phase = CrystalFlashPhase.Finishing;
+        Phase = new CrystalFlashPhase.Moving.Finishing();
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.CrystalFlashFinish, timer: CrystalFlashDefinitions.PhasePictureHold);
     }
 
@@ -294,7 +278,7 @@ public sealed partial class SamusCrystalFlashState
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // Normal-input completion clears the same hit timers as the return path.
         EndHitImmunityAndKnockback(samus);
-        Phase = CrystalFlashPhase.Inactive;
+        Phase = new CrystalFlashPhase.Inactive();
     }
 
     /// <summary>
@@ -344,6 +328,6 @@ public sealed partial class SamusCrystalFlashState
     private static void EndHitImmunityAndKnockback(SamusState samus)
     {
         EndHitImmunity(samus);
-        samus.Knockback = samus.Knockback.Released();
+        samus.Knockback = samus.Knockback.HandBack();
     }
 }

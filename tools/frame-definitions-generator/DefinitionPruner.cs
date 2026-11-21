@@ -100,6 +100,20 @@ internal sealed class DefinitionPruner
                     taken.AddRange(defaultSection.Statements);
                 return taken;
             }
+            // A factory's creations name each definition's own creation (#2553): only the definition's entry runs.
+            case InitializerExpressionSyntax initializer when UnitScanner.IsCreate(_unit, _context.Behaviour) && initializer.Expressions.Count > 0
+                && initializer.Expressions.All(entry => entry is AssignmentExpressionSyntax { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [_] } }):
+            {
+                DispatchConstant? definition = DispatchConstant.Of(_context.Definition);
+                var taken = new List<SyntaxNode>();
+                foreach (AssignmentExpressionSyntax entry in initializer.Expressions.Cast<AssignmentExpressionSyntax>())
+                {
+                    ExpressionSyntax key = ((ImplicitElementAccessSyntax)entry.Left).ArgumentList.Arguments[0].Expression;
+                    if (Equal(Value(key), definition) != false)
+                        taken.Add(entry.Right);
+                }
+                return taken;
+            }
             case ConditionalExpressionSyntax conditional when Truth(conditional.Condition) is { } truth:
                 return [conditional.Condition, truth ? conditional.WhenTrue : conditional.WhenFalse];
             case IfStatementSyntax ifStatement when Truth(ifStatement.Condition) is { } truth:
@@ -262,7 +276,10 @@ internal sealed class DefinitionPruner
         {
             IParameterSymbol { ContainingSymbol: IMethodSymbol owner } =>
                 (owner.MethodKind == MethodKind.Constructor && InEntityChain(owner.ContainingType))
-                || UnitScanner.IsCreate(Unit.Member(owner.OriginalDefinition), _context.Behaviour),
+                || UnitScanner.IsCreate(Unit.Member(owner.OriginalDefinition), _context.Behaviour)
+                // A creation in the factory's creations (#2553) is handed the factory's own slot.
+                || (owner is { MethodKind: MethodKind.AnonymousFunction, ContainingSymbol: IMethodSymbol { AssociatedSymbol: IPropertySymbol creations } }
+                    && UnitScanner.IsCreate(Unit.Member(creations.OriginalDefinition), _context.Behaviour)),
             _ => InEntityChain(symbol!.ContainingType),
         };
     }

@@ -19,9 +19,9 @@ internal static partial class BabyMetroidWallMutationDefinitions
     /// The shape each mutation gives the wall column: every covered block takes the cell's collision and keeps its
     /// appearance.
     /// </summary>
-    internal static readonly Dictionary<BabyMetroidWallMutation, RoomBlockShape> Shapes = new()
+    internal static readonly IdentityTable<BabyMetroidWallMutation, RoomBlockShape> Shapes = new(new Dictionary<BabyMetroidWallMutation, RoomBlockShape>
     {
         [BabyMetroidWallMutation.Clear] = OpenedWall,
         [BabyMetroidWallMutation.Create] = RaisedWall,
-    };
+    });
 }

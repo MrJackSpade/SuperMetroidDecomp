@@ -281,6 +281,20 @@ public static partial class GameplayDisplayCapture
         return new(new PicturedPlane(placed), camera.AsPlaneOffset());
     }
 
+    /// <summary>What <see cref="PhantoonScene"/> comes to for each <see cref="PhantoonBodyVisibility"/> member, each member's own arm.</summary>
+    private static IdentityTable<PhantoonBodyVisibility, Func<GameplaySceneLayer, GameplaySceneLayer>> PhantoonSceneForPhantoonBodyVisibility => field ??= new(new Dictionary<PhantoonBodyVisibility, Func<GameplaySceneLayer, GameplaySceneLayer>>
+    {
+        [PhantoonBodyVisibility.Shown] = static ordinary => ordinary,
+        [PhantoonBodyVisibility.Hidden] = static ordinary => new GameplaySceneLayer(ordinary.View with
+                {
+                    ShownLayers = ordinary.View.ShownLayers & ~ScreenLayers.BossBody,
+                }, ordinary.Rooms, ordinary.BackgroundLineScrolls) { BossBody = ordinary.BossBody },
+        [PhantoonBodyVisibility.Translucent] = static ordinary => new GameplaySceneLayer(ordinary.View with
+                {
+                    ShownLayers = ordinary.View.ShownLayers & ~ScreenLayers.BossBody,
+                }, ordinary.Rooms, ordinary.BackgroundLineScrolls) { BossBody = ordinary.BossBody },
+    });
+
     /// <summary>
     /// The room's scene as Phantoon's body shows on it (#1545): as the room shows it, or without the background his body
     /// shows on while he is hidden or translucent.
@@ -288,19 +302,7 @@ public static partial class GameplayDisplayCapture
     /// <exception cref="InvalidOperationException">His body's visibility is undefined.</exception>
     private static GameplaySceneLayer PhantoonScene(PhantoonDisplaySnapshot phantoon, GameplaySceneLayer ordinary)
     {
-        switch (phantoon.BodyVisibility)
-        {
-            case PhantoonBodyVisibility.Shown:
-                return ordinary;
-            case PhantoonBodyVisibility.Hidden:
-            case PhantoonBodyVisibility.Translucent:
-                return new GameplaySceneLayer(ordinary.View with
-                {
-                    ShownLayers = ordinary.View.ShownLayers & ~ScreenLayers.BossBody,
-                }, ordinary.Rooms, ordinary.BackgroundLineScrolls) { BossBody = ordinary.BossBody };
-            default:
-                throw new InvalidOperationException($"Undefined Phantoon body visibility {phantoon.BodyVisibility}.");
-        }
+        return PhantoonSceneForPhantoonBodyVisibility[phantoon.BodyVisibility](ordinary);
     }
 
     /// <summary>

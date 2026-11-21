@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Hud;
 public sealed partial record HudIconImage(HudIcon Item, HudIconCover Cover, HudIconShade? Shade) : HudImage
 {
     /// <summary>The item icon.</summary>
-    public HudIcon Item { get; } = Enum.IsDefined(Item) ? Item : throw new ArgumentOutOfRangeException(nameof(Item), Item, "Undefined item icon.");
+    public HudIcon Item { get; } = Item;
 
     /// <inheritdoc/>
     public override string FrameName =>

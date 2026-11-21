@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal static partial class DustExplosionProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<DustExplosionAnimation, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static UnpausedAnimationSegments<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<DustExplosionAnimation, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused[]>
     {
         [P.MotherBrainElbowChargeParticle] =
         [
@@ -164,15 +164,15 @@ internal static partial class DustExplosionProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<DustExplosionAnimation, Animation<DustExplosionAnimation>> StartingAt { get; } = Segments.EachEnding(AnimationEnd.Holds,
+    internal static IdentityTable<DustExplosionAnimation, Animation<DustExplosionAnimation>> StartingAt { get; } = new(Segments.EachEnding(AnimationEnd.Holds,
         P.MotherBrainElbowChargeParticle, P.MotherBrainElbowChargeEnergy, P.SmallExplosion,
         P.MotherBrainRainbowBeamExplosion, P.DudShotTinyExplosion, P.SmallDustCloud, P.CorpseDustCloud,
         P.EyeDoorSmokePuff, P.Smoke, P.BigExplosion, P.RockParticles, P.ShortBigDustCloud, P.BigDustCloud,
-        P.LongDraygonBreathBubbles);
+        P.LongDraygonBreathBubbles));
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
 }

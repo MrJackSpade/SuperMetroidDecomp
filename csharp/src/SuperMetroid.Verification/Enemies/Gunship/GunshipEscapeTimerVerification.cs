@@ -36,7 +36,7 @@ internal static class GunshipEscapeTimerVerification
         var samus = runtime.Player.IntroducedSamus;
         var top = runtime.Enemies.Places.InUpdateOrder.First(place => place.NativeHeader.InitializationAiPointer == 0xa644);
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));
         SamusPresentation.InitializeAnimation(samus);
         runtime.EscapeTimer.RunIntoPlace();
@@ -44,7 +44,7 @@ internal static class GunshipEscapeTimerVerification
         runtime.StepFrame(0);
         AssertTrue(samus.Control.Mode.Movement != SamusMovementMode.Gunship, "Idle ship retains normal Samus handler");
         AssertTrue(TimerSpritesPresent(), "Ordinary escape timer remains visible before boarding");
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWholeY(0x0440);
         SamusPresentation.InitializeAnimation(samus);
         var timeBeforeBoarding = Time();

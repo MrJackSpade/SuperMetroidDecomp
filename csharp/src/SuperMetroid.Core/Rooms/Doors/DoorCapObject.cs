@@ -30,6 +30,6 @@ internal abstract partial class DoorCapObject(ColoredDoorOrientation orientation
         context.Draw(place, DoorCaps.Image(Paint, Orientation, frame));
 
     /// <inheritdoc/>
-    private protected sealed override void Raise(SoundEffectId raised, RoomObjectPlace place, RoomObjectStepContext context) =>
-        context.QueueSound(raised, DoorCapSequenceDefinitions.SoundPriority);
+    private protected sealed override Action<SoundEffectId, RoomObjectPlace, RoomObjectStepContext> Raiser =>
+        static (raised, _, context) => context.QueueSound(raised, DoorCapSequenceDefinitions.SoundPriority);
 }

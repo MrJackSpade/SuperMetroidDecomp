@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Runtime;
 internal abstract partial class DoorTransitionStage
 {
     /// <summary>No door transition has begun.</summary>
-    internal static DoorTransitionStage Inactive { get; } = new Resting(DoorTransitionPhase.Inactive);
+    internal static DoorTransitionStage Inactive { get; } = new Resting(new DoorTransitionPhase.Inactive());
 
     /// <summary>The last door's transition has finished and ordinary gameplay may resume.</summary>
-    internal static DoorTransitionStage Complete { get; } = new Resting(DoorTransitionPhase.Complete);
+    internal static DoorTransitionStage Complete { get; } = new Resting(new DoorTransitionPhase.Complete());
 
     /// <summary>The transition's stage as the frontend and the update's audio read it.</summary>
     internal abstract DoorTransitionPhase Phase { get; }

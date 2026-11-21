@@ -9,10 +9,13 @@ namespace SuperMetroid.Core.Enemies.Waver;
 internal sealed partial class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Waver];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Waver], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WaverEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WaverEntity(this, occupant, place, common));
 
     /// <summary>Room collision service used to reflect horizontal motion and the sine wave on impact.</summary>
     private readonly EnemyTerrain _terrain;
@@ -23,21 +26,18 @@ internal sealed partial class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
+    /// <summary>What <see cref="ApplyWaverCue"/> does for each <see cref="WaverCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<WaverCueKind, Action<WaverEnemyState>> ApplyWaverCueForWaverCueKind => field ??= new(new Dictionary<WaverCueKind, Action<WaverEnemyState>>
+    {
+        // The four-frame spin hands its completion back to main AI rather than going on to the steady animation itself
+        // (#2450): the cue moves the Waver into its finished spin, which main AI consumes.
+        [WaverCueKind.FinishSpin] = static state => state.Action = WaverAction.SpinFinished,
+    });
+
     /// <summary>Carries out Waver's one animation cue.</summary>
     private static void ApplyWaverCue(WaverEnemyState state, WaverCue cue)
     {
-        switch (cue.Kind)
-        {
-            case WaverCueKind.FinishSpin:
-                // The four-frame spin hands its completion back to main AI rather than
-                // going on to the steady animation itself (#2450).
-                if (state.Action != WaverAction.Spinning)
-                    throw new InvalidOperationException($"A Waver's spin finished while it was {state.Action}.");
-                state.Action = WaverAction.SpinFinished;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(WaverCueKind)} {cue.Kind}.");
-        }
+        ApplyWaverCueForWaverCueKind[cue.Kind](state);
     }
 
     /// <summary>Initializes the Waver.</summary>

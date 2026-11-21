@@ -59,8 +59,8 @@ internal static class SoundQueuePowerBombAdmissionVerification
         flashing.Missiles = flashing.SuperMissiles = flashing.PowerBombs = 10;
         AssertTrue(flashing.CrystalFlash.TryBegin(flashing, chord), "Crystal Flash is accepted");
         for (int frame = 0; frame < 10; frame++)
-            flashing.CrystalFlash.Step(flashing, (ushort)frame);
-        AssertEqual(CrystalFlashPhase.DrainingAmmo, flashing.CrystalFlash.Phase, "Crystal Flash's raise completes");
+            flashing.CrystalFlash.Step(flashing, (CrystalFlashPhase.Moving)flashing.CrystalFlash.Phase, (ushort)frame);
+        AssertEqual(new CrystalFlashPhase.Moving.DrainingAmmo(), flashing.CrystalFlash.Phase, "Crystal Flash's raise completes");
         AssertTurnedAway(audio, requests, RoomSoundStop.Any, "Crystal Flash's silence");
 
         // The health warning starts below 31 energy and stops at 31 or more; its latch changes either way.
@@ -95,9 +95,8 @@ internal static class SoundQueuePowerBombAdmissionVerification
         var samus = new SamusState(requests, InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0120, 0x0080)),
-        };
+        }.InPose(pose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         return samus;

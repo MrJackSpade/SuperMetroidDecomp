@@ -12,4 +12,7 @@ internal sealed partial record ColoredDoorSetup(ColoredDoorVariant Door, DoorLoc
 
     /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpColoredDoor(Door, LockedBy);
+
+    /// <inheritdoc/>
+    internal override bool StandsOffTheRoom => true;
 }

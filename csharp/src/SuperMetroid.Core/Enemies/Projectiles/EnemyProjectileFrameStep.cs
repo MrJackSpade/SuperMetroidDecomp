@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// What a projectile's animation does when its frame expires (#1607): shows a frame for a duration, shows a frame for
-/// good, rests on the frame it shows, or ends by deleting its projectile.
+/// good, shows nothing for a duration (#2558), rests on the frame it shows, or ends by deleting its projectile.
 /// </summary>
 internal abstract partial record EnemyProjectileFrameStep
 {
@@ -10,6 +10,12 @@ internal abstract partial record EnemyProjectileFrameStep
     private EnemyProjectileFrameStep()
     {
     }
+
+    /// <summary>Carries out the reaction <paramref name="reactions"/> has to this enemy projectile frame step, through the case it is.</summary>
+    /// <param name="reactions">What its owner does on each case.</param>
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract void React<TContext>(EnemyProjectileFrameStepReactions<TContext> reactions, TContext context);
 
     /// <summary>The animation rests on the frame it shows: its timeline holds.</summary>
     internal static EnemyProjectileFrameStep Rests { get; } = new Rest();
@@ -24,20 +30,54 @@ internal abstract partial record EnemyProjectileFrameStep
     /// <param name="Frame">The frame shown.</param>
     /// <param name="Duration">How many projectile passes the frame lasts.</param>
     /// <param name="Placement">Where the frame is drawn from the projectile's place (#2557).</param>
-    internal sealed partial record Show(EnemyProjectileFrameId Frame, int Duration, Offset16<RoomPixels> Placement) : EnemyProjectileFrameStep;
+    internal sealed partial record Show(EnemyProjectileFrameId Frame, int Duration, Offset16<RoomPixels> Placement) : EnemyProjectileFrameStep
+    {
+        /// <inheritdoc/>
+        internal override void React<TContext>(EnemyProjectileFrameStepReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Show(this, context);
+    }
 
     /// <summary>The animation shows <paramref name="Frame"/> from now on, drawn <paramref name="Placement"/> off the projectile's place, and rests on it.</summary>
     /// <param name="Frame">The frame shown.</param>
     /// <param name="Placement">Where the frame is drawn from the projectile's place (#2557).</param>
-    internal sealed partial record ShowForGood(EnemyProjectileFrameId Frame, Offset16<RoomPixels> Placement) : EnemyProjectileFrameStep;
+    internal sealed partial record ShowForGood(EnemyProjectileFrameId Frame, Offset16<RoomPixels> Placement) : EnemyProjectileFrameStep
+    {
+        /// <inheritdoc/>
+        internal override void React<TContext>(EnemyProjectileFrameStepReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).ShowForGood(this, context);
+    }
 
     /// <summary>The animation rests on the frame it shows.</summary>
-    internal sealed partial record Rest : EnemyProjectileFrameStep;
-
-    /// <summary>The animation ends, and its end deletes the projectile: no step follows it.</summary>
-    internal sealed partial record Delete : EnemyProjectileFrameStep;
+    internal sealed partial record Rest : EnemyProjectileFrameStep
+    {
+        /// <inheritdoc/>
+        internal override void React<TContext>(EnemyProjectileFrameStepReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Rest(this, context);
+    }
 
     /// <summary>The projectile shows nothing for <paramref name="Duration"/> updates (#2558), holding no shown frame meanwhile.</summary>
     /// <param name="Duration">The updates the projectile stays hidden.</param>
-    internal sealed partial record Hide(int Duration) : EnemyProjectileFrameStep;
+    internal sealed partial record Hide(int Duration) : EnemyProjectileFrameStep
+    {
+        /// <inheritdoc/>
+        internal override void React<TContext>(EnemyProjectileFrameStepReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Hide(this, context);
+    }
+
+    /// <summary>The animation ends, and its end deletes the projectile: no step follows it.</summary>
+    internal sealed record Delete : EnemyProjectileFrameStep
+    {
+        /// <inheritdoc/>
+        internal override void React<TContext>(EnemyProjectileFrameStepReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Delete(this, context);
+    }
 }
+
+/// <summary>What the owner of a <see cref="EnemyProjectileFrameStep"/> does on each of its cases (#2553).</summary>
+/// <param name="Show">Reacts to a <see cref="EnemyProjectileFrameStep.Show"/>.</param>
+/// <param name="ShowForGood">Reacts to a <see cref="EnemyProjectileFrameStep.ShowForGood"/>.</param>
+/// <param name="Hide">Reacts to a <see cref="EnemyProjectileFrameStep.Hide"/>.</param>
+/// <param name="Rest">Reacts to a <see cref="EnemyProjectileFrameStep.Rest"/>.</param>
+/// <param name="Delete">Reacts to a <see cref="EnemyProjectileFrameStep.Delete"/>.</param>
+/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
+internal sealed record EnemyProjectileFrameStepReactions<TContext>(
+    Action<EnemyProjectileFrameStep.Show, TContext> Show,
+    Action<EnemyProjectileFrameStep.ShowForGood, TContext> ShowForGood,
+    Action<EnemyProjectileFrameStep.Hide, TContext> Hide,
+    Action<EnemyProjectileFrameStep.Rest, TContext> Rest,
+    Action<EnemyProjectileFrameStep.Delete, TContext> Delete);

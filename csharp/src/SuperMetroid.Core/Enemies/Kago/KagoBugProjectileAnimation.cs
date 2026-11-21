@@ -16,5 +16,5 @@ internal sealed partial class KagoBugProjectileAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<KagoBugProjectileSegment, EnemyProjectileFrameId, KagoBugProjectileCue> Segments => KagoBugProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<KagoBugProjectileSegment, EnemyProjectileFrameId, KagoBugProjectileCue> Segments => KagoBugProjectileAnimations.Segments;
 }

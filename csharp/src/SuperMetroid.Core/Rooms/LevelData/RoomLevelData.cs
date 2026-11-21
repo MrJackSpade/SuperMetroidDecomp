@@ -225,10 +225,41 @@ public sealed partial class RoomLevelData
     /// </summary>
     /// <param name="block">A block the read found in the grid.</param>
     /// <exception cref="InvalidDataException">A link leads outside the room's grid, or the chain is cyclic.</exception>
-    internal RoomCollisionBlock? BlockStoodFor(RoomCollisionBlock block) =>
-        ContinuedBlocks.StoodFor(block, Size.Area, Continues, cell => cell.Behavior.EndsExtension,
+    internal RoomCollisionBlock? BlockStoodFor(RoomCollisionBlock block) => StandingBlockFor(block)?.Block;
+
+    /// <summary>
+    /// The block <paramref name="block"/> stands for (<see cref="BlockStoodFor"/>) with how it collides, which is no
+    /// extension (#2553); null when the cell behaves as air.
+    /// </summary>
+    /// <param name="block">A block the read found in the grid.</param>
+    /// <exception cref="InvalidDataException">A link leads outside the room's grid, or the chain is cyclic.</exception>
+    internal StandingBlock? StandingBlockFor(RoomCollisionBlock block) =>
+        ContinuedBlocks.StoodFor(block, Size.Area,
+            cell => StandingTypes[cell.CollisionType] is { } type ? new StandingBlock(cell, type) : (StandingBlock?)null,
+            cell => cell.Behavior.EndsExtension,
             cell => GetCollisionBlock(GridBlockStepped(cell.At, cell.ExtensionLink) ?? throw new InvalidDataException(
                 $"Continuing block {cell.Position} type {cell.CollisionType}/behaviour ({cell.Behavior}) leads outside the room's grid.")));
+
+    /// <summary>How a block of each collision family collides once a read stands on it; none for the two extensions, which continue another block.</summary>
+    private static IdentityTable<RoomCollisionType, StandingCollisionType?> StandingTypes { get; } = new(new Dictionary<RoomCollisionType, StandingCollisionType?>
+    {
+        [RoomCollisionType.Air] = StandingCollisionType.Air,
+        [RoomCollisionType.Slope] = StandingCollisionType.Slope,
+        [RoomCollisionType.SpikeAir] = StandingCollisionType.SpikeAir,
+        [RoomCollisionType.SpecialAir] = StandingCollisionType.SpecialAir,
+        [RoomCollisionType.ShootableAir] = StandingCollisionType.ShootableAir,
+        [RoomCollisionType.HorizontalExtension] = null,
+        [RoomCollisionType.UnrevealedAir] = StandingCollisionType.UnrevealedAir,
+        [RoomCollisionType.BombableAir] = StandingCollisionType.BombableAir,
+        [RoomCollisionType.SolidBlock] = StandingCollisionType.SolidBlock,
+        [RoomCollisionType.DoorBlock] = StandingCollisionType.DoorBlock,
+        [RoomCollisionType.SpikeBlock] = StandingCollisionType.SpikeBlock,
+        [RoomCollisionType.SpecialBlock] = StandingCollisionType.SpecialBlock,
+        [RoomCollisionType.ShootableBlock] = StandingCollisionType.ShootableBlock,
+        [RoomCollisionType.VerticalExtension] = null,
+        [RoomCollisionType.GrappleBlock] = StandingCollisionType.GrappleBlock,
+        [RoomCollisionType.BombableBlock] = StandingCollisionType.BombableBlock,
+    });
 
     /// <summary>
     /// Replaces <paramref name="block"/> with the block it stands for (<see cref="BlockStoodFor"/>), returning false when it

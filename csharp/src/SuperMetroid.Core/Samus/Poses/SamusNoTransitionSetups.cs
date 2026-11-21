@@ -17,9 +17,6 @@ internal static partial class SamusNoTransitionSetups
     {
         if (SamusPoseNoTransitionSetupDefinitions.Own.TryGetValue(pose, out SamusNoTransitionSetup? own))
             return own;
-        return SamusMovementTypeDefinitions.Movements.TryGetValue(movementInForce, out SamusMovementTypeDefinition? movement)
-            ? movement.NoTransitionSetup
-            : throw new ArgumentOutOfRangeException(nameof(movementInForce), movementInForce,
-                "Movement type names no setup for input that chooses no new pose.");
+        return SamusMovementTypeDefinitions.Movements[movementInForce].NoTransitionSetup;
     }
 }

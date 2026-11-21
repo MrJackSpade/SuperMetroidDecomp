@@ -8,6 +8,5 @@ internal sealed partial class MissileFlight : SamusShotBehavior
 {
     /// <inheritdoc/>
     internal override void Run(SamusShotUpdate update) =>
-        update.Shots.Motion.FlyMissile(update.Terrain.Level, update.Samus, update.Held, update.Camera, update.SamusBombs,
-            update.Terrain.RoomObjects);
+        update.Shots.Motion.FlyMissile(update.Terrain, update.Samus, update.Held, update.Camera, update.SamusBombs);
 }

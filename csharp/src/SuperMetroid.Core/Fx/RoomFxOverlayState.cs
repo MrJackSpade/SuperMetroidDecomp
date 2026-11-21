@@ -25,7 +25,7 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
     /// The loop of the effect's own block animation (lava, acid, rain or spores), selecting the frame its pictures show, or
     /// null for an effect that shows none (<see cref="BlockAnimationLoops.OnEffectOverlay"/>).
     /// </summary>
-    private SuperMetroid.Core.Animation.AnimationPlayer<BlockAnimation, ArtworkFrame, SuperMetroid.Core.Animation.NoAnimationCue>? effectOverlayAnimation;
+    private readonly SuperMetroid.Core.Animation.AnimationPlayer<BlockAnimation, ArtworkFrame, SuperMetroid.Core.Animation.NoAnimationCue>? effectOverlayAnimation;
 
     /// <summary>
     /// The room's Fireflea darkness, which its Fireflea effect starts as the room loads and which lasts as long as the
@@ -208,20 +208,18 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Builds one room's effect-overlay FX from a load source, which may supply its effect directly.</summary>
     /// <param name="source">The room effect's source.</param>
     /// <param name="sounds">The update's sound requests of the runtime running the effect, which its sounds join.</param>
-    internal static RoomFxOverlayState ForSource(RoomFxLoadSource source, GameplaySoundRequests sounds)
-    {
-        var fx = new RoomFxOverlayState(sounds);
-        fx.SelectEffect(source);
-        return fx;
-    }
+    internal static RoomFxOverlayState ForSource(RoomFxLoadSource source, GameplaySoundRequests sounds) => new(source, sounds);
 
     /// <summary>
-    /// Selects the door's room effect and initializes the liquid and tint state shared by room effects and room objects.
-    /// From then until Samus leaves the room, the effect overlay shows the effect's liquid or atmosphere, or nothing for an
-    /// effect without one.
+    /// Builds a room's effect state with the effect its door selects, initializing the liquid and tint state shared by room
+    /// effects and room objects. From then until Samus leaves the room, the effect overlay shows the effect's liquid or
+    /// atmosphere, or nothing for an effect without one.
     /// </summary>
-    private void SelectEffect(RoomFxLoadSource source)
+    /// <param name="source">The room effect's source.</param>
+    /// <param name="sounds">The update's sound requests of the runtime running the effect, which its sounds join.</param>
+    private RoomFxOverlayState(RoomFxLoadSource source, GameplaySoundRequests sounds)
     {
+        this.sounds = Ensure.NotNull(sounds);
         QuakeSoundsSilenced = source.Room is { QuakesAreSilent: true };
         if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
             return;
@@ -235,8 +233,6 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
         Type = definition.Type;
         overlayLook = RoomEffectOverlayLook.Of(definition.Type, definition.EffectBlend);
         VisorAnimation = definition.VisorAnimation;
-        if (effectOverlayAnimation is not null)
-            throw new InvalidOperationException($"The room's effect already plays {effectOverlayAnimation.Playback.PlayingSegment}: each room builds its own.");
         effectOverlayAnimation = BlockAnimationLoops.OnEffectOverlay(Type) is { } overlayAnimation ? BlockAnimationLoops.Start(overlayAnimation) : null;
         Tint = definition.Tint;
 
@@ -619,6 +615,38 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
         ? LavaAcidWaveDefinitions.VerticalWavePhaseDuration
         : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration;
 
+    /// <summary>What <see cref="StepLiquidRise"/> does for each <see cref="LiquidRisePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<LiquidRisePhase, Action<int, PowerOnEarthquakeSoundDelay>> StepLiquidRiseForLiquidRisePhase => field ??= new(new Dictionary<LiquidRisePhase, Action<int, PowerOnEarthquakeSoundDelay>>
+    {
+        [LiquidRisePhase.Dormant] = (randomNumber, earthquakeSoundDelay) =>
+        {
+            // A missing surface or target lies below every line (AbsentLiquidSurfaceDepth).
+            int surface = AbsentLiquidSurfaceDepth.Of(BaseLine);
+            int target = AbsentLiquidSurfaceDepth.Of(TargetSurface);
+            bool movesTowardTarget = LiquidLevelSpeed > SignedEightEight.Zero
+                ? target > surface
+                : LiquidLevelSpeed.IsNegative && target < surface;
+            if (movesTowardTarget)
+                liquidRisePhase = LiquidRisePhase.Waiting;
+        },
+        [LiquidRisePhase.Waiting] = (randomNumber, earthquakeSoundDelay) =>
+        {
+            PublishRisingLiquidFeedback(randomNumber, earthquakeSoundDelay);
+            LiquidMoveDelay = LiquidMoveDelay.Decrement().Remaining;
+            if (LiquidMoveDelay.IsZero)
+                liquidRisePhase = LiquidRisePhase.Moving;
+        },
+        [LiquidRisePhase.Moving] = (randomNumber, earthquakeSoundDelay) =>
+        {
+            PublishRisingLiquidFeedback(randomNumber, earthquakeSoundDelay);
+            if (AdvanceBaseYToTarget())
+            {
+                LiquidLevelSpeed = default;
+                liquidRisePhase = LiquidRisePhase.Dormant;
+            }
+        },
+    });
+
     /// <summary>
     /// Runs the parallel three-phase motions for lava/acid
     /// and for water. A nonzero velocity first arms the wait phase,
@@ -628,41 +656,7 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private void StepLiquidRise(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
     {
-        switch (liquidRisePhase)
-        {
-            case LiquidRisePhase.Dormant:
-            {
-                // A missing surface or target lies below every line (AbsentLiquidSurfaceDepth).
-                int surface = AbsentLiquidSurfaceDepth.Of(BaseLine);
-                int target = AbsentLiquidSurfaceDepth.Of(TargetSurface);
-                bool movesTowardTarget = LiquidLevelSpeed > SignedEightEight.Zero
-                    ? target > surface
-                    : LiquidLevelSpeed.IsNegative && target < surface;
-                if (movesTowardTarget)
-                    liquidRisePhase = LiquidRisePhase.Waiting;
-                return;
-            }
-
-            case LiquidRisePhase.Waiting:
-                PublishRisingLiquidFeedback(randomNumber, earthquakeSoundDelay);
-                LiquidMoveDelay = LiquidMoveDelay.Decrement().Remaining;
-                if (LiquidMoveDelay.IsZero)
-                    liquidRisePhase = LiquidRisePhase.Moving;
-                return;
-
-            case LiquidRisePhase.Moving:
-                PublishRisingLiquidFeedback(randomNumber, earthquakeSoundDelay);
-                if (AdvanceBaseYToTarget())
-                {
-                    LiquidLevelSpeed = default;
-                    liquidRisePhase = LiquidRisePhase.Dormant;
-                }
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Unknown room-liquid rise phase {liquidRisePhase}.");
-        }
+        StepLiquidRiseForLiquidRisePhase[liquidRisePhase](randomNumber, earthquakeSoundDelay);
     }
 
     /// <summary>
@@ -768,21 +762,18 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Adds the tide's displacement to the base liquid surface, giving the surface's room line, negative once the tide
-    /// carries it above the room's top; a liquid with no surface has none, and no room effect gives one a tide.
+    /// carries it above the room's top; a liquid with no surface has none. Only a liquid with a surface has a tide, which
+    /// each room effect's definition checks once (<see cref="RoomEffectDefinition.LiquidStartLevel"/>), so a liquid with no
+    /// surface has no displacement to add.
     /// </summary>
-    /// <exception cref="InvalidOperationException">A liquid with no surface has a tide.</exception>
-    private int? ComputeTidalYPosition()
-    {
-        if (BaseY is { } baseY)
-            return RoomLineOf(baseY.MovedBy(TideOffset));
-        return TideOffset.IsZero
-            ? null
-            : throw new InvalidOperationException("A room liquid with no surface has a tide.");
-    }
+    private int? ComputeTidalYPosition() => BaseY is { } baseY ? RoomLineOf(baseY.MovedBy(TideOffset)) : null;
 
-    /// <summary>Creates one room's effect state, with no room effect selected, its sounds joining <paramref name="sounds"/>.</summary>
-    /// <param name="sounds">The update's sound requests of the runtime running the effect.</param>
-    internal RoomFxOverlayState(GameplaySoundRequests sounds) => this.sounds = Ensure.NotNull(sounds);
+    /// <summary>
+    /// The line the room's lava or acid lies at for what rises from it: the live surface of a room whose liquid is lava or
+    /// acid, and otherwise, as for lava or acid with no surface, the line a missing surface lies at
+    /// (<see cref="AbsentLiquidSurfaceDepth"/>).
+    /// </summary>
+    internal int LavaAcidLine => AbsentLiquidSurfaceDepth.Of(Liquid is RoomLavaOrAcid ? Surface : null);
 
     /// <summary>
     /// Ends the liquid's wave: no later update's liquid wave moves the liquid, queues its ambient sound or

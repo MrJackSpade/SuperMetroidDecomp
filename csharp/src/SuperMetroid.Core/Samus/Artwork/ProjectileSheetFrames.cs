@@ -11,7 +11,7 @@ public static partial class ProjectileSheetFrames
     /// <summary>The gameplay sheet of a draw pictured with <paramref name="beams"/> (#1586).</summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no sheet.</exception>
     public static SpriteSheetId For(SamusBeamCombination beams) =>
-        Sheets.TryGetValue(beams, out SpriteSheetId value) ? value : throw new ArgumentOutOfRangeException(nameof(beams), beams, "Undefined beam combination.");
+        Sheets[beams];
 
     /// <summary>The frame of a timed projectile or bomb composition.</summary>
     [InstalledKey]

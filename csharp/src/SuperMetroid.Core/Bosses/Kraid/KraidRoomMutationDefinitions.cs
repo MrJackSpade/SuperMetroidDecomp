@@ -37,8 +37,7 @@ internal static partial class KraidRoomMutationDefinitions
     /// The change each mutation makes: a ceiling block crumbles into its background; a platform variant only sets its
     /// block to its background; the clears draw once; the spike crumble crumbles its pairs of columns (<see cref="SpikePassCount"/>) left to right.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<KraidRoomMutation, TerrainChange> Changes =
-        new Dictionary<KraidRoomMutation, TerrainChange>
+    internal static readonly IdentityTable<KraidRoomMutation, TerrainChange> Changes = new(new Dictionary<KraidRoomMutation, TerrainChange>
         {
             [KraidRoomMutation.CrumbleCeilingAtLeftEdge] = new(1, CrumbleInto(KraidRoomDraw.CeilingBackgroundLeftEdge, Offset16<RoomBlocks>.Zero)),
             [KraidRoomMutation.CrumblePlatformInOddColumn] = new(1, [Shown(KraidRoomDraw.CeilingBackgroundOddColumn)]),
@@ -53,5 +52,5 @@ internal static partial class KraidRoomMutationDefinitions
                 .. CrumbleInto(KraidRoomDraw.SpikeBackgroundRightColumn, NextColumn),
                 .. Enumerable.Repeat(LaterSpikePass, SpikePassCount - 1).SelectMany(pass => pass),
             ]),
-        };
+        });
 }

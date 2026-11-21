@@ -65,10 +65,9 @@ internal static class SamusOverreadHeldPoseFramesVerification
         // result, so without Draygon placing her she does not move.
         var samus = (new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.DraygonHeldBallLeftPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
             SolidVerticalCollisionResult = SamusVerticalCollisionResult.Landed
-            });
+            }.InPose(SamusPoseId.DraygonHeldBallLeftPose));
         SamusDraygonGrabbedState.StepMovement(samus);
         AssertEqual(SamusVerticalCollisionResult.None, samus.SolidVerticalCollisionResult, "the Draygon-held ball's movement clears the vertical collision result");
         AssertEqual(0x0080, samus.Position.X.Whole, "the Draygon-held ball does not move horizontally");

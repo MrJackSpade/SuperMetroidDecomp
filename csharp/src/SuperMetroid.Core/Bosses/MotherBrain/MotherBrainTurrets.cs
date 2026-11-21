@@ -7,9 +7,7 @@ internal static partial class MotherBrainTurrets
 {
     /// <summary>The bullet launch for one of the eight directions.</summary>
     internal static MotherBrainTurretDirectionDefinition ForDirection(MotherBrainTurretDirection direction) =>
-        Launches.TryGetValue(direction, out MotherBrainTurretDirectionDefinition launch)
-            ? launch
-            : throw new ArgumentOutOfRangeException(nameof(direction), direction, "A turret has no such direction.");
+        Launches[direction];
 
     /// <summary>
     /// The direction one turn from <paramref name="direction"/> the way <paramref name="turning"/> says, round the compass

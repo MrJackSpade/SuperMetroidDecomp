@@ -14,7 +14,8 @@ internal static class SpeciesIdentityAnalyzerTests
         namespace SuperMetroid.Core.Enemies
         {
             public enum EnemyDefinitionId { None, FooBody, FooArm, Bar }
-            public interface IEnemyEntityFactory { System.Collections.Generic.IReadOnlyList<EnemyDefinitionId> Definitions { get; } }
+            public delegate object EnemyEntityCreation(object place, object common);
+            public interface IEnemyEntityFactory { System.Collections.Generic.IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations { get; } }
         }
         """;
 
@@ -23,7 +24,7 @@ internal static class SpeciesIdentityAnalyzerTests
         namespace SuperMetroid.Core.Enemies.Bar
         {
             using System.Collections.Generic;
-            sealed class BarBehavior : IEnemyEntityFactory { public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Bar]; }
+            sealed class BarBehavior : IEnemyEntityFactory { public System.Collections.Generic.IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => new System.Collections.Generic.Dictionary<EnemyDefinitionId, EnemyEntityCreation> { [EnemyDefinitionId.Bar] = (place, common) => place }; }
         }
         """;
 
@@ -41,7 +42,7 @@ internal static class SpeciesIdentityAnalyzerTests
                     [EnemyDefinitionId.FooArm] = FooPart.Arm,
                 };
             }
-            sealed class FooBehavior : IEnemyEntityFactory { public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. FooPartDefinitions.Parts.Keys]; }
+            sealed class FooBehavior : IEnemyEntityFactory { public System.Collections.Generic.IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => System.Linq.Enumerable.ToDictionary(FooPartDefinitions.Parts.Keys, definition => definition, definition => (EnemyEntityCreation)((place, common) => place)); }
         }
         """;
 

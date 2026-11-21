@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.World;
@@ -29,7 +28,4 @@ internal sealed partial record RoomObjectFramePhaseDependencies
 
     /// <summary>Samus, whom the room objects touch, and whether the X-ray scope holds the room objects still.</summary>
     public required SamusFrameState Player { get; init; }
-
-    /// <summary>The suit transformation, which keeps a second suit from replacing one already running.</summary>
-    public required SamusSuitPickupState SuitPickup { get; init; }
 }

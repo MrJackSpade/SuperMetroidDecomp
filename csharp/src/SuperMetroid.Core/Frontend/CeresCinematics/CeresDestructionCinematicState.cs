@@ -555,30 +555,31 @@ internal sealed partial class CeresDestructionCinematicState : IFrontendScreen, 
         }
     }
 
+    /// <summary>What <see cref="HandleExplosionSpawnerCue"/> does for each <see cref="CeresExplosionSpawnerCue"/> member, each member's own arm.</summary>
+    private IdentityTable<CeresExplosionSpawnerCue, Action> HandleExplosionSpawnerCueForCeresExplosionSpawnerCue => field ??= new(new Dictionary<CeresExplosionSpawnerCue, Action>
+    {
+        [CeresExplosionSpawnerCue.SpawnInitialWave] = () =>
+        {
+            foreach (CeresExplosionPlacement blast in CeresExplosionDefinitions.InitialWave)
+                SpawnCeresExplosion(CeresExplosionDefinitions.InitialActor, blast);
+        },
+        [CeresExplosionSpawnerCue.SpawnRepeatingBlast] = () =>
+        {
+            // Each play of the spawner's repeating blast spawns one at the next of their places.
+            SpawnCeresExplosion(CeresExplosionDefinitions.RepeatingActor, new CeresExplosionPlacement(
+                repeatingBlastPlacesLeft.Dequeue(), CeresExplosionDefinitions.RepeatingBlastDelayFrames));
+        },
+        [CeresExplosionSpawnerCue.SpawnFinalWave] = () =>
+        {
+            foreach (CeresExplosionPlacement blast in CeresExplosionDefinitions.FinalWave)
+                SpawnCeresExplosion(CeresExplosionDefinitions.FinalWaveActor, blast);
+        },
+    });
+
     /// <summary>Spawns the waves of blasts the explosion spawner's animation cues (#2489).</summary>
     private void HandleExplosionSpawnerCue(CeresExplosionSpawnerCue cue)
     {
-        switch (cue)
-        {
-            case CeresExplosionSpawnerCue.SpawnInitialWave:
-                foreach (CeresExplosionPlacement blast in CeresExplosionDefinitions.InitialWave)
-                    SpawnCeresExplosion(CeresExplosionDefinitions.InitialActor, blast);
-                return;
-
-            case CeresExplosionSpawnerCue.SpawnRepeatingBlast:
-                // Each play of the spawner's repeating blast spawns one at the next of their places.
-                SpawnCeresExplosion(CeresExplosionDefinitions.RepeatingActor, new CeresExplosionPlacement(
-                    repeatingBlastPlacesLeft.Dequeue(), CeresExplosionDefinitions.RepeatingBlastDelayFrames));
-                return;
-
-            case CeresExplosionSpawnerCue.SpawnFinalWave:
-                foreach (CeresExplosionPlacement blast in CeresExplosionDefinitions.FinalWave)
-                    SpawnCeresExplosion(CeresExplosionDefinitions.FinalWaveActor, blast);
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresExplosionSpawnerCue)} {cue}.");
-        }
+        HandleExplosionSpawnerCueForCeresExplosionSpawnerCue[cue]();
     }
 
     /// <summary>
@@ -667,40 +668,41 @@ internal sealed partial class CeresDestructionCinematicState : IFrontendScreen, 
         }
     }
 
+    /// <summary>What <see cref="HandleZebesCue"/> does for each <see cref="CeresCue"/> member, each member's own arm.</summary>
+    private IdentityTable<CeresCue, Action> HandleZebesCueForCeresCue => field ??= new(new Dictionary<CeresCue, Action>
+    {
+        [CeresCue.FadeInZebesTitle] = () =>
+        {
+            // The caption starts fading in from black as it first shows (#1733).
+            ColourEffects.StartScreen(CeresDestructionSceneDefinitions.ZebesTextFadeIn);
+        },
+        [CeresCue.FadeOutZebesTitle] = () =>
+        {
+            // The caption fades out to black as its hold ends, and stays black (#1733).
+            ColourEffects.StartScreen(CeresDestructionSceneDefinitions.ZebesTextFadeOut);
+        },
+        [CeresCue.SpawnJapaneseTitleIfNeeded] = () =>
+        {
+            // With Japanese text the title spawns its Japanese subtitle as its first hold ends (#1733).
+            if (language == TextLanguage.Japanese)
+                spawnedSubtitle = CreateZebesActor(ZebesRevealActorRole.JapaneseSubtitle);
+        },
+        [CeresCue.StartFlyingToZebes] = () =>
+        {
+            // The title actor, not a separate timer, publishes the camera flight exactly
+            // where its animation reaches the flight step.
+            FloorScroll = new(FloorScroll.X.WithWholePixels(CeresDestructionSceneDefinitions.Motion.FloorExitX),
+                FloorScroll.Y.WithWholePixels(CeresDestructionSceneDefinitions.Places.CeresAndFlightFloorScrollY));
+            angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
+            Zoom = CeresDestructionSceneDefinitions.Motion.MinimumZoom;
+            Phase = CeresDestructionPhase.FlyingTowardZebes;
+        },
+    });
+
     /// <summary>Lets the title actor start the camera flight at its authored cue boundary.</summary>
     private void HandleZebesCue(CeresCue cue)
     {
-        switch (cue)
-        {
-            case CeresCue.FadeInZebesTitle:
-                // The caption starts fading in from black as it first shows (#1733).
-                ColourEffects.StartScreen(CeresDestructionSceneDefinitions.ZebesTextFadeIn);
-                return;
-
-            case CeresCue.FadeOutZebesTitle:
-                // The caption fades out to black as its hold ends, and stays black (#1733).
-                ColourEffects.StartScreen(CeresDestructionSceneDefinitions.ZebesTextFadeOut);
-                return;
-
-            case CeresCue.SpawnJapaneseTitleIfNeeded:
-                // With Japanese text the title spawns its Japanese subtitle as its first hold ends (#1733).
-                if (language == TextLanguage.Japanese)
-                    spawnedSubtitle = CreateZebesActor(ZebesRevealActorRole.JapaneseSubtitle);
-                return;
-
-            case CeresCue.StartFlyingToZebes:
-                // The title actor, not a separate timer, publishes the camera flight exactly
-                // where its animation reaches the flight step.
-                FloorScroll = new(FloorScroll.X.WithWholePixels(CeresDestructionSceneDefinitions.Motion.FloorExitX),
-                    FloorScroll.Y.WithWholePixels(CeresDestructionSceneDefinitions.Places.CeresAndFlightFloorScrollY));
-                angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
-                Zoom = CeresDestructionSceneDefinitions.Motion.MinimumZoom;
-                Phase = CeresDestructionPhase.FlyingTowardZebes;
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresCue)} {cue}.");
-        }
+        HandleZebesCueForCeresCue[cue]();
     }
 
 

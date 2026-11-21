@@ -28,7 +28,7 @@ internal static class GrappleConnectionSpeedBoostVerification
         })
         {
             SamusState samus = InstalledFixtures.CreateSamus();
-            samus.Pose = running;
+            samus.ChangePoseKeepingAnimation(running);
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512));
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.HorizontalSpeed.HasRunningMomentum = true;

@@ -33,35 +33,35 @@ internal static class FileSelectPresentationVerification
         var native = new FileSelectMenuState(saveRam, nativeAudio, original, MenuSheetFixtures.For(original));
         var installed = new FileSelectMenuState(saveRam, installedAudio, original, MenuSheetFixtures.For(original));
         int comparedFrames = 0;
-        Until(FileSelectPhase.Main);
+        Until(new FileSelectPhase.Main());
         for (int row = 0; row < 3; row++) Press(ControllerButton.Down);
         Press(ControllerButton.A);
-        Until(FileSelectPhase.CopySelectSource);
+        Until(new FileSelectPhase.DataManagement.CopySelectSource());
         Press(ControllerButton.A);
-        AssertEqual(FileSelectPhase.CopySelectDestination, native.Phase,
+        AssertEqual(new FileSelectPhase.DataManagement.CopySelectDestination(), native.Phase,
             "copy source advances to destination");
         Press(ControllerButton.A);
-        AssertEqual(FileSelectPhase.CopyConfirm, native.Phase,
+        AssertEqual(true, native.Phase is FileSelectPhase.DataManagement.CopyConfirm,
             "copy destination advances to confirmation");
         Press(ControllerButton.A);
-        AssertEqual(FileSelectPhase.CopyCompleted, native.Phase,
+        AssertEqual(new FileSelectPhase.DataManagement.CopyCompleted(), native.Phase,
             "copy confirmation reaches completion");
         Press(ControllerButton.A);
-        Until(FileSelectPhase.Main);
+        Until(new FileSelectPhase.Main());
         for (int row = 0; row < 4; row++) Press(ControllerButton.Down);
         Press(ControllerButton.A);
-        Until(FileSelectPhase.ClearSelectSlot);
+        Until(new FileSelectPhase.DataManagement.ClearSelectSlot());
         Press(ControllerButton.A);
-        AssertEqual(FileSelectPhase.ClearConfirm, native.Phase,
+        AssertEqual(new FileSelectPhase.DataManagement.ClearConfirm(), native.Phase,
             "clear selection advances to confirmation");
         Press(ControllerButton.A);
-        AssertEqual(FileSelectPhase.ClearCompleted, native.Phase,
+        AssertEqual(new FileSelectPhase.DataManagement.ClearCompleted(), native.Phase,
             "clear confirmation reaches completion");
         Press(ControllerButton.A);
-        Until(FileSelectPhase.Main);
+        Until(new FileSelectPhase.Main());
         Press(ControllerButton.Down);
         Press(ControllerButton.A);
-        Until(FileSelectPhase.FadeOutToOptions, maximumFrames: 80);
+        Until(new FileSelectPhase.FadeOutToOptions(), maximumFrames: 80);
         for (int frame = 0; frame < 16; frame++) Frame(0);
         AssertEqual(native.SelectedHelmetFrame, installed.SelectedHelmetFrame,
             "installed file-select helmet animation retains native frame");

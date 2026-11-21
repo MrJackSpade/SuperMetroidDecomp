@@ -36,6 +36,9 @@ internal sealed partial record RoomScope
     /// <summary>The room's foreground, block behaviours and background, shared by rendering and collision.</summary>
     public required RoomLevelData LevelData { get; init; }
 
+    /// <summary>The room's terrain Samus meets (#2553): its level, whose reacting blocks reach its room objects.</summary>
+    internal RoomTerrain SamusTerrain => new(LevelData, RoomObjects);
+
     /// <summary>The room's foreground scroll-boundary camera.</summary>
     public required ScrollBoundaryCamera Camera { get; init; }
 
@@ -124,10 +127,10 @@ internal sealed partial record RoomScope
     public LoadStation? LoadStation { get; init; }
 
     /// <summary>
-    /// The two objects carrying Samus into fresh Ceres, once Ceres-start setup has begun them; the arrival belongs to
-    /// this room and ends with the next room's load.
+    /// The two objects carrying Samus into fresh Ceres, built with the Ceres start's room (#2553), so it begins once; the
+    /// arrival belongs to this room and ends with the next room's load. Null for every other room.
     /// </summary>
-    public CeresElevatorArrivalState? CeresElevatorArrival { get; private set; }
+    public CeresElevatorArrivalState? CeresElevatorArrival { get; init; }
 
     /// <summary>
     /// The block animations' step: gameplay, the door transition's scroll and every fade step take it. The X-Ray Scope's
@@ -143,15 +146,6 @@ internal sealed partial record RoomScope
         // Phantoon is defeated.
         BlockAnimations.Step(Ensure.NotNull(session).HasDefeatedAnyOf(Room.Area, DefeatedBosses.AreaBoss), ArtworkFrames);
         TourianStatues?.StepBlockAnimations();
-    }
-
-    /// <summary>Begins the Ceres elevator arrival in this room.</summary>
-    /// <exception cref="InvalidOperationException">This room's arrival has already begun.</exception>
-    internal void BeginCeresElevatorArrival(CeresElevatorArrivalState arrival)
-    {
-        if (CeresElevatorArrival is not null)
-            throw new InvalidOperationException("This room's Ceres elevator arrival has already begun.");
-        CeresElevatorArrival = Ensure.NotNull(arrival);
     }
 
     /// <summary>The room's actors that stand in front of Samus (#2571): the Ceres elevator arrival once it has begun.</summary>

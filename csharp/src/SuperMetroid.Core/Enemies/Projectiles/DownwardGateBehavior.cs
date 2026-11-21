@@ -26,39 +26,29 @@ internal sealed partial class DownwardGateBehavior
     public void ApplyDownwardGateProjectileRequest(
         DownwardGateProjectileRequest request)
     {
-        switch (request)
-        {
-            case DownwardGateProjectileSpawn spawn:
-                SpawnDownwardGateProjectile(spawn);
-                return;
-            case DownwardGateProjectileWake wake:
-                WakeDownwardGateProjectile(wake.RoomObjectBlock);
-                return;
-            default:
-                throw new ArgumentOutOfRangeException(
-                    nameof(request), request, "Unknown downward gate projectile request.");
-        }
+        request.React(ApplyDownwardGateProjectileRequestReactions, this);
     }
+
+    /// <summary>What <see cref="ApplyDownwardGateProjectileRequest"/> does on each <see cref="DownwardGateProjectileRequest"/>, built once (#2553).</summary>
+    private static DownwardGateProjectileRequestReactions<DownwardGateBehavior> ApplyDownwardGateProjectileRequestReactions { get; } = new(
+        DownwardGateProjectileSpawn: static (spawn, owner) => owner.SpawnDownwardGateProjectile(spawn),
+        DownwardGateProjectileWake: static (wake, owner) => owner.WakeDownwardGateProjectile(wake.RoomObjectBlock));
 
     /// <summary>Allocates a gate actor at its room object's block and ties it to its gate's block for waking.</summary>
     private void SpawnDownwardGateProjectile(
         DownwardGateProjectileSpawn request)
     {
-        RoomEnemyProjectileKind kind = request.Kind switch
-        {
-            DownwardGateProjectileKind.Closed => RoomEnemyProjectileKind.DownwardGateClosed,
-            DownwardGateProjectileKind.Moving => RoomEnemyProjectileKind.DownwardGateMoving,
-            _ => throw new InvalidDataException($"Downward gate requested undefined projectile {request.Kind}."),
-        };
+        RoomEnemyProjectileKind kind = request.Kind == DownwardGateProjectileKind.Closed
+            ? RoomEnemyProjectileKind.DownwardGateClosed
+            // The remaining member, DownwardGateProjectileKind.Moving.
+            : RoomEnemyProjectileKind.DownwardGateMoving;
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, Gate, graphics: SpriteGraphics.SharedStandard);
+        bool closed = request.Kind == DownwardGateProjectileKind.Closed;
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, Gate, graphics: SpriteGraphics.SharedStandard,
+            new DownwardGateProjectileAnimation(Gate, closed ? DownwardGateProjectileSegment.Closed : DownwardGateProjectileSegment.Moving));
         if (projectile is null)
             return; // The projectile spawn's deliberate finite-pool failure.
 
-        bool closed = request.Kind == DownwardGateProjectileKind.Closed;
-        projectile.StartAnimation(new DownwardGateProjectileAnimation(Gate, closed
-            ? DownwardGateProjectileSegment.Closed
-            : DownwardGateProjectileSegment.Moving));
         int blockX = request.RoomObjectBlock.X;
         int blockY = request.RoomObjectBlock.Y;
         projectile.Position = projectile.Position.WithWhole(new(
@@ -114,33 +104,36 @@ internal sealed partial class DownwardGateBehavior
     private static void AdvanceDownwardGateStage(GateBehavior owner, EnemyProjectile projectile)
     {
         DownwardGateState gate = owner.Gates.Of(projectile);
-        gate.Stage = DownwardGateProjectileAnimations.NextStage.TryGetValue(gate.Stage, out DownwardGateProjectileSegment next)
-            ? next
-            : throw new InvalidOperationException($"A downward gate at stage {gate.Stage} has no stage to go on to.");
+        gate.Stage = DownwardGateProjectileAnimations.NextStage[gate.Stage];
         projectile.StartAnimation(new DownwardGateProjectileAnimation(owner, gate.Stage));
     }
+
+    /// <summary>What <see cref="ApplyDownwardGateCue"/> does for each <see cref="DownwardGateProjectileCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<DownwardGateProjectileCueKind, Action<GateBehavior, EnemyProjectile>> ApplyDownwardGateCueForDownwardGateProjectileCueKind => field ??= new(new Dictionary<DownwardGateProjectileCueKind, Action<GateBehavior, EnemyProjectile>>
+    {
+        [DownwardGateProjectileCueKind.StartSliding] = static (owner, projectile) => owner.StartMoving(projectile),
+        [DownwardGateProjectileCueKind.StopSliding] = static (owner, projectile) => projectile.HoldStill(),
+        [DownwardGateProjectileCueKind.Delete] = static (owner, projectile) => projectile.Delete(),
+    });
 
     /// <summary>Carries out one cue of the gate's animations.</summary>
     private static void ApplyDownwardGateCue(GateBehavior owner, EnemyProjectile projectile, DownwardGateProjectileCue cue)
     {
-        switch (cue)
-        {
-            case DownwardGateProjectileCue.SetYVelocity setYVelocity:
-                projectile.Velocity = projectile.Velocity.WithY(setYVelocity.YVelocity);
-                break;
-            case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.StartSliding }:
-                owner.StartMoving(projectile);
-                break;
-            case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.StopSliding }:
-                projectile.HoldStill();
-                break;
-            case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.Delete }:
-                projectile.Delete();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DownwardGateProjectileCueKind)} {cue}.");
-        }
+        cue.React(ApplyDownwardGateCueReactions, new ApplyDownwardGateCueContext(projectile, owner));
     }
+
+    /// <summary>What <see cref="ApplyDownwardGateCue"/> does on each <see cref="DownwardGateProjectileCue"/>, built once (#2553).</summary>
+    private static DownwardGateProjectileCueReactions<ApplyDownwardGateCueContext> ApplyDownwardGateCueReactions { get; } = new(
+        SetYVelocity: static (setYVelocity, context) => context.Projectile.Velocity = context.Projectile.Velocity.WithY(setYVelocity.YVelocity),
+        Signal: static (signal, context) =>
+        {
+            ApplyDownwardGateCueForDownwardGateProjectileCueKind[signal.Kind](context.Owner, context.Projectile);
+        });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Projectile">The projectile the cases read.</param>
+    /// <param name="Owner">The owner the cases read.</param>
+    private readonly record struct ApplyDownwardGateCueContext(EnemyProjectile Projectile, GateBehavior Owner);
 
     /// <summary>A downward gate, moving or closed (#1760).</summary>
     internal GateBehavior Gate { get; } = new();

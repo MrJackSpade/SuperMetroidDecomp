@@ -17,5 +17,5 @@ internal sealed partial class EyeDoorSweatAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<EyeDoorSweatSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments => EyeDoorSweatAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<EyeDoorSweatSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments => EyeDoorSweatAnimations.Segments;
 }

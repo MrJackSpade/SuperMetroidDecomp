@@ -25,12 +25,12 @@ internal static class ProjectilePresentationContractChecks
             using SuperMetroid.Core.Samus.Poses;
             using SuperMetroid.Core.Samus.Projectiles;
             class ProjectileConsumer {
-                void Inspect(ChargeFlarePlacements placement,
+                void Inspect(ChargeFlarePlacements placement, BeamFlarePlacements beam,
                     ChargeFlareSprites flare, InstalledProjectileTrails trails,
                     InstalledProjectileFrameBindings bindings, InstalledGrappleSprites grapple,
                     InstalledGrappleSwingFrames swing, InstalledProjectileSprites sprites, SuperMetroid.Core.Assets.ScreenSprites oam) {
-                    placement.Resolve(false, new SamusFlareAim.WhileTurning(SamusTurningAim.Down));
-                    placement.Resolve(true, new SamusFlareAim.AtMuzzle(SamusProjectileDirection.UpFacingLeft));
+                    beam.WhileTurning(SamusTurningAim.Down);
+                    placement.AtMuzzle(true, SamusProjectileDirection.UpFacingLeft);
                     flare.Frame(ChargeFlareSpriteDefinitions.All[27]);
                     flare.Frame(new ProjectileSpriteId(ProjectileSpriteGroup.FlareFastSparksLeft, "SparksSeventh"));
                     trails.Resolve(ProjectileTrailFrame.IceSparkleClustered);

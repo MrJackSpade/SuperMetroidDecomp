@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 public sealed partial class PowampBalloonState
 {
     /// <summary>The balloon's inflate or sink animation and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<PowampSegment> Playback { get; set; }
+    internal AnimationPlayback<PowampBalloonSegment> Playback { get; set; }
 
     /// <summary>Where the balloon's inflate or sink sequence stands, recorded as the animation shows each pose.</summary>
     public PowampBalloonInflation Inflation { get; internal set; }

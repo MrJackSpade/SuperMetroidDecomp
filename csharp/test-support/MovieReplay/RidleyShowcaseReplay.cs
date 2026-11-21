@@ -301,9 +301,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             // loading its room/state data. The port keeps that identity in the pending
             // door while ActiveRoom still owns the source room's loaded data.
             ushort selectedRoom = game.DoorTransitionPhaseForVerification is
-                DoorTransitionPhase.AlignSourceCamera or DoorTransitionPhase.DestinationSetupWait or
-                DoorTransitionPhase.MoveToDoorScrollStart or
-                DoorTransitionPhase.PlaceSamusInDestination or DoorTransitionPhase.LoadDestinationRoom
+                DoorTransitionPhase.Running.AlignSourceCamera or DoorTransitionPhase.Running.DestinationSetupWait or
+                DoorTransitionPhase.Running.MoveToDoorScrollStart or
+                DoorTransitionPhase.Running.PlaceSamusInDestination or DoorTransitionPhase.Running.LoadDestinationRoom
                 ? RoomDefinitions.PointerOf((runtime.EnteredDoor ?? throw new InvalidDataException("Missing selected destination door")).DestinationRoom)
                 : runtime.Room.LoadedRoom.Pointer;
             Check("Selected room", selectedRoom, NativeSnapshotMemory.Room);
@@ -411,7 +411,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             }
             Check("Samus total horizontal speed", samus.HorizontalSpeed.TotalSpeed.Whole, NativeSnapshotMemory.TotalHorizontalSpeed);
             Check("Samus total horizontal fraction", samus.HorizontalSpeed.TotalSpeed.Fraction, NativeSnapshotMemory.TotalHorizontalSubspeed);
-            Check("Samus movement handler", samus.KnockbackActive
+            Check("Samus movement handler", samus.Knockback is SuperMetroid.Core.Samus.Movement.SamusKnockback.Moving
                 ? NativeSnapshotMemory.KnockbackMovementHandler : NativeSnapshotMemory.NormalMovementHandler,
                 NativeSnapshotMemory.SamusMovementHandler);
             // DoorTransitionState installs a locked pair to suppress host control, while
@@ -427,7 +427,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus health", SamusCountWords.Encode(samus.Health), NativeSnapshotMemory.Health);
             Check("Samus general Samus damage immunity countdown", samus.InvincibilityTimer.RawValue, NativeSnapshotMemory.InvincibilityTimer);
             Check("Samus Samus knockback countdown", samus.KnockbackHold.UpdatesLeft, NativeSnapshotMemory.KnockbackTimer);
-            Check("Samus Samus knockback direction", SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.KnockbackDirections.Word(samus.KnockbackDirection), NativeSnapshotMemory.KnockbackDirection);
+            Check("Samus Samus knockback direction", SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.KnockbackDirectionWord(samus.Knockback), NativeSnapshotMemory.KnockbackDirection);
             Check("Samus horizontal knockback direction", (ushort)samus.KnockbackXDirection, NativeSnapshotMemory.KnockbackXDirection);
             Check("Samus hurt palette/audio recovery countdown", checked((ushort)samus.HurtFlash.Count), NativeSnapshotMemory.HurtFlashCounter);
             Check("Samus fractional health word", checked((ushort)samus.EnergyFraction.Parts), NativeSnapshotMemory.SubunitHealth);
@@ -459,7 +459,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             bool nativeLoading = game.IsAt(DoorTransitionStep.Transitioning) &&
                 W(NativeSnapshotMemory.DoorFunction) is NativeSnapshotMemory.PlaceSamusLoadTiles or NativeSnapshotMemory.LoadMoreThings;
             bool portWaitingForScroll = game.DoorTransitionPhaseForVerification is
-                DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.AlignSamusWithDoorway;
+                DoorTransitionPhase.Running.WaitForDoorOpeningScroll or DoorTransitionPhase.Running.AlignSamusWithDoorway;
             bool deferLoadingOwners = nativeLoading && portWaitingForScroll;
             // Gameplay holds no colour image (#1512): its pictures show the import's colours under the shadings it publishes.
             ReadOnlySpan<RgbColor> comparedPalette = GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources);
@@ -474,7 +474,13 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             }
             // A door's fades are typed fades the port shows by their progress, not the shared counter's gradual steps
             // (#2289), so their colours are not the cartridge's while a fade runs; its completion, which gameplay sees, is.
-            bool doorFading = runtime.DoorFade.Stage is DoorFadeStage.FadingOut or DoorFadeStage.FadingIn;
+            // The source room fades out from the door's start until the fade's last step hands on to the door's display,
+            // and the destination fades in from its load until the transition completes.
+            bool doorFading = game.DoorTransitionPhaseForVerification is DoorTransitionPhase.Running.WaitForSoundQueues
+                or DoorTransitionPhase.Running.FadeOutSourceRoom or DoorTransitionPhase.Running.WaitForDoorOpeningScroll
+                or DoorTransitionPhase.Running.AlignSamusWithDoorway or DoorTransitionPhase.Running.StepDestinationBlockAnimations
+                or DoorTransitionPhase.Running.WaitForMusicQueue or DoorTransitionPhase.Running.FinishDoorOpeningScroll
+                or DoorTransitionPhase.Running.DrawFirstDestinationFrame or DoorTransitionPhase.Running.FadeInDestinationRoom;
             if (!deferLoadingOwners && !doorFading)
             foreach (int color in comparedColours)
             {
@@ -484,7 +490,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             }
             if (deferLoadingOwners)
             {
-                if (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.AlignSamusWithDoorway)
+                if (game.DoorTransitionPhaseForVerification is DoorTransitionPhase.Running.AlignSamusWithDoorway)
                     Check("Completed-scroll visor", GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources)[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex].ToWord(),
                         NativeSnapshotMemory.PaletteBuffer + XrayScopeDefinitionsPaletteConstants.VisorCgramIndex * 2);
                 ushort[] owners = CaptureLoadedOwners();
@@ -734,10 +740,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // This movie never places a bomb. Check every physical bomb slot and
                 // both activation owners so that absence is verified, not assumed from
                 // the aggregate counter or from ordinary beam/missile comparisons.
-                foreach (var bomb in runtime.BombProjectiles.Bombs)
+                // The bombs are listed in place order.
+                for (int place = 0; place < runtime.BombProjectiles.Bombs.Count; place++)
                 {
-                    int address = NativeSnapshotMemory.ProjectileType + (bomb.Place + 5) * 2;
-                    VerificationAssertions.AssertTrue(!bomb.IsOccupied, $"Bomb place {bomb.Place} holds no bomb");
+                    SamusBomb bomb = runtime.BombProjectiles.Bombs[place];
+                    int address = NativeSnapshotMemory.ProjectileType + (place + 5) * 2;
+                    VerificationAssertions.AssertTrue(!bomb.IsOccupied, $"Bomb place {place} holds no bomb");
                     VerificationAssertions.AssertTrue(W(address) == 0,
                         "Movie now activates a bomb slot; add its full live-state mapping");
                 }

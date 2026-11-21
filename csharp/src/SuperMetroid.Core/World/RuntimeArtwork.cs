@@ -84,7 +84,7 @@ internal sealed partial class RuntimeArtwork
     }
 
     /// <summary>Installed visual-only charge-flare offsets selected by pose movement and direction.</summary>
-    public ChargeFlarePlacements ChargeFlarePlacement { get; set; }
+    public BeamFlarePlacements ChargeFlarePlacement { get; set; }
 
     /// <summary>Current Grapple flare offsets.</summary>
     public ChargeFlarePlacements GrappleFlarePlacement

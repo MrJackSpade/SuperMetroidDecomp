@@ -10,7 +10,7 @@ internal static partial class IntroNarrationAnimations
 {
     /// <summary>The caret's and the next-page arrow's animations.</summary>
     internal static CinematicAnimations<IntroNarrationAnimation, CinematicSpritePose, NoAnimationCue> Narration { get; } = new(
-        new Dictionary<IntroNarrationAnimation, AnimationBeat<CinematicSpritePose, NoAnimationCue>[]>
+        new Dictionary<IntroNarrationAnimation, IHidingAnimationBeat<CinematicSpritePose, NoAnimationCue>[]>
         {
             [A.Caret] = [B.Hold(S.CaretVisible)],
             [A.CaretBlinking] =

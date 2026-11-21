@@ -16,5 +16,5 @@ internal sealed partial class MotherBrainEffectAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments => MotherBrainEffectAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments => MotherBrainEffectAnimations.Segments;
 }

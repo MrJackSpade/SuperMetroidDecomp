@@ -59,7 +59,7 @@ internal static class ScreenTilePicturesVerification
                     && (added.GlowsOver is null) == (math == AreaMapBackgroundGlow.WholeScreen),
                     $"{shownArea} world map shows its foreground and its background glowing over it ({math})");
             }
-            var room = new FileSelectRoomMapGraphics(explored, shownArea, screenContent: maps, sheets: sheets);
+            var room = new FileSelectRoomMapGraphics(explored, SuperMetroid.Verification.Harness.VerificationZebesAreas.Of(shownArea), screenContent: maps, sheets: sheets);
             LayeredScene roomScene = room.ComposeScene();
             // A cell whose picture the room-map sheet holds as showing nothing draws nothing (#1513); every other cell shows
             // its installed picture.

@@ -62,10 +62,9 @@ internal sealed partial class KraidBackground
     /// <summary>Emits a ceiling rock at the scripted horizontal position when a projectile place is free.</summary>
     internal void SpawnKraidCeilingRock(int xPosition)
     {
-        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KraidCeilingRock, Rocks, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
+        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KraidCeilingRock, Rocks, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading), new KraidRockAnimation(Rocks, KraidRockSegment.SharedPose));
         if (rock is null)
             return;
-        rock.StartAnimation(new KraidRockAnimation(Rocks, KraidRockSegment.SharedPose));
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, KraidArenaDefinitions.CeilingRockY));
         rock.Velocity = rock.Velocity.WithX(SignedEightEight.Zero);
         rock.Velocity = rock.Velocity.WithY(KraidRandomDefinitions.CeilingRockFallSpeed.Of(_access.ReadKraidRandomNumber()));

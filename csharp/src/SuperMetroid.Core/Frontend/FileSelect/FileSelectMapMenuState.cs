@@ -27,6 +27,9 @@ public sealed partial class FileSelectMapMenuState : IMenuFrontendScreen, ICompo
     private readonly AudioQueues audio;
     /// <summary>Saved Zebes area; Ceres bypasses this menu.</summary>
     private readonly AreaId area;
+
+    /// <summary>The saved area as the Zebes area it is, whose window and navigation the menu runs.</summary>
+    private readonly ZebesArea zebesArea;
     /// <summary>The selected save's progress: its used stations label the area map's areas.</summary>
     private readonly PersistentProgress savedProgress;
     /// <summary>Renders the six-area selection view during entry and area navigation.</summary>
@@ -46,7 +49,7 @@ public sealed partial class FileSelectMapMenuState : IMenuFrontendScreen, ICompo
     /// and its marker, so the frame shows them; the room map's first update, which began as the room was set up, shows
     /// neither, and the update that leaves the room map for a load or a return still shows both.
     /// </summary>
-    private FileSelectMapNavigationPhase lastUpdateBeganIn = FileSelectMapNavigationPhase.EnteringArea;
+    private FileSelectMapNavigationPhase lastUpdateBeganIn = FileSelectMapNavigationPhase.Area;
     /// <summary>Reads latched input and owns area/room navigation phases.</summary>
     private readonly FileSelectMapNavigation navigation;
     /// <summary>Owns the initial reveal and fade before navigation can consume input.</summary>
@@ -76,7 +79,7 @@ public sealed partial class FileSelectMapMenuState : IMenuFrontendScreen, ICompo
     {
         this.audio = Ensure.NotNull(audio);
         Ensure.NotNull(slot);
-        if (!AreaIds.IsZebes(slot.Checkpoint.Area))
+        if (!AreaIds.IsZebes(slot.Checkpoint.Area, out zebesArea))
             throw new ArgumentOutOfRangeException(nameof(slot), "Ceres does not use the Zebes save-selection map.");
         area = slot.Checkpoint.Area;
         station = slot.Checkpoint;
@@ -86,17 +89,23 @@ public sealed partial class FileSelectMapMenuState : IMenuFrontendScreen, ICompo
         Ensure.NotNull(screenContent);
         InstalledSpriteSheets sheets = Ensure.NotNull(spriteSheets);
         areaGraphics = new FileSelectAreaMapGraphics(area, screenContent, sheets);
-        roomGraphics = new FileSelectRoomMapGraphics(system, area, screenContent, sheets);
+        roomGraphics = new FileSelectRoomMapGraphics(system, zebesArea, screenContent, sheets);
         InstalledScreenContent = screenContent;
         Scroll = CreateScrollForCurrentContent();
         marker = new FileSelectStationMarker(station, screenContent.Maps.SaveMarkers);
-        navigation = new FileSelectMapNavigation(area, screenContent.Maps.Labels, initialHeldInput);
+        navigation = new FileSelectMapNavigation(zebesArea, screenContent.Maps.Labels, initialHeldInput);
         animations = new FileSelectMapAnimations(screenContent.Maps.Arrows, screenContent.Maps.HighlightCycle);
         entry = new FileSelectMapEntry();
     }
 
-    /// <summary>Current public navigation phase, reporting EnteringArea until the separately owned initial reveal/fade completes, then exposing the navigation owner's phase.</summary>
-    public FileSelectMapNavigationPhase Phase => entry.IsComplete ? navigation.Phase : FileSelectMapNavigationPhase.EnteringArea;
+    /// <summary>
+    /// The navigation owner's phase (#2553); the area map's own entry, its reveal and fade, runs before navigation does
+    /// (<see cref="IsEnteringArea"/>), the navigation then resting in <see cref="FileSelectMapNavigationPhase.Area"/>.
+    /// </summary>
+    public FileSelectMapNavigationPhase Phase => navigation.Phase;
+
+    /// <summary>Whether the area map's own entry, its reveal and fade, is still running before navigation begins.</summary>
+    public bool IsEnteringArea => !entry.IsComplete;
     /// <summary>
     /// How the map hands off to its host (#2562): its load or its options, kept once it reaches one; absent while the map
     /// runs, before it has reached either (#2587).
@@ -126,6 +135,48 @@ public sealed partial class FileSelectMapMenuState : IMenuFrontendScreen, ICompo
         return MapScroll.Centred(MapFramingDefinitions.FileSelect,
             MapScrollLimits.OfRevealedPlane(catalog.Get(area), roomGraphics.MapSystem), anchor);
     }
+
+    /// <summary>What <c>Step</c> does for each <see cref="FileSelectMapNavigationPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<FileSelectMapNavigationPhase, Action> StepForFileSelectMapNavigationPhase => field ??= new(new Dictionary<FileSelectMapNavigationPhase, Action>
+    {
+        [FileSelectMapNavigationPhase.AreaReturnRequested] = () =>
+        {
+            if (!requestWait.Step()) return;
+            if (returnWindow is null)
+            {
+                returnWindow = FileSelectMapWindow.CreateReturn(zebesArea, InstalledScreenContent.Maps.Labels);
+                Queue(SamusSound.MapReturn);
+            }
+            else if (returnWindow.Step())
+            {
+                navigation.CompleteAreaReturn();
+                returnWindow = null;
+            }
+        },
+        [FileSelectMapNavigationPhase.OptionsRequested] = () =>
+        {
+            if (fade.Darken())
+                Outcome = FileSelectMapOutcome.Options;
+        },
+        [FileSelectMapNavigationPhase.LoadRequested] = () =>
+        {
+            requestWait.Step();
+            if (requestWait.Age <= FileSelectMapDefinitions.LoadPreludeFrames) return;
+            if (!fade.IsBlack)
+            {
+                fade.StepDarker();
+                return;
+            }
+            if (requestWait.IsOver)
+                Outcome = FileSelectMapOutcome.Load;
+        },
+        // Navigation itself advances these phases; no menu countdown runs.
+        [FileSelectMapNavigationPhase.Area] = static () => { },
+        [FileSelectMapNavigationPhase.PreparingWindow] = static () => { },
+        [FileSelectMapNavigationPhase.ExpandingWindow] = static () => { },
+        [FileSelectMapNavigationPhase.InitializingRoom] = static () => { },
+        [FileSelectMapNavigationPhase.Room] = static () => { },
+    });
 
     /// <summary>Advances one menu update, retaining input latching during entry and the game's ordering of icon and colour animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
     /// <param name="input">Current held controller buttons; edge reading is owned by navigation, not by rendering.</param>
@@ -170,47 +221,7 @@ public sealed partial class FileSelectMapMenuState : IMenuFrontendScreen, ICompo
             }
             return;
         }
-        switch (Phase)
-        {
-            case FileSelectMapNavigationPhase.AreaReturnRequested:
-                if (!requestWait.Step()) break;
-                if (returnWindow is null)
-                {
-                    returnWindow = FileSelectMapWindow.CreateReturn(area, InstalledScreenContent.Maps.Labels);
-                    Queue(SamusSound.MapReturn);
-                }
-                else if (returnWindow.Step())
-                {
-                    navigation.CompleteAreaReturn();
-                    returnWindow = null;
-                }
-                break;
-            case FileSelectMapNavigationPhase.OptionsRequested:
-                if (fade.Darken())
-                    Outcome = FileSelectMapOutcome.Options;
-                break;
-            case FileSelectMapNavigationPhase.LoadRequested:
-                requestWait.Step();
-                if (requestWait.Age <= FileSelectMapDefinitions.LoadPreludeFrames) break;
-                if (!fade.IsBlack)
-                {
-                    fade.StepDarker();
-                    break;
-                }
-                if (requestWait.IsOver)
-                    Outcome = FileSelectMapOutcome.Load;
-                break;
-            // Navigation itself advances these phases; no menu countdown runs.
-            case FileSelectMapNavigationPhase.Area:
-            case FileSelectMapNavigationPhase.PreparingWindow:
-            case FileSelectMapNavigationPhase.ExpandingWindow:
-            case FileSelectMapNavigationPhase.InitializingRoom:
-            case FileSelectMapNavigationPhase.Room:
-            case FileSelectMapNavigationPhase.EnteringArea:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined file-select map phase {Phase}.");
-        }
+        StepForFileSelectMapNavigationPhase[Phase]();
     }
 
     /// <summary>Requests a menu sound at normal priority.</summary>
@@ -243,9 +254,10 @@ public sealed partial class FileSelectMapMenuState : IMenuFrontendScreen, ICompo
                     FileSelectMapDefinitions.EntryWindowRight + 1, ScreenGeometry.ScreenHeightPixels - FileSelectMapDefinitions.EntryWindowTop),
             FileSelectMapNavigationPhase.AreaReturnRequested when returnWindow is not null => Window(Area(), Frame(), returnWindow),
             FileSelectMapNavigationPhase.AreaReturnRequested => Frame(),
+            // The area map, the window's preparation and the request for the options show the area.
             FileSelectMapNavigationPhase.Area or FileSelectMapNavigationPhase.PreparingWindow or
-                FileSelectMapNavigationPhase.OptionsRequested or FileSelectMapNavigationPhase.EnteringArea => Area(),
-            _ => throw new InvalidOperationException($"Undefined file-select map phase {Phase}."),
+                FileSelectMapNavigationPhase.OptionsRequested => Area(),
+            _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectMapNavigationPhase)} {Phase}."),
         };
         return new(scene.Paint, scene.Layers, fade.Level);
     }

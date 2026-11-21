@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -24,13 +25,31 @@ internal static partial class SamusProjectilePlayback
     /// frame once the shown one has held its updates, or null while it holds, while a still picture is kept and on the
     /// update the animation ends (<see cref="AnimationPlayer{TSegment, TFrame, TEvent}.HasStopped"/>).
     /// </summary>
-    /// <exception cref="InvalidOperationException">The animation comes to rest showing no frame, which no projectile animation does.</exception>
-    internal static SamusProjectileFrameId? StepToNewFrame(AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation)
+    internal static SamusProjectileFrameId? StepToNewFrame(AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation) =>
+        Ensure.NotNull(animation).StepToNewFrame();
+
+    /// <summary>
+    /// Plays a shot's or a bomb's <paramref name="animation"/> one update on: each frame it shows anew publishes its picture
+    /// and radius through <paramref name="show"/>, a projectile showing a still picture keeps it, and an animation that
+    /// ends deletes its projectile through <paramref name="delete"/>.
+    /// </summary>
+    /// <param name="animation">The projectile's animation.</param>
+    /// <param name="frames">The installed pictures of the projectiles' frames.</param>
+    /// <param name="show">Publishes the picture and the radius of the frame shown anew.</param>
+    /// <param name="delete">Deletes the projectile.</param>
+    internal static void PlayOn(
+        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation,
+        InstalledProjectileFrameBindings frames,
+        Action<ProjectileSpriteId?, Extent16<RoomPixels>> show,
+        Action delete)
     {
-        SamusProjectileFrameId? shown = Ensure.NotNull(animation).StepToNewFrame();
-        if (animation.IsResting && !animation.HasStopped && animation.Shown is null)
-            throw new InvalidOperationException($"Samus projectile animation at {BeatOf(animation.Playback)} came to rest showing no frame.");
-        return shown;
+        Ensure.NotNull(frames);
+        Ensure.NotNull(show);
+        Ensure.NotNull(delete);
+        if (StepToNewFrame(animation) is { } frame)
+            show(frames.Resolve(frame), SamusProjectileFrameDefinitions.Radius(frame));
+        else if (animation.HasStopped)
+            delete();
     }
 
     /// <summary>
@@ -62,13 +81,23 @@ internal static partial class SamusProjectilePlayback
     /// The hitbox a freshly selected animation declares through its first step, as the setups' reads of the animation's
     /// radii see it; a projectile with no animation (the safe left-facing Murder Beam) reads zero.
     /// </summary>
-    internal static Extent16<RoomPixels> InitialRadius(SamusProjectileSegment? segment)
+    internal static Extent16<RoomPixels> InitialRadius(SamusProjectileSegment? segment) =>
+        segment is { } selected ? OpeningRadii[selected] : Extent16<RoomPixels>.Zero;
+
+    /// <summary>
+    /// The hitbox each animation declares through its first step, read once from every animation as they are built, so an
+    /// animation that does not open with a frame fails there and no selection checks again (#2553).
+    /// </summary>
+    private static Dictionary<SamusProjectileSegment, Extent16<RoomPixels>> OpeningRadii { get; } =
+        SamusProjectileAnimations.StartingAt.ToDictionary(entry => entry.Key, entry => OpeningRadius(entry.Key, entry.Value));
+
+    /// <summary>The hitbox <paramref name="animation"/>, the one starting at <paramref name="segment"/>, declares through its first step.</summary>
+    /// <exception cref="InvalidDataException">The animation does not open with a frame.</exception>
+    private static Extent16<RoomPixels> OpeningRadius(SamusProjectileSegment segment, Animation<SamusProjectileSegment> animation)
     {
-        if (segment is not { } selected)
-            return Extent16<RoomPixels>.Zero;
-        AnimationPhase<SamusProjectileSegment> first = SamusProjectileAnimations.StartingWith(selected).Phases[0];
+        AnimationPhase<SamusProjectileSegment> first = animation.Phases[0];
         if (SamusProjectileAnimations.Segments.Beats(first.Segment)[first.FirstBeat].ShownFrame is not { } frame)
-            throw new InvalidDataException($"Samus projectile animation {selected} does not open with a frame.");
+            throw new InvalidDataException($"Samus projectile animation {segment} does not open with a frame.");
         return SamusProjectileFrameDefinitions.Radius(frame);
     }
 }

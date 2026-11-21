@@ -48,7 +48,6 @@ public sealed partial record ScrollingSkyLayer(int CameraRow, ImmutableArray<Sho
     /// <exception cref="ArgumentException">The bands overlap or are out of order.</exception>
     private static ImmutableArray<ShownSkyBand> RequireTopDown(ImmutableArray<ShownSkyBand> bands)
     {
-        if (bands.IsDefault) return [];
         for (int index = 1; index < bands.Length; index++)
             if (bands[index].FirstRow < bands[index - 1].EndRow)
                 throw new ArgumentException("Each sky band begins at or below the end of the one before it.", nameof(bands));

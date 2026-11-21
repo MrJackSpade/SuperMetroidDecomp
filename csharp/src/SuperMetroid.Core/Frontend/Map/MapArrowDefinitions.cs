@@ -4,12 +4,12 @@ namespace SuperMetroid.Core.Frontend.Map;
 public static partial class MapArrowDefinitions
 {
     /// <summary>Each scroll direction's arrow picture.</summary>
-    internal static readonly IReadOnlyDictionary<MapScrollDirection, MapSpriteId> ArrowPictures =
-        new Dictionary<MapScrollDirection, MapSpriteId>
+    internal static readonly IdentityTable<MapScrollDirection, MapSpriteId> ArrowPictures =
+        new(new Dictionary<MapScrollDirection, MapSpriteId>
         {
             [MapScrollDirection.Left] = MapSpriteId.ArrowLeft,
             [MapScrollDirection.Right] = MapSpriteId.ArrowRight,
             [MapScrollDirection.Up] = MapSpriteId.ArrowUp,
             [MapScrollDirection.Down] = MapSpriteId.ArrowDown,
-        };
+        });
 }

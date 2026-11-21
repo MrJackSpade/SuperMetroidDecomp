@@ -19,15 +19,6 @@ internal sealed partial class KraidBodyEntity(KraidBehavior species, RoomEnemyOc
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunKraidMainAi(Occupant, Encounter, frame);
 
-    /// <summary>
-    /// The shared Power Bomb reaction; Kraid's body leaves the blast to the species, which has no reaction to it, and fails
-    /// loudly if a blast reaches him.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The body's definition leaves the blast to the species.</exception>
-    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies
-        ? throw new InvalidDataException($"Enemy {Place.Occupant?.DefinitionId} has no response to its own Power Bomb reaction.")
-        : base.PowerBombReaction;
-
     /// <summary>Only shots meet Kraid's body's frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities => EnemyCapabilities.ProjectileFrameHitboxes;
 }

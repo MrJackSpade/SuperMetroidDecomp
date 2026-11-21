@@ -50,7 +50,5 @@ public readonly partial record struct CollectiblePicture(InWorldCollectibleKind 
         : throw new ArgumentOutOfRangeException(nameof(Kind), Kind, "The collectible's picture is a block the room loads, not its own.");
 
     /// <summary>The look.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The look is undefined.</exception>
-    public CollectibleLook Look { get; } = Enum.IsDefined(Look) ? Look
-        : throw new ArgumentOutOfRangeException(nameof(Look), Look, "Undefined collectible look.");
+    public CollectibleLook Look { get; } = Look;
 }

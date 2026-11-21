@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal static partial class CrawlerAnimationDefinitions
 {
     /// <summary>Each <see cref="CrawlerAnimationFamily"/>'s animations for the four surfaces.</summary>
-    internal static readonly Dictionary<CrawlerAnimationFamily, CrawlerAnimationDefinition> Families = new()
+    internal static readonly IdentityTable<CrawlerAnimationFamily, CrawlerAnimationDefinition> Families = new(new Dictionary<CrawlerAnimationFamily, CrawlerAnimationDefinition>
     {
         [CrawlerAnimationFamily.Shared] = new(
             CrawlerSegment.SpinyCrawlerOnLeftWall,
@@ -26,5 +26,5 @@ internal static partial class CrawlerAnimationDefinitions
             CrawlerSegment.ZeroOnRightWall,
             CrawlerSegment.ZeroOnCeiling,
             CrawlerSegment.ZeroOnFloor),
-    };
+    });
 }

@@ -15,5 +15,5 @@ internal sealed partial class CacatacProjectileAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<CacatacSpikeDirection, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => CacatacProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<CacatacSpikeDirection, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => CacatacProjectileAnimations.Segments;
 }

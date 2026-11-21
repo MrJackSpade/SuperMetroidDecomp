@@ -36,16 +36,15 @@ internal static class MamaTurtleShellContourVerification
             int index = difference < 0
                 ? distance + MamaTurtleShellContourDefinitions.HalfWidth
                 : distance;
-            AssertEqual(MamaTurtleShellContourDefinitions.GetRawOffset(index),
-                MamaTurtleShell.GetOffset(difference),
+            AssertTrue(MamaTurtleShell.TryGetSurface(difference, out int surface),
+                $"Mama Turtle shell stands over difference {difference}");
+            AssertEqual(MamaTurtleShellContourDefinitions.GetRawOffset(index), surface,
                 $"Mama Turtle shell contour direction/index for difference {difference}");
         }
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => MamaTurtleShell.GetOffset(-24),
-            "Mama Turtle shell contour rejects left distance twenty-four");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => MamaTurtleShell.GetOffset(24),
-            "Mama Turtle shell contour rejects right distance twenty-four");
+        AssertTrue(!MamaTurtleShell.TryGetSurface(-24, out _),
+            "Mama Turtle shell stands over no actor at left distance twenty-four");
+        AssertTrue(!MamaTurtleShell.TryGetSurface(24, out _),
+            "Mama Turtle shell stands over no actor at right distance twenty-four");
 
         var mama = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0)) };
@@ -70,7 +69,7 @@ internal static class MamaTurtleShellContourVerification
             }
             else
             {
-                int offset = MamaTurtleShell.GetOffset(difference);
+                AssertTrue(MamaTurtleShell.TryGetSurface(difference, out int offset), $"sleeping Mama's shell stands over {difference}");
                 AssertEqual(unchecked((ushort)-offset), mama.Radius.Y,
                     $"sleeping Mama production radius at difference {difference}");
                 AssertTrue(mama.Contact.HasAny(EnemyContact.SolidToSamus),

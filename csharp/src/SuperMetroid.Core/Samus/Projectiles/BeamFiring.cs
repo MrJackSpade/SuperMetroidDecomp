@@ -59,12 +59,11 @@ internal sealed partial class BeamFiring
 
     /// <summary>Handles held Shoot, release, pose-transition release, Hyper Beam, and special attack timing.</summary>
     internal BeamFiringResult HandleBeamInput(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
         GameplayAction controllerInput,
         GameplayAction controllerNewInput,
-        SamusBombProjectileSystem samusBombs,
-        ISamusRoomObjects roomObjects)
+        SamusBombProjectileSystem samusBombs)
     {
         const GameplayAction shoot = GameplayAction.Shoot;
         _charge.PreviousCharge = _charge.Level;
@@ -74,7 +73,7 @@ internal sealed partial class BeamFiring
         if (samus.HyperBeamEnabled)
         {
             SoundEffectId? sound = (controllerInput & shoot) != GameplayAction.None
-                ? TryFireHyperBeam(level, samus, samusBombs, roomObjects)?.Sound
+                ? TryFireHyperBeam(terrain, samus, samusBombs)?.Sound
                 : null;
             return BeamFiringResult.Of(sound, SoundRequestPriority.Essential);
         }
@@ -87,11 +86,10 @@ internal sealed partial class BeamFiring
             _charge.ClearFlare();
             SoundEffectId? sound = held
                 ? TryFireBeam(
-                    level,
+                    terrain,
                     samus,
                     controllerNewInput,
                     samusBombs,
-                    roomObjects,
                     charged: false)?.Sound
                 : null;
             return BeamFiringResult.Of(sound, SoundRequestPriority.Essential);
@@ -108,11 +106,10 @@ internal sealed partial class BeamFiring
             _charge.ClearCount();
             _charge.ClearFlare();
             return CompleteBeamRelease(samus, TryFireBeam(
-                level,
+                terrain,
                 samus,
                 controllerNewInput,
                 samusBombs,
-                roomObjects,
                 charged: forcedChargedRelease));
         }
 
@@ -128,11 +125,10 @@ internal sealed partial class BeamFiring
                 {
                     _charge.ClearFlare();
                     SoundEffectId? sound = TryFireBeam(
-                        level,
+                        terrain,
                         samus,
                         controllerNewInput,
                         samusBombs,
-                        roomObjects,
                         charged: false)?.Sound;
                     return BeamFiringResult.Of(sound, SoundRequestPriority.Essential);
                 }
@@ -165,11 +161,10 @@ internal sealed partial class BeamFiring
         _charge.ClearCount();
         _charge.ClearFlare();
         return CompleteBeamRelease(samus, TryFireBeam(
-            level,
+            terrain,
             samus,
             controllerNewInput,
             samusBombs,
-            roomObjects,
             charged: releaseCharged));
     }
 
@@ -200,11 +195,10 @@ internal sealed partial class BeamFiring
 
     /// <summary>Attempts allocation and muzzle setup for an ordinary or charged beam shot.</summary>
     internal BeamShot? TryFireBeam(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
         GameplayAction controllerNewInput,
         SamusBombProjectileSystem samusBombs,
-        ISamusRoomObjects roomObjects,
         bool charged)
     {
         const GameplayAction shoot = GameplayAction.Shoot;
@@ -287,18 +281,15 @@ internal sealed partial class BeamFiring
         // initial speed. This is what lets a muzzle already overlapping a door cap trigger
         // its shot reaction instead of moving its leading edge beyond the cap.
         bool initialImpact = _terrainCollision.RunInitialBeamCollision(
-            level,
+            terrain,
             held,
-            roomObjects,
             waveBeam: beamType.HasWave);
         if (!initialImpact)
         {
             // The shot's behaviour starts only after muzzle collision, and each combination names its own, the Spazer
             // and Plasma ones included, apart from the Wave component. A Spazer and Plasma combination whose shots'
             // effect lies outside the emulation scope limit (UnauthoredBeamShotBehaviors) is refused here (#1500).
-            SamusShotBehavior behavior = SamusBeamShotBehaviors.Resolve(charged, beamType);
-            behavior.AdmitFiring();
-            held.Install(behavior, kindState: null);
+            SamusBeamShotBehaviors.Resolve(charged, beamType).Fire(held);
             InitializePowerBeamVelocity(samus.ProjectileInheritance, held, _unauthoredFiring);
         }
         return new BeamShot(sound);
@@ -306,10 +297,9 @@ internal sealed partial class BeamFiring
 
     /// <summary>Allocates charged-Plasma art with Hyper damage, Wave collision, and the Hyper Beam's cooldown (<see cref="SamusProjectileCooldownDefinitions.HyperBeamShot"/>).</summary>
     internal BeamShot? TryFireHyperBeam(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        SamusBombProjectileSystem samusBombs,
-        ISamusRoomObjects roomObjects)
+        SamusBombProjectileSystem samusBombs)
     {
         // Admission is shared with normal beams: a full shot count and a running cooldown reject firing before any
         // projectile is created.
@@ -354,9 +344,8 @@ internal sealed partial class BeamFiring
         // shootable-block reactions but, like every Wave family, is not stopped by solid blocks and
         // survives to receive its normal movement state.
         _ = _terrainCollision.RunInitialBeamCollision(
-            level,
+            terrain,
             held,
-            roomObjects,
             waveBeam: true);
         held.Install(SamusShotBehaviors.HyperBeam, kindState: null);
         InitializePowerBeamVelocity(samus.ProjectileInheritance, held, _unauthoredFiring);
@@ -411,7 +400,7 @@ internal sealed partial class BeamFiring
         // The selected HUD item chose the missile family above; the family selects the projectile kind, whose damage the
         // missile deals.
         SamusProjectileType firedType = SamusProjectileType.Of(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
-        SamusProjectileKind kind = SamusProjectileSelection.NonBeam(firedType.Family);
+        SamusProjectileKind kind = SamusProjectileSelection.Missile(isSuperMissile);
         SamusProjectileOccupant held = _pool.Occupy(place, firedType, SamusProjectileDamage.Read(kind));
         held.Direction = aim;
 

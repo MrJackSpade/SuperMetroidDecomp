@@ -9,11 +9,13 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 internal sealed partial class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Atomic];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Atomic], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new AtomicEntity(occupant, place, common));
-
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new AtomicEntity(occupant, place, common));
 
     /// <summary>Initializes the Atomic.</summary>
     internal static void InitializeAtomic(RoomEnemyOccupant occupant, RoomEnemyPlace place)
@@ -47,7 +49,6 @@ internal sealed partial class AtomicBehavior : IEnemySpecies, IEnemyEntityFactor
 
     /// <summary>Advances Atomic's typed animation.</summary>
     internal static void AdvanceAtomicTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, AtomicAnimations.Segments,
-            static (AtomicEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free Atomic animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, AtomicAnimations.Segments,
+            static (AtomicEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 }

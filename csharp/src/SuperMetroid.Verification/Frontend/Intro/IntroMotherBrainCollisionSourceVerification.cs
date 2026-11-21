@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -16,7 +17,9 @@ internal static class IntroMotherBrainCollisionSourceVerification
     internal static RoomCollisionType[] VerifyIntroMotherBrainCollisionSource(IImportCartridgeSource rom)
     {
         byte[] native = RomDataReader.ReadFixedBank(rom, 0x8cbec3, 448);
-        RoomCollisionType[] actual = IntroMotherBrainCollision.CreateCollision();
+        var size = new Extent16<RoomBlocks>(IntroMotherBrainCollisionDefinitions.Columns, IntroMotherBrainCollisionDefinitions.RoomRows);
+        PlainTerrainBlock[] blocks = IntroMotherBrainCollision.CreateCollision();
+        RoomCollisionType[] actual = PlainTerrainCollision.Of(size, blocks);
         AssertEqual(16 * 16, actual.Length, "Mother Brain flashback room allocation");
         var expected = new RoomCollisionType[actual.Length];
         for (int index = 0; index < actual.Length; index++)
@@ -26,9 +29,9 @@ internal static class IntroMotherBrainCollisionSourceVerification
             expected[index] = RoomLevelWordCodec.Decode(word).Collision;
         }
         AssertTrue(actual.SequenceEqual(expected), "all 224 Mother Brain collision blocks match the decoded original");
-        actual.AsSpan().Fill(IntroMotherBrainCollisionDefinitions.Solid);
-        RoomCollisionType[] fresh = IntroMotherBrainCollision.CreateCollision();
-        AssertTrue(!ReferenceEquals(actual, fresh) && fresh.SequenceEqual(expected),
+        blocks.AsSpan().Fill(IntroMotherBrainCollisionDefinitions.Solid);
+        PlainTerrainBlock[] fresh = IntroMotherBrainCollision.CreateCollision();
+        AssertTrue(!ReferenceEquals(blocks, fresh) && PlainTerrainCollision.Of(size, fresh).SequenceEqual(expected),
             "collision room is built independently per flashback");
         return expected;
     }

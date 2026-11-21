@@ -264,7 +264,7 @@ internal static class ProjectileTrailCoordinatesVerification
         }
         else
         {
-            kinds.Add(SamusProjectileSelection.NonBeam(type.Family));
+            kinds.Add(SamusProjectileSelection.Missile(type.Family == SamusProjectileFamily.SuperMissile));
             if (type.Family == SamusProjectileFamily.SuperMissile)
                 kinds.Add(SamusProjectileKind.SuperMissileLink);
         }

@@ -14,17 +14,17 @@ public static partial class CeresShades
     /// The installed name of each colouring's shade (#2511), written out so renaming a colouring's identity never changes a
     /// name on disk.
     /// </summary>
-    private static readonly FrozenDictionary<CeresSpriteColouring, string> DrawnKeys =
-        new Dictionary<CeresSpriteColouring, string>
+    private static readonly IdentityTable<CeresSpriteColouring, string> DrawnKeys =
+        new(new Dictionary<CeresSpriteColouring, string>
         {
             [CeresSpriteColouring.SpaceObjects] = "CeresSpaceObjects",
             [CeresSpriteColouring.Station] = "CeresStation",
             [CeresSpriteColouring.Zebes] = "CeresZebes",
             [CeresSpriteColouring.ZebesTitle] = "CeresZebesTitle",
             [CeresSpriteColouring.Explosions] = "CeresExplosions",
-        }.ToFrozenDictionary();
+        });
 
     /// <summary>A Ceres actor's recolourable parts drawn in <paramref name="colouring"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The colouring has no installed name.</exception>
-    public static PictureShade Drawn(CeresSpriteColouring colouring) => new(Ensure.Listed(DrawnKeys, colouring), 0);
+    public static PictureShade Drawn(CeresSpriteColouring colouring) => new(DrawnKeys[colouring], 0);
 }

@@ -15,5 +15,5 @@ internal sealed partial class DragonFireballAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<DragonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DragonFireballAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<DragonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DragonFireballAnimations.Segments;
 }

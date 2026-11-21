@@ -7,10 +7,13 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 internal sealed partial class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Owtch], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new OwtchEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new OwtchEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared room random sequence used for burial and emergence.</summary>
     private readonly EnemyRoomBinding _room;
@@ -45,60 +48,60 @@ internal sealed partial class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             place.Position = place.Position.WithWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.MaximumBurialDepth);
     }
 
+    /// <summary>What <see cref="RunOwtchMain"/> does for each <see cref="OwtchBehaviorState"/> member, each member's own arm.</summary>
+    private IdentityTable<OwtchBehaviorState, Action<RoomEnemyOccupant, RoomEnemyPlace, OwtchEnemyState>> RunOwtchMainForOwtchBehaviorState => field ??= new(new Dictionary<OwtchBehaviorState, Action<RoomEnemyOccupant, RoomEnemyPlace, OwtchEnemyState>>
+    {
+        [OwtchBehaviorState.MovingLeft] = (occupant, place, state) =>
+        {
+            MoveOwtch(occupant, place, state, direction: HorizontalDirection.Left);
+            MaybeMakeOwtchSink(place, state);
+        },
+        [OwtchBehaviorState.MovingRight] = (occupant, place, state) =>
+        {
+            MoveOwtch(occupant, place, state, direction: HorizontalDirection.Right);
+            MaybeMakeOwtchSink(place, state);
+        },
+        [OwtchBehaviorState.Underground] = (_, place, state) =>
+        {
+            if (state.UndergroundTimer.StepEnds())
+            {
+                state.Behavior = OwtchBehaviorState.Rising;
+                state.Rise = UpdateCountdown.Lasting(OwtchMovementDefinitions.MaximumBurialDepth);
+            }
+        },
+        [OwtchBehaviorState.Sinking] = (occupant, place, state) =>
+        {
+            place.Position = place.Position.WithWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.BurrowSpeed);
+            if (state.Sink.Count())
+            {
+                state.Behavior = OwtchBehaviorState.Underground;
+                state.UndergroundTimer = UpdateCountdown.For(occupant.SpawnSettings<OwtchSpawnSettings>().UndergroundWait);
+            }
+        },
+        [OwtchBehaviorState.Rising] = (_, place, state) =>
+        {
+            place.Position = place.Position.WithWholeY(place.Position.Y.Whole - OwtchMovementDefinitions.BurrowSpeed);
+            if (state.Rise.Count())
+            {
+                // Surfacing reads the current random number without advancing it.
+                int random = _room.Random.Read();
+                state.Behavior = OwtchMovementDefinitions.SurfacesMovingRight.IsTakenBy(random)
+                    ? OwtchBehaviorState.MovingRight
+                    : OwtchBehaviorState.MovingLeft;
+            }
+        },
+        [OwtchBehaviorState.TurningAtLeftBound] = (_, place, state) =>
+        {
+            // Owtch does not move this update; it restarts the right-facing animation, whose first cue sets it
+            // walking right.
+            SetOwtchAnimation(place, state, OwtchSegment.MovingRight);
+        },
+    });
+
     /// <summary>Runs the Owtch's current behaviour.</summary>
     private void RunOwtchMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, OwtchEnemyState state)
     {
-        switch (state.Behavior)
-        {
-            case OwtchBehaviorState.MovingLeft:
-                MoveOwtch(occupant, place, state, direction: HorizontalDirection.Left);
-                MaybeMakeOwtchSink(place, state);
-                return;
-
-            case OwtchBehaviorState.MovingRight:
-                MoveOwtch(occupant, place, state, direction: HorizontalDirection.Right);
-                MaybeMakeOwtchSink(place, state);
-                return;
-
-            case OwtchBehaviorState.Underground:
-                if (state.UndergroundTimer.StepEnds())
-                {
-                    state.Behavior = OwtchBehaviorState.Rising;
-                    state.Rise = UpdateCountdown.Lasting(OwtchMovementDefinitions.MaximumBurialDepth);
-                }
-                return;
-
-            case OwtchBehaviorState.Sinking:
-                place.Position = place.Position.WithWholeY(place.Position.Y.Whole + OwtchMovementDefinitions.BurrowSpeed);
-                if (state.Sink.Count())
-                {
-                    state.Behavior = OwtchBehaviorState.Underground;
-                    state.UndergroundTimer = UpdateCountdown.For(occupant.SpawnSettings<OwtchSpawnSettings>().UndergroundWait);
-                }
-                return;
-
-            case OwtchBehaviorState.Rising:
-                place.Position = place.Position.WithWholeY(place.Position.Y.Whole - OwtchMovementDefinitions.BurrowSpeed);
-                if (state.Rise.Count())
-                {
-                    // Surfacing reads the current random number without advancing it.
-                    int random = _room.Random.Read();
-                    state.Behavior = OwtchMovementDefinitions.SurfacesMovingRight.IsTakenBy(random)
-                        ? OwtchBehaviorState.MovingRight
-                        : OwtchBehaviorState.MovingLeft;
-                }
-                return;
-
-            case OwtchBehaviorState.TurningAtLeftBound:
-                // Owtch does not move this update; it restarts the right-facing animation, whose first cue sets it
-                // walking right.
-                SetOwtchAnimation(place, state, OwtchSegment.MovingRight);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Owtch has no behaviour for state {state.Behavior}.");
-        }
+        RunOwtchMainForOwtchBehaviorState[state.Behavior](occupant, place, state);
     }
 
     /// <summary>
@@ -107,14 +110,17 @@ internal sealed partial class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// burial, and no room places one rising.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="initial"/> is the turn at the left bound or the rise, which no placement starts in.</exception>
-    private static OwtchSegment InitialAnimation(OwtchBehaviorState initial) => initial switch
+    private static OwtchSegment InitialAnimation(OwtchBehaviorState initial)
     {
-        OwtchBehaviorState.MovingLeft or OwtchBehaviorState.Underground => OwtchSegment.MovingLeft,
-        OwtchBehaviorState.MovingRight or OwtchBehaviorState.Sinking => OwtchSegment.MovingRight,
-        OwtchBehaviorState.TurningAtLeftBound => throw new InvalidDataException("No Owtch placement starts turning at its left bound."),
-        OwtchBehaviorState.Rising => throw new InvalidDataException("No Owtch placement starts rising: an Owtch rises only out of a burial."),
-        _ => throw new ArgumentOutOfRangeException(nameof(initial), initial, "Undefined Owtch behaviour."),
-    };
+        if (initial is OwtchBehaviorState.MovingLeft or OwtchBehaviorState.Underground)
+            return OwtchSegment.MovingLeft;
+        if (initial is OwtchBehaviorState.MovingRight or OwtchBehaviorState.Sinking)
+            return OwtchSegment.MovingRight;
+        if (initial == OwtchBehaviorState.TurningAtLeftBound)
+            throw new InvalidDataException("No Owtch placement starts turning at its left bound.");
+        // The remaining member, OwtchBehaviorState.Rising.
+        throw new InvalidDataException("No Owtch placement starts rising: an Owtch rises only out of a burial.");
+    }
 
     /// <summary>
     /// Moves the Owtch along its patrol by its spawn settings' speed toward <paramref name="direction"/>; reaching an end of

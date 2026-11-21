@@ -15,5 +15,5 @@ internal sealed partial class NuclearWaffleProjectileAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<NuclearWaffleProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => NuclearWaffleProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<NuclearWaffleProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => NuclearWaffleProjectileAnimations.Segments;
 }

@@ -58,19 +58,23 @@ public readonly partial record struct SquareSlopeQuadrant
     public static SquareSlopeQuadrant Showing(RoomBlockBehavior behavior, SquareSlopeColumnHalf column, SquareSlopeRowHalf row) =>
         new(behavior.Slope.FlipsHorizontally ? Opposite(column) : column, behavior.Slope.FlipsVertically ? Opposite(row) : row);
 
-    /// <summary>The other column half.</summary>
-    private static SquareSlopeColumnHalf Opposite(SquareSlopeColumnHalf column) => column switch
+    /// <summary>The opposite of each column.</summary>
+    private static IdentityTable<SquareSlopeColumnHalf, SquareSlopeColumnHalf> OppositeByColumn => field ??= new(new Dictionary<SquareSlopeColumnHalf, SquareSlopeColumnHalf>
     {
-        SquareSlopeColumnHalf.Left => SquareSlopeColumnHalf.Right,
-        SquareSlopeColumnHalf.Right => SquareSlopeColumnHalf.Left,
-        _ => throw new ArgumentOutOfRangeException(nameof(column), column, "Undefined column half."),
-    };
+        [SquareSlopeColumnHalf.Left] = SquareSlopeColumnHalf.Right,
+        [SquareSlopeColumnHalf.Right] = SquareSlopeColumnHalf.Left,
+    });
+
+    /// <summary>The other column half.</summary>
+    private static SquareSlopeColumnHalf Opposite(SquareSlopeColumnHalf column) => OppositeByColumn[column];
+
+    /// <summary>The opposite of each row.</summary>
+    private static IdentityTable<SquareSlopeRowHalf, SquareSlopeRowHalf> OppositeByRow => field ??= new(new Dictionary<SquareSlopeRowHalf, SquareSlopeRowHalf>
+    {
+        [SquareSlopeRowHalf.Top] = SquareSlopeRowHalf.Bottom,
+        [SquareSlopeRowHalf.Bottom] = SquareSlopeRowHalf.Top,
+    });
 
     /// <summary>The other row half.</summary>
-    private static SquareSlopeRowHalf Opposite(SquareSlopeRowHalf row) => row switch
-    {
-        SquareSlopeRowHalf.Top => SquareSlopeRowHalf.Bottom,
-        SquareSlopeRowHalf.Bottom => SquareSlopeRowHalf.Top,
-        _ => throw new ArgumentOutOfRangeException(nameof(row), row, "Undefined row half."),
-    };
+    private static SquareSlopeRowHalf Opposite(SquareSlopeRowHalf row) => OppositeByRow[row];
 }

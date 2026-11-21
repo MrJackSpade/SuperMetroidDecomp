@@ -16,10 +16,13 @@ internal sealed partial class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         };
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Spark];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Spark], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SparkEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SparkEntity(this, occupant, place, common));
 
     /// <summary>Owner of the falling-spark projectile emitted by one spark action.</summary>
     internal FallingSparksBehavior FallingSparks { get; }
@@ -27,23 +30,26 @@ internal sealed partial class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Binds the spark species to its falling-spark producer.</summary>
     internal SparkBehavior(FallingSparksBehavior fallingSparksBehavior) => FallingSparks = fallingSparksBehavior;
 
+    /// <summary>What <see cref="ApplySparkCue"/> does for each <see cref="SparkCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<SparkCueKind, Action<RoomEnemyPlace>> ApplySparkCueForSparkCueKind => field ??= new(new Dictionary<SparkCueKind, Action<RoomEnemyPlace>>
+    {
+        [SparkCueKind.BecomeIntangible] = static place =>
+        {
+            // Flicker-out: the spark stops touching Samus and passes her beams and the grapple.
+            place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+        },
+        [SparkCueKind.BecomeTangible] = static place =>
+        {
+            // Flicker-on runs this before the first visible activation frame, so collision and art become live
+            // together.
+            place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
+        },
+    });
+
     /// <summary>Carries out one cue of Spark's animations.</summary>
     private static void ApplySparkCue(RoomEnemyPlace place, SparkCue cue)
     {
-        switch (cue.Kind)
-        {
-            case SparkCueKind.BecomeIntangible:
-                // Flicker-out: the spark stops touching Samus and passes her beams and the grapple.
-                place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-                break;
-            case SparkCueKind.BecomeTangible:
-                // Flicker-on runs this before the first visible activation frame, so collision and art become live
-                // together.
-                place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SparkCueKind)} {cue.Kind}.");
-        }
+        ApplySparkCueForSparkCueKind[cue.Kind](place);
     }
 
     /// <summary>Initializes the Spark.</summary>
@@ -61,44 +67,42 @@ internal sealed partial class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         // defeat is exempt under the emulation scope limits (owner decision on #1318).
     }
 
+    /// <summary>What <see cref="RunSparkMain"/> does for each <see cref="SparkAction"/> member, each member's own arm.</summary>
+    private IdentityTable<SparkAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SparkEnemyState>> RunSparkMainForSparkAction => field ??= new(new Dictionary<SparkAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SparkEnemyState>>
+    {
+        [SparkAction.AlwaysActive] = (_, place, state) => { },
+        [SparkAction.IntermittentInactive] = (occupant, place, state) =>
+        {
+            if (!DecrementSparkTimerAndTestExpired(state))
+                return;
+
+            state.Action = SparkAction.IntermittentActive;
+            StartSparkAnimation(place, state, SparkSegment.FlickerOn);
+            SetSparkActionTimer(occupant, state, additionalTime: 0);
+        },
+        [SparkAction.IntermittentActive] = (occupant, place, state) =>
+        {
+            if (!DecrementSparkTimerAndTestExpired(state))
+                return;
+
+            state.Action = SparkAction.IntermittentInactive;
+            StartSparkAnimation(place, state, SparkSegment.FlickerOut);
+            SetSparkActionTimer(occupant, state, additionalTime: SparkTimingDefinitions.ExtraTimeOut);
+        },
+        [SparkAction.EmitFallingSparks] = (occupant, place, state) =>
+        {
+            if (!DecrementSparkTimerAndTestExpired(state))
+                return;
+
+            FallingSparks.SpawnFallingSpark(occupant, place);
+            SetSparkActionTimer(occupant, state, additionalTime: 0);
+        },
+    });
+
     /// <summary>Runs the main step.</summary>
     private void RunSparkMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SparkEnemyState state)
     {
-        switch (state.Action)
-        {
-            case SparkAction.AlwaysActive:
-                return;
-
-            case SparkAction.IntermittentInactive:
-                if (!DecrementSparkTimerAndTestExpired(state))
-                    return;
-
-                state.Action = SparkAction.IntermittentActive;
-                StartSparkAnimation(place, state, SparkSegment.FlickerOn);
-                SetSparkActionTimer(occupant, state, additionalTime: 0);
-                return;
-
-            case SparkAction.IntermittentActive:
-                if (!DecrementSparkTimerAndTestExpired(state))
-                    return;
-
-                state.Action = SparkAction.IntermittentInactive;
-                StartSparkAnimation(place, state, SparkSegment.FlickerOut);
-                SetSparkActionTimer(occupant, state, additionalTime: SparkTimingDefinitions.ExtraTimeOut);
-                return;
-
-            case SparkAction.EmitFallingSparks:
-                if (!DecrementSparkTimerAndTestExpired(state))
-                    return;
-
-                FallingSparks.SpawnFallingSpark(occupant, place);
-                SetSparkActionTimer(occupant, state, additionalTime: 0);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Spark has no behaviour for action {state.Action}.");
-        }
+        RunSparkMainForSparkAction[state.Action](occupant, place, state);
     }
 
     /// <summary>Counts one update of the Spark's wait: whether it ends on this update, which every action follows with a new wait.</summary>

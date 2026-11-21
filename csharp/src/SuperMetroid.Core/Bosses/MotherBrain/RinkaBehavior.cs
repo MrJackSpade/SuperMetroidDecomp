@@ -11,10 +11,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed partial class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rinka];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Rinka], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new RinkaEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new RinkaEntity(this, occupant, place, common));
 
     /// <summary>Applies normal Samus contact damage before the Rinka's own death.</summary>
     private readonly EnemyCollision _collision;
@@ -157,15 +160,57 @@ internal sealed partial class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs a Rinka's main AI for one update through all four of its actions.</summary>
+    /// <summary>What <see cref="RunRinkaMain"/> does for each <see cref="RinkaAction"/> member, each member's own arm.</summary>
+    private IdentityTable<RinkaAction, Action<RoomEnemyOccupant, RoomEnemyPlace, RinkaEnemyState, SamusState>> RunRinkaMainForRinkaAction => field ??= new(new Dictionary<RinkaAction, Action<RoomEnemyOccupant, RoomEnemyPlace, RinkaEnemyState, SamusState>>
+    {
+        [RinkaAction.WatchForLeavingViewport] = (occupant, place, state, samus) =>
+        {
+            if (RinkaIsOutsideFlightWindow(place))
+                RecycleRinkaAfterLeavingViewport(occupant, place, state);
+        },
+        [RinkaAction.AimDelay] = (_, place, state, samus) =>
+        {
+            if (state.AimDelay.StepKeepsRunning())
+                return;
+            state.Action = RinkaAction.Flying;
+
+            // Every Rinka becomes touchable as it flies, and runs off-screen.
+            place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
+            place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
+
+            TrigonometryAngle velocityAngle = EnemyMath.CalculateAimAngle(
+                new(DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole), DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole))).TurnedBy(TrigonometryAngle.QuarterTurn);
+            state.Velocity = new(
+                EnemyMath.SineSpeed(RinkaLifeDefinitions.Speed, velocityAngle),
+                EnemyMath.SineSpeed(
+                    RinkaLifeDefinitions.Speed,
+                    velocityAngle.TurnedBy(TrigonometryAngle.QuarterTurn)));
+        },
+        [RinkaAction.Flying] = (occupant, place, state, samus) =>
+        {
+            place.Position = place.Position.Advance(state.Velocity.ToDisplacement());
+            if (RinkaIsOutsideFlightWindow(place))
+                RecycleRinkaAfterLeavingViewport(occupant, place, state);
+        },
+        [RinkaAction.DeathRespawnDelay] = (occupant, place, state, samus) =>
+        {
+            if (state.RespawnDelay.StepKeepsRunning())
+                return;
+            place.Health = RinkaLifeDefinitions.RespawnHealth;
+            ReinitializeRinka(occupant, place, state);
+        },
+    });
+
+    /// <summary>
+    /// Runs a Rinka's main AI for one update through all four of its actions. Every special Rinka has chosen its spawn
+    /// point by then: the door's loading checks, as its scroll finishes, that it reached every place whose setup it
+    /// deferred, and no enemy runs before.
+    /// </summary>
     private void RunRinkaMain(
         RoomEnemyOccupant occupant, RoomEnemyPlace place,
         RinkaEnemyState state,
         SamusState samus)
     {
-        if (_deferredRinkaSpawns.Count != 0)
-            throw new InvalidOperationException(
-                "A Rinka ran before the door loader chose every special Rinka's spawn point.");
         if (IsSpecialRinka(occupant) && _rinkaTerminationFlag)
         {
             ReleaseSpecialRinkaSpawn(state);
@@ -173,48 +218,7 @@ internal sealed partial class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        switch (state.Action)
-        {
-            case RinkaAction.WatchForLeavingViewport:
-                if (RinkaIsOutsideFlightWindow(place))
-                    RecycleRinkaAfterLeavingViewport(occupant, place, state);
-                return;
-
-            case RinkaAction.AimDelay:
-                if (state.AimDelay.StepKeepsRunning())
-                    return;
-                state.Action = RinkaAction.Flying;
-
-                // Every Rinka becomes touchable as it flies, and runs off-screen.
-                place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
-                place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
-
-                TrigonometryAngle velocityAngle = EnemyMath.CalculateAimAngle(
-                    new(DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole), DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole))).TurnedBy(TrigonometryAngle.QuarterTurn);
-                state.Velocity = new(
-                    EnemyMath.SineSpeed(RinkaLifeDefinitions.Speed, velocityAngle),
-                    EnemyMath.SineSpeed(
-                        RinkaLifeDefinitions.Speed,
-                        velocityAngle.TurnedBy(TrigonometryAngle.QuarterTurn)));
-                return;
-
-            case RinkaAction.Flying:
-                place.Position = place.Position.Advance(state.Velocity.ToDisplacement());
-                if (RinkaIsOutsideFlightWindow(place))
-                    RecycleRinkaAfterLeavingViewport(occupant, place, state);
-                return;
-
-            case RinkaAction.DeathRespawnDelay:
-                if (state.RespawnDelay.StepKeepsRunning())
-                    return;
-                place.Health = RinkaLifeDefinitions.RespawnHealth;
-                ReinitializeRinka(occupant, place, state);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Rinka has no behaviour for action {state.Action}.");
-        }
+        RunRinkaMainForRinkaAction[state.Action](occupant, place, state, samus);
     }
 
     /// <summary>
@@ -260,28 +264,32 @@ internal sealed partial class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
+    /// <summary>What <see cref="ApplyRinkaCue"/> does for each <see cref="RinkaCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<RinkaCueKind, Action<RoomEnemyPlace, RinkaEnemyState>> ApplyRinkaCueForRinkaCueKind => field ??= new(new Dictionary<RinkaCueKind, Action<RoomEnemyPlace, RinkaEnemyState>>
+    {
+        [RinkaCueKind.Hide] = static (place, state) =>
+        {
+            place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+            place.Presence = place.Presence.With(EnemyPresence.Hidden);
+        },
+        [RinkaCueKind.HideAndProcessOffScreen] = static (place, state) =>
+        {
+            place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
+            place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+            place.Presence = place.Presence.With(EnemyPresence.Hidden);
+        },
+        [RinkaCueKind.Fire] = static (place, state) =>
+        {
+            place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
+            place.Presence = place.Presence.Without(EnemyPresence.Hidden);
+            state.Action = RinkaAction.AimDelay;
+        },
+    });
+
     /// <summary>Carries out one event of the Rinkas' animations: hiding, hiding with off-screen processing, and firing.</summary>
     private static void ApplyRinkaCue(RoomEnemyPlace place, RinkaEnemyState state, RinkaCue cue)
     {
-        switch (cue.Kind)
-        {
-            case RinkaCueKind.Hide:
-                place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-                place.Presence = place.Presence.With(EnemyPresence.Hidden);
-                break;
-            case RinkaCueKind.HideAndProcessOffScreen:
-                place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
-                place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-                place.Presence = place.Presence.With(EnemyPresence.Hidden);
-                break;
-            case RinkaCueKind.Fire:
-                place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
-                place.Presence = place.Presence.Without(EnemyPresence.Hidden);
-                state.Action = RinkaAction.AimDelay;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(RinkaCueKind)} {cue.Kind}.");
-        }
+        ApplyRinkaCueForRinkaCueKind[cue.Kind](place, state);
     }
 
     /// <summary>Releases a special spawn resource and restarts its life unless the room has terminated it.</summary>

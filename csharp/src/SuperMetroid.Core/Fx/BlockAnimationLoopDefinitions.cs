@@ -55,12 +55,11 @@ public static partial class BlockAnimationLoopDefinitions
     };
 
     /// <summary>The treadmill animation a Wrecked Ship entrance door starts for each belt direction.</summary>
-    internal static readonly IReadOnlyDictionary<WreckedShipTreadmillDirection, BlockAnimation> TreadmillAnimations =
-        new Dictionary<WreckedShipTreadmillDirection, BlockAnimation>
+    internal static readonly IdentityTable<WreckedShipTreadmillDirection, BlockAnimation> TreadmillAnimations = new(new Dictionary<WreckedShipTreadmillDirection, BlockAnimation>
     {
         [WreckedShipTreadmillDirection.Rightwards] = BlockAnimation.WreckedShipTreadmillRightwards,
         [WreckedShipTreadmillDirection.Leftwards] = BlockAnimation.WreckedShipTreadmillLeftwards,
-    };
+    });
 
     /// <summary>
     /// An idle loop of <paramref name="animation"/>'s first <paramref name="frames"/> idle frames, "idle 0" on, each shown for

@@ -99,7 +99,7 @@ internal static class RetailDeathCaptureTests
             return;
         }
         if (frames == 2000 || !states.Contains(DeathSequenceStep.BlackingOutSurroundings) ||
-            !states.Contains(SamusDeathSequencePhase.SuitExplosion) || !states.Contains(DeathSequenceStep.FinalBlackOut))
+            !states.Contains(new SamusDeathSequencePhase.Begun.SuitExplosion()) || !states.Contains(DeathSequenceStep.FinalBlackOut))
             throw new InvalidOperationException("Death fixture missed blackout, explosion or game-over handoff.");
         Console.WriteLine($"{device.Kind}: {frames + 1} exact death frames with matching PCM, blackout/explosion/fade and game-over handoff.");
     }

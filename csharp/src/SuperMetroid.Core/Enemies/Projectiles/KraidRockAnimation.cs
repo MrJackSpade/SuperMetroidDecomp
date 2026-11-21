@@ -15,5 +15,5 @@ internal sealed partial class KraidRockAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<KraidRockSegment, EnemyProjectileFrameId, KraidRockCue> Segments => KraidRockAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<KraidRockSegment, EnemyProjectileFrameId, KraidRockCue> Segments => KraidRockAnimations.Segments;
 }

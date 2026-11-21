@@ -21,23 +21,11 @@ internal sealed partial class GunshipBehavior : IEnemyEntityFactory
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
-
-    /// <summary>The gunship's top hull, which moves the ship, or its bottom hull with the entrance pad (#2146).</summary>
-    /// <exception cref="KeyNotFoundException">The place holds no gunship definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
-
-    /// <summary>
-    /// The factory of each part the species creates, by the definition that places it: the species serves these
-    /// definitions, and each builds its own part from the species it is given.
-    /// </summary>
-    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<GunshipBehavior>> PartFactories =
-        new()
-        {
-            [EnemyDefinitionId.ShipBottomEntrance] = static (species, occupant, place, common) => EnemyOccupant.WithoutMainAi(new GunshipBottomEntity(species, occupant, place, common)),
-            [EnemyDefinitionId.ShipTop] = static (species, occupant, place, common) => EnemyOccupant.FromSurroundings(new GunshipTopEntity(species, occupant, place, common)),
-        };
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    {
+        [EnemyDefinitionId.ShipBottomEntrance] = (occupant, place, common) => EnemyOccupant.WithoutMainAi(new GunshipBottomEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.ShipTop] = (occupant, place, common) => EnemyOccupant.FromSurroundings(new GunshipTopEntity(this, occupant, place, common)),
+    };
 
     /// <summary>Queues engine and entrance-pad sounds at the frame boundaries.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -105,8 +93,7 @@ internal sealed partial class GunshipBehavior : IEnemyEntityFactory
             return;
         GunshipPieceState piece = place.RequireSpeciesState<GunshipPieceState>();
         AnimationPlayback<GunshipSegment> playback = piece.Playback;
-        EnemyAnimationPlayback.Play(place, GunshipAnimations.Segments, ref playback,
-            cue => throw new InvalidOperationException($"The gunship's animations publish no cue; got {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, GunshipAnimations.Segments, ref playback);
         piece.Playback = playback;
     }
 
@@ -177,6 +164,66 @@ internal sealed partial class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
+    /// <summary>What <see cref="RunGunshipTopMain"/> does for each <see cref="GunshipPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<GunshipPhase, Action<RoomEnemyPlace, SamusState, GameplayAction>> RunGunshipTopMainForGunshipPhase => field ??= new(new Dictionary<GunshipPhase, Action<RoomEnemyPlace, SamusState, GameplayAction>>
+    {
+        [GunshipPhase.DescendAfterCeres] = (top, samus, newlyPressedControllerInput) => DescendPostCeresGunship(top, samus),
+        [GunshipPhase.ApplyLandingBrakes] = (top, samus, newlyPressedControllerInput) => BouncePostCeresGunship(top, samus),
+        [GunshipPhase.WaitForLandingEntranceToOpen] = (top, samus, newlyPressedControllerInput) =>
+        {
+            if (TickGunshipPhaseTimer(top))
+                State(top).Phase = GunshipPhase.EjectSamus;
+        },
+        [GunshipPhase.EjectSamus] = (top, samus, newlyPressedControllerInput) => RaisePostCeresSamus(top, samus),
+        [GunshipPhase.FinishLanding] = (top, samus, newlyPressedControllerInput) =>
+        {
+            if (TickGunshipPhaseTimer(top))
+            {
+                State(top).Phase = GunshipPhase.Idle;
+                samus.Control.Unlock();
+                _passEvents.Publish(new GunshipEvent(GunshipFrameEvent.LandingCompleted));
+            }
+        },
+        [GunshipPhase.Idle] = (top, samus, newlyPressedControllerInput) => HandleIdleGunshipEntrance(top, samus, newlyPressedControllerInput),
+        [GunshipPhase.WaitForEntranceToOpen] = (top, samus, newlyPressedControllerInput) =>
+        {
+            if (TickGunshipPhaseTimer(top))
+                State(top).Phase = GunshipPhase.LowerSamus;
+        },
+        [GunshipPhase.LowerSamus] = (top, samus, newlyPressedControllerInput) => LowerSamusIntoGunship(top, samus),
+        [GunshipPhase.WaitForEntranceToClose] = (top, samus, newlyPressedControllerInput) =>
+        {
+            if (TickGunshipPhaseTimer(top))
+                State(top).Phase = GunshipPhase.BeginLiftoffOrRestoreSamus;
+        },
+        [GunshipPhase.BeginLiftoffOrRestoreSamus] = (top, samus, newlyPressedControllerInput) => RestoreSamusInGunship(top, samus),
+        [GunshipPhase.HandleSaveConfirmation] = (top, samus, newlyPressedControllerInput) =>
+        {
+            _topAwaitingSaveAnswer = top;
+            _passEvents.Publish(new GunshipEvent(GunshipFrameEvent.SavePromptRequested));
+        },
+        [GunshipPhase.WaitForExitPadToOpen] = (top, samus, newlyPressedControllerInput) =>
+        {
+            if (TickGunshipPhaseTimer(top))
+                State(top).Phase = GunshipPhase.RaiseSamus;
+        },
+        [GunshipPhase.RaiseSamus] = (top, samus, newlyPressedControllerInput) => RaiseSamusOutOfGunship(top, samus),
+        [GunshipPhase.FinishSamusExit] = (top, samus, newlyPressedControllerInput) =>
+        {
+            if (TickGunshipPhaseTimer(top))
+            {
+                State(top).Phase = GunshipPhase.Idle;
+                samus.Control.Unlock();
+                _passEvents.Publish(new GunshipEvent(GunshipFrameEvent.ExitCompleted));
+            }
+        },
+        [GunshipPhase.WaitForEngines] = (top, samus, newlyPressedControllerInput) => WaitForGunshipEngines(top),
+        [GunshipPhase.FireUpEngines] = (top, samus, newlyPressedControllerInput) => FireUpGunshipEngines(top, samus),
+        [GunshipPhase.SteadyLiftoff] = (top, samus, newlyPressedControllerInput) => LiftGunshipAtConstantSpeed(top, samus),
+        [GunshipPhase.AcceleratingLiftoff] = (top, samus, newlyPressedControllerInput) => AccelerateEscapingGunship(top, samus),
+        [GunshipPhase.MoveAccelerating] = (top, samus, newlyPressedControllerInput) => MoveEscapingGunship(top, samus),
+    });
+
     /// <summary>Runs the top hull's sound timer and landing, boarding, save, or takeoff state machine.</summary>
     internal void RunGunshipTopMain(
         RoomEnemyPlace top,
@@ -196,83 +243,7 @@ internal sealed partial class GunshipBehavior : IEnemyEntityFactory
         if (BobsWhileLanded(phase))
             StepGunshipBob(top);
 
-        switch (phase)
-        {
-            case GunshipPhase.DescendAfterCeres:
-                DescendPostCeresGunship(top, samus);
-                return;
-            case GunshipPhase.ApplyLandingBrakes:
-                BouncePostCeresGunship(top, samus);
-                return;
-            case GunshipPhase.WaitForLandingEntranceToOpen:
-                if (TickGunshipPhaseTimer(top))
-                    State(top).Phase = GunshipPhase.EjectSamus;
-                return;
-            case GunshipPhase.EjectSamus:
-                RaisePostCeresSamus(top, samus);
-                return;
-            case GunshipPhase.FinishLanding:
-                if (TickGunshipPhaseTimer(top))
-                {
-                    State(top).Phase = GunshipPhase.Idle;
-                    samus.Control.Unlock();
-                    _passEvents.Publish(new GunshipEvent(GunshipFrameEvent.LandingCompleted));
-                }
-                return;
-            case GunshipPhase.Idle:
-                HandleIdleGunshipEntrance(top, samus, newlyPressedControllerInput);
-                return;
-            case GunshipPhase.WaitForEntranceToOpen:
-                if (TickGunshipPhaseTimer(top))
-                    State(top).Phase = GunshipPhase.LowerSamus;
-                return;
-            case GunshipPhase.LowerSamus:
-                LowerSamusIntoGunship(top, samus);
-                return;
-            case GunshipPhase.WaitForEntranceToClose:
-                if (TickGunshipPhaseTimer(top))
-                    State(top).Phase = GunshipPhase.BeginLiftoffOrRestoreSamus;
-                return;
-            case GunshipPhase.BeginLiftoffOrRestoreSamus:
-                RestoreSamusInGunship(top, samus);
-                return;
-            case GunshipPhase.HandleSaveConfirmation:
-                _topAwaitingSaveAnswer = top;
-                _passEvents.Publish(new GunshipEvent(GunshipFrameEvent.SavePromptRequested));
-                return;
-            case GunshipPhase.WaitForExitPadToOpen:
-                if (TickGunshipPhaseTimer(top))
-                    State(top).Phase = GunshipPhase.RaiseSamus;
-                return;
-            case GunshipPhase.RaiseSamus:
-                RaiseSamusOutOfGunship(top, samus);
-                return;
-            case GunshipPhase.FinishSamusExit:
-                if (TickGunshipPhaseTimer(top))
-                {
-                    State(top).Phase = GunshipPhase.Idle;
-                    samus.Control.Unlock();
-                    _passEvents.Publish(new GunshipEvent(GunshipFrameEvent.ExitCompleted));
-                }
-                return;
-            case GunshipPhase.WaitForEngines:
-                WaitForGunshipEngines(top);
-                return;
-            case GunshipPhase.FireUpEngines:
-                FireUpGunshipEngines(top, samus);
-                return;
-            case GunshipPhase.SteadyLiftoff:
-                LiftGunshipAtConstantSpeed(top, samus);
-                return;
-            case GunshipPhase.AcceleratingLiftoff:
-                AccelerateEscapingGunship(top, samus);
-                return;
-            case GunshipPhase.MoveAccelerating:
-                MoveEscapingGunship(top, samus);
-                return;
-            default:
-                throw new InvalidOperationException($"The gunship has no behaviour for phase {phase}.");
-        }
+        RunGunshipTopMainForGunshipPhase[phase](top, samus, newlyPressedControllerInput);
     }
 
     /// <summary>Carries Samus and all ship parts downward, slowing below <see cref="GunshipMotionDefinitions.SlowDescentY"/> before the landing clamp.</summary>

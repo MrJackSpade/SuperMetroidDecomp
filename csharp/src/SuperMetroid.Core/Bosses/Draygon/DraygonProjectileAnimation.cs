@@ -16,6 +16,6 @@ internal sealed partial class DraygonProjectileAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<DraygonProjectileSegment, EnemyProjectileFrameId, DraygonProjectileCue> Segments =>
+    private protected override IUnpausedAnimationPlay<DraygonProjectileSegment, EnemyProjectileFrameId, DraygonProjectileCue> Segments =>
         DraygonProjectileAnimations.Segments;
 }

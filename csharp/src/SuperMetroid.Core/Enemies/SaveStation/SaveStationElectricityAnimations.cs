@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Enemies.SaveStation;
 internal static partial class SaveStationElectricityAnimations
 {
     /// <summary>Every segment's beats: the cycle sweeps the band down the station, one place an update.</summary>
-    internal static AnimationSegments<SaveStationElectricitySegment, Offset16<RoomPixels>, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<SaveStationElectricitySegment, AnimationBeat<Offset16<RoomPixels>, EnemyProjectileCommonCue>[]>
+    internal static UnpausedAnimationSegments<SaveStationElectricitySegment, Offset16<RoomPixels>, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<SaveStationElectricitySegment, AnimationBeat<Offset16<RoomPixels>, EnemyProjectileCommonCue>.Unpaused[]>
     {
         [P.Cycle] =
         [
@@ -32,8 +32,8 @@ internal static partial class SaveStationElectricityAnimations
     internal static Animation<SaveStationElectricitySegment> Discharge { get; } = new([Segments.Repeated(P.Cycle, 20), Segments.Whole(P.Deletion)], AnimationEnd.Holds);
 
     /// <summary>Shows the band at <paramref name="placement"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<Offset16<RoomPixels>, EnemyProjectileCommonCue> Show(Offset16<RoomPixels> placement, int duration) => new AnimationBeat<Offset16<RoomPixels>, EnemyProjectileCommonCue>.Frame(placement, duration);
+    private static AnimationBeat<Offset16<RoomPixels>, EnemyProjectileCommonCue>.Unpaused Show(Offset16<RoomPixels> placement, int duration) => new AnimationBeat<Offset16<RoomPixels>, EnemyProjectileCommonCue>.Frame(placement, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<Offset16<RoomPixels>, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<Offset16<RoomPixels>, EnemyProjectileCommonCue>.Event(cue);
+    private static AnimationBeat<Offset16<RoomPixels>, EnemyProjectileCommonCue>.Unpaused Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<Offset16<RoomPixels>, EnemyProjectileCommonCue>.Event(cue);
 }

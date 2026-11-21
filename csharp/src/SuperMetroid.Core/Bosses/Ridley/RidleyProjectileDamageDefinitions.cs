@@ -7,7 +7,7 @@ internal static partial class RidleyProjectileDamageDefinitions
 {
     /// <summary>The fireball and afterburn's damage by area: 60 in Norfair, 80 in Tourian and 3 everywhere else; nothing
     /// else about them changes with the area.</summary>
-    internal static readonly Dictionary<AreaId, int> DamageByArea = new()
+    internal static readonly IdentityTable<AreaId, int> DamageByArea = new(new Dictionary<AreaId, int>
     {
         [AreaId.Crateria] = 3,
         [AreaId.Brinstar] = 3,
@@ -16,5 +16,5 @@ internal static partial class RidleyProjectileDamageDefinitions
         [AreaId.Maridia] = 3,
         [AreaId.Tourian] = 80,
         [AreaId.Ceres] = 3,
-    };
+    });
 }

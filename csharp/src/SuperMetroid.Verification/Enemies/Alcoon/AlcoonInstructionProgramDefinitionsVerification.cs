@@ -53,9 +53,8 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole + 1)), state.LandingY)),
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
 

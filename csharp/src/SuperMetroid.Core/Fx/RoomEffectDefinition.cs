@@ -11,7 +11,10 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 /// <remarks>Its room's effect selection (<see cref="RoomFxSelection"/>) names the entry door that selects it, or holds it as its default (#1546).
 /// The liquid's levels are room lines from the room's top, so a rising liquid's level falls.</remarks>
-/// <param name="LiquidStartLevel">The line the liquid's surface starts at, or null when the effect's liquid has no surface.</param>
+/// <param name="LiquidStartLevel">
+/// The line the liquid's surface starts at, or null when the effect's liquid has no surface; only a liquid with a surface
+/// rises and falls with a tide.
+/// </param>
 /// <param name="LiquidTargetLevel">The line the liquid's surface rises or falls to, or null when its level never moves.</param>
 /// <param name="LiquidLevelSpeed">How fast the liquid's level moves toward its target once it starts, signed: negative rises.</param>
 /// <param name="LiquidMoveDelay">The updates the liquid waits, once its level has somewhere to go, before it starts to move.</param>
@@ -21,7 +24,10 @@ namespace SuperMetroid.Core.Fx;
 /// How the effect's overlay blends with the room, or null when the effect shows no overlay (#1545): every effect that shows
 /// on the overlay describes one, and no other effect does, which the room's load checks (<see cref="RoomEffectOverlayLook.Of"/>, #2544).
 /// </param>
-/// <param name="Liquid">The liquid the effect fills the room with, or null for an effect with none.</param>
+/// <param name="Liquid">
+/// The liquid the effect fills the room with: <see cref="RoomWater"/> for water and the statue effect,
+/// <see cref="RoomLavaOrAcid"/> for lava and acid, and null for every other effect (#1695).
+/// </param>
 /// <param name="ColourEffects">The colour effects the room effect starts, in the order they start.</param>
 /// <param name="BlockAnimations">The block animations the room effect starts, in the order they start.</param>
 /// <param name="Tint">The tint the effect lays over its overlay and the HUD.</param>
@@ -36,12 +42,4 @@ public sealed partial record RoomEffectDefinition(
     RoomLiquid? Liquid,
     ImmutableArray<ColourEffectId> ColourEffects,
     ImmutableArray<BlockAnimation> BlockAnimations,
-    RoomEffectTint Tint)
-{
-    /// <summary>
-    /// The liquid the effect fills its room with: <see cref="RoomWater"/> for water and the statue effect,
-    /// <see cref="RoomLavaOrAcid"/> for lava and acid, and null for every other effect (#1695).
-    /// </summary>
-    /// <exception cref="ArgumentException">The liquid is not the kind the effect has.</exception>
-    public RoomLiquid? Liquid { get; } = RoomLiquid.OfEffect(Type, Liquid);
-}
+    RoomEffectTint Tint);

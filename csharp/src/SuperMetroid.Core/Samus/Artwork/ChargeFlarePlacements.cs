@@ -3,8 +3,12 @@ using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Immutable visual muzzle offsets, as installed (#1596); never used for projectile physics or Grapple connection.</summary>
-public sealed partial class ChargeFlarePlacements
+/// <summary>
+/// Immutable visual muzzle offsets, as installed (#1596), at each muzzle in both movement modes: the Grapple flare's, and
+/// the beam flare's with its turning placements (<see cref="BeamFlarePlacements"/>); never used for projectile physics or
+/// Grapple connection.
+/// </summary>
+public partial class ChargeFlarePlacements
 {
     /// <summary>The projectile directions in the order the flare placements are listed (#2567).</summary>
     private static readonly IReadOnlyList<SamusProjectileDirection> DirectionOrder = Ensure.EveryMemberOnce<SamusProjectileDirection>(
@@ -29,14 +33,14 @@ public sealed partial class ChargeFlarePlacements
         SamusTurningAim.Down,
     ]);
 
-    /// <summary>The installed offset of every placement the flare's source holds.</summary>
-    private readonly Dictionary<ChargeFlarePlacement, Offset16<RoomPixels>> offsets;
+    /// <summary>The installed offset of every placement the flare's source holds, each checked present as it is built.</summary>
+    internal readonly Dictionary<ChargeFlarePlacement, Offset16<RoomPixels>> offsets;
 
     /// <summary>Takes the offset of every placement <paramref name="source"/> holds, as the import pipeline validated them.</summary>
     /// <param name="supplied">The offset of each placement; it must hold every placement of the source and nothing else.</param>
     /// <param name="source">Whether the placements are the beam flare's or the Grapple flare's.</param>
     /// <exception cref="ArgumentException">A placement of the source is missing, or a supplied placement is not one the source holds.</exception>
-    internal ChargeFlarePlacements(IReadOnlyDictionary<ChargeFlarePlacement, Offset16<RoomPixels>> supplied, ChargeFlareSource source)
+    private protected ChargeFlarePlacements(IReadOnlyDictionary<ChargeFlarePlacement, Offset16<RoomPixels>> supplied, ChargeFlareSource source)
     {
         Ensure.NotNull(supplied);
         offsets = [];
@@ -48,18 +52,18 @@ public sealed partial class ChargeFlarePlacements
             throw new ArgumentException($"{supplied.Count - offsets.Count} supplied {source} flare offsets are not placements it holds.", nameof(supplied));
     }
 
-    /// <summary>Resolves the installed visual muzzle offset for the requested movement mode and flare aim.</summary>
+    /// <summary>Takes the Grapple flare's offset at each muzzle in both movement modes, as the import pipeline validated them.</summary>
+    /// <param name="supplied">The offset of each placement; it must hold every placement of the Grapple flare and nothing else.</param>
+    /// <exception cref="ArgumentException">A placement is missing, or a supplied placement is not one the Grapple flare holds.</exception>
+    internal static ChargeFlarePlacements Grapple(IReadOnlyDictionary<ChargeFlarePlacement, Offset16<RoomPixels>> supplied) =>
+        new(supplied, ChargeFlareSource.Grapple);
+
+    /// <summary>The installed visual offset of the flare at the muzzle of <paramref name="direction"/>.</summary>
     /// <param name="running">True for running placement; false for standing and every other movement.</param>
-    /// <param name="aim">
-    /// The muzzle the flare is placed at or, for the standing beam flare, the turning placement. No pose places a running
-    /// or Grapple flare while turning, so those placements are rejected (#1500).
-    /// </param>
+    /// <param name="direction">The aim whose muzzle the flare is placed at.</param>
     /// <returns>The signed whole-pixel placement offset, without camera or pose-graphics Y adjustments.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The source holds no such placement.</exception>
-    internal Offset16<RoomPixels> Resolve(bool running, SamusFlareAim aim) =>
-        offsets.TryGetValue(new ChargeFlarePlacement(running, aim), out Offset16<RoomPixels> offset)
-            ? offset
-            : throw new ArgumentOutOfRangeException(nameof(aim), aim, $"No {(running ? "running" : "standing")} pose places this flare there.");
+    internal Offset16<RoomPixels> AtMuzzle(bool running, SamusProjectileDirection direction) =>
+        offsets[new ChargeFlarePlacement(running, new SamusFlareAim.AtMuzzle(direction))];
 
     /// <summary>
     /// Every placement <paramref name="source"/> holds: each direction's muzzle in both movement modes, and for the

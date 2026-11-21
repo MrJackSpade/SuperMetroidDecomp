@@ -10,11 +10,9 @@ internal sealed class StandaloneFixtureSpecies : IEnemyEntityFactory
     internal static EnemySpeciesRegistry Registry { get; } = new EnemySpeciesRegistry(new EnemyCommonParticipation(() => throw new InvalidOperationException("A standalone fixture slot has no enemy system to share reactions with.")), (IEnumerable<IEnemyEntityFactory>)[new StandaloneFixtureSpecies()]);
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.DraygonBody, EnemyPlaceFixtures.StandIn];
-
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        EnemyOccupant.PlacedOnly(new Body());
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each(
+        [EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.DraygonBody, EnemyPlaceFixtures.StandIn],
+        static (_, _, _) => EnemyOccupant.PlacedOnly(new Body()));
 
     /// <summary>An enemy that runs nothing of its own.</summary>
     private sealed class Body : IEnemyEntity

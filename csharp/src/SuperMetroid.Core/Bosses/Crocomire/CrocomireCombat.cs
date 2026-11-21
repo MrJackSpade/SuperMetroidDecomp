@@ -93,43 +93,33 @@ internal sealed partial class CrocomireCombat
             [RoomEnemyProjectileKind.CrocomireSpikeWallPieces] = CrocomireProjectileMotion.SpikeWallCollapsing,
         };
 
+        /// <summary>What <c>Move</c> does for each <see cref="CrocomireProjectileMotion"/> member, each member's own arm.</summary>
+        private IdentityTable<CrocomireProjectileMotion, Action<EnemyProjectileMotionContext>> MoveForCrocomireProjectileMotion => field ??= new(new Dictionary<CrocomireProjectileMotion, Action<EnemyProjectileMotionContext>>
+        {
+            [CrocomireProjectileMotion.ShotAiming] = context => StartCrocomireProjectileFlight(context.Projectile, context.Level),
+            [CrocomireProjectileMotion.ShotFlying] = context => RunCrocomireProjectileFlight(context.Projectile, context.Level),
+            [CrocomireProjectileMotion.SpikeWallCollapsing] = context => RunCrocomireSpikeWallPiece(context.Projectile),
+            [CrocomireProjectileMotion.BridgeFragmentFalling] = context => RunCrocomireBridgeFragment(context.Projectile, context.Level),
+        });
+
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, CrocomireProjectileMotion motion)
         {
-            switch (motion)
-            {
-                case CrocomireProjectileMotion.ShotAiming:
-                    StartCrocomireProjectileFlight(context.Projectile, context.Level);
-                    break;
-                case CrocomireProjectileMotion.ShotFlying:
-                    RunCrocomireProjectileFlight(context.Projectile, context.Level);
-                    break;
-                case CrocomireProjectileMotion.SpikeWallCollapsing:
-                    RunCrocomireSpikeWallPiece(context.Projectile);
-                    break;
-                case CrocomireProjectileMotion.BridgeFragmentFalling:
-                    RunCrocomireBridgeFragment(context.Projectile, context.Level);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileMotion)} {motion}.");
-            }
+            MoveForCrocomireProjectileMotion[motion](context);
         }
+
+        /// <summary>What <see cref="RunCue"/> does for each <see cref="CrocomireProjectileCue"/> member, each member's own arm.</summary>
+        private IdentityTable<CrocomireProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForCrocomireProjectileCue => field ??= new(new Dictionary<CrocomireProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
+        {
+            [CrocomireProjectileCue.SpawnDrops] = (context, projectile) => deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.Crocomire, context.Samus),
+            [CrocomireProjectileCue.Delete] = (context, projectile) => projectile.Delete(),
+        });
 
         /// <summary>Carries out a cue of the shot's animation: the drop, allocated before the deletion frees the actor, or the deletion.</summary>
         public void RunCue(EnemyProjectileCueContext context, CrocomireProjectileCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
-            switch (cue)
-            {
-                case CrocomireProjectileCue.SpawnDrops:
-                    deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.Crocomire, context.Samus);
-                    return;
-                case CrocomireProjectileCue.Delete:
-                    projectile.Delete();
-                    return;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileCue)} {cue}.");
-            }
+            RunCueForCrocomireProjectileCue[cue](context, projectile);
         }
 
         /// <summary>Runs the one-frame vector setup.</summary>
@@ -204,10 +194,10 @@ internal sealed partial class CrocomireCombat
     /// <returns>Whether the part's own reaction took the shot.</returns>
     internal bool ReactToCrocomirePartShot(in EnemyShotContext c, CrocomireEnemyState encounter)
     {
+        // His parts' shots always meet their frames' hitboxes (their capabilities say so); an ordinary hitbox takes the
+        // common damage, and every other names one of his own shots.
         if (c.HitboxShot.IsOrdinary)
             return false;
-        if (!c.UsesFrameHitboxes)
-            throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
         c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
         ResolveCrocomireHitboxShot(encounter, c.Shot.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
         return true;
@@ -228,17 +218,14 @@ internal sealed partial class CrocomireCombat
     };
 
     /// <summary>Runs Crocomire's component contact, including normal enemy touch damage.</summary>
+    /// <remarks>
+    /// His parts' touches always meet their frames' hitboxes, which name the ignoring, claw or ordinary touch, checked as
+    /// his collision loads (<see cref="CrocomireBodyCollision"/>).
+    /// </remarks>
     internal void ReactToCrocomireTouch(EnemyTouchContext context)
     {
-        if (!context.UsesFrameHitboxes)
-            throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
         if (context.HitboxTouch == EnemyReaction.Ignore)
             return; // The corpse's rectangles ignore Samus's touch.
-        if ((context.HitboxTouch != CrocomireReactions.ClawTouch && context.HitboxTouch != EnemyReaction.OrdinaryTouch))
-        {
-            throw new InvalidDataException(
-                $"Crocomire has no response to touch reaction {context.HitboxTouch}.");
-        }
 
         _collision.ResolveOrdinaryTouch(context);
         // A claw's touch also pushes Samus back.
@@ -247,8 +234,9 @@ internal sealed partial class CrocomireCombat
     }
 
     /// <summary>
-    /// Runs the shot reaction a Crocomire hitbox selected after frame-hitbox collision; <paramref name="camera"/> is the
-    /// camera as the shot or bomb pass runs.
+    /// Runs the shot reaction of his own a Crocomire hitbox selected after frame-hitbox collision, absorbed, dust or mouth,
+    /// the only ones his collision names beside the ordinary shot (checked as it loads, <see cref="CrocomireBodyCollision"/>);
+    /// <paramref name="camera"/> is the camera as the shot or bomb pass runs.
     /// </summary>
     private void ResolveCrocomireHitboxShot(
         CrocomireEnemyState state,
@@ -258,15 +246,13 @@ internal sealed partial class CrocomireCombat
         Position16<RoomPixels> camera)
     {
         // A shot on his raised or high mouth or his lower body is absorbed, neither hurting him nor raising dust; a dust
-        // hitbox raises dust; his mouth runs its reaction.
+        // hitbox raises dust; every other is his mouth's, which runs its reaction.
         if (reaction == CrocomireReactions.AbsorbedShot)
             return;
         if (reaction == CrocomireReactions.DustShot)
             SpawnCrocomireShotDust(projectileType, projectile);
-        else if (reaction == CrocomireReactions.MouthShot)
-            ResolveCrocomireMouthShot(state, state.Body, projectileType, projectile, camera);
         else
-            throw new InvalidOperationException($"Crocomire has no response to shot reaction {reaction}.");
+            ResolveCrocomireMouthShot(state, state.Body, projectileType, projectile, camera);
     }
 
     /// <summary>

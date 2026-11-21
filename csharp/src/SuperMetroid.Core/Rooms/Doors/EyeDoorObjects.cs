@@ -47,6 +47,13 @@ internal sealed partial class EyeDoorObjects
         WriteExtensionRows(level, place.Block, EyeDoorDefinitions.EyeExtensionRows);
     }
 
+    /// <summary>What <see cref="SetupEyeDoorPart"/> does for each <see cref="EyeDoorBodyPart"/> member, each member's own arm.</summary>
+    private static IdentityTable<EyeDoorBodyPart, Action<RoomObjectPlace, EyeDoorPart, PlacedDoor>> SetupEyeDoorPartForEyeDoorBodyPart => field ??= new(new Dictionary<EyeDoorBodyPart, Action<RoomObjectPlace, EyeDoorPart, PlacedDoor>>
+    {
+        [EyeDoorBodyPart.Middle] = static (place, part, placedDoor) => place.BecomeDoor(new EyeDoorBodyObject(part.Orientation, placedDoor)),
+        [EyeDoorBodyPart.Bottom] = static (place, part, placedDoor) => place.Become(new EyeDoorBottomObject(part.Orientation, placedDoor)),
+    });
+
     /// <summary>
     /// Places the eye door's body or bottom, <paramref name="part"/>, in <paramref name="door"/>, which takes its first look
     /// on its first update, and installs its closed collision block unless its door has been opened for good; the part's
@@ -57,17 +64,7 @@ internal sealed partial class EyeDoorObjects
     {
         Ensure.NotNull(place);
         var placedDoor = new PlacedDoor(door);
-        switch (part.BodyPart)
-        {
-            case EyeDoorBodyPart.Middle:
-                place.BecomeDoor(new EyeDoorBodyObject(part.Orientation, placedDoor));
-                break;
-            case EyeDoorBodyPart.Bottom:
-                place.Become(new EyeDoorBottomObject(part.Orientation, placedDoor));
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(part), part, $"Undefined {nameof(EyeDoorBodyPart)} {part.BodyPart}.");
-        }
+        SetupEyeDoorPartForEyeDoorBodyPart[part.BodyPart](place, part, placedDoor);
         if (placedDoor.IsOpenedForGood(_system.HasOpenedDoor))
             return;
         level.SetObjectCollisionAndBehavior(place.Block, EyeDoorDefinitions.ClosedComponentCollision,

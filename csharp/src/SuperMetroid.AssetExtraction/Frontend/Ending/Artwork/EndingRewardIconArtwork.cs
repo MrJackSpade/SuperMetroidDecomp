@@ -42,7 +42,7 @@ public partial class EndingRewardIconArtwork
             throw new InvalidDataException("Invalid reward icon map JSON.", error);
         }
         ValidateMap(map);
-        return map.Tiles.Select(tile => Ensure.BetweenInclusive(0, byte.MaxValue, tile)).ToArray();
+        return [.. map.Tiles];
     }
 
     /// <summary>Validates and writes the full post-credits 128x128 Mode-7 map using the shared map JSON schema.</summary>

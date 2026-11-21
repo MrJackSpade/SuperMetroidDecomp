@@ -9,9 +9,7 @@ internal static partial class EnemyDeathExplosions
     /// <summary>The death animation <paramref name="explosion"/> starts.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="explosion"/> is no death explosion.</exception>
     internal static Animation<EnemyDeathAndDropSegment> Animation(EnemyDeathExplosion explosion) =>
-        EnemyDeathAndDropAnimations.Explosions.TryGetValue(explosion, out Animation<EnemyDeathAndDropSegment>? animation)
-            ? animation
-            : throw new ArgumentOutOfRangeException(nameof(explosion), explosion, "Undefined enemy death explosion.");
+        EnemyDeathAndDropAnimations.Explosions[explosion];
 
     /// <summary>
     /// The explosion a Super Missile kill raises <paramref name="explosion"/> to: the small, contact and normal

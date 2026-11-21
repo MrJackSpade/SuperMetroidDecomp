@@ -16,7 +16,7 @@ internal sealed partial class PhantoonDoorObjects(RoomObjectPlaceList places)
     public void Spawn(RoomLevelData level, PhantoonDoorChange change)
     {
         Ensure.NotNull(level);
-        TerrainChange terrainChange = Ensure.Listed(Changes, change);
+        TerrainChange terrainChange = Changes[change];
 
         Position16<RoomBlocks> block = level.GridBlock(Block);
         if (places.Spawn() is not { } place)

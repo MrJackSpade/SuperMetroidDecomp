@@ -40,11 +40,11 @@ internal static partial class EquippedBeamProjectilePrograms
     /// <summary>The combination the Hyper Beam's shots take their lists from: charged Plasma.</summary>
     private const SamusBeamCombination HyperBeamFired = SamusBeamCombination.Plasma;
 
-    /// <summary>The families a fired missile is: missile and Super Missile.</summary>
-    private static readonly SamusProjectileFamily[] MissileFamilies = [SamusProjectileFamily.Missile, SamusProjectileFamily.SuperMissile];
+    /// <summary>The kinds a fired missile is: missile and Super Missile.</summary>
+    private static readonly SamusProjectileKind[] MissileKinds = [SamusProjectileSelection.Missile(super: false), SamusProjectileSelection.Missile(super: true)];
 
-    /// <summary>The families a placed bomb is: Power Bomb and bomb.</summary>
-    private static readonly SamusProjectileFamily[] BombFamilies = [SamusProjectileFamily.PowerBomb, SamusProjectileFamily.Bomb];
+    /// <summary>The kinds a placed bomb is: Power Bomb and bomb.</summary>
+    private static readonly SamusBombKind[] BombKinds = [SamusBombKind.PowerBomb, SamusBombKind.Bomb];
 
     /// <summary>The lists projectiles turn into: the beam, missile, Super Missile and bomb explosions.</summary>
     private static readonly SamusProjectileSegment[] Explosions =
@@ -64,10 +64,10 @@ internal static partial class EquippedBeamProjectilePrograms
         // Only a retail combination has a special attack.
         if (beams.CanBeEquipped && SamusProjectileSelection.SpecialAttack(beams) is { } specialAttack)
             AddSole(starts, specialAttack);
-        foreach (SamusProjectileFamily family in MissileFamilies)
-            AddEveryDirection(starts, SamusProjectileSelection.NonBeam(family));
-        foreach (SamusProjectileFamily family in BombFamilies)
-            AddSole(starts, SamusProjectileSelection.NonBeam(family));
+        foreach (SamusProjectileKind missile in MissileKinds)
+            AddEveryDirection(starts, missile);
+        foreach (SamusBombKind bomb in BombKinds)
+            AddSole(starts, SamusProjectileSelection.Bomb(bomb));
         foreach (SamusBeamEcho echo in EchoOrder)
         {
             AddEveryDirection(starts, SamusProjectileSelection.Echo(echo));

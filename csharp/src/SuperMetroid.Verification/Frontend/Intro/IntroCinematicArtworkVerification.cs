@@ -321,7 +321,7 @@ internal static class IntroCinematicArtworkVerification
         var state = CreateRetailIntroFixture(characterArtwork: stock);
         state.SetupFirstIllustratedPage();
         state.SetupMotherBrainFlashback();
-        var level = state.CurrentFlashbackLevel ?? throw new InvalidOperationException("Verification requires level.");
+        var level = state.CurrentFlashbackTerrain?.Level ?? throw new InvalidOperationException("Verification requires level.");
         for (int index = 0; index < native.Length; index++)
             AssertEqual(native[index], level.GetCollisionBlockByIndex(index).Terrain.Collision,
                 $"Mother Brain flashback collision block {index} matches the decoded original without ROM reads");
@@ -393,8 +393,7 @@ internal static class IntroCinematicArtworkVerification
                 File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), IntroMotherBrainExplosionSpriteFormat.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroMotherBrainExplosions);
-        var explosions = new IntroMotherBrainExplosionSystem();
-        explosions.SpawnFourthHitExplosions();
+        var explosions = IntroMotherBrainExplosionSystem.SpawnFourthHitExplosions();
         explosions.Step(crossfadeFinishing: false);
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();

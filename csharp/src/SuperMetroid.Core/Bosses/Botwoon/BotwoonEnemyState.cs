@@ -78,14 +78,12 @@ public sealed partial class BotwoonEnemyState
     public RotationAngle MovementAngle { get; internal set; }
     /// <summary>The direction his spits fly: the bearing from his head to Samus, to which a volley's other spits add their spread.</summary>
     public RotationAngle SpitAngle { get; internal set; }
-    /// <summary>The authored path being walked; none before his first walk.</summary>
-    internal BotwoonPathDefinition? Path { get; set; }
     /// <summary>
-    /// The next step of <see cref="Path"/> to take. A forward walk ends when it passes the last step and a backward
-    /// walk when it passes the first, so it ranges from one before the first step to one after the last.
+    /// Where he stands on the authored path being walked (#2553), its next step to take; none before his first walk. A
+    /// forward walk ends when it passes the last step and a backward walk when it passes the first.
     /// </summary>
-    public int PathStep { get; internal set; }
-    /// <summary>Which way <see cref="Path"/> is walked: a backward walk takes the steps in reverse order, each reversed.</summary>
+    internal BotwoonPathPosition? PathPosition { get; set; }
+    /// <summary>Which way the path of <see cref="PathPosition"/> is walked: a backward walk takes the steps in reverse order, each reversed.</summary>
     public BotwoonPathTraversal PathTraversal { get; internal set; }
     /// <summary>The head animation the AI last installed and where it stands; reinstalling the same animation does not restart it.</summary>
     internal AnimationPlayback<BotwoonHeadAnimationSegment> HeadPlayback { get; set; } =

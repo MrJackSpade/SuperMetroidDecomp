@@ -85,11 +85,8 @@ internal static partial class CollectibleObjectDraws
     /// The draw of <paramref name="look"/> into the block pair <paramref name="pair"/> an item that shows its own picture
     /// took (<see cref="CollectibleBlockPairs"/>).
     /// </summary>
-    /// <exception cref="InvalidDataException">The pair is none of the four.</exception>
     internal static RoomObjectFrameDraw<CollectibleDraw> BlockPairFrame(CollectibleBlockPairs.Pair pair, CollectibleLook look) =>
-        BlockPairLooks.TryGetValue(pair, out CollectibleLookDraws looks)
-            ? Family.Of(looks.Of(look))
-            : throw new InvalidDataException($"Undefined collectible block pair {pair}.");
+        Family.Of(BlockPairLooks[pair].Of(look));
 
     /// <summary>The collectibles' family: a block pair's frame writes its terrain alone; every other frame draws as pictured.</summary>
     private sealed partial class CollectibleDrawFamily() : RoomObjectDrawFamily<CollectibleDraw>("collectible", ShapeOf)

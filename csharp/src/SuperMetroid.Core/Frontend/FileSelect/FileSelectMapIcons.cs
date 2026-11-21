@@ -40,7 +40,7 @@ public sealed partial class FileSelectMapIcons(SharedGameState system, AreaId ar
         foreach (MapBossMarker marker in MapLandmarks.BossMarkers(area))
         {
             Position16<MapPixels> point = layout.Get(marker.Id);
-            if (defeated.HasFlag(Ensure.Listed(AreaBossDefinitions.Bosses, marker.Boss).RecordedAs))
+            if (defeated.HasFlag(AreaBossDefinitions.Bosses[marker.Boss].RecordedAs))
             {
                 Draw(MapSpriteId.MarkerDefeatedBoss, point, MapSpriteColouring.Markers);
                 Draw(MapSpriteId.MarkerBoss, point, MapSpriteColouring.DefeatedBossMarker);
@@ -88,9 +88,10 @@ public sealed partial class FileSelectMapIcons(SharedGameState system, AreaId ar
     /// <summary>Destination lettering is visible only after downloading this area's map.</summary>
     public void DrawElevatorLabels(ScreenSprites entries, Offset16<MapPixels> scroll)
     {
-        if (!system.HasAreaMap(area)) return;
+        // Ceres has no elevators to label.
+        if (!AreaIds.IsZebes(area, out ZebesArea zebes) || !system.HasAreaMap(area)) return;
         var elevatorLayout = landmarks;
-        foreach (var label in MapLandmarks.Elevators(area))
+        foreach (var label in MapLandmarks.Elevators(zebes))
         {
             Add(entries, MapLandmarks.ElevatorPicture(label.Destination),
                 elevatorLayout.Get(label.Id), scroll, MapSpriteColouring.Labels);

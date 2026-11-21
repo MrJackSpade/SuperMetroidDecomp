@@ -15,5 +15,5 @@ internal sealed partial class PowampSpikeAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<PowampSpikeSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => PowampSpikeAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<PowampSpikeSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => PowampSpikeAnimations.Segments;
 }

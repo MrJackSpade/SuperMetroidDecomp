@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Poses;
@@ -37,7 +38,7 @@ public sealed partial class SamusPoseTransitionSetup
 
     /// <summary>A knockback pose's escape chord starts the damage boost the other way.</summary>
     internal static SamusPoseTransitionSetup StartDamageBoost { get; } = new(nameof(StartDamageBoost),
-        (_, frame, samus, targetPose, _) => SamusPoseSetupSteps.SetUpStartDamageBoost(frame, samus, targetPose));
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpStartDamageBoost(samus, targetPose));
 
     /// <summary>She leaves a damage boost for the neutral or forward normal jump.</summary>
     internal static SamusPoseTransitionSetup JumpFromDamageBoost { get; } = new(nameof(JumpFromDamageBoost),
@@ -45,7 +46,7 @@ public sealed partial class SamusPoseTransitionSetup
 
     /// <summary>A moonwalk reverses while Jump is held, starting the moonwalk turn that jumps.</summary>
     internal static SamusPoseTransitionSetup StartMoonwalkTurnToSpinJump { get; } = new(nameof(StartMoonwalkTurnToSpinJump),
-        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpStartMoonwalkTurnToSpinJump(samus, targetPose));
+        (_, _, samus, _, _) => SamusPoseSetupSteps.SetUpStartMoonwalkTurnToSpinJump(samus));
 
     /// <summary>She starts, aims or leaves a moonwalk, or turns instead when moonwalking is switched off.</summary>
     internal static SamusPoseTransitionSetup ChangeMoonwalkPose { get; } = new(nameof(ChangeMoonwalkPose),
@@ -89,7 +90,7 @@ public sealed partial class SamusPoseTransitionSetup
 
     /// <summary>She turns around in a normal jump or a fall.</summary>
     internal static SamusPoseTransitionSetup TurnInAir { get; } = new(nameof(TurnInAir),
-        (owner, _, samus, targetPose, terrain) => owner.SetUpTurnInAir(samus, targetPose, terrain));
+        (owner, _, samus, _, terrain) => owner.SetUpTurnInAir(samus, terrain));
 
     /// <summary>A spin or wall jump spins the other way, or keeps spinning.</summary>
     internal static SamusPoseTransitionSetup ChangeSpinDirection { get; } = new(nameof(ChangeSpinDirection),
@@ -107,9 +108,17 @@ public sealed partial class SamusPoseTransitionSetup
     internal static SamusPoseTransitionSetup ChangeCompactAerialPose { get; } = new(nameof(ChangeCompactAerialPose),
         (owner, _, samus, targetPose, terrain) => owner.SetUpChangeCompactAerialPose(samus, targetPose, terrain));
 
-    /// <summary>A shinespark windup's direction launches the shinespark.</summary>
-    internal static SamusPoseTransitionSetup AimShinespark { get; } = new(nameof(AimShinespark),
-        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpAimShinespark(samus, targetPose));
+    /// <summary>A shinespark windup's direction launches the horizontal shinespark.</summary>
+    internal static SamusPoseTransitionSetup AimShinesparkHorizontal { get; } = new(nameof(AimShinesparkHorizontal),
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpAimShinespark(samus, targetPose, ShinesparkLaunchDirection.Horizontal));
+
+    /// <summary>A shinespark windup's direction launches the vertical shinespark.</summary>
+    internal static SamusPoseTransitionSetup AimShinesparkVertical { get; } = new(nameof(AimShinesparkVertical),
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpAimShinespark(samus, targetPose, ShinesparkLaunchDirection.Vertical));
+
+    /// <summary>A shinespark windup's direction launches the diagonal shinespark.</summary>
+    internal static SamusPoseTransitionSetup AimShinesparkDiagonal { get; } = new(nameof(AimShinesparkDiagonal),
+        (_, _, samus, targetPose, _) => SamusPoseSetupSteps.SetUpAimShinespark(samus, targetPose, ShinesparkLaunchDirection.Diagonal));
 
     /// <summary>She aims, fires or struggles differently while Draygon holds her.</summary>
     internal static SamusPoseTransitionSetup ChangeDraygonGrabbedPose { get; } = new(nameof(ChangeDraygonGrabbedPose),

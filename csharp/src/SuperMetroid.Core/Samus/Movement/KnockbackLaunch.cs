@@ -8,9 +8,10 @@ public sealed partial record KnockbackLaunch
 
     /// <summary>
     /// The hurt countdown in gameplay updates, which the producer of the hit owns: an enemy's touch supplies
-    /// <see cref="Enemies.EnemyCollisionDefinitions.SamusTouchKnockbackUpdates"/>, the intro Rinka's strike its own.
+    /// <see cref="Enemies.EnemyCollisionDefinitions.SamusTouchKnockbackUpdates"/>, the intro Rinka's strike its own. A
+    /// launch always lasts at least one update: a hold that has run out starts no knockback.
     /// </summary>
-    public required int KnockbackTimer { get; init; }
+    public required int KnockbackTimer { get; init => field = Ensure.BetweenInclusive(1, ushort.MaxValue, value); }
 
     /// <summary>
     /// The launch Samus's hurt state gives: the knockback direction the hit's contact set on her, and the hurt countdown

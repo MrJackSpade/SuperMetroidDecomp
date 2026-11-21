@@ -18,5 +18,5 @@ internal sealed partial class SaveStationElectricityAnimation()
     private protected override Offset16<RoomPixels> Placement(Offset16<RoomPixels> frame) => frame;
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<SaveStationElectricitySegment, Offset16<RoomPixels>, EnemyProjectileCommonCue> Segments => SaveStationElectricityAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<SaveStationElectricitySegment, Offset16<RoomPixels>, EnemyProjectileCommonCue> Segments => SaveStationElectricityAnimations.Segments;
 }

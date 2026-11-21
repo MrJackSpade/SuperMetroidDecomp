@@ -95,17 +95,17 @@ public sealed partial class FileSelectAreaMapGraphics
         ScreenSprites entries = screen.Sprites;
         entries.BeginFrame();
         Draw(MapSpriteId.WorldTitle, FileSelectMapDefinitions.WorldTitlePosition, MapSpriteColouring.Labels);
-        foreach (AreaId area in FileSelectMapAreaOrder.Labels)
+        foreach (ZebesArea area in FileSelectMapAreaOrder.Labels)
         {
-            if (MapSaveMarkers.HasUsedMarker(area, progress.UsedStations))
+            if (MapSaveMarkers.HasUsedMarker(AreaIds.Area(area), progress.UsedStations))
                 DrawArea(area);
         }
         entries.FinishFrame();
 
-        void DrawArea(AreaId shown)
+        void DrawArea(ZebesArea shown)
         {
-            Draw(Ensure.Listed(MapSpriteDefinitions.WorldLabels, shown), labels.Get(shown),
-                shown == SelectedArea ? MapSpriteColouring.Labels : MapSpriteColouring.DimLabels);
+            Draw(MapSpriteDefinitions.WorldLabels[shown], labels.Get(shown),
+                AreaIds.Area(shown) == SelectedArea ? MapSpriteColouring.Labels : MapSpriteColouring.DimLabels);
         }
 
         void Draw(MapSpriteId id, Offset16<ScreenPixels> origin, MapSpriteColouring colouring)
@@ -140,11 +140,6 @@ public sealed partial class FileSelectAreaMapGraphics
     }
 
     /// <summary>The plane <paramref name="glow"/> limits the background's glow to: none over the whole screen, or the foreground.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="glow"/> is undefined.</exception>
-    private static PicturedPlaneLayer? GlowsOver(AreaMapBackgroundGlow glow, PicturedPlaneLayer foreground) => glow switch
-    {
-        AreaMapBackgroundGlow.WholeScreen => null,
-        AreaMapBackgroundGlow.ForegroundOnly => foreground,
-        _ => throw new ArgumentOutOfRangeException(nameof(glow), glow, "Undefined area map glow."),
-    };
+    private static PicturedPlaneLayer? GlowsOver(AreaMapBackgroundGlow glow, PicturedPlaneLayer foreground) =>
+        glow == AreaMapBackgroundGlow.ForegroundOnly ? foreground : null;
 }

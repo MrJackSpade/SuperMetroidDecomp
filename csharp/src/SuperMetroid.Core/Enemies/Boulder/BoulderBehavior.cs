@@ -11,10 +11,13 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 internal sealed partial class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boulder];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Boulder], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BoulderEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BoulderEntity(this, occupant, place, common));
 
     /// <summary>Moves the actor through room collision during fall and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
@@ -42,62 +45,31 @@ internal sealed partial class BoulderBehavior : IEnemySpecies, IEnemyEntityFacto
         state.PreviousY = place.Position.Y;
 
         BoulderSpawnSettings settings = occupant.SpawnSettings<BoulderSpawnSettings>();
-        int initialYOffset;
-        switch (settings.Start)
-        {
-            case BoulderStart.FallsFrom fall:
-                initialYOffset = fall.Drop;
-                break;
-            case BoulderStart.RollsAtOnce:
-                // A Boulder that rolls at once still hangs a pixel above its resting place, and its trigger starts it
-                // rolling instead of falling.
-                initialYOffset = BoulderMotionDefinitions.RollingStartLift;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BoulderStart)} {settings.Start}.");
-        }
+        int initialYOffset = settings.Start.InitialLift;
         place.Position = place.Position.WithWholeY(state.RestingY - initialYOffset);
 
-        switch (settings.Roll)
-        {
-            case HorizontalDirection.Right:
-                state.Playback = new(BoulderAnimations.StartingWith(BoulderSegment.Right), AnimationPlace.StartOfAnimation);
-                break;
-            case HorizontalDirection.Left:
-                state.Playback = new(BoulderAnimations.StartingWith(BoulderSegment.Left), AnimationPlace.StartOfAnimation);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(HorizontalDirection)} {settings.Roll}.");
-        }
+        state.Playback = new(BoulderAnimations.StartingWith(settings.Roll == HorizontalDirection.Right ? BoulderSegment.Right : BoulderSegment.Left),
+            AnimationPlace.StartOfAnimation);
         state.VerticalCompensation = BoulderMotionDefinitions.RollingGroundReach;
     }
+
+    /// <summary>What <see cref="RunBoulderMain"/> does for each <see cref="BoulderAction"/> member, each member's own arm.</summary>
+    private IdentityTable<BoulderAction, Action<RoomEnemyOccupant, RoomEnemyPlace, BoulderEnemyState, SamusState, RoomLevelData>> RunBoulderMainForBoulderAction => field ??= new(new Dictionary<BoulderAction, Action<RoomEnemyOccupant, RoomEnemyPlace, BoulderEnemyState, SamusState, RoomLevelData>>
+    {
+        [BoulderAction.WaitingForSamus] = (occupant, place, state, samus, level) => RunBoulderWaiting(occupant, place, state, samus),
+        [BoulderAction.InitialFall] = (_, place, state, samus, level) => RunBoulderInitialFall(place, state),
+        [BoulderAction.Rebound] = (occupant, place, state, samus, level) => RunBoulderRebound(occupant, place, state),
+        [BoulderAction.Falling] = (occupant, place, state, samus, level) => RunBoulderFalling(occupant, place, state, level),
+        [BoulderAction.Rolling] = (occupant, place, state, samus, level) => RunBoulderRolling(occupant, place, state, level),
+        [BoulderAction.Inert] = (_, place, state, samus, level) =>
+        {
+        },
+    });
 
     /// <summary>Runs the wait, fall, rebound, roll or inert phase with required Samus and terrain state.</summary>
     private void RunBoulderMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, BoulderEnemyState state, SamusState samus, RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case BoulderAction.WaitingForSamus:
-                RunBoulderWaiting(occupant, place, state, samus);
-                break;
-            case BoulderAction.InitialFall:
-                RunBoulderInitialFall(place, state);
-                break;
-            case BoulderAction.Rebound:
-                RunBoulderRebound(occupant, place, state);
-                break;
-            case BoulderAction.Falling:
-                RunBoulderFalling(occupant, place, state, level);
-                break;
-            case BoulderAction.Rolling:
-                RunBoulderRolling(occupant, place, state, level);
-                break;
-            case BoulderAction.Inert:
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Boulder has no behaviour for action {state.Action}.");
-        }
+        RunBoulderMainForBoulderAction[state.Action](occupant, place, state, samus, level);
     }
 
     /// <summary>
@@ -262,9 +234,8 @@ internal sealed partial class BoulderBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Advances Boulder's typed animation.</summary>
     internal static void AdvanceBoulderTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, BoulderAnimations.Segments,
-            static (BoulderEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free Boulder animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, BoulderAnimations.Segments,
+            static (BoulderEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Boulder's main AI.</summary>
     internal void RunBoulderMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)

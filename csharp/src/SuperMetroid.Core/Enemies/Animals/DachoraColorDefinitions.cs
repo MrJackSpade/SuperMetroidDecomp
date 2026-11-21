@@ -7,10 +7,10 @@ public static partial class DachoraColorDefinitions
     public const int AnimatedFrameCount = 4;
 
     /// <summary>The frames each colour phase shows: its normal colours one, the speed and stored-shine glows their animated frames.</summary>
-    internal static readonly IReadOnlyDictionary<DachoraColourPhase, int> PhaseFrameCounts = new Dictionary<DachoraColourPhase, int>
+    internal static readonly IdentityTable<DachoraColourPhase, int> PhaseFrameCounts = new(new Dictionary<DachoraColourPhase, int>
     {
         [DachoraColourPhase.Default] = 1,
         [DachoraColourPhase.Speed] = AnimatedFrameCount,
         [DachoraColourPhase.Shine] = AnimatedFrameCount,
-    };
+    });
 }

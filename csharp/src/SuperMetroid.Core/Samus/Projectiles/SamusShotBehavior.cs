@@ -10,20 +10,15 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// (<see cref="SamusShotBehaviors"/>): what changes from update to update is the shot's, and what only its kind keeps
 /// is the kind's own record (<see cref="SamusShotKindState"/>).
 /// </summary>
-internal abstract partial class SamusShotBehavior
+internal abstract partial class SamusShotBehavior : SamusShotFiring
 {
     /// <summary>Runs the shot's update.</summary>
     /// <param name="update">What the shot update hands every behaviour.</param>
     internal abstract void Run(SamusShotUpdate update);
 
-    /// <summary>
-    /// Fails loudly when a shot that runs this behaviour cannot be fired: nothing for every behaviour a shot fires with;
-    /// a behaviour whose shot runs data rather than the game's code refuses the shot as it is fired
-    /// (<see cref="ShotRefusedWhenFired"/>).
-    /// </summary>
-    internal virtual void AdmitFiring()
-    {
-    }
+    /// <summary>A fired beam shot runs this behaviour from its next update, keeping no state of its kind.</summary>
+    /// <param name="held">The fired shot.</param>
+    internal sealed override void Fire(SamusProjectileOccupant held) => Ensure.NotNull(held).Install(this, kindState: null);
 
     /// <summary>
     /// Whether the shot ends itself on its own next update once an enemy's collision marks it: a special attack particle

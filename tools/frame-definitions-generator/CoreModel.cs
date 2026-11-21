@@ -89,7 +89,8 @@ internal sealed class CoreModel
         SpawnedObjectOwner = SingleType("SpawnedObjectOwner");
         RoomEnemyPlace = SingleType("RoomEnemyPlace");
         RoomEnemyOccupant = SingleType("RoomEnemyOccupant");
-        AnimationSegments = SingleType("AnimationSegments", arity: 3);
+        AnimationSegmentPlay = SingleType("AnimationSegmentPlay", arity: 5);
+        IdentityTable = SingleType("IdentityTable", arity: 2);
         _entity = SingleType("IEnemyEntity");
         INamedTypeSymbol factory = SingleType("IEnemyEntityFactory");
         INamedTypeSymbol timelineAnimation = SingleType("EnemyProjectileTimelineAnimation", arity: 3);
@@ -177,8 +178,17 @@ internal sealed class CoreModel
     /// <summary>The enemy holding a place, which carries its definition (#2558).</summary>
     public INamedTypeSymbol RoomEnemyOccupant { get; }
 
-    /// <summary>The segments a family's typed animations declare, each segment's beats showing frames and raising cues.</summary>
-    public INamedTypeSymbol AnimationSegments { get; }
+    /// <summary>
+    /// The play of the segments a family's typed animations declare, each segment's beats showing frames and raising cues: the
+    /// base of a pausing family's and an unpausing family's segments alike (#2553).
+    /// </summary>
+    public INamedTypeSymbol AnimationSegmentPlay { get; }
+
+    /// <summary>The table holding a value for every member of an identity, which Core dispatches through (#2553).</summary>
+    public INamedTypeSymbol IdentityTable { get; }
+
+    /// <summary>Whether <paramref name="type"/> is a family's segments: a pausing or an unpausing family's (#2553).</summary>
+    public bool IsAnimationSegmentsType(INamedTypeSymbol type) => DerivesFrom(type, AnimationSegmentPlay);
 
     /// <summary>
     /// The base every projectile program family derives from (#1600), whose type arguments are its segment, frame and event
@@ -216,10 +226,15 @@ internal sealed class CoreModel
     /// <summary>Whether <paramref name="member"/> is a property or field holding a family's segments: an <c>AnimationSegments</c>.</summary>
     private bool IsAnimationSegments(ISymbol member) =>
         (member switch { IPropertySymbol property => property.Type, IFieldSymbol field => field.Type, _ => null })
-            is INamedTypeSymbol type && SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, AnimationSegments);
+            is INamedTypeSymbol type && IsAnimationSegmentsType(type);
 
     /// <summary>The programs motion handlers restart only the objects of some kinds in, read once (#1854, #1843).</summary>
     public KindRestarts KindRestarts => _kindRestarts ??= new KindRestarts(this);
+
+    /// <summary>Core's dispatch through identity tables, each entry running only for its key (#2553).</summary>
+    public IdentityTableDispatch Dispatch => _tableDispatch ??= new IdentityTableDispatch(this);
+
+    private IdentityTableDispatch? _tableDispatch;
 
     private KindRestarts? _kindRestarts;
 
@@ -852,20 +867,41 @@ internal sealed class CoreModel
         return false;
     }
 
-    /// <summary>Reads the definitions <paramref name="type"/> declares, directly or through a parts table's keys.</summary>
+    /// <summary>
+    /// Reads the definitions <paramref name="type"/> declares in its creations (#2553): the keys of a map naming each
+    /// definition's own creation, or the definitions, directly or through a parts table's keys, that one creation serves alike.
+    /// </summary>
     private Behaviour ReadBehaviour(INamedTypeSymbol type)
     {
-        var declared = type.GetMembers("Definitions").OfType<IPropertySymbol>().Where(p => !p.IsStatic).ToList();
+        var declared = type.GetMembers("Creations").OfType<IPropertySymbol>().Where(p => !p.IsStatic).ToList();
         if (declared is not [{ DeclaringSyntaxReferences: [var reference] }])
-            throw new InvalidDataException($"{type.ToDisplayString()} creates enemies but does not declare one Definitions property.");
-        if (reference.GetSyntax() is not PropertyDeclarationSyntax { Initializer.Value: CollectionExpressionSyntax collection })
-            throw new InvalidDataException($"{type.ToDisplayString()}.Definitions is not initialized with a collection expression.");
-        SemanticModel model = ModelOf(collection.SyntaxTree);
+            throw new InvalidDataException($"{type.ToDisplayString()} creates enemies but does not declare one Creations property.");
+        if (reference.GetSyntax() is not PropertyDeclarationSyntax { ExpressionBody.Expression: AssignmentExpressionSyntax { Right: var built } } property)
+            throw new InvalidDataException($"{type.ToDisplayString()}.Creations is not built once by its expression body.");
+        SemanticModel model = ModelOf(property.SyntaxTree);
         var names = new List<string>();
         var parts = new Dictionary<string, IFieldSymbol>(StringComparer.Ordinal);
         var entries = new Dictionary<string, ExpressionSyntax>(StringComparer.Ordinal);
         ISymbol? partsTable = null;
-        foreach (CollectionElementSyntax element in collection.Elements)
+        IEnumerable<CollectionElementSyntax> elements;
+        switch (built)
+        {
+            case BaseObjectCreationExpressionSyntax { Initializer.Expressions: var initializers }:
+                foreach (ExpressionSyntax entry in initializers)
+                {
+                    if (entry is not AssignmentExpressionSyntax { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [var key] } })
+                        throw new InvalidDataException($"{type.ToDisplayString()}.Creations has an entry this generator cannot read: {entry}");
+                    names.Add(DefinitionName(model, key.Expression, type));
+                }
+                elements = [];
+                break;
+            case InvocationExpressionSyntax { ArgumentList.Arguments: [{ Expression: CollectionExpressionSyntax each }, _] }:
+                elements = each.Elements;
+                break;
+            default:
+                throw new InvalidDataException($"{type.ToDisplayString()}.Creations is built in a way this generator cannot read: {built}");
+        }
+        foreach (CollectionElementSyntax element in elements)
         {
             switch (element)
             {
@@ -875,7 +911,7 @@ internal sealed class CoreModel
                 case SpreadElementSyntax { Expression: MemberAccessExpressionSyntax { Name.Identifier.Text: "Keys", Expression: var table } }:
                     ISymbol? tableSymbol = model.GetSymbolInfo(table).Symbol;
                     if (partsTable is not null)
-                        throw new InvalidDataException($"{type.ToDisplayString()}.Definitions spreads more than one parts table.");
+                        throw new InvalidDataException($"{type.ToDisplayString()}.Creations spreads more than one parts table.");
                     partsTable = tableSymbol?.OriginalDefinition;
                     foreach ((string key, IFieldSymbol? part, ExpressionSyntax value) in PartsTableKeys(tableSymbol, type))
                     {
@@ -886,13 +922,13 @@ internal sealed class CoreModel
                     }
                     break;
                 default:
-                    throw new InvalidDataException($"{type.ToDisplayString()}.Definitions has an element this generator cannot read: {element}");
+                    throw new InvalidDataException($"{type.ToDisplayString()}.Creations has an element this generator cannot read: {element}");
             }
         }
         if (names.Count == 0)
             throw new InvalidDataException($"{type.ToDisplayString()} declares no definitions.");
         string family = Regex.Replace(type.Name, "(Behavior|Factory)$", "");
-        return new Behaviour(type, family, RelativePath(collection.SyntaxTree), names, partsTable, parts, entries);
+        return new Behaviour(type, family, RelativePath(property.SyntaxTree), names, partsTable, parts, entries);
     }
 
     /// <summary>The EnemyDefinitionId member <paramref name="expression"/> names.</summary>

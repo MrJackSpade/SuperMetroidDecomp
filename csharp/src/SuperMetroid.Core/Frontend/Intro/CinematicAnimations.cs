@@ -29,10 +29,22 @@ internal sealed partial class CinematicAnimations<TAnimation, TFrame, TCue>
     /// <exception cref="ArgumentException">An animation plays a segment the family does not hold.</exception>
     internal CinematicAnimations(IReadOnlyDictionary<TAnimation, AnimationBeat<TFrame, TCue>[]> segments,
         Func<CinematicPlays<TAnimation, TFrame, TCue>, IReadOnlyDictionary<TAnimation, Animation<TAnimation>>> startingAt)
+        : this(Ensure.NotNull(segments).ToDictionary(pair => pair.Key, pair => pair.Value.ToArray<IHidingAnimationBeat<TFrame, TCue>>()), startingAt)
+    {
+    }
+
+    /// <summary>
+    /// Creates the animations of a family whose actors hide for stretches (#2558): <paramref name="segments"/> are the beats
+    /// each segment plays, hidden stretches among them, and <paramref name="startingAt"/> writes the animation an actor
+    /// starting each of them plays, as the other constructor's does.
+    /// </summary>
+    /// <exception cref="ArgumentException">An animation plays a segment the family does not hold.</exception>
+    internal CinematicAnimations(IReadOnlyDictionary<TAnimation, IHidingAnimationBeat<TFrame, TCue>[]> segments,
+        Func<CinematicPlays<TAnimation, TFrame, TCue>, IReadOnlyDictionary<TAnimation, Animation<TAnimation>>> startingAt)
     {
         Ensure.NotNull(segments);
         Ensure.NotNull(startingAt);
-        Segments = new AnimationSegments<TAnimation, TFrame, TCue>(segments, segments.Keys.ToHashSet());
+        Segments = new HidingAnimationSegments<TAnimation, TFrame, TCue>(segments, segments.Keys.ToHashSet());
         IReadOnlyDictionary<TAnimation, Animation<TAnimation>> starting = startingAt(new CinematicPlays<TAnimation, TFrame, TCue>(Segments));
         foreach ((TAnimation start, Animation<TAnimation> animation) in starting)
         {
@@ -53,14 +65,23 @@ internal sealed partial class CinematicAnimations<TAnimation, TFrame, TCue>
     /// </summary>
     /// <exception cref="ArgumentException">A still is also one of <paramref name="segments"/> or of the animations <paramref name="startingAt"/> writes.</exception>
     internal CinematicAnimations(IReadOnlyDictionary<TAnimation, TFrame> stills,
-        IReadOnlyDictionary<TAnimation, AnimationBeat<TFrame, TCue>[]> segments,
+        IReadOnlyDictionary<TAnimation, IHidingAnimationBeat<TFrame, TCue>[]> segments,
         Func<CinematicPlays<TAnimation, TFrame, TCue>, IReadOnlyDictionary<TAnimation, Animation<TAnimation>>> startingAt)
         : this(WithStills(stills, segments), plays => WithStillStarts(stills, plays, Ensure.NotNull(startingAt)(plays)))
     {
     }
 
+    /// <summary>The family of still and authored segments, the authored ones none of which hides the actor.</summary>
+    /// <exception cref="ArgumentException">A still is also one of <paramref name="segments"/> or of the animations <paramref name="startingAt"/> writes.</exception>
+    internal CinematicAnimations(IReadOnlyDictionary<TAnimation, TFrame> stills,
+        IReadOnlyDictionary<TAnimation, AnimationBeat<TFrame, TCue>[]> segments,
+        Func<CinematicPlays<TAnimation, TFrame, TCue>, IReadOnlyDictionary<TAnimation, Animation<TAnimation>>> startingAt)
+        : this(stills, Ensure.NotNull(segments).ToDictionary(pair => pair.Key, pair => pair.Value.ToArray<IHidingAnimationBeat<TFrame, TCue>>()), startingAt)
+    {
+    }
+
     /// <summary>The segments the family's animations play.</summary>
-    internal AnimationSegments<TAnimation, TFrame, TCue> Segments { get; }
+    internal HidingAnimationSegments<TAnimation, TFrame, TCue> Segments { get; }
 
     /// <summary>The animation an actor starting <paramref name="animation"/> plays.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No actor of the family starts <paramref name="animation"/>.</exception>
@@ -69,10 +90,10 @@ internal sealed partial class CinematicAnimations<TAnimation, TFrame, TCue>
         : throw new ArgumentOutOfRangeException(nameof(animation), animation, "No actor of this cinematic family starts this animation.");
 
     /// <summary><paramref name="segments"/> with each of <paramref name="stills"/> as a segment holding its one picture for good.</summary>
-    private static Dictionary<TAnimation, AnimationBeat<TFrame, TCue>[]> WithStills(IReadOnlyDictionary<TAnimation, TFrame> stills,
-        IReadOnlyDictionary<TAnimation, AnimationBeat<TFrame, TCue>[]> segments)
+    private static Dictionary<TAnimation, IHidingAnimationBeat<TFrame, TCue>[]> WithStills(IReadOnlyDictionary<TAnimation, TFrame> stills,
+        IReadOnlyDictionary<TAnimation, IHidingAnimationBeat<TFrame, TCue>[]> segments)
     {
-        var all = new Dictionary<TAnimation, AnimationBeat<TFrame, TCue>[]>(Ensure.NotNull(segments));
+        var all = new Dictionary<TAnimation, IHidingAnimationBeat<TFrame, TCue>[]>(Ensure.NotNull(segments));
         foreach ((TAnimation still, TFrame picture) in Ensure.NotNull(stills))
             all.Add(still, [new AnimationBeat<TFrame, TCue>.HeldFrame(picture)]);
         return all;

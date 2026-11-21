@@ -27,6 +27,8 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public Func<StoryEvent, bool>? HasEvent { get; set; }
     /// <summary>Optional case-owned query for how many Zebetites have been destroyed.</summary>
     public Func<int>? ReadZebetitesDestroyed { get; set; }
+    /// <summary>Optional case-owned record of a destroyed Zebetite's count, which a case reading its own count keeps.</summary>
+    public Action<int>? WriteZebetitesDestroyed { get; set; }
     /// <summary>Optional case-owned query for the area's major boss flag.</summary>
     public Func<bool>? IsAreaBossDefeated { get; set; }
     /// <summary>Optional case-owned query for the area's mini-boss flag.</summary>
@@ -84,13 +86,19 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     /// <summary>Forwards event writes to loaded room services.</summary>
     public void Set(StoryEvent storyEvent) => Loaded("mark a story event").Events.Set(storyEvent);
 
-    /// <summary>Reads the Zebetite count through the case override or loaded services; writes go to loaded services.</summary>
+    /// <summary>Reads and writes the Zebetite count through the case's own count or loaded services.</summary>
     int IZebetiteProgress.ZebetitesDestroyed
     {
         get => ReadZebetitesDestroyed is { } read
             ? read()
             : Loaded("read the Zebetites destroyed").ZebetiteProgress.ZebetitesDestroyed;
-        set => Loaded("advance the Zebetites destroyed").ZebetiteProgress.ZebetitesDestroyed = value;
+        set
+        {
+            if (WriteZebetitesDestroyed is { } write)
+                write(value);
+            else
+                Loaded("advance the Zebetites destroyed").ZebetiteProgress.ZebetitesDestroyed = value;
+        }
     }
 
     /// <summary>Queries the selected boss bit through its case callback or loaded services.</summary>
@@ -137,6 +145,9 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
         else
             Loaded("count a head shot on Mother Brain's glass").MotherBrain.CountHeadShotOnGlass();
     }
+
+    /// <summary>Confirms Mother Brain's glass loaded through the loaded services.</summary>
+    public void ConfirmGlassLoaded() => Loaded("confirm Mother Brain's glass loaded").MotherBrain.ConfirmGlassLoaded();
 
     /// <summary>Whether the loaded room's Bomb Torizo statue hand still stands.</summary>
     public bool BombTorizoHandRemains => Loaded("ask whether the statue's hand still stands").RoomObjects.BombTorizoHandRemains;

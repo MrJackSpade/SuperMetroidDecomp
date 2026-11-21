@@ -14,4 +14,9 @@ internal sealed partial record MotherBrainTopTubeDrop(
     MotherBrainTopTubeSegment Segment,
     Position16<RoomPixels> Start,
     RoomObjectSpawnRequest<MotherBrainRoomMutation> Clears,
-    int WaitAfterUpdates) : MotherBrainFollowedTubeDrop(Clears, WaitAfterUpdates);
+    int WaitAfterUpdates) : MotherBrainFollowedTubeDrop(Clears, WaitAfterUpdates)
+{
+    /// <inheritdoc/>
+    internal override void React<TContext>(MotherBrainTubeDropReactions<TContext> reactions, TContext context) =>
+        Ensure.NotNull(reactions).Top(this, context);
+}

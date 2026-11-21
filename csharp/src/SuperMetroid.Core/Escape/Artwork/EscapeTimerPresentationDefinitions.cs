@@ -14,7 +14,7 @@ public static partial class EscapeTimerPresentationDefinitions
     ];
 
     /// <summary>The sheet frame name of each glyph: Label, or Digit.0 through Digit.9.</summary>
-    internal static readonly IReadOnlyDictionary<EscapeTimerGlyph, string> FrameNames = new Dictionary<EscapeTimerGlyph, string>
+    internal static readonly IdentityTable<EscapeTimerGlyph, string> FrameNames = new(new Dictionary<EscapeTimerGlyph, string>
     {
         [EscapeTimerGlyph.Label] = LabelFrame,
         [EscapeTimerGlyph.Digit0] = "Digit.0",
@@ -27,5 +27,5 @@ public static partial class EscapeTimerPresentationDefinitions
         [EscapeTimerGlyph.Digit7] = "Digit.7",
         [EscapeTimerGlyph.Digit8] = "Digit.8",
         [EscapeTimerGlyph.Digit9] = "Digit.9",
-    };
+    });
 }

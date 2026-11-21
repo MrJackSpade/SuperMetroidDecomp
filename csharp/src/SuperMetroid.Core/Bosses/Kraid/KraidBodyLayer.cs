@@ -85,16 +85,17 @@ internal sealed partial class KraidBodyLayer : IBossBodyDisplay
             head is { } pose ? sheet.Frame(pose.FrameName) : sheet.Frame(KraidBodyFrameNames.RestingHead).At(depth)]);
     }
 
+    /// <summary>The depth of each appearance.</summary>
+    private static IdentityTable<KraidBodyAppearance, BossBodyDepth?> DepthByAppearance => field ??= new(new Dictionary<KraidBodyAppearance, BossBodyDepth?>
+    {
+        [KraidBodyAppearance.Hidden] = null,
+        [KraidBodyAppearance.BehindSprites] = BossBodyDepth.BehindSprites,
+        [KraidBodyAppearance.InFrontOfSprites] = BossBodyDepth.InFrontOfSprites,
+    });
+
     /// <summary>
     /// The depth <paramref name="appearance"/> draws his body and the head it rises with at (#1634): behind the sprites as he
     /// rises and fights small, in front of them once he has grown; null while his body is hidden.
     /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="appearance"/> is undefined.</exception>
-    internal static BossBodyDepth? DepthOf(KraidBodyAppearance appearance) => appearance switch
-    {
-        KraidBodyAppearance.Hidden => null,
-        KraidBodyAppearance.BehindSprites => BossBodyDepth.BehindSprites,
-        KraidBodyAppearance.InFrontOfSprites => BossBodyDepth.InFrontOfSprites,
-        _ => throw new InvalidDataException($"Undefined Kraid body appearance {appearance}."),
-    };
+    internal static BossBodyDepth? DepthOf(KraidBodyAppearance appearance) => DepthByAppearance[appearance];
 }

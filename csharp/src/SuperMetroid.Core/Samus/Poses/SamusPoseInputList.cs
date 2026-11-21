@@ -317,6 +317,7 @@ internal sealed partial class SamusPoseInputList
     /// </summary>
     internal FrozenSet<SamusPoseId> SelectableTargets => field ??= SamusPoseInputTransitions.Selectable(this);
 
+
     /// <summary>Names the list.</summary>
     public override string ToString() => _name;
 }

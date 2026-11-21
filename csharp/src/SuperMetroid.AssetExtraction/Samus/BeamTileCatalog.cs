@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The installed beam characters by combination, with the beam palettes; the projectile sheets are composed from them.</summary>
-public sealed partial class BeamTileCatalog : IInstalledArtworkContent
+public sealed partial class BeamTileCatalog
 {
     /// <summary>Every pictured combination's installed 256-byte beam atlas.</summary>
     private readonly IReadOnlyDictionary<SamusBeamCombination, BeamTileAtlas> sheets;
@@ -35,13 +35,13 @@ public sealed partial class BeamTileCatalog : IInstalledArtworkContent
         return new(sheets.ToDictionary(entry => entry.Key, entry => entry.Value), palettes, hyperBeamFxColors);
     }
 
-    /// <summary>Resolves a supported typed beam-tile identity to its immutable 256-byte planar transfer.</summary>
-    public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
-        Ensure.Listed(sheets, SelectionFor(asset)).Characters;
+    /// <summary>The immutable 256-byte planar transfer of a beam combination's characters.</summary>
+    public ReadOnlyMemory<byte> Resolve(SamusBeamCombination beam) =>
+        Ensure.Listed(sheets, beam).Characters;
 
     /// <summary>
-    /// Each beam combination that has artwork and the VRAM asset holding its sheet, the one pairing both directions read
-    /// (#2557); the Spazer and Plasma combinations have none.
+    /// Each beam combination that has artwork and the VRAM asset holding its sheet (#2557); the Spazer and Plasma
+    /// combinations have none.
     /// </summary>
     private static readonly FrozenDictionary<SamusBeamCombination, InstalledArtworkId> Assets = new Dictionary<SamusBeamCombination, InstalledArtworkId>
     {
@@ -61,10 +61,6 @@ public sealed partial class BeamTileCatalog : IInstalledArtworkContent
         [SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamGraphicsDefinitions.Selection] = InstalledArtworkId.BeamSpacetimeTiles,
     }.ToFrozenDictionary();
 
-    /// <summary>The beam combination whose sheet each beam VRAM asset uploads: <see cref="Assets"/> read the other way.</summary>
-    private static readonly FrozenDictionary<InstalledArtworkId, SamusBeamCombination> Selections =
-        Assets.ToFrozenDictionary(pair => pair.Value, pair => pair.Key);
-
     /// <summary>Maps a supported native equipped-beam selection to its queued VRAM asset identity.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no artwork ($0C or $0F).</exception>
     public static InstalledArtworkId AssetFor(SamusBeamCombination selection) =>
@@ -72,10 +68,4 @@ public sealed partial class BeamTileCatalog : IInstalledArtworkContent
             ? asset
             : throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no artwork.");
 
-    /// <summary>The beam combination whose sheet a beam VRAM asset uploads: the inverse of <see cref="AssetFor"/>.</summary>
-    /// <exception cref="InvalidDataException">The asset is not beam artwork.</exception>
-    public static SamusBeamCombination SelectionFor(InstalledArtworkId asset) =>
-        Selections.TryGetValue(asset, out SamusBeamCombination selection)
-            ? selection
-            : throw new InvalidDataException($"Beam catalog cannot resolve {asset}.");
 }

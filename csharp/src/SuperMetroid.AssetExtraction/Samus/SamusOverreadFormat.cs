@@ -30,10 +30,11 @@ internal static partial class SamusOverreadFormat
     /// projectile animations for the travel they serve and holds the shinespark echo's still picture as one place (#2347);
     /// revision twenty-six names the frame each frame past a segment's cue goes on to, and holds the knockback's unnamed
     /// slow recoil as frames past the knockback's cue (#2395); revision twenty-seven states the unauthored beams' launch
-    /// speeds in pixels an update (#2555); revision twenty-eight keys SpaceTime's overwrites by the shot place's name, not
-    /// by a list position (#2565).
+    /// speeds in pixels an update (#2555); revision twenty-eight holds the byte each frame a pose start or a cue can move an
+    /// animation to reads as its delay where the frame holds no delay of its own (#2553); revision twenty-nine keys
+    /// SpaceTime's overwrites by the shot place's name, not by a list position (#2565).
     /// </summary>
-    internal const int Version = 28;
+    internal const int Version = 29;
 
     /// <summary>The installed name of Samus's shot place <paramref name="place"/>, which keys what SpaceTime's copy overwrites from it.</summary>
     internal static string ShotPlaceName(int place) =>

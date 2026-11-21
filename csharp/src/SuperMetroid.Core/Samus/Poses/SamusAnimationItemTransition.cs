@@ -10,5 +10,8 @@ internal sealed partial record SamusAnimationItemTransition(SamusEquipmentFlags 
     : SamusAnimationCue
 {
     /// <inheritdoc/>
+    internal override TResult Match<TContext, TResult>(SamusAnimationCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).ItemTransition(this, context);
+
+    /// <inheritdoc/>
     internal override IReadOnlyList<SamusPoseId> PublishedPoses => [Unequipped, Equipped];
 }

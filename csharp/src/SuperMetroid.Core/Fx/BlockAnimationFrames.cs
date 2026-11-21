@@ -14,8 +14,8 @@ internal static partial class BlockAnimationFrames
     /// The installed name of each block animation (#2511), written out so renaming an animation's identity never changes a
     /// name on disk.
     /// </summary>
-    private static readonly FrozenDictionary<BlockAnimation, string> Keys =
-        new Dictionary<BlockAnimation, string>
+    private static readonly IdentityTable<BlockAnimation, string> Keys =
+        new(new Dictionary<BlockAnimation, string>
         {
             [BlockAnimation.TourianStatuePhantoon] = "TourianStatuePhantoon block animation",
             [BlockAnimation.TourianStatueRidley] = "TourianStatueRidley block animation",
@@ -30,11 +30,11 @@ internal static partial class BlockAnimationFrames
             [BlockAnimation.Acid] = "Acid block animation",
             [BlockAnimation.Rain] = "Rain block animation",
             [BlockAnimation.Spores] = "Spores block animation",
-        }.ToFrozenDictionary();
+        });
 
     /// <summary>The animation <paramref name="animation"/> shows.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The animation has no installed name.</exception>
-    internal static ArtworkAnimation Of(BlockAnimation animation) => new(Ensure.Listed(Keys, animation));
+    internal static ArtworkAnimation Of(BlockAnimation animation) => new(Keys[animation]);
 
     /// <summary>The frame of <paramref name="animation"/> named <paramref name="name"/>.</summary>
     internal static ArtworkFrame Frame(BlockAnimation animation, [InstalledKey] string name) => new(Of(animation), Ensure.NotNull(name));

@@ -17,12 +17,12 @@ internal sealed partial class IntroScientistCutsceneState
     /// relative to the laboratory subjects; the examination scene moves the second laboratory page down to its end scroll
     /// while the examined baby rises by the same distance.
     /// </summary>
-    private static readonly Dictionary<IntroLaboratoryScene, LaboratoryPan> ScenePans = new Dictionary<IntroLaboratoryScene, LaboratoryPan>
+    private static readonly IdentityTable<IntroLaboratoryScene, LaboratoryPan> ScenePans = new(new Dictionary<IntroLaboratoryScene, LaboratoryPan>
     {
         [IntroLaboratoryScene.Delivery] = new(scroll => scroll.X != 0, IntroLaboratoryDefinitions.DeliveryPagePan, IntroLaboratoryDefinitions.DeliveredBabyCounterPan),
         [IntroLaboratoryScene.Examination] = new(scroll => scroll.Y < IntroLaboratoryDefinitions.ExaminationPageEndY,
             IntroLaboratoryDefinitions.ExaminationPageScroll, IntroLaboratoryDefinitions.ExaminedBabyRise),
-    };
+    });
 
     /// <summary>Delivered or examined Baby actor whose animation drives scene completion.</summary>
     internal readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroLaboratoryCue> baby;
@@ -82,7 +82,8 @@ internal sealed partial class IntroScientistCutsceneState
             // The laboratory steps on the cadence's updates counted before the crossfade's last, one fewer than it has left.
             && IntroCadenceDefinitions.LaboratoryStep.IsDue(intoLaboratory.UpdatesLeft - 1))
         {
-            if (ScenePans.TryGetValue(Scene, out LaboratoryPan? pan) && pan.StillPanning(Background))
+            LaboratoryPan pan = ScenePans[Scene];
+            if (pan.StillPanning(Background))
             {
                 Background += pan.PagePan;
                 baby.ScreenPlace += pan.BabyPan;
@@ -96,17 +97,19 @@ internal sealed partial class IntroScientistCutsceneState
     public void Draw(ScreenSprites screenSprites, IIntroCinematicSpritePresentation installedArt) =>
         baby.Draw(screenSprites, installedArt: installedArt);
 
+    /// <summary>What <see cref="HandleCue"/> does for each <see cref="IntroLaboratoryCue"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroLaboratoryCue, Action> HandleCueForIntroLaboratoryCue => field ??= new(new Dictionary<IntroLaboratoryCue, Action>
+    {
+        [IntroLaboratoryCue.StartNextPage] = () =>
+        {
+            // The Baby's last pulse ends by selecting the next page.
+            NextPageRequested = true;
+        },
+    });
+
     /// <summary>Requests the next intro page when the Baby's animation reaches its page cue.</summary>
     private void HandleCue(IntroLaboratoryCue cue)
     {
-        switch (cue)
-        {
-            case IntroLaboratoryCue.StartNextPage:
-                // The Baby's last pulse ends by selecting the next page.
-                NextPageRequested = true;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroLaboratoryCue)} {cue}.");
-        }
+        HandleCueForIntroLaboratoryCue[cue]();
     }
 }

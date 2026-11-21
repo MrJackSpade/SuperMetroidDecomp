@@ -27,5 +27,5 @@ internal static partial class MagdolliteShades
     /// named by the place of its glow (#2451).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The frame has no installed name.</exception>
-    internal static PictureShade Glow(MagdolliteGlow glow) => new(Ensure.Listed(GlowKeys, glow), 0);
+    internal static PictureShade Glow(MagdolliteGlow glow) => new(GlowKeys[glow], 0);
 }

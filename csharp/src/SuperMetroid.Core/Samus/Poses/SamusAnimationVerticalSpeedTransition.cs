@@ -9,5 +9,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal sealed partial record SamusAnimationVerticalSpeedTransition(SamusPoseId Grounded, SamusPoseId Airborne) : SamusAnimationCue
 {
     /// <inheritdoc/>
+    internal override TResult Match<TContext, TResult>(SamusAnimationCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).VerticalSpeedTransition(this, context);
+
+    /// <inheritdoc/>
     internal override IReadOnlyList<SamusPoseId> PublishedPoses => [Grounded, Airborne];
 }

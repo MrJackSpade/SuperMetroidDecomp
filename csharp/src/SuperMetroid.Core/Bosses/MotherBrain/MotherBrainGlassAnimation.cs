@@ -16,6 +16,6 @@ internal sealed partial class MotherBrainGlassAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainGlassSegment, EnemyProjectileFrameId, MotherBrainGlassCue> Segments =>
+    private protected override IUnpausedAnimationPlay<MotherBrainGlassSegment, EnemyProjectileFrameId, MotherBrainGlassCue> Segments =>
         MotherBrainGlassAnimations.Segments;
 }

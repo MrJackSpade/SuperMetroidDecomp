@@ -225,8 +225,8 @@ internal sealed partial class NorfairRidleyCombat
         if (!state.PhaseTimer.StepRunsOut())
             return;
 
-        state.Tail.Action = RidleyTailAction.PogoSetup;
-        _ridleyTail.TickRidleyPogoTail(place, state, samus);
+        state.Tail.Action = RidleyPogoTailAction.Setup;
+        _ridleyTail.TickRidleyPogoTail(place, state, samus, RidleyPogoTailAction.Setup);
         // The first bounce heads the way his settling left him moving, rightward when it left him still.
         state.PogoBounce = state.Flight.Velocity.X.IsNegative ? HorizontalDirection.Left : HorizontalDirection.Right;
         InitializeNorfairRidleyPogoVelocity(state);

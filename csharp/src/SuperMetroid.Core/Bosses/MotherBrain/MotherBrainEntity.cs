@@ -22,15 +22,15 @@ internal abstract partial class MotherBrainEntity(MotherBrainBehavior species, R
 
     /// <summary>The encounter the part is part of, which it holds from its setup (#2218).</summary>
     /// <exception cref="InvalidOperationException">The part has not set up.</exception>
-    protected MotherBrainEnemyState Encounter => Place.RequireSpeciesState<MotherBrainEnemyState>();
+    internal MotherBrainEnemyState Encounter => Place.RequireSpeciesState<MotherBrainEnemyState>();
 
-    /// <summary>The encounter <paramref name="part"/> is part of, which the part holds (#2218).</summary>
-    /// <param name="part">A place holding one of Mother Brain's parts, set up.</param>
-    /// <exception cref="InvalidOperationException">The place holds no part of Mother Brain's that has set up.</exception>
-    internal static MotherBrainEnemyState EncounterOf(RoomEnemyPlace part) =>
-        Ensure.NotNull(part).Entity is MotherBrainEntity entity
-            ? entity.Encounter
-            : throw new InvalidOperationException($"Enemy place {part.Ordinal} holds no part of Mother Brain's.");
+    /// <summary>Takes a shot meeting her body, in the encounter the part is part of (<see cref="MotherBrainCombat.ReactToBodyShot"/>).</summary>
+    /// <param name="c">The shot meeting the body.</param>
+    internal bool ReactToBodyShot(in EnemyShotContext c) => Species.Combat.ReactToBodyShot(c, Encounter);
+
+    /// <summary>Takes a shot meeting her head, in the encounter the part is part of (<see cref="MotherBrainCombat.ReactToHeadShot"/>).</summary>
+    /// <param name="c">The shot meeting the head.</param>
+    internal bool ReactToHeadShot(in EnemyShotContext c) => Species.Combat.ReactToHeadShot(c, Encounter);
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);

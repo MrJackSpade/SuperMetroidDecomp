@@ -15,5 +15,5 @@ internal sealed partial class AlcoonFireballAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<AlcoonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => AlcoonFireballAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<AlcoonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => AlcoonFireballAnimations.Segments;
 }

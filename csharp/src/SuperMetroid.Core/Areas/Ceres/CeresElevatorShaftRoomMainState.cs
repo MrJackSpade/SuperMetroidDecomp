@@ -88,11 +88,10 @@ public sealed partial class CeresElevatorShaftRoomMainState
             // animation, and locks out the player; the wait before Samus leaves Ceres is the game state's, which reads
             // the departure this requests.
             bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-            samus.Pose = facingLeft
+            samus.ChangePose(facingLeft
                 ? SamusPoseId.FacingLeftNormalPose
-                : SamusPoseId.FacingRightNormalPose;
+                : SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPresentation.InitializeAnimation(samus);
             samus.Control.LockOutPlayer();
         }
 
@@ -110,22 +109,20 @@ public sealed partial class CeresElevatorShaftRoomMainState
         // The forward sweep turns clockwise one step at a time; after its last tilt the turn reverses at the full
         // clockwise tilt. The backward sweep turns back until its last tilt hands over to the forward sweep at the full
         // anticlockwise tilt, which the backward sweep itself never shows.
-        switch (Sweep)
+        if (Sweep == CeresShaftSweep.Backward)
         {
-            case CeresShaftSweep.Backward:
-                if (Tilt == LastBackwardTilt)
-                    Sweep = CeresShaftSweep.Forward;
-                Tilt = Tilt.OneStepAnticlockwise;
-                break;
-            case CeresShaftSweep.Forward when Tilt == LastForwardTilt:
-                Sweep = CeresShaftSweep.Backward;
-                Tilt = CeresShaftTilt.FullClockwise;
-                break;
-            case CeresShaftSweep.Forward:
-                Tilt = Tilt.OneStepClockwise;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresShaftSweep)} {Sweep}.");
+            if (Tilt == LastBackwardTilt)
+                Sweep = CeresShaftSweep.Forward;
+            Tilt = Tilt.OneStepAnticlockwise;
+        }
+        else if (Tilt == LastForwardTilt)
+        {
+            Sweep = CeresShaftSweep.Backward;
+            Tilt = CeresShaftTilt.FullClockwise;
+        }
+        else
+        {
+            Tilt = Tilt.OneStepClockwise;
         }
         LeaveTurnStep();
 

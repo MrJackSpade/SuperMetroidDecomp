@@ -15,5 +15,5 @@ internal sealed partial class YappingMawBodyProjectileAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<YappingMawBodyProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => YappingMawBodyProjectileAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<YappingMawBodyProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => YappingMawBodyProjectileAnimations.Segments;
 }

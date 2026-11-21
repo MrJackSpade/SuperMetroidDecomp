@@ -35,13 +35,15 @@ public static partial class ThawedFreezeLeftover
         GrappledAndHurt,
     }
 
-    /// <summary>The freeze updates a thawing enemy <paramref name="hold"/> holds is left with.</summary>
-    public static int Of(Hold hold) => hold switch
+    /// <summary>The value of each hold.</summary>
+    private static IdentityTable<Hold, int> ValueByHold => field ??= new(new Dictionary<Hold, int>
     {
-        Hold.None => 0,
-        Hold.Grappled => WhileGrappled,
-        Hold.Hurt => WhileHurt,
-        Hold.GrappledAndHurt => WhileGrappled + WhileHurt,
-        _ => throw new ArgumentOutOfRangeException(nameof(hold), hold, "Undefined thaw hold."),
-    };
+        [Hold.None] = 0,
+        [Hold.Grappled] = WhileGrappled,
+        [Hold.Hurt] = WhileHurt,
+        [Hold.GrappledAndHurt] = WhileGrappled + WhileHurt,
+    });
+
+    /// <summary>The freeze updates a thawing enemy <paramref name="hold"/> holds is left with.</summary>
+    public static int Of(Hold hold) => ValueByHold[hold];
 }

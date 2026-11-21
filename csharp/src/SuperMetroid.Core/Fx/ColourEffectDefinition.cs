@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// One colour effect (#1554, #1982): how it starts, the colours it shows its frames in, the condition it watches and the
-/// animation it plays (<see cref="ColourEffectAnimations"/>).
+/// frames it plays (<see cref="ColourEffectAnimations"/>). An effect in a frontend screen's colours starts plainly and
+/// watches nothing: a screen has no Samus, equipment, Torizo or area to start by or watch.
 /// </summary>
 /// <param name="Start">How the effect starts.</param>
 /// <param name="Colours">The colours the effect shows every frame in.</param>

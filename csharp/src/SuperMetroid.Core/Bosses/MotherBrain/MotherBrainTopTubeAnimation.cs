@@ -15,6 +15,6 @@ internal sealed partial class MotherBrainTopTubeAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainTopTubeSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>
+    private protected override IUnpausedAnimationPlay<MotherBrainTopTubeSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>
         MotherBrainTopTubeAnimations.Segments;
 }

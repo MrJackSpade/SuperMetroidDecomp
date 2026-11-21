@@ -25,11 +25,7 @@ public sealed partial record RoomStateSelectionContext(
     /// <summary>Tests whether <paramref name="storyEvent"/> has happened.</summary>
     /// <param name="storyEvent">The story event.</param>
     /// <returns>True when the event has happened.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="storyEvent"/> is not a defined story event.</exception>
-    public bool IsEventSet(StoryEvent storyEvent) =>
-        Enum.IsDefined(storyEvent)
-            ? Events.Contains(storyEvent)
-            : throw new ArgumentOutOfRangeException(nameof(storyEvent), storyEvent, "Undefined story event.");
+    public bool IsEventSet(StoryEvent storyEvent) => Events.Contains(storyEvent);
 
     /// <summary>Tests whether any of <paramref name="bosses"/> is defeated in the selected area.</summary>
     /// <param name="bosses">The bosses asked for; none is allowed.</param>

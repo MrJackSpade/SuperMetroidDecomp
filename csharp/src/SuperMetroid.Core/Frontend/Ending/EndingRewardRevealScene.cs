@@ -8,16 +8,22 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// share, the copyright's hold between them pausing it.
 /// </summary>
 /// <param name="fade">The reward's colour fade, started as the reveal starts.</param>
-/// <param name="phase">The phase the scene runs: one of the reveal's halves, or the copyright's hold between them.</param>
-internal sealed partial class EndingRewardRevealScene(PacedFadeSteps fade, EndingCreditsPhase phase) : EndingScene
+internal sealed partial class EndingRewardRevealScene(PacedFadeSteps fade) : EndingActorScene
 {
-    /// <inheritdoc/>
-    internal override EndingCreditsPhase Phase { get; } =
-        phase == EndingCreditsPhase.PostCreditsReward || phase == EndingCreditsPhase.PostCreditsCopyright ? phase
-            : throw new ArgumentException($"The reward's reveal runs no {phase} phase.", nameof(phase));
-
     /// <summary>The reward's colour fade.</summary>
     internal PacedFadeSteps Fade { get; } = Ensure.NotNull(fade);
+
+    /// <summary>Whether the copyright's hold between the reveal's two halves runs, pausing the fade.</summary>
+    internal bool CopyrightHolds { get; private set; }
+
+    /// <summary>The first half has ended: the copyright's hold starts.</summary>
+    internal void HoldCopyright() => CopyrightHolds = true;
+
+    /// <summary>The copyright's hold has ended: the reveal's second half starts.</summary>
+    internal void ResumeReveal() => CopyrightHolds = false;
+
+    /// <inheritdoc/>
+    internal override EndingCreditsPhase Phase => CopyrightHolds ? EndingCreditsPhase.PostCreditsCopyright : EndingCreditsPhase.PostCreditsReward;
 
     /// <inheritdoc/>
     internal override bool Step(EndingCreditsState ending)

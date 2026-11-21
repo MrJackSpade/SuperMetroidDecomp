@@ -11,7 +11,7 @@ internal static partial class IntroMotherBrainAnimations
 {
     /// <summary>Mother Brain's animations: her pulse, and the start of page two, after which she pulses on.</summary>
     internal static CinematicAnimations<IntroMotherBrainAnimation, CinematicSpritePose, IntroMotherBrainCue> MotherBrain { get; } = new(
-        new Dictionary<IntroMotherBrainAnimation, AnimationBeat<CinematicSpritePose, IntroMotherBrainCue>[]>
+        new Dictionary<IntroMotherBrainAnimation, IHidingAnimationBeat<CinematicSpritePose, IntroMotherBrainCue>[]>
         {
             [A.Pulsing] =
             [
@@ -34,7 +34,7 @@ internal static partial class IntroMotherBrainAnimations
 
     /// <summary>Mother Brain's explosions: each burns through its pictures and a blank pause, over and over.</summary>
     internal static CinematicAnimations<IntroMotherBrainExplosionAnimation, CinematicSpritePose, NoAnimationCue> Explosions { get; } = new(
-        new Dictionary<IntroMotherBrainExplosionAnimation, AnimationBeat<CinematicSpritePose, NoAnimationCue>[]>
+        new Dictionary<IntroMotherBrainExplosionAnimation, IHidingAnimationBeat<CinematicSpritePose, NoAnimationCue>[]>
         {
             [IntroMotherBrainExplosionAnimation.Big] =
             [
@@ -68,6 +68,6 @@ internal static partial class IntroMotherBrainAnimations
         CinematicBeats<CinematicSpritePose, NoAnimationCue>.Show(pose, duration);
 
     /// <summary>Hides the actor for <paramref name="duration"/> updates in an animation that publishes no cue.</summary>
-    private static AnimationBeat<CinematicSpritePose, NoAnimationCue> Hide(int duration) =>
+    private static AnimationHiddenBeat<CinematicSpritePose, NoAnimationCue> Hide(int duration) =>
         CinematicBeats<CinematicSpritePose, NoAnimationCue>.Hide(duration);
 }

@@ -7,10 +7,6 @@ internal static partial class SbugMovement
     internal static CompassDirection FacingOf(RotationAngle heading) => SbugMovementDefinitions.Facings.At(heading);
 
     /// <summary>The action <paramref name="behavior"/> starts.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="behavior"/> is outside the three selectors.</exception>
     internal static SbugAction ActivationAction(SbugActivationBehavior behavior) =>
-        SbugMovementDefinitions.ActivationActions.TryGetValue(behavior, out SbugAction action)
-            ? action
-            : throw new InvalidDataException(
-                $"Sbug activation behavior {behavior} is not one of the three activation behaviours.");
+        SbugMovementDefinitions.ActivationActions[behavior];
 }

@@ -35,21 +35,16 @@ public sealed partial class ChargedShotGlow
     /// <summary>The play of the glow's sequence: the shade it shows and the updates that shade has left.</summary>
     internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Play { get; }
 
-    /// <summary>Whether the glow has played past its last shade, so the suit's own shade returns.</summary>
-    internal bool HasEnded => Play.HasStopped;
-
     /// <summary>
     /// Plays the glow one update on and returns the shade the update shows anew: its next shade once the shade shown last
-    /// has held its updates, or none while that shade holds and on the update the glow ends (<see cref="HasEnded"/>).
+    /// has held its updates, or none while that shade holds and on the update the glow ends, which
+    /// <paramref name="ended"/> reports: the glow has played past its last shade, so the suit's own shade returns and its
+    /// owner holds it no more.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The glow has ended, or its sequence comes to rest instead of ending.</exception>
-    internal PictureShade? PlayUpdate()
+    internal PictureShade? PlayUpdate(out bool ended)
     {
-        if (HasEnded)
-            throw new InvalidOperationException($"The {Kind} glow has ended and plays no further.");
         PictureShade? shown = Play.StepToNewFrame();
-        if (Play.IsResting && !Play.HasStopped)
-            throw new InvalidOperationException($"The {Kind} glow came to rest; a shot's glow shows shades and ends.");
+        ended = Play.HasStopped;
         return shown;
     }
 }

@@ -12,6 +12,6 @@ internal abstract partial class SpecialAttackParticleState(SpecialAttackParticle
     /// <summary>The part the particle plays in its attack.</summary>
     internal SpecialAttackParticle Part { get; } = Ensure.NotNull(part);
 
-    /// <summary>A special attack particle.</summary>
-    internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam => new BeamFiredOverLastShot.ReplacedShot.SpecialAttackParticle();
+    /// <inheritdoc/>
+    internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(SignedEightEight reflectionHeadStart) => new BeamFiredOverLastShot.ReplacedShot.SpecialAttackParticle();
 }

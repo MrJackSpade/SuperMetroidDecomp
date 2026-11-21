@@ -146,8 +146,7 @@ internal static class GenericSpriteArtworkVerification
         EqualParts([.. PlacedSpritePart.Of(expectedFrame.Draws), .. PlacedSpritePart.OfOamObjects(motherBrainOam, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects))],
             actualParts, "Mother Brain owner preserves actor order and exact sprite parts");
 
-        var explosions = new IntroMotherBrainExplosionSystem();
-        explosions.SpawnFourthHitExplosions();
+        var explosions = IntroMotherBrainExplosionSystem.SpawnFourthHitExplosions();
         explosions.Step(crossfadeFinishing: false);
         var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
         explosions.Draw(actual, CinematicSheetFixtures.Drawer(introArtwork.Sprites.MotherBrainExplosion));

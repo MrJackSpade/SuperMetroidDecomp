@@ -29,6 +29,41 @@ internal sealed partial class BombTorizoHandObject(BombTorizoHandObjects owner) 
     /// <summary>How long the hand holds before its next step: its first update, then each step's own updates.</summary>
     private readonly BossCountdown _holdBeforeNextStep = BossCountdown.LastingOneUpdate();
 
+    /// <summary>What <c>Update</c> does for each <see cref="BombTorizoHandPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<BombTorizoHandPhase, Action<RoomObjectPlace, RoomObjectStepContext>> UpdateForBombTorizoHandPhase => field ??= new(new Dictionary<BombTorizoHandPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [BombTorizoHandPhase.Starting] = (place, context) =>
+        {
+            context.Draw(place, BombTorizoHandDraws.Family, BombTorizoHandCrumbleDefinitions.RestingImage);
+            _holdBeforeNextStep.LastFor(1);
+            Phase = BombTorizoHandPhase.Arming;
+        },
+        [BombTorizoHandPhase.Arming] = (place, context) =>
+        {
+            _holdBeforeNextStep.LastFor(1);
+            Phase = BombTorizoHandPhase.Resting;
+        },
+        [BombTorizoHandPhase.Resting] = (place, context) => _holdBeforeNextStep.LastFor(1),
+        [BombTorizoHandPhase.Crumbling] = (place, context) =>
+        {
+            ListStep<BombTorizoHandCrumbleStep>? next = CrumbleStep is { } shown
+                ? shown.Following
+                : ListStep<BombTorizoHandCrumbleStep>.FirstOf(BombTorizoHandCrumbleDefinitions.Crumble);
+            if (next is not { } nextStep)
+            {
+                _owner.QueueMusic();
+                context.RoomObjects.DeleteObject(place);
+                return;
+            }
+            CrumbleStep = nextStep;
+            BombTorizoHandCrumbleStep step = nextStep.Entry;
+            if (step.FragmentBefore is { } fragment)
+                _owner.ThrowFragment(place, fragment, context.Outcome);
+            context.Draw(place, BombTorizoHandDraws.Family, step.Image);
+            _holdBeforeNextStep.LastFor(step.Updates);
+        },
+    });
+
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
@@ -40,39 +75,6 @@ internal sealed partial class BombTorizoHandObject(BombTorizoHandObjects owner) 
         }
         if (_holdBeforeNextStep.StepKeepsRunning())
             return;
-        switch (Phase)
-        {
-            case BombTorizoHandPhase.Starting:
-                context.Draw(place, BombTorizoHandDraws.Family, BombTorizoHandCrumbleDefinitions.RestingImage);
-                _holdBeforeNextStep.LastFor(1);
-                Phase = BombTorizoHandPhase.Arming;
-                return;
-            case BombTorizoHandPhase.Arming:
-                _holdBeforeNextStep.LastFor(1);
-                Phase = BombTorizoHandPhase.Resting;
-                return;
-            case BombTorizoHandPhase.Resting:
-                _holdBeforeNextStep.LastFor(1);
-                return;
-            case BombTorizoHandPhase.Crumbling:
-                ListStep<BombTorizoHandCrumbleStep>? next = CrumbleStep is { } shown
-                    ? shown.Following
-                    : ListStep<BombTorizoHandCrumbleStep>.FirstOf(BombTorizoHandCrumbleDefinitions.Crumble);
-                if (next is not { } nextStep)
-                {
-                    _owner.QueueMusic();
-                    context.RoomObjects.DeleteObject(place);
-                    return;
-                }
-                CrumbleStep = nextStep;
-                BombTorizoHandCrumbleStep step = nextStep.Entry;
-                if (step.FragmentBefore is { } fragment)
-                    _owner.ThrowFragment(place, fragment, context.Outcome);
-                context.Draw(place, BombTorizoHandDraws.Family, step.Image);
-                _holdBeforeNextStep.LastFor(step.Updates);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BombTorizoHandPhase)} {Phase}.");
-        }
+        UpdateForBombTorizoHandPhase[Phase](place, context);
     }
 }

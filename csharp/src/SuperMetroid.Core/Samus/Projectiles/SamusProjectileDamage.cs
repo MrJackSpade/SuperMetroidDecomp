@@ -8,5 +8,5 @@ internal static partial class SamusProjectileDamage
     /// charged, or the kind's own (<see cref="SamusProjectileDamageDefinitions.StartingDamage"/>).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The kind is undefined.</exception>
-    internal static int Read(SamusProjectileKind kind) => Ensure.Listed(SamusProjectileDamageDefinitions.StartingDamage, kind).Damage;
+    internal static int Read(SamusProjectileKind kind) => SamusProjectileDamageDefinitions.StartingDamage[kind].Damage;
 }

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static partial class EndingTextAnimations
 {
     /// <summary>The sprite family whose sheet pictures the typed texts' letters: the result text's.</summary>
-    internal const CinematicSpriteFamily Family = CinematicSpriteFamily.EndingCompletionText;
+    internal const EndingSpriteFamily Family = EndingSpriteFamily.EndingCompletionText;
 
     /// <summary>The typed texts' animations.</summary>
     internal static CinematicAnimations<EndingTypedText, EndingTextTyping, EndingSceneCue> Texts { get; } = Create();

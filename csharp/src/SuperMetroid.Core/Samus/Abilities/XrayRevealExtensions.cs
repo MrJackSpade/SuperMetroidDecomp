@@ -24,9 +24,11 @@ public static partial class XrayRevealExtensions
         Ensure.NotNull(level);
         Ensure.NotNull(visuals);
         RoomCollisionBlock block = level.GetObjectCollisionBlock(start);
-        if (block.CollisionType is not (RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension))
-            throw new ArgumentException("X-ray extension traversal requires an extension block.", nameof(start));
-        if (block.Behavior.EndsExtension) return null;
+        // A start that links on to no block, an extension ending its chain or a block that extends nothing, has no chain
+        // to follow.
+        if (block.CollisionType is not (RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension) ||
+            block.Behavior.EndsExtension)
+            return null;
         Position16<RoomBlocks> reached = start;
         bool vertical = block.CollisionType == RoomCollisionType.VerticalExtension;
         int step = block.Behavior.ExtensionOffset;

@@ -16,6 +16,12 @@ internal static class KraidNailContourMappingsVerification
     /// <summary>The bytes of one contour record.</summary>
     private const int RecordBytes = 4;
 
+    /// <summary>
+    /// How far above Kraid's body a nail can fly: terrain reflects a nail inside his two-screen room, so a nail lies fewer
+    /// than this many pixels above the body.
+    /// </summary>
+    private const int NailReachAboveBody = 512;
+
     /// <summary>Follows the original contour walk over the cartridge: the first record whose bound lies above the nail.</summary>
     private static int NativeRecord(Func<int, ushort> word, int relativeY)
     {
@@ -89,17 +95,18 @@ internal static class KraidNailContourMappingsVerification
                 continue;
             if (record == pastLedges)
             {
-                AssertEqual(nativeLeft, installed.LeftOffset(raw), "A nail past the ledges is pushed back at the native record's left word");
                 pushed++;
             }
             else
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => installed.LeftOffset(raw), "A nail beyond the record past the ledges is rejected");
+                AssertTrue(unchecked((short)raw) <= -NailReachAboveBody,
+                    "The walk carries past the record after the ledges only for heights no nail reaches above Kraid's body");
                 rejected++;
             }
         }
+        AssertEqual(nativeLeft, installed.LeftOffset, "A nail past the ledges is pushed back at the native record's left word");
         AssertTrue(pushed > 0 && rejected > 0, "The walk both settles on the record past the ledges and carries beyond it");
-        Console.WriteLine($"Kraid nail past ledges: {pushed} relative-Y words push at the native record, {rejected} beyond it are rejected.");
+        Console.WriteLine($"Kraid nail past ledges: {pushed} relative-Y words push at the native record, {rejected} beyond it lie out of a nail's reach.");
     }
 
     /// <summary>Runs the installed record past Kraid's nail contour ledges against the cartridge.</summary>

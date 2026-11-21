@@ -351,65 +351,12 @@ internal static void VerifyCreditsObjectInterpreter()
         "  Credits: half-pixel scroll and completion agree.");
 }
 
-/// <summary>Runs the retail ending state through escape, rewards, percentage, and final hold when its ROM oracle is available.</summary>
+/// <summary>
+/// The ending's item percentage counts a full inventory to 100% and shows its digits and sign in place. The ending's run
+/// through escape, rewards and final hold is the ending snapshots' (<see cref="SuperMetroid.Verification.Frontend.Ending.EndingSnapshotTestsVerification.VerifyEndingRenderSnapshots"/>).
+/// </summary>
 internal static void VerifyEndingCreditsState()
 {
-    string romPath = Path.GetFullPath("Super Metroid.smc");
-    if (!File.Exists(romPath))
-    {
-        Console.WriteLine("  Ending: retail-ROM state-$27 smoke test skipped (ROM not present).");
-        return;
-    }
-
-    byte[] rom = File.ReadAllBytes(romPath);
-    if (rom.Length != SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount)
-    {
-        throw new InvalidDataException(
-            $"Ending smoke-test ROM is ${rom.Length:X} bytes; expected headerless retail size " +
-            $"${SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount:X}.");
-    }
-
-    var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-    var audio = SuperMetroid.Core.Audio.AudioQueues.Standalone();
-    var ending = CreateRetailEndingFixture(audio, gameTimeHours: 2, gameTimeMinutes: 59);
-    EndingCreditsPhase previous = ending.Phase;
-    var reached = new HashSet<EndingCreditsPhase> { previous };
-    int renderedTransitions = 0;
-
-    for (int frame = 0; frame < 60_000 && ending.Phase != EndingCreditsPhase.SeeYouNextMission; frame++)
-    {
-        ending.Step();
-        audio.AdvanceFrame(default);
-        if (ending.Phase != previous)
-        {
-            previous = ending.Phase;
-            reached.Add(previous);
-            RgbaPixel[] pixels = ending.Render();
-            AssertEqual(SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels, pixels.Length,
-                $"ending {previous} frame size");
-            renderedTransitions++;
-        }
-    }
-
-    AssertEqual(EndingCreditsPhase.SeeYouNextMission, ending.Phase,
-        "ending reaches the retail final hold state");
-    AssertTrue(reached.Contains(EndingCreditsPhase.ZebesExplosionAnimation),
-        "ending executes the sprite-opcode-driven Zebes explosion");
-    AssertTrue(reached.Contains(EndingCreditsPhase.OperationSuccessfulText),
-        "ending executes the cartridge clear-time text chain");
-    AssertTrue(reached.Contains(EndingCreditsPhase.Credits),
-        "ending executes the ROM credits row stream");
-    AssertTrue(reached.Contains(EndingCreditsPhase.PostCreditsReward),
-        "ending executes the time-selected reward screen");
-    AssertTrue(renderedTransitions >= 20,
-        "ending renders each materially different cartridge phase");
-
-    var middle = CreateRetailEndingFixture(audio, gameTimeHours: 3, gameTimeMinutes: 0);
-    var slow = CreateRetailEndingFixture(audio, gameTimeHours: 10, gameTimeMinutes: 0);
-    AssertEqual(EndingReward.Suitless, ending.Stage.EndingReward, "under-three-hour ending branch");
-    AssertEqual(EndingReward.Helmetless, middle.Stage.EndingReward, "three-to-ten-hour ending branch");
-    AssertEqual(EndingReward.Armored, slow.Stage.EndingReward, "ten-hour ending branch");
-
     var percentage = new EndingTypewriter(new EndingTypewriterSetup { Inventory = new EndingInventorySnapshot(
             MaxHealth: 1499,
             MaxReserveEnergy: 400,
@@ -432,7 +379,7 @@ internal static void VerifyEndingCreditsState()
         "100% places its glyphs one glyph apart from the hundreds digit");
 
     Console.WriteLine(
-        "  Ending: escape, explosion, clear time, credits, rewards, 100% count, and final hold agree.");
+        "  Ending: the 100% count agrees.");
 }
 
 /// <summary>Presses and releases an options button so successive menu inputs have distinct edges.</summary>

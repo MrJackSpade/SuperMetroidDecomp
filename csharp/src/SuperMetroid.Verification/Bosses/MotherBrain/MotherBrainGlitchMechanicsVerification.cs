@@ -22,7 +22,7 @@ internal static class MotherBrainGlitchMechanicsVerification
     {
 
         // $91:E571 writes only $0A1C: the spin jump's $0A1E/$0A1F stay in force.
-        var spinning = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x80)) };
+        var spinning = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x80)) }.InPose(SamusPoseId.SpinJumpRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(spinning);
         SamusPresentation.InitializeAnimation(spinning);
         spinning.Drained.PutStanding(spinning);
@@ -34,12 +34,12 @@ internal static class MotherBrainGlitchMechanicsVerification
         SamusAerialPoseTransitions.ApplyWallContactAnimationRewind(spinning);
         AssertEqual(0x0a, spinning.AnimationNumber, "wall-contact rewind runs for the drained pose");
         // $91:EABE is gated by the spin mover, i.e. the cached type, not the live pose.
-        SamusAerialPoseTransitions.ApplyWallJumpTrigger(spinning, SuperMetroid.Verification.Harness.VerificationHelpersVerification.CreateEmptyRoom(new(64, 64)), 0, SamusRoomObjectFixtures.Uninstalled);
+        SamusAerialPoseTransitions.ApplyWallJumpTrigger(spinning, SamusTerrain.InRoom(SuperMetroid.Verification.Harness.VerificationHelpersVerification.CreateEmptyRoom(new(64, 64)), SamusRoomObjectFixtures.Uninstalled), 0);
         AssertEqual(SamusPoseId.WallJumpRightPose, spinning.Pose, "a drained spinning Samus wall-jumps out");
         AssertEqual(SamusPoseId.WallJumpRightPose, spinning.InitializedPose, "the wall jump initializes its pose");
 
         // $90:F3FB returns carry set; Run_Samus_Command then cancels the pending transition.
-        var frozen = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose };
+        var frozen = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FacingRightNormalPose);
         SamusDrainedState.FreezeForHyperBeamAcquisition(frozen);
         AssertTrue(frozen.PoseTransitionCancellation.IsWaiting, "Samus command $19 cancels the pending pose transition");
 
@@ -51,7 +51,7 @@ internal static class MotherBrainGlitchMechanicsVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var motherBrain = MotherBrainLateFightFixtures.NewSequence();
             var baby = MotherBrainLateFightFixtures.Arrive(motherBrain, FixedPosition<RoomPixels>.Zero);
-            baby.Phase = BabyMetroidCutscenePhase.LatchOntoSamus;
+            baby.Phase = new BabyMetroidCutscenePhase.Flying.LatchOntoSamus();
             baby.Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(0x0080 + startDx), 0x008c)).WithFractionsOf(baby.Position);
             // Moving left a whole pixel per frame: after this frame's mover the gap shrinks by one.
             baby.Velocity = new PixelVelocity<RoomPixels>(new SignedEightEight(0xff00), new SignedEightEight(0));

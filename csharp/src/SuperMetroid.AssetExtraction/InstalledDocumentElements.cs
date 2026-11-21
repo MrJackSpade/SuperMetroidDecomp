@@ -18,7 +18,7 @@ internal static class InstalledDocumentElements
     internal static IJsonTypeInfoResolver Resolver { get; } = Over(InstalledDocumentJsonContext.Default);
 
     /// <summary><paramref name="contract"/>, with every object it describes checking its collections' elements once read.</summary>
-    internal static IJsonTypeInfoResolver Over(IJsonTypeInfoResolver contract) => contract.WithAddedModifier(RejectNullElements);
+    private static IJsonTypeInfoResolver Over(IJsonTypeInfoResolver contract) => contract.WithAddedModifier(RejectNullElements);
 
     /// <summary>Adds the element check to an object type, run over its members once the serializer has read it.</summary>
     private static void RejectNullElements(JsonTypeInfo typeInfo)

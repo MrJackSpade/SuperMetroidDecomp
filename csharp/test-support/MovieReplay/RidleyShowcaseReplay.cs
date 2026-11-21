@@ -709,8 +709,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                         // that place names as its exit, and no behaviour.
                         DoorBlockExit expectedExit = RoomDoorListDefinitions.ByRoom[runtime.Room.LoadedRoom.Definition][
                             RoomBlockBehaviorCodec.DoorLinkOf(memory[NativeSnapshotMemory.Bts + block])];
-                        if (activeLevel.ExitGrid[block] != expectedExit)
-                            mismatches.Add($"Room door block {block}: native={expectedExit} port={activeLevel.ExitGrid[block]}");
+                        if (activeLevel.ExitAt(block) != expectedExit)
+                            mismatches.Add($"Room door block {block}: native={expectedExit} port={activeLevel.ExitAt(block)}");
                         continue;
                     }
                     var expectedBehavior = RoomBlockBehaviorCodec.Decode(runtime.Room.LoadedRoom.Area, memory[NativeSnapshotMemory.Bts + block]);

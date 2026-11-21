@@ -15,8 +15,8 @@ internal static class RoomLevelDataAccess
         /// <summary>Each foreground block's behaviour, row by row.</summary>
         internal ReadOnlySpan<RoomBlockBehavior> BehaviorGrid => BehaviorsOf(self);
 
-        /// <summary>Where each foreground block leads as a door block, row by row, or null where it leads nowhere.</summary>
-        internal ReadOnlySpan<Doors.DoorBlockExit?> ExitGrid => ExitsOf(self);
+        /// <summary>Where the foreground block at row-major <paramref name="place"/> leads as a door block, or null where it leads nowhere.</summary>
+        internal Doors.DoorBlockExit? ExitAt(int place) => ExitsOf(self).TryGetValue(place, out Doors.DoorBlockExit? exit) ? exit : null;
 
         /// <summary>What each foreground block shows, row by row.</summary>
         internal ReadOnlySpan<RoomBlockAppearance> ShownForegroundGrid => ShownForegroundOf(self);
@@ -25,7 +25,7 @@ internal static class RoomLevelDataAccess
         /// <exception cref="InvalidOperationException">No door block of the grid leads through it.</exception>
         internal RoomCollisionBlock DoorBlockLeadingThrough(Doors.DoorBlockExit exit)
         {
-            int place = Array.IndexOf(ExitsOf(self), exit);
+            int place = ExitsOf(self).Where(entry => entry.Value == exit).Select(entry => entry.Key).DefaultIfEmpty(-1).Min();
             return place >= 0 && TerrainOf(self)[place].Collision == RoomCollisionType.DoorBlock
                 ? self.GetCollisionBlock(self.Size.CellAtRowMajorIndex(place))
                 : throw new InvalidOperationException($"No door block of the room leads through {exit}.");
@@ -63,7 +63,10 @@ internal static class RoomLevelDataAccess
                     NextDifference(shown, sourceShown, index + 1));
             }
             BehaviorsOf(source).AsSpan().CopyTo(BehaviorsOf(self));
-            ExitsOf(source).AsSpan().CopyTo(ExitsOf(self));
+            Dictionary<int, Doors.DoorBlockExit> exits = ExitsOf(self);
+            exits.Clear();
+            foreach ((int place, Doors.DoorBlockExit exit) in ExitsOf(source))
+                exits[place] = exit;
             for (int beyond = 0; beyond < source.BeyondRoom.Count; beyond++)
             {
                 self.BeyondRoom.SetTerrain(beyond, source.BeyondRoom.TerrainAt(beyond));
@@ -112,8 +115,9 @@ internal static class RoomLevelDataAccess
     /// <summary>The grid's behaviour array of <paramref name="level"/>, which a restore writes.</summary>
     private static RoomBlockBehavior[] BehaviorsOf(RoomLevelData level) => (RoomBlockBehavior[])BehaviorsField.GetValue(Ensure.NotNull(level))!;
 
-    /// <summary>The grid's door-exit array of <paramref name="level"/>, which a restore writes.</summary>
-    private static Doors.DoorBlockExit?[] ExitsOf(RoomLevelData level) => (Doors.DoorBlockExit?[])ExitsField.GetValue(Ensure.NotNull(level))!;
+    /// <summary>The grid's door exits of <paramref name="level"/> by row-major place, which a restore writes.</summary>
+    private static Dictionary<int, Doors.DoorBlockExit> ExitsOf(RoomLevelData level) =>
+        (Dictionary<int, Doors.DoorBlockExit>)ExitsField.GetValue(Ensure.NotNull(level))!;
 
     /// <summary>The grid's shown-foreground array of <paramref name="level"/>.</summary>
     private static RoomBlockAppearance[] ShownForegroundOf(RoomLevelData level) =>

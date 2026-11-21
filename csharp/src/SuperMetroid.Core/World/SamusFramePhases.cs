@@ -480,7 +480,7 @@ internal sealed class SamusFramePhases
         // The bomb jump's movement chooses its gravity from the medium Samus is in, water, lava or air, as
         // knockback and the shinespark do, from her pose and place as the input phase leaves them.
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-        frame.Record(bombJump.Run(room.SamusTerrain, samus, _clock.Counter));
+        frame.Record(bombJump.Run(new SamusBombJumpPhase.SamusBombJumpUpdate(room.SamusTerrain, samus, _clock.Counter)));
     }
 
     /// <summary>Runs Samus's movement while <see cref="SamusMovementOwner.CrystalFlash"/> holds it.</summary>

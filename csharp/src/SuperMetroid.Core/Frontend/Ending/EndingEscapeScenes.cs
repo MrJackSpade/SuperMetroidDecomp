@@ -163,7 +163,7 @@ internal sealed class EndingEscapeScenes
     });
 
     /// <summary>What <see cref="HandleSpriteCueForEndingSceneCue"/> does for <see cref="EndingSceneCue.EndZebesExplosion"/>, <see cref="EndingSceneCue.TransitionToCredits"/>.</summary>
-    private void HandleSpriteCueForEndingSceneCueEndZebesExplosion(EndingSprite wrapper, EndingSceneCue cue)
+    private static void HandleSpriteCueForEndingSceneCueEndZebesExplosion(EndingSprite wrapper, EndingSceneCue cue)
     {
         throw new InvalidOperationException($"The {cue} cue of the {wrapper.Role} actor changes the ending's phase, which its own update answers.");
     }

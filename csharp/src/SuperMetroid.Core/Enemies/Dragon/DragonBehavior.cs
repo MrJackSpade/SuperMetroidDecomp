@@ -98,9 +98,9 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         [DragonAction.WaitToRise] = (_, place, state, samus) => RunDragonWaitToRise(place, state, samus),
         [DragonAction.Rising] = (_, place, state, samus) => RunDragonRising(place, state),
-        [DragonAction.Attacking] = (occupant, place, state, samus) => RunDragonAttacking(occupant, place, state),
-        [DragonAction.AttackFinished] = (occupant, place, state, samus) => RunDragonAttacking(occupant, place, state),
-        [DragonAction.RestartingAttack] = (occupant, place, state, samus) => RunDragonAttacking(occupant, place, state),
+        [DragonAction.Attacking] = (_, place, state, _) => RunDragonAttack(place, state),
+        [DragonAction.AttackFinished] = (occupant, place, state, _) => FinishDragonAttack(occupant, place, state),
+        [DragonAction.RestartingAttack] = (_, place, state, _) => RestartDragonAttack(place, state),
         [DragonAction.WaitToSink] = (_, place, state, samus) => RunDragonWaitToSink(place, state),
         [DragonAction.Sinking] = (_, place, state, samus) => RunDragonSinking(place, state),
     });
@@ -148,52 +148,43 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         wing.Position = wing.Position.WithWholeY(wing.Position.Y.Whole - 1);
     }
 
-    /// <summary>What <see cref="RunDragonAttacking"/> does for each <see cref="DragonAction"/> member, each member's own arm.</summary>
-    private IdentityTable<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, Animation<DragonSegment>>> RunDragonAttackingForDragonAction => field ??= new(new Dictionary<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, Animation<DragonSegment>>>
-    {
-        [DragonAction.Attacking] = (_, body, bodyState, attack) => bodyState.Playback = EnemyAnimationPlayback.StartUnlessPlaying(body, bodyState.Playback, attack),
-        [DragonAction.RestartingAttack] = (_, body, bodyState, attack) =>
-        {
-            bodyState.Playback = EnemyAnimationPlayback.Start(body, attack);
-            bodyState.Action = DragonAction.Attacking;
-        },
-        [DragonAction.AttackFinished] = (occupant, body, bodyState, attack) =>
-        {
-            SpawnDragonFireball(occupant, body, bodyState);
-            // Each fireball queues one sound; two Dragons attacking in one frame queue two.
-            _audio.QueueEnemySound(EnemySoundEffectDefinitions.DragonFireballSound, priority: SoundRequestPriority.Normal);
-            if (--bodyState.AttackCounter != 0)
-            {
-                bodyState.Action = DragonAction.RestartingAttack;
-                return;
-            }
+    /// <summary>
+    /// Attacks, spitting fireballs: the attack animation plays until its finishing cue; the next update spits a fireball
+    /// while the attack rests on its last pose (<see cref="FinishDragonAttack"/>), and the update after that starts the
+    /// attack over (<see cref="RestartDragonAttack"/>, #2145, #2476).
+    /// </summary>
+    private static void RunDragonAttack(RoomEnemyPlace body, DragonEnemyState bodyState) =>
+        bodyState.Playback = EnemyAnimationPlayback.StartUnlessPlaying(body, bodyState.Playback, Attack(bodyState));
 
-            bodyState.ActionTimer = UpdateCountdown.For(DragonTimingDefinitions.WaitBeforeSink);
-            bodyState.Action = DragonAction.WaitToSink;
-        },
-        [DragonAction.WaitToRise] = (_, body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
-        [DragonAction.Rising] = (_, body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
-        [DragonAction.WaitToSink] = (_, body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
-        [DragonAction.Sinking] = (_, body, bodyState, attack) => RunDragonAttackingForDragonActionWaitToRise(body, bodyState, attack),
-    });
-
-    /// <summary>What <see cref="RunDragonAttackingForDragonAction"/> does for <see cref="DragonAction.WaitToRise"/>, <see cref="DragonAction.Rising"/>, <see cref="DragonAction.WaitToSink"/>, <see cref="DragonAction.Sinking"/>.</summary>
-    private void RunDragonAttackingForDragonActionWaitToRise(RoomEnemyPlace body, DragonEnemyState bodyState, Animation<DragonSegment> attack)
+    /// <summary>Starts the attack over, which then plays on.</summary>
+    private static void RestartDragonAttack(RoomEnemyPlace body, DragonEnemyState bodyState)
     {
-        throw new InvalidOperationException($"A Dragon {bodyState.Action} is not attacking.");
+        bodyState.Playback = EnemyAnimationPlayback.Start(body, Attack(bodyState));
+        bodyState.Action = DragonAction.Attacking;
     }
 
     /// <summary>
-    /// Attacks, spitting fireballs: the attack animation plays until its finishing cue; the next update spits a fireball
-    /// while the attack rests on its last pose, and the update after that starts the attack over (#2145, #2476).
+    /// Spits a fireball as the attack rests on its last pose: the attack starts over until it has spat its shots, then the
+    /// body waits to sink.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The body is in none of the attack's phases.</exception>
-    private void RunDragonAttacking(RoomEnemyOccupant occupant, RoomEnemyPlace body, DragonEnemyState bodyState)
+    private void FinishDragonAttack(RoomEnemyOccupant occupant, RoomEnemyPlace body, DragonEnemyState bodyState)
     {
-        // The attack faces the way the body turned before rising.
-        Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonPhases.Attacking(bodyState.Facing));
-        RunDragonAttackingForDragonAction[bodyState.Action](occupant, body, bodyState, attack);
+        SpawnDragonFireball(occupant, body, bodyState);
+        // Each fireball queues one sound; two Dragons attacking in one frame queue two.
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.DragonFireballSound, priority: SoundRequestPriority.Normal);
+        if (--bodyState.AttackCounter != 0)
+        {
+            bodyState.Action = DragonAction.RestartingAttack;
+            return;
+        }
+
+        bodyState.ActionTimer = UpdateCountdown.For(DragonTimingDefinitions.WaitBeforeSink);
+        bodyState.Action = DragonAction.WaitToSink;
     }
+
+    /// <summary>The attack, facing the way the body turned before rising.</summary>
+    private static Animation<DragonSegment> Attack(DragonEnemyState bodyState) =>
+        DragonAnimations.StartingWith(DragonPhases.Attacking(bodyState.Facing));
 
     /// <summary>Waits before sinking, the attack resting on its last pose; the sink starts the idle pose.</summary>
     private static void RunDragonWaitToSink(

@@ -8,6 +8,12 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 public abstract class SamusBombJumpPhase
 {
+    /// <summary>One update of a bomb jump's movement.</summary>
+    /// <param name="Terrain">The terrain she moves through.</param>
+    /// <param name="Samus">Samus.</param>
+    /// <param name="FrameCounter">The update's frame counter.</param>
+    internal readonly record struct SamusBombJumpUpdate(SamusTerrain Terrain, SamusState Samus, int FrameCounter);
+
     /// <summary>Only the two phases derive.</summary>
     private protected SamusBombJumpPhase()
     {
@@ -20,24 +26,22 @@ public abstract class SamusBombJumpPhase
     public static SamusBombJumpPhase Rising { get; } = new RisingPhase();
 
     /// <summary>Runs one update of the phase's movement.</summary>
-    /// <param name="terrain">The terrain she moves through.</param>
-    /// <param name="samus">Samus.</param>
-    /// <param name="frameCounter">The update's frame counter.</param>
-    internal abstract BombJumpMovementResult Run(SamusTerrain terrain, SamusState samus, int frameCounter);
+    /// <param name="update">Samus, the terrain she moves through and the update's frame counter.</param>
+    internal abstract BombJumpMovementResult Run(SamusBombJumpUpdate update);
 
     /// <summary>The start.</summary>
     private sealed class StartingPhase : SamusBombJumpPhase
     {
         /// <inheritdoc/>
-        internal override BombJumpMovementResult Run(SamusTerrain terrain, SamusState samus, int frameCounter) =>
-            SamusBombJumpMovement.Start(samus);
+        internal override BombJumpMovementResult Run(SamusBombJumpUpdate update) =>
+            SamusBombJumpMovement.Start(update.Samus);
     }
 
     /// <summary>The rise.</summary>
     private sealed class RisingPhase : SamusBombJumpPhase
     {
         /// <inheritdoc/>
-        internal override BombJumpMovementResult Run(SamusTerrain terrain, SamusState samus, int frameCounter) =>
-            SamusBombJumpMovement.Step(terrain, samus, frameCounter);
+        internal override BombJumpMovementResult Run(SamusBombJumpUpdate update) =>
+            SamusBombJumpMovement.Step(update.Terrain, update.Samus, update.FrameCounter);
     }
 }

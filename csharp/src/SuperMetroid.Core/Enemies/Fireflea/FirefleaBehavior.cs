@@ -70,7 +70,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Fireflea's main AI, advancing circular angle or vertical travel.</summary>
-    private static void RunFirefleaMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, FirefleaEnemyState state)
+    private static void RunFirefleaMain(RoomEnemyOccupant occupant, FirefleaEnemyState state)
     {
         state.Flight.React(RunFirefleaMainReactions, occupant);
     }
@@ -146,7 +146,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Fireflea's main AI.</summary>
     internal static void RunFirefleaMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
-        RunFirefleaMain(occupant, place, place.RequireSpeciesState<FirefleaEnemyState>());
+        RunFirefleaMain(occupant, place.RequireSpeciesState<FirefleaEnemyState>());
     }
 
     /// <summary>Advances darkness before a lethal common power-bomb death is finalized.</summary>

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// The final logo (#2541): its actor, from the end of the white flash on, while it lands and fades in, until it completes.
 /// </summary>
 /// <param name="logo">The logo's actor.</param>
-internal sealed class EndingLogoScene(EndingLogo logo) : EndingScene
+internal sealed class EndingLogoScene(EndingLogo logo) : EndingActorScene
 {
     /// <summary>The logo's actor.</summary>
     internal EndingLogo Logo { get; } = Ensure.NotNull(logo);

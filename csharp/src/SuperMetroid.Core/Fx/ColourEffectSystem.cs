@@ -256,7 +256,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
             if (effect.Ended)
                 continue;
             // A frame of an effect an owner shows is kept for that owner, which lays its shade over its own draws.
-            if (effect.TakeTurn(cue => CarryOut(effect, cue)) is { } frame && effect.Target is ColourEffectTarget.OnOwner owner)
+            if (effect.TakeTurn(CarryOut) is { } frame && effect.Target is ColourEffectTarget.OnOwner owner)
                 owner.Show(new ShownColourEffectFrame(effect.Colours, frame), shownOnOwners);
         }
         foreach (RoomColourEffect effect in effects)
@@ -375,9 +375,9 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         effect.Restart(ColourEffectHeatAnimations.Pulse(suit), ColourEffectHeatAnimations.Phase(suit, _session.PublishedHeatPhase));
     }
 
-    /// <summary>Carries out a step of <paramref name="effect"/>'s animation that reaches beyond it: a heat phase or a sound.</summary>
+    /// <summary>Carries out a step of a colour effect's animation that reaches beyond it: a heat phase or a sound.</summary>
     /// <exception cref="InvalidOperationException">The step is of no defined kind.</exception>
-    private void CarryOut(RoomColourEffect effect, ColourEffectCue cue)
+    private void CarryOut(ColourEffectCue cue)
     {
         cue.React(CarryOutReactions, this);
     }

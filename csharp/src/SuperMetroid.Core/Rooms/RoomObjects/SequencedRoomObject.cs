@@ -82,11 +82,12 @@ internal abstract class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObje
     /// <param name="context">The update.</param>
     private protected abstract void Show(TFrame frame, RoomObjectPlace place, RoomObjectStepContext context);
 
-    /// <summary>Carries out <paramref name="raised"/>, which the animation passes just before the frame after it shows.</summary>
-    /// <param name="raised">The event.</param>
-    /// <param name="place">The object's place.</param>
-    /// <param name="context">The update.</param>
-    private protected abstract void Raise(TEvent raised, RoomObjectPlace place, RoomObjectStepContext context);
+    /// <summary>
+    /// What carries out an event the animation passes just before the frame after it shows, given the object's place and
+    /// the update; none for an object whose animations raise no event (<see cref="SilentSequencedRoomObject{TSegment, TFrame}"/>),
+    /// which plays them silently.
+    /// </summary>
+    private protected virtual Action<TEvent, RoomObjectPlace, RoomObjectStepContext>? Raiser => null;
 
     /// <summary>Plays <paramref name="animation"/> from its start, its first frame showing on this update.</summary>
     /// <exception cref="InvalidOperationException">The animation shows no frame on its first update.</exception>
@@ -115,7 +116,10 @@ internal abstract class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObje
     /// <returns>Whether the update showed a frame.</returns>
     private bool ShowNextFrame(AnimationPlayer<TSegment, TFrame, TEvent> player, RoomObjectPlace place, RoomObjectStepContext context)
     {
-        if (player.StepToNewFrame(raised => Raise(raised, place, context)) is not { } frame)
+        TFrame? shown = Raiser is { } raise
+            ? player.StepToNewFrame(raised => raise(raised, place, context))
+            : player.StepToNewFrame();
+        if (shown is not { } frame)
             return false;
         Show(frame, place, context);
         return true;

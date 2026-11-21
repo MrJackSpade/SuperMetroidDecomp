@@ -579,14 +579,10 @@ internal sealed class RoomLoader
     {
         [DoorDirection.Right] = static samus => samus.Position = samus.Position.WithWholeX(RoomGridConversions.HalfBlockEnd(samus.Position.X.Whole)),
         [DoorDirection.Left] = static samus => samus.Position = samus.Position.WithWholeX(RoomGridConversions.HalfBlockStart(samus.Position.X.Whole)),
-        [DoorDirection.Down] = static samus => AlignSamusAfterDoorLoadingForDoorDirectionDown(samus),
-        [DoorDirection.Up] = static samus => AlignSamusAfterDoorLoadingForDoorDirectionDown(samus),
+        // A vertical door aligns her nowhere.
+        [DoorDirection.Down] = static _ => { },
+        [DoorDirection.Up] = static _ => { },
     });
-
-    /// <summary>What <see cref="AlignSamusAfterDoorLoadingForDoorDirection"/> does for <see cref="DoorDirection.Down"/>, <see cref="DoorDirection.Up"/>.</summary>
-    private static void AlignSamusAfterDoorLoadingForDoorDirectionDown(SamusState samus)
-    {
-    }
 
     /// <summary>
     /// Applies the horizontal eight-pixel doorway alignment on the update after the

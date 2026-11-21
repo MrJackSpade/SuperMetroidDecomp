@@ -665,8 +665,8 @@ public static class SamusGrappleMovement
             throw new InvalidDataException(
                 $"Invalid grapple block behaviour ({block.Behavior}) at {block.Position}.");
         },
-        [RoomCollisionType.ShootableAir] = static (terrain, samus, block) => ReactAtEndpointForRoomCollisionTypeShootableAir(terrain, samus, block),
-        [RoomCollisionType.ShootableBlock] = static (terrain, samus, block) => ReactAtEndpointForRoomCollisionTypeShootableAir(terrain, samus, block),
+        [RoomCollisionType.ShootableAir] = static (terrain, _, block) => ReactAtEndpointForRoomCollisionTypeShootableAir(terrain, block),
+        [RoomCollisionType.ShootableBlock] = static (terrain, _, block) => ReactAtEndpointForRoomCollisionTypeShootableAir(terrain, block),
         [RoomCollisionType.BombableAir] = static (terrain, samus, block) =>
         {
             // The bombable-air setup immediately deletes its provisional
@@ -679,12 +679,12 @@ public static class SamusGrappleMovement
             // reports the block solid to the beam from its collision reaction.
             return GrappleBlockReaction.Solid;
         },
-        [RoomCollisionType.HorizontalExtension] = static (terrain, samus, block) => ReactAtEndpointForRoomCollisionTypeHorizontalExtension(terrain, samus, block),
-        [RoomCollisionType.VerticalExtension] = static (terrain, samus, block) => ReactAtEndpointForRoomCollisionTypeHorizontalExtension(terrain, samus, block),
+        [RoomCollisionType.HorizontalExtension] = static (_, _, block) => ReactAtEndpointForRoomCollisionTypeHorizontalExtension(block),
+        [RoomCollisionType.VerticalExtension] = static (_, _, block) => ReactAtEndpointForRoomCollisionTypeHorizontalExtension(block),
     });
 
     /// <summary>What <see cref="ReactAtEndpointForRoomCollisionType"/> does for <see cref="RoomCollisionType.ShootableAir"/>, <see cref="RoomCollisionType.ShootableBlock"/>.</summary>
-    private static GrappleBlockReaction ReactAtEndpointForRoomCollisionTypeShootableAir(RoomTerrain terrain, SamusState samus, RoomCollisionBlock block)
+    private static GrappleBlockReaction ReactAtEndpointForRoomCollisionTypeShootableAir(RoomTerrain terrain, RoomCollisionBlock block)
     {
         // The shootable block reactions are the same as ordinary
         // projectiles'. Grapple owns no projectile family, so weapon-gated
@@ -702,7 +702,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>What <see cref="ReactAtEndpointForRoomCollisionType"/> does for <see cref="RoomCollisionType.HorizontalExtension"/>, <see cref="RoomCollisionType.VerticalExtension"/>.</summary>
-    private static GrappleBlockReaction ReactAtEndpointForRoomCollisionTypeHorizontalExtension(RoomTerrain terrain, SamusState samus, RoomCollisionBlock block)
+    private static GrappleBlockReaction ReactAtEndpointForRoomCollisionTypeHorizontalExtension(RoomCollisionBlock block)
     {
         throw new InvalidOperationException($"Continuing block {block.Position} reached the grapple's endpoint in place of the block it stands for.");
     }

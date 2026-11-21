@@ -12,7 +12,7 @@ internal class MissileShotState : SamusShotKindState
 
     /// <inheritdoc/>
     internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(SignedEightEight reflectionHeadStart) =>
-        Ignition.ReplacedByBeam(reflectionHeadStart, LinkPlaceFound);
+        Ignition.ReplacedByBeam(new SamusMissileIgnition.ReplacedMissile(reflectionHeadStart, LinkPlaceFound));
 
     /// <summary>The link place a beam finds the shot naming: a missile names none.</summary>
     private protected virtual int? LinkPlaceFound => null;

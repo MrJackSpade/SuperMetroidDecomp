@@ -52,8 +52,9 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SilentSequencedRoo
                 Play(NoobTubeAnimations.Intact, place, context);
             }
         },
-        [NoobTubePhase.WaitingForPowerBomb] = (place, context) => SequenceEndedForNoobTubePhaseWaitingForPowerBomb(place, context),
-        [NoobTubePhase.WaitingForInput] = (place, context) => SequenceEndedForNoobTubePhaseWaitingForPowerBomb(place, context),
+        // The tube rests until a wake starts its next step.
+        [NoobTubePhase.WaitingForPowerBomb] = static (_, _) => { },
+        [NoobTubePhase.WaitingForInput] = static (_, _) => { },
         [NoobTubePhase.Cracking] = (place, context) =>
         {
             context.QueueSound(NoobTubeObjectDefinitions.BreakSound, NoobTubeObjectDefinitions.BreakSoundPriority);
@@ -70,12 +71,6 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SilentSequencedRoo
             context.RoomObjects.DeleteObject(place);
         },
     });
-
-    /// <summary>What <see cref="SequenceEndedForNoobTubePhase"/> does for <see cref="NoobTubePhase.WaitingForPowerBomb"/>, <see cref="NoobTubePhase.WaitingForInput"/>.</summary>
-    private void SequenceEndedForNoobTubePhaseWaitingForPowerBomb(RoomObjectPlace place, RoomObjectStepContext context)
-    {
-        // The tube rests until a wake starts its next step.
-    }
 
     /// <inheritdoc/>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)

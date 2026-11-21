@@ -78,19 +78,16 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
         context.Draw(place, EyeDoorDraws.Of(Orientation, frame));
 
     /// <summary>What <c>Raise</c> does for each <see cref="EyeDoorAction"/> member, each member's own arm.</summary>
-    private IdentityTable<EyeDoorAction, Action<RoomObjectPlace, EyeDoorObjects>> RaiseForEyeDoorAction => field ??= new(new Dictionary<EyeDoorAction, Action<RoomObjectPlace, EyeDoorObjects>>
+    private IdentityTable<EyeDoorAction, Action<RoomObjectPlace, RoomObjectStepContext>> RaiseForEyeDoorAction => field ??= new(new Dictionary<EyeDoorAction, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
-        [EyeDoorAction.Shoot] = (place, eyes) => eyes.Shoot(place, Orientation, Door.Placed.Door),
-        [EyeDoorAction.SpawnTwoSmoke] = (place, eyes) => eyes.SpawnTwoSmoke(place, Orientation),
-        [EyeDoorAction.SpawnSweat] = (place, eyes) => eyes.SpawnSweat(place, Orientation),
+        [EyeDoorAction.Shoot] = (place, context) => context.RoomObjects.EyeDoors.Shoot(place, Orientation, Door.Placed.Door),
+        [EyeDoorAction.SpawnTwoSmoke] = (place, context) => context.RoomObjects.EyeDoors.SpawnTwoSmoke(place, Orientation),
+        [EyeDoorAction.SpawnSweat] = (place, context) => context.RoomObjects.EyeDoors.SpawnSweat(place, Orientation),
     });
 
     /// <inheritdoc/>
-    private protected override void Raise(EyeDoorAction raised, RoomObjectPlace place, RoomObjectStepContext context)
-    {
-        EyeDoorObjects eyes = context.RoomObjects.EyeDoors;
-        RaiseForEyeDoorAction[raised](place, eyes);
-    }
+    private protected override Action<EyeDoorAction, RoomObjectPlace, RoomObjectStepContext> Raiser =>
+        (raised, place, context) => RaiseForEyeDoorAction[raised](place, context);
 
     /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="EyeDoorEyePhase"/> member, each member's own arm.</summary>
     private IdentityTable<EyeDoorEyePhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForEyeDoorEyePhase => field ??= new(new Dictionary<EyeDoorEyePhase, Action<RoomObjectPlace, RoomObjectStepContext>>

@@ -187,7 +187,9 @@ internal static class EndingCreditsPresentation
         var sprites = new ScreenSprites();
         sprites.BeginFrame();
         // A scene's own actors show on the actors' layer; the cast's each on its own role's layer.
-        ending.Scene.DrawActors(ending, sprites, Shows);
+        // The item-percentage drop and the typed texts have no actors.
+        if (ending.Scene is EndingActorScene acting)
+            acting.DrawActors(ending, sprites, Shows);
         if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Phase) && Shows(EndingSpriteLayer.Stars))
             ending.CreditsRoll.ShootingStars.Draw(sprites, Sheet(ending, EndingSpriteSheets.Reward(ending.Stage.EndingReward)),
                 ending.screen.Colours.Drawn(EndingShades.Drawn(EndingShootingStarDefinitions.Colouring)));

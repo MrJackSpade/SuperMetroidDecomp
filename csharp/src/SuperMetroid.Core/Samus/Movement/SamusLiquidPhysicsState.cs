@@ -20,22 +20,28 @@ namespace SuperMetroid.Core.Samus.Movement;
 public sealed class SamusLiquidPhysicsState
 {
     /// <summary>What <see cref="ConfigureFor"/> does for each <see cref="RoomFxType"/> member, each member's own arm.</summary>
-    private IdentityTable<RoomFxType, Action<RoomFxOverlayState>> ConfigureForForRoomFxType => field ??= new(new Dictionary<RoomFxType, Action<RoomFxOverlayState>>
+    private IdentityTable<RoomFxType, Action<RoomLiquidReading>> ConfigureForForRoomFxType => field ??= new(new Dictionary<RoomFxType, Action<RoomLiquidReading>>
     {
-        [RoomFxType.Water] = fx => ConfigureWater(LiveSurface(fx), fx.Liquid is RoomWater { IgnoresSurfaceUntilEnabled: true }, WaterRoomFx.Water),
-        [RoomFxType.TourianEntranceStatue] = fx => ConfigureWater(LiveSurface(fx), fx.Liquid is RoomWater { IgnoresSurfaceUntilEnabled: true }, WaterRoomFx.TourianEntranceStatue),
-        [RoomFxType.Lava] = fx => ConfigureLavaAcid(LiveSurface(fx), LavaAcidRoomFx.Lava),
-        [RoomFxType.Acid] = fx => ConfigureLavaAcid(LiveSurface(fx), LavaAcidRoomFx.Acid),
-        [RoomFxType.None] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.None),
-        [RoomFxType.Spores] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.Spores),
-        [RoomFxType.Rain] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.Rain),
-        [RoomFxType.Fog] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.Fog),
-        [RoomFxType.ScrollingSky] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.ScrollingSky),
-        [RoomFxType.Fireflea] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.Fireflea),
-        [RoomFxType.CeresRidley] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.CeresRidley),
-        [RoomFxType.CeresElevator] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.CeresElevator),
-        [RoomFxType.CeresHaze] = fx => ConfigureNonLiquidRoomFx(DryRoomFx.CeresHaze),
+        [RoomFxType.Water] = liquid => ConfigureWater(liquid.Surface, liquid.IgnoresSurfaceUntilEnabled, WaterRoomFx.Water),
+        [RoomFxType.TourianEntranceStatue] = liquid => ConfigureWater(liquid.Surface, liquid.IgnoresSurfaceUntilEnabled, WaterRoomFx.TourianEntranceStatue),
+        [RoomFxType.Lava] = liquid => ConfigureLavaAcid(liquid.Surface, LavaAcidRoomFx.Lava),
+        [RoomFxType.Acid] = liquid => ConfigureLavaAcid(liquid.Surface, LavaAcidRoomFx.Acid),
+        [RoomFxType.None] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.None),
+        [RoomFxType.Spores] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.Spores),
+        [RoomFxType.Rain] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.Rain),
+        [RoomFxType.Fog] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.Fog),
+        [RoomFxType.ScrollingSky] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.ScrollingSky),
+        [RoomFxType.Fireflea] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.Fireflea),
+        [RoomFxType.CeresRidley] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.CeresRidley),
+        [RoomFxType.CeresElevator] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.CeresElevator),
+        [RoomFxType.CeresHaze] = _ => ConfigureNonLiquidRoomFx(DryRoomFx.CeresHaze),
     });
+
+    /// <summary>What Samus's physics reads of the room effect's liquid as the effect is applied.</summary>
+    /// <param name="Surface">The liquid's surface as her physics sees it (<see cref="LiveSurface"/>), or null when none shows.</param>
+    /// <param name="IgnoresSurfaceUntilEnabled">Whether the effect's water ignores its surface until the surface is enabled.</param>
+    [IndependentFlag("Whether the water ignores its surface until it is enabled is the effect's own property, read as it is applied.")]
+    private readonly record struct RoomLiquidReading(int? Surface, bool IgnoresSurfaceUntilEnabled);
 
     /// <summary>The two water effects, each as its room effect type.</summary>
     private static IdentityTable<WaterRoomFx, RoomFxType> WaterRoomFxTypes => field ??= new(new Dictionary<WaterRoomFx, RoomFxType>
@@ -72,7 +78,7 @@ public sealed class SamusLiquidPhysicsState
     public void ConfigureFor(RoomFxOverlayState fx)
     {
         Ensure.NotNull(fx);
-        ConfigureForForRoomFxType[fx.Type](fx);
+        ConfigureForForRoomFxType[fx.Type](new RoomLiquidReading(LiveSurface(fx), fx.Liquid is RoomWater { IgnoresSurfaceUntilEnabled: true }));
     }
 
     /// <summary>

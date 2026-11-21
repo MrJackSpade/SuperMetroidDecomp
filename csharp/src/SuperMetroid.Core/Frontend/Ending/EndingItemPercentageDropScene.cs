@@ -20,11 +20,6 @@ internal sealed class EndingItemPercentageDropScene : EndingScene
     }
 
     /// <inheritdoc/>
-    internal override void DrawActors(EndingCreditsState ending, ScreenSprites sprites, Func<EndingSpriteLayer, bool> shows)
-    {
-    }
-
-    /// <inheritdoc/>
     internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>
         EndingCreditsPresentation.CaptureLogo(ending, crossfading: true, paint);
 }

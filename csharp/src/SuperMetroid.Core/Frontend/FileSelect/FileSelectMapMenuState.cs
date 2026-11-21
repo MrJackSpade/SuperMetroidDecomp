@@ -171,17 +171,12 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen, IComposedFront
                 Outcome = FileSelectMapOutcome.Load;
         },
         // Navigation itself advances these phases; no menu countdown runs.
-        [FileSelectMapNavigationPhase.Area] = () => StepForFileSelectMapNavigationPhaseArea(),
-        [FileSelectMapNavigationPhase.PreparingWindow] = () => StepForFileSelectMapNavigationPhaseArea(),
-        [FileSelectMapNavigationPhase.ExpandingWindow] = () => StepForFileSelectMapNavigationPhaseArea(),
-        [FileSelectMapNavigationPhase.InitializingRoom] = () => StepForFileSelectMapNavigationPhaseArea(),
-        [FileSelectMapNavigationPhase.Room] = () => StepForFileSelectMapNavigationPhaseArea(),
+        [FileSelectMapNavigationPhase.Area] = static () => { },
+        [FileSelectMapNavigationPhase.PreparingWindow] = static () => { },
+        [FileSelectMapNavigationPhase.ExpandingWindow] = static () => { },
+        [FileSelectMapNavigationPhase.InitializingRoom] = static () => { },
+        [FileSelectMapNavigationPhase.Room] = static () => { },
     });
-
-    /// <summary>What <see cref="StepForFileSelectMapNavigationPhase"/> does for <see cref="FileSelectMapNavigationPhase.Area"/>, <see cref="FileSelectMapNavigationPhase.PreparingWindow"/>, <see cref="FileSelectMapNavigationPhase.ExpandingWindow"/>, <see cref="FileSelectMapNavigationPhase.InitializingRoom"/>, <see cref="FileSelectMapNavigationPhase.Room"/>.</summary>
-    private void StepForFileSelectMapNavigationPhaseArea()
-    {
-    }
 
     /// <summary>Advances one menu update, retaining input latching during entry and the game's ordering of icon and colour animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
     /// <param name="input">Current held controller buttons; edge reading is owned by navigation, not by rendering.</param>

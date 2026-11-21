@@ -33,25 +33,27 @@ public static class ProjectileSpriteDefinitions
     /// <summary>The missile explosion's flare, which the Super Missile explosion shows too.</summary>
     private static readonly ProjectileSpriteId MissileExplosionFlare = new(ProjectileSpriteGroup.MissileExplosion, "Flare");
 
+    /// <summary>Charged Wave's core.</summary>
+    private static readonly ProjectileSpriteId ChargedWaveCore = new(ProjectileSpriteGroup.ChargedWave, "Core");
+
+    /// <summary>Charged Wave's core as a starburst, which its flicker trades with the orb.</summary>
+    private static readonly ProjectileSpriteId ChargedWaveCoreStarburst = new(ProjectileSpriteGroup.ChargedWave, "CoreStarburst");
+
     /// <summary>
     /// Charged Wave's cores and paired lobes, in storage order: its core as an orb and as a starburst, and each lobe pair's
     /// swing from the core (Near, Midway, Far, Peak) with the orb on its upper (or left) lobe and then on its lower (or right)
     /// one, the starburst on the other: the two pictures its flicker trades. Charged Ice Wave stores all of them again, byte
     /// for byte, and charged Ice's cross and star are its starburst core and core.
     /// </summary>
-    private static readonly ProjectileSpriteId[] ChargedWave = Poses(ProjectileSpriteGroup.ChargedWave,
-        "Core", "CoreStarburst", "Right.LobesNear", "Right.LobesNearOrbBelow", "Right.LobesMidway",
+    private static readonly ProjectileSpriteId[] ChargedWave = [ChargedWaveCore, ChargedWaveCoreStarburst, .. Poses(ProjectileSpriteGroup.ChargedWave,
+        "Right.LobesNear", "Right.LobesNearOrbBelow", "Right.LobesMidway",
         "Right.LobesMidwayOrbBelow", "Right.LobesFar", "Right.LobesFarOrbBelow", "Right.LobesPeak",
         "Right.LobesPeakOrbBelow", "DownRight.LobesNear", "DownRight.LobesNearOrbBelow", "DownRight.LobesMidway",
         "DownRight.LobesMidwayOrbBelow", "DownRight.LobesFar", "DownRight.LobesFarOrbBelow", "DownRight.LobesPeak",
         "DownRight.LobesPeakOrbBelow", "UpRight.LobesNear", "UpRight.LobesNearOrbBelow", "UpRight.LobesMidway",
         "UpRight.LobesMidwayOrbBelow", "UpRight.LobesFar", "UpRight.LobesFarOrbBelow", "UpRight.LobesPeak",
         "UpRight.LobesPeakOrbBelow", "Down.LobesNear", "Down.LobesNearOrbRight", "Down.LobesMidway",
-        "Down.LobesMidwayOrbRight", "Down.LobesFar", "Down.LobesFarOrbRight", "Down.LobesPeak", "Down.LobesPeakOrbRight");
-    /// <summary>Charged Wave's core.</summary>
-    private static readonly ProjectileSpriteId ChargedWaveCore = ChargedWave[0];
-    /// <summary>Charged Wave's core as a starburst, which its flicker trades with the orb.</summary>
-    private static readonly ProjectileSpriteId ChargedWaveCoreStarburst = ChargedWave[1];
+        "Down.LobesMidwayOrbRight", "Down.LobesFar", "Down.LobesFarOrbRight", "Down.LobesPeak", "Down.LobesPeakOrbRight")];
 
     /// <summary>The Spazer beam's up-right seed, which charged Spazer's up-right startup grows into.</summary>
     private static readonly ProjectileSpriteId SpazerUpRightSeed = new(ProjectileSpriteGroup.Spazer, "UpRight.Seed");

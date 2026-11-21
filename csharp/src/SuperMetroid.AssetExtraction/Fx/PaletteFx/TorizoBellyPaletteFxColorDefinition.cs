@@ -1,16 +1,22 @@
+using SuperMetroid.Core.Fx.ColourEffects;
+
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>One Torizo-specific entry and six-frame belly palette loop.</summary>
 public sealed class TorizoBellyPaletteFxColorDefinition
 {
-    /// <summary>Only the catalog creates definitions.</summary>
-    internal TorizoBellyPaletteFxColorDefinition()
+    /// <summary>Only the catalog creates definitions: the records <paramref name="effect"/> shows, each writing <paramref name="colorsPerFrame"/> colours.</summary>
+    /// <param name="effect">The colour effect whose records the program holds.</param>
+    /// <param name="colorsPerFrame">The colours each record writes.</param>
+    internal TorizoBellyPaletteFxColorDefinition(ColourEffectId effect, int colorsPerFrame)
     {
+        Effect = effect;
+        ColorFrames = PaletteFxColorFrames.Of(effect, colorsPerFrame);
     }
 
-    /// <summary>The Torizo variant represented by this program.</summary>
-    public required TorizoBellyPaletteOwner Owner { get; init; }
+    /// <summary>The colour effect whose records the program holds, which identifies the definition.</summary>
+    public ColourEffectId Effect { get; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public required PaletteFxColorFrames ColorFrames { get; init; }
+    public PaletteFxColorFrames ColorFrames { get; }
 }

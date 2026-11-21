@@ -9,6 +9,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -62,9 +63,9 @@ internal static class PaletteJsonContractsFixturesVerification
         { Version = IntroCinematicPaletteFile.Version, Colors = PaletteContractColors(SnesCgram.ColorCount) }),
             json => _ = IntroCinematicPaletteFile.Read(json));
         var tube = TitleScreenAmbientPaletteOwners.All.Single(
-            item => item.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight);
+            item => item.Effect == ColourEffectId.TitleScreenBabyMetroidTubeLight);
         var displays = TitleScreenAmbientPaletteOwners.All.Single(
-            item => item.Owner == TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays);
+            item => item.Effect == ColourEffectId.TitleScreenFlickeringDisplays);
         yield return new("title", PaletteContractDocument(new TitlePaletteDocument
         {
             Version = TitlePaletteFormat.Version, Colors = PaletteContractColors(SnesCgram.ColorCount),

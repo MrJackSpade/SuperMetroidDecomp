@@ -351,7 +351,6 @@ internal static class LookupStream2Verification
         int count = 0;
         foreach (var item in norfair)
         {
-            AssertEqual((NorfairEnvironmentalPaletteOwner)count, item.Owner, "Norfair native owner order");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.DefinitionPointer + 2), item.ProgramStart, "Native Norfair definition/list binding");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.ColorFrames.Effect.AnimatedColours.CartridgeByteIndex, "Native Norfair colours start where the object's colour group is placed");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.LoopInstructionPointer + 2), item.FirstRecordPointer, "Native Norfair loop target");
@@ -362,7 +361,6 @@ internal static class LookupStream2Verification
         count = 0;
         foreach (var item in accents)
         {
-            AssertEqual((OldTourianEscapeAccentPaletteOwner)count, item.Owner, "Accent native owner order");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.DefinitionPointer + 2), item.ProgramStart, "Native accent definition/list binding");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.ColorFrames.Effect.AnimatedColours.CartridgeByteIndex, "Native railings/panels colours start where the object's colour group is placed");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.LoopInstructionPointer + 2), item.FirstFramePointer, "Native accent loop target");
@@ -1370,7 +1368,7 @@ internal static class LookupStream2Verification
         int enumerated = 0;
         foreach (var definition in definitions)
         {
-            AssertEqual(definitions[enumerated].Owner, definition.Owner, "Torizo enumerated owner");
+            AssertEqual(definitions[enumerated].Effect, definition.Effect, "Torizo enumerated effect");
             enumerated++;
         }
         AssertEqual(2, enumerated, "Torizo definition enumeration");

@@ -43,22 +43,17 @@ public static class TitlePaletteFile
             colors[index] = color.ToRgbColor();
         }
         var animatedColors = new Dictionary<PaletteFxColorKey, RgbColor>();
-        foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
-                 TitleScreenAmbientPaletteOwners.All)
+        foreach ((TitleScreenAmbientPaletteFxColorDefinition definition, PaletteRgb5[][]? frames) in
+                 new[]
+                 {
+                     (TitleScreenAmbientPaletteFxColorDefinitions.TubeLight, document.BabyMetroidTubeLight),
+                     (TitleScreenAmbientPaletteFxColorDefinitions.Displays, document.FlickeringDisplays),
+                 })
         {
-            PaletteRgb5[][]? frames = definition.Owner switch
-            {
-                TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight =>
-                    document.BabyMetroidTubeLight,
-                TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays =>
-                    document.FlickeringDisplays,
-                _ => throw new InvalidDataException(
-                    $"Unsupported title ambient palette owner {definition.Owner}."),
-            };
             if (frames is null || frames.Length != definition.FrameCount)
             {
                 throw new InvalidDataException(
-                    $"Title palette {definition.Owner} requires exactly " +
+                    $"Title palette {definition.Effect} requires exactly " +
                     $"{definition.FrameCount} frames.");
             }
 
@@ -68,7 +63,7 @@ public static class TitlePaletteFile
                 if (frameColors is null || frameColors.Length != definition.ColorsPerFrame)
                 {
                     throw new InvalidDataException(
-                        $"Title palette {definition.Owner} frame {frame} requires exactly " +
+                        $"Title palette {definition.Effect} frame {frame} requires exactly " +
                         $"{definition.ColorsPerFrame} colors.");
                 }
 
@@ -79,7 +74,7 @@ public static class TitlePaletteFile
                         (uint)color.Blue > 31)
                     {
                         throw new InvalidDataException(
-                            $"Title palette {definition.Owner} frame {frame} color {index} " +
+                            $"Title palette {definition.Effect} frame {frame} color {index} " +
                             "requires RGB components from 0 to 31.");
                     }
 

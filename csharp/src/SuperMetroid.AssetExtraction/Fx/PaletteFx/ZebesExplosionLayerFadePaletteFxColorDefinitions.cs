@@ -13,21 +13,12 @@ public static class ZebesExplosionLayerFadePaletteFxColorDefinitions
     /// <summary>Each record writes fifteen live BGR555 colors.</summary>
     private const int ColorsPerFrame = 15;
 
-    /// <summary>Crust and grey-cloud one-shot fades with distinct destinations and authored holds.</summary>
-    private static readonly ZebesExplosionLayerFadePaletteFxColorDefinition[] Definitions =
-    [
-        new()
-        {
-            Owner = ZebesExplosionLayerFadePaletteFxProgramOwner.Crust,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.FadeOutExplodingZebesCrust, ColorsPerFrame),
-        },
-        new()
-        {
-            Owner = ZebesExplosionLayerFadePaletteFxProgramOwner.GreyClouds,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.FadeOutExplodingZebesGreyClouds, ColorsPerFrame),
-        },
-    ];
+    /// <summary>The crust's one-shot fade.</summary>
+    internal static ZebesExplosionLayerFadePaletteFxColorDefinition FadeOutExplodingZebesCrust { get; } = new(ColourEffectId.FadeOutExplodingZebesCrust, ColorsPerFrame);
 
-    /// <summary>The crust and grey-cloud programs in definition order.</summary>
-    public static IReadOnlyList<ZebesExplosionLayerFadePaletteFxColorDefinition> All { get; } = Array.AsReadOnly(Definitions);
+    /// <summary>The grey clouds' one-shot fade.</summary>
+    internal static ZebesExplosionLayerFadePaletteFxColorDefinition FadeOutExplodingZebesGreyClouds { get; } = new(ColourEffectId.FadeOutExplodingZebesGreyClouds, ColorsPerFrame);
+
+    /// <summary>The crust and grey-cloud one-shot fades in definition order, with distinct destinations and authored holds.</summary>
+    public static IReadOnlyList<ZebesExplosionLayerFadePaletteFxColorDefinition> All { get; } = [FadeOutExplodingZebesCrust, FadeOutExplodingZebesGreyClouds];
 }

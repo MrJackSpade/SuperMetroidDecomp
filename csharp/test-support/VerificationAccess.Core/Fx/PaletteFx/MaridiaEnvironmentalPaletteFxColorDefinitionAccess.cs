@@ -9,14 +9,14 @@ internal static class MaridiaEnvironmentalPaletteFxColorDefinitionAccess
     extension(MaridiaEnvironmentalPaletteFxColorDefinition self)
     {
         /// <summary>Native four-byte definition identity selected by environmental owner.</summary>
-        internal ushort DefinitionPointer => (ushort)(MaridiaEnvironmentalPaletteFxColorDefinitions.SandPitDefinition + (int)self.Owner * 4);
+        internal ushort DefinitionPointer => (ushort)(MaridiaEnvironmentalPaletteFxColorDefinitions.SandPitDefinition + MaridiaEnvironmentalPaletteFxColorDefinitions.All.ToList().IndexOf(self) * 4);
 
         /// <summary>Frames from the first record through the next first record.</summary>
         internal int CycleFrames => self.FrameCount * self.Duration;
         /// <summary>The colour group the definition's object animates.</summary>
         internal ColourEffectColours AnimatedColours => PaletteFxObjectAccess.FromNative(self.DefinitionPointer).AnimatedColours;
         /// <summary>The authored cadence for sand or waterfall animation.</summary>
-        public ushort Duration => self.Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls
+        public ushort Duration => self.Effect == ColourEffectId.MaridiaBackgroundWaterfalls
             ? MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.WaterfallDuration
             : MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.SandDuration;
         /// <summary>Bytes from a duration word through its terminal wait command.</summary>

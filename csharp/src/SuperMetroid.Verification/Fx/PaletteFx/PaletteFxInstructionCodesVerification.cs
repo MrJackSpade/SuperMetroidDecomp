@@ -225,11 +225,11 @@ internal static class PaletteFxInstructionCodesVerification
     {
         var programs = SamusLoadingSuitPaletteFxColorDefinitions.All;
         AssertEqual(3, programs.Count, "Loading roster count");
-        AssertTrue(programs.Select(program => program.Owner).SequenceEqual(new[]
+        AssertTrue(programs.Select(program => program.Effect).SequenceEqual(new[]
         {
-            SamusLoadingSuitPaletteFxProgramOwner.PowerSuit,
-            SamusLoadingSuitPaletteFxProgramOwner.VariaSuit,
-            SamusLoadingSuitPaletteFxProgramOwner.GravitySuit,
+            ColourEffectId.SamusLoadingPowerSuit,
+            ColourEffectId.SamusLoadingVariaSuit,
+            ColourEffectId.SamusLoadingGravitySuit,
         }), "Original loading roster order");
         for (int index = 0; index < 3; index++)
             AssertTrue(ReferenceEquals(programs[index], programs.ElementAt(index)), "Indexed and enumerated named owner agree");
@@ -531,15 +531,15 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             AssertTrue(paletteFx.IsRunning(definition.DefinitionPointer),
-                $"{definition.Owner} completes and repeats the shared cycle");
+                $"{definition.Effect} completes and repeats the shared cycle");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"{definition.Owner} avoids mechanics ROM reads");
+                $"{definition.Effect} avoids mechanics ROM reads");
             AssertEqual(
                 (TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConstants.FrameCount + 1) *
                     TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ColorsPerFrame *
                     sizeof(ushort),
                 guardedPresentationReads.Value,
-                $"{definition.Owner} retains every live color through the shared cycle");
+                $"{definition.Effect} retains every live color through the shared cycle");
         }
     }
 

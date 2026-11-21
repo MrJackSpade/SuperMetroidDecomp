@@ -19,7 +19,8 @@ internal static class GameStateNumberCodec
     /// The steps in the cartridge's numbering: how a game enters each, and whether a running game is at it. Numbers
     /// three (a no-operation entry), 28 (an unreachable entry) and 29 (a debug-build menu) name no step the game has.
     /// Samus's death animation and the Ceres departure are numbered by the step their own sequence state is on; entering
-    /// them enters the frontend's step, and the import leaves that state as the game left it.
+    /// them enters the frontend's step, and the import leaves that state as the game left it. The cartridge numbers an attract
+    /// demo's recording and its final image's hold as one step.
     /// </summary>
     private static readonly Numbered?[] Numbers =
     [
@@ -67,7 +68,7 @@ internal static class GameStateNumberCodec
         new(session => session.Enter(EndingStep.Credits), session => session.IsAt(EndingStep.Credits)),
         new(session => session.Enter(AttractDemoStep.Loading), session => session.IsAt(AttractDemoStep.Loading)),
         new(session => session.Enter(AttractDemoStep.Starting), session => session.IsAt(AttractDemoStep.Starting)),
-        new(session => session.Enter(AttractDemoStep.Playing), session => session.IsAt(AttractDemoStep.Playing)),
+        new(session => session.Enter(AttractDemoStep.Playing), session => session.IsAt(AttractDemoStep.Playing) || session.IsAt(AttractDemoStep.Holding)),
         new(session => session.Enter(AttractDemoStep.Unloading), session => session.IsAt(AttractDemoStep.Unloading)),
         new(session => session.Enter(AttractDemoStep.Routing), session => session.IsAt(AttractDemoStep.Routing)),
     ];

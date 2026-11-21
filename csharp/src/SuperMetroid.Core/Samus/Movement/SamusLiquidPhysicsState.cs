@@ -406,9 +406,9 @@ public sealed class SamusLiquidPhysicsState
     private void HandleLandingGraphics(SamusState samus, RoomGround ground)
     {
         if (IsWet(samus, ground.Wetness))
-            SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
+            SpawnLandingPairUnlessSubmerged(samus, SamusParticleKindDefinitions.SurfaceSplash);
         else if (ground.DryLandingsRaiseDust)
-            SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
+            SpawnLandingPairUnlessSubmerged(samus, SamusParticleKindDefinitions.Dust);
         else
             EndLandingEffectWait();
     }
@@ -430,7 +430,7 @@ public sealed class SamusLiquidPhysicsState
     /// Starts the landing's pair of dust or splash particles when Samus's last occupied pixel is above active liquid; the
     /// right-hand particle holds up breath bubbles while it shows.
     /// </summary>
-    private void SpawnLandingPairUnlessSubmerged(SamusState samus, SamusParticleKind kind)
+    private void SpawnLandingPairUnlessSubmerged(SamusState samus, SamusSteadyParticle particle)
     {
         // The bottom boundary uses the current pose definition and includes the last
         // occupied pixel; the live collision radius can still belong to the old pose.
@@ -442,7 +442,7 @@ public sealed class SamusLiquidPhysicsState
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
 
-        SamusLandingParticlePair pair = kind == SamusParticleKind.SurfaceSplash
+        SamusLandingParticlePair pair = particle.Kind == SamusParticleKind.SurfaceSplash
             ? SamusLiquidParticleDefinitions.LandingSplashes
             : SamusLiquidParticleDefinitions.LandingDust;
         int firstX = samus.Position.X.Whole + pair.Right.X;
@@ -450,8 +450,8 @@ public sealed class SamusLiquidPhysicsState
         int y = bottom + pair.Right.Y;
 
         // Both begin immediately on their first step, which shows for its start's updates.
-        EffectWaits.HoldBubbles(SpawnParticle(kind, Position16<RoomPixels>.Of(firstX, y), SamusLiquidParticleDefinitions.AtOnce));
-        _particles.Spawn(kind, Position16<RoomPixels>.Of(secondX, y), SamusLiquidParticleDefinitions.AtOnce);
+        EffectWaits.HoldBubbles(SpawnParticle(particle, Position16<RoomPixels>.Of(firstX, y), SamusLiquidParticleDefinitions.AtOnce));
+        _particles.Spawn(particle, Position16<RoomPixels>.Of(secondX, y), SamusLiquidParticleDefinitions.AtOnce);
     }
 
     /// <summary>
@@ -461,10 +461,10 @@ public sealed class SamusLiquidPhysicsState
     private void EndLandingEffectWait() => EffectWaits.ReleaseBubbles();
 
     /// <summary>Starts a particle on its first step and returns the updates it is shown, which a wait it holds lasts.</summary>
-    private int SpawnParticle(SamusParticleKind kind, Position16<RoomPixels> position, SamusParticleStart start)
+    private int SpawnParticle(SamusSteadyParticle particle, Position16<RoomPixels> position, SamusParticleStart start)
     {
-        _particles.Spawn(kind, position, start);
-        return SamusParticle.UpdatesUntilFinished(kind, AnimationPlace.StartOfAnimation, start);
+        _particles.Spawn(particle, position, start);
+        return SamusParticle.UpdatesUntilFinished(particle.Kind, AnimationPlace.StartOfAnimation, start);
     }
 
     /// <summary>Creates either the diving surface particle or paired shallow splashes selected by movement type.</summary>
@@ -477,14 +477,14 @@ public sealed class SamusLiquidPhysicsState
             WaterSplashKind.Diving)
         {
             // A splash takes the spray's leading place and does not hold it up.
-            _particles.Spawn(SamusParticleKind.DivingSplash, new(samus.Position.X.Whole, UntestedWaterSurfaceLine),
+            _particles.Spawn(SamusParticleKindDefinitions.DivingSplash, new(samus.Position.X.Whole, UntestedWaterSurfaceLine),
                 SamusLiquidParticleDefinitions.DivingSplashStart);
             EffectWaits.ReleaseSpray();
             return;
         }
 
         foreach (Offset16<RoomPixels> splash in SamusLiquidParticleDefinitions.ShallowSplashes)
-            _particles.Spawn(SamusParticleKind.SurfaceSplash,
+            _particles.Spawn(SamusParticleKindDefinitions.SurfaceSplash,
                 new(samus.Position.X.Whole + splash.X, bottom + splash.Y), SamusLiquidParticleDefinitions.AtOnce);
         EffectWaits.ReleaseSpray();
     }
@@ -507,7 +507,7 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        EffectWaits.HoldBubbles(SpawnParticle(SamusParticleKind.Bubbles,
+        EffectWaits.HoldBubbles(SpawnParticle(SamusParticleKindDefinitions.Bubbles,
             new(samus.Position.X.Whole, top + SamusLiquidParticleDefinitions.BubbleBelowTop), SamusLiquidParticleDefinitions.AtOnce));
         int sample = random.Generate();
         QueueSound(SamusBreathBubbleDefinitions.SoundsLow.IsTakenBy(sample) ? EnemySound.LowBubbles : EnemySound.HighBubbles, priority: SoundRequestPriority.Normal);
@@ -553,10 +553,10 @@ public sealed class SamusLiquidPhysicsState
 
         bool cinematic = samus.Presentation.Mode == SamusPresentationMode.Cinematic;
         if (IsWet(samus, ground.Wetness))
-            SpawnFootstepPair(samus, SamusParticleKind.SurfaceSplash);
+            SpawnFootstepPair(samus, SamusParticleKindDefinitions.SurfaceSplash);
         else if (samus.HorizontalSpeed.IsActivelySpeedBoosting &&
                  DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == SamusLiquidMedium.Air)
-            SpawnFootstepPair(samus, SamusParticleKind.Dust);
+            SpawnFootstepPair(samus, SamusParticleKindDefinitions.Dust);
 
         // The footstep particles show whatever the sound does. A cinematic, a boss, a held shine and the boost's full
         // stage each silence the footsteps; the boost's cycle shade timer, already nonzero while the boost builds, does not.
@@ -574,7 +574,7 @@ public sealed class SamusLiquidPhysicsState
     /// The leading particle, which shows one update late, takes the spray's leading place: boosted dust holds the spray up
     /// while it shows, and a wet footstep's splash ends any wait there.
     /// </remarks>
-    private void SpawnFootstepPair(SamusState samus, SamusParticleKind kind)
+    private void SpawnFootstepPair(SamusState samus, SamusSteadyParticle particle)
     {
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         int firstX = facingLeft
@@ -584,9 +584,9 @@ public sealed class SamusLiquidPhysicsState
             ? samus.Position.X.Whole + SamusLiquidParticleDefinitions.FootstepTrailingBehind
             : samus.Position.X.Whole - SamusLiquidParticleDefinitions.FootstepTrailingBehind;
         int y = samus.Position.Y.Whole + SamusLiquidParticleDefinitions.FootstepBelowCentre;
-        int leadingUpdates = SpawnParticle(kind, Position16<RoomPixels>.Of(firstX, y), SamusLiquidParticleDefinitions.OneUpdateLate);
-        _particles.Spawn(kind, Position16<RoomPixels>.Of(secondX, y), SamusLiquidParticleDefinitions.AtOnce);
-        if (kind == SamusParticleKind.Dust)
+        int leadingUpdates = SpawnParticle(particle, Position16<RoomPixels>.Of(firstX, y), SamusLiquidParticleDefinitions.OneUpdateLate);
+        _particles.Spawn(particle, Position16<RoomPixels>.Of(secondX, y), SamusLiquidParticleDefinitions.AtOnce);
+        if (particle.Kind == SamusParticleKind.Dust)
             EffectWaits.HoldSpray(leadingUpdates);
         else
             EffectWaits.ReleaseSpray();
@@ -659,7 +659,7 @@ public sealed class SamusLiquidPhysicsState
             return;
         int offset = SamusWallJumpDustDefinitions.HorizontalOffset.Toward(
             SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right) ? HorizontalDirection.Left : HorizontalDirection.Right);
-        _particles.Spawn(SamusWallJumpDustDefinitions.Kind,
+        _particles.Spawn(SamusWallJumpDustDefinitions.Particle,
             Position16<RoomPixels>.Of(samus.Position.X.Whole + offset, bottom),
             SamusParticleStart.Shown(SamusWallJumpDustDefinitions.FirstStepUpdates));
     }

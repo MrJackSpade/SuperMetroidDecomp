@@ -23,15 +23,14 @@ public sealed class SamusParticles
 /// <summary>Removes every particle, as room and Samus initialization do.</summary>
     public void Clear() => _particles.Clear();
 
-    /// <summary>Starts a particle on its first step; dust rises as it shows, and every other kind but lava spray stays put.</summary>
-    /// <param name="kind">What it shows; lava spray starts through <see cref="SpawnLavaSpray"/>, which gives its drift.</param>
+    /// <summary>Starts a steady particle on its first step: dust rises as it shows, and splashes and bubbles stay put.</summary>
+    /// <param name="particle">What it shows, with its drift; lava spray starts through <see cref="SpawnLavaSpray"/>, which gives its drift.</param>
     /// <param name="position">Where it starts, in whole room pixels.</param>
     /// <param name="start">Whether it shows at once or after a hidden wait.</param>
-    internal void Spawn(SamusParticleKind kind, Position16<RoomPixels> position, SamusParticleStart start)
+    internal void Spawn(SamusSteadyParticle particle, Position16<RoomPixels> position, SamusParticleStart start)
     {
-        Offset16<RoomPixels> drift = Definition(kind).Drift
-            ?? throw new ArgumentOutOfRangeException(nameof(kind), kind, "A particle that drifts to one side starts with its drift.");
-        Add(new SamusParticle(kind, AnimationPlace.StartOfAnimation, start, position, drift));
+        Ensure.NotNull(particle);
+        Add(new SamusParticle(particle.Kind, AnimationPlace.StartOfAnimation, start, position, particle.Drift));
     }
 
     /// <summary>Starts a particle of lava spray on its first step, rising and drifting to one side as it shows.</summary>

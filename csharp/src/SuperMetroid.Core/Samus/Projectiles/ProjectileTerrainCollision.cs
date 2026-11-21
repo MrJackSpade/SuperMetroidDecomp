@@ -227,7 +227,7 @@ internal sealed class ProjectileTerrainCollision
     /// square slope that the beam's edges reach in this block. A hit stops the beam like a
     /// solid block; unlike a non-square slope it does not end the span.
     /// </summary>
-    private static bool SquareSlopeShotReaction(SamusProjectileOccupant held, RoomCollisionBlock block,
+    private static bool SquareSlopeShotReaction(SamusProjectileOccupant held, RoomCollisionBlock block, SquareSlopeShape shape,
         ShotSpan span, Axis axis)
     {
         SamusProjectile shot = held.Projectile;
@@ -240,7 +240,6 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // The block's reflections mirror the quarter each edge reaches.
-        SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
         bool Solid(SquareSlopeQuadrant quadrant) => SquareSlopes.IsSolid(shape, quadrant);
 
         if ((axis == Axis.Horizontal))
@@ -290,8 +289,8 @@ internal sealed class ProjectileTerrainCollision
         // across its other three, so a beam striking the cap's middle reaches the blue door's reaction through them.
         if (!level.TryReachBlockStoodFor(ref block, out _))
             return false;
-        if (block.CollisionType == RoomCollisionType.Slope && !block.Behavior.Slope.IsNonSquare)
-            return SquareSlopeShotReaction(held, block, span, axis);
+        if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.Slope.Shape.SquareQuarters is { } square)
+            return SquareSlopeShotReaction(held, block, square, span, axis);
         if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.Slope.IsNonSquare)
         {
             // Non-square slopes react through the projectile's

@@ -74,7 +74,7 @@ internal sealed class TitleGameSequence(FrontendSession session, TitleGameSequen
         else if (title.Outcome == TitleSequenceOutcome.Demo)
         {
             session.Demo.RequestFromTitle();
-            session.Enter(AttractDemoStep.Loading);
+            session.Enter(new AttractDemoGameSequence.AwaitingScene(session));
             session.display.PublishBlack();
         }
     }

@@ -286,9 +286,9 @@ internal sealed class EnemyTerrain
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock, out Position16<RoomBlocks> reached);
         return block.Kind.Read(new ProbeReader(this, level, reached,
-            () => block.Behavior.Slope.IsNonSquare
-                ? slopes == NonSquareSlopes.Walls
-                : SquareHorizontalSlopeIsSolid(place, targetEdge, block.Behavior, spanBlock)));
+            () => block.Behavior.Slope.Shape.SquareQuarters is { } square
+                ? SquareHorizontalSlopeIsSolid(place, targetEdge, block.Behavior, square, spanBlock)
+                : slopes == NonSquareSlopes.Walls));
     }
 
     /// <summary>Classifies the next vertical block and may align the enemy against a non-square slope.</summary>
@@ -296,9 +296,9 @@ internal sealed class EnemyTerrain
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock, out Position16<RoomBlocks> reached);
         return block.Kind.Read(new ProbeReader(this, level, reached,
-            () => block.Behavior.Slope.IsNonSquare
-                ? NonSquareVerticalSlopeIsSolid(place, reached, block.Behavior, probe.TargetCenter.Y, probe.MovingUp)
-                : SquareVerticalSlopeIsSolid(place, probe.TargetEdge.Y, block.Behavior, probe.SpanBlock)));
+            () => block.Behavior.Slope.Shape.SquareQuarters is { } square
+                ? SquareVerticalSlopeIsSolid(place, probe.TargetEdge.Y, block.Behavior, square, probe.SpanBlock)
+                : NonSquareVerticalSlopeIsSolid(place, reached, block.Behavior, probe.TargetCenter.Y, probe.MovingUp)));
     }
 
     /// <summary>
@@ -443,14 +443,14 @@ internal sealed class EnemyTerrain
             $"Enemy collision extension chain from block ({start.X},{start.Y}) is cyclic.");
     }
 
-    /// <summary>Tests the target half-block quadrant and the enemy's vertical span against a square slope.</summary>
+    /// <summary>Tests the target half-block quadrant and the enemy's vertical span against a square slope of <paramref name="shape"/>.</summary>
     private static bool SquareHorizontalSlopeIsSolid(
         IEnemyTerrainBody place,
         int targetEdge,
         RoomBlockBehavior behavior,
+        SquareSlopeShape shape,
         EnemyTerrainSpanBlock spanBlock)
     {
-        SquareSlopeShape shape = SquareSlopes.ShapeOf(behavior);
         SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeQuadrant.ColumnFor(targetEdge), SquareSlopeRowHalf.Top);
         // The span's last block meets only its top half when the enemy's bottom ends there; its first block only its bottom
         // half when the enemy's top starts there.
@@ -470,14 +470,14 @@ internal sealed class EnemyTerrain
         return SquareSlopes.IsSolid(shape, quadrant.OtherRow);
     }
 
-    /// <summary>Tests the target half-block quadrant and the enemy's horizontal span against a square slope.</summary>
+    /// <summary>Tests the target half-block quadrant and the enemy's horizontal span against a square slope of <paramref name="shape"/>.</summary>
     private static bool SquareVerticalSlopeIsSolid(
         IEnemyTerrainBody place,
         int targetEdge,
         RoomBlockBehavior behavior,
+        SquareSlopeShape shape,
         EnemyTerrainSpanBlock spanBlock)
     {
-        SquareSlopeShape shape = SquareSlopes.ShapeOf(behavior);
         SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(targetEdge));
         // The span's last block meets only its left half when the enemy's right side ends there; its first block only its
         // right half when the enemy's left side starts there.

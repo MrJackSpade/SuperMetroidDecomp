@@ -39,7 +39,7 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
         Axis axis = move.Scan.Edge;
         int targetEdge = move.LeadingEdge;
         RoomCollisionType type = collisionBlock.CollisionType;
-        if (type == RoomCollisionType.Slope && !collisionBlock.Behavior.Slope.IsNonSquare)
+        if (type == RoomCollisionType.Slope && collisionBlock.Behavior.Slope.Shape.SquareQuarters is { } square)
         {
             // The horizontal scan tests only occupied eight-pixel quadrants touched by the
             // leading edge. Empty halves of square slopes are not solid walls.
@@ -54,7 +54,7 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
                 SquareSlopeQuadrant quadrant = axis == Axis.Horizontal
                     ? SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnFor(targetEdge), SquareSlopeQuadrant.RowOfHalf(half))
                     : SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnOfHalf(half), SquareSlopeQuadrant.RowFor(targetEdge));
-                if (!SquareSlopes.IsSolid(collisionBlock.Behavior, quadrant))
+                if (!SquareSlopes.IsSolid(square, quadrant))
                     continue;
 
                 // The square-slope reaction places the projectile at an eight-pixel

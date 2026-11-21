@@ -48,10 +48,9 @@ internal static class SquareSlopeDefinitionsVerification
         {
             var behavior = RoomBlockBehaviorCodec.Decode(shape);
             if (shape < NativeShapeOrder.Length)
-                AssertEqual(NativeShapeOrder[shape], SquareSlopes.ShapeOf(behavior), $"square slope shape {shape}");
+                AssertEqual((SquareSlopeShape?)NativeShapeOrder[shape], behavior.Slope.Shape.SquareQuarters, $"square slope shape {shape}");
             else
-                AssertThrows<ArgumentOutOfRangeException>(() => SquareSlopes.ShapeOf(behavior),
-                    $"non-square slope shape {shape} has no square quadrants");
+                AssertTrue(behavior.Slope.Shape.SquareQuarters is null, $"non-square slope shape {shape} has no square quadrants");
         }
 
         var missile = new Func<RoomCollisionBlock, SamusProjectileOccupant, bool>(ProjectileMotion.MissileSlopePointReaction);

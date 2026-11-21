@@ -71,7 +71,7 @@ internal static class FrontendSessionGameStateAccess
                     self.Enter(self.Phases.Ending);
                     break;
                 case SuperMetroidGameState.AttractDemo:
-                    self.Enter(self.Phases.AttractDemo);
+                    self.Enter(new AttractDemoGameSequence.AwaitingScene(self));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(sequence), sequence, "No sequence has this game-state word.");

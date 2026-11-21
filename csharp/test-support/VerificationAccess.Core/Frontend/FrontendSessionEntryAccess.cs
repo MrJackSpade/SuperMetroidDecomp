@@ -82,6 +82,21 @@ internal static class FrontendSessionEntryAccess
             else
                 self.Enter(self.Phases.Ending);
         }
+
+        /// <summary>Enters the attract demo at <paramref name="step"/>, one of the steps that hold no countdown.</summary>
+        /// <param name="step">The step.</param>
+        /// <exception cref="InvalidOperationException">
+        /// <paramref name="step"/> counts the scene's load, recording or hold, whose countdown its name does not carry.
+        /// </exception>
+        internal void Enter(AttractDemoStep step) => self.Enter(step switch
+        {
+            AttractDemoStep.Loading => new AttractDemoGameSequence.AwaitingScene(self),
+            AttractDemoStep.Unloading => new AttractDemoGameSequence.Unloading(self),
+            AttractDemoStep.Routing => new AttractDemoGameSequence.Routing(self),
+            AttractDemoStep.Starting or AttractDemoStep.Playing or AttractDemoStep.Holding => throw new InvalidOperationException(
+                $"The attract demo's {step} step holds its scene's countdown, which entering it by name cannot supply."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(AttractDemoStep)} {step}."),
+        });
     }
 
     /// <summary>The screen of <typeparamref name="T"/> the session shows.</summary>

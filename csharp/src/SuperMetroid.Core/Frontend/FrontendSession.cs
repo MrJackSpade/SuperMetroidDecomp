@@ -250,16 +250,14 @@ internal sealed class FrontendSession
     /// </summary>
     internal bool TransitioningThroughDoor =>
         RunningPhase == Phases.DoorTransition && DoorTransitionStep == DoorTransitionStep.Transitioning;
-    /// <summary>The attract demo's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.AttractDemo"/>.</summary>
-    internal AttractDemoStep AttractDemoStep => StepOf<AttractDemoStep>();
 
     /// <summary>
-    /// Enters <paramref name="phase"/> at its first step: the game load loads the chosen game, a door is entered and an
-    /// attract demo loads. A sequence whose steps hold what they run is entered with its step (#2554): the title
+    /// Enters <paramref name="phase"/> at its first step: the game load loads the chosen game and a door is entered. A
+    /// sequence whose steps hold what they run is entered with its step (#2554): the title
     /// (<see cref="EnterTitle"/>), choosing a game (<see cref="EnterFileSelect"/>), the introduction (<see cref="EnterIntro"/>),
     /// the pause (<see cref="EnterPause"/>), the death sequence (<see cref="EnterDeath"/>), Ceres's destruction
     /// (<see cref="BeginCeresDestruction"/>), the time-up (<see cref="EnterTimeUp"/>) and the ending's credits
-    /// (<see cref="EnterCredits"/>).
+    /// (<see cref="EnterCredits"/>); each step of an attract demo is itself the phase entered (<see cref="AttractDemoGameSequence"/>).
     /// </summary>
     /// <param name="phase">The sequence's phase.</param>
     internal void Enter(IGamePhase phase)
@@ -267,7 +265,6 @@ internal sealed class FrontendSession
         Ensure.NotNull(phase);
         running = phase == Phases.LoadingGame ? new SequenceStep.Of<GameDataLoadRoute>(phase, GameDataLoadRoute.SelectedGame)
             : phase == Phases.DoorTransition ? new SequenceStep.Of<DoorTransitionStep>(phase, DoorTransitionStep.EnteringDoor)
-            : phase == Phases.AttractDemo ? new SequenceStep.Of<AttractDemoStep>(phase, AttractDemoStep.Loading)
             : new SequenceStep.Stepless(phase);
     }
 
@@ -335,11 +332,6 @@ internal sealed class FrontendSession
         Enter(new CeresDestructionGameSequence(this, destruction, outcome));
     }
 
-    /// <summary>Enters the attract demo at <paramref name="step"/>.</summary>
-    internal void Enter(AttractDemoStep step)
-    {
-        running = new SequenceStep.Of<AttractDemoStep>(Phases.AttractDemo, step);
-    }
     /// <summary>The compatibility services fixed at construction; production uses the game's own timing.</summary>
     internal SuperMetroidGameHostServices HostServices { get; }
     /// <summary>How far room loading has progressed; see <see cref="IRoomLoadProgress"/>.</summary>

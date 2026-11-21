@@ -45,14 +45,14 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
 
     /// <summary>The audio processing and liquid wave and statue advance of the update <see cref="Step"/> just ran.</summary>
     public MessageBoxFrameAudio LastFrameAudio { get; private set; }
-    /// <summary>The controller bindings when the message began, whose Shoot or Dash button a panel's glyph shows.</summary>
-    private ControllerBindings _bindings;
+    /// <summary>The message the box shows with the bindings it began under; null while none has begun.</summary>
+    private BegunMessage? _begun;
 
     /// <summary>Whether the box currently pauses gameplay and owns the message window.</summary>
     public bool IsActive => Phase != GameplayMessageBoxPhase.Inactive;
 
     /// <summary>The message the box shows; null while none has begun.</summary>
-    public GameplayMessageId? MessageId { get; private set; }
+    public GameplayMessageId? MessageId => _begun?.Id;
 
     /// <summary>The message box's current step.</summary>
     private GameplayMessageBoxPhase Phase { get; set; }
@@ -70,9 +70,9 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// What the box shows while a message has begun (#1466): the message, the button its panel names for the configured
     /// shoot or run binding, and the save choice a confirmation highlights; null while no message has begun.
     /// </summary>
-    private ShownMessage? Shown => MessageId is not { } message ? null
-        : new ShownMessage(message, PanelButton(message),
-            ConfirmationOf(message) != GameplayMessageConfirmation.None ? ConfirmationSelection : null);
+    private ShownMessage? Shown => _begun is not { } begun ? null
+        : new ShownMessage(begun.Id, PanelButton(begun),
+            ConfirmationOf(begun.Id) != GameplayMessageConfirmation.None ? ConfirmationSelection : null);
 
     /// <summary>
     /// The message the box's window exposes in the most recently completed frame (#2505): what the box shows, with the
@@ -111,22 +111,22 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         if (IsActive)
             throw new InvalidOperationException("A gameplay message box is already active.");
 
-        _bindings = bindings;
+        Ensure.NotNull(bindings);
         _answer = null;
-        Show(messageId, controllerRead);
+        Show(new BegunMessage(messageId, bindings), controllerRead);
         // The pause's first update is the gameplay update that opened the box.
         _pauses.BeginBeforeOpening();
     }
 
     /// <summary>
-    /// Sets the box up to show <paramref name="messageId"/> from a closed window, paused before it opens: a message that
+    /// Sets the box up to show <paramref name="message"/> from a closed window, paused before it opens: a message that
     /// begins, or the gunship's completion notice after its saving sound.
     /// </summary>
-    /// <param name="messageId">The message to show.</param>
+    /// <param name="message">The message to show, with the bindings it began under.</param>
     /// <param name="controllerRead">The physical buttons held at the last controller read, which the box's own reads follow.</param>
-    private void Show(GameplayMessageId messageId, ControllerButton controllerRead)
+    private void Show(BegunMessage message, ControllerButton controllerRead)
     {
-        MessageId = messageId;
+        _begun = message;
         RadiusPixels = 0;
         MinimumDisplay = UpdateCountdown.Ended();
         _nextRadiusPixels = 0;
@@ -147,12 +147,13 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     {
         // A box that shows no message is inactive, and its update does nothing; every other step runs on the message the
         // box shows, which its showing set and its finish clears together with the box's phase.
-        if (MessageId is not { } message)
+        if (_begun is not { } begun)
         {
             LastFrameAudio = default;
             return MessageBoxStep.NothingAsked.Instance;
         }
 
+        GameplayMessageId message = begun.Id;
         // Each update of the box processes music and sound once, unless noted below.
         LastFrameAudio = MessageBoxFrameAudio.MusicAndSounds;
 
@@ -244,7 +245,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                 {
                     // The completion notice opens only after the saving sound's wait, the accepted YES kept across it.
                     // Its pause is shorter: the screen stayed set up for the first box.
-                    Show(GameplayMessageId.SaveCompleted, _controller.Current);
+                    Show(begun with { Id = GameplayMessageId.SaveCompleted }, _controller.Current);
                     _pauses.BeginBeforeCompletionNotice();
                 }
                 return MessageBoxStep.NothingAsked.Instance;
@@ -304,7 +305,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         Phase = GameplayMessageBoxPhase.Inactive;
         SaveChoice? answer = _answer;
         _answer = null;
-        MessageId = null;
+        _begun = null;
         MinimumDisplay = UpdateCountdown.Ended();
         RadiusPixels = 0;
         return answer is { } choice ? new MessageBoxStep.Answered(choice) : MessageBoxStep.Closed.WithoutAnswer;
@@ -315,14 +316,19 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         GameplayMessageBoxDefinitions.Message(messageId).Confirmation;
 
     /// <summary>
-    /// The button <paramref name="messageId"/>'s panel names: the configured Shoot or Run binding's, as the glyph shows it;
+    /// The button <paramref name="message"/>'s panel names: the Shoot or Run binding's it began under, as the glyph shows it;
     /// null for a message whose panel names no button.
     /// </summary>
-    private ControllerButton? PanelButton(GameplayMessageId messageId) => GameplayMessageButtons.PanelBinding(messageId) switch
+    private static ControllerButton? PanelButton(BegunMessage message) => GameplayMessageButtons.PanelBinding(message.Id) switch
     {
-        GameplayMessagePanelButtonBinding.Shoot => GameplayMessageButtons.Shown(_bindings[ControllerAction.Shoot]),
-        GameplayMessagePanelButtonBinding.Run => GameplayMessageButtons.Shown(_bindings[ControllerAction.Dash]),
+        GameplayMessagePanelButtonBinding.Shoot => GameplayMessageButtons.Shown(message.Bindings[ControllerAction.Shoot]),
+        GameplayMessagePanelButtonBinding.Run => GameplayMessageButtons.Shown(message.Bindings[ControllerAction.Dash]),
         null => null,
-        _ => throw new InvalidDataException($"Unknown gameplay-message panel binding for {messageId}."),
+        _ => throw new InvalidDataException($"Unknown gameplay-message panel binding for {message.Id}."),
     };
+
+    /// <summary>A message the box shows, with the controller bindings it began under.</summary>
+    /// <param name="Id">The message.</param>
+    /// <param name="Bindings">The controller bindings when the message began, whose Shoot or Dash button a panel's glyph shows.</param>
+    private sealed record BegunMessage(GameplayMessageId Id, ControllerBindings Bindings);
 }

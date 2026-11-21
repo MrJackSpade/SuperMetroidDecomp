@@ -203,11 +203,12 @@ public static class SamusBlockCollision
         public bool Slope()
         {
             bool collided = false;
-            if (!block.Behavior.Slope.IsNonSquare)
+            if (block.Behavior.Slope.Shape.SquareQuarters is { } square)
             {
                 bool squareCollision = ReactHorizontalSquareSlope(
                     scan.State,
                     block,
+                    square,
                     acceptedDisplacement,
                     scan.LeadingBoundary,
                     remainingRows: scan.VerticalSpan - rowOffset,
@@ -611,11 +612,12 @@ public static class SamusBlockCollision
         public bool Slope()
         {
             bool collided = false;
-            if (!block.Behavior.Slope.IsNonSquare)
+            if (block.Behavior.Slope.Shape.SquareQuarters is { } square)
             {
                 bool squareCollision = ReactVerticalSquareSlope(
                     scan.State,
                     block,
+                    square,
                     acceptedDisplacement,
                     scan.LeadingBoundary,
                     // The blocks-left count starts at the span and counts down while the
@@ -1019,11 +1021,12 @@ public static class SamusBlockCollision
     }
 
     /// <summary>
-    /// Reacts to a square slope during horizontal block collision.
+    /// Reacts to a square slope of <paramref name="shape"/> during horizontal block collision.
     /// </summary>
     private static bool ReactHorizontalSquareSlope(
         SamusKinematicsState state,
         RoomCollisionBlock block,
+        SquareSlopeShape shape,
         SignedSixteenSixteen displacement,
         int leadingBoundary,
         int remainingRows,
@@ -1032,7 +1035,6 @@ public static class SamusBlockCollision
     {
         // The leading X boundary's eight-pixel half selects the column; the scan starts in the top row and then
         // tests the row below it.
-        SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
         SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor(leadingBoundary), SquareSlopeRowHalf.Top);
         bool selectedSolid = SquareSlopes.IsSolid(shape, quadrant);
         bool collide;
@@ -1074,11 +1076,12 @@ public static class SamusBlockCollision
     }
 
     /// <summary>
-    /// Reacts to a square slope during vertical block collision.
+    /// Reacts to a square slope of <paramref name="shape"/> during vertical block collision.
     /// </summary>
     private static bool ReactVerticalSquareSlope(
         SamusKinematicsState state,
         RoomCollisionBlock block,
+        SquareSlopeShape shape,
         SignedSixteenSixteen displacement,
         int leadingBoundary,
         int blocksLeftToCheck,
@@ -1087,7 +1090,6 @@ public static class SamusBlockCollision
     {
         // Vertical collision takes the row from the leading Y boundary's eight-pixel half. The horizontal counter is
         // the number of physical blocks left: left-to-right counts span..0 while right-to-left counts 0..span.
-        SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
         SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(leadingBoundary));
         bool selectedSolid = SquareSlopes.IsSolid(shape, quadrant);
         bool collide;
@@ -1284,7 +1286,7 @@ public static class SamusBlockCollision
                 overlap = RoomGridConversions.OffsetWithinBlock(boundary) + 1;
             else if (block.CollisionType != RoomCollisionType.Slope)
                 continue;
-            else if (block.Behavior.Slope.IsNonSquare)
+            else if (block.Behavior.Slope.Shape.SquareQuarters is not { } shape)
             {
                 if (column != RoomGridConversions.PixelToBlock(state.Position.X.Whole)) continue;
                 if (block.Behavior.Slope.FlipsVertically == (direction == VerticalDirection.Down))
@@ -1297,7 +1299,6 @@ public static class SamusBlockCollision
             }
             else
             {
-                SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
                 SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(boundary));
                 bool selected = SquareSlopes.IsSolid(shape, quadrant);
                 bool collides;

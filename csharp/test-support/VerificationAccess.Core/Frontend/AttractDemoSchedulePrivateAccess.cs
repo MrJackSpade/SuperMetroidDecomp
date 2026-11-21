@@ -17,13 +17,4 @@ internal static class AttractDemoSchedulePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.AttractDemoSchedule, global::SuperMetroid.Core.Runtime.Attract.AttractDemoSet>(self, "Set");
         }
     }
-
-    /// <summary>The private instance members checks read or call.</summary>
-    extension(global::SuperMetroid.Core.Frontend.AttractDemoSchedule self)
-    {
-        /// <summary>The holding scene's still-frame hold, reached through the private property <c>Scene</c>; over while no scene holds.</summary>
-        internal global::SuperMetroid.Core.UpdateCountdown Hold =>
-            PrivateState.Get<global::SuperMetroid.Core.Frontend.AttractDemoSchedule, global::SuperMetroid.Core.Frontend.AttractDemoSchedule.SceneState>(self, "Scene")
-                is global::SuperMetroid.Core.Frontend.AttractDemoSchedule.SceneState.Holding holding ? holding.Hold : global::SuperMetroid.Core.UpdateCountdown.Ended();
-    }
 }

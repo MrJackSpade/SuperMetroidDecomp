@@ -16,14 +16,4 @@ public static class SquareSlopes
         SquareSlopeShape.Full => true,
         _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, "Undefined square slope shape."),
     };
-
-    /// <summary>The solid quarters of the square slope shape a slope block's behaviour selects (<see cref="SlopeShape.SquareQuarters"/>).</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The behaviour selects a non-square slope shape.</exception>
-    public static SquareSlopeShape ShapeOf(RoomBlockBehavior behavior) =>
-        behavior.Slope.Shape.SquareQuarters ??
-            throw new ArgumentOutOfRangeException(nameof(behavior), behavior.Slope.Shape, "The behaviour selects a non-square slope shape.");
-
-    /// <summary>Whether the quarter of a square slope block that <paramref name="quadrant"/> names is solid.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The behaviour selects a non-square slope shape.</exception>
-    public static bool IsSolid(RoomBlockBehavior behavior, SquareSlopeQuadrant quadrant) => IsSolid(ShapeOf(behavior), quadrant);
 }

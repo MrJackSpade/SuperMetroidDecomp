@@ -35,7 +35,6 @@ internal sealed class GamePhases
         GameOverMenu = new GameOverMenuGamePhase(session);
         CeresDeparture = new CeresDepartureGameSequence(session);
         Ending = new EndingGameSequence(session);
-        AttractDemo = new AttractDemoGameSequence(session);
     }
 
     /// <summary>The gameplay phases, which the pause's brightening and the time-up's white-out also run (<see cref="GameplayGamePhases"/>).</summary>
@@ -71,7 +70,4 @@ internal sealed class GamePhases
 
     /// <summary>The ending sequence's phase.</summary>
     internal IGamePhase Ending { get; }
-
-    /// <summary>The attract demo sequence's phase.</summary>
-    internal IGamePhase AttractDemo { get; }
 }

@@ -27,6 +27,9 @@ internal static class FrontendSessionStepAccess
         /// <summary>The time-up's step.</summary>
         internal TimeUpStep TimeUpStep => self.RunningPhase is TimeUpGameSequence timeUp ? timeUp.CurrentStep : TimeUpStep.WhiteningOut;
 
+        /// <summary>The attract demo's step.</summary>
+        internal AttractDemoStep AttractDemoStep => self.RunningPhase is AttractDemoGameSequence demo ? demo.StepName : AttractDemoStep.Loading;
+
         /// <summary>The ending's step.</summary>
         internal EndingStep EndingStep => self.RunningPhase is EndingCreditsGamePhase ? EndingStep.Credits : EndingStep.LeavingZebes;
 

@@ -513,7 +513,7 @@ internal sealed class ProjectileMotion
     {
         SamusProjectile shot = held.Projectile;
         SlopeShape slopeShape = block.Behavior.Slope.Shape;
-        if (!slopeShape.IsSquare)
+        if (slopeShape.SquareQuarters is not { } square)
         {
             // A slope mirrors the projectile's place within the block by the block's horizontal and vertical flips;
             // the shot is in the solid where the slope's surface at its column lies at or above it. A surface height
@@ -527,7 +527,7 @@ internal sealed class ProjectileMotion
 
         // Square slope collision treats each square slope as four 8x8 quadrants: the missile centre's halves of the
         // block, mirrored by the block's reflections, select the quadrant whichever axis the missile moves along.
-        return SquareSlopes.IsSolid(block.Behavior, SquareSlopeQuadrant.Showing(block.Behavior,
+        return SquareSlopes.IsSolid(square, SquareSlopeQuadrant.Showing(block.Behavior,
             SquareSlopeQuadrant.ColumnFor(shot.Position.X.Whole), SquareSlopeQuadrant.RowFor(shot.Position.Y.Whole)));
     }
 }

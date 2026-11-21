@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -53,29 +55,14 @@ internal static class IntroSamusDemoMovement
         }
 
         SamusPoseId poseAtFrameStart = samus.Pose;
-        GroundedMovementResult movement;
-        if (SamusPoseMetadata.IsLeftFacingRunningPose(poseAtFrameStart))
-        {
-            movement = SamusGroundedMovement.StepRunning(
-
-                terrain,
-                samus,
-                frameCounter,
-                heldInput);
-        }
-        else if (SamusPoseMetadata.IsLeftFacingStandingPose(poseAtFrameStart))
-        {
-            // The demo's input phase has written its held buttons into the controller input that
-            // the standing animation tests, so a held shot holds the standing animation here too.
-            movement = SamusGroundedMovement.StepStanding(terrain, samus, frameCounter,
-                heldInput);
-        }
-        else
-        {
-            // The intro demo moves Samus only in the SR388 left-facing run and stand.
-            throw new InvalidOperationException(
-                $"SR388 intro demo reached invalid grounded-left pose {poseAtFrameStart}.");
-        }
+        SamusMovementType movementAtFrameStart = SamusPoseMetadata.ReadMovementType(samus);
+        // The demo moves her by her pose's movement, as gameplay's movement phase does. The demo's input phase has written
+        // its held buttons into the controller input that the standing animation tests, so a held shot holds the standing
+        // animation here too. No elevator runs in the intro.
+        var frame = new SamusControlFrame();
+        SamusPoseMovementRun.Step(SamusPoseMetadata.ReadMovementType(samus.Pose), new SamusPoseMovementRun(samus, terrain, frame,
+            heldInput, newlyPressedInput, frameCounter, SamusElevatorFooting.Of(ElevatorActorStatus.Inactive)));
+        bool collided = frame.GroundedMovement is { } grounded && grounded.Horizontal.Collided;
 
         SamusPresentation.Animate(samus, new SamusAnimationStep { ControllerInput = heldInput, FrameCounter = frameCounter, Random = random });
 
@@ -86,7 +73,7 @@ internal static class IntroSamusDemoMovement
             ? proposed.ProspectivePose
             : fallback;
         SamusPoseId? wallPose = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(samus, terrain, candidate,
-            movement.Horizontal.Collided);
+            collided);
         if (wallPose is { } stoppedPose)
         {
             SamusGroundedPoseTransitions.ApplyRanIntoWallPoseChange(samus, stoppedPose);
@@ -94,73 +81,22 @@ internal static class IntroSamusDemoMovement
             return;
         }
 
+        // The transition, or with none her response to no input, is set up as gameplay sets it up (SamusPoseTransitionPhase).
+        var setups = new SamusPoseSetupSteps(heldInput, newlyPressedInput, frameCounter);
         if (prospective is { } transition)
         {
-            ApplyPoseTransition(samus, poseAtFrameStart, transition.ProspectivePose);
+            if (transition.ProspectivePose != poseAtFrameStart)
+                transition.Setup.Apply(setups, frame, samus, transition.ProspectivePose, terrain);
             samus.CommitPoseHistory();
             return;
         }
 
-        if (fallback == poseAtFrameStart)
-        {
-            // Decelerating rechecks speed after movement. A remaining residue
-            // selects the decelerating mode; exact zero lets next frame choose standing.
-            samus.HorizontalSpeed.AccelerationMode =
-                samus.HorizontalSpeed.HasBaseSpeed ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating;
-        }
-        else if (fallback is { } fallbackPose)
-        {
-            samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
-            ApplyPoseTransition(samus, poseAtFrameStart, fallbackPose);
-        }
+        SamusNoTransitionSetups.For(poseAtFrameStart, movementAtFrameStart).Apply(setups, frame, samus, poseAtFrameStart, fallback);
 
         // Finishing the transition shifts history for an accepted pose even
         // when deceleration retains the same pose. Idle frames accept no pose and
         // keep the older history that later movement decisions read.
         if (fallback.HasValue)
             samus.CommitPoseHistory();
-    }
-
-    /// <summary>Runs only the left-facing jump, run/stand, and grounded aiming transitions admitted by the SR388 demo.</summary>
-    private static void ApplyPoseTransition(
-        SamusState samus,
-        SamusPoseId sourcePose,
-        SamusPoseId targetPose)
-    {
-        if (sourcePose == targetPose)
-            return;
-
-        if ((SamusPoseMetadata.IsLeftFacingRunningPose(sourcePose) && targetPose == SamusPoseId.SpinJumpLeftPose) ||
-            (SamusPoseMetadata.IsLeftFacingStandingPose(sourcePose) && targetPose == SamusPoseId.NeutralJumpTransitionLeftPose))
-        {
-            SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(samus, targetPose);
-            return;
-        }
-
-        if (sourcePose == SamusPoseId.FacingLeftNormalPose &&
-            targetPose == SamusPoseId.MovingLeftNormalPose)
-        {
-            SamusGroundedPoseTransitions.ApplyStandingToRunning(samus);
-            return;
-        }
-
-        if (sourcePose == SamusPoseId.MovingLeftNormalPose &&
-            targetPose == SamusPoseId.FacingLeftNormalPose)
-        {
-            SamusGroundedPoseTransitions.ApplyRunningToStanding(samus);
-            return;
-        }
-
-        if ((SamusPoseMetadata.IsLeftFacingStandingPose(sourcePose) ||
-             SamusPoseMetadata.IsLeftFacingRunningPose(sourcePose)) &&
-            (SamusPoseMetadata.IsLeftFacingStandingPose(targetPose) ||
-             SamusPoseMetadata.IsLeftFacingRunningPose(targetPose)))
-        {
-            SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, targetPose);
-            return;
-        }
-
-        throw new InvalidDataException(
-            $"SR388 intro demo pose transition {sourcePose} -> {targetPose} is not present in its transition family.");
     }
 }

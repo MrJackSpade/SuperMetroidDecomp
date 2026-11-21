@@ -13,9 +13,9 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal sealed class SamusPoseSetupSteps
 {
     /// <summary>Supplies the held and newly pressed controller buttons.</summary>
-    private readonly GameplayActionInput _playerActions;
+    private readonly ISetupInputs _playerActions;
     /// <summary>Provides the frame counter the posture probes read.</summary>
-    private readonly FrameClock _clock;
+    private readonly ISetupInputs _clock;
     /// <summary>Whether the player's options let her moonwalk.</summary>
     private readonly Func<bool> _moonwalkEnabled;
 
@@ -25,10 +25,51 @@ internal sealed class SamusPoseSetupSteps
     /// <param name="moonwalkEnabled">Whether the player's options let her moonwalk.</param>
     internal SamusPoseSetupSteps(GameplayActionInput playerActions, FrameClock clock, Func<bool> moonwalkEnabled)
     {
-        _playerActions = Ensure.NotNull(playerActions);
-        _clock = Ensure.NotNull(clock);
+        _playerActions = _clock = new LiveInputs(Ensure.NotNull(playerActions), Ensure.NotNull(clock));
         _moonwalkEnabled = Ensure.NotNull(moonwalkEnabled);
     }
+
+    /// <summary>
+    /// Steps for one intro-demo update (#2553): its recorded buttons and frame counter. The intro runs before any file is
+    /// chosen, so no file's moonwalk option is set and she does not moonwalk.
+    /// </summary>
+    /// <param name="held">The demo's held buttons.</param>
+    /// <param name="newlyPressed">The demo's newly pressed buttons.</param>
+    /// <param name="frameCounter">The update's frame counter.</param>
+    internal SamusPoseSetupSteps(GameplayAction held, GameplayAction newlyPressed, int frameCounter)
+    {
+        _playerActions = _clock = new DemoInputs(held, newlyPressed, frameCounter);
+        _moonwalkEnabled = static () => false;
+    }
+
+    /// <summary>What the setups read of the update: its buttons and its frame counter.</summary>
+    private interface ISetupInputs
+    {
+        /// <summary>The buttons held.</summary>
+        GameplayAction Current { get; }
+
+        /// <summary>The buttons newly pressed.</summary>
+        GameplayAction NewlyPressed { get; }
+
+        /// <summary>The frame counter.</summary>
+        int Counter { get; }
+    }
+
+    /// <summary>Gameplay's live controller actions and clock, read as each setup runs.</summary>
+    private sealed class LiveInputs(GameplayActionInput actions, FrameClock clock) : ISetupInputs
+    {
+        /// <inheritdoc/>
+        public GameplayAction Current => actions.Current;
+
+        /// <inheritdoc/>
+        public GameplayAction NewlyPressed => actions.NewlyPressed;
+
+        /// <inheritdoc/>
+        public int Counter => clock.Counter;
+    }
+
+    /// <summary>One demo update's recorded buttons and frame counter.</summary>
+    private sealed record DemoInputs(GameplayAction Current, GameplayAction NewlyPressed, int Counter) : ISetupInputs;
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartJump"/> setup.</summary>
     internal void SetUpStartJump(SamusState samus, SamusPoseId targetPose)

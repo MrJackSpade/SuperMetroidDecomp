@@ -51,7 +51,7 @@ internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSour
     /// <summary>Starts the room being entered fading in over <paramref name="fade"/>'s steps.</summary>
     /// <exception cref="InvalidOperationException">The room being left has not faded out.</exception>
     internal void FadeIn(GradualFadeSteps fade) => shown = shown is Dark dark
-        ? new FadingIn(Ensure.NotNull(fade), dark.BetweenCommonRooms, DoorOpened: false)
+        ? new FadingIn(Ensure.NotNull(fade), dark.BetweenCommonRooms)
         : throw new InvalidOperationException($"A door fades its room in once the room it left is dark, not while {Stage}.");
 
     /// <summary>Ends the fade: the room entered shows its own colours.</summary>
@@ -133,10 +133,12 @@ internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSour
     /// <summary>The room being entered fades in from black over <paramref name="Steps"/>.</summary>
     /// <param name="Steps">The fade's steps, which the door takes one per update.</param>
     /// <param name="BetweenCommonRooms">Whether the door leads from one common room into another.</param>
-    /// <param name="DoorOpened">Whether the door has opened in the room being entered, which keeps Samus's visor lit.</param>
-    private sealed record FadingIn(GradualFadeSteps Steps, bool BetweenCommonRooms, bool DoorOpened)
+    private sealed record FadingIn(GradualFadeSteps Steps, bool BetweenCommonRooms)
         : Running(DoorFadeStage.FadingIn, BetweenCommonRooms)
     {
+        /// <summary>Whether the door has opened in the room being entered, which keeps Samus's visor lit from then on.</summary>
+        internal bool DoorOpened { get; init; }
+
         /// <inheritdoc/>
         internal override ColourEffect DisplayEffect() => Steps.From(RgbColor.Black);
 

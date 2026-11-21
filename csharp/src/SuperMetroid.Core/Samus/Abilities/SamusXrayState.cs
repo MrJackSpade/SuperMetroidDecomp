@@ -250,7 +250,8 @@ public sealed class SamusXrayState
         {
             XrayScopeMode.BeamFreezesTime or XrayScopeMode.HoldsSamus => XrayScopeMode.HoldsSamus,
             XrayScopeMode.ReserveMode or XrayScopeMode.HoldsSamusTimeRunning => XrayScopeMode.HoldsSamusTimeRunning,
-            _ => throw new InvalidOperationException($"X-ray takes Samus while its scope is live, not while {Mode}."),
+            XrayScopeMode.Off => throw new InvalidOperationException("X-ray takes Samus while its scope is live, not while it is off."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(XrayScopeMode)} {Mode}."),
         };
     }
 
@@ -261,7 +262,8 @@ public sealed class SamusXrayState
     {
         XrayScopeMode.HoldsSamus => XrayScopeMode.BeamFreezesTime,
         XrayScopeMode.HoldsSamusTimeRunning => XrayScopeMode.ReserveMode,
-        _ => Mode,
+        XrayScopeMode.Off or XrayScopeMode.BeamFreezesTime or XrayScopeMode.ReserveMode => Mode,
+        _ => throw new InvalidOperationException($"Undefined {nameof(XrayScopeMode)} {Mode}."),
     };
 
     /// <summary>
@@ -272,7 +274,8 @@ public sealed class SamusXrayState
     {
         XrayScopeMode.ReserveMode => XrayScopeMode.BeamFreezesTime,
         XrayScopeMode.HoldsSamusTimeRunning => XrayScopeMode.HoldsSamus,
-        _ => Mode,
+        XrayScopeMode.Off or XrayScopeMode.BeamFreezesTime or XrayScopeMode.HoldsSamus => Mode,
+        _ => throw new InvalidOperationException($"Undefined {nameof(XrayScopeMode)} {Mode}."),
     };
 
     /// <summary>
@@ -284,7 +287,8 @@ public sealed class SamusXrayState
     {
         XrayScopeMode.BeamFreezesTime => XrayScopeMode.ReserveMode,
         XrayScopeMode.HoldsSamus => XrayScopeMode.HoldsSamusTimeRunning,
-        _ => Mode,
+        XrayScopeMode.Off or XrayScopeMode.ReserveMode or XrayScopeMode.HoldsSamusTimeRunning => Mode,
+        _ => throw new InvalidOperationException($"Undefined {nameof(XrayScopeMode)} {Mode}."),
     };
 
     /// <summary>

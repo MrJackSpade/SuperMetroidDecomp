@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// the released-grapple movement and by the next downward pass.
 /// </summary>
 /// <remarks>
-/// This is one result the game holds once, whose last writer wins (#2560): a wall jump writes its own mark into the same
-/// result a vertical pass writes, a later landing, ceiling hit or upward pass replaces it, and only a downward pass that
+/// This is one result the game holds once, which each publication replaces (#2560): a wall jump records its own mark as the same
+/// result a vertical pass publishes, a later landing, ceiling hit or upward pass replaces it, and only a downward pass that
 /// meets nothing leaves it in place. Held as two values, the wall jump's mark would outlive the results that replace it.
 /// </remarks>
 public enum SamusVerticalCollisionResult

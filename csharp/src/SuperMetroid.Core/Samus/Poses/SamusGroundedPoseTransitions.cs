@@ -352,14 +352,14 @@ internal static class SamusGroundedPoseTransitions
         HorizontalDirection? source = FacingInAny(samus.Pose, StandingFacing, RunningFacing, MoonwalkFacing, RanIntoWallFacing,
             CrouchingFacing, LandingFacing);
         bool plainTurn = SamusPoseTraits.IsIn(targetPose, wasCrouching ? SamusPoseFamily.PlainCrouchingTurn : SamusPoseFamily.PlainGroundTurn);
-        HorizontalDirection? turn = source switch
+        HorizontalDirection? turnsTo = source switch
         {
             HorizontalDirection.Right when plainTurn && SamusPoseMetadata.IsRightToLeftGroundTurnPose(targetPose) => HorizontalDirection.Left,
             HorizontalDirection.Left when plainTurn && SamusPoseMetadata.IsLeftToRightGroundTurnPose(targetPose) => HorizontalDirection.Right,
             _ => null,
         };
         bool leavesForwardView = wasForwardFacing && SamusPoseTraits.IsIn(targetPose, SamusPoseFamily.PlainGroundTurn);
-        if (turn is null && !leavesForwardView)
+        if (turnsTo is null && !leavesForwardView)
         {
             throw new InvalidOperationException(
                 $"Grounded turn {samus.Pose} -> {targetPose} is not one the game makes.");
@@ -370,7 +370,7 @@ internal static class SamusGroundedPoseTransitions
         // turn/jump setup without a new Jump edge.
         if (wasMoonwalking && (controllerInput & GameplayAction.Jump) != GameplayAction.None)
         {
-            ApplyMoonwalkTurnToSpinJump(samus, turn == HorizontalDirection.Left
+            ApplyMoonwalkTurnToSpinJump(samus, turnsTo == HorizontalDirection.Left
                 ? SamusPoseId.MoonwalkTurnToSpinJumpLeftPose : SamusPoseId.MoonwalkTurnToSpinJumpRightPose);
             return;
         }
@@ -398,8 +398,8 @@ internal static class SamusGroundedPoseTransitions
         }
 
         if (!wasForwardFacing &&
-            ((turn == HorizontalDirection.Left && !SamusPoseMetadata.IsRightToLeftGroundTurnPose(selectedTurnPose)) ||
-             (turn == HorizontalDirection.Right && !SamusPoseMetadata.IsLeftToRightGroundTurnPose(selectedTurnPose))))
+            ((turnsTo == HorizontalDirection.Left && !SamusPoseMetadata.IsRightToLeftGroundTurnPose(selectedTurnPose)) ||
+             (turnsTo == HorizontalDirection.Right && !SamusPoseMetadata.IsLeftToRightGroundTurnPose(selectedTurnPose))))
         {
             throw new InvalidOperationException(
                 $"Grounded turn source {samus.Pose} has direction metadata inconsistent with target {targetPose}.");

@@ -437,8 +437,7 @@ public sealed class SamusLiquidPhysicsState
 
         // Both landing particle steps suppress their particles when Samus's current
         // bottom is genuinely below active water or lava/acid. The raw-medium determination
-        // preserves the absent surfaces and the water whose surface Samus ignores
-        // (IgnoresWaterSurface) used by those steps. Importantly, suppression RETURNS and leaves the effect waits as they were.
+        // preserves the absent surfaces and the water whose surface Samus ignores used by those steps. Importantly, suppression RETURNS and leaves the effect waits as they were.
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
 

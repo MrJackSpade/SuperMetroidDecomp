@@ -14,7 +14,7 @@ internal static class PhantoonDoorObjectDrawDefinitions
     private static readonly RoomBlockShape RestoredDoor = RoomBlockShapes.Column(4, RoomCollisionType.DoorBlock);
 
     /// <summary>The fight's door: the door's transition column, and the shootable cap over its extensions beside it.</summary>
-    private static readonly RoomBlockShape FightDoor = RoomBlockShapes.Joined(RestoredDoor, RoomBlockShapes.Moved(RoomBlockShapes.Line(down: true,
+    private static readonly RoomBlockShape FightDoor = RoomBlockShapes.Joined(RestoredDoor, RoomBlockShapes.Moved(RoomBlockShapes.Line(Axis.Vertical,
         [RoomCollisionType.ShootableBlock, .. DefinitionRun.Repeated(RoomCollisionType.VerticalExtension, 3)]),
         new(1, 0)));
 

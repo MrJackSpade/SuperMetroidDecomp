@@ -111,6 +111,8 @@ public static class SamusKnockbackMovement
                 break;
             case SamusKnockbackResponse.Ball:
                 break;
+            case SamusKnockbackResponse.Refused:
+                throw new InvalidOperationException("A refused knockback took her movement.");
             default:
                 throw new InvalidOperationException($"Undefined knockback response {response}.");
         }

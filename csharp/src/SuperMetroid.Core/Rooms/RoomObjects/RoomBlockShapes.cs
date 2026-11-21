@@ -67,13 +67,13 @@ internal static class RoomBlockShapes
     /// <param name="length">How many blocks the row covers.</param>
     /// <param name="collision">How every block collides.</param>
     internal static RoomBlockShape Row(int length, RoomCollisionType collision) =>
-        Line(down: false, DefinitionRun.Repeated(collision, length));
+        Line(Axis.Horizontal, DefinitionRun.Repeated(collision, length));
 
     /// <summary>A column of <paramref name="length"/> blocks down from the object's block, each colliding as <paramref name="collision"/> (#2557).</summary>
     /// <param name="length">How many blocks the column covers.</param>
     /// <param name="collision">How every block collides.</param>
     internal static RoomBlockShape Column(int length, RoomCollisionType collision) =>
-        Line(down: true, DefinitionRun.Repeated(collision, length));
+        Line(Axis.Vertical, DefinitionRun.Repeated(collision, length));
 
     /// <summary><paramref name="shape"/> with every cell moved <paramref name="by"/> blocks (#2557).</summary>
     /// <param name="shape">The shape moved.</param>

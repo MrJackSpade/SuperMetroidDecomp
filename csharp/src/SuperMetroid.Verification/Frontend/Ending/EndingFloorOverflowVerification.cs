@@ -30,7 +30,7 @@ internal static class EndingFloorOverflowVerification
         HashSet<EndingCreditsPhase> beforeEscape = [.. EndingCreditsPhaseOrder.All.TakeWhile(phase => phase != EndingCreditsPhase.PlanetEscapeFast)];
         foreach (EndingCreditsPhase phase in EndingCreditsPhaseOrder.All)
         {
-            bool repeats = EndingCreditsPresentation.FloorRepeatsBeyondEdges(new PhaseOnly(phase));
+            bool repeats = EndingCreditsPresentation.FloorRepeatsBeyondEdges(phase);
             bool expected = beforeEscape.Contains(phase);
             if (repeats != expected)
                 wrong.Add($"{phase} {(repeats ? "repeats" : "does not repeat")} its floor");
@@ -38,21 +38,11 @@ internal static class EndingFloorOverflowVerification
                 repeating++;
         }
         AssertTrue(wrong.Count == 0, $"ending phases disagree with the cartridge's Mode 7 settings:{Environment.NewLine}{string.Join(Environment.NewLine, wrong)}");
-        AssertTrue(EndingCreditsPresentation.FloorRepeatsBeyondEdges(new PhaseOnly(EndingCreditsPhase.ZebesExplosionAnimation)),
+        AssertTrue(EndingCreditsPresentation.FloorRepeatsBeyondEdges(EndingCreditsPhase.ZebesExplosionAnimation),
             "the planet's explosion repeats its floor beyond its edges");
         Console.WriteLine($"Ending floor: {repeating} phases from the escape's setup through the planet escape's music wait repeat the floor, as the cartridge's Mode 7 settings 0 do.");
     }
 
-    /// <summary>An ending scene the floor's overflow is read from: only its phase, which alone decides it (#2560).</summary>
-    /// <param name="Phase">The ending's phase.</param>
-    private sealed record PhaseOnly(EndingCreditsPhase Phase) : IEndingActorScene
-    {
-        /// <inheritdoc/>
-        public SuperMetroid.Core.Spatial.FloorZoom FloorZoom => default;
-
-        /// <inheritdoc/>
-        public bool ShowsExplodingPlanet => false;
-    }
 
     /// <summary>Fails unless the cartridge holds <paramref name="expected"/> from <paramref name="address"/>.</summary>
     private static void AssertBytes(ISnesAddressSpace bus, int address, byte[] expected, string what)

@@ -346,8 +346,10 @@ public sealed class SamusHorizontalSpeedState
                 case SpinGlowPlace.Glowing:
                     ShowNextScrewAttackShade(colours, suit);
                     return;
+                case SpinGlowPlace.NotSpinning:
+                    throw new InvalidOperationException("A spin jump's animation stands somewhere in its spin.");
                 default:
-                    throw new InvalidOperationException($"A spin jump's animation stands at no {frame.SpinPlace} place.");
+                    throw new InvalidOperationException($"Undefined {nameof(SpinGlowPlace)} {frame.SpinPlace}.");
             }
         }
 
@@ -366,8 +368,11 @@ public sealed class SamusHorizontalSpeedState
                 case SpinGlowPlace.Glowing:
                     ShowNextScrewAttackShade(colours, suit);
                     return;
-                default:
+                case SpinGlowPlace.NotSpinning:
+                case SpinGlowPlace.ShowsNormalColours:
                     throw new InvalidOperationException($"A wall jump's animation stands at no {frame.SpinPlace} place.");
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(SpinGlowPlace)} {frame.SpinPlace}.");
             }
         }
 

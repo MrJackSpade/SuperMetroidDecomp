@@ -402,17 +402,23 @@ public static class XrayRevealVisualFiles
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? BottomRight = null)
     {
         /// <summary>The document of the blocks <paramref name="blocks"/> a <paramref name="shape"/> copy shows.</summary>
-        internal static RevealBlocksDocument Of(XrayRevealShape shape, XrayRevealVisualBlocks blocks) => (shape, blocks) switch
+        internal static RevealBlocksDocument Of(XrayRevealShape shape, XrayRevealVisualBlocks blocks)
         {
-            (XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar, XrayRevealVisualBlocks.OneBlock one) => new(Block: one.Block.Block),
-            (XrayRevealShape.CopyWide, XrayRevealVisualBlocks.WidePair wide) => new(Left: wide.Left.Block, Right: wide.Right.Block),
-            (XrayRevealShape.CopyTall, XrayRevealVisualBlocks.TallPair tall) => new(Top: tall.Top.Block, Bottom: tall.Bottom.Block),
-            (XrayRevealShape.CopySquare, XrayRevealVisualBlocks.SquareOfFour square) => new(TopLeft: square.UpperLeft.Block,
-                TopRight: square.UpperRight.Block, BottomLeft: square.LowerLeft.Block, BottomRight: square.LowerRight.Block),
-            (XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension, _) =>
-                throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape copies no blocks."),
-            _ => throw new InvalidOperationException($"An X-ray {shape} reveal shows {blocks}, which is not that shape's copy."),
-        };
+            if (shape is XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension)
+                throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape copies no blocks.");
+            return blocks switch
+            {
+                XrayRevealVisualBlocks.OneBlock one when shape is XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar =>
+                    new(Block: one.Block.Block),
+                XrayRevealVisualBlocks.WidePair wide when shape == XrayRevealShape.CopyWide =>
+                    new(Left: wide.Left.Block, Right: wide.Right.Block),
+                XrayRevealVisualBlocks.TallPair tall when shape == XrayRevealShape.CopyTall =>
+                    new(Top: tall.Top.Block, Bottom: tall.Bottom.Block),
+                XrayRevealVisualBlocks.SquareOfFour square when shape == XrayRevealShape.CopySquare => new(TopLeft: square.UpperLeft.Block,
+                    TopRight: square.UpperRight.Block, BottomLeft: square.LowerLeft.Block, BottomRight: square.LowerRight.Block),
+                _ => throw new InvalidOperationException($"An X-ray {shape} reveal shows {blocks}, which is not that shape's copy."),
+            };
+        }
 
         /// <summary>Whether the document names exactly the places a <paramref name="shape"/> copy shows.</summary>
         /// <exception cref="ArgumentOutOfRangeException">The shape copies no blocks.</exception>

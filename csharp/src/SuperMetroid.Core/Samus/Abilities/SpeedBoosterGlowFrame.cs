@@ -30,15 +30,18 @@ public readonly record struct SpeedBoosterGlowFrame
     internal static SpinGlowPlace SpinPlaceOf(SamusState samus, SamusMovementType movementType)
     {
         Ensure.NotNull(samus);
-        return movementType switch
+        if (movementType == SamusMovementType.SpinJumping)
         {
-            SamusMovementType.SpinJumping => samus.AnimationIsOn(SamusAnimationFrames.ScrewAttackSpinStart) ? SpinGlowPlace.Restarting
+            return samus.AnimationIsOn(SamusAnimationFrames.ScrewAttackSpinStart) ? SpinGlowPlace.Restarting
                 : samus.AnimationHasReached(SamusAnimationFrames.ScrewAttackWallJumpReady) ? SpinGlowPlace.ShowsNormalColours
-                : SpinGlowPlace.Glowing,
-            SamusMovementType.WallJumping => samus.AnimationHasReached(SamusAnimationFrames.WallJumpOrdinarySpinStart)
+                : SpinGlowPlace.Glowing;
+        }
+        if (movementType == SamusMovementType.WallJumping)
+        {
+            return samus.AnimationHasReached(SamusAnimationFrames.WallJumpOrdinarySpinStart)
                 ? SpinGlowPlace.Glowing
-                : SpinGlowPlace.Restarting,
-            _ => SpinGlowPlace.NotSpinning,
-        };
+                : SpinGlowPlace.Restarting;
+        }
+        return SpinGlowPlace.NotSpinning;
     }
 }

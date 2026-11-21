@@ -51,6 +51,9 @@ public static class XrayRevealMap
                     case XrayRevealVisualBlocks.WidePair wide:
                         CopyBlock(Position16<RoomBlocks>.Of(0, row), wide.Right);
                         break;
+                    default:
+                        // A single block or a tall pair has no right half to show.
+                        break;
                 }
             }
             for (int column = 0; column < XrayRevealGrid.Size.X; column++)

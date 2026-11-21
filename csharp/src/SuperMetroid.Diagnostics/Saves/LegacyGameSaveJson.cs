@@ -574,12 +574,6 @@ public static class LegacyGameSaveJson
     private const string BabyMetroidEncounterMusicSkippedSavedName = "ShitroidEncounterMusicSkipped";
 
     /// <summary>
-    /// The name schema five and every later schema give that event, its installed key, which renaming the member left as it
-    /// was (#2552).
-    /// </summary>
-    private const string BabyMetroidEncounterMusicSkippedSavedName = "ShitroidEncounterMusicSkipped";
-
-    /// <summary>
     /// Schema four to five (#1527): schema four listed the Zebetite count as the three events
     /// <c>ZebetiteDestroyedBit0</c> through <c>ZebetiteDestroyedBit2</c>, the bits of the cartridge's counter; they leave
     /// a slot's events and become its <c>zebetitesDestroyed</c> count, read as the cartridge's table codec reads the

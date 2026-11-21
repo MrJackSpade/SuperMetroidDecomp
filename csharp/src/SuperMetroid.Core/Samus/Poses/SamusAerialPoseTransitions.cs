@@ -124,13 +124,11 @@ internal static class SamusAerialPoseTransitions
         Ensure.NotNull(level);
 
         SamusPoseId sourcePose = samus.Pose;
-        AerialTurns family = SamusPoseMetadata.ReadMovementType(samus) switch
-        {
-            SamusMovementType.NormalJumping => AerialTurns.Jumping,
-            SamusMovementType.Falling => AerialTurns.Falling,
-            _ => throw new InvalidOperationException(
-                $"Aerial turn {sourcePose} -> {genericTargetPose} is not a turn while jumping or falling."),
-        };
+        SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
+        AerialTurns family = sourceMovementType == SamusMovementType.NormalJumping ? AerialTurns.Jumping
+            : sourceMovementType == SamusMovementType.Falling ? AerialTurns.Falling
+            : throw new InvalidOperationException(
+                $"Aerial turn {sourcePose} -> {genericTargetPose} is not a turn while jumping or falling.");
         HorizontalDirection turnsTo = genericTargetPose == family.RightToLeft ? HorizontalDirection.Left
             : genericTargetPose == family.LeftToRight ? HorizontalDirection.Right
             : throw new InvalidOperationException(

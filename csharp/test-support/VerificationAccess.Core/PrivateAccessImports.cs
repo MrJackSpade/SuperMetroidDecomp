@@ -690,7 +690,6 @@ global using static SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefin
 global using static SuperMetroid.Core.Rooms.RoomObjects.BlockReactionObjectPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.CollectibleObjectPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.DownwardGateObjectPrivateAccess;
-global using static SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectEyeDoorVisualsPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.NoobTubeDebrisDefinitionsPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.NoobTubeObjectPrivateAccess;
 global using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectSoundQueuePrivateAccess;

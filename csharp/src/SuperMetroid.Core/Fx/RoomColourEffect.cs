@@ -110,7 +110,9 @@ internal sealed class RoomColourEffect
 
     /// <summary>
     /// Restarts the effect's animation from its first phase, due on this turn: the landing site's lightning starts its calm
-    /// over (<see cref="ColourEffectCondition.RestartsWhileSamusIsHigh"/>).
+    /// over (<see cref="ColourEffectCondition.RestartsWhileSamusIsHigh"/>). The game's restart sends the lightning back to
+    /// the calm its cycle loops to, with one update left on it, so the calm shows anew on the update the restart runs; the
+    /// lightning's cycle has no lead-in, so the calm is its first phase.
     /// </summary>
     internal void Restart() => play.StartAt(Animation, AnimationPlace.Before(0));
 

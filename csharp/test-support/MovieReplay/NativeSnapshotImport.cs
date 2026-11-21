@@ -459,14 +459,18 @@ internal static class NativeSnapshotImport
         runtime.PlayerActions.Latch(GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.HeldInput), "native held input"));
         game.AdoptRuntime(runtime);
         global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
+        // The pause's stable menu runs over the menu the pause built, which is shown before the game enters it.
+        bool pausedOnMenu = GameStateNumberCodec.NamesPauseMenu(W(NativeSnapshotMemory.GameState));
+        if (pausedOnMenu)
+            ShowNativePauseMenu(game, runtime, W, memory);
         GameStateNumberCodec.Enter(game, W(NativeSnapshotMemory.GameState));
         // The room load showed the colours of the Samus the Ceres start made; the imported equipment names the suit and
         // beams whose colours the cartridge loaded (#1512), under which her palette-FX records are then laid.
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(runtime.Player.Colours, samus.EquippedItems);
         SamusProjectileSystem.ShowBeamShade(runtime.Player.Colours, samus.EquippedBeams);
         ImportShownPaletteFxFrames(runtime);
-        if (game.IsAt(PauseStep.Menu))
-            ImportNativePauseMenu(game, runtime, W, memory);
+        if (pausedOnMenu)
+            ImportNativePauseMenuCadence(game, runtime, W);
         return new ImportNativeSnapshotResult(bus, runtime, samus, game);
     }
 

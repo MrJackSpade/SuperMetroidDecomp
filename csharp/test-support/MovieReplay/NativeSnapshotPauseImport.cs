@@ -23,10 +23,10 @@ internal static class NativeSnapshotPauseImport
     /// since: map scroll, animation phases and the delayed-held input filter. Gameplay colors
     /// come from <c>BackupOfPalettesDuringMenu</c>, where pausing moved them.
     /// </summary>
-    internal static void ImportNativePauseMenu(SuperMetroidGame game, SuperMetroidRuntime runtime,
+    internal static void ShowNativePauseMenu(SuperMetroidGame game, SuperMetroidRuntime runtime,
         Func<int, ushort> W, byte[] memory)
     {
-        VerificationAssertions.AssertTrue(game.IsAt(PauseStep.Menu) && GameStateNumberCodec.IsAt(game, W(NativeSnapshotMemory.GameState)),
+        VerificationAssertions.AssertTrue(GameStateNumberCodec.NamesPauseMenu(W(NativeSnapshotMemory.GameState)),
             "pause import covers the stable pause menu");
         VerificationAssertions.AssertEqual((ushort)0, W(PauseMemory.MenuIndex), "imported pause menu is on its map page");
         VerificationAssertions.AssertEqual((ushort)0, W(PauseMemory.ButtonLabelMode), "imported pause menu shows map labels");
@@ -42,6 +42,16 @@ internal static class NativeSnapshotPauseImport
         PrivateState.Field<MapIndicatorPulse, AnimationPlayer<MapIndicatorSegment, MapSpriteId, MapIndicatorCue>>(menu.mapIndicator, "player")
             .ResumeOn(W(PauseMemory.IndicatorAnimationFrame) / 2, W(PauseMemory.IndicatorAnimationTimer) + 1);
         game.Session.Show(menu);
+    }
+
+    /// <summary>
+    /// Imports the cadences the native menu runs once the game is at the stable menu (<see cref="ShowNativePauseMenu"/>): the
+    /// screen fade's and the delayed-held input filter's.
+    /// </summary>
+    internal static void ImportNativePauseMenuCadence(SuperMetroidGame game, SuperMetroidRuntime runtime, Func<int, ushort> W)
+    {
+        VerificationAssertions.AssertTrue(game.IsAt(PauseStep.Menu) && GameStateNumberCodec.IsAt(game, W(NativeSnapshotMemory.GameState)),
+            "the imported game is at the stable pause menu");
         game.Session.screenFade.SetCadence(W(PauseMemory.ScreenFadeDelay), W(PauseMemory.ScreenFadeCounter));
 
         // The native countdown starts at the reset on a change and is pinned to zero once the repeat fires; the port's repeat

@@ -151,7 +151,7 @@ internal sealed class RoomEnemySpecies
         var shuttersBehavior = new ShuttersBehavior(enemies.Audio, enemies.Places);
         var babyMetroidBehavior = new BabyMetroidBehavior(enemies.Room, enemies.Places, enemies.FadeStepCount, enemies.PassEvents, enemies.Audio);
         var deadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = enemies.Room, Terrain = enemies.Terrain, BabyMetroidFeeding = new BabyMetroidFeeding(enemies.Places), FrameContext = enemies.FrameContext, Projectiles = enemies.Projectiles, Collision = enemies.Collision, RowDust = CorpseRowDust });
-        var shaktoolBehavior = new ShaktoolBehavior(enemies.Terrain, enemies.Places, enemies.Collision);
+        var shaktoolBehavior = new ShaktoolBehavior(enemies.Terrain, enemies.Places, enemies.Collision, partOffers);
         var sbugBehavior = new SbugBehavior();
         var ripperBehavior = new RipperBehavior(enemies.Terrain);
         var rioBehavior = new RioBehavior(enemies.Room, enemies.Terrain, enemies.Audio);
@@ -181,8 +181,8 @@ internal sealed class RoomEnemySpecies
         var metroidBehavior = new MetroidBehavior(enemies.Room, enemies.Terrain, enemies.Audio, enemies.EffectActors, enemies.FrameContext, enemies.DeathsAndDrops);
         var metareeBehavior = new MetareeBehavior(enemies.Projectiles, enemies.Audio);
         var oumBehavior = new OumBehavior(enemies.Terrain, enemies.Collision, enemies.Audio);
-        var mamaTurtleBehavior = new MamaTurtleBehavior(enemies.Terrain, enemies.Earthquake, enemies.Places, enemies.Collision, enemies.Audio);
-        var magdolliteBehavior = new MagdolliteBehavior(enemies.Room, enemies.Projectiles, enemies.Places, enemies.Collision, enemies.DeathsAndDrops, enemies.Audio);
+        var mamaTurtleBehavior = new MamaTurtleBehavior(enemies.Terrain, enemies.Earthquake, enemies.Places, enemies.Collision, enemies.Audio, partOffers);
+        var magdolliteBehavior = new MagdolliteBehavior(enemies.Room, enemies.Projectiles, enemies.Places, enemies.Collision, enemies.DeathsAndDrops, enemies.Audio, partOffers);
         var holtzBehavior = new HoltzBehavior(enemies.Room, enemies.Terrain, enemies.Places, enemies.Audio, partOffers);
         var kzanBehavior = new KzanBehavior(enemies.Places, enemies.Audio);
         var kraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { PartOffers = partOffers, PassEvents = enemies.PassEvents, Room = enemies.Room, Terrain = enemies.Terrain, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, EffectActors = enemies.EffectActors, Presentation = enemies.BossPresentation, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, CameraDistance = enemies.CameraDistance  });

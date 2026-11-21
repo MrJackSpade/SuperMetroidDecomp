@@ -14,17 +14,20 @@ internal sealed class MagdolliteHeadEntity(MagdolliteBehavior species, RoomEnemy
     /// <inheritdoc/>
     internal override MagdollitePartState State => Head;
 
+    /// <summary>The Magdollite the head began as it was set up.</summary>
+    internal override MagdollitePartners Partners { get; } = species.InitializeMagdolliteHead(occupant, settings, place, Ensure.NotNull(surroundings).Samus);
+
     /// <summary>The head's state, which its setup builds as the enemy is built (#2554).</summary>
-    private MagdolliteHeadState Head { get; } = species.InitializeMagdolliteHead(occupant, settings, place, Ensure.NotNull(surroundings).Samus);
+    private MagdolliteHeadState Head => Partners.HeadState;
 
     /// <summary>What the head's population entry tells it.</summary>
     private MagdolliteHeadSpawnSettings Settings { get; } = Ensure.NotNull(settings);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) =>
-        Species.RunMagdolliteHead(Occupant, Settings, Place, Head, Ensure.NotNull(frame).Samus);
+        Species.RunMagdolliteHead(Occupant, Settings, Place, Head, Partners, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) =>
-        Species.AdvanceMagdolliteTypedAnimation<MagdolliteHeadState>(Occupant, Place, Head, context);
+        Species.AdvanceMagdolliteTypedAnimation<MagdolliteHeadState>(Occupant, Place, Head, Partners, context);
 }

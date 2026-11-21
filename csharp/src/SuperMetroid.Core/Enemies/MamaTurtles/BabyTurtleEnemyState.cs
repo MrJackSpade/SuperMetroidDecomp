@@ -11,6 +11,9 @@ public sealed class BabyTurtleEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BabyTurtleSegment> Playback { get; set; }
 
+    /// <summary>The family of the Mama the room lists before the baby, which she offered it as she was placed (#2554).</summary>
+    internal required MamaTurtleFamily Family { get; init; }
+
     /// <summary>Gets the Baby Turtle's current action.</summary>
     public BabyTurtleAction Action { get; internal set; }
 

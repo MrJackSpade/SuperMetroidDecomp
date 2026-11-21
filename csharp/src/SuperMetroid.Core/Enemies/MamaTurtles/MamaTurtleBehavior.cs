@@ -12,16 +12,27 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 [RoomLifetime]
 internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
-    /// <summary>The mama turtle, or one of her babies, from its settings (#2146).</summary>
+    /// <summary>
+    /// The mama turtle, who offers the four babies her room lists right after her the creation that builds each of them
+    /// in her family (#2146, #2554); a baby no mama offered is rejected where it is bound.
+    /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
     public void Register(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>([EnemyDefinitionId.MamaTurtle], (occupant, _, place, common) =>
-            EnemyOccupant.Running(new MamaTurtleEntity(this, occupant, place, common)));
-        registrar.Spawns<BabyTurtleSpawnSettings>([EnemyDefinitionId.BabyTurtle], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new BabyTurtleEntity(this, occupant, place, common, settings)));
+        {
+            var mama = new MamaTurtleEntity(this, occupant, place, common);
+            var family = new MamaTurtleFamily(place, mama.State,
+                _places.Members(place, MamaTurtlePartListingDefinitions.Listing, EnemyDefinitionId.MamaTurtle, EnemyDefinitionId.BabyTurtle));
+            _partOffers.Offer<BabyTurtleSpawnSettings>(EnemyDefinitionId.BabyTurtle, (baby, settings, babyPlace, babyCommon) =>
+                EnemyOccupant.Running(new BabyTurtleEntity(this, baby, babyPlace, babyCommon, settings, family)));
+            return EnemyOccupant.Running(mama);
+        });
+        registrar.Joins([EnemyDefinitionId.BabyTurtle]);
     }
+
+    /// <summary>Where a mama offers the babies listed after her the creation that builds each of them in her family.</summary>
+    private readonly EnemyPartOffers _partOffers;
 
     /// <summary>Moves parent and children against room blocks during hover, fall, and crawling.</summary>
     private readonly EnemyTerrain _terrain;
@@ -29,13 +40,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly RoomEarthquake _earthquake;
     /// <summary>The room's enemy places, where Mama finds her four babies when she is placed.</summary>
     private readonly EnemyPlaces _places;
-    /// <summary>The four babies each Mama found when she was placed, which her room lists right after her.</summary>
-    private readonly EnemyPartLinks<RoomEnemyPlace[]> _babiesOfMama = new();
-    /// <summary>Each baby's Mama, linked when she found it as she was placed (#1816).</summary>
-    private readonly EnemyPartLinks<RoomEnemyPlace> _mamaOfBaby = new();
-
-    /// <summary>The state of each baby's Mama, which she links as she is set up with the state she holds (#2554).</summary>
-    private readonly EnemyPartLinks<MamaTurtleEnemyState> _mamaStateOfBaby = new();
     /// <summary>Applies touch damage for Mama's expanded body or exposed shell.</summary>
     private readonly EnemyCollision _collision;
 
@@ -43,8 +47,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects Mama Turtle and her babies to room terrain, collision, places, and earthquake output.</summary>
-    internal MamaTurtleBehavior(EnemyTerrain terrain, RoomEarthquake earthquake, EnemyPlaces places, EnemyCollision collision, EnemyAudioQueue audio)
+    internal MamaTurtleBehavior(EnemyTerrain terrain, RoomEarthquake earthquake, EnemyPlaces places, EnemyCollision collision, EnemyAudioQueue audio,
+        EnemyPartOffers partOffers)
     {
+        _partOffers = partOffers;
         _audio = audio;
         _terrain = terrain;
         _earthquake = earthquake;
@@ -99,18 +105,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Initializes the Mama Turtle and links her to the four babies her room lists with her.</summary>
+    /// <summary>Initializes the Mama Turtle, asleep in her shell.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal MamaTurtleEnemyState InitializeMamaTurtle(RoomEnemyPlace place)
+    internal static MamaTurtleEnemyState InitializeMamaTurtle(RoomEnemyPlace place)
     {
-        RoomEnemyPlace[] babies = _places.Members(place, MamaTurtlePartListingDefinitions.Listing, EnemyDefinitionId.MamaTurtle, EnemyDefinitionId.BabyTurtle);
-        _babiesOfMama.Place(place, babies);
-        foreach (RoomEnemyPlace baby in babies)
-            _mamaOfBaby.Place(baby, place);
-
         var state = new MamaTurtleEnemyState(MamaTurtleAction.Placed);
-        foreach (RoomEnemyPlace baby in babies)
-            _mamaStateOfBaby.Place(baby, state);
 
         // Mama animates: leaving the shell needs her animation to run.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
@@ -122,34 +121,35 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Initializes the Baby Turtle, one of the four its Mama found when she was placed; the last of them completes the
-    /// family, which is checked once then.
+    /// Initializes the Baby Turtle, one of the four of <paramref name="family"/>, whose Mama found them when she was placed;
+    /// the last of them completes the family, which is checked once then.
     /// </summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal BabyTurtleEnemyState InitializeBabyTurtle(RoomEnemyOccupant occupant, BabyTurtleSpawnSettings babyTurtleSpawnSettings, RoomEnemyPlace place)
+    internal static BabyTurtleEnemyState InitializeBabyTurtle(RoomEnemyOccupant occupant, BabyTurtleSpawnSettings babyTurtleSpawnSettings, RoomEnemyPlace place,
+        MamaTurtleFamily family)
     {
         var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus)
         {
+            Family = family,
             SpawnTopCenter = new Position16<RoomPixels>(place.Position.X.Whole, place.Position.Y.Whole - place.Radius.Y),
             Heading = babyTurtleSpawnSettings.Heading,
             HorizontalSpeed = MamaTurtleMotionDefinitions.BabyCrawlSpeed,
         };
 
         state.Playback = EnemyAnimationPlayback.Start(place, BabyTurtleAnimations.StartingWith(BabyCrawl(state.Heading)));
-        CheckMamaTurtleFamilyCompletedBy(place);
+        CheckMamaTurtleFamilyCompletedBy(place, family);
         return state;
     }
 
     /// <summary>
-    /// Checks, as <paramref name="baby"/> is placed, that a Mama found it when she was placed and, when it is the last of
-    /// her four babies, that all four are baby turtles. A killed baby's place, empty until it respawns, stays hers.
+    /// Checks, as <paramref name="baby"/> is placed in <paramref name="family"/>, when it is the last of her four babies,
+    /// that all four are baby turtles. A killed baby's place, empty until it respawns, stays hers.
     /// </summary>
-    /// <exception cref="InvalidOperationException">No Mama Turtle placed before it found <paramref name="baby"/>.</exception>
     /// <exception cref="InvalidDataException">The four places listed after the Mama do not all hold baby turtles.</exception>
-    private void CheckMamaTurtleFamilyCompletedBy(RoomEnemyPlace baby)
+    private static void CheckMamaTurtleFamilyCompletedBy(RoomEnemyPlace baby, MamaTurtleFamily family)
     {
-        RoomEnemyPlace mama = MamaOf(baby);
-        RoomEnemyPlace[] babies = _babiesOfMama.Of(mama);
+        RoomEnemyPlace mama = family.Mama;
+        IReadOnlyList<RoomEnemyPlace> babies = family.Babies;
         if (babies[^1] != baby)
             return;
         foreach (RoomEnemyPlace child in babies)
@@ -584,8 +584,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.X));
 
-        RoomEnemyPlace parentPlace = MamaOf(baby);
-        MamaTurtleEnemyState parent = MamaStateOf(baby);
+        RoomEnemyPlace parentPlace = state.Family.Mama;
+        MamaTurtleEnemyState parent = state.Family.State;
         if (!parent.LiesInShell)
             return;
 
@@ -687,17 +687,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.X));
-        WakeMamaTurtle(baby);
-    }
-
-    /// <summary>Finishes the Baby Turtle's reaction to a shot on <paramref name="baby"/>: its mother wakes.</summary>
-    private void ResolveBabyTurtleShotAfterCommon(RoomEnemyPlace baby) =>
-        WakeMamaTurtle(baby);
-
-    /// <summary>Wakes <paramref name="baby"/>'s Mama after a baby touch or shot reaction.</summary>
-    private void WakeMamaTurtle(RoomEnemyPlace baby)
-    {
-        MamaStateOf(baby).Wake();
+        state.Family.State.Wake();
     }
 
     /// <summary>Runs Mama's expanded private damage box: Samus, while not invincible, touching it is hurt as by any enemy.</summary>
@@ -713,12 +703,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         _collision.ResolveOrdinaryTouch(turtle, samus, pseudoScrew);
     }
 
-    /// <summary>The state of <paramref name="baby"/>'s Mama, who found it when she was placed.</summary>
-    private MamaTurtleEnemyState MamaStateOf(RoomEnemyPlace baby) => _mamaStateOfBaby.Of(baby);
-
-    /// <summary>The place of <paramref name="baby"/>'s Mama, who linked it when she was placed.</summary>
-    /// <exception cref="InvalidOperationException">No Mama Turtle found <paramref name="baby"/> as she was placed.</exception>
-    private RoomEnemyPlace MamaOf(RoomEnemyPlace baby) => _mamaOfBaby.Of(baby);
 
     /// <summary>Starts the crawl animation of the way the child heads.</summary>
     private static void StartBabyTurtleCrawlingAnimation(
@@ -744,10 +728,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Runs the baby wake reaction after common bomb damage.</summary>
-    internal EnemyBombReaction BabyTurtleBombReaction => field ??= new()
+    /// <summary>Wakes the Mama of the baby whose state is <paramref name="state"/> after common bomb damage.</summary>
+    internal static EnemyBombReaction BabyTurtleBombReaction(BabyTurtleEnemyState state) => new()
     {
-        AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy),
+        AfterCommon = _ => state.Family.State.Wake(),
     };
 
     /// <summary>Runs MamaTurtle's main AI.</summary>
@@ -795,10 +779,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
-    /// <summary>Runs the baby wake reaction after common projectile damage.</summary>
-    internal EnemyShotReaction BabyTurtleShotReaction => field ??= new()
+    /// <summary>Wakes the Mama of the baby whose state is <paramref name="state"/> after common projectile damage.</summary>
+    internal static EnemyShotReaction BabyTurtleShotReaction(BabyTurtleEnemyState state) => new()
     {
-        AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy),
+        AfterCommon = _ => state.Family.State.Wake(),
     };
 
     /// <summary>Routes Mama contact to shell and fall handling.</summary>

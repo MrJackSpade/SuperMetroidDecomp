@@ -5,20 +5,25 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MagdolliteBodyEntity(MagdolliteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : MagdollitePartEntity(species, occupant, place, common), IEnemyInitialization
+/// <param name="partners">The Magdollite its head began, which the body joins as it is built (#2554).</param>
+internal sealed class MagdolliteBodyEntity(MagdolliteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    MagdollitePartners partners)
+    : MagdollitePartEntity(species, occupant, place, common)
 {
     /// <inheritdoc/>
     internal override MagdollitePartState State => Body;
 
     /// <summary>The body's state, which its setup builds as the enemy is built (#2554).</summary>
-    private MagdolliteBodyState Body { get; } = species.InitializeMagdolliteBody(place);
+    private MagdolliteBodyState Body { get; } = species.InitializeMagdolliteBody(place, partners);
+
+    /// <summary>The Magdollite its head began, which the body joined as it was built (#2554).</summary>
+    internal override MagdollitePartners Partners { get; } = partners;
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) =>
-        Species.RunMagdolliteBody(Place, Body, Ensure.NotNull(frame).Samus);
+        Species.RunMagdolliteBody(Place, Body, Partners, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) =>
-        Species.AdvanceMagdolliteTypedAnimation<MagdolliteBodyState>(Occupant, Place, Body, context);
+        Species.AdvanceMagdolliteTypedAnimation<MagdolliteBodyState>(Occupant, Place, Body, Partners, context);
 }

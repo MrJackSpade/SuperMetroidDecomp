@@ -104,30 +104,18 @@ internal static class EnemyEntityStates
             return held61;
         if (entity is global::SuperMetroid.Core.Enemies.Hoppers.HoppersEntity entity70 && entity70.State is T held70)
             return held70;
-        if (entity is global::SuperMetroid.Core.Enemies.Kago.KagoEntity entity71 && entity71.State is T held71)
-            return held71;
         if (entity is global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBodyEntity entity72 && entity72.State is T held72)
             return held72;
         if (entity is global::SuperMetroid.Core.Enemies.KiHunters.KiHunterWingsEntity entity73 && entity73.State is T held73)
             return held73;
-        if (entity is global::SuperMetroid.Core.Enemies.Kzan.KzanTopEntity entity74 && entity74.State is T held74)
-            return held74;
-        if (entity is global::SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperFollowerEntity entity75 && entity75.State is T held75)
-            return held75;
         if (entity is global::SuperMetroid.Core.Enemies.LavaJumpers.SqueeptEntity entity76 && entity76.State is T held76)
             return held76;
         if (entity is global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBodyEntity entity77 && entity77.State is T held77)
             return held77;
-        if (entity is global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBodyEntity entity78 && entity78.Body is T held78)
-            return held78;
         if (entity is global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteHeadEntity entity79 && entity79.State is T held79)
             return held79;
-        if (entity is global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteHeadEntity entity80 && entity80.Head is T held80)
-            return held80;
         if (entity is global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayEntity entity81 && entity81.State is T held81)
             return held81;
-        if (entity is global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayEntity entity82 && entity82.Overlay is T held82)
-            return held82;
         if (entity is global::SuperMetroid.Core.Enemies.Magdollite.MagdollitePartEntity entity83 && entity83.State is T held83)
             return held83;
         if (entity is global::SuperMetroid.Core.Enemies.MamaTurtles.BabyTurtleEntity entity84 && entity84.State is T held84)
@@ -136,12 +124,8 @@ internal static class EnemyEntityStates
             return held85;
         if (entity is global::SuperMetroid.Core.Enemies.MaridiaSnails.OumEntity entity86 && entity86.State is T held86)
             return held86;
-        if (entity is global::SuperMetroid.Core.Enemies.Metaree.MetareeEntity entity87 && entity87.State is T held87)
-            return held87;
         if (entity is global::SuperMetroid.Core.Enemies.Metroids.MetroidEntity entity88 && entity88.State is T held88)
             return held88;
-        if (entity is global::SuperMetroid.Core.Enemies.Metroids.MochtroidEntity entity89 && entity89.State is T held89)
-            return held89;
         if (entity is global::SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeEntity entity90 && entity90.State is T held90)
             return held90;
         if (entity is global::SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeMountEntity entity91 && entity91.State is T held91)
@@ -178,8 +162,6 @@ internal static class EnemyEntityStates
             return held110;
         if (entity is global::SuperMetroid.Core.Enemies.Shutters.VerticalShutterEntity entity111 && entity111.State is T held111)
             return held111;
-        if (entity is global::SuperMetroid.Core.Enemies.Skree.SkreeEntity entity112 && entity112.State is T held112)
-            return held112;
         if (entity is global::SuperMetroid.Core.Enemies.Skultera.SkulteraEntity entity113 && entity113.State is T held113)
             return held113;
         if (entity is global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateEntity entity114 && entity114.State is T held114)

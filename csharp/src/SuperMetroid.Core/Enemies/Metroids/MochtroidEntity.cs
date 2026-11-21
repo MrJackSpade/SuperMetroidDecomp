@@ -9,13 +9,13 @@ internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemyOccupa
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal MochtroidEnemyState State { get; } = MochtroidBehavior.InitializeMochtroid(place);
+    private readonly MochtroidEnemyState state = MochtroidBehavior.InitializeMochtroid(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMochtroidMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMochtroidMainAi(Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MochtroidBehavior.AdvanceMochtroidTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MochtroidBehavior.AdvanceMochtroidTypedAnimation(Place, state);
 
     /// <summary>Whether the Mochtroid's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == MochtroidReactions.Touch || base.ReactsToTouch;
@@ -25,7 +25,7 @@ internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemyOccupa
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == MochtroidReactions.Touch)
-            species.ReactToMochtroidTouch(context, State);
+            species.ReactToMochtroidTouch(context, state);
         else
             base.ReactToTouch(context);
     }

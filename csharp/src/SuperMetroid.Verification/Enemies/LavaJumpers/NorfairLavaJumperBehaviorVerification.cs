@@ -54,16 +54,15 @@ internal static class NorfairLavaJumperBehaviorVerification
         follower.Bind(EnemyDefinitionId.Squeept, follower.KeptDefinition);
         follower.Bind(follower.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         follower.SetUpAsPlaced();
-        NorfairLavaJumperFollowerState followerState = enemies.NorfairLavaJumperFollowerStates[1]
-            ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumperFollowerStates[1].");
-        AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation), followerState.Playback,
-            "real follower initializer starts the follower loop");
+        // The follower's setup builds the state its animation, which the check plays, runs on.
+        NorfairLavaJumperFollowerState followerState = enemies.SqueeptBehavior.InitializeNorfairLavaJumperFollower(follower, parent.EntityOf<SqueeptEntity>());
         follower.AnimationClock.StepOnNextUpdate();
         // The flare and the flickers after it are one cycle (#2337), which starts over at the flare.
         ushort[] cycle = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperSegment.Follower, NorfairLavaJumperSegment.FollowerFlickering).ToArray();
         ushort[] expected = [.. cycle, cycle[0]];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(expected, expected.Select(_ => 1)),
-            EnemyInstructionRunner.ShownFrames(follower, expected.Length), "follower loop runs once and starts over");
+            EnemyInstructionRunner.ShownFrames(follower, expected.Length, () => SqueeptBehavior.AdvanceNorfairLavaJumperFollowerTypedAnimation(follower, followerState)),
+            "real follower initializer starts the follower loop, which runs once and starts over");
         Console.WriteLine("  Norfair lava jumper behavior: hidden, jump with its finishing cue, and the follower loop run as the cartridge does.");
     }
 

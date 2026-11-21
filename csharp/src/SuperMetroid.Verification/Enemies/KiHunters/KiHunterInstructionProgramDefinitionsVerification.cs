@@ -51,8 +51,8 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemyPlace body, _, KiHunterBodyState state, _) =
                 CreatePair();
             state.Heading = movingRight ? HorizontalDirection.Right : HorizontalDirection.Left;
-            Install(body, program);
-            RunFrames(enemies, body, 7);
+            Install(body, program, state);
+            RunBodyFrames(enemies, body, state, 7);
             AssertEqual(program, Playing(state.Playback),
                 $"KiHunter {(movingRight ? "right" : "left")} flight remains in steady list");
         }
@@ -62,8 +62,8 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemyPlace body, _, KiHunterBodyState state, _) =
                 CreatePair();
             state.Heading = movingRight ? HorizontalDirection.Right : HorizontalDirection.Left;
-            Install(body, program);
-            RunFrames(enemies, body, 55);
+            Install(body, program, state);
+            RunBodyFrames(enemies, body, state, 55);
             KiHunterSegment idle = movingRight
                 ? KiHunterSegment.FlyingRight
                 : KiHunterSegment.FlyingLeft;
@@ -92,8 +92,8 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace body, _, KiHunterBodyState state, _) =
                 CreatePair();
-            Install(body, program);
-            RunFrames(enemies, body, 40);
+            Install(body, program, state);
+            RunBodyFrames(enemies, body, state, 40);
             AssertEqual(KiHunterAction.GroundJump, state.Action,
                 $"KiHunter {direction} jump installs ground-jump owner");
             AssertAsleep(state.Playback, program, $"KiHunter {direction} jump reaches terminal sleep");
@@ -103,8 +103,8 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace body, _, KiHunterBodyState state, _) =
                 CreatePair();
-            Install(body, program);
-            RunFrames(enemies, body, 45);
+            Install(body, program, state);
+            RunBodyFrames(enemies, body, state, 45);
             AssertEqual(KiHunterAction.GroundWait, state.Action,
                 $"KiHunter {direction} landing installs ground-wait owner");
             AssertAsleep(state.Playback, program, $"KiHunter {direction} landing reaches terminal sleep");
@@ -114,8 +114,8 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace body, _, KiHunterBodyState state, _) =
                 CreatePair();
-            Install(body, program);
-            RunFrames(enemies, body, 90);
+            Install(body, program, state);
+            RunBodyFrames(enemies, body, state, 90);
             AssertEqual(KiHunterAction.GroundWait, state.Action,
                 $"KiHunter {(movingRight ? "right" : "left")} spit restores ground wait");
             AssertEqual(24, state.WaitTimer.UpdatesLeft,
@@ -183,7 +183,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                     ? unchecked((short)(angle - 128)) < 0
                     : unchecked((short)(angle - 256)) >= 0;
 
-                enemies.KiHunterBehavior.RunKiHunterBodyMainAi(body, body.RequireSpeciesState<KiHunterBodyState>(), frame);
+                enemies.KiHunterBehavior.RunKiHunterBodyMainAi(body, state, frame);
                 string side = swoopLeft ? "left" : "right";
                 AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(state.AngularVelocity.FractionsOfStep),
                     $"KiHunter {side} swoop update {update} angular velocity carries and caps only its whole part");
@@ -203,7 +203,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         CreatePairResult CreatePair()
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace> initializeBody = fixturePlace => enemies.KiHunterBehavior.InitializeKiHunter(fixturePlace.HeldOccupant().SpawnSettings<KiHunterSpawnSettings>(), fixturePlace);
+            Func<RoomEnemyPlace, KiHunterBodyState> initializeBody = fixturePlace => enemies.KiHunterBehavior.InitializeKiHunter(fixturePlace.HeldOccupant().SpawnSettings<KiHunterSpawnSettings>(), fixturePlace);
             Action<RoomEnemyPlace> initializeWings = fixturePlace => fixturePlace.SetUpAsPlaced();
 
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
@@ -219,19 +219,20 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             // entry's detachment health is never reached by these unhurt programs.
             body.SetSpawnSettings(new KiHunterSpawnSettings(KiHunterWings.Winged));
             wings.SetSpawnSettings(new KiHunterWingsSpawnSettings(DetachHealth: 0));
-            initializeBody(body);
+            // The body's setup builds the state its steps and its animation, which the check plays, run on.
+            KiHunterBodyState bodyState = initializeBody(body);
             initializeWings(wings);
             return new CreatePairResult(enemies, body, wings,
-                (enemies.KiHunterBodyStates[0] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter body state.")), (enemies.KiHunterWingStates[1] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter wing state.")));
+                bodyState, (enemies.KiHunterWingStates[1] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter wing state.")));
         }
 
-        static void Install(RoomEnemyPlace place, KiHunterSegment program)
+        static void Install(RoomEnemyPlace place, KiHunterSegment program, KiHunterBodyState? body = null)
         {
             var playback = new AnimationPlayback<KiHunterSegment>(KiHunterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            if (place.SpeciesState<KiHunterWingState>() is { } wings)
-                wings.Playback = playback;
+            if (body is not null)
+                body.Playback = playback;
             else
-                place.RequireSpeciesState<KiHunterBodyState>().Playback = playback;
+                place.RequireSpeciesState<KiHunterWingState>().Playback = playback;
             place.AnimationClock.Restart();
         }
 
@@ -246,6 +247,13 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         // The segment the playback's current phase plays.
         static KiHunterSegment Playing(AnimationPlayback<KiHunterSegment> playback) =>
             playback.Animation.Phases[playback.Place.Phase].Segment;
+
+        // The body's animation steps over the state its setup built, as its entity takes them.
+        static void RunBodyFrames(RoomEnemySystem enemies, RoomEnemyPlace body, KiHunterBodyState state, int frames)
+        {
+            for (int frame = 0; frame < frames; frame++)
+                enemies.KiHunterBehavior.AdvanceKiHunterBodyTypedAnimation(body.HeldOccupant(), body, state);
+        }
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemyPlace place, int frames)
         {

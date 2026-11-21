@@ -15,13 +15,13 @@ internal sealed class MetareeEntity(MetareeBehavior species, RoomEnemyOccupant o
     private readonly EnemyBombReaction ownBomb = species.MetareeBombReaction(occupant);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal MetareeEnemyState State { get; } = MetareeBehavior.InitializeMetaree();
+    private readonly MetareeEnemyState state = MetareeBehavior.InitializeMetaree();
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetareeMainAi(Occupant, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetareeMainAi(Occupant, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MetareeBehavior.AdvanceMetareeTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MetareeBehavior.AdvanceMetareeTypedAnimation(Place, state);
 
     /// <summary>The Metaree's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MetareeReactions.Shot ? ownShot : base.ShotReaction;

@@ -13,11 +13,11 @@ internal sealed class KzanTopEntity(KzanBehavior species, RoomEnemyOccupant occu
     internal KzanSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal KzanEnemyState State { get; } = KzanBehavior.InitializeKzanTop(settings, place);
+    private readonly KzanEnemyState state = KzanBehavior.InitializeKzanTop(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunKzanTopMainAi(Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunKzanTopMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KzanBehavior.AdvanceKzanTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => KzanBehavior.AdvanceKzanTypedAnimation(Place, state);
 }

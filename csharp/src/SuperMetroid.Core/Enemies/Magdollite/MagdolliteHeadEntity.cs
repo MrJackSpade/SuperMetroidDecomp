@@ -18,7 +18,7 @@ internal sealed class MagdolliteHeadEntity(MagdolliteBehavior species, RoomEnemy
     internal override MagdollitePartners Partners { get; } = species.InitializeMagdolliteHead(occupant, settings, place, Ensure.NotNull(surroundings).Samus);
 
     /// <summary>The head's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal MagdolliteHeadState Head => Partners.HeadState;
+    private MagdolliteHeadState Head => Partners.HeadState;
 
     /// <summary>What the head's population entry tells it.</summary>
     private MagdolliteHeadSpawnSettings Settings { get; } = Ensure.NotNull(settings);

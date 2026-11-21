@@ -84,34 +84,48 @@ internal static class IntroEggMotionDefinitionsVerification
             {
                 bool fragment = index < 6;
                 byte actorIndex = fragment ? index : (byte)(index - 6);
-                object actor = fragment ? new IntroEggParticle(fragments[actorIndex], pastCurve) : new IntroEggSlimeDrop(new(128, 96), IntroEggMotionDefinitions.SlimeLaunches[actorIndex]);
-                CinematicActor<IntroEggEffectAnimation, CinematicSpritePose, NoAnimationCue> sprite = actor is IntroEggParticle eggParticle ? eggParticle.sprite : ((IntroEggSlimeDrop)actor).sprite;
-                sprite.Position = new(sprite.Position.X.WithFraction(fraction), sprite.Position.Y.WithFraction(fraction));
-                uint x = SixteenSixteenWords.Compose(unchecked((ushort)sprite.ScreenPlace.X), fraction);
-                uint y = SixteenSixteenWords.Compose(unchecked((ushort)sprite.ScreenPlace.Y), fraction);
-                bool motion = true;
-                int motionFrame = 0;
-                int frames = 0;
-                while (sprite.IsActive && frames++ < 200)
+                // A shell piece is shown as its own picture and a slime drop by its animation, so each is checked through its own actor.
+                if (fragment)
                 {
-                    if (motion)
-                    {
-                        x = Move(x, (fragment ? 0x8ba9ea : 0x8bab35) + actorIndex * 4);
-                        int yTable = fragment ? 0x8baa02 : (actorIndex & 1) != 0 ? 0x8bab49 : 0x8bac41;
-                        y = Move(y, yTable + motionFrame * 4);
-                        motionFrame++;
-                        if (unchecked((short)((y >> 16) - 0xa8)) >= 0) motion = false;
-                    }
-                    if (actor is IntroEggParticle particle) particle.Step();
-                    else ((IntroEggSlimeDrop)actor).Step();
-                    AssertEqual(unchecked((short)SixteenSixteenWords.WholeOf(x)), sprite.ScreenPlace.X, "Egg actor whole X each frame");
-                    AssertEqual((ushort)x, sprite.Position.X.Fraction, "Egg actor fraction X each frame");
-                    AssertEqual(unchecked((short)SixteenSixteenWords.WholeOf(y)), sprite.ScreenPlace.Y, "Egg actor whole Y each frame");
-                    AssertEqual((ushort)y, sprite.Position.Y.Fraction, "Egg actor fraction Y each frame");
-                    checkedFrames++;
+                    var particle = new IntroEggParticle(fragments[actorIndex], pastCurve);
+                    CheckActor(particle.sprite, particle.Step, fragment, actorIndex, fraction);
                 }
-                AssertTrue(!sprite.IsActive && !motion, "Egg actor reaches ground and deletes within its native curve");
+                else
+                {
+                    var drop = new IntroEggSlimeDrop(new(128, 96), IntroEggMotionDefinitions.SlimeLaunches[actorIndex]);
+                    CheckActor(drop.sprite, drop.Step, fragment, actorIndex, fraction);
+                }
             }
+        }
+
+        // Follows one egg actor from its launch to the ground, comparing its place each frame with the native motion tables.
+        void CheckActor<TAnimation>(CinematicActor<TAnimation, CinematicSpritePose, NoAnimationCue> sprite, Action step, bool fragment, byte actorIndex, ushort fraction)
+            where TAnimation : struct, Enum
+        {
+            sprite.Position = new(sprite.Position.X.WithFraction(fraction), sprite.Position.Y.WithFraction(fraction));
+            uint x = SixteenSixteenWords.Compose(unchecked((ushort)sprite.ScreenPlace.X), fraction);
+            uint y = SixteenSixteenWords.Compose(unchecked((ushort)sprite.ScreenPlace.Y), fraction);
+            bool motion = true;
+            int motionFrame = 0;
+            int frames = 0;
+            while (sprite.IsActive && frames++ < 200)
+            {
+                if (motion)
+                {
+                    x = Move(x, (fragment ? 0x8ba9ea : 0x8bab35) + actorIndex * 4);
+                    int yTable = fragment ? 0x8baa02 : (actorIndex & 1) != 0 ? 0x8bab49 : 0x8bac41;
+                    y = Move(y, yTable + motionFrame * 4);
+                    motionFrame++;
+                    if (unchecked((short)((y >> 16) - 0xa8)) >= 0) motion = false;
+                }
+                step();
+                AssertEqual(unchecked((short)SixteenSixteenWords.WholeOf(x)), sprite.ScreenPlace.X, "Egg actor whole X each frame");
+                AssertEqual((ushort)x, sprite.Position.X.Fraction, "Egg actor fraction X each frame");
+                AssertEqual(unchecked((short)SixteenSixteenWords.WholeOf(y)), sprite.ScreenPlace.Y, "Egg actor whole Y each frame");
+                AssertEqual((ushort)y, sprite.Position.Y.Fraction, "Egg actor fraction Y each frame");
+                checkedFrames++;
+            }
+            AssertTrue(!sprite.IsActive && !motion, "Egg actor reaches ground and deletes within its native curve");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.FragmentInitialPosition((IntroEggShellFragment)fragments.Count),
             "Fragment initial position rejects an undefined fragment");

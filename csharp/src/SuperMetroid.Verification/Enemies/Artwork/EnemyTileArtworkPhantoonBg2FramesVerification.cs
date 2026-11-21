@@ -118,15 +118,29 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         AssertThrows<InvalidDataException>(
             () => PhantoonBg2FrameCatalog.Load(invalid),
             "Phantoon BG2 frame outside tilemap fails loudly");
-        Console.WriteLine("  Phantoon BG2 frames: all 20 frames preserve native writes and engine-owned hitboxes; collision ROM guard and invalid-data checks passed.");
+        Console.WriteLine($"  Phantoon BG2 frames: all {PhantoonBg2FrameDefinitions.Frames.Length} frames preserve native writes and engine-owned hitboxes; collision ROM guard and invalid-data checks passed.");
     }
 
-    /// <summary>Compares compiled frame components and three hitbox lists with retail data and the callbacks the installed artwork selects.</summary>
+    /// <summary>
+    /// Compares compiled frame components and three hitbox lists with retail data and the callbacks the installed artwork
+    /// selects, at every record the cartridge stores a frame at: his body's picture is stored once for each hit area, so its
+    /// other records are read beside the one the frame is named by.
+    /// </summary>
     private static void VerifyPhantoonCollisionDefinitions(
         CartridgeImportAddressSpace rom, ImportEnemyArtwork stock)
     {
         var checkedLists = new HashSet<ushort>();
-        foreach (EnemyFrameName frame in PhantoonBg2FrameDefinitions.Frames)
+        PhantoonFrameRecord[] records =
+        [
+            .. PhantoonBg2FrameDefinitions.Frames.Select(frame => new PhantoonFrameRecord(frame.Name, frame.Pointer)),
+            .. EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt
+                .Where(pair => pair.Value == EnemyFrameId.PhantoonBody)
+                .Join(PhantoonBg2FrameDefinitions.Frames, pair => pair.Value, frame => frame.Frame,
+                    (pair, frame) => new PhantoonFrameRecord(frame.Name, pair.Key.Offset)),
+        ];
+        AssertEqual(PhantoonBg2FrameDefinitions.Frames.Length + 2, records.Length,
+            "Phantoon's body is stored at two records besides the one his frame is named by");
+        foreach (PhantoonFrameRecord frame in records)
         {
             int root = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, frame.Pointer));
             System.Collections.Immutable.ImmutableArray<EnemyCollisionComponent> components =
@@ -200,6 +214,11 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                 new(0x0080, 0x0099), selectShot: true),
             "Phantoon eye-only frame selects the vulnerable eye's shot reaction");
     }
+
+    /// <summary>One record the cartridge stores a Phantoon frame at.</summary>
+    /// <param name="Name">The installed name of the frame the record shows.</param>
+    /// <param name="Pointer">The record's address in Phantoon's bank.</param>
+    private readonly record struct PhantoonFrameRecord(string Name, ushort Pointer);
 
     /// <summary>Invokes the production extended-hitbox walker for a selected Phantoon frame and returns its touch or shot reaction.</summary>
     internal static EnemyReaction? FindPhantoonHitboxReaction(

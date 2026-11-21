@@ -21,6 +21,7 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     /// <summary>Creates the state for Crocomire's body place.</summary>
     /// <param name="bodyOccupant">The enemy holding his body's place.</param>
     /// <param name="body">His body's place.</param>
+    /// <param name="tongue">The place of Crocomire's tongue, which his body offered its creation as he was placed (#2554).</param>
     internal CrocomireEnemyState(RoomEnemyOccupant bodyOccupant, RoomEnemyPlace body, RoomEnemyPlace tongue)
     {
         BodyOccupant = bodyOccupant;

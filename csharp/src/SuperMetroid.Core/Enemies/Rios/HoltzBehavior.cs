@@ -66,10 +66,8 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyFol
             throw new InvalidDataException(
                 $"Lower Norfair Rio follower in place {place.Ordinal} must immediately follow a parent of the same definition.");
         }
-        var state = new HoltzFollowerState
+        var state = new HoltzFollowerState(parent.State, parent.Place)
         {
-            Parent = parent.State,
-            ParentPlace = parent.Place,
             Playback = new(HoltzAnimations.StartingWith(HoltzSegment.Flames), AnimationPlace.StartOfAnimation),
         };
         return state;

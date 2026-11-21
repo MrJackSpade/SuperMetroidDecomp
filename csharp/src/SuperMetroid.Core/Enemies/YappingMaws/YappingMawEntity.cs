@@ -35,7 +35,7 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemyOccu
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == YappingMawReactions.Touch)
-            YappingMawBehavior.ReactToYappingMawTouch(context, context.State);
+            YappingMawBehavior.ReactToYappingMawTouch(context, State);
         else
             base.ReactToTouch(context);
     }

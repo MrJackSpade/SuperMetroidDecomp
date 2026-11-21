@@ -32,7 +32,7 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant oc
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == YardReactions.Touch)
-            species.ReactToYardTouch(Occupant, Settings, context, context.State);
+            species.ReactToYardTouch(Occupant, Settings, context, State);
         else
             base.ReactToTouch(context);
     }

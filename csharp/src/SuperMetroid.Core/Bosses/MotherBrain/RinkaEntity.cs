@@ -40,7 +40,7 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occup
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == RinkaReactions.Touch)
-            species.ReactToRinkaTouch(Occupant, Settings, context, context.State);
+            species.ReactToRinkaTouch(Occupant, Settings, context, State);
         else
             base.ReactToTouch(context);
     }

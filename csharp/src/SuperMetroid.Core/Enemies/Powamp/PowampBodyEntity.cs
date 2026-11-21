@@ -44,7 +44,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == PowampReactions.Touch)
-            species.ReactToPowampBodyTouch(Occupant, Settings, context, context.State, Balloon.Place);
+            species.ReactToPowampBodyTouch(Occupant, Settings, context, State, Balloon.Place);
         else
             base.ReactToTouch(context);
     }

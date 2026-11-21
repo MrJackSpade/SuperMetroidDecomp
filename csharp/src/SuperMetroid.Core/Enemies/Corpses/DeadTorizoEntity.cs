@@ -35,7 +35,7 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccu
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == CorpseReactions.Touch)
-            DeadTorizoBehavior.ReactToDeadTorizoTouch(context, context.State);
+            DeadTorizoBehavior.ReactToDeadTorizoTouch(context, State);
         else
             base.ReactToTouch(context);
     }

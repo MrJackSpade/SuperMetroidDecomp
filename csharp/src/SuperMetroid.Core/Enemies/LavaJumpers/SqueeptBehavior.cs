@@ -62,10 +62,8 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyF
             throw new InvalidDataException(
                 $"Norfair lava-jumping follower in place {place.Ordinal} must immediately follow a parent of the same definition.");
         }
-        var state = new NorfairLavaJumperFollowerState
+        var state = new NorfairLavaJumperFollowerState(parent.State, parent.Place)
         {
-            Parent = parent.State,
-            ParentPlace = parent.Place,
             Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation),
         };
         return state;

@@ -65,8 +65,9 @@ internal sealed class DoorTransitionState
 
     /// <summary>Starts the ordinary-room transition sequence through the door Samus entered.</summary>
     /// <param name="runtime">The runtime whose player, colour, and enemy state are prepared.</param>
+    /// <param name="loaded">The room the door was entered in.</param>
     /// <exception cref="InvalidOperationException">No door was entered since the last transition, or one is under way.</exception>
-    public void Begin(SuperMetroidRuntime runtime)
+    public void Begin(SuperMetroidRuntime runtime, RoomScope loaded)
     {
         Ensure.NotNull(runtime);
         if (stage is not DoorTransitionStage.DoorEntered entered)
@@ -92,6 +93,10 @@ internal sealed class DoorTransitionState
 
     /// <summary>Advances exactly one update of the stage selected by <see cref="Phase"/>.</summary>
     /// <param name="loaded">The runtime's loaded room: the source room until the destination loads, then the destination.</param>
+    /// <param name="runtime">The runtime the transition runs in.</param>
+    /// <param name="audio">The audio queues the transition's sounds go to.</param>
+    /// <param name="controllerInput">The update's controller input.</param>
+    /// <param name="loaderProgress">How far the destination's load has progressed.</param>
     public void Step(
         SuperMetroidRuntime runtime,
         RoomScope loaded,
@@ -209,7 +214,7 @@ internal sealed class DoorTransitionState
                 // This update sets up the destination's enemy graphics, music, projectiles, block animations,
                 // room objects, FX and backgrounds; each following update moves the door's scroll one step, from
                 // where it stood when loading began, until it finishes.
-                DoorOpeningSourceView sourceView =
+                (DoorOpeningSourceView sourceView, RoomScope destination) =
                     runtime.RoomLoader.LoadPendingDoorDestinationForTransition(transition.Door, transition.SourceSamus, loaded);
                 runtime.LiquidWaveAndStatueDescentOrder.ResumeAfterRoomLoad();
                 // The load re-asserted the door's gates over the destination's enemies:
@@ -220,8 +225,9 @@ internal sealed class DoorTransitionState
                     transition.SourceSamus,
                     sourceView,
                     loaderProgress,
-                    completedLoadingScrollUpdates: DoorOpeningScrollDefinitions.LoadingScrollUpdates);
-                runtime.RoomLoader.StepDoorOpeningScroll(scroll, loaderProgress, loaded);
+                    completedLoadingScrollUpdates: DoorOpeningScrollDefinitions.LoadingScrollUpdates,
+                    destination);
+                runtime.RoomLoader.StepDoorOpeningScroll(scroll, loaderProgress, destination);
                 if (runtime.Options.IconCancelEnabled)
                 {
                     // Resetting the projectiles selects the beam again when Icon Cancel is

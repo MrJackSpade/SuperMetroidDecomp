@@ -7,15 +7,24 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// </summary>
 public sealed class GerutaFollowerState
 {
+    /// <summary>Creates the follower's state, following the parent it found as it was placed.</summary>
+    /// <param name="parent">The parent's state.</param>
+    /// <param name="parentPlace">The parent's place.</param>
+    internal GerutaFollowerState(GerutaEnemyState parent, RoomEnemyPlace parentPlace)
+    {
+        Parent = parent;
+        ParentPlace = Ensure.NotNull(parentPlace);
+    }
+
     /// <summary>The animation the follower plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<GerutaSegment> Playback { get; set; }
 
     /// <summary>The state of the parent the follower found as it was placed, which it holds from its setup (#2554).</summary>
-    internal required GerutaEnemyState Parent { get; init; }
+    internal GerutaEnemyState Parent { get; }
 
     /// <summary>
     /// The place of the parent the follower found as it was placed, the enemy its room lists directly before it, whatever
     /// that place holds now.
     /// </summary>
-    internal required RoomEnemyPlace ParentPlace { get; init; }
+    internal RoomEnemyPlace ParentPlace { get; }
 }

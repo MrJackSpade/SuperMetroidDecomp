@@ -128,9 +128,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static BabyTurtleEnemyState InitializeBabyTurtle(RoomEnemyOccupant occupant, BabyTurtleSpawnSettings babyTurtleSpawnSettings, RoomEnemyPlace place,
         MamaTurtleFamily family)
     {
-        var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus)
+        var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus, family)
         {
-            Family = family,
             SpawnTopCenter = new Position16<RoomPixels>(place.Position.X.Whole, place.Position.Y.Whole - place.Radius.Y),
             Heading = babyTurtleSpawnSettings.Heading,
             HorizontalSpeed = MamaTurtleMotionDefinitions.BabyCrawlSpeed,

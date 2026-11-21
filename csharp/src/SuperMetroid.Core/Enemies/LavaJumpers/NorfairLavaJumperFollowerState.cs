@@ -7,15 +7,24 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// </summary>
 public sealed class NorfairLavaJumperFollowerState
 {
+    /// <summary>Creates the follower's state, following the parent it found as it was placed.</summary>
+    /// <param name="parent">The parent's state.</param>
+    /// <param name="parentPlace">The parent's place.</param>
+    internal NorfairLavaJumperFollowerState(SqueeptState parent, RoomEnemyPlace parentPlace)
+    {
+        Parent = parent;
+        ParentPlace = Ensure.NotNull(parentPlace);
+    }
+
     /// <summary>Where the follower's looping animation resumes.</summary>
     internal AnimationPlayback<NorfairLavaJumperSegment> Playback { get; set; }
 
     /// <summary>The state of the parent the follower found as it was placed, which it holds from its setup (#2554).</summary>
-    internal required SqueeptState Parent { get; init; }
+    internal SqueeptState Parent { get; }
 
     /// <summary>
     /// The place of the parent the follower found as it was placed, the enemy its room lists directly before it, whatever
     /// that place holds now.
     /// </summary>
-    internal required RoomEnemyPlace ParentPlace { get; init; }
+    internal RoomEnemyPlace ParentPlace { get; }
 }

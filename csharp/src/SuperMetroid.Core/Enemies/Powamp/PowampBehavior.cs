@@ -568,8 +568,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
             c => ResolvePowampShotAfterCommon(c.Enemy, bodyState, balloon));
 
     /// <summary>The Powamp's shot reaction as the balloon takes it, skipped while the balloon refuses contact.</summary>
-    /// <param name="balloon">The balloon the reaction is built for, whose placement names whether it refuses shots.</param>
-    /// <param name="powampSpawnSettings">What the enemy's population entry tells its species.</param>
+    /// <param name="balloonState">The state of the balloon that was shot.</param>
     internal EnemyShotReaction PowampBalloonShotReaction(PowampBalloonState balloonState) =>
         ShotReactionSkipping(_ => balloonState.RefusesContact, c => ResolvePowampBalloonShotAfterCommon(c.Enemy, balloonState));
 

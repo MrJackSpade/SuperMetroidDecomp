@@ -52,7 +52,7 @@ internal sealed class TorizoMovement
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaTorizo))
         {
             torizo.Presence = torizo.Presence.With(EnemyPresence.Deleted);
-            return;
+            return state;
         }
 
         TorizoInitializationDefinition definition = variant.Start;
@@ -74,6 +74,7 @@ internal sealed class TorizoMovement
         // A Torizo with a secret code grants its loadout as it appears while the player holds its chord.
         if (variant.SecretCode is { } code && controllerInput == code.Chord)
             code.GrantTo(samus);
+        return state;
     }
 
     /// <summary>Interrupts Bomb Torizo's fight at its gut and face health thresholds; otherwise its body moves by its motion.</summary>

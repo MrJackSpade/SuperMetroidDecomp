@@ -726,7 +726,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
     internal void AdvanceMagdolliteOverlayAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, MagdolliteOverlayState overlay, EnemyAnimationCueContext context) =>
         EnemyAnimationPlayback.AdvanceApplyingCues(place, overlay, MagdolliteOverlayAnimations.Segments,
             static (MagdolliteOverlayState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyMagdolliteOverlayCue(occupant, place, state, cue, Ensure.NotNull(context).Camera));
+            (state, cue) => ApplyMagdolliteOverlayCue(occupant, place, state, cue, context.Camera));
 
     /// <summary>Propagates common power-bomb death and freezing effects to the composite's following parts.</summary>
     /// <param name="recipients">The enemies the struck part's follow-up reaches.</param>

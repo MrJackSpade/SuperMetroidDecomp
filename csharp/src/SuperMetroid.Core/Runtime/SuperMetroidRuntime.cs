@@ -832,6 +832,7 @@ internal sealed class SuperMetroidRuntime
     /// </param>
     /// <param name="ceresDepartureRequested">Whether the update's room main took Samus onto the Ceres elevator.</param>
     /// <param name="samus">The update's Samus.</param>
+    /// <param name="room">The room the update runs in.</param>
     [IndependentFlag("independent update facts: whether the countdown started the time-up and whether room main took Samus onto the Ceres elevator")]
     private GameplayUpdateTransition DecideTransition(
         GameplayUpdateStart start,
@@ -867,6 +868,7 @@ internal sealed class SuperMetroidRuntime
     /// <param name="start">How the update began.</param>
     /// <param name="owner">The game state that owns the update, whose permissions say whether the game is in main gameplay.</param>
     /// <param name="samus">The update's Samus.</param>
+    /// <param name="room">The room the update runs in.</param>
     private bool PauseCheckAdmits(GameplayUpdateStart start, GameplayUpdateOwner owner, RoomScope room, SamusState samus)
     {
         if (Room.ActiveRoom is null)

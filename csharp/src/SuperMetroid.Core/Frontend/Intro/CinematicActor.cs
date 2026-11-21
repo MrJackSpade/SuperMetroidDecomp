@@ -159,7 +159,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     /// <summary>
     /// The width, in pixels, of the loop the actor drifts round, or null for an actor that drifts round none. The loop's
     /// first half is the screen and its second half an equally wide stretch of space left of the screen, so an actor that
-    /// drifts off the screen's right edge (<see cref="DriftRoundLoop"/>) comes back into view across its left edge.
+    /// drifts off the screen's right edge (<see cref="Drift"/>) comes back into view across its left edge.
     /// </summary>
     internal int? DriftLoopWidth { get; init; }
 

@@ -41,9 +41,6 @@ internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnem
     public override EnemyPowerBombReaction PowerBombReaction =>
         LeavesPowerBombToSpecies ? OwnPowerBomb : base.PowerBombReaction;
 
-    /// <summary>The pose the shutter shows from its setup.</summary>
-    protected abstract ShutterSegment Pose { get; }
-
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunVerticalShutterMainAi(Occupant, Settings, Place, State, frame);
 

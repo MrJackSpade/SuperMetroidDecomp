@@ -21,7 +21,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemySpawnFacto
     {
         EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
         if (definition == EnemyDefinitionId.PirateGoldNinja)
-            return EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(this, occupant, place, common));
+            return EnemyOccupant.Running(new GoldNinjaSpacePirateEntity(this, occupant, place, common, settings));
         if (definition == EnemyDefinitionId.PirateSilverNinja)
             return EnemyOccupant.Running(new NinjaSpacePirateEntity(this, occupant, place, common, settings));
         throw new InvalidOperationException($"The ninja Space Pirate species creates no {occupant.DefinitionId}.");

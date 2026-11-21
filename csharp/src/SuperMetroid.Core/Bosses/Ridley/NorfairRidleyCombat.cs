@@ -53,6 +53,7 @@ internal sealed class NorfairRidleyCombat
     /// <returns>The state the enemy holds from its setup.</returns>
     internal NorfairRidleyState InitializeNorfairRidley(RoomEnemyPlace place)
     {
+        var ridley = new NorfairRidleyState { MovementAnimationEnabled = true };
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
@@ -66,7 +67,6 @@ internal sealed class NorfairRidleyCombat
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         place.Position = place.Position.WithWhole(NorfairRidleyArenaDefinitions.Spawn);
 
-        var ridley = new NorfairRidleyState { MovementAnimationEnabled = true };
         _ridleyEncounter.BeginLowerNorfair();
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.Standing);
 

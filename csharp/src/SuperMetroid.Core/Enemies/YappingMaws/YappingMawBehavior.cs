@@ -438,9 +438,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     }
 
     /// <summary>Moves one tongue link's body projectile to its solved point.</summary>
-    private static void PositionYappingMawBodyProjectile(YappingMawLink link, Position16<RoomPixels> position) =>
+    private static void PositionYappingMawBodyProjectile(YappingMawLink link, Position16<RoomPixels> position)
+    {
         if (link.Body is { } body)
             body.Position = body.Position.WithWhole(position);
+    }
 
     /// <summary>The root plus one solved link's signed far-end offset, wrapping around the coordinate range.</summary>
     private static Position16<RoomPixels> YappingMawLinkPosition(YappingMawEnemyState state, int segment) =>

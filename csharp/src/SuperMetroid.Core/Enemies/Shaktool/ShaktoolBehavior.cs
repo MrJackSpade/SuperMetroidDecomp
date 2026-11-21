@@ -95,7 +95,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFactory<Shakt
     /// </summary>
     /// <exception cref="InvalidDataException">The definition names a motion Shaktool has no behaviour for.</exception>
     internal Action<ShaktoolSegmentState, RoomLevelData> CourseOf(RoomEnemyPlace place, ShaktoolSegmentDefinition definition, ShaktoolChain chain) =>
-        Ensure.NotNull(definition).Motion switch
+        definition.Motion switch
         {
             ShaktoolSegmentMotion.Idle => static (_, _) => { },
             ShaktoolSegmentMotion.OrbitPreviousSegment => Orbiting(place, chain.Before(definition), chain),

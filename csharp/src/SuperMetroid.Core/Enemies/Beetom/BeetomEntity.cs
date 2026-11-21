@@ -32,7 +32,7 @@ internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemyOccupant occ
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == BeetomReactions.Touch)
-            species.ReactToBeetomTouch(context, context.State);
+            species.ReactToBeetomTouch(context, State);
         else
             base.ReactToTouch(context);
     }

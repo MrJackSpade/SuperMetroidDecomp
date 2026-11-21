@@ -39,7 +39,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOc
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == CorpseReactions.Touch)
-            DeadTourianBehavior.ReactToDeadTourianTouch(context, context.State);
+            DeadTourianBehavior.ReactToDeadTourianTouch(context, State);
         else
             base.ReactToTouch(context);
     }

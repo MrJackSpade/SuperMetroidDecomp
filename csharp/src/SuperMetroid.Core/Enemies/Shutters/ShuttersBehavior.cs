@@ -104,6 +104,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
             state,
             ShutterSegment.QuarterGrown,
             GrowthRadius(state.GrowthLevel));
+        return state;
     }
 
     /// <summary>Runs the growing shutter's main AI.</summary>
@@ -393,6 +394,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
 
     /// <summary>Uses Samus contact to react vertical shutters.</summary>
     /// <param name="settings">What the shutter's population entry tells its species.</param>
+    /// <param name="occupant">The touched shutter's occupant.</param>
+    /// <param name="context">The touch.</param>
+    /// <param name="verticalShutterEnemyState">The shutter's state.</param>
     internal void ReactToVerticalShutterTouch(RoomEnemyOccupant occupant, ShutterSpawnSettings settings, EnemyTouchContext context, VerticalShutterEnemyState verticalShutterEnemyState) =>
         // Samus's touch deals no contact damage: touching the shutter is itself the trigger, and the shutter's trigger mode
         // decides whether it starts moving.
@@ -419,6 +423,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         // The shutter's new clock shows no new frame until its animation's first step shows one.
         place.CollidesByFrameHitboxes = false;
         StartVerticalShutterAnimation(place, state, pose);
+        return state;
     }
 
     /// <summary>Runs the vertical shutter's main AI.</summary>

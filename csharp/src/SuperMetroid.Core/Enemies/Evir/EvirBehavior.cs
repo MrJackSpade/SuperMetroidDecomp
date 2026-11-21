@@ -386,7 +386,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The facing an arms or spit reads from its body in <paramref name="bodyPlace"/>: the living body's own, a deleted
     /// body's last, or, once a hit has killed the body, left, as its cleared place reads (the arms and spit see left on
     /// the final update they still receive)
-    /// (<see cref="RoomEnemyPlace.FoundEntity{T}"/>).
+    /// (<see cref="RoomEnemyPlace.FoundEntity"/>).
     /// </summary>
     private static HorizontalDirection BodyFacingOf(RoomEnemyPlace bodyPlace) =>
         bodyPlace.FoundEntity is EvirBodyEntity body ? body.State.Facing : HorizontalDirection.Left;

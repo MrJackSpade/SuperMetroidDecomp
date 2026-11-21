@@ -66,10 +66,8 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyFo
             throw new InvalidDataException(
                 $"Norfair Rio follower in place {place.Ordinal} must immediately follow a parent of the same definition.");
         }
-        var state = new GerutaFollowerState
+        var state = new GerutaFollowerState(parent.State, parent.Place)
         {
-            Parent = parent.State,
-            ParentPlace = parent.Place,
             Playback = new(GerutaAnimations.StartingWith(GerutaSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
         };
         return state;

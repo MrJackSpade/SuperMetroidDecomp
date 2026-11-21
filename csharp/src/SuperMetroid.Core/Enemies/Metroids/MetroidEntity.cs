@@ -40,7 +40,7 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemyOccupant o
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == MetroidReactions.Touch)
-            species.ResolveMetroidTouch(context.Place, context.State, context.Samus);
+            species.ResolveMetroidTouch(context.Place, State, context.Samus);
         else
             base.ReactToTouch(context);
     }

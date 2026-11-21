@@ -13,9 +13,9 @@ internal static class DynamicCollectibleGraphicsPrivateAccess
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.AssetExtraction.Rooms.DynamicCollectibleGraphics)
     {
-        /// <summary>The private method <c>GraphicIndex</c>, invoked by name.</summary>
-        internal static int GraphicIndex(global::SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind kind) =>
-            PrivateState.InvokeStatic<int>(typeof(global::SuperMetroid.AssetExtraction.Rooms.DynamicCollectibleGraphics), "GraphicIndex", [typeof(global::SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind)], new object?[] { kind });
+        /// <summary>The private method <c>GraphicFor</c>, invoked by name.</summary>
+        internal static global::SuperMetroid.AssetExtraction.Rooms.RoomObjectDynamicCollectibleGraphicsDefinitions.ItemGraphic GraphicFor(global::SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind kind) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectDynamicCollectibleGraphicsDefinitions.ItemGraphic>(typeof(global::SuperMetroid.AssetExtraction.Rooms.DynamicCollectibleGraphics), "GraphicFor", [typeof(global::SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind)], new object?[] { kind });
 
         /// <summary>The private method <c>PaletteOffset</c>, invoked by name.</summary>
         internal static byte PaletteOffset(global::SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind kind, int tile) =>

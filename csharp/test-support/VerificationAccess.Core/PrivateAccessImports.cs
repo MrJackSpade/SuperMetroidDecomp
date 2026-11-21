@@ -462,8 +462,6 @@ global using static SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheAnimationsPri
 global using static SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Gunship.GunshipAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Gunship.GunshipBehaviorPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Gunship.GunshipIdleBobPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Gunship.GunshipLandingBrakePrivateAccess;
 global using static SuperMetroid.Core.Enemies.Hibashi.HibashiAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Hibashi.HibashiBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Hoppers.HopperAnimationsPrivateAccess;

@@ -65,7 +65,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             place.SetSpawnSettings(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>() with { Movement = testCase.Direction });
             place.Position = place.Position.WithWholeY(0x0100);
             // The platform's setup builds the state its installers and its animation, which the check plays, run on.
-            PlatformEnemyState state = PlatformsBehavior.InitializePlatform(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>(), place, EnemyDefinitionId.Tripper);
+            PlatformEnemyState state = PlatformsBehavior.InitializePlatform(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>(), place, place.HeldOccupant().DefinitionId);
             PlatformSegment expectedInitial = testCase.IsKamer
                 ? testCase.Direction == HorizontalDirection.Left
                     ? PlatformSegment.SuspensorPlatformHeadingLeft

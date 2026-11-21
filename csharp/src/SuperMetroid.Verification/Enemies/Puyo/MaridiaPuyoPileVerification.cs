@@ -37,13 +37,13 @@ internal static class MaridiaPuyoPileVerification
         }
         var firstHop = Enumerable.Repeat(-1, population.Length).ToArray();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 128)), Health = 999, MaxHealth = 999 };
-        for (int frame = 1; frame <= 3841; frame++)
+        for (int frame = 1; frame <= 3842; frame++)
         {
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
             for (int i = 0; i < population.Length; i++)
             {
-                // A pile member's hop is seen as it leaves the spot its population placed it on; its full-word initial
-                // cooldown holds it there until then.
+                // A pile member's hop is seen as it leaves the spot its population placed it on, on its first airborne
+                // step; its full-word initial cooldown holds it there until then.
                 RoomEnemyPlace member = enemies.Places.InUpdateOrder[i];
                 if (firstHop[i] < 0 && (member.Position.X.Whole != population[i].X || member.Position.Y.Whole != population[i].Y)) firstHop[i] = frame;
                 if (frame <= population[i].Delay)
@@ -54,7 +54,9 @@ internal static class MaridiaPuyoPileVerification
             }
         }
         for (int i = 0; i < population.Length; i++)
-            AssertEqual(population[i].Delay + 1, firstHop[i], "native DEC/BPL starts hop on signed timer underflow");
+            // The update its cooldown underflows on starts the hop (native DEC/BPL), and its first airborne step moves it on
+            // the next.
+            AssertEqual(population[i].Delay + 2, firstHop[i], "native DEC/BPL starts hop on signed timer underflow, and the hop moves the member on the next update");
         Console.WriteLine($"Maridia $04/$10 authored Puyo pile: first hops at {string.Join(',', firstHop)} AI updates; all six spawn coordinates and waiting trajectories match retail data.");
     }
 

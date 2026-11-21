@@ -31,9 +31,9 @@ internal sealed class EnemySpeciesRegistrar
     internal void Spawns<TSettings>(IReadOnlyList<EnemyDefinitionId> definitions, EnemySpawnCreation<TSettings> create)
         where TSettings : EnemySpawnSettings
     {
-        Ensure.NotNull(create);
+        var shared = new SpeciesSpawnCreation<TSettings>(create);
         Place(definitions, placement => placement.SpawnSettings is TSettings settings
-            ? new OrdinaryEnemySpawn<TSettings>(placement, settings, create)
+            ? new OrdinaryEnemySpawn<TSettings>(placement, settings, shared)
             : throw Mismatch<TSettings>(placement));
     }
 
@@ -45,9 +45,9 @@ internal sealed class EnemySpeciesRegistrar
     internal void Loads<TSettings>(IReadOnlyList<EnemyDefinitionId> definitions, EnemyLoadedCreation<TSettings> create)
         where TSettings : EnemySpawnSettings
     {
-        Ensure.NotNull(create);
+        var shared = new SpeciesLoadedCreation<TSettings>(create);
         Place(definitions, placement => placement.SpawnSettings is TSettings settings
-            ? new LoadedEnemySpawn<TSettings>(placement, settings, create)
+            ? new LoadedEnemySpawn<TSettings>(placement, settings, shared)
             : throw Mismatch<TSettings>(placement));
     }
 

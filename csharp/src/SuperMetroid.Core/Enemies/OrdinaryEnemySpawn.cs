@@ -10,18 +10,27 @@ internal sealed class OrdinaryEnemySpawn<TSettings> : PopulationEnemySpawn, IEne
     /// <summary>The settings the entry gives its species.</summary>
     private readonly TSettings _settings;
 
-    /// <summary>The species' creation.</summary>
-    private readonly EnemySpawnCreation<TSettings> _create;
+    /// <summary>The species' creation, which every entry bound to it shares.</summary>
+    private readonly SpeciesSpawnCreation<TSettings> _create;
 
     /// <summary>Binds <paramref name="placement"/>, whose settings are <paramref name="settings"/>, to <paramref name="create"/>.</summary>
     /// <param name="placement">The entry.</param>
     /// <param name="settings">The entry's settings, as the species takes them.</param>
-    /// <param name="create">The species' creation.</param>
-    internal OrdinaryEnemySpawn(RoomEnemyPlacement placement, TSettings settings, EnemySpawnCreation<TSettings> create)
+    /// <param name="create">The species' creation, which every entry bound to it shares.</param>
+    internal OrdinaryEnemySpawn(RoomEnemyPlacement placement, TSettings settings, SpeciesSpawnCreation<TSettings> create)
         : base(placement)
     {
         _settings = Ensure.NotNull(settings);
         _create = Ensure.NotNull(create);
+    }
+
+    /// <summary>Binds <paramref name="placement"/>, the one entry <paramref name="create"/> builds, to it.</summary>
+    /// <param name="placement">The entry.</param>
+    /// <param name="settings">The entry's settings, as the species takes them.</param>
+    /// <param name="create">The creation of the entry's enemy, which no other entry shares.</param>
+    internal OrdinaryEnemySpawn(RoomEnemyPlacement placement, TSettings settings, EnemySpawnCreation<TSettings> create)
+        : this(placement, settings, new SpeciesSpawnCreation<TSettings>(create))
+    {
     }
 
     /// <summary>Binds <paramref name="placement"/>, whose settings are <paramref name="settings"/>, to <paramref name="factory"/>.</summary>
@@ -41,5 +50,5 @@ internal sealed class OrdinaryEnemySpawn<TSettings> : PopulationEnemySpawn, IEne
 
     /// <inheritdoc/>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        _create(occupant, _settings, place, common);
+        _create.Create(occupant, _settings, place, common);
 }

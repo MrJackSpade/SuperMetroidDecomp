@@ -21,9 +21,9 @@ internal sealed class EnemyPartOffers
     /// <param name="create">The creation, which carries what the part joins.</param>
     internal void Offer<TSettings>(EnemyDefinitionId part, EnemySpawnCreation<TSettings> create) where TSettings : EnemySpawnSettings
     {
-        Ensure.NotNull(create);
+        var shared = new SpeciesSpawnCreation<TSettings>(create);
         _offered[part] = placement => placement.SpawnSettings is TSettings settings
-            ? new OrdinaryEnemySpawn<TSettings>(placement, settings, create)
+            ? new OrdinaryEnemySpawn<TSettings>(placement, settings, shared)
             : throw new InvalidDataException($"Enemy {placement.DefinitionId}'s population entry carries {placement.SpawnSettings}, not {typeof(TSettings).Name}.");
     }
 
@@ -36,9 +36,9 @@ internal sealed class EnemyPartOffers
     /// <param name="create">The creation, which carries what the part joins.</param>
     internal void OfferLoaded<TSettings>(EnemyDefinitionId part, EnemyLoadedCreation<TSettings> create) where TSettings : EnemySpawnSettings
     {
-        Ensure.NotNull(create);
+        var shared = new SpeciesLoadedCreation<TSettings>(create);
         _offered[part] = placement => placement.SpawnSettings is TSettings settings
-            ? new LoadedEnemySpawn<TSettings>(placement, settings, create)
+            ? new LoadedEnemySpawn<TSettings>(placement, settings, shared)
             : throw new InvalidDataException($"Enemy {placement.DefinitionId}'s population entry carries {placement.SpawnSettings}, not {typeof(TSettings).Name}.");
     }
 

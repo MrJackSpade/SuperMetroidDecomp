@@ -7,15 +7,15 @@ internal sealed class LoadedEnemySpawn<TSettings> : PopulationEnemySpawn where T
     /// <summary>The settings the entry gives its species.</summary>
     private readonly TSettings _settings;
 
-    /// <summary>The species' creation.</summary>
-    private readonly EnemyLoadedCreation<TSettings> _create;
+    /// <summary>The species' creation, which every entry bound to it shares.</summary>
+    private readonly SpeciesLoadedCreation<TSettings> _create;
 
     /// <summary>Binds <paramref name="placement"/>, whose settings are <paramref name="settings"/>, to <paramref name="create"/>.</summary>
     /// <param name="placement">The entry.</param>
     /// <param name="settings">The entry's settings, as the species takes them.</param>
-    /// <param name="create">The species' creation.</param>
+    /// <param name="create">The species' creation, which every entry bound to it shares.</param>
     /// <exception cref="InvalidDataException">The entry lets its enemy respawn.</exception>
-    internal LoadedEnemySpawn(RoomEnemyPlacement placement, TSettings settings, EnemyLoadedCreation<TSettings> create)
+    internal LoadedEnemySpawn(RoomEnemyPlacement placement, TSettings settings, SpeciesLoadedCreation<TSettings> create)
         : base(NeverRespawning(placement, "placed only by its room's population load"))
     {
         _settings = Ensure.NotNull(settings);
@@ -35,6 +35,6 @@ internal sealed class LoadedEnemySpawn<TSettings> : PopulationEnemySpawn where T
     {
         /// <inheritdoc/>
         public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-            spawn._create(occupant, spawn._settings, place, common, surroundings);
+            spawn._create.Create(occupant, spawn._settings, place, common, surroundings);
     }
 }

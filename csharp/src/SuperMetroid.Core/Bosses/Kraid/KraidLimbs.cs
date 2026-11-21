@@ -117,27 +117,27 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>Runs the grown body's thinking, and on its last update opens the mouth for its next attack.</summary>
-    internal static void RunKraidSecondPhaseThinking(KraidEnemyState state)
+    internal static void RunKraidSecondPhaseThinking(KraidEnemyState state, KraidStageRun.Fighting fight)
     {
         if (state.ThinkingWait.StepRunsOut())
         {
-            state.BodyState.FightPhase = KraidFightPhase.MouthOpenReaction;
-            state.StartHeadAnimation(KraidHeadSegment.Roar);
+            fight.Phase = KraidFightPhase.MouthOpenReaction;
+            fight.Head.Start(KraidHeadSegment.Roar, state.HeadHold);
         }
     }
 
     /// <summary>Starts growth only after the small-form transition requirements are met.</summary>
     internal bool TryBeginKraidGrowth(RoomEnemyPlace body, KraidEnemyState state)
     {
-        if (body.Health >= state.SevenEighthsHealth)
+        // His foot's first-phase lunges, which look for his growth, run only while he fights his first phase.
+        if (body.Health >= state.SevenEighthsHealth || state.BodyState.Run is not KraidStageRun.Fighting fight)
             return false;
 
-        state.BodyState.FightPhase = KraidFightPhase.HeadAnimationBeforeGrowth;
+        fight.Phase = KraidFightPhase.HeadAnimationBeforeGrowth;
         state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.GrowthHeadAnimationUpdates);
 
-        // His growth resumes the roar from where his head's animation stands; he grows only after his rise started it.
-        if (state.HeadPlayback is { } head)
-            state.ResumeHeadRoar(KraidHeadAnimations.ReadsAt(head).Growth);
+        // His growth resumes the roar from where his head's animation stands.
+        fight.Head.ResumeRoarForGrowth(state.HeadHold);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), KraidArenaDefinitions.GrowthShakeUpdates);
         state.FootState.StartAnimation(KraidPartSegment.FootInitial);
         state.FootState.Phase = KraidFootPhase.Resting;

@@ -140,43 +140,12 @@ public sealed class KraidEnemyState
     internal KraidHeadFrame? DisplayedHeadFrame { get; private set; }
 
     /// <summary>
-    /// Kraid's playing head animation and where it stands; <see cref="HeadHold"/> paces it. Null until the first attack, glow
-    /// or death starts an animation.
-    /// </summary>
-    internal AnimationPlayback<KraidHeadSegment>? HeadPlayback { get; set; }
-
-    /// <summary>
     /// His head's hold on the pose it shows (#2538): each pose the head shows or enters holds for its duration, and the head
     /// animation plays on to its next pose on the hold's last update. Once an animation has ended the hold has run out and
     /// holds, so the head keeps its pose until another animation starts. His rise and his closing mouth hold the pose
     /// without an animation playing (<see cref="HoldHeadUntilRise"/>, <see cref="HoldClosedMouth"/>).
     /// </summary>
     internal HeldBossCountdown HeadHold { get; } = new();
-
-    /// <summary>
-    /// Starts the head animation that starts at <paramref name="animation"/> (#2399): the head enters its opening pose without
-    /// showing it, and holds it for that pose's duration.
-    /// </summary>
-    internal void StartHeadAnimation(KraidHeadSegment animation) => EnterHead(KraidHeadAnimations.Starting(animation));
-
-    /// <summary>
-    /// Selects the head animation that starts at <paramref name="animation"/> (#2399): the head stands past its opening pose,
-    /// as starting it leaves it, while its hold runs on as it is.
-    /// </summary>
-    internal void SelectHeadAnimation(KraidHeadSegment animation) => HeadPlayback = KraidHeadAnimations.Starting(animation).Playback;
-
-    /// <summary>
-    /// Resumes the roar as growth does from <paramref name="resume"/> (#2399): the head enters the resumed pose without
-    /// showing it, and holds it for that pose's duration.
-    /// </summary>
-    internal void ResumeHeadRoar(KraidHeadGrowthResume resume) => EnterHead(KraidHeadAnimations.GrowthResume(resume));
-
-    /// <summary>Stands the head past the pose <paramref name="entry"/> entered, holding that pose for its duration.</summary>
-    private void EnterHead(KraidHeadEntry entry)
-    {
-        HeadPlayback = entry.Playback;
-        HeadHold.LastFor(entry.Delay);
-    }
 
     /// <summary>Shows the head pose <paramref name="shown"/> his head animation reached, holding it for its duration.</summary>
     internal void ShowHeadPose(AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)

@@ -236,75 +236,78 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
         int cameraX,
         SamusState samus)
     {
-        switch (state.BodyState.Stage)
+        switch (state.BodyState.Run)
         {
-            case KraidBodyStage.Rising:
-                Rise.RunKraidRisePhase(body, state, samus);
+            case KraidStageRun.Rising rising:
+                Rise.RunKraidRisePhase(body, state, rising, samus);
                 return;
-            case KraidBodyStage.Fighting:
-                RunKraidFightPhase(body, state);
+            case KraidStageRun.Fighting fight:
+                RunKraidFightPhase(body, state, fight);
                 return;
-            case KraidBodyStage.Growing:
-                Rise.RunKraidGrowthPhase(body, state);
+            case KraidStageRun.Growing growth:
+                Rise.RunKraidGrowthPhase(body, state, growth);
                 return;
-            case KraidBodyStage.Dying:
-                Death.RunKraidDeathPhase(body, state, cameraX, samus);
+            case KraidStageRun.Dying dying:
+                Death.RunKraidDeathPhase(body, state, dying, samus);
+                return;
+            case KraidStageRun.Sunk sunk:
+                Death.RunKraidSunkPhase(body, state, sunk, cameraX);
                 return;
             default:
-                throw new InvalidDataException($"Undefined {nameof(KraidBodyStage)} {state.BodyState.Stage}.");
+                throw new InvalidDataException($"Undefined Kraid stage {state.BodyState.Run}.");
         }
     }
 
     /// <summary>Runs the body's first- or second-phase fight phase.</summary>
-    internal void RunKraidFightPhase(RoomEnemyPlace body, KraidEnemyState state)
+    internal void RunKraidFightPhase(RoomEnemyPlace body, KraidEnemyState state, KraidStageRun.Fighting fight)
     {
-        switch (state.BodyState.FightPhase)
+        switch (fight.Phase)
         {
             case KraidFightPhase.FirstPhaseThinking:
                 if (state.ThinkingWait.StepRunsOut())
                 {
-                    state.BodyState.FightPhase = KraidFightPhase.MainAttackWithMouthOpen;
-                    state.StartHeadAnimation(KraidHeadSegment.Roar);
+                    fight.Phase = KraidFightPhase.MainAttackWithMouthOpen;
+                    fight.Head.Start(KraidHeadSegment.Roar, state.HeadHold);
                 }
                 return;
 
             case KraidFightPhase.MainAttackWithMouthOpen:
-                Head.RunKraidMouthOpenAttack(body, state);
+                Head.RunKraidMouthOpenAttack(body, state, fight);
                 return;
 
             case KraidFightPhase.MouthOpenReaction:
-                Head.RunKraidMouthOpenReaction(state);
+                Head.RunKraidMouthOpenReaction(state, fight);
                 return;
 
             case KraidFightPhase.InitializeEyeGlow:
-                Head.InitializeKraidEyeGlow(state);
+                Head.InitializeKraidEyeGlow(state, fight);
                 return;
 
             case KraidFightPhase.GlowEye:
-                Head.GlowKraidEye(state);
+                Head.GlowKraidEye(state, fight);
                 return;
 
             case KraidFightPhase.UnglowEye:
-                Head.UnglowKraidEye(body, state);
+                Head.UnglowKraidEye(body, state, fight);
                 return;
 
             case KraidFightPhase.WaitBeforeEyeGlow:
                 if (state.BodyState.PhaseWait.StepRunsOut())
-                    state.BodyState.FightPhase = KraidFightPhase.InitializeEyeGlow;
+                    fight.Phase = KraidFightPhase.InitializeEyeGlow;
                 return;
 
             case KraidFightPhase.HeadAnimationBeforeGrowth:
-                Head.AdvanceKraidHeadAnimation(state);
+                Head.AdvanceKraidHeadAnimation(state, fight.Head);
                 if (state.BodyState.PhaseWait.StepRunsOut())
-                    state.BodyState.GrowthPhase = KraidGrowthPhase.ReleaseCamera;
+                    state.BodyState.Run = new KraidStageRun.Growing(KraidGrowthPhase.ReleaseCamera, fight.Head);
                 return;
 
             case KraidFightPhase.SecondPhaseThinking:
-                KraidLimbs.RunKraidSecondPhaseThinking(state);
+                KraidLimbs.RunKraidSecondPhaseThinking(state, fight);
                 return;
 
             default:
-                throw new InvalidDataException($"Undefined {nameof(KraidFightPhase)} {state.BodyState.FightPhase}.");
+                throw new InvalidDataException($"Undefined {nameof(KraidFightPhase)} {fight.Phase}.");
         }
     }
 }

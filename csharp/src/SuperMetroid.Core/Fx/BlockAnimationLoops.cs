@@ -90,7 +90,7 @@ public static class BlockAnimationLoops
     /// <exception cref="InvalidOperationException"><paramref name="animation"/> is undefined or has no loop.</exception>
     public static IReadOnlyList<TimedArtworkFrame> Frames(BlockAnimation animation) =>
         [.. Segments.Beats(Require(animation)).Select(beat => beat is AnimationBeat<ArtworkFrame, NoAnimationCue>.Frame frame
-            ? new TimedArtworkFrame(frame.Shown, frame.Duration)
+            ? new TimedArtworkFrame(frame.Shown)
             : throw new InvalidOperationException($"The {animation} loop holds a beat that is not a timed frame."))];
 
     /// <summary>

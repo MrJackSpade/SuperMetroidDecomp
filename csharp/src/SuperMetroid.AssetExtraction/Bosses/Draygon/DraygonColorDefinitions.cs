@@ -18,9 +18,6 @@ public static class DraygonColorDefinitions
     /// <summary>The colours of the white flash shared by the body and sprite hurt transfers.</summary>
     public const int WhiteFlashCount = 16;
 
-    /// <summary>The health bands, in descending-health order.</summary>
-    public const int HealthBandCount = 8;
-
     /// <summary>The colours in each health band, replacing only the body's damage-sensitive colours.</summary>
     public const int HealthBandColorCount = 4;
 }

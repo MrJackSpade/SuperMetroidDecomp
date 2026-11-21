@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Samus.Poses;
 using static SuperMetroid.AssetExtraction.Samus.SamusBodySheetDefinitions;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -90,39 +89,6 @@ public sealed class SamusSpritemapSources
 
     /// <summary>Whether <paramref name="frame"/> is a decoded pose half frame.</summary>
     internal bool Covers(SamusBodyHalfFrame frame) => halves.ContainsKey(frame);
-
-    /// <summary>SHA-256 of the compositions' parts and of every pose half frame's, explosion frame's and atmosphere frame's composition.</summary>
-    public string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-spritemaps-v5", content =>
-    {
-        foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
-        {
-            foreach (int frame in halves.Keys.Where(half => half.Pose == pose).Select(half => half.AnimationFrame).Distinct().Order())
-            {
-                foreach (SamusBodyHalf half in new[] { SamusBodyHalf.Top, SamusBodyHalf.Bottom })
-                {
-                    if (!halves.TryGetValue(new SamusBodyHalfFrame(pose, half, frame), out SamusSpritemapId? composition))
-                        continue;
-                    content.AppendName("pose", SamusPoseIdKeys.Installed.Of(pose));
-                    content.AppendName("half", half == SamusBodyHalf.Top ? "top" : "bottom");
-                    content.Append("frame", frame);
-                    content.AppendName("composition", composition?.Name ?? "");
-                }
-            }
-        }
-        foreach ((string frame, SamusSpritemapId? composition) in explosion.OrderBy(pair => pair.Key, StringComparer.Ordinal)
-            .Concat(atmosphere.OrderBy(pair => pair.Key, StringComparer.Ordinal)))
-        {
-            content.AppendName("sheet frame", frame);
-            content.AppendName("composition", composition?.Name ?? "");
-        }
-        foreach ((SamusSpritemapId composition, SamusSpritemapDefinition definition) in definitions.OrderBy(pair => pair.Key.Name, StringComparer.Ordinal))
-        {
-            content.AppendName("composition", composition.Name);
-            content.Append("part count", definition.Parts.Length);
-            foreach (SpritePart part in definition.Parts)
-                part.AppendIdentity(content);
-        }
-    });
 
     /// <summary>
     /// The composition <paramref name="halfFrame"/> shows as a whole frame; false for a frame that is not decoded or one

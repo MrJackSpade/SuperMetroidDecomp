@@ -18,7 +18,4 @@ public static class ZebesExplosionLayerFadePaletteFxColorDefinitions
 
     /// <summary>The grey clouds' one-shot fade.</summary>
     internal static ZebesExplosionLayerFadePaletteFxColorDefinition FadeOutExplodingZebesGreyClouds { get; } = new(ColourEffectId.FadeOutExplodingZebesGreyClouds, ColorsPerFrame);
-
-    /// <summary>The crust and grey-cloud one-shot fades in definition order, with distinct destinations and authored holds.</summary>
-    public static IReadOnlyList<ZebesExplosionLayerFadePaletteFxColorDefinition> All { get; } = [FadeOutExplodingZebesCrust, FadeOutExplodingZebesGreyClouds];
 }

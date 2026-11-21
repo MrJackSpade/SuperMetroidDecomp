@@ -1,20 +1,5 @@
-using System.Collections.Frozen;
-using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Ending;
-using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Title;
-using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
-using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.Core.Fx.ColourEffects;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.CeresCinematics;
-using SuperMetroid.Core.Frontend.Ending;
-using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 

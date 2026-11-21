@@ -42,9 +42,6 @@ public sealed class SharedEscapeAndDrainCount<TStage>
     /// <summary>The count as Crystal Flash's ammunition countdown reads it.</summary>
     private WrappingCountdown AmmoCountdown => WrappingCountdown.Start(Count);
 
-    /// <summary>The count as Draygon's escape check reads it: the presses counted toward the escape, 0 through 65535.</summary>
-    public int EscapePresses => Count;
-
     /// <summary>Restarts Crystal Flash's ammunition countdown.</summary>
     /// <param name="updates">The updates until the next unit is drained.</param>
     public void StartAmmoCountdown(int updates) => Count = WrappingCountdown.Start(updates).RemainingFrames;

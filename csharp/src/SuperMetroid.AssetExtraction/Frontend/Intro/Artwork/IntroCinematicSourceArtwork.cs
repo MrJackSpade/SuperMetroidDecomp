@@ -24,11 +24,8 @@ public class IntroCinematicSourceArtwork
         Backdrop = parts.Backdrop;
         CeresFlight = Ensure.NotNull(parts.CeresFlight);
         CeresDestruction = Ensure.NotNull(parts.CeresDestruction);
-        Cinematic = new IntroCinematicArtwork(Backdrop, CeresFlight.Flight, CeresDestruction);
+        _ = new IntroCinematicArtwork(Backdrop, CeresFlight.Flight, CeresDestruction);
     }
-
-    /// <summary>What the game binds of the opening: its backdrop and the Ceres scenes' backdrop and actor placements.</summary>
-    private IntroCinematicArtwork Cinematic { get; }
 
     /// <summary>The colour the opening shows where nothing is drawn, at full brightness: its first background colour (#1512).</summary>
     private RgbColor Backdrop { get; }
@@ -38,11 +35,4 @@ public class IntroCinematicSourceArtwork
 
     /// <summary>The destruction and Zebes-reveal actors' placements.</summary>
     private CeresDestructionArtwork CeresDestruction { get; }
-
-    /// <summary>
-    /// Identity of the entire selected opening bundle's installed documents, which is the identity of what the game binds of
-    /// them (<see cref="Cinematic"/>, #1693); its characters, layouts, Mode 7 maps and compositions are import data the
-    /// installation never holds (#1636, #1638, #1693), which the sheets composed from them carry the identity of.
-    /// </summary>
-    public virtual string ContentIdentity => Cinematic.ContentIdentity;
 }

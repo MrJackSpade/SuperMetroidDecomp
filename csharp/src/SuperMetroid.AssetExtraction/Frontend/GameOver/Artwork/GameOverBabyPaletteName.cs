@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.GameOver;
 
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;

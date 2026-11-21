@@ -282,12 +282,6 @@ internal sealed class UnreadParameters
     private static bool InDocumentation(Location location) =>
         location.SourceTree?.GetRoot().FindToken(location.SourceSpan.Start, findInsideTrivia: true).Parent?.IsPartOfStructuredTrivia() == true;
 
-    /// <summary>Whether a location is the name of a <c>param</c> element, which goes with the parameter it documents.</summary>
-    private static bool InParameterDocumentation(Location location) =>
-        location.SourceTree?.GetRoot().FindToken(location.SourceSpan.Start, findInsideTrivia: true).Parent?
-            .AncestorsAndSelf().OfType<XmlNameAttributeSyntax>().FirstOrDefault() is { Parent: XmlElementStartTagSyntax { Name: var tag } } &&
-        tag.ToString() == "param";
-
     /// <summary>Whether <paramref name="node"/> declares <paramref name="parameter"/>.</summary>
     private static bool Declares(SyntaxNode node, IParameterSymbol parameter) =>
         parameter.DeclaringSyntaxReferences.Any(reference => reference.SyntaxTree == node.SyntaxTree && node.Span.Contains(reference.Span));

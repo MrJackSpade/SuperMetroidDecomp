@@ -138,11 +138,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     /// Samus has come near.
     /// </summary>
     private static GrowingShutterWaitCases<ShutterWaitContext<GrowingShutterEnemyState>, bool> GrowingWaits { get; } = new(
-        Timer: static (_, context) => AdvanceGrowingShutterTimer(context.State),
+        Timer: static (_, context) => context.State.ActivationTimer.StepEnds(),
         SamusNear: static (near, context) => IsSamusWithinShutterHorizontalDistance(context.Place, context.Samus, near.Distance));
-
-    /// <summary>Steps the timer-mode wait one update and reports whether it ran out on this update (#2281).</summary>
-    internal static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state) => Ensure.NotNull(state).ActivationTimer.StepEnds();
 
     /// <summary>Switches a timed or proximity shutter into growth and queues audible activation on screen.</summary>
     private void ActivateGrowingShutter(

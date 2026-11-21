@@ -163,12 +163,13 @@ internal sealed class AcceptedFrameBoundary
             : null;
         RoomBlockPictureTable pictures = BlockPictures(scope, appearance, backgroundPlane, reveal);
         RoomBackgroundLayer? background = backgroundPlane is { } shownPlane ? new RoomBackgroundLayer(shownPlane.Cells, pictures) : null;
-        GameplayLatchedBossBody bosses = GameplayLatchedBossBody.Of(displays.BossBody);
+        GameplayLatchedBossBody? bosses = GameplayLatchedBossBody.Of(displays.BossBody);
         return new OrdinaryRoomFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, effectOverlay, eyeBeam, tints,
             _screenLayers.Displayed,
-            RoomBackgroundsOf(scope, appearance, new RoomBackgroundLayer(level.ForegroundPlane.Cells, pictures), background, bosses.Body),
+            RoomBackgroundsOf(scope, appearance, new RoomBackgroundLayer(level.ForegroundPlane.Cells, pictures), background, bosses?.Body),
             scene,
             bosses,
+            displays.BossBody is { HidesBodyLayer: true },
             displays.WavingBody,
             scope.FxOverlay.Fireflea is { } fireflea ? new LatchedFirefleaDarkness(fireflea.Tint) : null,
             // Only the statue room has statues, so only its frames carry a descent (#2385). The descent stops at its

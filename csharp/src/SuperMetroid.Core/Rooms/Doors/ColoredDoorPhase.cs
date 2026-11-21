@@ -3,7 +3,9 @@
 /// <summary>What a yellow, green or red door cap is doing (#1554).</summary>
 internal enum ColoredDoorPhase
 {
-    /// <summary>The cap is closed and waits for its colour's shot; one just placed takes its first look on its next update.</summary>
+    /// <summary>The cap was just placed: it takes its first look at its door on its next update (#2560).</summary>
+    Placed,
+    /// <summary>The cap has looked at its door, is closed and waits for its colour's shot.</summary>
     Waiting,
     /// <summary>A hit short of the colour's count flashes the cap before it waits again.</summary>
     Flashing,

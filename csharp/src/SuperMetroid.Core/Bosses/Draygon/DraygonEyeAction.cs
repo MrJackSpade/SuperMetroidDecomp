@@ -6,6 +6,6 @@ internal enum DraygonEyeAction
     /// <summary>The eye is inert.</summary>
     Inert,
 
-    /// <summary>The eye tracks Samus the way Draygon faces (<see cref="DraygonEyeState.Facing"/>).</summary>
+    /// <summary>The eye tracks Samus the way Draygon faces (<see cref="DraygonEyeState.TrackingFacing"/>).</summary>
     Tracking,
 }

@@ -115,8 +115,7 @@ public sealed class SaveSlotStore
     /// <see cref="PowerOnEarthquakeSoundDelay"/> derives from whether a slot is valid and from the file's history.
     /// </summary>
     public PowerOnEarthquakeSoundDelay EarthquakeSoundDelayAtPowerOn() => PowerOnEarthquakeSoundDelay.FoundAtPowerOn(
-        AnySlotValid, gameCompleted: History == SaveFileHistory.GameCompleted,
-        powerOnFoundNoValidSave: History == SaveFileHistory.PowerOnFoundNoValidSave);
+        AnySlotValid, historyKept: History != SaveFileHistory.None);
 
     /// <summary>
     /// Decides at boot, once, whether the title's attract demos include the completion set. When every save slot is

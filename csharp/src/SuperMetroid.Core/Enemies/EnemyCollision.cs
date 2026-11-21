@@ -323,7 +323,7 @@ internal sealed class EnemyCollision
                 return;
             }
 
-            NormalShotHit hit = ApplyNormalShotDamage(occupant, projectile, projectileType, projectileDamage, roomArea).Hit;
+            NormalShotHit hit = ApplyNormalShotDamage(occupant, held, projectileType, projectileDamage, roomArea).Hit;
             if (hit == NormalShotHit.Froze)
             {
                 reaction.AfterCommon?.Invoke(hitShot with { Froze = true });
@@ -334,10 +334,11 @@ internal sealed class EnemyCollision
             {
                 if (hit == NormalShotHit.HurtUnfrozen && reaction.ShowsHitBurst(hitShot))
                     ShowHitBurst(enemy);
-                if (enemy.Health == 0 && !reaction.ExemptFromGenericDeath)
+                if (enemy.Health == 0 && reaction.Lethal is not EnemyShotLethal.SpeciesOwnedDeath)
                 {
-                    reaction.BeforeGenericDeath?.Invoke(hitShot);
-                    if (reaction.ReplacesGenericDeath?.Invoke(hitShot) != true)
+                    if (reaction.Lethal is EnemyShotLethal.AfterStage before)
+                        before.Stage(hitShot);
+                    if (!(reaction.Lethal is EnemyShotLethal.Replaced replaced && replaced.Death(hitShot)))
                     {
                         _deathsAndDrops.StartGenericEnemyDeath(
                             occupant,
@@ -367,7 +368,7 @@ internal sealed class EnemyCollision
     /// <returns>Whether the shot froze the enemy outright, was a dud, or hurt it while it was frozen or not, and the health it lost.</returns>
     internal NormalShotOutcome ApplyNormalShotDamage(
         RoomEnemyOccupant occupant,
-        SamusProjectile projectile,
+        SamusProjectileOccupant projectile,
         SamusProjectileType projectileType,
         int projectileDamage,
         AreaId roomArea)
@@ -531,7 +532,7 @@ internal sealed class EnemyCollision
             // The bomb collision marks the bomb before its reaction runs. Unlike an
             // ordinary beam impact, the bomb is already running its explosion animation, which the
             // common shot reaction leaves in place of an impact animation.
-            bomb.Spend();
+            placed.Spend();
             var bombContext = new EnemyBombContext(
                 occupant,
                 placed,
@@ -736,11 +737,12 @@ internal sealed class EnemyCollision
             enemy.Health = damage >= enemy.Health
                 ? 0
                 : enemy.Health - damage;
-            if (enemy.Health == 0 && !reaction.ExemptFromGenericDeath)
+            if (enemy.Health == 0 && reaction.Lethal is not EnemyPowerBombLethal.SpeciesOwnedDeath)
             {
-                reaction.BeforeGenericDeath?.Invoke(context);
-                if (reaction.ReplacesGenericDeath is { } replaceDeath)
-                    replaceDeath(context);
+                if (reaction.Lethal is EnemyPowerBombLethal.AfterStage before)
+                    before.Stage(context);
+                if (reaction.Lethal is EnemyPowerBombLethal.Replaced replaced)
+                    replaced.Death(context);
                 else
                     _deathsAndDrops.StartGenericEnemyDeath(occupant, EnemyDeathExplosion.Small, samus);
             }

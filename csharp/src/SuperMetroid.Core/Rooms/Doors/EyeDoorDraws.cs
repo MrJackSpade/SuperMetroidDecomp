@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
@@ -13,7 +14,7 @@ internal static class EyeDoorDraws
     /// doors' definitions make their two clears through <see cref="Family"/>, so the shapes cannot be read while they load.
     /// </summary>
     private static Dictionary<Draw, RoomBlockShape> Shapes => field ??= EyeDoorObjectDrawDefinitions.Collisions
-        .ToDictionary(pair => pair.Key, pair => RoomBlockShapes.Line(pair.Key.Vertical, pair.Value));
+        .ToDictionary(pair => pair.Key, pair => RoomBlockShapes.Line(pair.Key.LineAxis, pair.Value));
 
     /// <summary>The draw <paramref name="pose"/> shows for the eye door's body or bottom, <paramref name="part"/>.</summary>
     internal static RoomObjectDraw Of(EyeDoorPart part, EyeDoorPartPose pose) =>
@@ -68,8 +69,8 @@ internal static class EyeDoorDraws
         /// <summary>What the draw writes: a component, or the whole door's clear.</summary>
         internal EyeDoorDrawnPart Part => PartOf(Look);
 
-        /// <summary>Whether the draw's blocks stand in a column: the eye's and the clear's.</summary>
-        internal bool Vertical => Part is EyeDoorDrawnPart.WholeDoorClear or EyeDoorDrawnPart.Eye;
+        /// <summary>The axis the draw's blocks stand along: a column for the eye's and the clear's, a row otherwise (#2560).</summary>
+        internal Axis LineAxis => Part is EyeDoorDrawnPart.WholeDoorClear or EyeDoorDrawnPart.Eye ? Axis.Vertical : Axis.Horizontal;
 
         /// <summary>The draw's blocks from its first and how each collides.</summary>
         internal RoomBlockShape Blocks => Shapes[this];

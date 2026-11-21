@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
@@ -101,7 +102,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen, ICompose
     /// </summary>
     private ZebesRevealActor? spawnedSubtitle;
     /// <summary>The Japanese text option, which makes the PLANET ZEBES title spawn its Japanese subtitle (#1733).</summary>
-    private readonly bool japaneseText;
+    private readonly TextLanguage language;
 
     /// <summary>The camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
     private FixedVector<FloorPixels> FloorScroll { get; set; } = new(
@@ -141,7 +142,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen, ICompose
     /// </summary>
     private int cinematicFrameCounter;
     /// <summary>The route when the escape timer expires while Samus remains aboard Ceres.</summary>
-    private bool WithSamus { get; }
+    private bool WithSamus => Outcome == CeresDestructionOutcome.SamusAboard;
+
+    /// <summary>How Ceres's destruction ends: with Samus aboard her gunship, or after she escaped (#2560).</summary>
+    private CeresDestructionOutcome Outcome { get; }
 
     /// <param name="audio">The shared music and sound queue, whose music the scene waits on.</param>
     /// <param name="glowColors">Installed Power Bomb glow colours for the station explosion.</param>
@@ -151,18 +155,18 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen, ICompose
     /// The Ceres-destruction state with Samus aboard: the escape timer expired before Samus left, so the
     /// gunship never appears and the fade-out ends the game instead of flying to Zebes.
     /// </param>
-    /// <param name="japaneseText">The Japanese text option, which adds the PLANET ZEBES title's Japanese subtitle.</param>
+    /// <param name="language">The text language; Japanese adds the PLANET ZEBES title's Japanese subtitle.</param>
     public CeresDestructionCinematicState(
         AudioQueues audio,
         InstalledPowerBombGlowColors glowColors,
         IntroCinematicArtwork artwork,
         InstalledSpriteSheets spriteSheets,
         CeresDestructionOutcome outcome,
-        bool japaneseText)
+        TextLanguage language)
     {
-        this.japaneseText = japaneseText;
+        this.language = language;
         BindSpriteSheets(Ensure.NotNull(spriteSheets));
-        WithSamus = outcome == CeresDestructionOutcome.SamusAboard;
+        Outcome = outcome;
         this.audio = Ensure.NotNull(audio);
         Artwork = Ensure.NotNull(artwork);
         stationExplosion = new CeresStationBlast();
@@ -680,7 +684,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen, ICompose
 
             case CeresCue.SpawnJapaneseTitleIfNeeded:
                 // With Japanese text the title spawns its Japanese subtitle as its first hold ends (#1733).
-                if (japaneseText)
+                if (language == TextLanguage.Japanese)
                     spawnedSubtitle = CreateZebesActor(ZebesRevealActorRole.JapaneseSubtitle);
                 return;
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
@@ -64,7 +65,7 @@ internal static class LookupEyeDoorLayoutsVerification
             {
                 AssertEqual(pointer,RoomObjectDrawAddressCodec.Of(exported[index].Draw),"Eye door original layout order");
                 AssertEqual(count,shape.Blocks.Cells.Count,"Eye door block shape cell count");
-                AssertEqual(vertical,shape.Vertical,"Eye door original direction");
+                AssertEqual(vertical,shape.LineAxis == Axis.Vertical,"Eye door original direction");
                 AssertEqual((ushort)0,ReadSamusEaterObjectWord(rom,0x840000 | (pointer + 2 + count * 2)),"Eye door native terminator");
             }
             foreach (var view in views)

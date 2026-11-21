@@ -110,12 +110,13 @@ public sealed class BotwoonEnemyState
     public bool HoleLatch { get; internal set; }
     /// <summary>Set until his first crossing: it sends him on a walk without drawing his next action at random.</summary>
     public bool InitialAction { get; internal set; }
-    /// <summary>Set by the fatal hit: he keeps on his walk until his tail has next crossed out of the wall, and then dies.</summary>
-    public bool FatallyHit { get; internal set; }
+    /// <summary>
+    /// How far his death has gone (#2560): alive; fatally hit, keeping on his walk until his tail has next crossed out of the
+    /// wall; or dying, each body segment having stopped following his head to start its own delay before it falls.
+    /// </summary>
+    public BotwoonDeathProgress Death { get; internal set; }
     /// <summary>Set when his tail crosses the place his head crossed at while the head is outside the wall, letting a fatal hit's death begin.</summary>
     public bool ExitTransitionComplete { get; internal set; }
-    /// <summary>Set as his death begins: each of his body segments then stops following his head and starts its own delay before it falls.</summary>
-    public bool BodyDeathStarted { get; internal set; }
     /// <summary>Landing signal from the tail segment, releasing the head's wait-for-body phase into wall crumbling and specialized drops.</summary>
     public bool LastBodySegmentLanded { get; internal set; }
     /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null means no crossing remains pending.</summary>

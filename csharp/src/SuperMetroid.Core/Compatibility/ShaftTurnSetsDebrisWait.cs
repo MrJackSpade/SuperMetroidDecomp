@@ -25,11 +25,13 @@ public sealed class ShaftTurnSetsDebrisWait(RoomMainCarryover carryover)
     /// <summary>The value the room mains share.</summary>
     private readonly RoomMainCarryover _carryover = Ensure.NotNull(carryover);
 
-    /// <summary>Leaves the shaft's turn step for the next room's main.</summary>
+    /// <summary>Leaves the step of a turn sweeping forward for the next room's main.</summary>
     /// <param name="step">The tilt counted from the full anticlockwise tilt, 0 through 32767.</param>
-    /// <param name="backward">Whether the turn is sweeping backward; the hall reads such a step as already run out.</param>
-    public void LeaveTurnStep(int step, bool backward) =>
-        _carryover.Leave(Ensure.BetweenInclusive(0, BackwardMark - 1, step) | (backward ? BackwardMark : 0));
+    public void LeaveForwardTurnStep(int step) => _carryover.Leave(Ensure.BetweenInclusive(0, BackwardMark - 1, step));
+
+    /// <summary>Leaves the step of a turn sweeping backward for the next room's main; the hall reads it as already run out.</summary>
+    /// <param name="step">The tilt counted from the full anticlockwise tilt, 0 through 32767.</param>
+    public void LeaveBackwardTurnStep(int step) => _carryover.Leave(Ensure.BetweenInclusive(0, BackwardMark - 1, step) | BackwardMark);
 
     /// <summary>The hall's first wait: what the previous room's main left, read as a countdown.</summary>
     public WrappingCountdown FirstDebrisWait => WrappingCountdown.Start(_carryover.Value);

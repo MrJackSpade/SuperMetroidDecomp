@@ -125,7 +125,7 @@ internal sealed class ProjectileMotion
             _terrainCollision.MoveWaveShotHorizontally(level, held, roomObjects);
         if (axes.MovesVertically)
         {
-            shot.Position = shot.Position.AdvanceY(shot.Velocity.Y.ToSixteenSixteenDelta());
+            held.Position = shot.Position.AdvanceY(shot.Velocity.Y.ToSixteenSixteenDelta());
             ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, held, roomObjects);
         }
 
@@ -249,7 +249,7 @@ internal sealed class ProjectileMotion
     private static void Accelerate(SamusProjectileOccupant held, PixelVelocity<RoomPixels> acceleration)
     {
         SamusProjectile shot = held.Projectile;
-        shot.Velocity += acceleration;
+        held.Velocity += acceleration;
     }
 
     /// <summary>
@@ -284,12 +284,11 @@ internal sealed class ProjectileMotion
     /// </summary>
     private static void IgniteMissile(SamusState samus, SamusProjectileOccupant held, MissileShotState missile)
     {
-        SamusProjectile shot = held.Projectile;
         SignedEightEight ignitionSpeed = missile.Ignition is SamusMissileIgnition.PendingAfterReflection
             ? SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed
             : SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
         missile.Ignite(ignitionSpeed);
-        BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, shot, ignitionSpeed);
+        BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, held, ignitionSpeed);
     }
 
     /// <summary>
@@ -304,19 +303,19 @@ internal sealed class ProjectileMotion
         if (_pool.FindFreePlace() is not { } place)
             return;
 
-        SamusProjectile link = _pool.OccupyAtRest(place);
         const SamusProjectileKind kind = SamusProjectileKind.SuperMissileLink;
-        SamusProjectileOccupant linked = link.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), SamusProjectileDamage.Read(kind));
-        link.PicturedBeams = owner.PicturedBeams;
-        link.Direction = owner.Direction;
+        SamusProjectileOccupant linked = _pool.OccupyAtRest(place, SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), SamusProjectileDamage.Read(kind));
+        SamusProjectile link = linked.Projectile;
+        linked.PicturedBeams = owner.PicturedBeams;
+        linked.Direction = owner.Direction;
         if (owner.IsSpent)
-            link.Spend();
-        link.Position = link.Position.WithWhole(owner.Position.Whole);
+            linked.Spend();
+        linked.Position = link.Position.WithWhole(owner.Position.Whole);
 
         // The link then takes the muzzle's position for Samus's pose as it is now, over the owner's coordinates; the two
         // differ when her pose's muzzle has moved since the owner was placed.
-        BeamFiring.InitializePosition(samus, link);
-        link.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
+        BeamFiring.InitializePosition(samus, linked);
+        linked.Animation = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
         linked.Install(SamusShotBehaviors.SuperMissileLink,
             new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
 
@@ -364,9 +363,9 @@ internal sealed class ProjectileMotion
                 return;
             }
             if (axis == Axis.Vertical)
-                link.Position = link.Position.WithWholeY(owner.Position.Y.Whole);
+                heldLink.Position = link.Position.WithWholeY(owner.Position.Y.Whole);
             else
-                link.Position = link.Position.WithWholeX(owner.Position.X.Whole);
+                heldLink.Position = link.Position.WithWholeX(owner.Position.X.Whole);
             return;
         }
 
@@ -379,9 +378,9 @@ internal sealed class ProjectileMotion
         int ownerPosition = axis == Axis.Vertical ? owner.Position.Y.Whole : owner.Position.X.Whole;
         int linkPosition = OffRoomPlaces.Place(ownerPosition - velocity.Along(offset));
         if (axis == Axis.Vertical)
-            link.Position = link.Position.WithWholeY(linkPosition);
+            heldLink.Position = link.Position.WithWholeY(linkPosition);
         else
-            link.Position = link.Position.WithWholeX(linkPosition);
+            heldLink.Position = link.Position.WithWholeX(linkPosition);
         if (MissilePointReaction(
                 level,
                 heldLink,
@@ -408,7 +407,7 @@ internal sealed class ProjectileMotion
         ISamusRoomObjects roomObjects)
     {
         SamusProjectile shot = held.Projectile;
-        shot.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
+        held.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
 
         // Missile block collision tests the projectile center, not its radius-spanning leading edge. Room
         // width is counted in screens; coordinates in or past the first screen beyond
@@ -427,7 +426,7 @@ internal sealed class ProjectileMotion
         ISamusRoomObjects roomObjects)
     {
         SamusProjectile shot = held.Projectile;
-        shot.Position = shot.Position.AdvanceY(shot.Velocity.Y.ToSixteenSixteenDelta());
+        held.Position = shot.Position.AdvanceY(shot.Velocity.Y.ToSixteenSixteenDelta());
 
         int roomHeightInScreens = RoomGridConversions.ScreensCovering(level.Size.Y);
         if (RoomGridConversions.PixelToScreen(shot.Position.Y.Whole) >= roomHeightInScreens)
@@ -529,6 +528,6 @@ internal sealed class ProjectileMotion
         // Square slope collision treats each square slope as four 8x8 quadrants: the missile centre's halves of the
         // block, mirrored by the block's reflections, select the quadrant whichever axis the missile moves along.
         return SquareSlopes.IsSolid(block.Behavior, SquareSlopeQuadrant.Showing(block.Behavior,
-            SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(shot.Position.X.Whole)), SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(shot.Position.Y.Whole))));
+            SquareSlopeQuadrant.ColumnFor(shot.Position.X.Whole), SquareSlopeQuadrant.RowFor(shot.Position.Y.Whole)));
     }
 }

@@ -92,7 +92,7 @@ internal sealed class SamusFramePhases
                 room.Enemies.GrappleTargets.ResolveGrappleEndpoint));
             grappleOwnsMovement = frame.GrappleMovement is { OwnsMovement: true };
         }
-        else if (samus.Grapple.Phase == GrapplePhase.CancelPending)
+        else if (samus.Grapple.Phase is GrapplePhase.CancelPending or GrapplePhase.CancelPendingFromConnectedPose)
         {
             frame.Record(SamusGrappleMovement.CompleteFiringCancellation(room.LevelData, samus));
             grappleOwnsMovement = frame.GrappleMovement is { OwnsMovement: true };
@@ -508,7 +508,7 @@ internal sealed class SamusFramePhases
                 // The bomb jump's movement chooses its gravity from the medium Samus is in, water, lava or air, as
                 // knockback and the shinespark do, from her pose and place as the input phase leaves them.
                 SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-                frame.Record(samus.BombJumpStarting
+                frame.Record(samus.BombJumpPhase == SamusBombJumpPhase.Starting
                     ? SamusBombJumpMovement.Start(samus)
                     : SamusBombJumpMovement.Step(
                         room.LevelData,
@@ -609,7 +609,7 @@ internal sealed class SamusFramePhases
         if (samus.KnockbackActive)
             return SamusMovementOwner.Knockback;
         // Arming the bomb jump takes both her pose input and her movement.
-        if (samus.BombJumpStarting || samus.BombJumpActive)
+        if (samus.BombJumpPhase != SamusBombJumpPhase.None)
             return SamusMovementOwner.BombJump;
         // Crystal Flash moves her through its three phases and locks her pose input. Mother
         // Brain's rainbow-beam setup keeps that hold, but temporarily replaces the movement phase
@@ -964,7 +964,7 @@ internal sealed class SamusFramePhases
             (SamusPoseMetadata.IsForwardFacingPose(samus.Pose) && room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive));
         SamusPoseTransitionLookup poseLookup =
             frame.DeathOwnsSamus || frame.XrayOwnsPoseInput || frame.ActorLocksPoseInput || frame.PostureTransitionSkipsPoseInput
-            ? default
+            ? SamusPoseTransitionLookup.KeepsPose
             : SamusPoseInputTransitions.Lookup(
                 samus.Pose,
                 _playerActions.Current,

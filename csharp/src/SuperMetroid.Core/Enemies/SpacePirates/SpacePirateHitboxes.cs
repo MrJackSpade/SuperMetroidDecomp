@@ -18,7 +18,7 @@ internal static class SpacePirateHitboxes
             int bottom = origin.Y + hitbox.Bottom;
             if (!probe.Overlaps(left, top, right, bottom))
                 continue;
-            return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
+            return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? hitbox.Shot : hitbox.Touch);
         }
         return EnemyHitboxContact.Missed;
     }

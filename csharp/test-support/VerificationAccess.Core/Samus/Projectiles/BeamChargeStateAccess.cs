@@ -26,6 +26,6 @@ internal static class BeamChargeStateAccess
 
         /// <summary>Places the charge at <paramref name="count"/> updates held, as a recorded state or a check's setup holds it.</summary>
         internal void SetFlareCount(int count) =>
-            PrivateState.SetField(self, "charge", UpdateCountdownAccess.AtAge(BeamChargeDefinitions.SpecialAttackCounter, count));
+            PrivateState.Set(self, nameof(BeamChargeState.Level), BeamChargeLevel.Charged(count));
     }
 }

@@ -17,14 +17,7 @@ public static class GameOptionsPresentationFormat
     /// <summary>The JSON name of the common background page, separate from the foreground option pages.</summary>
     public const string BackgroundPageName = "Background";
     /// <summary>The foreground option pages in document order (#2567): primary, then English and Japanese controller and special pages.</summary>
-    public static IReadOnlyList<GameOptionsScreen> Tilemaps { get; } = Ensure.EveryMemberOnce<GameOptionsScreen>(
-    [
-        GameOptionsScreen.Primary,
-        GameOptionsScreen.ControllerEnglish,
-        GameOptionsScreen.ControllerJapanese,
-        GameOptionsScreen.SpecialEnglish,
-        GameOptionsScreen.SpecialJapanese,
-    ]);
+    public static IReadOnlyList<GameOptionsScreen> Tilemaps { get; } = GameOptionsScreen.All;
     /// <summary>The two special settings in document order (#2567), icon cancel then moonwalk.</summary>
     public static IReadOnlyList<GameOptionsToggle> Toggles { get; } = Ensure.EveryMemberOnce<GameOptionsToggle>(
     [

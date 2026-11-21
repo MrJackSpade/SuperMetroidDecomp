@@ -7,8 +7,16 @@ public enum GrapplePhase
     Inactive,
     /// <summary>The beam is extending from Samus's hand.</summary>
     Firing,
-    /// <summary>The firing beam has requested cancellation.</summary>
+    /// <summary>
+    /// The grapple has requested cancellation that goes on beside Samus's ordinary movement: a firing beam's, or a locked
+    /// connection's while Draygon holds her.
+    /// </summary>
     CancelPending,
+    /// <summary>
+    /// A locked connection has requested cancellation from its connected pose (#2560), which holds this movement phase until
+    /// her pose's no-input fallback takes effect.
+    /// </summary>
+    CancelPendingFromConnectedPose,
     /// <summary>Samus is swinging from a connected grapple anchor.</summary>
     ConnectedSwinging,
     /// <summary>Connected swinging has requested release.</summary>

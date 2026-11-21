@@ -19,7 +19,7 @@ internal static class SaveSnapshotFixtures
         ControllerBindings = ControllerBindings.Default,
         MoonwalkEnabled = false,
         IconCancelEnabled = false,
-        JapaneseText = false,
+        Language = TextLanguage.English,
         Inventory = new SamusInventory(
             EquippedItems: SamusEquipmentFlags.None,
             CollectedItems: SamusEquipmentFlags.None,
@@ -51,6 +51,6 @@ internal static class SaveSnapshotFixtures
         ControllerBindings = ControllerBindings.Default,
         MoonwalkEnabled = false,
         IconCancelEnabled = false,
-        JapaneseText = false,
+        Language = TextLanguage.English,
     };
 }

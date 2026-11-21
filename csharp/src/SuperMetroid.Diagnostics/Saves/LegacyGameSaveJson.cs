@@ -22,7 +22,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// (#2140) kept no history of a power-on that found no valid save, which becomes none; schema twelve (#2364) kept a
 /// reserve-missile count nothing in the game reads, which is not carried; schema thirteen (#2491) named some item
 /// locations after the room state that first places them, which become their rooms' names; schema fourteen (#2501) named
-/// some doors after the room states that place them, which become their rooms' names.
+/// some doors after the room states that place them, which become their rooms' names; schema fifteen (#2560) kept the save
+/// file's history as two marks, which become the history they mark.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -99,6 +100,8 @@ public static class LegacyGameSaveJson
             UpgradeSchemaThirteen(root);
         if (sourceSchemaVersion <= SchemaFourteen)
             UpgradeSchemaFourteen(root);
+        if (sourceSchemaVersion <= SchemaFifteen)
+            UpgradeSchemaFifteen(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
     }
@@ -114,6 +117,34 @@ public static class LegacyGameSaveJson
 
     /// <summary>The last schema that named some doors after the room states that place them.</summary>
     private const int SchemaFourteen = 14;
+
+    /// <summary>The last schema that kept the save file's history as two marks.</summary>
+    private const int SchemaFifteen = 15;
+
+    /// <summary>
+    /// Schema fifteen to sixteen (#2560): schemas one through fifteen kept the save file's history as two marks, a completed
+    /// game and a power-on that found no valid save, which never held together; the upgraded file names the history they mark.
+    /// </summary>
+    private static void UpgradeSchemaFifteen(JsonObject root)
+    {
+        SaveFileHistory history = (TakeMark(root, "gameCompleted"), TakeMark(root, "powerOnFoundNoValidSave")) switch
+        {
+            (false, false) => SaveFileHistory.None,
+            (true, false) => SaveFileHistory.GameCompleted,
+            (false, true) => SaveFileHistory.PowerOnFoundNoValidSave,
+            (true, true) => throw new InvalidDataException("gameCompleted and powerOnFoundNoValidSave cannot both hold"),
+        };
+        root["history"] = EnumName(history);
+    }
+
+    /// <summary>Removes and returns an older save's true-or-false property.</summary>
+    private static bool TakeMark(JsonObject root, string name)
+    {
+        bool value = root[name] is JsonValue mark && mark.TryGetValue(out bool parsed) ? parsed
+            : throw new InvalidDataException($"{name} must be true or false");
+        root.Remove(name);
+        return value;
+    }
 
     /// <summary>
     /// The doors schemas six through fourteen named after the room states that place them, by that name, each mapped to its

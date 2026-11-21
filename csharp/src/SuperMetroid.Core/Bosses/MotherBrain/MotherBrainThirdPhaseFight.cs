@@ -53,10 +53,10 @@ internal sealed class MotherBrainThirdPhaseFight
     public BossCountdown RecoilRecoveryWait { get; } = new();
 
     /// <summary>
-    /// Whether phase-three attacks are suspended. Hyper Beam recoil sets it
-    /// and the recoil timer clears it before the recovery pose begins.
+    /// Whether phase-three attacks are suspended: while her neck recoils from the Hyper Beam, as its phase records
+    /// (#2560), until the recoil timer ends it before the recovery pose begins.
     /// </summary>
-    public bool Phase3DisableAttacks { get; private set; }
+    public bool Phase3DisableAttacks => Phase3NeckPhase == MotherBrainPhase3NeckPhase.HyperBeamRecoil;
 
     /// <summary>Schedules phase-three inching and two retreat speeds only while the body is standing.</summary>
     private void StepPhase3Walk(MotherBrainRandomSample randomNumberSeed)
@@ -174,7 +174,6 @@ internal sealed class MotherBrainThirdPhaseFight
 
             case MotherBrainPhase3NeckPhase.StartHyperBeamRecoil:
                 Encounter.NeckMovementEnabled = true;
-                Phase3DisableAttacks = true;
                 _state.SetHeadAnimation(MotherBrainHeadSegment.HyperBeamRecoil);
                 Encounter.BrainShake.ShakeFor(MotherBrainFightDefinitions.BrainShakeUpdates);
                 Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.HyperBeamRecoil;
@@ -191,7 +190,6 @@ internal sealed class MotherBrainThirdPhaseFight
                     return;
 
                 Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Bobbing;
-                Phase3DisableAttacks = false;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.StartRecoilRecovery;
                 return;
 

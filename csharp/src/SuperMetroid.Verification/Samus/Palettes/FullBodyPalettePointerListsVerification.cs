@@ -68,7 +68,7 @@ internal static class FullBodyPalettePointerListsVerification
                 var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
                 speed.CycleShadeStep = phase;
                 var actual = new SamusColours();
-                speed.UpdateSpeedBoosterGlow(actual, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (1) == 0, AnimationPastScrewAttackSpin = (1) >= 27, AnimationBeforeWallJumpSpin = (1) < 3, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack), SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
+                speed.UpdateSpeedBoosterGlow(actual, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, SpinPlace = SpinGlowPlace.Glowing, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack), SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
                 int shade = Math.Min(phase, 6 - phase);
                 AssertPaletteColors(rom, actual, 0x9ca0 + suit * 0x200 + shade * 0x20,
                     $"Screw Attack suit {suit}, phase {phase}");
@@ -85,7 +85,7 @@ internal static class FullBodyPalettePointerListsVerification
                 speed.CycleShadeStep = phase;
                 speed.CycleShadeTimer = 1;
                 var actual = new SamusColours();
-                speed.UpdateSpeedBoosterGlow(actual, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = items, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
+                speed.UpdateSpeedBoosterGlow(actual, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = items, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
                 AssertPaletteColors(rom, actual, 0x9b20 + suit * 0x200 + phase * 0x20,
                     $"active Speed Booster suit {suit}, phase {phase}");
                 AssertEqual(phase == 3 ? 3 : phase + 1, speed.CycleShadeStep,

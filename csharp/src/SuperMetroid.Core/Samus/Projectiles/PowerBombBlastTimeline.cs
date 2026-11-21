@@ -85,8 +85,8 @@ public sealed class PowerBombBlastTimeline
     /// <summary>The blast's glow: the colour it adds to the scene inside its oval.</summary>
     public RgbColor GlowColor { get; private set; }
 
-    /// <summary>True from the blast's start until its animation ends.</summary>
-    public bool IsRunning { get; private set; }
+    /// <summary>True from the blast's start until its animation ends: its phase is not inactive (#2560).</summary>
+    public bool IsRunning => Phase != PowerBombExplosionPhase.Inactive;
 
     /// <summary>
     /// The fade steps the afterglow has still to take (#2529), one each update: the white explosion's last update primes
@@ -122,7 +122,6 @@ public sealed class PowerBombBlastTimeline
     /// </summary>
     private void Clear(PowerBombExplosionPhase phase, PowerBombRadius radius)
     {
-        IsRunning = phase != PowerBombExplosionPhase.Inactive;
         PreExplosionRadius = radius;
         ExplosionRadius = radius;
         _radiusSpeed = PowerBombRadius.Zero;

@@ -15,39 +15,31 @@ internal sealed class BeamChargeState
     /// Clears the charge, its count and the Hyper Beam's flare alike, as a Varia or Gravity Suit's pickup does (#1577)
     /// and every shot, special attack and cancellation that ends a charge does.
     /// </summary>
-    internal void ClearCount()
-    {
-        charge.Restart(BeamChargeDefinitions.SpecialAttackCounter);
-        HyperBeamFlare = false;
-    }
+    internal void ClearCount() => Level = BeamChargeLevel.None;
 
     /// <summary>
     /// The updates Samus has held the charge: <see cref="BeamChargeDefinitions.FullyChargedCounter"/> arms a charged shot and
     /// <see cref="BeamChargeDefinitions.SpecialAttackCounter"/> is the special-attack clamp, past which the
-    /// charge advances no further. Zero while the Hyper Beam's flare shows (<see cref="HyperBeamFlare"/>).
+    /// charge advances no further. Zero while the Hyper Beam's flare shows.
     /// </summary>
-    public int UpdatesHeld => charge.Age;
-
-    /// <summary>
-    /// The charge, lasting <see cref="BeamChargeDefinitions.SpecialAttackCounter"/> and counted once each update Samus
-    /// holds it until it is over: its age is <see cref="UpdatesHeld"/>, whose named stages arm the charged shot, start
-    /// the charging sound and show the flare's components.
-    /// </summary>
-    private readonly UpdateCountdown charge = UpdateCountdown.Lasting(BeamChargeDefinitions.SpecialAttackCounter);
+    public int UpdatesHeld => Level.UpdatesHeld;
 
     /// <summary>Counts one update of the charge held.</summary>
-    /// <exception cref="InvalidOperationException">The charge has already reached the special-attack clamp.</exception>
-    internal void CountChargeUpdate() => charge.Count();
+    /// <exception cref="InvalidOperationException">
+    /// The charge has already reached the special-attack clamp, or the Hyper Beam's flare shows, which counts nothing.
+    /// </exception>
+    internal void CountChargeUpdate() => Level = Level is BeamChargeLevel.CountedCharge { Updates: var updates } &&
+        updates < BeamChargeDefinitions.SpecialAttackCounter
+        ? BeamChargeLevel.Charged(updates + 1)
+        : throw new InvalidOperationException($"A {Level} charge counts no further update.");
 
     /// <summary>
-    /// Whether the Hyper Beam's flare shows (#1682): a Hyper Beam shot starts it in place of the charge, and it ends when
-    /// the flare's fast sparks show their last frame or anything clears the charge. While it shows, the charge reads as
-    /// past every threshold (<see cref="Level"/>).
+    /// The charge as its tests read it now (#2560): the updates Samus has held it, counted once each update she holds it
+    /// up to <see cref="BeamChargeDefinitions.SpecialAttackCounter"/>, whose named stages arm the charged shot, start the
+    /// charging sound and show the flare's components; or the Hyper Beam's flare (#1682), which a Hyper Beam shot starts in
+    /// place of the charge and which ends when the flare's fast sparks show their last frame or anything clears the charge.
     /// </summary>
-    private bool HyperBeamFlare { get; set; }
-
-    /// <summary>The charge as its tests read it now.</summary>
-    public BeamChargeLevel Level => HyperBeamFlare ? BeamChargeLevel.HyperBeam : BeamChargeLevel.Charged(UpdatesHeld);
+    public BeamChargeLevel Level { get; private set; } = BeamChargeLevel.None;
 
     /// <summary>Whether any charge is held: a counted charge or the Hyper Beam's flare.</summary>
     internal bool IsCharging => Level.IsCharging;
@@ -57,7 +49,7 @@ internal sealed class BeamChargeState
     internal bool HasCharged(int updates) => Level.HasCharged(updates);
 
     /// <summary>The charge sampled before the current charge-input update.</summary>
-    public BeamChargeLevel PreviousCharge { get; internal set; }
+    public BeamChargeLevel PreviousCharge { get; internal set; } = BeamChargeLevel.None;
 
     /// <summary>The glow Samus's suit shows after a charged shot, or null while it shows none.</summary>
     public ChargedShotGlow? ChargedShotGlow { get; internal set; }
@@ -104,8 +96,7 @@ internal sealed class BeamChargeState
     /// <summary>The Hyper Beam's shot: every component shows its last picture, to count its pictures backward from there.</summary>
     internal void StartHyperBeamFlare()
     {
-        charge.Restart(BeamChargeDefinitions.SpecialAttackCounter);
-        HyperBeamFlare = true;
+        Level = BeamChargeLevel.HyperBeam;
         foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
             Flare(component).StartBackward();
     }

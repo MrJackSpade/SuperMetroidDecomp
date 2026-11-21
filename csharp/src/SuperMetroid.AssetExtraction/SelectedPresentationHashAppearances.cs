@@ -18,10 +18,10 @@ internal static class SelectedPresentationHashAppearances
             hash.Append(label, appearances.Length);
             foreach (RoomBlockAppearance appearance in appearances)
             {
-                if (appearance.ShowsBlock)
+                if (appearance.Shows == RoomBlockShown.Block)
                     hash.Append("block", appearance.Block);
                 else
-                    hash.AppendName("shows", appearance.ShowsNothing ? "nothing" : "beyond the room");
+                    hash.AppendName("shows", appearance.Shows == RoomBlockShown.Nothing ? "nothing" : "beyond the room");
                 hash.AppendName("mirroring", appearance.Mirroring.ToString());
             }
         }

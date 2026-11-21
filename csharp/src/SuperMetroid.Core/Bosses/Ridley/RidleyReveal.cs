@@ -101,7 +101,7 @@ internal sealed class RidleyReveal
             return;
 
         ridley.RevealPhase = RidleyRevealPhase.FadeInBody;
-        ridley.MovementAnimationEnabled = true;
+        ridley.Motion = RidleyMotion.Running;
     }
 
     /// <summary>
@@ -133,7 +133,7 @@ internal sealed class RidleyReveal
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.TransitionToFlying);
         ridley.Flight.Wings.Countdown.Restart(RidleyWingDefinitions.TakeOffCountdown);
         foreach (RidleyTailLink link in ridley.Tail.Links)
-            link.Active = true;
+            link.Activate();
         ridley.Tail.Action = RidleyTailAction.Neutral;
         ridley.RevealPhase = RidleyRevealPhase.TakingOff;
     }

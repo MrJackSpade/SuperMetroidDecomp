@@ -60,9 +60,24 @@ public sealed class RoomScrollGrid
     {
         Ensure.NotNull(scroll);
         Ensure.NotNull(pastScreens);
-        if (scroll.ImplicitBottomRow is { } bottomRow)
-            return CreateImplicit(cells, size, bottomRow);
+        return scroll switch
+        {
+            RoomScrollDefinition.ImplicitLayout implicitLayout => CreateImplicit(cells, size, implicitLayout.BottomRow),
+            RoomScrollDefinition.ExplicitLayout explicitLayout => CreateExplicit(cells, explicitLayout, size, pastScreens),
+            _ => throw new ArgumentException($"Undefined scroll layout {scroll}.", nameof(scroll)),
+        };
+    }
 
+    /// <summary>
+    /// Loads the explicit table <paramref name="scroll"/> into <paramref name="cells"/>: its screens, followed by the cells its
+    /// load writes past them (<paramref name="pastScreens"/>).
+    /// </summary>
+    private static RoomScrollGrid CreateExplicit(
+        ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells,
+        RoomScrollDefinition.ExplicitLayout scroll,
+        Extent16<RoomScreens> size,
+        ScrollCellsPastRoomScreens<RoomScrollState> pastScreens)
+    {
         var grid = new RoomScrollGrid(cells, size);
         if (scroll.Cells.Count != grid.ScreenCount)
             throw new ArgumentException(

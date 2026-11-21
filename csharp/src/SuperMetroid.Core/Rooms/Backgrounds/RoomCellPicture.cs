@@ -62,11 +62,16 @@ public readonly record struct RoomCellPicture
     /// own picture covers wherever it lies (#2354).
     /// </exception>
     public static RoomCellPicture Of(RoomBlockAppearance appearance) =>
-        appearance.ShowsNothing ? Nothing
-            : appearance.ShowsBlock ? OfBlock(appearance.Block)
-            : appearance.IsCollectiblePairBlock
-                ? throw new InvalidOperationException($"No room cell shows {appearance}: its collectible's own picture covers it.")
-            : throw new InvalidOperationException($"No room cell shows {appearance}: the room never shows terrain beyond its grid.");
+        appearance.Shows switch
+        {
+            RoomBlockShown.Nothing => Nothing,
+            RoomBlockShown.Block => OfBlock(appearance.Block),
+            RoomBlockShown.CollectiblePairBlock =>
+                throw new InvalidOperationException($"No room cell shows {appearance}: its collectible's own picture covers it."),
+            RoomBlockShown.BeyondRoom =>
+                throw new InvalidOperationException($"No room cell shows {appearance}: the room never shows terrain beyond its grid."),
+            _ => throw new InvalidOperationException($"Undefined shown kind {appearance.Shows}."),
+        };
 
     /// <summary>A cell showing the collectible picture <paramref name="picture"/>.</summary>
     public static RoomCellPicture Of(CollectiblePicture picture) => new(new ShownCollectible(picture));

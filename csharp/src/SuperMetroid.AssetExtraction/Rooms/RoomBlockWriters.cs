@@ -251,7 +251,7 @@ internal static class RoomBlockWriters
 
     /// <summary>The blocks <paramref name="shown"/> show, each once; an appearance that shows nothing shows none (#2100).</summary>
     private static HashSet<int> BlocksOf(IEnumerable<RoomBlockAppearance> shown) =>
-        [.. shown.Where(block => block.ShowsBlock).Select(block => block.Block)];
+        [.. shown.Where(block => block.Shows == RoomBlockShown.Block).Select(block => block.Block)];
 
     /// <summary>Every block one installed frame shows.</summary>
     private static HashSet<int> BlocksOf(RoomObjectFrameImage image) => BlocksOf(image.Cells.Values);
@@ -272,5 +272,5 @@ internal static class RoomBlockWriters
 
     /// <summary>Every block any of a room object's installed frames shows.</summary>
     private static HashSet<int> FrameBlocks<TFrame>(RoomObjectFrameImages<TFrame> images) where TFrame : notnull =>
-        [.. images.All.Values.SelectMany(image => image.Cells.Values).Where(block => block.ShowsBlock).Select(block => block.Block)];
+        [.. images.All.Values.SelectMany(image => image.Cells.Values).Where(block => block.Shows == RoomBlockShown.Block).Select(block => block.Block)];
 }

@@ -584,20 +584,20 @@ internal static class LookupStream3Verification
 
         void Confirm(GameOptionsPresentationDocument document, GameOptionsSourcePresentation presentation)
         {
-            foreach (bool japanese in new[] { false, true })
+            foreach (TextLanguage language in Enum.GetValues<TextLanguage>())
             {
                 byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.Primary);
                 byte[] expected = (byte[])actual.Clone();
                 foreach (var region in document.LanguageRegions)
-                    Paint(expected, region.Cells, japanese == region.HighlightWhenJapanese ? document.SelectedPalette : document.UnselectedPalette);
-                presentation.ApplyLanguage(actual, japanese);
+                    Paint(expected, region.Cells, language == region.Language ? document.SelectedPalette : document.UnselectedPalette);
+                presentation.ApplyLanguage(actual, language);
                 AssertTrue(actual.SequenceEqual(expected), "options language boxes preserve exact stock cells");
             }
             foreach (GameOptionsToggle toggle in GameOptionsPresentationFormat.Toggles)
             foreach (bool enabled in new[] { false, true })
             {
                 GameOptionsToggleVisualDocument visual = document.SpecialToggles[GameOptionsNames.ToggleName(toggle)];
-                byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.SpecialEnglish);
+                byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.English));
                 byte[] expected = (byte[])actual.Clone();
                 Paint(expected, visual.EnabledCells, enabled ? document.SelectedPalette : document.UnselectedPalette);
                 Paint(expected, visual.DisabledCells, enabled ? document.UnselectedPalette : document.SelectedPalette);
@@ -607,7 +607,7 @@ internal static class LookupStream3Verification
             for (int action = 0; action < 7; action++)
             for (int button = 0; button < 7; button++)
             {
-                byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.ControllerEnglish);
+                byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.English));
                 byte[] expected = (byte[])actual.Clone();
                 Position16<CharacterCells> point = document.ControllerLabelAnchors[action];
                 for (int cell = 0; cell < 6; cell++)
@@ -2023,7 +2023,7 @@ internal static class LookupStream3Verification
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
         ImportIntroCinematicArtwork Copy(byte[] narration) => new(new IntroCinematicSceneParts { Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction }, stock.Sprites, new IntroCinematicLayouts(pages, Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), Page(narration), stock.FinalLine, stock.EyeFrames, stock.ZebesRevealMap, stock.CeresDestructionMaps), new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, japaneseText: false)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, language: TextLanguage.English)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -2144,7 +2144,7 @@ internal static class LookupStream3Verification
         }
         AssertTrue(mismatches.Count == 0, "all 4096 installed background words match native: " + string.Join("; ", mismatches.Take(32)));
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, japaneseText: false)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, language: TextLanguage.English)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -2257,7 +2257,7 @@ BranchesToSharedBody:true),
         ImportIntroCinematicArtwork Copy(byte[] portrait) => new(new IntroCinematicSceneParts { Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction }, stock.Sprites, new IntroCinematicLayouts(pages, Page(portrait), Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), stock.FinalLine, stock.EyeFrames, stock.ZebesRevealMap, stock.CeresDestructionMaps), new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 installed portrait words match native");
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, japaneseText: false)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, language: TextLanguage.English)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

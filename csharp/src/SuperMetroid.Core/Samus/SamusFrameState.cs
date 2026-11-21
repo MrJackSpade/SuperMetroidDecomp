@@ -66,7 +66,10 @@ internal sealed class SamusFrameState : IRoomSamusAccess
 
     /// <summary>
     /// Whether Samus's input selects poses and her pose movement and pose transitions run: closed while a room load brings
-    /// her in and while a scripted scene holds her still, opened when control returns to her.
+    /// her in and while a scripted scene holds her still, opened when control returns to her. It is the frame's gate, apart
+    /// from Samus's own control lock (#2560): a door's load opens it with her lock untouched, a station's and the Ceres
+    /// start's close it with no lock of their own, and the gunship's landing and the saved game's fanfare open it on a later
+    /// update than the one that unlocks her, so the two are not one lock state.
     /// </summary>
     public bool GroundedSamusMovementEnabled { get; internal set; }
 

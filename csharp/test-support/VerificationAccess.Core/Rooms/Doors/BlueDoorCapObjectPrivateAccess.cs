@@ -11,11 +11,15 @@ internal static class BlueDoorCapObjectPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Rooms.Doors.BlueDoorCapObject self)
     {
-        /// <summary>The private property <c>Door</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Rooms.Doors.PlacedDoor? Door
+        /// <summary>The private property <c>Origin</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Rooms.Doors.BlueDoorCapObject.CapOrigin Origin
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Rooms.Doors.BlueDoorCapObject, global::SuperMetroid.Core.Rooms.Doors.PlacedDoor?>(self, "Door");
+            get => PrivateState.Get<global::SuperMetroid.Core.Rooms.Doors.BlueDoorCapObject, global::SuperMetroid.Core.Rooms.Doors.BlueDoorCapObject.CapOrigin>(self, "Origin");
         }
+
+        /// <summary>The door a cap another door turned into stands in; none for a cap a shot opened or one closing behind Samus.</summary>
+        internal global::SuperMetroid.Core.Rooms.Doors.PlacedDoor? Door =>
+            self.Origin is global::SuperMetroid.Core.Rooms.Doors.BlueDoorCapObject.CapOrigin.TakenOverCap taken ? taken.Door : null;
 
         /// <summary>The private property <c>Phase</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Rooms.Doors.BlueDoorCapPhase Phase
@@ -23,7 +27,8 @@ internal static class BlueDoorCapObjectPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Rooms.Doors.BlueDoorCapObject, global::SuperMetroid.Core.Rooms.Doors.BlueDoorCapPhase>(self, "Phase");
         }
 
-        /// <summary>The private field <c>shotCapClosing</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Compatibility.ShotOpenedCapClosing<global::SuperMetroid.Core.Progression.LockedDoor>? shotCapClosing => PrivateState.Field<global::SuperMetroid.Core.Rooms.Doors.BlueDoorCapObject, global::SuperMetroid.Core.Compatibility.ShotOpenedCapClosing<global::SuperMetroid.Core.Progression.LockedDoor>?>(self, "shotCapClosing");
+        /// <summary>The room's shot-cap rule of a cap a shot opened; none for a cap no shot opened.</summary>
+        internal global::SuperMetroid.Core.Compatibility.ShotOpenedCapClosing<global::SuperMetroid.Core.Progression.LockedDoor>? shotCapClosing =>
+            self.Origin is global::SuperMetroid.Core.Rooms.Doors.BlueDoorCapObject.CapOrigin.ShotOpenedCap shot ? shot.Rule : null;
     }
 }

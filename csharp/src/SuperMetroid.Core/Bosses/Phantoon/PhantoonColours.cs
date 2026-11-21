@@ -17,27 +17,19 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </remarks>
 internal sealed class PhantoonColours : IGameplayShadingSource
 {
-    /// <summary>The colouring his body last showed whole, or null while it shows his room's own colours or a fade's start.</summary>
-    private PhantoonBodyLook? settled;
+    /// <summary>
+    /// What his body shows (#2560): his room's own colours before he shows any colouring, a colouring settled whole, or a
+    /// fade running from what his body showed as it started.
+    /// </summary>
+    private BodyColouring body = new UnshownBody();
 
-    /// <summary>What his body showed when the running fade started, or null before he shows any colouring.</summary>
-    private PictureShading? from;
-
-    /// <summary>The running fade, or null while none runs.</summary>
-    private RunningBodyFade? fade;
-
-    /// <summary>The place of the power coming on's latest step, or null before it starts.</summary>
-    private int? powerOnStep;
-
-    /// <summary>Whether the power has finished coming on.</summary>
-    private bool powered;
+    /// <summary>The Wrecked Ship's power over his room (#2560): off, coming on at its latest step, or on; null while off.</summary>
+    private PowerColouring? power;
 
     /// <summary>Shows <paramref name="look"/> on his body at once; a running fade continues from it on its next step.</summary>
     internal void Show(PhantoonBodyLook look)
     {
-        settled = look;
-        from = PictureShading.Shaded(PhantoonShades.Body(look));
-        fade = null;
+        body = new SettledBody(look);
     }
 
     /// <summary>
@@ -51,46 +43,46 @@ internal sealed class PhantoonColours : IGameplayShadingSource
     /// <exception cref="InvalidOperationException">His body has shown no colouring to fade from.</exception>
     internal void Fade(PhantoonBodyLook to, int step, int length)
     {
-        if (fade is { } running && running.To == to)
+        if (body is FadingBody { Fade: var running } && running.To == to)
         {
-            fade = running with { Step = step };
+            body = new FadingBody(running with { Step = step });
             return;
         }
-        if (fade is { } other)
+        PictureShading start = body switch
         {
-            from = PictureShading.Standard.With(other.Shown);
-            settled = null;
-        }
-        PictureShading start = from ?? throw new InvalidOperationException("Phantoon's body fades once it has shown a colouring.");
-        fade = new RunningBodyFade(start, to, StartedAt: step, Step: step, Length: length);
+            FadingBody other => PictureShading.Standard.With(other.Fade.Shown),
+            SettledBody settled => PictureShading.Shaded(PhantoonShades.Body(settled.Look)),
+            _ => throw new InvalidOperationException("Phantoon's body fades once it has shown a colouring."),
+        };
+        body = new FadingBody(new RunningBodyFade(start, to, StartedAt: step, Step: step, Length: length));
     }
 
     /// <summary>Completes his body's running fade: his body shows the colouring it faded to from now on.</summary>
     internal void CompleteFade()
     {
-        if (fade is { } running)
-            Show(running.To);
+        if (body is FadingBody fading)
+            Show(fading.Fade.To);
     }
 
     /// <summary>Takes the step at place <paramref name="step"/> of the Wrecked Ship's power coming on over his room.</summary>
-    internal void PowerOn(int step) => powerOnStep = Ensure.AtLeastZero(step);
+    internal void PowerOn(int step) => power = new PowerComingOnColouring(Ensure.AtLeastZero(step));
 
     /// <summary>Completes the power coming on: the room shows its powered colours.</summary>
-    internal void CompletePowerOn() => powered = true;
+    internal void CompletePowerOn() => power = new PoweredColouring();
 
     /// <inheritdoc />
     public void ShadeGameplay(GameplayShadingBuilder frame)
     {
         Ensure.NotNull(frame);
-        if (fade is { } running)
-            frame.Shade(GameplayPictures.BossBody, running.Shown);
-        else if (settled is { } look)
-            frame.Shade(GameplayPictures.BossBody, PhantoonShades.Body(look));
+        if (body is FadingBody fading)
+            frame.Shade(GameplayPictures.BossBody, fading.Fade.Shown);
+        else if (body is SettledBody settled)
+            frame.Shade(GameplayPictures.BossBody, PhantoonShades.Body(settled.Look));
         foreach (GameplayPictures pictures in PoweredPictures)
         {
-            if (powered)
+            if (power is PoweredColouring)
                 frame.Shade(pictures, PhantoonShades.Powered);
-            else if (powerOnStep is { } step)
+            else if (power is PowerComingOnColouring { Step: var step })
                 frame.Shade(pictures, PowerComingOn(step));
         }
     }
@@ -137,4 +129,28 @@ internal sealed class PhantoonColours : IGameplayShadingSource
             }
         }
     }
+
+    /// <summary>What his body shows (#2560).</summary>
+    private abstract record BodyColouring;
+
+    /// <summary>His room's own colours, before he shows any colouring.</summary>
+    private sealed record UnshownBody : BodyColouring;
+
+    /// <summary>A colouring shown whole, from which a fade starts.</summary>
+    /// <param name="Look">The colouring.</param>
+    private sealed record SettledBody(PhantoonBodyLook Look) : BodyColouring;
+
+    /// <summary>A fade running from what his body showed as it started.</summary>
+    /// <param name="Fade">The running fade.</param>
+    private sealed record FadingBody(RunningBodyFade Fade) : BodyColouring;
+
+    /// <summary>The Wrecked Ship's power once it starts coming on (#2560).</summary>
+    private abstract record PowerColouring;
+
+    /// <summary>The power coming on, at the place of its latest step.</summary>
+    /// <param name="Step">The latest step's place.</param>
+    private sealed record PowerComingOnColouring(int Step) : PowerColouring;
+
+    /// <summary>The power on: the room shows its powered colours.</summary>
+    private sealed record PoweredColouring : PowerColouring;
 }

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <param name="Angle">The beam's aim.</param>
 /// <param name="AngularWidth">Beam half-width in whole steps, none through ten.</param>
 /// <param name="SamusPosition">Samus's whole room-pixel position.</param>
-/// <param name="FacingLeft">Whether Samus's current pose faces left.</param>
+/// <param name="Facing">The way Samus faces: left, or right otherwise (#2560).</param>
 /// <param name="Crouching">Whether Samus's current pose has the crouching movement type.</param>
 [IndependentFlag("independent facts the x-ray display reads")]
 public readonly record struct SamusXrayDisplaySnapshot(
@@ -25,7 +25,7 @@ public readonly record struct SamusXrayDisplaySnapshot(
     RotationAngle Angle,
     TrigonometryAngle AngularWidth,
     Position16<RoomPixels> SamusPosition,
-    bool FacingLeft,
+    HorizontalDirection Facing,
     bool Crouching)
 {
     /// <summary>
@@ -39,7 +39,8 @@ public readonly record struct SamusXrayDisplaySnapshot(
         bool finished = lastBeamStep is { Completed: true, PhaseAtStart: XrayBeamPhase.Finish };
         if (!samus.Xray.IsActive && !finished) return null;
         return new(finished, samus.Xray.WarmUp, samus.Xray.BeamPhase, samus.Xray.Closing, samus.Xray.Angle,
-            samus.Xray.AngularWidth, samus.Position.Whole, SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left),
+            samus.Xray.AngularWidth, samus.Position.Whole,
+            SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? HorizontalDirection.Left : HorizontalDirection.Right,
             SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Crouching);
     }
 }

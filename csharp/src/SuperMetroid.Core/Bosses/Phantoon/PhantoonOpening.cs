@@ -58,7 +58,7 @@ internal sealed class PhantoonOpening
         if (!state.PhaseWait.StepRunsOut())
             return;
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.StartingFlamesOrbitUpdates);
-        state.StartingFlames.Orbiting = true;
+        // The intro flames orbit while he waits for them to disappear (#2560).
         state.Phase = PhantoonPhase.WaitForStartingFlamesToDisappear;
     }
 
@@ -69,7 +69,6 @@ internal sealed class PhantoonOpening
         if (!state.PhaseWait.StepRunsOut())
             return;
 
-        state.StartingFlames.Orbiting = false;
         state.Translucent = true;
         state.Phase = PhantoonPhase.WavyFadeIn;
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Show;

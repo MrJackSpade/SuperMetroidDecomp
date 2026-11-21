@@ -40,11 +40,11 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
     private GreyDoorLock Lock { get; }
 
     /// <summary>What the cap is doing.</summary>
-    private GreyDoorPhase Phase { get; set; } = GreyDoorPhase.Locked;
+    private GreyDoorPhase Phase { get; set; } = GreyDoorPhase.Placed;
 
     /// <summary>
-    /// What the cap waits for on each update: nothing until its first look locks it (a locked cap waiting for nothing has
-    /// yet to take that look), and nothing once it opens.
+    /// What the cap waits for on each update: nothing until its first look locks it, and nothing once it opens. This is apart
+    /// from what the cap plays: a closing behind Samus keeps it.
     /// </summary>
     private GreyDoorWait Waits { get; set; }
 
@@ -118,6 +118,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
     {
         switch (Phase)
         {
+            case GreyDoorPhase.Placed:
             case GreyDoorPhase.Closing:
                 Look(place, context);
                 return;
@@ -133,8 +134,6 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
                 return;
             case GreyDoorPhase.Locked:
                 // Once it has looked, the cap rests on its closed image until its condition holds.
-                if (Waits == GreyDoorWait.Nothing)
-                    Look(place, context);
                 return;
             case GreyDoorPhase.Flashing:
                 throw new InvalidOperationException("An unlocked grey cap flashes until a shot opens it; its flash never ends.");

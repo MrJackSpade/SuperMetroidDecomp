@@ -119,7 +119,7 @@ internal sealed class RidleyTail
 
         // Once a wave/whip has propagated through every link, neutral AI starts the next wave at the base and retires
         // both old targets. Where Samus stands selects the slow or fast neutral swing.
-        state.Tail.Base.Active = true;
+        state.Tail.Base.Activate();
         state.Tail.ClockwiseWhipTarget = null;
         state.Tail.CounterClockwiseWhipTarget = null;
         state.Tail.SwingStep = samus.Position.X.Whole < RidleyTailDefinitions.FastNeutralSwingFromX
@@ -209,10 +209,10 @@ internal sealed class RidleyTail
                     return;
                 }
 
-                link.StartedNextLink = true;
+                link.Swing = RidleyTailLinkSwing.Swinging;
                 if (link.Next is { } next)
                 {
-                    next.Active = true;
+                    next.Activate();
                     next.SwingDirection = link.SwingDirection;
                 }
             }
@@ -274,8 +274,7 @@ internal sealed class RidleyTail
     /// <summary>Ends a link's active whip and flips its swing for the next activation.</summary>
     private static void DeactivateRidleyTailLink(RidleyTailLink link)
     {
-        link.Active = false;
-        link.StartedNextLink = false;
+        link.Swing = RidleyTailLinkSwing.Resting;
         link.Stagger = RidleyTailTurn.None;
         link.SwingDirection = link.SwingDirection.Reversed();
     }
@@ -427,8 +426,8 @@ internal sealed class RidleyTail
                 continue;
             }
 
-            projectile.Position = projectile.Position.WithWhole(joint.Position);
-            projectile.Spend();
+            held.Position = projectile.Position.WithWhole(joint.Position);
+            held.Spend();
 
             // A missile gets the tiny dud and the dud-shot sound. Beams and supers
             // use the larger smoke variant, exactly as the tail's shot reaction selects it.
@@ -501,7 +500,7 @@ internal sealed class RidleyTail
                 link.TargetDistance = RidleyTailDefinitions.StabDistance;
                 link.Angle = RidleyTailDefinitions.DownAngle;
             }
-            state.Tail.Base.Active = true;
+            state.Tail.Base.Activate();
         }
         state.Tail.ClockwiseWhipTarget = null;
         state.Tail.CounterClockwiseWhipTarget = null;

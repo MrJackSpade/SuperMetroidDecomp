@@ -51,8 +51,8 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     /// </summary>
     private int Hits { get; set; }
 
-    /// <summary>Whether a missile strike wakes the cannon: from its first update until a hit destroys it.</summary>
-    internal bool WakeArmed { get; private set; }
+    /// <summary>Whether a missile strike wakes the cannon: while it shows its shield or its hit flash, from its first update until a hit destroys it (#2560).</summary>
+    internal bool WakeArmed => Phase is DraygonCannonPhase.Shielded or DraygonCannonPhase.Flashing;
 
     /// <summary>The strike on the cannon's block it has yet to take (#2562).</summary>
     private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> _strike = new();
@@ -80,7 +80,6 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
         switch (Phase)
         {
             case DraygonCannonPhase.StartingWhole:
-                WakeArmed = true;
                 Show(place, context, _look.Shield, DraygonCannonPhase.Shielded);
                 return;
             case DraygonCannonPhase.StartingDestroyed:
@@ -122,7 +121,6 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
             Show(place, context, _look.HitFlash, DraygonCannonPhase.Flashing);
             return;
         }
-        WakeArmed = false;
         Destroy(place, context);
     }
 

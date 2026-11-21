@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Areas.Escape;
@@ -102,8 +103,8 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(26, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.StrongDiagonal), "strong diagonal shake");
         AssertEqual(24, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.MainstreetQuake), "Mainstreet quake");
         // The cartridge skips outdoor explosions over its blank tile, 255: the level word's open-space block shows nothing (#2100).
-        AssertTrue(SuperMetroid.AssetExtraction.RoomLevelWordCodec.DecodeAppearance(255).ShowsNothing
-            && !SuperMetroid.AssetExtraction.RoomLevelWordCodec.DecodeAppearance(254).ShowsNothing, "the blank explosion tile is the block that shows nothing");
+        AssertTrue(SuperMetroid.AssetExtraction.RoomLevelWordCodec.DecodeAppearance(255).Shows == RoomBlockShown.Nothing
+            && SuperMetroid.AssetExtraction.RoomLevelWordCodec.DecodeAppearance(254).Shows != RoomBlockShown.Nothing, "the blank explosion tile is the block that shows nothing");
         AssertEqual(6, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.LandingQuake), "landing site quake");
         AssertEqual(128, EscapeTimerDefinitions.ClearedPixel, "timer cleared origin");
         var earthquake = new RoomEarthquake();

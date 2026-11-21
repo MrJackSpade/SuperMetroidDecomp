@@ -119,11 +119,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         SamusBombProjectileSystem samusBombs)
     {
-        if (state.RainbowBeamSequence is { } lateFight)
-        {
-            RainbowAndDeath.RunLiveMotherBrainRainbowBeam(lateFight, samus, state.Body.FrameCounter, samusBombs);
-            return;
-        }
         switch (state.Stage)
         {
             case MotherBrainBodyStage.Glass:
@@ -138,16 +133,17 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyStage.Phase2Fight:
                 RunMotherBrainPhase2Fight(state, samus);
                 return;
-            // The stages from the rainbow beam on belong to her late fight, which runs them once it has begun.
+            // The stages from the rainbow beam on are her late fight's, which runs them from the update it begins (#2560).
             case MotherBrainBodyStage.RainbowBeam:
             case MotherBrainBodyStage.FinishingSamusOff:
             case MotherBrainBodyStage.DrainedByBaby:
             case MotherBrainBodyStage.Reviving:
             case MotherBrainBodyStage.Phase3Fight:
             case MotherBrainBodyStage.Dying:
+                RainbowAndDeath.RunLiveMotherBrainRainbowBeam(state.LateFight, samus, state.Body.FrameCounter, samusBombs);
+                return;
             default:
-                throw new InvalidDataException(
-                    $"Mother Brain's body has no behaviour for its {state.Stage} stage outside her late fight.");
+                throw new InvalidDataException($"Mother Brain's body has no behaviour for its {state.Stage} stage.");
         }
     }
 

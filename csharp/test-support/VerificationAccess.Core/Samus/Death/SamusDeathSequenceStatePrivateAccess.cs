@@ -27,10 +27,11 @@ internal static class SamusDeathSequenceStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Samus.Death.SamusDeathSequenceState, global::SuperMetroid.Core.Samus.Artwork.SamusDeathExplosionFrame?>(self, "ExplosionFrame");
         }
 
-        /// <summary>The private property <c>FacingLeft</c>, reached by name.</summary>
-        internal bool FacingLeft
+
+        /// <summary>The private property <c>Facing</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Spatial.HorizontalDirection Facing
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Death.SamusDeathSequenceState, bool>(self, "FacingLeft");
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Death.SamusDeathSequenceState, global::SuperMetroid.Core.Spatial.HorizontalDirection>(self, "Facing");
         }
 
         /// <summary>The private property <c>ScreenPosition</c>, reached by name.</summary>

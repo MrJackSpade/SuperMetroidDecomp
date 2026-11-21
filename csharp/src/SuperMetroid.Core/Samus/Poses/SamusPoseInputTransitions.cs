@@ -60,7 +60,7 @@ public static class SamusPoseInputTransitions
         // With no action held, no input transition matches and the pose's definition decides, without reading the
         // pose's input transitions at all.
         if (heldActions == GameplayAction.None)
-            return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: true);
+            return SamusPoseTransitionLookup.PoseDefinitionFallback;
 
         // Start and item selection never participate in pose chords: the lookup reads only the directions and the
         // actions its chords name.
@@ -68,13 +68,13 @@ public static class SamusPoseInputTransitions
         GameplayAction newlyPressed = newlyPressedActions & ~StartAndItemSelect;
 
         SamusPoseInputMatch match = SamusPoseInputRules.Match(SamusPoseTraits.Of(currentPose).Inputs, held, newlyPressed);
-        if (match.Transition is not { } transition)
-            return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: match.HasConditions);
+        if (match is not SamusPoseInputMatch.Matched { Choice: var transition })
+            return match.HasConditions ? SamusPoseTransitionLookup.PoseDefinitionFallback : SamusPoseTransitionLookup.KeepsPose;
 
         // A match that keeps this pose keeps it, and its fallback is not consulted.
         return transition.ProspectivePose == currentPose
-            ? new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: false)
-            : new SamusPoseTransitionLookup(transition, UsesPoseDefinitionFallback: false);
+            ? SamusPoseTransitionLookup.KeepsPose
+            : new SamusPoseTransitionLookup.Chosen(transition);
     }
 
     /// <summary>

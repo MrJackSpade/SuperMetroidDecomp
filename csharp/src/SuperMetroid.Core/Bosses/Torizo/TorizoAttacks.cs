@@ -211,7 +211,8 @@ internal sealed class TorizoAttacks
                     SetGoldenTorizoSuperMissileVelocity(
                         projectile,
                         samus,
-                        awayFromSamus: cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus });
+                        turn: cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus }
+                            ? HorizontalDirection.Left : HorizontalDirection.Right);
                     return null;
                 case TorizoProjectileCue.SetRadius setRadius:
                     projectile.Radius = setRadius.Radius;
@@ -271,10 +272,13 @@ internal sealed class TorizoAttacks
             bool collided = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
             if (projectile.Velocity.Y.IsNegative || !collided)
             {
-                EnemyProjectile? firstPlace = projectiles.LatestInFirstPlace;
-                SignedEightEight acceleration = FirstPlaceFallAcceleration.Of(
-                    firstPlace is { IsActive: true },
-                    firstPlace is { IsActive: true, Kind: RoomEnemyProjectileKind.BombTorizoStatueBreaking } ? StatueFragments.Of(firstPlace).Acceleration : null);
+                SignedEightEight acceleration = FirstPlaceFallAcceleration.Of(projectiles.LatestInFirstPlace switch
+                {
+                    { IsActive: true, Kind: RoomEnemyProjectileKind.BombTorizoStatueBreaking } piece =>
+                        new FirstPlaceHolding.StatuePiece(StatueFragments.Of(piece).Acceleration),
+                    { IsActive: true } => new FirstPlaceHolding.OtherProjectile(),
+                    _ => new FirstPlaceHolding.Free(),
+                });
                 // A piece's fall speed is capped at the runaway speed.
                 projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + acceleration);
                 if (IsRunaway(projectile.Velocity.Y))
@@ -771,10 +775,10 @@ internal sealed class TorizoAttacks
     internal static void SetGoldenTorizoSuperMissileVelocity(
         EnemyProjectile projectile,
         SamusState samus,
-        bool awayFromSamus)
+        HorizontalDirection turn)
     {
         TrigonometryAngle aim = EnemyMath.CalculateAimAngle(samus.Position.Whole - projectile.Position.Whole);
-        TrigonometryAngle angle = aim.InHalfTurnToward(awayFromSamus ? HorizontalDirection.Left : HorizontalDirection.Right);
+        TrigonometryAngle angle = aim.InHalfTurnToward(turn);
 
         // The missile's X speed follows the angle's cosine and its Y speed its negative sine.
         projectile.Velocity = new(

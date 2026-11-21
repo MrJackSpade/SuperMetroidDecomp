@@ -49,7 +49,7 @@ internal sealed class ProjectileEnemyImpacts
         }
 
         if (markCollisionState)
-            shot.Spend();
+            held.Spend();
     }
 
     /// <summary>
@@ -105,8 +105,8 @@ internal sealed class ProjectileEnemyImpacts
         }
 
         held.Damage = SamusProjectileDamage.Read(kind);
-        shot.Animation = SamusProjectilePlayback.Start(segment);
-        shot.Radius = SamusProjectilePlayback.InitialRadius(segment);
+        held.Animation = SamusProjectilePlayback.Start(segment);
+        held.Radius = SamusProjectilePlayback.InitialRadius(segment);
 
         if (family == SamusProjectileFamily.Missile)
             held.Install(SamusShotBehaviors.Missile, new MissileShotState(new SamusMissileIgnition.PendingAfterReflection()));

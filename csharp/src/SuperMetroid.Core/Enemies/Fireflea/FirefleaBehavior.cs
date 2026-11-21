@@ -153,13 +153,13 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal EnemyPowerBombReaction FirefleaPowerBombReaction => field ??= new()
     {
         // Reactions around common power-bomb damage.
-        BeforeGenericDeath = _ => AdvanceFirefleaDarkness(),
+        Lethal = new EnemyPowerBombLethal.AfterStage(_ => AdvanceFirefleaDarkness()),
     };
 
     /// <summary>Advances darkness before a lethal common projectile death is finalized.</summary>
     internal EnemyShotReaction FirefleaShotReaction => field ??= new()
     {
-        BeforeGenericDeath = _ => AdvanceFirefleaDarkness(),
+        Lethal = new EnemyShotLethal.AfterStage(_ => AdvanceFirefleaDarkness()),
     };
 
     /// <summary>Runs Fireflea's touch reaction, the unconditional-death sequence.</summary>

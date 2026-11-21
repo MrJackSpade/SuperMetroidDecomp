@@ -105,10 +105,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartBeetomCrawling(place, state, state.Heading);
                 return;
             case BeetomAction.StartShortHop:
-                StartBeetomHop(place, state, BeetomLeapDefinitions.ShortLeap.StartPlace, state.Heading, BeetomHopLength.Short);
+                StartBeetomHop(place, state, state.Heading, BeetomHopLength.Short);
                 return;
             case BeetomAction.StartLongHop:
-                StartBeetomHop(place, state, BeetomLeapDefinitions.LongLeap.StartPlace, state.Heading, BeetomHopLength.Long);
+                StartBeetomHop(place, state, state.Heading, BeetomHopLength.Long);
                 return;
             case BeetomAction.StartLunge:
                 StartBeetomLunge(place, state, samus);
@@ -199,17 +199,23 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartBeetomHop(
         RoomEnemyPlace place,
         BeetomEnemyState state,
-        QuadraticSpeedCurvePlace initialYSpeedCurvePlace,
         HorizontalDirection direction,
         BeetomHopLength length)
     {
-        state.YSpeedCurvePlace = initialYSpeedCurvePlace;
-        state.Begin(length switch
+        // The hop's length selects its climb, whose start place the hop rises from (#2560).
+        switch (length)
         {
-            BeetomHopLength.Short => BeetomAction.ShortHopRising,
-            BeetomHopLength.Long => BeetomAction.LongHopRising,
-            _ => throw new ArgumentOutOfRangeException(nameof(length), length, "Unknown Beetom hop."),
-        }, direction);
+            case BeetomHopLength.Short:
+                state.YSpeedCurvePlace = BeetomLeapDefinitions.ShortLeap.StartPlace;
+                state.Begin(BeetomAction.ShortHopRising, direction);
+                break;
+            case BeetomHopLength.Long:
+                state.YSpeedCurvePlace = BeetomLeapDefinitions.LongLeap.StartPlace;
+                state.Begin(BeetomAction.LongHopRising, direction);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(length), length, "Unknown Beetom hop.");
+        }
         SetBeetomAnimation(
             place,
             state,

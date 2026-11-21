@@ -25,6 +25,6 @@ public sealed class PhantoonDeathState
         internal set => field = Ensure.BetweenInclusive(PhantoonDeathDefinitions.InitialPixelationSize, PhantoonDeathDefinitions.FinalPixelationSize, value);
     } = PhantoonDeathDefinitions.InitialPixelationSize;
 
-    /// <summary>Whether his body's pixelation has finished growing and the fade-out runs.</summary>
-    public bool PixelationFinished { get; internal set; }
+    /// <summary>The stage of his fade-out: his pixelation growing, or done and his fade running (#2560).</summary>
+    public PhantoonDeathStage Stage { get; internal set; }
 }

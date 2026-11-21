@@ -31,7 +31,7 @@ public static class RoomScrollOverreadFiles
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         Directory.CreateDirectory(directory);
         var cells = new Dictionary<string, IReadOnlyList<RoomScrollState>>();
-        foreach (RoomScrollDefinition layout in RoomScrollDefinitions.Explicit)
+        foreach (RoomScrollDefinition.ExplicitLayout layout in RoomScrollDefinitions.Explicit)
         {
             int table = Ensure.Listed(RoomScrollTableSourceDefinitions.Tables, layout);
             var past = new RoomScrollState[RoomScrollGrid.KeptCellCount - layout.Cells.Count];
@@ -64,7 +64,7 @@ public static class RoomScrollOverreadFiles
             throw new InvalidDataException(
                 $"Room scroll overread file holds {held.Count} layouts, not the {RoomScrollDefinitions.Explicit.Count} explicit ones.");
         var cells = new Dictionary<string, IReadOnlyList<RoomScrollState>>();
-        foreach (RoomScrollDefinition layout in RoomScrollDefinitions.Explicit)
+        foreach (RoomScrollDefinition.ExplicitLayout layout in RoomScrollDefinitions.Explicit)
         {
             if (!held.TryGetValue(layout.Name, out IReadOnlyList<RoomScrollState>? past) || past is null)
                 throw new InvalidDataException($"Room scroll overread file has no cells for {layout.Name}.");

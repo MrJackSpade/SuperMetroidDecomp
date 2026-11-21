@@ -46,7 +46,7 @@ internal sealed class KraidColours : IGameplayShadingSource
     /// <summary>Shows <paramref name="shade"/> with <paramref name="eyes"/> in his eyes, which its shade shows in <paramref name="shaded"/>.</summary>
     private void Show(PictureShade shade, ReadOnlySpan<RgbColor> eyes, ReadOnlySpan<RgbColor> shaded)
     {
-        Shown = Shown is DeathColours ? new DeathColours(shade) : new BandShade();
+        Shown = Shown is DeathColours ? new DeathColours(shade) : new BandShade(shade);
         shadedEyes = Ensure.LengthEqual(shaded, KraidEyeGlow.Eyes).ToArray();
         ShowBandEyes(eyes);
     }
@@ -100,7 +100,15 @@ internal sealed class KraidColours : IGameplayShadingSource
     private sealed record RoomColours() : BodyShown((PictureShade?)null);
 
     /// <summary>A health band's or the hurt flash's shade, on his body and his parts.</summary>
-    private sealed record BandShade() : BodyShown(Shade);
+    private sealed record BandShade : BodyShown
+    {
+        /// <summary>Shows <paramref name="shade"/> on his body and his parts.</summary>
+        /// <param name="shade">The band's or hurt flash's shade.</param>
+        public BandShade(PictureShade shade)
+            : base(shade)
+        {
+        }
+    }
 
     /// <summary>His death colours on his body; his parts keep the last shade shown.</summary>
     /// <param name="PartsShade">The shade his parts show.</param>

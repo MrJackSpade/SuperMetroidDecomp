@@ -237,15 +237,12 @@ public static class FileSelectPresentationExtractor
             address = FileSelectTilemapFormat.Bank | (SnesAddressMath.OffsetInBank(address + 2));
             if (FileSelectTextControls.Of(word) is { } control)
             {
-                switch (control)
-                {
-                    case FileSelectTextControl.End:
-                        return new(cells.ToArray());
-                    case FileSelectTextControl.NextRow:
-                        x = 0;
-                        y++;
-                        continue;
-                }
+                // The two controls end the text or start its next row.
+                if (control == FileSelectTextControl.End)
+                    return new(cells.ToArray());
+                x = 0;
+                y++;
+                continue;
             }
             cells.Add(new(new(checked((short)(x++)), checked((short)y)), new SnesBgTilemapWord(checked((ushort)word))));
         }

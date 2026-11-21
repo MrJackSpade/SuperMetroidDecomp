@@ -53,6 +53,23 @@ internal static class SamusAnimationDelays
     }
 
     /// <summary>
+    /// <paramref name="frame"/> of <paramref name="pose"/>'s animation as a frame its animation starts on or a cue moves it
+    /// to, with the delay its timer starts from there (#2553): one of the animation's own delays, or, on any other frame, the
+    /// byte the import decoded there (<see cref="SamusFramesBeyondAnimation.DelayRead"/>).
+    /// </summary>
+    /// <param name="pose">The pose whose animation starts or moves.</param>
+    /// <param name="frame">The frame it starts on or moves to.</param>
+    /// <param name="framesBeyondAnimation">What a frame that is no step of its animation reads.</param>
+    /// <exception cref="InvalidDataException">The frame holds no delay of its own, and the installation holds no delay read there.</exception>
+    internal static SamusAnimationDelayFrame DelayFrame(SamusPoseId pose, SamusAnimationFrame frame, SamusFramesBeyondAnimation framesBeyondAnimation)
+    {
+        Ensure.NotNull(framesBeyondAnimation);
+        SamusPoseAnimation animation = AnimationForPose(pose);
+        return new SamusAnimationDelayFrame(frame,
+            animation.TryDelayAt(frame) ?? new SamusAnimationDelay(framesBeyondAnimation.DelayRead(animation.Name, frame)));
+    }
+
+    /// <summary>
     /// The frame after <paramref name="frame"/> of <paramref name="pose"/>'s animation, past its end and past a segment's cue
     /// included (<see cref="SamusPoseAnimation.Next"/>).
     /// </summary>

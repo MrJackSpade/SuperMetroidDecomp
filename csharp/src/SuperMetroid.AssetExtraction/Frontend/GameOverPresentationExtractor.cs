@@ -90,15 +90,12 @@ public static class GameOverPresentationExtractor
                 sourceAddress = GameOverSourceDefinitions.TextBank | (SnesAddressMath.OffsetInBank(sourceAddress + 2));
                 if (GameOverSourceDefinitions.TextControls.TryGetValue(word, out GameOverTextControl control))
                 {
-                    switch (control)
-                    {
-                        case GameOverTextControl.End:
-                            return;
-                        case GameOverTextControl.NextLine:
-                            initialColumn += GameOverSourceDefinitions.TextRowBytes;
-                            destinationByteOffset = initialColumn;
-                            continue;
-                    }
+                    // The two controls end the text or start its next line.
+                    if (control == GameOverTextControl.End)
+                        return;
+                    initialColumn += GameOverSourceDefinitions.TextRowBytes;
+                    destinationByteOffset = initialColumn;
+                    continue;
                 }
 
                 int wordIndex = destinationByteOffset / sizeof(ushort);

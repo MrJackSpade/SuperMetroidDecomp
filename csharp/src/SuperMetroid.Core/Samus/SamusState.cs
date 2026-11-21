@@ -86,7 +86,7 @@ public sealed class SamusState
     internal void ChangePose(SamusPoseId pose, SamusAnimationFrame initialFrame)
     {
         Pose = pose;
-        SamusPresentation.StartAnimation(this, initialFrame);
+        SamusPresentation.StartAnimation(this, SamusAnimationDelays.DelayFrame(pose, initialFrame, FramesBeyondAnimation));
     }
 
     /// <summary>
@@ -164,9 +164,23 @@ public sealed class SamusState
     /// <summary>Moves her animation back to the first frame of the animation she animates by.</summary>
     internal void RestartAnimation() => AnimationFrame = SamusAnimationDelays.AnimationForPose(Pose).Start;
 
-    /// <summary>Moves her animation to the frame <paramref name="target"/> names, as a cue read on her current frame names it.</summary>
-    internal void MoveAnimationTo(SamusAnimationFrame target) =>
-        AnimationFrame = SamusAnimationDelays.Target(Pose, AnimationFrame, target, FramesBeyondAnimation);
+    /// <summary>
+    /// The frame a cue read on her current frame moves her animation to when it names <paramref name="target"/>, with the
+    /// delay its timer starts from there (<see cref="SamusAnimationDelays.DelayFrame"/>).
+    /// </summary>
+    internal SamusAnimationDelayFrame AnimationMovedTo(SamusAnimationFrame target) => SamusAnimationDelays.DelayFrame(Pose,
+        SamusAnimationDelays.Target(Pose, AnimationFrame, target, FramesBeyondAnimation), FramesBeyondAnimation);
+
+    /// <summary>The first frame of the animation she animates by, with the delay its timer starts from, which a restart moves her animation to.</summary>
+    internal SamusAnimationDelayFrame AnimationRestart =>
+        SamusAnimationDelays.DelayFrame(Pose, SamusAnimationDelays.AnimationForPose(Pose).Start, FramesBeyondAnimation);
+
+    /// <summary>
+    /// The frame after the one her animation is on, with the delay its timer starts from, which a cue that continues into the
+    /// next segment moves her animation to.
+    /// </summary>
+    internal SamusAnimationDelayFrame AnimationFrameAfterCue => SamusAnimationDelays.DelayFrame(Pose,
+        SamusAnimationDelays.Next(Pose, AnimationFrame, FramesBeyondAnimation), FramesBeyondAnimation);
 
     /// <summary>
     /// Her animation frame read as a frame of <paramref name="pose"/>'s animation, which must be the animation she animates

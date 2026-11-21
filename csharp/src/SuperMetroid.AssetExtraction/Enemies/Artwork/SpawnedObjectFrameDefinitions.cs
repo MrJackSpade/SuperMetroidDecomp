@@ -1817,7 +1817,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.TorizoExplosionFlareRingCored,
         EnemyProjectileFrameId.TorizoExplosionFlareRing,
         EnemyProjectileFrameId.TorizoExplosionFlareRingFading,
-        EnemyProjectileFrameId.TorizoDeathExplosionSpark,
         EnemyProjectileFrameId.TorizoExplosionFireballSmall,
         EnemyProjectileFrameId.TorizoExplosionFireballLarge,
         EnemyProjectileFrameId.TorizoExplosionFlamingRing,

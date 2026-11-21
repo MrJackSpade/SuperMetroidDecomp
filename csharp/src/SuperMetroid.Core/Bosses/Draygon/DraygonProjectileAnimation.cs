@@ -7,13 +7,9 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
 /// <param name="segment">Where the animation starts.</param>
 internal sealed class DraygonProjectileAnimation(IEnemyProjectileCues<DraygonProjectileCue> owner, DraygonProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<DraygonProjectileSegment, DraygonProjectileCue>(DraygonProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunner<DraygonProjectileSegment, DraygonProjectileCue>.By(owner))
+    : EnemyProjectileFrameAnimation<DraygonProjectileSegment, DraygonProjectileCue>(segment, DraygonProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunner<DraygonProjectileSegment, DraygonProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<DraygonProjectileSegment, EnemyProjectileFrameId, DraygonProjectileCue> Segments =>
         DraygonProjectileAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<DraygonProjectileSegment, Animation<DraygonProjectileSegment>> StartingAt =>
-        DraygonProjectileAnimations.StartingAt;
 }

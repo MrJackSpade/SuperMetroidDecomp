@@ -5,11 +5,8 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>Polyp lava rock's typed animation.</summary>
 internal sealed class PolypRockAnimation(PolypRockSegment segment)
-    : EnemyProjectileFrameAnimation<PolypRockSegment, EnemyProjectileCommonCue>(PolypRockAnimations.StartingWith(segment), EnemyProjectileCueRunners.Common<PolypRockSegment>())
+    : EnemyProjectileFrameAnimation<PolypRockSegment, EnemyProjectileCommonCue>(segment, PolypRockAnimations.StartingWith(segment), EnemyProjectileCueRunners.Common<PolypRockSegment>())
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<PolypRockSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => PolypRockAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<PolypRockSegment, Animation<PolypRockSegment>> StartingAt => PolypRockAnimations.StartingAt;
 }

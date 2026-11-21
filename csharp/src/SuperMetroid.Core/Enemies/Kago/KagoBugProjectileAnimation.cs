@@ -7,11 +7,8 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
 /// <param name="segment">Where the animation starts.</param>
 internal sealed class KagoBugProjectileAnimation(IEnemyProjectileCues<KagoBugProjectileCue> owner, KagoBugProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<KagoBugProjectileSegment, KagoBugProjectileCue>(KagoBugProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunner<KagoBugProjectileSegment, KagoBugProjectileCue>.By(owner))
+    : EnemyProjectileFrameAnimation<KagoBugProjectileSegment, KagoBugProjectileCue>(segment, KagoBugProjectileAnimations.StartingWith(segment), EnemyProjectileCueRunner<KagoBugProjectileSegment, KagoBugProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<KagoBugProjectileSegment, EnemyProjectileFrameId, KagoBugProjectileCue> Segments => KagoBugProjectileAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<KagoBugProjectileSegment, Animation<KagoBugProjectileSegment>> StartingAt => KagoBugProjectileAnimations.StartingAt;
 }

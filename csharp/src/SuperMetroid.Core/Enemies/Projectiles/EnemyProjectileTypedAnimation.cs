@@ -20,8 +20,8 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
     private readonly EnemyProjectileCueRunner<TSegment, TEvent> _cues;
 
     /// <summary>Starts <paramref name="animation"/> before its first play, its events carried out by <paramref name="cues"/>.</summary>
-    private protected EnemyProjectileTypedAnimation(Animation<TSegment> animation, EnemyProjectileCueRunner<TSegment, TEvent> cues)
-        : base(animation) => _cues = Ensure.NotNull(cues);
+    private protected EnemyProjectileTypedAnimation(TSegment startsAt, Animation<TSegment> animation, EnemyProjectileCueRunner<TSegment, TEvent> cues)
+        : base(startsAt, animation) => _cues = Ensure.NotNull(cues);
 
     /// <inheritdoc/>
     private protected sealed override AnimationShown<TSegment, TFrame> PlayToNextFrame(EnemyProjectileCueContext context,

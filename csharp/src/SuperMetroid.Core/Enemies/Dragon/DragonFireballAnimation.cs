@@ -5,11 +5,8 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>Dragon fireball's typed animation.</summary>
 internal sealed class DragonFireballAnimation(DragonFireballSegment segment)
-    : EnemyProjectileFrameAnimation<DragonFireballSegment, EnemyProjectileCommonCue>(DragonFireballAnimations.StartingWith(segment), EnemyProjectileCueRunners.Common<DragonFireballSegment>())
+    : EnemyProjectileFrameAnimation<DragonFireballSegment, EnemyProjectileCommonCue>(segment, DragonFireballAnimations.StartingWith(segment), EnemyProjectileCueRunners.Common<DragonFireballSegment>())
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<DragonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DragonFireballAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<DragonFireballSegment, Animation<DragonFireballSegment>> StartingAt => DragonFireballAnimations.StartingAt;
 }

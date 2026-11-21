@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Deaths;
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
 /// <param name="animation">The animation it plays.</param>
 internal sealed class EnemyDeathAndDropAnimation(IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> owner, Animation<EnemyDeathAndDropSegment> animation)
-    : EnemyProjectileFrameAnimation<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>(animation, EnemyProjectileCueRunner<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>.By(owner))
+    : EnemyProjectileFrameAnimation<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>(animation.Phases[0].Segment, animation, EnemyProjectileCueRunner<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>.By(owner))
 {
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal EnemyDeathAndDropAnimation(IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> owner, EnemyDeathAndDropSegment segment)
@@ -20,7 +20,4 @@ internal sealed class EnemyDeathAndDropAnimation(IEnemyProjectileBranchingCues<E
 
     /// <inheritdoc/>
     private protected override AnimationSegments<EnemyDeathAndDropSegment, EnemyProjectileFrameId, EnemyDeathAndDropCue> Segments => EnemyDeathAndDropAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<EnemyDeathAndDropSegment, Animation<EnemyDeathAndDropSegment>> StartingAt => EnemyDeathAndDropAnimations.StartingAt;
 }

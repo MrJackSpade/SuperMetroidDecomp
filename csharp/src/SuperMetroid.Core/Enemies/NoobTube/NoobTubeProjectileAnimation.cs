@@ -25,12 +25,9 @@ internal sealed class NoobTubeProjectileAnimation
     /// <summary>A piece's animation whose runner hands <paramref name="owner"/> the animation's <paramref name="mirroring"/>.</summary>
     private NoobTubeProjectileAnimation(
         NoobTubeBehavior.NoobTubeProjectileBehavior owner, Animation<NoobTubeProjectileSegment> animation, NoobTubeShardMirroring mirroring)
-        : base(animation, new PieceCues(Ensure.NotNull(owner), mirroring)) => _mirroring = mirroring;
+        : base(animation.Phases[0].Segment, animation, new PieceCues(Ensure.NotNull(owner), mirroring)) => _mirroring = mirroring;
     /// <inheritdoc/>
     private protected override AnimationSegments<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments => NoobTubeProjectileAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>> StartingAt => NoobTubeProjectileAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(NoobTubeProjectileFrame frame) =>

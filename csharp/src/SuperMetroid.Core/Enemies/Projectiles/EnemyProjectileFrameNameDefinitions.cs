@@ -168,7 +168,6 @@ internal static class EnemyProjectileFrameNameDefinitions
         [EnemyProjectileFrameId.TorizoExplosionFlareRingCored] = "torizo_explosion_flare_ring_cored",
         [EnemyProjectileFrameId.TorizoExplosionFlareRing] = "torizo_explosion_flare_ring",
         [EnemyProjectileFrameId.TorizoExplosionFlareRingFading] = "torizo_explosion_flare_ring_fading",
-        [EnemyProjectileFrameId.TorizoDeathExplosionSpark] = "torizo_death_explosion_spark",
         [EnemyProjectileFrameId.TorizoExplosionFireballSmall] = "torizo_explosion_fireball_small",
         [EnemyProjectileFrameId.TorizoExplosionFireballLarge] = "torizo_explosion_fireball_large",
         [EnemyProjectileFrameId.TorizoExplosionFlamingRing] = "torizo_explosion_flaming_ring",

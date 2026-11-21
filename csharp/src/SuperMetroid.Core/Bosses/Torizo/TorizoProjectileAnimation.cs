@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="animation">The animation the projectile plays from its start.</param>
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
 internal sealed class TorizoProjectileAnimation(IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue> owner, Animation<TorizoProjectileSegment> animation)
-    : EnemyProjectileFrameAnimation<TorizoProjectileSegment, TorizoProjectileCue>(animation, EnemyProjectileCueRunner<TorizoProjectileSegment, TorizoProjectileCue>.By(owner))
+    : EnemyProjectileFrameAnimation<TorizoProjectileSegment, TorizoProjectileCue>(animation.Phases[0].Segment, animation, EnemyProjectileCueRunner<TorizoProjectileSegment, TorizoProjectileCue>.By(owner))
 {
     /// <summary>A projectile animation starting at <paramref name="segment"/>.</summary>
     /// <param name="owner">The family's cue owner.</param>
@@ -22,8 +22,5 @@ internal sealed class TorizoProjectileAnimation(IEnemyProjectileBranchingCues<To
 
     /// <inheritdoc/>
     private protected override AnimationSegments<TorizoProjectileSegment, EnemyProjectileFrameId, TorizoProjectileCue> Segments => TorizoProjectileAnimations.Segments;
-
-    /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<TorizoProjectileSegment, Animation<TorizoProjectileSegment>> StartingAt => TorizoProjectileAnimations.StartingAt;
 
 }

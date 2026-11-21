@@ -65,7 +65,7 @@ internal static class TorizoProjectileAnimations
             Cue(new TorizoProjectileCue.Signal(K.ReturnToOrigin)),
             Cue(new TorizoProjectileCue.Scatter(Spread: new(Span: new(32, 64), Center: new(0, 16)))),
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
-            Show(EnemyProjectileFrameId.TorizoDeathExplosionSpark, 4),
+            Show(EnemyProjectileFrameId.TorizoExplosionSpark, 4),
             Show(EnemyProjectileFrameId.TorizoExplosionFireballSmall, 6),
             Show(EnemyProjectileFrameId.TorizoExplosionFireballLarge, 5),
             Show(EnemyProjectileFrameId.TorizoExplosionFlamingRing, 5),

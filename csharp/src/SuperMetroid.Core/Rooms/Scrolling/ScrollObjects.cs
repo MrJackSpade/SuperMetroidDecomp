@@ -73,8 +73,7 @@ internal sealed class ScrollObjects
             _ => throw new ArgumentOutOfRangeException(nameof(extension), extension, "Undefined scroll extension direction."),
         };
         int offset = Ensure.Listed(BlocksTowardTrigger, extension.TowardTrigger);
-        level.SetCollision(place.Block, collision);
-        level.SetBehavior(place.Block, RoomBlockBehavior.Extending(offset));
+        level.SetCollisionAndBehavior(place.Block, collision, RoomBlockBehavior.Extending(offset));
 
         // An extension's whole effect is its setup, which removes it at once, freeing its place for the room's next object.
         place.Delete();

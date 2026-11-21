@@ -54,10 +54,7 @@ public static class SamusGrappleBeamDrawing
 
         // The grapple shows the main flare's pictures alone, the same for either facing. The flare is Samus's own, so it
         // shows the sheet of the beams she has equipped (#1586).
-        // A flare whose animation shows no picture draws nothing.
-        if (grapple.Flare.Picture is not { } flare)
-            return false;
-        ProjectileSpriteId picture = ChargeFlarePictures.Of(ChargeFlareComponent.MainFlare, facingLeft: false, flare);
+        ProjectileSpriteId picture = ChargeFlarePictures.Of(ChargeFlareComponent.MainFlare, facingLeft: false, grapple.Flare.Picture);
         SpriteSheetFrame image = sheets.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(
             picture));
         sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image, place));

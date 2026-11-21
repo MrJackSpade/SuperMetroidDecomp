@@ -28,16 +28,17 @@ internal sealed class ProjectileAnimation
         _artwork = artwork;
     }
     /// <summary>
-    /// Plays timed frames, still pictures and deletion: each frame the animation shows anew publishes its picture and
-    /// radius, and an animation that ends deletes the projectile. A shot showing a still picture keeps it; a projectile that
-    /// has ended has no animation, and plays nothing.
+    /// Plays timed frames, still pictures and deletion: each frame <paramref name="animation"/>, the shot's own, shows anew
+    /// publishes its picture and radius, and an animation that ends deletes the projectile. A shot showing a still picture
+    /// keeps it.
     /// </summary>
+    /// <param name="shot">The projectile whose animation plays.</param>
+    /// <param name="animation">The animation the projectile is playing.</param>
     internal void AdvanceProjectileAnimation(
-        SamusProjectile shot)
+        SamusProjectile shot,
+        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation)
     {
-        if (shot.Animation is not { } animation)
-            return;
-        if (SamusProjectilePlayback.StepToNewFrame(animation) is { } frame)
+        if (SamusProjectilePlayback.StepToNewFrame(Ensure.NotNull(animation)) is { } frame)
         {
             shot.Sprite = _artwork.ProjectileFrames.Resolve(frame);
             shot.Radius = SamusProjectileFrameDefinitions.Radius(frame);

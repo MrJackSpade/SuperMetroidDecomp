@@ -34,8 +34,7 @@ internal sealed class MotherBrainGlassObjects
     {
         place.Become(new MotherBrainGlassObject(this));
         // The setup makes the glass's block solid and shootable and leaves its picture as it is (#2502).
-        level.SetCollision(place.Block, RoomCollisionType.SolidBlock);
-        level.SetBehavior(place.Block, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
+        level.SetCollisionAndBehavior(place.Block, RoomCollisionType.SolidBlock, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
 
         _motherBrainGlassPlace = place;
         MotherBrainGlassWasLoaded = true;

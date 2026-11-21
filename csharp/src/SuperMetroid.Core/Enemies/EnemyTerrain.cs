@@ -302,7 +302,8 @@ internal sealed class EnemyTerrain
                 spanBlock),
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension =>
                 false, // A zero-offset extension resolves to air.
-            RoomCollisionType.SpikeBlock => ReactToEnemySpikeBlock(level, reached, block),
+            RoomCollisionType.SpikeBlock when block.Reaction is BlockReaction.SpikeBlockReaction { Reaction: var spike } =>
+                ReactToEnemySpikeBlock(level, reached, spike),
             RoomCollisionType.SolidBlock or
             RoomCollisionType.DoorBlock or
             RoomCollisionType.SpecialBlock or
@@ -339,7 +340,8 @@ internal sealed class EnemyTerrain
                 block.Behavior,
                 probe.SpanBlock),
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => false,
-            RoomCollisionType.SpikeBlock => ReactToEnemySpikeBlock(level, reached, block),
+            RoomCollisionType.SpikeBlock when block.Reaction is BlockReaction.SpikeBlockReaction { Reaction: var spike } =>
+                ReactToEnemySpikeBlock(level, reached, spike),
             RoomCollisionType.SolidBlock or
             RoomCollisionType.DoorBlock or
             RoomCollisionType.SpecialBlock or
@@ -608,10 +610,10 @@ internal sealed class EnemyTerrain
     /// </summary>
     /// <param name="level">The room's terrain.</param>
     /// <param name="position">The spike block the enemy's lookup reached.</param>
-    /// <param name="block">The spike block's terrain and behaviour.</param>
-    private bool ReactToEnemySpikeBlock(RoomLevelData level, Position16<RoomBlocks> position, RoomCollisionBlock block)
+    /// <param name="spike">The reaction the spike block carries.</param>
+    private bool ReactToEnemySpikeBlock(RoomLevelData level, Position16<RoomBlocks> position, SpikeReaction spike)
     {
-        if (!EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior)) return true;
+        if (!EnemyBreakableTerrain.IsEnemyBreakable(spike)) return true;
         _breakableTerrain.SpawnEnemyBreakableBlock(level, position);
         return false; // The enemy passes through even when the room was too full to break the block.
     }

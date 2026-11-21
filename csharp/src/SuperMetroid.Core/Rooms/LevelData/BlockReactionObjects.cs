@@ -168,17 +168,21 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>Selects the normal-bomb or Power Bomb reactions; only the latter plays its block's sound.</summary>
+    /// <param name="level">The bombed block's room.</param>
+    /// <param name="position">The bombed block.</param>
+    /// <param name="bombable">The reaction the bombed block carries: a break or the empty reaction.</param>
+    /// <param name="projectileType">The bomb or Power Bomb that set the reaction off.</param>
     public void SpawnBombReactionBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
-        RoomBlockBehavior behavior,
+        BombableReaction bombable,
         SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
-        if (behavior.Bombable is not ({ } bombable and not BombableReaction.Inert))
+        if (bombable == BombableReaction.Inert)
         {
             throw new ArgumentOutOfRangeException(
-                nameof(behavior),
+                nameof(bombable),
                 "Bomb-reaction behaviour must be one of the bomb-block breaks or the empty reaction.");
         }
 
@@ -330,10 +334,14 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>Spawns the room object of a special block a normal bomb hits, by the block's reaction.</summary>
+    /// <param name="level">The bombed block's room.</param>
+    /// <param name="position">The bombed block.</param>
+    /// <param name="special">The reaction the bombed special block carries.</param>
+    /// <param name="projectileType">The bomb or Power Bomb that hit it.</param>
     public void SpawnBombedSpecialBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
-        RoomBlockBehavior behavior,
+        SpecialBlockReaction special,
         SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
@@ -346,9 +354,6 @@ internal sealed class BlockReactionObjects
                 "The bomb-special setup accepts only normal-bomb and Power-Bomb families.");
         }
 
-        // A special block whose behaviour names no special-block reaction sets nothing up.
-        if (behavior.Special is not { } special)
-            return;
         LastingBlockReactionChange change = BombSpecialBlockReactions.ChangeFor(special);
 
         if (_places.Spawn() is not { } place)

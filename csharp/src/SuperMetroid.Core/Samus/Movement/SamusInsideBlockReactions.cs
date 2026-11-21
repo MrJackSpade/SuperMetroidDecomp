@@ -26,23 +26,23 @@ public static class SamusInsideBlockReactions
         {
             var block = level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
             if (block.Position is null || !level.TryReachBlockStoodFor(ref block) ||
-                block.CollisionType != RoomCollisionType.SpecialAir)
+                block.Reaction is not BlockReaction.SpecialAirBlockReaction { Reaction: var air })
                 return;
             // A scroll trigger wakes only from the inside-block sample at Samus's centre.
             // Feet/head contacts belong to the separate movement scans. Keeping
             // this center wake-up lets a lower trigger win after the torso clears
             // an upper trigger, without changing the room-object update order.
-            if (centerPoint && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
+            if (centerPoint && air == SpecialAirReaction.ScrollTrigger &&
                 !roomObjects.Scrolls.TryNotifyScrollTouch(block.At))
                 throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");
             // The conveyors carry Samus the same in every area; the reactions the area gives meaning
             // own sand and plants. Both are visited in the same bottom/center/top order.
-            if (block.Behavior.SpecialAir is { } conveyed && ConveyorBlockDefinitions.Conveyors.TryGetValue(conveyed, out ConveyorBlock conveyor))
+            if (ConveyorBlockDefinitions.Conveyors.TryGetValue(air, out ConveyorBlock conveyor))
             {
                 ApplyConveyor(conveyor);
                 return;
             }
-            SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(block.Behavior.SpecialAir);
+            SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(air);
             // A sand reaction takes a room-object place before it acts; with every place taken it does nothing.
             if (QuicksandReactions.PlacesObject(reaction) &&
                 !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))
@@ -118,7 +118,7 @@ public static class SamusInsideBlockReactions
     /// <param name="contact">Samus's body and contact damage.</param>
     /// <param name="terrain">The room's level, which places the sand block a reaction sits on, and its objects, where a sand
     /// reaction takes a place.</param>
-    /// <param name="block">The special-air block the collision scan reached.</param>
+    /// <param name="reached">The special-air block the collision scan reached, with the reaction it carries.</param>
     /// <param name="axis">The axis the scan moves along.</param>
     /// <param name="displacement">The scan's accepted displacement, which sand can limit.</param>
     /// <param name="surfaceContact">Whether Samus touched the sand's surface.</param>
@@ -126,7 +126,7 @@ public static class SamusInsideBlockReactions
     internal static SpecialAirCollisionOutcome ReactCollision(
         SamusCollisionContact contact,
         SamusTerrain terrain,
-        RoomCollisionBlock block,
+        SpecialAirContact reached,
         Axis axis,
         ref SignedSixteenSixteen displacement,
         out bool surfaceContact,
@@ -136,7 +136,8 @@ public static class SamusInsideBlockReactions
         ISamusRoomObjects roomObjects = terrain.RoomObjects;
         SamusKinematicsState body = contact.Body;
         surfaceContact = false;
-        SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(block.Behavior.SpecialAir);
+        RoomCollisionBlock block = reached.Block;
+        SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(reached.Reaction);
         // A sand reaction takes a room-object place before it acts; with every place taken Samus passes as through air.
         if (QuicksandReactions.PlacesObject(reaction) &&
             !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))

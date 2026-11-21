@@ -345,7 +345,7 @@ internal static class YardAnimations
         ],
         [P.AirborneFacingLeft] =
         [
-            Cue(new YardCue.Signal(K.BeginFlight)),
+            Cue(new YardCue.BeginFlight(P.HiddenOnFloorMovingLeft)),
             Show(EnemyFrameId.YardOnLeftWallFacingUpShellClosed, 3),
         ],
         [P.AirborneFacingLeftTumbling] =
@@ -356,7 +356,7 @@ internal static class YardAnimations
         ],
         [P.AirborneFacingRight] =
         [
-            Cue(new YardCue.Signal(K.BeginFlight)),
+            Cue(new YardCue.BeginFlight(P.HiddenOnFloorMovingRight)),
             Show(EnemyFrameId.YardOnRightWallFacingUpShellClosed, 3),
         ],
         [P.AirborneFacingRightTumbling] =

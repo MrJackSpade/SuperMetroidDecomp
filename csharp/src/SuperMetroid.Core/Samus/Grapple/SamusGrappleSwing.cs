@@ -454,7 +454,9 @@ public static class SamusGrappleSwing
                 // SpikeHazardDefinitions.KnockbackFrames). The timer
                 // check must precede the behaviour lookup so a second radial probe in this
                 // same sweep cannot queue damage again.
-                ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Plain);
+                // Spike air carries its reaction: the room's level holds none without it.
+                if (block.Reaction is BlockReaction.SpikeBlockReaction { Reaction: var airSpike })
+                    ApplySwingSpikeDamage(samus, airSpike, block: SwingSpikeBlock.Plain);
                 return false;
 
             // Slopes are unconditional collision in this grapple-specific step.
@@ -471,7 +473,9 @@ public static class SamusGrappleSwing
                 // The solid spike reaction always reports collision. Before reporting it, it applies
                 // the heavy spike's damage or the light spike's; every other spike deals
                 // none.
-                ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Solid);
+                // A spike block carries its reaction: the room's level holds none without it.
+                if (block.Reaction is BlockReaction.SpikeBlockReaction { Reaction: var solidSpike })
+                    ApplySwingSpikeDamage(samus, solidSpike, block: SwingSpikeBlock.Solid);
                 return true;
 
             case RoomCollisionType.HorizontalExtension:
@@ -504,12 +508,12 @@ public static class SamusGrappleSwing
 /// <summary>Applies behaviour-specific spike damage once per invincibility window and starts knockback.</summary>
     private static void ApplySwingSpikeDamage(
         SamusState samus,
-        SpikeReaction? reaction,
+        SpikeReaction reaction,
         SwingSpikeBlock block)
     {
         // Both steps return immediately while the invincibility timer is nonzero. This shared guard is observable
         // because one sweep can sample the same damaging block once for each of its points, yet only its first sample may publish
-        // damage. Every reaction other than the damaging ones, and a spike with no reaction, deals none.
+        // damage. Every reaction other than the damaging ones deals none.
         if (!samus.InvincibilityTimer.IsZero)
             return;
 

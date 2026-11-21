@@ -53,6 +53,14 @@ public readonly record struct RoomCollisionBlock
     public RoomCollisionType CollisionType => Terrain.Collision;
 
     /// <summary>
+    /// The reaction the block's kind reads from its behaviour (#2554), typed by its family; none for a kind that reads no
+    /// reaction. A room's level holds no block of a reacting kind without its reaction: it checks its blocks as the room
+    /// loads and refuses a write that would leave one (<see cref="RoomLevelData"/>), so a block of a reacting family always
+    /// carries its family's reaction.
+    /// </summary>
+    public BlockReaction? Reaction => Behavior.ReactionUnder(CollisionType);
+
+    /// <summary>
     /// The columns a horizontal extension or the rows a vertical one leads a lookup on by, from this block in the room's
     /// reading order (<see cref="RoomReadingOrder"/>).
     /// </summary>

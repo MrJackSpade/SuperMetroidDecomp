@@ -39,17 +39,19 @@ public static class SamusTerrainHazardCollision
     }
 
     /// <summary>Applies the solid spike reactions after a solid spike block of <paramref name="level"/> is contacted.</summary>
+    /// <param name="level">The room's level, whose heavy spikes may be harmless.</param>
+    /// <param name="samus">Samus, whom a damaging spike hurts.</param>
+    /// <param name="spike">The reaction the contacted spike block carries.</param>
     internal static void ApplySolidSpikeCollision(
         RoomLevelData level,
         SamusState samus,
-        RoomCollisionBlock block)
+        SpikeReaction spike)
     {
         if (!samus.InvincibilityTimer.IsZero)
             return;
 
-        // Every other spike-block reaction, and a spike with no reaction, is harmless.
-        if (block.Behavior.Spike is not { } spike ||
-            !SpikeHazardDefinitions.DamagingSpikeBlocks.TryGetValue(spike, out SpikeBlockBehavior behavior))
+        // Every other spike-block reaction is harmless.
+        if (!SpikeHazardDefinitions.DamagingSpikeBlocks.TryGetValue(spike, out SpikeBlockBehavior behavior))
             return;
         // Heavy spikes are harmless in a level whose heavy spikes do no damage.
         if (behavior == SpikeBlockBehavior.Heavy && !level.HeavySpikesDamage)

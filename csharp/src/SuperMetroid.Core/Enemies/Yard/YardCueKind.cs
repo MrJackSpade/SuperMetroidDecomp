@@ -1,8 +1,9 @@
-﻿namespace SuperMetroid.Core.Enemies.Yard;
+namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>
-/// What a signal cue of the Yard's animations marks: a turn, a hide or a flight beginning, or the end of an update its
-/// shell shows closed.
+/// What a signal cue of the Yard's animations marks: a turn or a hide beginning, or the end of an update its shell shows
+/// closed. A flight's beginning is its own cue (<see cref="YardCue.BeginFlight"/>), which carries the animation it lands
+/// with.
 /// </summary>
 internal enum YardCueKind
 {
@@ -15,6 +16,4 @@ internal enum YardCueKind
     BeginTurn,
     /// <summary>The Yard begins hiding in its shell, watching whether its surface still holds it.</summary>
     BeginHiding,
-    /// <summary>The Yard's shell begins its flight, falling, bouncing and slowing until it lands.</summary>
-    BeginFlight,
 }

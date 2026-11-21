@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
@@ -37,9 +37,9 @@ internal sealed class NoobTubeObjects
         Ensure.NotNull(level);
         Ensure.NotNull(place);
         place.Become(new NoobTubeObject(this));
-        level.SetCollision(place.Block, NoobTubeObjectDefinitions.OriginCollision);
-        level.SetBehavior(
+        level.SetCollisionAndBehavior(
             place.Block,
+            NoobTubeObjectDefinitions.OriginCollision,
             RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
     }
 

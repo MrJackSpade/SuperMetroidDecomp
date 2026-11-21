@@ -193,9 +193,10 @@ internal sealed class StationObjects
         RoomCollisionType collisionType,
         RoomBlockBehavior? behavior)
     {
-        level.SetCollision(block, collisionType);
         if (behavior is { } written)
-            level.SetBehavior(block, written);
+            level.SetCollisionAndBehavior(block, collisionType, written);
+        else
+            level.SetCollision(block, collisionType);
     }
 
     /// <summary>

@@ -77,8 +77,8 @@ public sealed class SamusParticles
                 _particles.RemoveAt(index);
                 continue;
             }
-            // A hidden particle, or one whose animation shows no picture, draws nothing.
-            if (particle.Shown is not { } shown)
+            // A hidden particle draws nothing; a shown one draws the picture its animation shows.
+            if (particle.Stage is not SamusParticleStage.Showing { Picture: var shown })
                 continue;
             if (particle.Kind == SamusParticleKind.DivingSplash)
                 particle.HoldOnLine(waterSurfaceLine);

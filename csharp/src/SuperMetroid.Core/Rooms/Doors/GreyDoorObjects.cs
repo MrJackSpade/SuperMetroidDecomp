@@ -62,8 +62,7 @@ internal sealed class GreyDoorObjects
     {
         // A grey door's block becomes shootable and solid, as a coloured door's does, and keeps its picture and what it
         // shows (#2502).
-        level.SetCollision(block, RoomCollisionType.ShootableBlock);
-        level.SetBehavior(block, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
+        level.SetCollisionAndBehavior(block, RoomCollisionType.ShootableBlock, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
     }
 
     /// <summary>

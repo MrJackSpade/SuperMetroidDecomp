@@ -233,13 +233,14 @@ public sealed class SamusBombProjectileSystem
         {
             if (samus.Xray.TimeIsFrozen)
                 break;
-            if (bomb.Animation is null || bomb.Occupant is not { } placed)
+            if (bomb.Animation is not { } fused || bomb.Occupant is not { } placed)
                 continue;
 
             bool wasNormalBomb = placed.Type.Family == SamusProjectileFamily.Bomb;
             bool bombExplosionStarted = AdvanceBomb(
                 terrain.Level,
                 placed,
+                fused,
                 terrain.RoomObjects,
                 samus.Kinematics);
             if (bombExplosionStarted && wasNormalBomb)
@@ -250,11 +251,13 @@ public sealed class SamusBombProjectileSystem
                 AudioRequests.QueueSound(EnemySound.BombExplosion, SoundRequestPriority.Normal);
             }
 
-            // A bomb its own update ended this pass shows nothing more.
-            if (!bomb.IsActive)
+            // The bomb plays the animation its update left: its fuse's, or the explosion the fuse started. A bomb its own
+            // update ended this pass has none: the game still steps its cleared place's animation, whose cleared wait runs
+            // on past its end, so it shows nothing more.
+            if (bomb.Animation is not { } playing)
                 continue;
 
-            AdvanceProjectileAnimation(bomb);
+            AdvanceProjectileAnimation(bomb, playing);
         }
 
         // Main gameplay runs the bomb overlap check after the input phase (which placed/updated the
@@ -563,9 +566,15 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Advances one bomb fuse or spread trajectory, starts explosions and visits terrain on the trigger frame.</summary>
+    /// <param name="level">The room terrain the bomb's spread flight and explosion reach.</param>
+    /// <param name="placed">The bomb holding its place.</param>
+    /// <param name="fused">The animation the bomb plays as its update starts, which its fuse can switch to its fast speed.</param>
+    /// <param name="roomObjects">The room objects the bomb's explosion spawns block reactions in.</param>
+    /// <param name="samusKinematics">Samus's motion, which a spread bomb's flight reads.</param>
     private bool AdvanceBomb(
         RoomLevelData level,
         SamusBombOccupant placed,
+        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> fused,
         ISamusRoomObjects roomObjects,
         SamusKinematicsState samusKinematics)
     {
@@ -592,8 +601,8 @@ public sealed class SamusBombProjectileSystem
         {
             PowerBombFuseStep fuse = SamusPowerBombFuse.Step(bomb.Fuse, PowerBombExplosion.IsArmed);
             powerBombBoundaryReacts = fuse.BoundaryReacts;
-            if (fuse.FastAnimation && bomb.Animation is { } live)
-                    SamusPowerBombFuse.SwitchToFastAnimation(live);
+            if (fuse.FastAnimation)
+                SamusPowerBombFuse.SwitchToFastAnimation(fused);
             if (fuse.DeleteProjectile)
             {
                 ClearProjectile(bomb);
@@ -612,8 +621,7 @@ public sealed class SamusBombProjectileSystem
             {
                 // The fuse switches the bomb to the same frame of its fast animation, so its
                 // four-frame cycle keeps its place.
-                if (bomb.Animation is { } live)
-                    SamusPowerBombFuse.SwitchToFastAnimation(live);
+                SamusPowerBombFuse.SwitchToFastAnimation(fused);
             }
             else if (burnedOut)
             {
@@ -895,19 +903,18 @@ public sealed class SamusBombProjectileSystem
             RoomCollisionType.GrappleBlock)
             return;
 
-        if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
+        if (block.Reaction is BlockReaction.BombableBlockReaction { Reaction: var bombable })
         {
             // Both bombable-air and bombable-solid reactions use the bomb-block reactions; an inert block neither
             // spawns a room object nor changes the terrain.
-            // Every bombable block names its bomb reaction, as the import requires.
-            if (block.Behavior.Bombable is not { } bombable || bombable == BombableReaction.Inert)
+            if (bombable == BombableReaction.Inert)
                 return;
             // Spawn is synchronous: an accepted bomb-block reaction applies its temporary solid-block
             // or air collision before the bomb proceeds to its next border/cross member.
             roomObjects.BlockReactions.SpawnBombReactionBlock(
                 level,
                 block.At,
-                block.Behavior,
+                bombable,
                 projectileType);
             return;
         }
@@ -950,12 +957,12 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        if (block.CollisionType == RoomCollisionType.SpecialBlock)
+        if (block.Reaction is BlockReaction.SpecialBlockBlockReaction { Reaction: var special })
         {
             roomObjects.BlockReactions.SpawnBombedSpecialBlock(
                 level,
                 block.At,
-                block.Behavior,
+                special,
                 projectileType);
             return;
         }
@@ -971,13 +978,13 @@ public sealed class SamusBombProjectileSystem
     /// Plays the bomb's animation one update on: each frame it shows anew publishes its picture and radius, and an animation
     /// that ends deletes the bomb.
     /// </summary>
+    /// <param name="bomb">The bomb whose animation plays.</param>
+    /// <param name="animation">The animation the bomb is playing.</param>
     /// <exception cref="InvalidDataException">The animation shows a still picture, which no bomb animation does.</exception>
     private void AdvanceProjectileAnimation(
-        SamusBomb bomb)
+        SamusBomb bomb,
+        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation)
     {
-        // A bomb that has ended has no animation, and plays nothing.
-        if (bomb.Animation is not { } animation)
-            return;
         if (SamusProjectilePlayback.StepToNewFrame(animation) is { } frame)
         {
             // A bomb's animations show no still picture: every frame lasts its updates.

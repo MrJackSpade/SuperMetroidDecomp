@@ -354,9 +354,11 @@ public sealed class SamusProjectileSystem
                 behavior.Run(new SamusShotUpdate(held, this, terrain, samus, cameraPosition, samusBombs, progression));
 
             // Killing a projectile replaces rather than clears a live beam. Consequently the
-            // explosion's first frame is selected in this same projectile pass.
-            if (shot.Playback is not null)
-                Animation.AdvanceProjectileAnimation(shot);
+            // explosion's first frame is selected in this same projectile pass, in the animation the behaviour left. A
+            // behaviour that deleted its projectile leaves none: the game still steps its cleared place's animation, whose
+            // cleared wait runs on past its end, so it shows nothing more.
+            if (shot.Animation is { } animation)
+                Animation.AdvanceProjectileAnimation(shot, animation);
         }
     }
 

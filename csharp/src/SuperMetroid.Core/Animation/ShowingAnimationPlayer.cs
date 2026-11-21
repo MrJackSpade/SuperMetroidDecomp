@@ -67,6 +67,21 @@ internal sealed class ShowingAnimationPlayer<TSegment, TFrame, TEvent>
         return new(player, player.Show(animation));
     }
 
+    /// <summary>
+    /// Starts <paramref name="animation"/> at <paramref name="place"/>, showing at once the frame it plays to from there for
+    /// <paramref name="firstFrameUpdates"/> updates, as
+    /// <see cref="AnimationPlayer{TSegment, TFrame, TEvent}.ShowAt(Animation{TSegment}, AnimationPlace, int)"/> does.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="firstFrameUpdates"/> is below one.</exception>
+    /// <exception cref="InvalidOperationException">The animation raises an event or pauses before the frame.</exception>
+    /// <exception cref="InvalidDataException">A beat of <paramref name="segments"/> hides the frame shown.</exception>
+    internal static ShowingAnimationPlayer<TSegment, TFrame, TEvent> StartShowingAt(
+        AnimationSegments<TSegment, TFrame, TEvent> segments, Animation<TSegment> animation, AnimationPlace place, int firstFrameUpdates)
+    {
+        var player = AnimationPlayer<TSegment, TFrame, TEvent>.Starting(Showable(segments), animation);
+        return new(player, player.ShowAt(animation, place, firstFrameUpdates));
+    }
+
     /// <summary>Starts <paramref name="animation"/> again on its first frame, for <paramref name="firstFrameUpdates"/> updates.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="firstFrameUpdates"/> is below one.</exception>
     /// <exception cref="InvalidOperationException">The animation raises an event or pauses before its first frame.</exception>

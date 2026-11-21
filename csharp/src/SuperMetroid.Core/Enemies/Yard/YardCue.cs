@@ -24,6 +24,13 @@ internal abstract record YardCue
     /// <param name="Crawl">The way the Yard begins to crawl: along which surface, which way.</param>
     internal sealed record BeginCrawling(YardDirection Crawl) : YardCue;
 
+    /// <summary>
+    /// The Yard's shell begins its flight, falling, bouncing and slowing until it lands, and hides with
+    /// <paramref name="Landing"/> once it lands.
+    /// </summary>
+    /// <param name="Landing">The animation the Yard hides with once it lands: the one the airborne animation's facing names.</param>
+    internal sealed record BeginFlight(YardSegment Landing) : YardCue;
+
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
     internal sealed record Signal(YardCueKind Kind) : YardCue;

@@ -14,6 +14,12 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// Collision, room objects and the display read the same grid, so rendering and physics never see different revisions
 /// of a room. The foreground shows its terrain's appearance unless an installed layout or a room object's draw shows
 /// another picture over the same terrain.
+/// <para>
+/// Every block of a kind that reads a reaction carries its kind's reaction (#2554): the room's blocks, in its grid and past
+/// it, are checked as the room loads, and a write that would leave a reacting block whose behaviour gives its kind no
+/// reaction is refused. A write changing both how a block collides and what it does is one write, so no block passes
+/// through such a state.
+/// </para>
 /// </remarks>
 [RoomLifetime]
 public sealed class RoomLevelData
@@ -59,7 +65,10 @@ public sealed class RoomLevelData
     /// <param name="visualLayout">Optional matching-sized initial appearances of both planes; terrain, behaviours and the terrain beyond the room stay unchanged.</param>
     /// <exception cref="ArgumentOutOfRangeException">Width or height is nonpositive.</exception>
     /// <exception cref="ArgumentException">A plane has the wrong size, or a door block lies outside the grid or is listed twice.</exception>
-    /// <exception cref="InvalidDataException">The selected visual layout does not match the room dimensions.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The selected visual layout does not match the room dimensions, or a block of a reacting kind, in the grid or past it,
+    /// has a behaviour that gives its kind no reaction.
+    /// </exception>
     public RoomLevelData(
         Extent16<RoomBlocks> size,
         RoomLevelPlanes planes,
@@ -92,6 +101,16 @@ public sealed class RoomLevelData
         terrain = planes.Foreground.ToArray();
         behaviors = planes.Behavior.ToArray();
         BeyondRoom = Ensure.NotNull(beyondRoom);
+        for (int place = 0; place < terrain.Length; place++)
+        {
+            if (!CarriesItsReaction(terrain[place].Collision, behaviors[place]))
+                throw new InvalidDataException($"Room block {size.CellAtRowMajorIndex(place)} {NoReaction(terrain[place].Collision, behaviors[place])}.");
+        }
+        for (int beyond = 0; beyond < BeyondRoom.Count; beyond++)
+        {
+            if (!CarriesItsReaction(BeyondRoom.TerrainAt(beyond).Collision, BeyondRoom.BehaviorAt(beyond)))
+                throw new InvalidDataException($"Block {beyond} past the room's grid {NoReaction(BeyondRoom.TerrainAt(beyond).Collision, BeyondRoom.BehaviorAt(beyond))}.");
+        }
 
         if (visualLayout is null)
         {
@@ -283,8 +302,13 @@ public sealed class RoomLevelData
     /// A room object's terrain write at its block, showing the terrain's own picture. Writes inside the grid reach
     /// collision and the display; writes past it persist in the terrain beyond the room.
     /// </summary>
-    internal void SetObjectTerrain(Position16<RoomBlocks> block, RoomTerrainBlock terrain) =>
-        WriteObjectTerrain(Size.RowMajorIndex(block), terrain, terrain.Appearance);
+    /// <exception cref="ArgumentException">The terrain is of a reacting kind and the block's behaviour gives it no reaction.</exception>
+    internal void SetObjectTerrain(Position16<RoomBlocks> block, RoomTerrainBlock terrain)
+    {
+        int place = Size.RowMajorIndex(block);
+        RequireItsReaction(terrain.Collision, BehaviorAt(place), nameof(terrain));
+        WriteObjectTerrain(place, terrain, terrain.Appearance);
+    }
 
     /// <summary>
     /// A room object's change of only how a block collides and what it does, inside the grid or in the terrain beyond
@@ -292,9 +316,11 @@ public sealed class RoomLevelData
     /// earlier behaviour did.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is past the terrain beyond the room.</exception>
+    /// <exception cref="ArgumentException">The collision kind reads a reaction the behaviour does not give it.</exception>
     internal void SetObjectCollisionAndBehavior(Position16<RoomBlocks> block, RoomCollisionType collision, RoomBlockBehavior behavior)
     {
         int place = Size.RowMajorIndex(block);
+        RequireItsReaction(collision, behavior, nameof(behavior));
         if (place >= terrain.Length)
         {
             int beyond = BeyondPlace(place);
@@ -337,18 +363,54 @@ public sealed class RoomLevelData
     /// a narrower "change the picture" helper would be incorrect here.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
-    internal void SetTerrain(Position16<RoomBlocks> block, RoomTerrainBlock terrain) =>
-        WriteObjectTerrain(GridPlace(block), terrain, terrain.Appearance);
+    /// <exception cref="ArgumentException">The terrain is of a reacting kind and the block's behaviour gives it no reaction.</exception>
+    internal void SetTerrain(Position16<RoomBlocks> block, RoomTerrainBlock terrain)
+    {
+        int place = GridPlace(block);
+        RequireItsReaction(terrain.Collision, behaviors[place], nameof(terrain));
+        WriteObjectTerrain(place, terrain, terrain.Appearance);
+    }
+
+    /// <summary>
+    /// Replaces one foreground block's terrain and behaviour together, and shows its picture, as a room object that writes
+    /// a block's collision kind, picture and behaviour at once does; the block must lie in the grid and no longer leads where
+    /// its earlier behaviour did.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
+    /// <exception cref="ArgumentException">The terrain is of a reacting kind and the behaviour gives it no reaction.</exception>
+    internal void SetTerrainAndBehavior(Position16<RoomBlocks> block, RoomTerrainBlock terrain, RoomBlockBehavior behavior)
+    {
+        int place = GridPlace(block);
+        RequireItsReaction(terrain.Collision, behavior, nameof(behavior));
+        WriteObjectTerrain(place, terrain, terrain.Appearance);
+        WriteBehavior(place, behavior);
+    }
 
     /// <summary>
     /// Changes only how one foreground block collides (#2494): the block keeps its picture, what it shows, its
     /// behaviour and where it leads; the block must lie in the grid.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
+    /// <exception cref="ArgumentException">The kind reads a reaction the block's behaviour does not give it.</exception>
     internal void SetCollision(Position16<RoomBlocks> block, RoomCollisionType collision)
     {
         int place = GridPlace(block);
+        RequireItsReaction(collision, behaviors[place], nameof(collision));
         terrain[place] = terrain[place].WithCollision(collision);
+    }
+
+    /// <summary>
+    /// Changes how one foreground block collides and what it does together (#2554): the block keeps its picture and what it
+    /// shows, and no longer leads where its earlier behaviour did; the block must lie in the grid.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
+    /// <exception cref="ArgumentException">The kind reads a reaction the behaviour does not give it.</exception>
+    internal void SetCollisionAndBehavior(Position16<RoomBlocks> block, RoomCollisionType collision, RoomBlockBehavior behavior)
+    {
+        int place = GridPlace(block);
+        RequireItsReaction(collision, behavior, nameof(behavior));
+        terrain[place] = terrain[place].WithCollision(collision);
+        WriteBehavior(place, behavior);
     }
 
     /// <summary>
@@ -360,7 +422,9 @@ public sealed class RoomLevelData
     internal void Deactivate(Position16<RoomBlocks> block)
     {
         int place = GridPlace(block);
-        terrain[place] = terrain[place].Deactivated();
+        RoomTerrainBlock deactivated = terrain[place].Deactivated();
+        RequireItsReaction(deactivated.Collision, behaviors[place], nameof(block));
+        terrain[place] = deactivated;
     }
 
     /// <summary>
@@ -368,8 +432,13 @@ public sealed class RoomLevelData
     /// lie in the grid.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
-    internal void SetBehavior(Position16<RoomBlocks> block, RoomBlockBehavior behavior) =>
-        WriteBehavior(GridPlace(block), behavior);
+    /// <exception cref="ArgumentException">The block's kind reads a reaction the behaviour does not give it.</exception>
+    internal void SetBehavior(Position16<RoomBlocks> block, RoomBlockBehavior behavior)
+    {
+        int place = GridPlace(block);
+        RequireItsReaction(terrain[place].Collision, behavior, nameof(behavior));
+        WriteBehavior(place, behavior);
+    }
 
     /// <summary>A block past the room's grid, as an enemy terrain read finds it.</summary>
     /// <param name="block">A block in the room's columns whose row lies past the room's height.</param>
@@ -480,6 +549,33 @@ public sealed class RoomLevelData
             shownCollectibles.Remove(place);
         shownForeground[place] = shown;
         PublishedForeground = null;
+    }
+
+    /// <summary>The behaviour of the block at <paramref name="place"/> in the level space, inside the grid or beyond it.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The place is past the terrain beyond the room.</exception>
+    private RoomBlockBehavior BehaviorAt(int place) =>
+        place < terrain.Length ? behaviors[place] : BeyondRoom.BehaviorAt(BeyondPlace(place));
+
+    /// <summary>
+    /// Whether a block of <paramref name="collision"/> with <paramref name="behavior"/> carries the reaction its kind reads
+    /// (#2554): a kind that reads none always does, and a reacting kind does when its behaviour gives its family a reaction.
+    /// </summary>
+    private static bool CarriesItsReaction(RoomCollisionType collision, RoomBlockBehavior behavior) =>
+        BlockReactionFamilies.Of(collision) is not { } family || behavior.ReactionIn(family) is not null;
+
+    /// <summary>Names a reacting kind's block whose behaviour gives its kind no reaction, for a refusal.</summary>
+    private static string NoReaction(RoomCollisionType collision, RoomBlockBehavior behavior) =>
+        $"is a {collision} block whose behaviour ({behavior}) gives its kind no reaction";
+
+    /// <summary>Refuses a write that would leave a block of a reacting kind without its reaction (<see cref="CarriesItsReaction"/>).</summary>
+    /// <param name="collision">How the block collides once written.</param>
+    /// <param name="behavior">The block's behaviour once written.</param>
+    /// <param name="parameter">The written argument that would leave it.</param>
+    /// <exception cref="ArgumentException">The block would be of a reacting kind without its reaction.</exception>
+    private static void RequireItsReaction(RoomCollisionType collision, RoomBlockBehavior behavior, string parameter)
+    {
+        if (!CarriesItsReaction(collision, behavior))
+            throw new ArgumentException($"The write would leave a block that {NoReaction(collision, behavior)}.", parameter);
     }
 
     /// <summary>The block a collision probe outside the room reads.</summary>

@@ -64,17 +64,17 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
         {
             case YardCue.Signal { Kind: YardCueKind.BeginTurn }:
                 // The Yard holds still while it turns the corner; the turn's animation begins its next crawl.
-                state.Movement = YardMovement.HoldingStill;
+                state.Motion = YardMotion.HoldingStill;
                 return null;
             case YardCue.BeginCrawling beginCrawling:
-                state.Movement = YardMovement.Crawling;
+                state.Motion = YardMotion.Crawling;
                 state.Crawl = beginCrawling.Crawl;
                 return null;
             case YardCue.Signal { Kind: YardCueKind.BeginHiding }:
-                state.Movement = YardMovement.Hiding;
+                state.Motion = YardMotion.Hiding;
                 return null;
-            case YardCue.Signal { Kind: YardCueKind.BeginFlight }:
-                state.Movement = YardMovement.Airborne;
+            case YardCue.BeginFlight beginFlight:
+                state.Motion = new YardMotion.Airborne(beginFlight.Landing);
                 return null;
             case YardCue.SetHidingAnimation setHidingAnimation:
                 state.HidingAnimation = setHidingAnimation.OptionalTarget;
@@ -108,7 +108,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
     {
         YardDirection direction = settings.Direction;
 
-        var state = new YardEnemyState(YardMovement.HoldingStill)
+        var state = new YardEnemyState
         {
             Direction = YardDirectionDefinitions.BeforeFirstDirectionCue,
             Behavior = YardBehavior.NormalCrawling,
@@ -149,24 +149,24 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
         HandleYardHiding(place, state, samus);
         UpdateYardSolidProperty(place, state, samus);
 
-        switch (state.Movement)
+        switch (state.Motion)
         {
-            case YardMovement.HoldingStill:
+            case { Movement: YardMovement.HoldingStill }:
                 return;
-            case YardMovement.Hiding:
+            case { Movement: YardMovement.Hiding }:
                 RunYardHidingMovement(place, state, level);
                 return;
-            case YardMovement.Airborne:
-                RunYardAirborneMovement(place, state, samus, level);
+            case YardMotion.Airborne flight:
+                RunYardAirborneMovement(place, state, samus, level, flight);
                 return;
             // Direction-changing animation can publish the new direction one frame before it starts the matching
             // crawl. The game crawls the way its crawl began, not by the briefly newer direction.
-            case YardMovement.Crawling:
+            case { Movement: YardMovement.Crawling }:
                 RunYardCrawlingMovement(place, state, level);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Yard has no behaviour for movement {state.Movement}.");
+                    $"Yard has no behaviour for movement {state.Motion}.");
         }
     }
 
@@ -361,17 +361,22 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
         if (state.Behavior == YardBehavior.Dropped)
             return;
         state.Behavior = YardBehavior.Dropped;
-        state.Movement = YardMovement.Airborne;
-        SetYardAirborneLists(place, state);
+        state.Motion = new YardMotion.Airborne(SetYardAirborneLists(place, state));
         state.AirborneVelocity = FixedVector<RoomPixels>.Zero;
     }
 
     /// <summary>Runs the complete bounce/gravity/landing loop.</summary>
+    /// <param name="place">The Yard.</param>
+    /// <param name="state">The Yard's state.</param>
+    /// <param name="samus">Samus, whom a landing Yard turns to face.</param>
+    /// <param name="level">The room's terrain the shell bounces off.</param>
+    /// <param name="flight">The Yard's flight, holding the animation it lands with.</param>
     private void RunYardAirborneMovement(
         RoomEnemyPlace place,
         YardEnemyState state,
         SamusState samus,
-        RoomLevelData level)
+        RoomLevelData level,
+        YardMotion.Airborne flight)
     {
         if (state.Behavior != YardBehavior.Dropped)
         {
@@ -391,7 +396,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
             int wholeY = state.AirborneVelocity.Y.WholePixels;
             if (wholeY is >= 0 and < YardMotionDefinitions.LandingWholeSpeedLimit)
             {
-                LandYard(place, state, samus);
+                LandYard(place, state, samus, flight);
                 return;
             }
 
@@ -403,12 +408,19 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
     }
 
     /// <summary>Stops Yard's fall, selects normal or aggressive crawling, and restores crawler velocity from the way it faces the floor.</summary>
-    private static void LandYard(RoomEnemyPlace place, YardEnemyState state, SamusState samus)
+    /// <param name="place">The Yard.</param>
+    /// <param name="state">The Yard's state.</param>
+    /// <param name="samus">Samus, whom an aggressive Yard turns to face.</param>
+    /// <param name="flight">The flight ending, holding the animation its airborne animation named to land with.</param>
+    private static void LandYard(RoomEnemyPlace place, YardEnemyState state, SamusState samus, YardMotion.Airborne flight)
     {
         state.AirborneVelocity = FixedVector<RoomPixels>.Zero;
         state.ConsecutiveTurnCounter = 0;
         state.SuppressTurns();
 
+        // A dropped Yard lands with the animation its flight holds; an aggressive one faces Samus and lands with the one
+        // the airborne animations of the way it then faces name.
+        YardSegment landingAnimation = flight.Landing;
         if (state.Behavior == YardBehavior.Dropped)
         {
             state.Behavior = YardBehavior.NormalCrawling;
@@ -418,7 +430,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
             state.Behavior = YardBehavior.AggressiveCrawling;
             state.CrawlSpeed = YardVelocityDefinitions.AggressiveCrawlSpeed;
             MakeYardFaceSamusHorizontally(place, state, samus);
-            SetYardAirborneLists(place, state);
+            landingAnimation = SetYardAirborneLists(place, state);
         }
 
         // After landing, Yard starts crawling as a new crawler does, but keeps its own state and main AI. Only the
@@ -432,14 +444,13 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
         var landing = new PixelVelocity<RoomPixels>(state.CrawlSpeed, state.CrawlSpeed);
         state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.OnLeftWall ? landing.ReversedX() : landing;
         place.Frame = EnemyFrameId.PointAtOrigin;
-        state.Movement = YardMovement.HoldingStill;
-        // Its airborne animation names the hiding animation it resumes on landing; with none named it plays on as it was.
-        if (state.HidingAnimation is { } hiding)
-            state.Playback = EnemyAnimationPlayback.Start(place, YardAnimations.StartingWith(hiding));
+        state.Motion = YardMotion.HoldingStill;
+        state.Playback = EnemyAnimationPlayback.Start(place, YardAnimations.StartingWith(landingAnimation));
     }
 
     /// <summary>Selects visible and hiding animations from Yard's airborne facing direction.</summary>
-    private static void SetYardAirborneLists(
+    /// <returns>The hiding animation selected, which the Yard lands with.</returns>
+    private static YardSegment SetYardAirborneLists(
         RoomEnemyPlace place,
         YardEnemyState state)
     {
@@ -448,6 +459,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
         state.Playback = new(YardAnimations.StartingWith(definition.VisibleAnimation), AnimationPlace.StartOfAnimation);
         state.HidingAnimation = definition.HidingAnimation;
         place.AnimationClock.Restart();
+        return definition.HidingAnimation;
     }
 
     /// <summary>Turns Yard after landing only when its airborne facing points away from Samus.</summary>
@@ -479,7 +491,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
         state.HidingAnimation = definition.HidingAnimation;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(state, state.Direction);
-        state.Movement = YardMovement.Crawling;
+        state.Motion = YardMotion.Crawling;
         state.Crawl = definition.Crawl;
         state.SuppressTurns();
     }
@@ -496,8 +508,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
     {
         Ensure.NotNull(kickDistance);
         state.Behavior = YardBehavior.Kicked;
-        state.Movement = YardMovement.Airborne;
-        SetYardAirborneLists(place, state);
+        state.Motion = new YardMotion.Airborne(SetYardAirborneLists(place, state));
 
         SignedSixteenSixteen horizontal = kickDistance.HorizontalDistancePlusOne;
         SignedSixteenSixteen kick = YardKicks.ForHorizontalSpeed(horizontal.UnsignedWholePixels);
@@ -515,8 +526,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
         SamusState samus)
     {
         state.Behavior = YardBehavior.BeamLaunched;
-        state.Movement = YardMovement.Airborne;
-        SetYardAirborneLists(place, state);
+        state.Motion = new YardMotion.Airborne(SetYardAirborneLists(place, state));
         state.AirborneVelocity = YardShotLaunchFractions.Launched(state.AirborneVelocity, new Offset16<RoomPixels>(
             YardMotionDefinitions.BeamLaunchWholeSpeed.Toward(
                 SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right),

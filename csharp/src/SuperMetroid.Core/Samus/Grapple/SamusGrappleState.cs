@@ -189,9 +189,9 @@ public sealed class SamusGrappleState
 
     /// <summary>
     /// The grapple's flare (#2396): the main flare's animation, which the flare restarts at the main flare's loop when
-    /// fired and plays on from there, and which teardown clears.
+    /// fired and plays on from there, and which teardown clears; it always shows a picture.
     /// </summary>
-    internal ChargeFlareComponentState Flare { get; } = new(ChargeFlareComponent.MainFlare);
+    internal SamusGrappleFlare Flare { get; } = new();
 
     /// <summary>
     /// The endpoint's animation (#1627, #2388): its pictures, over and over; a fresh beam starts

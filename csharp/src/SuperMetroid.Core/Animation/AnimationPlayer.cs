@@ -171,13 +171,14 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     /// there for <paramref name="firstFrameUpdates"/> updates (#2388): a particle restored partway through its animation
     /// shows the frame it stood on for the updates it had left.
     /// </summary>
+    /// <returns>The frame the animation now shows.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="firstFrameUpdates"/> is below one.</exception>
     /// <exception cref="InvalidOperationException">The animation raises an event or pauses before the frame.</exception>
-    internal void ShowAt(Animation<TSegment> animation, AnimationPlace place, int firstFrameUpdates)
+    internal TFrame ShowAt(Animation<TSegment> animation, AnimationPlace place, int firstFrameUpdates)
     {
         Start(animation);
         Playback = Playback with { Place = place };
-        _ = ShowFirstFrame(firstFrameUpdates);
+        return ShowFirstFrame(firstFrameUpdates);
     }
 
     /// <summary>Runs one update of an animation that raises no event.</summary>

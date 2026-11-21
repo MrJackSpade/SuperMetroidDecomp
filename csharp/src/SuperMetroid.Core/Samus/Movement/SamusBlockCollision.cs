@@ -197,11 +197,14 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpecialAir:
+                        // A special-air block carries its reaction: the room's level holds none without it.
+                        if (block.Reaction is not BlockReaction.SpecialAirBlockReaction { Reaction: var horizontalAir })
+                            break;
                         // Sand's submerging reaction clears vertical speed/gravity even
                         // when reached through the horizontal step.
-                        collided = SamusInsideBlockReactions.ReactCollision(new(state, BodyAttackOf(owner)), terrain, block, Axis.Horizontal,
-                            ref acceptedDisplacement, out _, move.Observes) == SpecialAirCollisionOutcome.Blocks;
-                        if (block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
+                        collided = SamusInsideBlockReactions.ReactCollision(new(state, BodyAttackOf(owner)), terrain, new(block, horizontalAir),
+                            Axis.Horizontal, ref acceptedDisplacement, out _, move.Observes) == SpecialAirCollisionOutcome.Blocks;
+                        if (horizontalAir == SpecialAirReaction.ScrollTrigger &&
                             !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At))
                         {
                             throw new InvalidOperationException(
@@ -211,12 +214,13 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpikeBlock:
-                        if (owner is { } horizontalSamus)
+                        // A spike block carries its reaction: the room's level holds none without it.
+                        if (owner is { } horizontalSamus && block.Reaction is BlockReaction.SpikeBlockReaction { Reaction: var horizontalSpike })
                         {
                             SamusTerrainHazardCollision.ApplySolidSpikeCollision(
                                 terrain.Level,
                                 horizontalSamus,
-                                block);
+                                horizontalSpike);
                         }
                         acceptedDisplacement = ClipHorizontalToSolid(
                             state,
@@ -526,15 +530,16 @@ public static class SamusBlockCollision
                     break;
 
                 case RoomCollisionType.SpikeAir:
+                    // Spike air lets Samus's vertical movement pass with no reaction.
+                    break;
                 case RoomCollisionType.SpecialAir:
-                    if (block.CollisionType == RoomCollisionType.SpecialAir)
-                    {
-                        collided = SamusInsideBlockReactions.ReactCollision(new(state, BodyAttackOf(owner)), terrain, block, Axis.Vertical,
-                            ref acceptedDisplacement, out bool touchedSand, move.Observes) == SpecialAirCollisionOutcome.Blocks;
-                        sandContact |= touchedSand;
-                    }
-                    if (block.CollisionType == RoomCollisionType.SpecialAir &&
-                        block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
+                    // A special-air block carries its reaction: the room's level holds none without it.
+                    if (block.Reaction is not BlockReaction.SpecialAirBlockReaction { Reaction: var verticalAir })
+                        break;
+                    collided = SamusInsideBlockReactions.ReactCollision(new(state, BodyAttackOf(owner)), terrain, new(block, verticalAir),
+                        Axis.Vertical, ref acceptedDisplacement, out bool touchedSand, move.Observes) == SpecialAirCollisionOutcome.Blocks;
+                    sandContact |= touchedSand;
+                    if (verticalAir == SpecialAirReaction.ScrollTrigger &&
                         !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At))
                     {
                         throw new InvalidOperationException(
@@ -553,12 +558,13 @@ public static class SamusBlockCollision
                     break;
 
                 case RoomCollisionType.SpikeBlock:
-                    if (owner is { } verticalSamus)
+                    // A spike block carries its reaction: the room's level holds none without it.
+                    if (owner is { } verticalSamus && block.Reaction is BlockReaction.SpikeBlockReaction { Reaction: var verticalSpike })
                     {
                         SamusTerrainHazardCollision.ApplySolidSpikeCollision(
                             terrain.Level,
                             verticalSamus,
-                            block);
+                            verticalSpike);
                     }
                     acceptedDisplacement = ClipVerticalToSolid(
                         state,

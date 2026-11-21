@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms;
@@ -90,7 +90,6 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     private static void WriteWallBlock(RoomLevelData level, Position16<RoomBlocks> block, RoomCollisionType collision,
         RoomBlockBehavior behavior)
     {
-        level.SetCollision(block, collision);
-        level.SetBehavior(block, behavior);
+        level.SetCollisionAndBehavior(block, collision, behavior);
     }
 }

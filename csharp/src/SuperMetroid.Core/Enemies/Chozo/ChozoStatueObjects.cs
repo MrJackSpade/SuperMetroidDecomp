@@ -142,8 +142,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     internal static void WriteChozoBlock(RoomLevelData level, Position16<RoomBlocks> block,
         RoomCollisionType type, RoomBlockBehavior behavior)
     {
-        level.SetCollision(block, type);
-        level.SetBehavior(block, behavior);
+        level.SetCollisionAndBehavior(block, type, behavior);
     }
 
     /// <summary>Whether the Lower Norfair acid has been lowered, which the Lower Norfair hand checks as it starts.</summary>

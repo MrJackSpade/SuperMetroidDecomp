@@ -846,21 +846,74 @@ internal sealed class CoreModel
         return false;
     }
 
+    /// <summary>Registrar calls that name the definitions a species creates (<c>EnemySpeciesRegistrar</c>).</summary>
+    private static readonly string[] RegistrarCreations = ["Spawns", "Loads", "Joins"];
+
+    /// <summary>
+    /// The collection expressions naming the definitions <paramref name="type"/> creates: its Definitions property's
+    /// initializer, or the definition lists its OfferCreations hands the registrar, each written in place or held by a
+    /// property or field initialized with one.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The type names its definitions neither way, or in a form this generator cannot read.</exception>
+    private List<CollectionExpressionSyntax> DefinitionCollections(INamedTypeSymbol type)
+    {
+        var declared = type.GetMembers("Definitions").OfType<IPropertySymbol>().Where(p => !p.IsStatic).ToList();
+        if (declared is [{ DeclaringSyntaxReferences: [var reference] }])
+        {
+            return reference.GetSyntax() is PropertyDeclarationSyntax { Initializer.Value: CollectionExpressionSyntax collection }
+                ? [collection]
+                : throw new InvalidDataException($"{type.ToDisplayString()}.Definitions is not initialized with a collection expression.");
+        }
+        var collections = new List<CollectionExpressionSyntax>();
+        foreach (IMethodSymbol offer in type.GetMembers("OfferCreations").OfType<IMethodSymbol>())
+        {
+            foreach (SyntaxReference syntax in offer.DeclaringSyntaxReferences)
+            {
+                SemanticModel model = ModelOf(syntax.SyntaxTree);
+                foreach (InvocationExpressionSyntax call in syntax.GetSyntax().DescendantNodes().OfType<InvocationExpressionSyntax>())
+                {
+                    string? called = call.Expression switch
+                    {
+                        MemberAccessExpressionSyntax { Name.Identifier.Text: var name } => name,
+                        _ => null,
+                    };
+                    if (called is null || !RegistrarCreations.Contains(called) || call.ArgumentList.Arguments.Count == 0)
+                        continue;
+                    collections.Add(DefinitionList(model, call.ArgumentList.Arguments[0].Expression, type));
+                }
+            }
+        }
+        return collections.Count != 0
+            ? collections
+            : throw new InvalidDataException($"{type.ToDisplayString()} creates enemies but names its definitions neither in a Definitions property nor in its OfferCreations.");
+    }
+
+    /// <summary>The collection expression <paramref name="argument"/> is, or the one the property or field it names is initialized with.</summary>
+    /// <exception cref="InvalidDataException">The argument is neither.</exception>
+    private static CollectionExpressionSyntax DefinitionList(SemanticModel model, ExpressionSyntax argument, INamedTypeSymbol type)
+    {
+        if (argument is CollectionExpressionSyntax collection)
+            return collection;
+        SyntaxNode? declaration = model.GetSymbolInfo(argument).Symbol?.DeclaringSyntaxReferences is [var held] ? held.GetSyntax() : null;
+        return declaration switch
+        {
+            PropertyDeclarationSyntax { Initializer.Value: CollectionExpressionSyntax initializer } => initializer,
+            VariableDeclaratorSyntax { Initializer.Value: CollectionExpressionSyntax initializer } => initializer,
+            _ => throw new InvalidDataException($"{type.ToDisplayString()}.OfferCreations hands the registrar definitions this generator cannot read: {argument}"),
+        };
+    }
+
     /// <summary>Reads the definitions <paramref name="type"/> declares, directly or through a parts table's keys.</summary>
     private Behaviour ReadBehaviour(INamedTypeSymbol type)
     {
-        var declared = type.GetMembers("Definitions").OfType<IPropertySymbol>().Where(p => !p.IsStatic).ToList();
-        if (declared is not [{ DeclaringSyntaxReferences: [var reference] }])
-            throw new InvalidDataException($"{type.ToDisplayString()} creates enemies but does not declare one Definitions property.");
-        if (reference.GetSyntax() is not PropertyDeclarationSyntax { Initializer.Value: CollectionExpressionSyntax collection })
-            throw new InvalidDataException($"{type.ToDisplayString()}.Definitions is not initialized with a collection expression.");
-        SemanticModel model = ModelOf(collection.SyntaxTree);
+        List<CollectionExpressionSyntax> collections = DefinitionCollections(type);
         var names = new List<string>();
         var parts = new Dictionary<string, IFieldSymbol>(StringComparer.Ordinal);
         var entries = new Dictionary<string, ExpressionSyntax>(StringComparer.Ordinal);
         ISymbol? partsTable = null;
-        foreach (CollectionElementSyntax element in collection.Elements)
+        foreach (CollectionElementSyntax element in collections.SelectMany(collection => collection.Elements))
         {
+            SemanticModel model = ModelOf(element.SyntaxTree);
             switch (element)
             {
                 case ExpressionElementSyntax { Expression: var expression }:
@@ -886,7 +939,7 @@ internal sealed class CoreModel
         if (names.Count == 0)
             throw new InvalidDataException($"{type.ToDisplayString()} declares no definitions.");
         string family = Regex.Replace(type.Name, "(Behavior|Factory)$", "");
-        return new Behaviour(type, family, RelativePath(collection.SyntaxTree), names, partsTable, parts, entries);
+        return new Behaviour(type, family, RelativePath(collections[0].SyntaxTree), names, partsTable, parts, entries);
     }
 
     /// <summary>The EnemyDefinitionId member <paramref name="expression"/> names.</summary>

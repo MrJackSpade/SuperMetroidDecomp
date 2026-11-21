@@ -263,13 +263,7 @@ public sealed class SamusHorizontalSpeedState
         if (!countdownExpired)
             return false;
 
-<<<<<<< ours
-        SamusBoostCadence? cadenceAfterEcho = null;
-||||||| base
-        SamusRunningCadence? cadenceAfterEcho = null;
-=======
         SpeedBoostCadence? cadenceAfterEcho = null;
->>>>>>> theirs
         if (!SpeedBoostCounter.IsAtFullStage)
         {
             SpeedBoostCounter = SpeedBoostCounter.AdvanceStage();
@@ -282,24 +276,11 @@ public sealed class SamusHorizontalSpeedState
             }
         }
 
-<<<<<<< ours
-        SamusBoostCadence cadence = cadenceAfterEcho ?? SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage);
-||||||| base
-        SamusRunningCadence cadence = cadenceAfterEcho ?? SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage);
-        SpeedBoostCounter = SpeedBoostCounter.WithCountdown(SamusRunningCadences.CountdownAfterAdvance(cadence));
-=======
         SpeedBoostCadence cadence = cadenceAfterEcho ?? SamusRunningCadences.StageCadence(SpeedBoostCounter.Stage);
->>>>>>> theirs
         SpeedBoostCounter = SpeedBoostCounter.WithCountdown(cadence.CountdownAfterAdvance);
 
         animationFrameTimer = WrappingCountdown.Start(extraAnimationDelay)
-<<<<<<< ours
-            .AddFrames(SamusRunningCadences.Delay(unauthoredBoostCadence, cadence.Cadence, frame: 0)).RemainingFrames;
-||||||| base
-            .AddFrames(SamusRunningCadences.Delay(unauthoredBoostCadence, cadence, frame: 0)).RemainingFrames;
-=======
             .AddFrames(cadence.Delay(unauthoredBoostCadence, frame: 0)).RemainingFrames;
->>>>>>> theirs
         // Animation runs after movement: the boost's stage changes its cadence and sound, and its contact damage starts
         // on the next movement update.
         return true;
@@ -309,13 +290,7 @@ public sealed class SamusHorizontalSpeedState
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which a full sound queue selects.</param>
     /// <param name="frame">The running frame, zero through nine.</param>
     internal int SpeedBoosterDelay(UnauthoredBoostCadence unauthoredBoostCadence, int frame) =>
-<<<<<<< ours
-        SamusRunningCadences.Delay(unauthoredBoostCadence, SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage).Cadence, frame);
-||||||| base
-        SamusRunningCadences.Delay(unauthoredBoostCadence, SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage), frame);
-=======
         SamusRunningCadences.StageCadence(SpeedBoostCounter.Stage).Delay(unauthoredBoostCadence, frame);
->>>>>>> theirs
 
     /// <summary>
     /// Runs the Speed Booster's share of the Screw Attack and Speed Booster glow when she is out of liquid.
@@ -494,13 +469,7 @@ public sealed class SamusHorizontalSpeedState
     private void StartBoost()
     {
         SamusGlowPlay.RestartAfter(FullBodyGlow, FullBodyGlowStart, SamusShadeDefinitions.FullBodyCycles.SpeedBoosterFirstStepWait);
-<<<<<<< ours
-        SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, countdown: SamusRunningCadences.SpeedBoostCadence(0).CountdownAfterAdvance);
-||||||| base
-        SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, countdown: SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage0));
-=======
         SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, countdown: SamusRunningCadences.StageCadence(0).CountdownAfterAdvance);
->>>>>>> theirs
     }
 
     /// <summary>Adds the extra-run increment, a fraction past a whole pixel carrying into the whole pixels.</summary>

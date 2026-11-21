@@ -85,21 +85,11 @@ internal static class SamusAerialPoseTransitions
         samus.ChangePose(targetPose);
         // The newly installed pose's shot direction is published on the exact Fire
         // edge that selected this pose. The projectile producer consumes it in the input phase.
-<<<<<<< ours
         if ((controllerNewInput & GameplayAction.Shoot) != GameplayAction.None &&
             SamusTransitionShot.FromPose(samus) is { } shot)
             samus.TransitionShot.Hand(shot);
 
         SamusPresentation.InitializeAnimation(samus);
-||||||| base
-        if ((controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
-            samus.TransitionShot.Hand(SamusTransitionShot.FromPose(samus));
-
-        SamusPresentation.InitializeAnimation(samus);
-=======
-        if ((controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
-            samus.TransitionShot.Hand(SamusTransitionShot.FromPose(samus));
->>>>>>> theirs
     }
 
     /// <summary>Applies a normal-jump or falling turn, selecting the turn that keeps her aim (<see cref="SamusAimedPoseChoiceDefinitions.JumpingTurns"/>, <see cref="SamusAimedPoseChoiceDefinitions.FallingTurns"/>) after the shared larger-pose collision pass.</summary>

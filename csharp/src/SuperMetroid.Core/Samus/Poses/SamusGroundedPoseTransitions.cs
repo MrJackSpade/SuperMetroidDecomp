@@ -208,17 +208,9 @@ internal static class SamusGroundedPoseTransitions
         // uses the handed shot to admit the turning HUD producer and forcibly release charge.
         SamusTransitionShot? sourceShot = SamusTransitionShot.FromPose(samus);
         FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
-<<<<<<< ours
-        ApplySimpleGroundedPoseChange(samus, samus.Pose, expectedTarget, "Moonwalk turn/jump");
+        ApplySimpleGroundedPoseChange(samus, expectedTarget);
         if (sourceShot is { } shot)
             samus.TransitionShot.Hand(shot);
-||||||| base
-        ApplySimpleGroundedPoseChange(samus, samus.Pose, expectedTarget, "Moonwalk turn/jump");
-        samus.TransitionShot.Hand(sourceShot);
-=======
-        ApplySimpleGroundedPoseChange(samus, expectedTarget);
-        samus.TransitionShot.Hand(sourceShot);
->>>>>>> theirs
     }
 
     /// <summary>

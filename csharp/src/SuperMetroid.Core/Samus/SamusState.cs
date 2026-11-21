@@ -574,7 +574,6 @@ public sealed class SamusState
     /// </summary>
     public SamusVisorShadeState VisorShades { get; } = new();
 
-<<<<<<< ours
     /// <summary>
     /// Whether the knockback moves Samus (<see cref="SamusMovementOwner.Knockback"/>). It is separate from
     /// the knockback movement type because the game also uses that type for crystal-flash art.
@@ -596,35 +595,6 @@ public sealed class SamusState
 
     /// <summary>The step of the animation of <see cref="AnimationPose"/> that Samus's animation frame is on.</summary>
     internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(AnimationPose, AnimationFrame, FramesBeyondAnimation);
-||||||| base
-    /// <summary>
-    /// Whether the knockback moves Samus (<see cref="SamusMovementOwner.Knockback"/>). It is separate from
-    /// the knockback movement type because the game also uses that type for crystal-flash art.
-    /// </summary>
-    public bool KnockbackActive => Knockback.MovesSamus;
-
-    /// <summary>
-    /// Whether a hit's knockback waits for her movement to admit it: its producer's countdown runs and no knockback holds a
-    /// direction yet.
-    /// </summary>
-    public bool KnockbackPending => KnockbackHold.IsRunning && Knockback == Movement.SamusKnockback.None;
-
-    /// <summary>
-    /// The pose the animation was last started for, whose animation <see cref="AnimationFrame"/> steps through; none before
-    /// the animation is first started. Changing the pose to one with another animation without restarting the animation
-    /// is a defect the next animation tick reports.
-    /// </summary>
-    public SamusPoseId? AnimatedPose { get; internal set; }
-
-    /// <summary>The step of the animated pose's animation that Samus's animation frame is on.</summary>
-    /// <exception cref="InvalidOperationException">The animation has not been started.</exception>
-    internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(
-        AnimatedPose ?? throw new InvalidOperationException("Samus's animation has not been started for any pose."), AnimationFrame,
-        FramesBeyondAnimation);
-=======
-    /// <summary>The step of her pose's animation that Samus's animation frame is on.</summary>
-    internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(Pose, AnimationFrame, FramesBeyondAnimation);
->>>>>>> theirs
 
     /// <summary>
     /// What an animation frame past her pose's animation reads, the session's installed service, which decides the frames her

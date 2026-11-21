@@ -21,36 +21,16 @@ public static class SamusInsideBlockReactions
 
         void Visit(int y, SamusInsideBlockPoint point)
         {
-<<<<<<< ours
-            var block = level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
-            if (block.Position is null || !level.TryReachBlockStoodFor(ref block, out RoomBlockKind.Whole? kind) ||
-                kind.Read(SpecialAirInside.Reader) is not { } air)
-||||||| base
-            var block = level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
-            if (block.Position is null || !level.TryReachBlockStoodFor(ref block) ||
-                block.CollisionType != RoomCollisionType.SpecialAir)
-=======
             var block = terrain.Level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
             if (block.Position is null || !terrain.Level.TryReachBlockStoodFor(ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
->>>>>>> theirs
                 return;
             // A scroll trigger wakes only from the inside-block sample at Samus's centre.
             // Feet/head contacts belong to the separate movement scans. Keeping
             // this center wake-up lets a lower trigger win after the torso clears
             // an upper trigger, without changing the room-object update order.
-<<<<<<< ours
-            if (point == SamusInsideBlockPoint.Center && air == SpecialAirReaction.ScrollTrigger &&
-                !roomObjects.Scrolls.TryNotifyScrollTouch(block.At))
-                throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");
-||||||| base
-            if (point == SamusInsideBlockPoint.Center && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
-                !roomObjects.Scrolls.TryNotifyScrollTouch(block.At))
-                throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");
-=======
             if (point == SamusInsideBlockPoint.Center && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger)
                 terrain.RoomObjects.Scrolls.NotifyScrollTouch(block.At);
->>>>>>> theirs
             // The conveyors carry Samus the same in every area; the reactions the area gives meaning
             // own sand and plants. Both are visited in the same bottom/center/top order.
             if (ConveyorBlockDefinitions.Conveyors.TryGetValue(air, out ConveyorBlock conveyor))
@@ -134,16 +114,8 @@ public static class SamusInsideBlockReactions
     /// <param name="observes">Whether the scan only observes, so the surface sees no direction of travel.</param>
     internal static SpecialAirCollisionOutcome ReactCollision(
         SamusCollisionContact contact,
-<<<<<<< ours
-        SamusTerrain terrain,
-        SpecialAirContact reached,
-||||||| base
-        SamusTerrain terrain,
-        RoomCollisionBlock block,
-=======
         RoomTerrain terrain,
         RoomCollisionBlock block,
->>>>>>> theirs
         Axis axis,
         ref SignedSixteenSixteen displacement,
         bool observes = false)

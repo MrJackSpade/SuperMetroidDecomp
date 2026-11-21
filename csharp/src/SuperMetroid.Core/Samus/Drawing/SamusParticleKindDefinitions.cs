@@ -10,13 +10,12 @@ internal static class SamusParticleKindDefinitions
     internal static readonly IdentityTable<SamusParticleKind, SamusParticleKindDefinition> Kinds =
         new(new Dictionary<SamusParticleKind, SamusParticleKindDefinition>
         {
-<<<<<<< ours
             [SamusParticleKind.SurfaceSplash] = new(FollowsWaterSurface: false, Centred: true),
             [SamusParticleKind.DivingSplash] = new(FollowsWaterSurface: true, Centred: false),
             [SamusParticleKind.LavaSpray] = new(FollowsWaterSurface: false, Centred: true),
             [SamusParticleKind.Bubbles] = new(FollowsWaterSurface: false, Centred: false),
             [SamusParticleKind.Dust] = new(FollowsWaterSurface: false, Centred: true),
-        };
+        });
 
     /// <summary>A splash on wet ground or shallow water, which stays put.</summary>
     internal static readonly SamusSteadyParticle SurfaceSplash = new(SamusParticleKind.SurfaceSplash, Offset16<RoomPixels>.Zero);
@@ -29,19 +28,4 @@ internal static class SamusParticleKindDefinitions
 
     /// <summary>Dust, which rises as it shows.</summary>
     internal static readonly SamusSteadyParticle Dust = new(SamusParticleKind.Dust, SamusAtmosphericAnimationDefinitions.DustDrift);
-||||||| base
-            [SamusParticleKind.SurfaceSplash] = new(Offset16<RoomPixels>.Zero, FollowsWaterSurface: false, Centred: true),
-            [SamusParticleKind.DivingSplash] = new(Offset16<RoomPixels>.Zero, FollowsWaterSurface: true, Centred: false),
-            [SamusParticleKind.LavaSpray] = new(Drift: null, FollowsWaterSurface: false, Centred: true),
-            [SamusParticleKind.Bubbles] = new(Offset16<RoomPixels>.Zero, FollowsWaterSurface: false, Centred: false),
-            [SamusParticleKind.Dust] = new(SamusAtmosphericAnimationDefinitions.DustDrift, FollowsWaterSurface: false, Centred: true),
-        };
-=======
-            [SamusParticleKind.SurfaceSplash] = new(Offset16<RoomPixels>.Zero, FollowsWaterSurface: false, Centred: true),
-            [SamusParticleKind.DivingSplash] = new(Offset16<RoomPixels>.Zero, FollowsWaterSurface: true, Centred: false),
-            [SamusParticleKind.LavaSpray] = new(Drift: null, FollowsWaterSurface: false, Centred: true),
-            [SamusParticleKind.Bubbles] = new(Offset16<RoomPixels>.Zero, FollowsWaterSurface: false, Centred: false),
-            [SamusParticleKind.Dust] = new(SamusAtmosphericAnimationDefinitions.DustDrift, FollowsWaterSurface: false, Centred: true),
-        });
->>>>>>> theirs
 }

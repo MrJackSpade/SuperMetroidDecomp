@@ -117,18 +117,8 @@ public sealed class SamusCeresRidleyEjectionState
         UnsignedSixteenSixteen baseSpeed = horizontalSpeed.CalculateBaseSpeed(
             SamusPoseMetadata.ReadMovementType(samus));
         var requestedX = SamusHorizontalDisplacement.Toward(
-<<<<<<< ours
             pushing.Toward, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
-||||||| base
-            Phase is Pushing { Side: var side } ? side : throw new InvalidOperationException("Ceres Ridley's shove moves Samus toward no wall."),
-            samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
-=======
-            Phase is Pushing { Side: var side } ? side : throw new InvalidOperationException("Ceres Ridley's shove moves Samus toward no wall."),
-            samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
->>>>>>> theirs
 
         if (horizontal.Collided)
         {

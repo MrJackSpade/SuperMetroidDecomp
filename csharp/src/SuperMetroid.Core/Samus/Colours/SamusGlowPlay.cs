@@ -50,22 +50,9 @@ internal static class SamusGlowPlay
     /// </summary>
     internal static void ShowNextShade(G sequence, ref AnimationPlace place, SamusColours colours)
     {
-<<<<<<< ours
-        AnimationShown<G, PictureShade> next = SamusGlowAnimationDefinitions.Segments.PlayToNextFrame(
-            SamusGlowAnimationDefinitions.Animations[sequence], ref place, static _ => { });
-        return next is AnimationShown<G, PictureShade>.Frame frame
-            ? frame
-            : throw new InvalidOperationException($"The {sequence} sequence reached {next}; it only shows shades.");
-||||||| base
-        AnimationShown<G, PictureShade> next = SamusGlowAnimationDefinitions.Segments.PlayToNextFrame(
-            SamusGlowAnimationDefinitions.Animations[sequence], ref place, static _ => { });
-        return next as AnimationShown<G, PictureShade>.Frame
-            ?? throw new InvalidOperationException($"The {sequence} sequence reached {next}; it only shows shades.");
-=======
         Ensure.NotNull(colours);
         SamusGlowAnimationDefinitions.Segments.PlayToNextFrame(SamusGlowAnimationDefinitions.Animations[sequence], ref place, static _ => { })
             .React(ShowNextShadeReactions, colours);
->>>>>>> theirs
     }
 
     /// <summary>What <see cref="ShowNextShade(G, ref AnimationPlace, SamusColours)"/> does on each <see cref="AnimationShown{G, PictureShade}"/>, built once (#2553).</summary>

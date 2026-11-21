@@ -542,20 +542,9 @@ public sealed class SamusShinesparkState
     /// <param name="samus">Samus, around whom the echo is placed.</param>
     /// <param name="cameraPosition">The camera's room position.</param>
     /// <param name="held">The shot carrying one of the crash's released echoes.</param>
-<<<<<<< ours
     /// <param name="flight">The echo's flight, which its shot keeps.</param>
-||||||| base
-=======
-    /// <param name="flight">The shot's flight, which carries its echo.</param>
->>>>>>> theirs
     /// <returns>Whether the echo is still on the screen; its shot is cleared otherwise.</returns>
-<<<<<<< ours
     /// <exception cref="InvalidOperationException">The shot carries neither of the crash's released echoes.</exception>
-||||||| base
-    /// <exception cref="InvalidOperationException">The shot carries neither of the crash's released echoes.</exception>
-    internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectileOccupant held)
-=======
->>>>>>> theirs
     internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectileOccupant held, ShinesparkEchoShotState flight)
     {
         SamusProjectile shot = Ensure.NotNull(held).Projectile;

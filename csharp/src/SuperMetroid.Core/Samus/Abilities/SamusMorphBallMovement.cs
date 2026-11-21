@@ -159,16 +159,8 @@ public static class SamusMorphBallMovement
         bool landed;
         bool hitCeiling;
         if (samus.MorphBallBounceState is not null &&
-<<<<<<< ours
-            samus.KnockbackDirection == Movement.SamusKnockbackDirection.None &&
-            SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(samus.Kinematics) is { } displacement)
-||||||| base
-            samus.KnockbackDirection == Movement.SamusKnockbackDirection.None &&
-            samus.Kinematics.ExtraDisplacement.Y != SignedSixteenSixteen.Zero)
-=======
             samus.Knockback is Movement.SamusKnockback.NoKnockback &&
-            samus.Kinematics.ExtraDisplacement.Y != SignedSixteenSixteen.Zero)
->>>>>>> theirs
+            SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(samus.Kinematics) is { } displacement)
         {
             // The bounce gives an external producer priority over the rebound arc.
             // It cancels the stored bounce velocity, forces direction down, and executes

@@ -15,12 +15,12 @@ internal static partial class AtomicAnimations
     private const int TurnUpdates = 8;
 
     /// <summary>Atomic turning while it faces up and right, a sixth of a turn a frame.</summary>
-    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] UpRightTurn { get; } = Beats.Steady(TurnUpdates,
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>.Unpaused[] UpRightTurn { get; } = Beats.Steady(TurnUpdates,
         EnemyFrameId.AtomicFacingUpRightTurned0, EnemyFrameId.AtomicFacingUpRightTurned60, EnemyFrameId.AtomicFacingUpRightTurned120,
         EnemyFrameId.AtomicFacingUpRightTurned180, EnemyFrameId.AtomicFacingUpRightTurned240, EnemyFrameId.AtomicFacingUpRightTurned300);
 
     /// <summary>Atomic turning while it faces up and left, a sixth of a turn a frame.</summary>
-    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] UpLeftTurn { get; } = Beats.Steady(TurnUpdates,
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>.Unpaused[] UpLeftTurn { get; } = Beats.Steady(TurnUpdates,
         EnemyFrameId.AtomicFacingUpLeftTurned0, EnemyFrameId.AtomicFacingUpLeftTurned60, EnemyFrameId.AtomicFacingUpLeftTurned120,
         EnemyFrameId.AtomicFacingUpLeftTurned180, EnemyFrameId.AtomicFacingUpLeftTurned240, EnemyFrameId.AtomicFacingUpLeftTurned300);
 

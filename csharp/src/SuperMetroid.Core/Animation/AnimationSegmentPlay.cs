@@ -44,7 +44,8 @@ internal abstract partial class AnimationSegmentPlay<TSegment, TFrame, TEvent, T
             if (segment.Value.SkipLast(1).Any(beat => beat is AnimationBeat<TFrame, TEvent>.HeldFrame))
                 throw new ArgumentException($"Animation segment {segment.Key} plays on past its held frame.", nameof(segments));
         }
-        beats = segments.ToDictionary(pair => pair.Key, pair => pair.Value);
+        // Each segment keeps its own array of exactly its beat type, whatever array of a narrower beat it was handed.
+        beats = segments.ToDictionary(pair => pair.Key, pair => (TBeat[])[.. pair.Value]);
     }
 
     /// <summary>Every member of the enum segment identity <typeparamref name="TSegment"/>, which the segments must all hold.</summary>

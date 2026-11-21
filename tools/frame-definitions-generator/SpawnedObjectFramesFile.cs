@@ -27,7 +27,7 @@ internal static class SpawnedObjectFramesFile
             "/// </summary>",
             "[ArchitectureReview(\"large\", \"Generated data: the projectile frames and effect-actor kinds each enemy definition spawns; "
                 + "it holds no logic, and splitting it by family would only scatter one table the sheet composer reads as a whole.\")]",
-            "internal static class SpawnedObjectFrameDefinitions",
+            "internal static partial class SpawnedObjectFrameDefinitions",
             "{",
         ]);
         foreach (BehaviourSpawns spawns in spawning)

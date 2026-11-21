@@ -266,14 +266,8 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>A ceiling spore spawner (#1760, #2410): it releases spores on its random cadence, and a shot one restarts closed.</summary>
     internal SporeSpawnSpawnerBehavior Spawner => field ??= new SporeSpawnSpawnerBehavior(_room, _projectiles, Spore);
 
-    /// <summary>
-    /// A link of Spore Spawn's stalk (#1760): it holds still, and a shot one restarts its pose. Its pose raises no event; the
-    /// family's cue owner its animations are bound to is the spawners' (#2571).
-    /// </summary>
-    internal EnemyProjectileBehavior Stalk => field ??= new EnemyProjectileBehavior(shot: StartsStalkShot);
-
-    /// <summary>The animation a shot starts on a link of his stalk: its pose restarts.</summary>
-    private SporeSpawnCeilingAnimation StartsStalkShot() => new SporeSpawnCeilingAnimation(Spawner, SporeSpawnCeilingSegment.Stalk);
+    /// <summary>The links of his stalk (#1760): each holds still, and a shot one restarts its pose.</summary>
+    internal SporeSpawnStalkBehavior Stalk => field ??= new SporeSpawnStalkBehavior(Spawner);
 
     /// <summary>Runs SporeSpawn's main AI with the encounter his <paramref name="place"/> holds.</summary>
     internal void RunSporeSpawnMainAi(RoomEnemyPlace place, SporeSpawnEnemyState state) => RunSporeSpawnMain(place, state);
@@ -537,7 +531,7 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFa
     /// <exception cref="InvalidOperationException">No projectile place is free: he spawns his stalk into his room's empty places.</exception>
     internal SporeSpawnStalkLink SpawnSporeSpawnStalk(RoomEnemyOccupant occupant, RoomEnemyPlace body, SporeSpawnStalkLinkDefinition link)
     {
-        EnemyProjectile stalk = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk, SpriteGraphics.SpawnedBy(occupant, body.Shading), new SporeSpawnCeilingAnimation(Spawner, SporeSpawnCeilingSegment.Stalk)) ?? throw new InvalidOperationException(
+        EnemyProjectile stalk = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk, SpriteGraphics.SpawnedBy(occupant, body.Shading), Stalk.Pose()) ?? throw new InvalidOperationException(
             "Spore Spawn's stalk found no free projectile place; he spawns it as his room loads, into its empty places.");
 
         stalk.Position = stalk.Position.WithWhole(body.Position.Whole + link.SpawnOffset);

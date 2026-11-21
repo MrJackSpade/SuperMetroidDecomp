@@ -445,9 +445,15 @@ internal sealed class StateGraphExposure(StateGraphRun run)
         if (pattern is not INamedTypeSymbol { IsGenericType: true } patternNamed || type is not INamedTypeSymbol { IsGenericType: true } typeNamed ||
             !SymbolEqualityComparer.Default.Equals(patternNamed.OriginalDefinition, typeNamed.OriginalDefinition))
             return false;
-        for (int index = 0; index < patternNamed.TypeArguments.Length; index++)
-            if (!Unify(patternNamed.TypeArguments[index], typeNamed.TypeArguments[index], definition, arguments))
-                return false;
+        // A type nested in a generic type is bound by its containers' type arguments as well as its own (#2602, #2553: a
+        // beat deriving from AnimationBeat<TFrame, TEvent>.Unpaused binds TFrame and TEvent through Unpaused's container).
+        for (INamedTypeSymbol? patternLevel = patternNamed, typeLevel = typeNamed; patternLevel is not null && typeLevel is not null;
+             patternLevel = patternLevel.ContainingType, typeLevel = typeLevel.ContainingType)
+        {
+            for (int index = 0; index < patternLevel.TypeArguments.Length; index++)
+                if (!Unify(patternLevel.TypeArguments[index], typeLevel.TypeArguments[index], definition, arguments))
+                    return false;
+        }
         return true;
     }
 

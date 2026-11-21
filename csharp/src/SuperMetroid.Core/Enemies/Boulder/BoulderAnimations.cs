@@ -15,7 +15,7 @@ internal static partial class BoulderAnimations
     private const int TurnUpdates = 8;
 
     /// <summary>The Boulder rolling left, an eighth of a turn a frame.</summary>
-    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] RollingLeft { get; } = Beats.Steady(TurnUpdates,
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>.Unpaused[] RollingLeft { get; } = Beats.Steady(TurnUpdates,
         EnemyFrameId.BoulderTurned0, EnemyFrameId.BoulderTurned45, EnemyFrameId.BoulderTurned90, EnemyFrameId.BoulderTurned135,
         EnemyFrameId.BoulderTurned180, EnemyFrameId.BoulderTurned225, EnemyFrameId.BoulderTurned270, EnemyFrameId.BoulderTurned315);
 

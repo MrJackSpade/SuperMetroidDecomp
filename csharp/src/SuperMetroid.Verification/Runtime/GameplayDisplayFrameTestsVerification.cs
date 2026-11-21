@@ -43,7 +43,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         VerifyCeresModeTiming(runtime);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -96,9 +96,9 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         GameplaySceneView before = Registers(runtime);
-        RoomEnemyPlace kraidBody = runtime.Enemies.KraidBehavior.Parts.Body;
-        kraidBody.Position = kraidBody.Position.WithWhole(new(320, 88));
         KraidEnemyState kraid = runtime.Enemies.Kraid ?? throw new InvalidOperationException("Kraid's room loads Kraid.");
+        RoomEnemyPlace kraidBody = kraid.Parts.Body;
+        kraidBody.Position = kraidBody.Position.WithWhole(new(320, 88));
         Offset16<BackgroundPixels>? bodyBefore = runtime.PublishDisplayFrame().OrdinaryBase.Room.BossBody?.Scroll;
         kraid.ShowsBodyLayer = true;
         AssertEqual(bodyBefore, runtime.PublishDisplayFrame().OrdinaryBase.Room.BossBody?.Scroll,

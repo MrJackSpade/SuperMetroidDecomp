@@ -47,7 +47,7 @@ internal static class TorizoOwnershipVerification
         RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[3];
         TorizoEnemyState state = torizo.BindTorizoFixtureState(0);
         TorizoBody.ShowLook(torizo, state, new TorizoLook(TorizoLookKind.Normal));
-        TorizoBehavior.ShowBellyGlow(torizo, frame);
+        TorizoBehavior.ShowBellyGlow(torizo, torizo.RequireSpeciesState<TorizoEnemyState>(), frame);
         AssertEqual(ColourEffectShades.Of(ColourEffectColours.TorizoBelly, frame), torizo.Shading.Shades[^1],
             "the belly glow shows on the Torizo that lit it, in the place it stands");
     }
@@ -60,7 +60,7 @@ internal static class TorizoOwnershipVerification
         RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
         torizo.Position = torizo.Position.WithWhole(new(400, 400));
         TorizoEnemyState state = torizo.BindTorizoFixtureState(0, TorizoVariant.Golden);
-        enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo.HeldOccupant(), torizo);
+        enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo.HeldOccupant(), torizo, torizo.RequireSpeciesState<TorizoEnemyState>());
         EnemyProjectile missile = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
 
         torizo.Position = torizo.Position.WithWhole(new(300, 350));
@@ -82,7 +82,7 @@ internal static class TorizoOwnershipVerification
         torizo.Position = torizo.Position.WithWhole(new(400, 400));
         TorizoEnemyState state = torizo.BindTorizoFixtureState(0, TorizoVariant.Golden);
         state.EyeBeamExplosionsEnabled = explosionsEnabled;
-        enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo.HeldOccupant(), torizo);
+        enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo.HeldOccupant(), torizo, torizo.RequireSpeciesState<TorizoEnemyState>());
         EnemyProjectile beam = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         beam.HoldStill();
         beam.StartAnimation(new TorizoProjectileAnimation(enemies.TorizoBehavior.Attacks.TorizoProjectiles, TorizoProjectileSegment.EyeBeamFloorImpact));

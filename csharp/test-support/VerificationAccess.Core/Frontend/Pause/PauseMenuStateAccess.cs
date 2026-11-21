@@ -47,7 +47,7 @@ internal static class PauseMenuStateAccess
 
         /// <summary>Read-only diagnostic timing for the native equipment-selector animation.</summary>
         internal SelectorAnimation ItemSelectorAnimationState =>
-            new(self.itemSelector.Playback.Place, self.itemSelector.Showing, self.itemSelector.UpdatesLeft);
+            new(self.itemSelector.Playback.Place, self.itemSelector.Shown ?? throw new InvalidOperationException("The item selector shows no look."), self.itemSelector.UpdatesLeft);
 
         /// <summary>Number of cartridge OBJ records emitted by the most recent render.</summary>
         internal int LastRenderedSpriteCount => self.screen.Sprites.LastFinalizedSpriteCount;

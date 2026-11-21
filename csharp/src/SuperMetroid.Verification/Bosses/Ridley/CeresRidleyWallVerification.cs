@@ -17,7 +17,7 @@ internal static class CeresRidleyWallVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley);
         var ridley = runtime.Enemies.CeresRidley();
         var body = runtime.Enemies.Places.InUpdateOrder[0];

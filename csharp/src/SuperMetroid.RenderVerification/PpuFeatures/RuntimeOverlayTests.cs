@@ -23,7 +23,7 @@ internal static class RuntimeOverlayTests
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         long sequence = 0;
         Check("Ceres mixed-mode initial publication");

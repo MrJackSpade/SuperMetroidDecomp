@@ -49,7 +49,7 @@ internal static class MagdolliteBodyAnimations
     });
 
     /// <summary>The animation that starts at each pillar stack (#2337): each is a still picture.</summary>
-    private static Dictionary<MagdolliteBodySegment, Animation<MagdolliteBodySegment>> StartingAt { get; } = new Dictionary<MagdolliteBodySegment, Animation<MagdolliteBodySegment>>
+    internal static Dictionary<MagdolliteBodySegment, Animation<MagdolliteBodySegment>> StartingAt { get; } = new Dictionary<MagdolliteBodySegment, Animation<MagdolliteBodySegment>>
     {
         [P.OneSegmentPillar] = new([Segments.Whole(P.OneSegmentPillar)], AnimationEnd.Holds),
         [P.TwoSegmentPillar] = new([Segments.Whole(P.TwoSegmentPillar)], AnimationEnd.Holds),

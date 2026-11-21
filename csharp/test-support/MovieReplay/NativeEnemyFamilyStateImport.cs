@@ -1293,7 +1293,7 @@ internal static class NativeEnemyFamilyStateImport
                 body.Kraid.HeadHold.SetUpdatesLeft(words.C);
                 bool deathWait = KraidNativeWords.DeathWaitUpdatesLeft.TryGetValue(words.A, out int deathWaitLeft);
                 if (deathWait)
-                    body.DeathPhase = KraidDeathPhase.WaitBeforeFadeIn;
+                    body.SunkPhase = KraidSunkPhase.WaitBeforeFadeIn;
                 else if (recorded)
                     KraidNativeWords.ImportBodyPhase(body, words.A);
                 // Word F is the ceiling rocks' byte cursor, two per rock, while Kraid's growth breaks the ceiling.

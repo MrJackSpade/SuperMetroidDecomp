@@ -47,8 +47,8 @@ internal static class BoyonBehaviorVerification
 
         (RoomEnemySystem bounceSystem, RoomEnemyPlace bounce, BoyonEnemyState bounceState) = Create(parameter1: 0);
         SamusState samus = SamusAt(bounce);
-        BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
-        BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
+        BoyonBehavior.RunBoyonMain(bounce.HeldOccupant().SpawnSettings<BoyonSpawnSettings>(), bounce, bounceState, samus);
+        BoyonBehavior.RunBoyonMain(bounce.HeldOccupant().SpawnSettings<BoyonSpawnSettings>(), bounce, bounceState, samus);
         AssertEqual(new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Bouncing), AnimationPlace.StartOfAnimation), bounceState.Playback, "Samus nearby starts the bounce");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Segments, BoyonSegment.BouncingStar, BoyonFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(bounce, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Segments, BoyonSegment.BouncingStar)), "Boyon bounce loop");

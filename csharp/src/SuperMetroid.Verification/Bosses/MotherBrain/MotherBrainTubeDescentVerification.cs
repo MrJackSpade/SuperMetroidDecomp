@@ -21,10 +21,10 @@ internal static class MotherBrainTubeDescentVerification
         state.Head.Position = state.Head.Position.WithWholeY(72);
         // The tube holds the encounter that spawned it, as its spawn gives it (#2218).
         tube.SetSpeciesState(state);
-        MotherBrainFakeDeath.InitializeMotherBrainFallingTube(tube);
+        tube.SetSpeciesState(MotherBrainFakeDeath.InitializeMotherBrainFallingTube(tube.HeldOccupant().SpawnSettings<MotherBrainTubeSpawnSettings>(), tube));
         // The descent is traced from the update the main tube starts to fall: its wait runs out on its first update.
         tube.RequireSpeciesState<MotherBrainFallingTubeState>().FallDelay.LastFor(1);
-        Action<RoomEnemyPlace> step = enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain;
+        Action<RoomEnemyPlace> step = place => enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain(place, place.RequireSpeciesState<MotherBrainEnemyState>(), place.RequireSpeciesState<MotherBrainFallingTubeState>());
         uint expectedPosition = SixteenSixteenWords.FromWhole(tube.Position.Y.Whole);
         int speed = 0, movingFramesBeforeHide = 0, hiddenFramesBeforeLanding = 0;
         ushort previousHeadY = state.Head.Position.Y.Whole;

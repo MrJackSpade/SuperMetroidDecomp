@@ -34,11 +34,6 @@ internal static class LoadedRoomAccess
         internal RoomLevelData LoadedLevelData => Ensure.NotNull(room).LevelData ?? throw new InvalidOperationException("No room level data is loaded.");
     }
 
-    /// <summary>Places Samus for a Ceres start in the room <paramref name="loader"/> has loaded.</summary>
-    /// <param name="loader">The runtime's room loader.</param>
-    internal static void InitializeCeresStartSamus(this RoomLoader loader) =>
-        Ensure.NotNull(loader).InitializeCeresStartSamus(PrivateState.Field<RoomLoader, ActiveRoomState>(loader, "_room").LoadedScope);
-
     /// <summary>The runtime's frame operations in the room it has loaded.</summary>
     /// <param name="runtime">The runtime.</param>
     extension(SuperMetroidRuntime runtime)

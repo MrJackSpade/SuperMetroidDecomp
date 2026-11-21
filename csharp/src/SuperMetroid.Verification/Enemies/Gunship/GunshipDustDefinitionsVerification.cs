@@ -24,7 +24,7 @@ internal static class GunshipDustDefinitionsVerification
         var spawn = new Action<GunshipDustPlacement, SamusState>((placement, spawnSamus) => GunshipLiftoffDust.SpawnCloud(enemies.Projectiles, enemies.GunshipBehavior.Dust, placement, spawnSamus));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         // The place's projectile before each spawn is a stale cloud the check leaves there.
-        var slot = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.GunshipLiftoffDustCloud);
+        var slot = enemies.OccupyProjectile(17, RoomEnemyProjectileKind.GunshipLiftoffDustCloud);
         AssertEqual(6, GunshipDustDefinitions.LiftoffClouds.Count, "Six liftoff dust clouds");
         // Samus at least 128 pixels from either end of the room space on both axes keeps every cloud inside it.
         const int margin = 128;
@@ -63,7 +63,7 @@ internal static class GunshipDustDefinitionsVerification
         }
         foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity))
         {
-            EnemyProjectile occupied = enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.PhantoonStartingFlame);
+            EnemyProjectile occupied = enemies.OccupyProjectile(place, RoomEnemyProjectileKind.PhantoonStartingFlame);
             occupied.Position = occupied.Position.WithWholeX(0x1234);
             occupied.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         }

@@ -16,7 +16,7 @@ internal sealed class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemy
     : CrocomireEntity(species, occupant, place, common)
 {
     /// <summary>The tongue's state, which holds the encounter it joined, from its setup (#2554).</summary>
-    private CrocomireTongueState Tongue { get; } = species.Fight.InitializeCrocomireTongue(place, encounter);
+    internal CrocomireTongueState Tongue { get; } = species.Fight.InitializeCrocomireTongue(place, encounter);
     /// <summary>The encounter the tongue joined as it set up.</summary>
     internal override CrocomireEnemyState Encounter => Tongue.Crocomire;
 

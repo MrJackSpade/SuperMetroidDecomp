@@ -54,7 +54,7 @@ internal static class FamilyProjectileStarts
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
     internal static EnemyProjectile Spawn(RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
     {
-        EnemyProjectile projectile = Ensure.NotNull(enemies).Projectiles.Occupy(place, kind);
+        EnemyProjectile projectile = Ensure.NotNull(enemies).OccupyProjectile(place, kind);
         Initialize(enemies, projectile, kind, graphics);
         return projectile;
     }

@@ -79,7 +79,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         AssertEqual(10, CrocomireRumbleDefinitions.Oscillations[0].Repeats, "Crocomire rumble starts with the code's repeats");
         AssertEqual(1, CrocomireRumbleDefinitions.Oscillations[0].Speed, "Crocomire rumble starts at the code's speed");
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        var state = global::SuperMetroid.Core.PrivateState.With<CrocomireEnemyState>(new CrocomireEnemyState(body.BoundFor(EnemyDefinitionId.Crocomire), body)
+        var state = global::SuperMetroid.Core.PrivateState.With<CrocomireEnemyState>(new CrocomireEnemyState(body.BoundFor(EnemyDefinitionId.Crocomire), body, enemies.Places.InUpdateOrder[1])
         {
             RumbleOscillation = ListStep<CrocomireRumbleOscillation>.FirstOf(CrocomireRumbleDefinitions.Oscillations),
             RumbleTowardExtreme = false,

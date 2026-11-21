@@ -14,7 +14,7 @@ internal sealed class MagdolliteBodyEntity(MagdolliteBehavior species, RoomEnemy
     internal override MagdollitePartState State => Body;
 
     /// <summary>The body's state, which its setup builds as the enemy is built (#2554).</summary>
-    private MagdolliteBodyState Body { get; } = species.InitializeMagdolliteBody(place, partners);
+    internal MagdolliteBodyState Body { get; } = species.InitializeMagdolliteBody(place, partners);
 
     /// <summary>The Magdollite its head began, which the body joined as it was built (#2554).</summary>
     internal override MagdollitePartners Partners { get; } = partners;

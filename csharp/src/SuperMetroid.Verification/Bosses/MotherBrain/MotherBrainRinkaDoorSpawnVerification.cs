@@ -37,7 +37,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         progress.Runtime = runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RinkaShaft);
         var samus = runtime.Player.Samus;
         samus.PoseId = SamusPoseId.FacingLeftNormalPose;

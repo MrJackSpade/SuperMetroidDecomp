@@ -19,7 +19,7 @@ internal static class BotwoonPositionHistoryVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Botwoon);
 
         RoomEnemyPlace head = runtime.Enemies.Places.InUpdateOrder.Single(place =>

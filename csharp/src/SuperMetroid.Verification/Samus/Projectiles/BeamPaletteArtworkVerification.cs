@@ -104,7 +104,7 @@ internal static class BeamPaletteArtworkVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         var flash = runtime.Player.Samus.CrystalFlash;
         runtime.Player.Samus.SpecialColouring.Take(SamusSpecialColouringKind.CrystalFlash);
         PrivateState.Set(flash, "Colouring", SpecialColouringStage.Ending);

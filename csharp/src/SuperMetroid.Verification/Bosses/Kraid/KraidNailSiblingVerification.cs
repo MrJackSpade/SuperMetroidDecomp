@@ -73,7 +73,7 @@ internal static class KraidNailSiblingVerification
         {
             RoomEnemyPlace living = enemies.Places.InUpdateOrder[place];
             living.Bind(nailDefinition, living.KeptDefinition);
-            KraidEncounterAccess.AttachKraidPart(place == 6 ? state.FirstNailState : state.SecondNailState);
+            living.SetUpAsPlaced();
         }
         foreach (int slot in new[] { 6, 7 })
         for (int raw = 0; raw <= ushort.MaxValue; raw++)

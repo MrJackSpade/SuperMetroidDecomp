@@ -121,7 +121,7 @@ internal static class MagdolliteHeadAnimations
     /// then raises the pillar a pixel at a time, an emerge lowers it a pixel at a time and then surfaces the head. A submerge
     /// and an emerge each end on their finishing cue, which moves the head on.
     /// </summary>
-    private static Dictionary<MagdolliteHeadSegment, Animation<MagdolliteHeadSegment>> StartingAt { get; } = new Dictionary<MagdolliteHeadSegment, Animation<MagdolliteHeadSegment>>
+    internal static Dictionary<MagdolliteHeadSegment, Animation<MagdolliteHeadSegment>> StartingAt { get; } = new Dictionary<MagdolliteHeadSegment, Animation<MagdolliteHeadSegment>>
     {
         [P.LeftIdle] = Animation<MagdolliteHeadSegment>.Looping([Segments.Whole(P.LeftIdle)]),
         [P.LeftSubmerge] = new([Segments.Whole(P.LeftSubmerge), Segments.Repeated(P.LeftRaisePillar, PillarTravel), Segments.Whole(P.LeftPillarRaised)], AnimationEnd.Holds),

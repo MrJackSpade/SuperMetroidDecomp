@@ -37,7 +37,7 @@ internal static class PhantoonDeathExplosionsVerification
             body.Position = body.Position.WithWhole(new(origin, origin));
             state.PhaseWait.LastFor(15);
             state.Phase = PhantoonPhase.DyingExplosions;
-            if (full) foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity)) enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.DustOrExplosion);
+            if (full) foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity)) enemies.OccupyProjectile(place, RoomEnemyProjectileKind.DustOrExplosion);
             int index = 0, passes = 0, timer = 15, requests = 0;
             for (int frame = 0; passes < 3; frame++)
             {

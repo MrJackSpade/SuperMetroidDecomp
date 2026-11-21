@@ -581,7 +581,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         // The frame drawn from the loaded set's sheets under the spawner's graphics.
         static OamBuffer DrawSpawnerFrame(RoomEnemySystem enemies, EnemyProjectileFrameId frame, SpriteGraphics graphics)
         {
-            EnemyProjectile slot = enemies.Projectiles.Occupy(0, RoomEnemyProjectileKind.DustOrExplosion);
+            EnemyProjectile slot = enemies.OccupyProjectile(0, RoomEnemyProjectileKind.DustOrExplosion);
             // Spawned as production spawns a projectile: its kind, the behaviour bound to it and its graphics together.
             FamilyProjectileStarts.Initialize(enemies, slot, RoomEnemyProjectileKind.DustOrExplosion, graphics);
             slot.Position = slot.Position.WithWhole(new(128, 96));
@@ -620,7 +620,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static RoomEnemySystem PresentedSystem(ImportEnemyArtwork artwork, EnemyProjectileFrameId frame, RoomEnemyProjectileKind kind)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-            EnemyProjectile slot = enemies.Projectiles.Occupy(0, kind);
+            EnemyProjectile slot = enemies.OccupyProjectile(0, kind);
             // It draws from the sheets a set spawning it composes from this artwork, under the graphics that spawn gives it,
             // and is spawned as production spawns it: its kind, the behaviour bound to it and those graphics together.
             FamilyProjectileStarts.Initialize(enemies, slot, kind, SpawnedObjectFixtures.LoadSetSpawning(enemies, frame, SpawnedGraphics));

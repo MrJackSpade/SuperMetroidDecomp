@@ -28,7 +28,7 @@ internal static class CrocomireMouthShotHoldVerification
         {
             foreach ((string place, int cameraX) in new[] { ("off screen", 0), ("on screen", 400) })
             {
-                var state = new CrocomireEnemyState(body.HeldOccupant(), body) { Phase = phase };
+                var state = new CrocomireEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1]) { Phase = phase };
                 body.SetSpeciesState(state);
                 body.AnimationClock.HoldFor(StartingHold);
                 body.HurtFlash.End();
@@ -55,7 +55,7 @@ internal static class CrocomireMouthShotHoldVerification
     internal static void VerifyCrocomireMouthShotReadsPassCamera()
     {
         (RoomEnemySystem enemies, RoomEnemyPlace body) = NewCrocomireBody();
-        var state = new CrocomireEnemyState(body.HeldOccupant(), body) { Phase = CrocomirePhase.SteppingForward };
+        var state = new CrocomireEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1]) { Phase = CrocomirePhase.SteppingForward };
         body.SetSpeciesState(state);
         var ordinaryProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
             new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());

@@ -60,7 +60,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
 
             AssertEqual(shadeUpdates - call % shadeUpdates, samus.CrystalFlash.BodyPulse.UpdatesLeft,
                 $"production Crystal Flash body timer call {call}");
-            AssertEqual(SamusShades.CrystalFlashBody[call / shadeUpdates], samus.CrystalFlash.BodyPulse.Showing,
+            AssertEqual(SamusShades.CrystalFlashBody[call / shadeUpdates], samus.CrystalFlash.BodyPulse.Shown,
                 $"production Crystal Flash body shade call {call}");
         }
 

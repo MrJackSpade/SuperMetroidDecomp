@@ -27,7 +27,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     internal CeresDoorAnimationState State { get; } = doors.Start(place, CeresDoorSegment.ElevatorDoor);
 
     /// <summary>The door's phase and destruction counters, intact from its setup.</summary>
-    private CeresElevatorDoorState Door { get; } = new() { Phase = CeresElevatorDoorPhase.Intact };
+    internal CeresElevatorDoorState Door { get; } = new() { Phase = CeresElevatorDoorPhase.Intact };
 
     /// <summary>Shows the door's own look as it is set up: only the elevator door shows it (#1406, #1538).</summary>
     public void Initialize() => doors.Presentation.ShowLook(CeresElevatorDoorLookDefinitions.OverlayLook);

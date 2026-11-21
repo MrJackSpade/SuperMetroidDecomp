@@ -103,7 +103,7 @@ internal static class RoomDefinitionIntegrationVerification
     {
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         runtime.RoomLoader.InitializePostCeresZebesRoom();
     }

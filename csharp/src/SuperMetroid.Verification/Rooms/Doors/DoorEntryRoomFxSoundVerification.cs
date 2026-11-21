@@ -52,7 +52,7 @@ internal static class DoorEntryRoomFxSoundVerification
             var loaded = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: audio);
             loaded.HudSetup.InitializeHud(HudSnapshot.NewGame);
             loaded.RoomLoader.InitializeStartingCeresRoom();
-            loaded.RoomLoader.InitializeCeresStartSamus();
+            loaded.RoomLoader.InitializeCeresStartSamus(loaded.Room.LoadedScope);
             loaded.LoadCartridgeRoomThroughDoorForVerification(door);
             loaded.Player.Samus.Control.LockOutPlayer();
             return loaded;

@@ -841,7 +841,7 @@ internal static class LookupStream2Verification
         finish(body, state);
         for (int native = 0; native < lintParts.Length; native++)
         {
-            var lint = enemies.KraidBehavior.Parts.Lint(lintParts[native]);
+            var lint = state.Parts.Lint(lintParts[native]);
             KraidLintState lintState = state.Lint(lintParts[native]);
             ushort expected = rom.ReadCartridgeWord((0xa7a916 + native * 2));
             AssertEqual(expected, KraidLints.InitialDelay(lintParts[native]), "Native per-part initial delay");

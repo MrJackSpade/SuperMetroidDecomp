@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace SuperMetroid.Core.Enemies;
@@ -58,19 +57,5 @@ internal static class EnemySpeciesStateAccess
             ?? throw new InvalidOperationException($"Enemy {occupant.DefinitionId}'s entry carries {occupant.Spawn.SpawnSettings}, not {typeof(T).Name}.");
 
     /// <summary>The <typeparamref name="T"/> <paramref name="entity"/> holds, or none.</summary>
-    private static T? EntityState<T>(IEnemyEntity? entity) where T : class
-    {
-        if (entity is null)
-            return null;
-        for (Type? type = entity.GetType(); type is not null; type = type.BaseType)
-        {
-            foreach (PropertyInfo property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
-            {
-                if (property.GetIndexParameters().Length == 0 && typeof(T).IsAssignableFrom(property.PropertyType) &&
-                    property.GetValue(entity) is T state)
-                    return state;
-            }
-        }
-        return null;
-    }
+    private static T? EntityState<T>(IEnemyEntity? entity) where T : class => EnemyEntityStates.Of<T>(entity);
 }

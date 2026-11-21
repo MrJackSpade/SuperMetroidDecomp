@@ -491,7 +491,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             {
                 // The glow's raised red and green channels, then one step of the fade: the eye glow service owns the colours.
                 state.Colours.ShowBandEyes([RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff)]);
-                new Action<RoomEnemyPlace, KraidEnemyState>(enemies.KraidBehavior.Head.UnglowKraidEye)(body, state);
+                enemies.KraidBehavior.Head.UnglowKraidEye(body, state, (KraidStageRun.Fighting)state.BodyState.Run);
                 ImmutableArray<RgbColor> eyes = state.Colours.EyeGlow.Shown;
                 for (int eye = 0; eye < eyes.Length; eye++)
                     colours[113 + eye] = eyes[eye];

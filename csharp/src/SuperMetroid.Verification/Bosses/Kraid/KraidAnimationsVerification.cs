@@ -236,7 +236,7 @@ internal static class KraidAnimationsVerification
         RoomEnemyPlace foot = enemies.Places.InUpdateOrder[5];
         foot.Bind(EnemyDefinitionId.KraidFoot, foot.KeptDefinition);
         // The foot binds after the encounter began, and joins it as its setup would.
-        KraidEncounterAccess.AttachKraidPart(state.FootState);
+        foot.SetUpAsPlaced();
         // The walks' cues raise, lower and step the body: it stands clear of the room's edges while they do.
         body.Position = body.Position.WithWhole(new(512, 512));
         foreach (KraidPartSegment walk in new[] { KraidPartSegment.FootWalkingForward, KraidPartSegment.FootLungeForward, KraidPartSegment.FootWalkingBackward })
@@ -267,7 +267,7 @@ internal static class KraidAnimationsVerification
         RoomEnemyPlace foot = enemies.Places.InUpdateOrder[5];
         foot.Bind(EnemyDefinitionId.KraidFoot, foot.KeptDefinition);
         // The foot binds after the encounter began, and joins it as its setup would.
-        KraidEncounterAccess.AttachKraidPart(state.FootState);
+        foot.SetUpAsPlaced();
         state.FootState.Playback = Started(KraidPartSegment.FootNeutral);
         foot.AnimationClock.StepOnNextUpdate();
         Pass(foot);
@@ -302,7 +302,7 @@ internal static class KraidAnimationsVerification
         RoomEnemyPlace lint = enemies.Places.InUpdateOrder[2];
         lint.Bind(EnemyDefinitionId.KraidLintTop, lint.KeptDefinition);
         // The lint binds after the encounter began, and joins it as its setup would.
-        KraidEncounterAccess.AttachKraidPart(state.TopLintState);
+        lint.SetUpAsPlaced();
         state.TopLintState.Playback = Started(KraidPartSegment.LintInitial);
         lint.AnimationClock.Stop();
         lint.AnimationClock.Extend(1);
@@ -367,7 +367,7 @@ internal static class KraidAnimationsVerification
         KraidNailState part = state.Nail(KraidNailPart.First);
         RoomEnemyPlace nail = part.Place;
         nail.Bind(EnemyDefinitionId.KraidFirstNail, nail.KeptDefinition);
-        KraidProjectiles.InitializeKraidNail(nail, KraidNailPart.First);
+        KraidProjectiles.InitializeKraidNail(nail, KraidNailPart.First, state);
         AssertEqual((EnemyFrameId?)EnemyFrameId.KraidNailTurned0, nail.Frame, "a fingernail set up shows its spin's first pose");
         AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.NailLoop), part.Playback.Animation, "the pose is its spin's");
         AssertTrue(nail.AnimationClock.IsStopped, "the set-up fingernail's spin waits");
@@ -466,7 +466,7 @@ internal static class KraidAnimationsVerification
         enemies.KraidBehavior.Background.SpawnKraidCeilingRock(96);
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidCeilingRock),
             "the real ceiling producer allocates its rock in the enemy projectile pool");
-        var state = new KraidEnemyState(new KraidParts());
+        var state = new KraidEnemyState(KraidPartsAccess.StandaloneParts());
         random = 0;
         enemies.KraidBehavior.Rise.RequestKraidRisingRock(source);
         random = 16;

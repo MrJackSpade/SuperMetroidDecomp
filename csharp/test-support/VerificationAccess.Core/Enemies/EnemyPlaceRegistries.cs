@@ -29,14 +29,10 @@ internal static class EnemyPlaceRegistries
         var registrar = new EnemySpeciesRegistrar();
         foreach (IEnemyEntityFactory factory in factories)
             registrar.Add(factory);
-        return Register(PrivateState.New<EnemySpeciesRegistry>(
-            [typeof(EnemyCommonParticipation), typeof(EnemySpeciesRegistrar), typeof(EnemyPartOffers)],
-            new object?[]
-            {
-                new EnemyCommonParticipation(() => throw new InvalidOperationException("A standalone fixture slot has no enemy system to share reactions with.")),
-                registrar,
-                new EnemyPartOffers(),
-            }));
+        return Register(new EnemySpeciesRegistry(
+            new EnemyCommonParticipation(() => throw new InvalidOperationException("A standalone fixture slot has no enemy system to share reactions with.")),
+            registrar,
+            new EnemyPartOffers()));
     }
 
     /// <summary>The registry <paramref name="place"/> binds its enemies through.</summary>
@@ -44,7 +40,7 @@ internal static class EnemyPlaceRegistries
     /// <exception cref="InvalidOperationException">No check registered the registry the place belongs to.</exception>
     internal static EnemySpeciesRegistry Of(RoomEnemyPlace place)
     {
-        EnemyCommonParticipation common = PrivateState.Field<RoomEnemyPlace, EnemyCommonParticipation>(Ensure.NotNull(place), "_common");
+        EnemyCommonParticipation common = Ensure.NotNull(place).Common;
         return registries.TryGetValue(common, out EnemySpeciesRegistry? registry)
             ? registry
             : throw new InvalidOperationException($"Enemy place {place.Ordinal} belongs to an enemy system whose registry no check registered.");

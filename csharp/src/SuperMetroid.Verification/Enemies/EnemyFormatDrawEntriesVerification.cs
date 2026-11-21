@@ -63,7 +63,7 @@ internal static class EnemyFormatDrawEntriesVerification
         EnemyProjectileFrameId projectileFrame = EnemySheetComposer.CommonSpawnersOf(set, RoomEnemyGraphicsSetLists.Members).SelectMany(common => common.Objects.Projectiles).Order()
             .First(frame => EnemyProjectileFrames.Parts(projectileSpritemaps, frame).Length > 0
                 && !InstalledFixtures.EnemySheets.Spawned(set, SpawnedObjectOwner.Shared).ShowsNothing(EnemySheetDefinitions.ProjectileFrameName(frame)));
-        EnemyProjectile projectile = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.RidleyFireball);
+        EnemyProjectile projectile = enemies.OccupyProjectile(17, RoomEnemyProjectileKind.RidleyFireball);
         projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
         projectile.Frame = projectileFrame;
         projectile.Graphics = ProjectileGraphics;

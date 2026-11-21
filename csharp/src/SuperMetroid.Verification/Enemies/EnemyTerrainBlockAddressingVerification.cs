@@ -316,7 +316,7 @@ internal static class EnemyTerrainBlockAddressingVerification
     }
 
     /// <summary>The projectile the scan row check moves, placed afresh for each move.</summary>
-    private static readonly EnemyProjectile ScannedProjectile = new(0, default, RoomEnemyProjectileKind.EyeDoorSmoke);
+    private static readonly EnemyProjectile ScannedProjectile = new(0, default, RoomEnemyProjectileKind.EyeDoorSmoke, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still);
 
     /// <summary>
     /// A room for the scan row checks: air, walls, spike and grapple blocks and extension links leading up to a row's

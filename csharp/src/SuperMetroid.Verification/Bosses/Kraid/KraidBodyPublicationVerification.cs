@@ -31,7 +31,7 @@ internal static class KraidBodyPublicationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid);
         KraidEnemyState state = runtime.Enemies.Kraid
@@ -45,7 +45,7 @@ internal static class KraidBodyPublicationVerification
 
         // Risen: his body shown as it now appears, with the head it rises with before his head shows a pose, placed at his
         // position (#1515, #1540, #2031).
-        RoomEnemyPlace body = runtime.Enemies.KraidBehavior.Parts.Body;
+        RoomEnemyPlace body = state.Parts.Body;
         state.BodyAppearance = KraidBodyAppearance.BehindSprites;
         state.ShowBody();
         global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", null);

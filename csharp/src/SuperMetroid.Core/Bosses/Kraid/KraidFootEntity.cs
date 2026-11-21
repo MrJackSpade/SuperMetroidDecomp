@@ -14,7 +14,7 @@ internal sealed class KraidFootEntity(KraidBehavior species, RoomEnemyOccupant o
 {
 
     /// <summary>The foot's own part of the encounter.</summary>
-    protected override KraidAnimatedPartState Part => Encounter.FootState;
+    internal override KraidAnimatedPartState Part => Encounter.FootState;
 
     /// <summary>The foot's hitboxes, which its pose places.</summary>
     public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>

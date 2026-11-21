@@ -56,7 +56,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => randomCall++ == 0 ? (ushort)0 : (ushort)0x00ff;
             RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
-            EnemyProjectile projectile = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.BombTorizoChozoOrb);
+            EnemyProjectile projectile = enemies.OccupyProjectile(17, RoomEnemyProjectileKind.BombTorizoChozoOrb);
             enemies.TorizoBehavior.Attacks.InitializeTorizoRandomizedProjectile(enemies.TorizoBehavior.Attacks.ChozoOrb, projectile, torizo, definition);
 
             AssertEqual<TorizoProjectileSegment?>(definition.Animation, (projectile.Animation as TorizoProjectileAnimation)?.PlayingSegment,
@@ -76,17 +76,17 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         {
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnBombTorizoChozoOrb),
-                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoChozoOrb(torizo.HeldOccupant(), torizo),
+                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoChozoOrb(torizo.HeldOccupant(), torizo, torizo.RequireSpeciesState<TorizoEnemyState>()),
                 facingRight,
                 TorizoRandomizedProjectileDefinitions.BombChozoOrb.Toward(facingRight ? HorizontalDirection.Right : HorizontalDirection.Left));
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoChozoOrb),
-                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoChozoOrb(torizo.HeldOccupant(), torizo),
+                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoChozoOrb(torizo.HeldOccupant(), torizo, torizo.RequireSpeciesState<TorizoEnemyState>()),
                 facingRight,
                 TorizoRandomizedProjectileDefinitions.GoldenChozoOrb.Toward(facingRight ? HorizontalDirection.Right : HorizontalDirection.Left));
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoEgg),
-                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEgg(torizo.HeldOccupant(), torizo),
+                (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEgg(torizo.HeldOccupant(), torizo, torizo.RequireSpeciesState<TorizoEnemyState>()),
                 facingRight,
                 TorizoRandomizedProjectileDefinitions.GoldenEgg.Toward(facingRight ? HorizontalDirection.Right : HorizontalDirection.Left));
             VerifyGoldenEyeBeamSpawn(facingRight);
@@ -113,7 +113,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0);
 
-        enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo.HeldOccupant(), torizo);
+        enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo.HeldOccupant(), torizo, torizo.RequireSpeciesState<TorizoEnemyState>());
 
         EnemyProjectile projectile = enemies.Projectiles.SpawnedInPlace(17);
         Offset16<RoomPixels> muzzle = facingRight ? TorizoProjectilePlacementDefinitions.EyeBeamMuzzle : TorizoProjectilePlacementDefinitions.EyeBeamMuzzle.MirroredX();

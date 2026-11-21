@@ -101,7 +101,7 @@ internal static class SamusVisorColorsVerification
             // The room's cycle is stored after the widening glow's shades.
             if (expectedWrite)
                 AssertEqual(rom.ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value +
-                        (SamusShadeDefinitions.Visor.XrayWideningShades + native.Cycle.Showing.Step) * sizeof(ushort)), installedColours.ShownVisor(installedSources),
+                        (SamusShadeDefinitions.Visor.XrayWideningShades + (native.Cycle.Shown ?? throw new InvalidOperationException("The visor cycle shows no shade.")).Step) * sizeof(ushort)), installedColours.ShownVisor(installedSources),
                     $"room visor frame {frame} matches native color word");
             AssertEqual(expectedWrite, actualWrite, $"room visor frame {frame} action");
             AssertEqual(VerifySamusVisorPaletteCase.Of(native), VerifySamusVisorPaletteCase.Of(installed),
@@ -136,7 +136,7 @@ internal static class SamusVisorColorsVerification
             if (expected)
             {
                 // The stored colours hold the widening glow's shades, then the steady cycle's.
-                SuperMetroid.Core.Assets.PictureShade shown = native.Xray.Visor.Showing;
+                SuperMetroid.Core.Assets.PictureShade shown = native.Xray.Visor.Shown ?? throw new InvalidOperationException("The visor shows no shade.");
                 int sourceShade = shown.Effect == SamusShades.VisorCycle[0].Effect
                     ? SamusShadeDefinitions.Visor.XrayWideningShades + shown.Step
                     : shown.Step;

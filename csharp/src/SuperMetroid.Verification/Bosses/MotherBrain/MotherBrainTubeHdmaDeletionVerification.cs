@@ -21,7 +21,7 @@ internal static class MotherBrainTubeHdmaDeletionVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         var fx = runtime.RoomFxOverlay;
         AssertEqual(RoomFxType.Acid, fx.Type, "Mother Brain's room has acid");
@@ -40,7 +40,7 @@ internal static class MotherBrainTubeHdmaDeletionVerification
         tubeState.Action = MotherBrainTubeAction.Falling;
         tubeState.FallSpeed = default;
         tube.Position = tube.Position.WithWholeY(0x00fc); // the head follows at Y-$38 = $C4, the landing height
-        runtime.Enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain(tube);
+        runtime.Enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain(tube, tube.RequireSpeciesState<MotherBrainEnemyState>(), tubeState);
         AssertTrue(runtime.Enemies.LastEnemyFrame.Has<LiquidSurfaceStilled>(), "the main tube's landing stops the liquid surface's motion");
 
         fx.StopLiquidMotion();

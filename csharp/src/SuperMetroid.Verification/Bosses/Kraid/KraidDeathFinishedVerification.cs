@@ -24,19 +24,19 @@ internal static class KraidDeathFinishedVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         enemies.Places.BindKraidPartsInRoomOrder();
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
-        state.BodyState.DeathPhase = KraidDeathPhase.Finished;
+        state.BodyState.SunkPhase = KraidSunkPhase.Finished;
         body.Presence = body.Presence.Without(EnemyPresence.Deleted | EnemyPresence.Hidden);
 
-        enemies.KraidBehavior.Death.RunKraidDeathPhase(body, state, cameraX: 0, RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.KraidBehavior.Death.RunKraidSunkPhase(body, state, (KraidStageRun.Sunk)state.BodyState.Run, cameraX: 0);
         AssertTrue(!body.Presence.HasAny(EnemyPresence.Deleted | EnemyPresence.Hidden),
             "A finished Kraid's body stays while the camera is at the room's left edge");
-        AssertEqual(KraidDeathPhase.Finished, state.BodyState.DeathPhase, "The finished phase stays finished at the left edge");
+        AssertEqual(KraidSunkPhase.Finished, state.BodyState.SunkPhase, "The finished phase stays finished at the left edge");
 
-        enemies.KraidBehavior.Death.RunKraidDeathPhase(body, state, cameraX: 1, RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.KraidBehavior.Death.RunKraidSunkPhase(body, state, (KraidStageRun.Sunk)state.BodyState.Run, cameraX: 1);
         AssertTrue(body.Presence.HasAny(EnemyPresence.Deleted) && body.Presence.HasAny(EnemyPresence.Hidden),
             "A finished Kraid's body is deleted and hidden once the camera leaves the room's left edge");
         AssertTrue(body.Contact.HasAny(EnemyContact.IgnoresSamus), "His dead body ignores Samus");
-        AssertEqual(KraidDeathPhase.Finished, state.BodyState.DeathPhase, "The finished phase stays finished");
+        AssertEqual(KraidSunkPhase.Finished, state.BodyState.SunkPhase, "The finished phase stays finished");
         Console.WriteLine("Kraid's finished death: his body stays at the room's left edge and is given a dead enemy's properties past it.");
     }
 

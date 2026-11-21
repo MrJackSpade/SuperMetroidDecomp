@@ -16,7 +16,7 @@ internal static class CrocomireSeparateValuesVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        var state = new CrocomireEnemyState(body.HeldOccupant(), body);
+        var state = new CrocomireEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1]);
         body.SetSpeciesState(state);
 
         state.StepCounter = 5;

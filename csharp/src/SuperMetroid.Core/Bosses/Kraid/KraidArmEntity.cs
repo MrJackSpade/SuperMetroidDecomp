@@ -14,7 +14,7 @@ internal sealed class KraidArmEntity(KraidBehavior species, RoomEnemyOccupant oc
 {
 
     /// <summary>The arm's own part of the encounter.</summary>
-    protected override KraidAnimatedPartState Part => Encounter.ArmState;
+    internal override KraidAnimatedPartState Part => Encounter.ArmState;
 
     /// <summary>The arm's hitboxes, which its frame's components hold.</summary>
     public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>

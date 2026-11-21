@@ -32,7 +32,7 @@ internal static class YardAirborneVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.StepFrame(0);
         AssertEqual(SignedSixteenSixteen.FromWholePixels(1), runtime.YardKickDistance.HorizontalDistancePlusOne,
             "a stationary Samus's measure includes one pixel for the next Yard kick");
@@ -63,7 +63,7 @@ internal static class YardAirborneVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.YardKickDistance.Record(stale);
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         AssertEqual(initial, runtime.YardKickDistance.HorizontalDistancePlusOne, "starting at Ceres initialises Samus with one pixel");
         runtime.YardKickDistance.Record(stale);
         runtime.RoomLoader.InitializePostCeresZebesRoom();
@@ -96,7 +96,7 @@ internal static class YardAirborneVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.StepFrame(0);
         runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithFractionX(0xE000);
         runtime.StepFrame(0);

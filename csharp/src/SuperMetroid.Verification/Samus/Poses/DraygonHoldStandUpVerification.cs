@@ -32,7 +32,7 @@ internal static class DraygonHoldStandUpVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         // No enemy's solid body takes part in the stand-up's collision.
         foreach (var enemy in runtime.Enemies.Places.InUpdateOrder)

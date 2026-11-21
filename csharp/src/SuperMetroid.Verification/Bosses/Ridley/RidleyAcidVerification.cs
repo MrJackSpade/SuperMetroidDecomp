@@ -26,7 +26,7 @@ internal static class RidleyAcidVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         // The room load's queued uploads, the acid's characters among them, are shown once its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);

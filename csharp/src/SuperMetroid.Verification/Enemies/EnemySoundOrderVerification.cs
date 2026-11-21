@@ -124,8 +124,8 @@ internal static class EnemySoundOrderVerification
         BoyonEnemyState state = enemy.RequireSpeciesState<BoyonEnemyState>();
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         samus.Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole);
-        BoyonBehavior.RunBoyonMain(enemy, state, samus);
-        BoyonBehavior.RunBoyonMain(enemy, state, samus);
+        BoyonBehavior.RunBoyonMain(enemy.HeldOccupant().SpawnSettings<BoyonSpawnSettings>(), enemy, state, samus);
+        BoyonBehavior.RunBoyonMain(enemy.HeldOccupant().SpawnSettings<BoyonSpawnSettings>(), enemy, state, samus);
         AssertEqual(new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Bouncing), AnimationPlace.StartOfAnimation),
             state.Playback, "Samus on the Boyon starts its bouncing animation");
         enemy.AnimationClock.StepOnNextUpdate();

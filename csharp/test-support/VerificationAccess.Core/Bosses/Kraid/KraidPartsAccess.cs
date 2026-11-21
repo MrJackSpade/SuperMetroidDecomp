@@ -33,29 +33,28 @@ internal static class KraidPartsAccess
     extension(KraidBehavior kraid)
     {
         /// <summary>
-        /// Begins Kraid's encounter as his body's setup does and joins the enemies holding the first eight places of
-        /// <paramref name="enemies"/>, which the fixture has bound to his parts, to it as his parts in the order his room
-        /// lists them, each holding the encounter as its setup would (#1877, #2218), and shows it on his body layer as his
-        /// body's setup does (#2194).
+        /// Begins Kraid's encounter as his body's setup does, in the first place of <paramref name="enemies"/>, and sets up
+        /// the enemies holding the next seven, which the fixture has bound to his parts in the order his room lists them,
+        /// through the creations his body offers them (#2218, #2554), each joining the encounter as it is set up.
         /// </summary>
         /// <returns>The encounter begun.</returns>
         internal KraidEnemyState BeginEncounterInRoomOrder(EnemyPlaces enemies)
         {
-            KraidParts parts = kraid.Parts;
-            var state = new KraidEnemyState(parts);
-            kraid.BodyLayer.Show(state);
-            (KraidPartReference Reference, KraidPartState State)[] roomOrder =
-            [
-                (parts.BodyReference, state.BodyState), (parts.ArmReference, state.ArmState), (parts.TopLintReference, state.TopLintState),
-                (parts.MiddleLintReference, state.MiddleLintState), (parts.BottomLintReference, state.BottomLintState),
-                (parts.FootReference, state.FootState), (parts.FirstNailReference, state.FirstNailState), (parts.SecondNailReference, state.SecondNailState),
-            ];
-            for (int place = 0; place < roomOrder.Length; place++)
-            {
-                roomOrder[place].Reference.Join(enemies.InUpdateOrder[place].HeldOccupant());
-                KraidEncounterAccess.AttachKraidPart(roomOrder[place].State);
-            }
+            KraidEnemyState state = kraid.BeginKraid(enemies.InUpdateOrder[0]);
+            for (int place = 1; place < PartsInRoomOrder.Length; place++)
+                enemies.InUpdateOrder[place].SetUpAsPlaced();
             return state;
         }
+    }
+
+    /// <summary>
+    /// Kraid's parts in a fresh fixture room that lists them in his room's order (#2554), for checks that build his
+    /// encounter's state without running his body.
+    /// </summary>
+    internal static KraidParts StandaloneParts()
+    {
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        enemies.Places.BindKraidPartsInRoomOrder();
+        return new KraidParts(enemies.Places, enemies.Places.InUpdateOrder[0]);
     }
 }

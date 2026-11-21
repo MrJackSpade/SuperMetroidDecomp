@@ -21,7 +21,7 @@ internal static class FuneNamiheDefinitionsVerification
             bool namihe = (variant & 2) != 0;
             bool right = (variant & 1) != 0;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace> initialize = namihe ? fixturePlace => FuneNamiheBehavior.InitializeNamihe(fixturePlace) : fixturePlace => FuneNamiheBehavior.InitializeFune(fixturePlace.HeldOccupant().SpawnSettings<FuneNamiheSpawnSettings>(), fixturePlace.HeldOccupant().SpawnSettings<FuneSpawnSettings>(), fixturePlace);
+            Action<RoomEnemyPlace> initialize = namihe ? fixturePlace => fixturePlace.SetSpeciesState(FuneNamiheBehavior.InitializeNamihe(fixturePlace.HeldOccupant().SpawnSettings<FuneNamiheSpawnSettings>(), fixturePlace)) : fixturePlace => FuneNamiheBehavior.InitializeFune(fixturePlace.HeldOccupant().SpawnSettings<FuneNamiheSpawnSettings>(), fixturePlace.HeldOccupant().SpawnSettings<FuneSpawnSettings>(), fixturePlace);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, place.KeptDefinition);
             place.SetSpawnParameter1(place.HeldOccupant().DefinitionId, (ushort)((namihe ? 1 : 0) | (right ? 0x10 : 0)));
@@ -54,10 +54,10 @@ internal static class FuneNamiheDefinitionsVerification
         switch (state)
         {
             case FuneEnemyState fune:
-                FuneNamiheBehavior.RunFuneMain(place, fune);
+                FuneNamiheBehavior.RunFuneMain(place.HeldOccupant().SpawnSettings<FuneNamiheSpawnSettings>(), place.HeldOccupant().SpawnSettings<FuneSpawnSettings>(), place, fune);
                 return;
             case NamiheEnemyState namihe:
-                FuneNamiheBehavior.RunNamiheMain(place, namihe, samus);
+                FuneNamiheBehavior.RunNamiheMain(place.HeldOccupant().SpawnSettings<FuneNamiheSpawnSettings>(), place.HeldOccupant().SpawnSettings<NamiheSpawnSettings>(), place, namihe, samus);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined Fune/Namihe state {state}.");

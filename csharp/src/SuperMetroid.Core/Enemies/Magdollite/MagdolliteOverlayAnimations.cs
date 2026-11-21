@@ -68,7 +68,7 @@ internal static class MagdolliteOverlayAnimations
     /// <see cref="LavaFlings"/> gobs of lava and finishes (#2439), ending on its finishing cue, which moves the overlay on;
     /// the pillar cap is a still picture.
     /// </summary>
-    private static Dictionary<MagdolliteOverlaySegment, Animation<MagdolliteOverlaySegment>> StartingAt { get; } = new Dictionary<MagdolliteOverlaySegment, Animation<MagdolliteOverlaySegment>>
+    internal static Dictionary<MagdolliteOverlaySegment, Animation<MagdolliteOverlaySegment>> StartingAt { get; } = new Dictionary<MagdolliteOverlaySegment, Animation<MagdolliteOverlaySegment>>
     {
         [P.LeftThrow] = new([Segments.Whole(P.LeftThrow), Segments.Repeated(P.LeftLavaFling, LavaFlings), Segments.Whole(P.LeftThrowFinish)], AnimationEnd.Holds),
         [P.RightThrow] = new([Segments.Whole(P.RightThrow), Segments.Repeated(P.RightLavaFling, LavaFlings), Segments.Whole(P.RightThrowFinish)], AnimationEnd.Holds),

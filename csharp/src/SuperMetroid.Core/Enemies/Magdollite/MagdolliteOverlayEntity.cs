@@ -14,7 +14,7 @@ internal sealed class MagdolliteOverlayEntity(MagdolliteBehavior species, RoomEn
     internal override MagdollitePartState State => Overlay;
 
     /// <summary>The overlay's state, which its setup builds as the enemy is built (#2554).</summary>
-    private MagdolliteOverlayState Overlay { get; } = species.InitializeMagdolliteOverlay(place, partners);
+    internal MagdolliteOverlayState Overlay { get; } = species.InitializeMagdolliteOverlay(place, partners);
 
     /// <summary>The Magdollite its head began, which the overlay joined as it was built (#2554).</summary>
     internal override MagdollitePartners Partners { get; } = partners;

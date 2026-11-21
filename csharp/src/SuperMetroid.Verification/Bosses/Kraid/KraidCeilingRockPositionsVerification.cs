@@ -36,7 +36,7 @@ internal static class KraidCeilingRockPositionsVerification
         enemies.Places.BindKraidPartsInRoomOrder();
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         enemies.VerificationServices().ReadRandom = () => 63;
-        Action<RoomEnemyPlace, KraidEnemyState> step = enemies.KraidBehavior.Rise.RunKraidGrowthPhase;
+        Action<RoomEnemyPlace, KraidEnemyState> step = (growthBody, growthState) => enemies.KraidBehavior.Rise.RunKraidGrowthPhase(growthBody, growthState);
         var body = enemies.Places.InUpdateOrder[0];
         body.FrameCounter = 1; // Isolate the ceiling placement from the independent rising-rock cadence.
         // Every height his rising body passes through as it breaks the ceiling, and on past his room's two screens (#2299).

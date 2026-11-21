@@ -27,7 +27,7 @@ internal abstract class KraidLimbEntity(KraidBehavior species, RoomEnemyOccupant
     private KraidPartPose? Pose => Part.Pose;
 
     /// <summary>The limb's own part of the encounter, its animation included (#2298).</summary>
-    protected abstract KraidAnimatedPartState Part { get; }
+    internal abstract KraidAnimatedPartState Part { get; }
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Limbs.AdvanceKraidPartAnimation(Part);

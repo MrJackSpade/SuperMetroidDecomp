@@ -158,7 +158,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash bubble shade holds five updates");
     AssertEqual(10, samus.CrystalFlash.BodyPulse.UpdatesLeft,
         "Crystal Flash body shade holds ten updates");
-    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.CrystalFlashBody[0], samus.CrystalFlash.BodyPulse.Showing,
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.CrystalFlashBody[0], samus.CrystalFlash.BodyPulse.Shown,
         "Crystal Flash body pulse shows its first shade");
 
     // Five more calls expire only the bubble timer and select pointer one. The ten-call
@@ -428,7 +428,7 @@ internal static void VerifySamusXray()
     AssertTrue(standing.Xray.UpdateColouring(xrayColours, standing.EquippedItems),
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, xrayColours.ShownVisor(xraySources), "first widening visor shade shows its installed color");
-    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.XrayWideningVisor[0], standing.Xray.Visor.Showing, "widening visor shows its first shade");
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.XrayWideningVisor[0], standing.Xray.Visor.Shown, "widening visor shows its first shade");
     AssertEqual(XrayScopeDefinitionsConstants.VisorShades.FrameDelay, standing.Xray.Visor.UpdatesLeft,
         "widening visor shade holds five updates");
 
@@ -479,7 +479,7 @@ internal static void VerifySamusXray()
         "full beam enters visor cycle");
     AssertEqual(XrayVisorShadeMode.FullBeam, standing.Xray.VisorShadeMode, "full beam palette mode");
     AssertEqual(0x43ff, xrayColours.ShownVisor(xraySources), "first full-beam visor shade shows its installed color");
-    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.VisorCycle[0], standing.Xray.Visor.Showing, "full-beam visor shows the cycle's first shade");
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.VisorCycle[0], standing.Xray.Visor.Shown, "full-beam visor shows the cycle's first shade");
 
     // Full-beam aiming moves one angle unit per call and Up wins over Down. Width ten clamps
     // the right-facing center at angle ten, so 80 calls cannot wrap into left-facing space.

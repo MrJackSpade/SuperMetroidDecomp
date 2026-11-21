@@ -282,7 +282,7 @@ internal static class RoomBlockPicturesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(hud);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(room);
         runtime.Player.Samus.Control.LockOutPlayer();
         return runtime;
@@ -554,7 +554,7 @@ internal static class RoomBlockPicturesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(room);
         runtime.Player.Samus.Control.LockOutPlayer();
         // The tileset's animations and the characters each paints are the room's, read once for all its frames.
@@ -645,7 +645,7 @@ internal static class RoomBlockPicturesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         progress?.Invoke(runtime);
         runtime.LoadCartridgeRoomForDebug(room, state: state);
         runtime.Player.Samus.Control.LockOutPlayer();

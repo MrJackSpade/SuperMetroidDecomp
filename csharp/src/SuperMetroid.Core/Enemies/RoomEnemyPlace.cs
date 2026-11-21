@@ -20,7 +20,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// <param name="leftovers">What the place's removed occupants leave for their neighbours, created with the room's places.</param>
     internal RoomEnemyPlace(int ordinal, EnemyCommonParticipation common, RemovedEnemyLeftovers<IEnemyEntity> leftovers)
     {
-        _common = Ensure.NotNull(common);
+        Common = Ensure.NotNull(common);
         _leftovers = Ensure.NotNull(leftovers);
         Ordinal = Ensure.BetweenInclusive(0, EnemyPlaceOrder.Capacity - 1, ordinal);
     }
@@ -69,7 +69,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     internal bool IsFree => History is NeverPopulatedEnemyPlace or PopulatedEnemyPlace { Occupancy: VacatedEnemyPlace };
 
     /// <summary>The shared participation every entity built in the place composes.</summary>
-    private readonly EnemyCommonParticipation _common;
+    internal EnemyCommonParticipation Common { get; }
 
     /// <summary>The enemy occupying the place, bound with its identity; null while the place is empty.</summary>
     internal IEnemyEntity? Entity => BoundEntity?.Entity;
@@ -127,7 +127,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// <param name="occupant">The occupant the place was just bound to.</param>
     /// <param name="build">How the occupant's species builds it where it is set up.</param>
     /// <returns>The entity with the setup and main AI it runs.</returns>
-    internal EnemyOccupant Build(RoomEnemyOccupant occupant, IEnemyBuild build) => Hold(Ensure.NotNull(build).Create(occupant, this, _common));
+    internal EnemyOccupant Build(RoomEnemyOccupant occupant, IEnemyBuild build) => Hold(Ensure.NotNull(build).Create(occupant, this, Common));
 
     /// <summary>Holds <paramref name="built"/> as the place's entity.</summary>
     private EnemyOccupant Hold(EnemyOccupant built)

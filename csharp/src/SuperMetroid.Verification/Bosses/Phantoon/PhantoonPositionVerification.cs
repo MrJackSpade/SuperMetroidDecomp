@@ -40,7 +40,7 @@ internal static class PhantoonPositionVerification
             var boundary = CreateRetailRuntimeFixture();
             boundary.HudSetup.InitializeHud(HudSnapshot.NewGame);
             boundary.RoomLoader.InitializeStartingCeresRoom();
-            boundary.RoomLoader.InitializeCeresStartSamus();
+            boundary.RoomLoader.InitializeCeresStartSamus(boundary.Room.LoadedScope);
             boundary.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomDefinitions.Phantoon);
             var state = boundary.Enemies.BossEncounters.Phantoon;
             PhantoonEnemyState boundaryState = state ?? throw new InvalidOperationException("Verification requires state.");
@@ -54,7 +54,7 @@ internal static class PhantoonPositionVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Phantoon);
         PhantoonEnemyState loaded = runtime.Enemies.BossEncounters.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.Phantoon.");
         AssertEqual(120, loaded.PhaseWait.UpdatesLeft,

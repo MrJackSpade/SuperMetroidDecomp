@@ -26,7 +26,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
         Action<EnemyProjectile> move = enemies.FallingSparksBehavior.AddFallingSparkHorizontalVelocity;
         var source = enemies.Places.InUpdateOrder[0];
         // The place's projectile before each spawn is a stale spark the check leaves there.
-        var projectile = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.FallingSpark);
+        var projectile = enemies.OccupyProjectile(17, RoomEnemyProjectileKind.FallingSpark);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
@@ -59,7 +59,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), projectile.Position.X.Whole, "Native signed launch reaches actual wrapped movement");
             AssertEqual((ushort)expected, projectile.Position.X.Fraction, "Native fractional launch reaches actual movement");
         }
-        foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity)) enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.FallingSpark);
+        foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity)) enemies.OccupyProjectile(place, RoomEnemyProjectileKind.FallingSpark);
         advances = 0;
         ushort previousX = projectile.Position.X.Whole;
         spawn(source);

@@ -66,7 +66,10 @@ internal static class FileCopyArrowPartDefinitions
     /// <summary>The long upward arrow: the long downward arrow's parts mirrored top to bottom.</summary>
     private static readonly CompiledSpritePart[] LongUp = [.. LongDown.Select(Upward)];
 
-    /// <summary>Each of the four file-copy arrow shapes' native OAM parts, in order: 16-pixel OBJ parts in palette three.</summary>
+    /// <summary>
+    /// Each of the four file-copy arrow shapes' parts, in palette three: a downward arrow's in the cartridge's order, an
+    /// upward arrow's in its downward arrow's order, which pictures the same arrow since no part covers another (#2596).
+    /// </summary>
     internal static IReadOnlyDictionary<FileCopyArrowShape, CompiledSpritePart[]> Parts { get; } = new Dictionary<FileCopyArrowShape, CompiledSpritePart[]>
     {
         [FileCopyArrowShape.ShortDown] = ShortDown,

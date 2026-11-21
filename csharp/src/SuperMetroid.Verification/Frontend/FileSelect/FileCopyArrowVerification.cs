@@ -62,15 +62,36 @@ internal static class FileCopyArrowVerification
             AssertEqual(noArrowCount + count, actual.LastFinalizedSpriteCount, "confirmation adds native Copy arrow sprite parts");
             var expected = new OamBuffer();
             expected.BeginFrame();
+            var cartridgeParts = new OamEntry[count];
             for (int part = 0; part < count; part++)
             {
                 int address = spritemap + 2 + part * 5;
                 expected.AddOnScreenSpritePart(new SnesSpritemapXWord(ReadVerificationWord(rom, address)),
                     new SnesSpritemapYByte(FileCopyArrowRomByte(rom, address + 2)), (SnesObjAttributeWord)ReadVerificationWord(rom, address + 3), new Position16<ScreenPixels>(originX, originY));
-                AssertEqual(expected.GetEntry(part), actual.GetEntry(noArrowCount + part),
-                    $"copy {pair.Slots}: exact arrow position, tile, flip, palette and priority, part {part}");
+                cartridgeParts[part] = expected.GetEntry(part);
             }
             expected.FinalizeFrame();
+            // The arrow is one picture (#2557): no part of the cartridge's arrow covers another, so the order its parts are
+            // listed in shows nothing, and an upward arrow is pictured from its downward arrow's parts mirrored, in that
+            // arrow's order. Every part the picture is composed of has the cartridge part's place, tile, flip, palette and
+            // priority.
+            Extent16<ScreenPixels> small = ObjectSelectionCodec.Sizes(SuperMetroid.AssetExtraction.Frontend.Menus.MenuRenderDefinitions.ObjectSelection).Small;
+            for (int part = 0; part < count; part++)
+            {
+                for (int other = part + 1; other < count; other++)
+                {
+                    OamEntry one = cartridgeParts[part], two = cartridgeParts[other];
+                    AssertTrue(!one.IsLarge && !two.IsLarge &&
+                        (Math.Abs(one.Position.X - two.Position.X) >= small.X || Math.Abs(one.Position.Y - two.Position.Y) >= small.Y),
+                        $"copy {pair.Slots}: the cartridge's arrow parts {part} and {other} cover no pixel in common");
+                }
+            }
+            OamEntry[] cartridgePicture = [.. cartridgeParts.OrderBy(entry => entry.Position.Y).ThenBy(entry => entry.Position.X)];
+            OamEntry[] drawnPicture = [.. Enumerable.Range(noArrowCount, count).Select(actual.GetEntry)
+                .OrderBy(entry => entry.Position.Y).ThenBy(entry => entry.Position.X)];
+            for (int part = 0; part < count; part++)
+                AssertEqual(cartridgePicture[part], drawnPicture[part],
+                    $"copy {pair.Slots}: exact arrow position, tile, flip, palette and priority, part {part} from the top left");
             // The arrows' rotation is typed state (#1512): each step names the shade the import pre-coloured from the
             // cartridge's file-select colours, its sprite colours 145..151 moved the step's number of places along.
             ReadOnlySpan<RgbColor> cartridge = InstalledFixtures.ImportOf(art).Palettes.FileSelect;

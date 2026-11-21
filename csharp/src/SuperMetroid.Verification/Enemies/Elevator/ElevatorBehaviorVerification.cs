@@ -24,8 +24,6 @@ internal static class ElevatorBehaviorVerification
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.Elevator, words => words);
         enemies.ElevatorBehavior.InitializeElevator(place.HeldOccupant(), place, RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(new AnimationPlayback<ElevatorSegment>(ElevatorAnimations.StartingWith(ElevatorSegment.Idle), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<ElevatorEntity, ElevatorEnemyState>() ?? throw new InvalidOperationException("The elevator has no state.")).Playback,
-            "elevator initializer animation");
         place.AnimationClock.StepOnNextUpdate();
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(ElevatorAnimations.Segments, ElevatorSegment.Idle, ElevatorFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(ElevatorAnimations.Segments, ElevatorSegment.Idle)),

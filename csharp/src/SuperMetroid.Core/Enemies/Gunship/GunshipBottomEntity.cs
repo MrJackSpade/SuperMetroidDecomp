@@ -17,8 +17,8 @@ internal sealed class GunshipBottomEntity(RoomEnemyOccupant occupant, RoomEnemyP
     internal GunshipSpawnSettings Settings { get; } = settings;
 
     /// <summary>The piece's animation, which its setup began as the enemy was built (#2554).</summary>
-    internal GunshipPieceState State { get; } = Ensure.NotNull(state);
+    private readonly GunshipPieceState ownState = Ensure.NotNull(state);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GunshipBehavior.AdvanceGunshipAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GunshipBehavior.AdvanceGunshipAnimation(Place, ownState);
 }

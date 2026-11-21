@@ -11,8 +11,8 @@ internal sealed class HibashiCollisionPartEntity(RoomEnemyOccupant occupant, Roo
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal HibashiCollisionPartState State { get; } = HibashiBehavior.InitializeHibashiCollisionPart(place);
+    private readonly HibashiCollisionPartState state = HibashiBehavior.InitializeHibashiCollisionPart(place);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => HibashiBehavior.AdvanceHibashiCollisionPartTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => HibashiBehavior.AdvanceHibashiCollisionPartTypedAnimation(Place, state);
 }

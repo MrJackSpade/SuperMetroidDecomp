@@ -145,13 +145,14 @@ internal static class LookupStream5Verification
             var place = system.Places.InUpdateOrder[0];
             place.BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
             place.Position = place.Position.WithWhole(origin);
-            var doorState = new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Exploding, Rumble = UpdateCountdown.Lasting(49), ExplosionWait = UpdateCountdown.Lasting(1) };
-            place.SetSpeciesState(doorState);
             system.RidleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls % 2 == 0 ? 0x4000 : 0);
             IEnemyAiFrame aiFrame = CeresDoorAiFrame();
             Action tick = () => place.ElevatorDoor().RunMainAi(aiFrame);
+            // The intact door enters its destruction on the update the self-destruct reaches it, which bursts nothing yet.
+            tick();
+            AssertEqual(0, randomCalls, "Entering the destruction bursts nothing");
             for (int call = 1; call <= 49; call++)
             {
                 tick();
@@ -327,8 +328,7 @@ internal static class LookupStream5Verification
         var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new StandaloneRoomEnemyServices(() => 0), floor: floor);
         var places = (RoomEnemyPlace[])system.Places.InUpdateOrder;
         places[0].BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
-        // The intact door cycles the glow and platform on each of its updates (#2482).
-        places[0].SetSpeciesState(new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Intact });
+        // The intact door, as it is placed, cycles the glow and platform on each of its updates (#2482).
         IEnemyAiFrame aiFrame = CeresDoorAiFrame();
         foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
         {
@@ -1807,8 +1807,7 @@ internal static class LookupStream5Verification
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             RoomEnemyPlace door = system.Places.InUpdateOrder[0];
             door.BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
-            // The intact door cycles the glow and platform on each of its updates (#2482).
-            door.SetSpeciesState(new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Intact });
+            // The intact door, as it is placed, cycles the glow and platform on each of its updates (#2482).
             IEnemyAiFrame aiFrame = CeresDoorAiFrame();
             foreach (int counter in Enumerable.Range(0, 64))
             {

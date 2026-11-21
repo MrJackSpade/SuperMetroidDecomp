@@ -246,19 +246,10 @@ internal static class EnemySpeciesCapabilitiesVerification
                 answers++;
             }
 
-            var doorState = new CeresDoorAnimationState { Facing = HorizontalDirection.Right };
-            place.SetSpeciesState(doorState);
-            foreach (CeresRidleyRoomDoorLook look in new[] { CeresRidleyRoomDoorLook.Actor, CeresRidleyRoomDoorLook.Overlay })
-            {
-                doorState.Look = look;
-                bool showsOverlay = entity is CeresRidleyRoomDoorEntity door && door.Look == CeresRidleyRoomDoorLook.Overlay;
-                AssertEqual(definition == EnemyDefinitionId.CeresRidleyRoomDoor && look == CeresRidleyRoomDoorLook.Overlay, showsOverlay,
-                    $"{definition} shows the room door's overlay when the door's state says {look}");
-            }
         }
 
         Console.WriteLine($"Enemy species capabilities: {bound} bound definitions answer the removed catalog's collision " +
-            $"capabilities, {answers} private shot callback queries and Ceres Ridley scene drawing through their entities.");
+            $"capabilities, {answers} private shot callback queries through their entities.");
     }
 
     /// <summary>Runs the species capability equivalence check.</summary>

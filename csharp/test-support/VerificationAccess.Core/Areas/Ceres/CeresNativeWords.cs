@@ -28,16 +28,16 @@ internal static class CeresNativeWords
     });
 
     /// <summary>
-    /// The routine word of the main behaviour <paramref name="place"/>'s Ceres door or wall runs now (#1953): the cartridge
-    /// stored it in the shared enemy's variable A, and each actor runs its own.
+    /// The routine word of the main behaviour <paramref name="place"/>'s Ceres door or wall runs (#1953): the cartridge
+    /// stored it in the shared enemy's variable A, and each actor runs its own. The elevator door's routine is its phase,
+    /// which the door keeps to itself.
     /// </summary>
-    /// <exception cref="InvalidDataException">The slot holds no Ceres door or wall.</exception>
+    /// <exception cref="InvalidDataException">The slot holds no Ceres door or wall, or holds the elevator door.</exception>
     internal static ushort MainBehaviourWord(RoomEnemyPlace place) => place.Entity switch
     {
         CeresDoorEntity or CeresElevatorRoomWallEntity => EscapeQuakeWord,
         CeresRidleyRoomDoorEntity => RidleyRoomEscapeQuakeWord,
         CeresGetawayChamberWallEntity => GetawayChamberWallWord,
-        CeresElevatorDoorEntity => ElevatorDoorPhases.Word(place.RequireSpeciesState<CeresElevatorDoorState>().Phase),
         var other => throw new InvalidDataException($"Enemy slot {place.Ordinal} holds {other?.GetType().Name ?? "no actor"}, not a Ceres door or wall."),
     };
 

@@ -72,7 +72,9 @@ internal static class HoltzInstructionProgramDefinitionsVerification
         follower.Bind(EnemyDefinitionId.Holtz, follower.KeptDefinition);
         follower.Bind(follower.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         follower.SetUpAsPlaced();
-        AssertEqual(new AnimationPlayback<HoltzSegment>(HoltzAnimations.StartingWith(HoltzSegment.Flames), AnimationPlace.StartOfAnimation), enemies.Places.InUpdateOrder[1].EntityState<HoltzFollowerEntity, HoltzFollowerState>()?.Playback,
+        // The follower shows the first picture of the flames its setup started on its next animation step.
+        follower.AdvanceAnimation(RoomEnemyFrameFixtures.StandaloneSamus());
+        AssertEqual<EnemyFrameId?>(HoltzAnimations.Segments.FirstFrameShown(HoltzAnimations.StartingWith(HoltzSegment.Flames)), follower.Frame,
             "Lower Norfair Rio follower initializer selects flames");
     }
 
@@ -108,11 +110,8 @@ internal static class HoltzInstructionProgramDefinitionsVerification
         follower.Bind(EnemyDefinitionId.Holtz, follower.KeptDefinition);
         follower.SetUpAsPlaced();
         // The placement builds the part's own entity (#2164): the parent a Rio, the follower its flames.
-        AssertTrue(parent.EntityState<HoltzEntity, HoltzEnemyState>() is not null &&
-            parent.SpeciesState<HoltzFollowerState>() is null &&
-            follower.EntityState<HoltzFollowerEntity, HoltzFollowerState>() is not null &&
-            follower.SpeciesState<HoltzEnemyState>() is null,
-            "parameter one's sign bit selects the follower, which keeps only its own follower state");
+        AssertTrue(parent.Entity is HoltzEntity && follower.Entity is HoltzFollowerEntity,
+            "parameter one's sign bit selects the follower, which is built as a follower");
         Console.WriteLine("Lower Norfair Rio owned state: the follower selection matches.");
     }
 

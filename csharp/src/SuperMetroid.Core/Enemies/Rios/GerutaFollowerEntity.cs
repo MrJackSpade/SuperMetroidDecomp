@@ -14,11 +14,11 @@ internal sealed class GerutaFollowerEntity(GerutaBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal GerutaFollowerState State { get; } = species.InitializeGerutaFollower(place, parent);
+    private readonly GerutaFollowerState state = species.InitializeGerutaFollower(place, parent);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunGerutaFollowerMainAi(Place, State);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunGerutaFollowerMainAi(Place, state);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GerutaBehavior.AdvanceGerutaFollowerTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GerutaBehavior.AdvanceGerutaFollowerTypedAnimation(Place, state);
 }

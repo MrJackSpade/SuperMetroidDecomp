@@ -16,14 +16,14 @@ internal sealed class CeresRidleyRoomDoorEntity(CeresDoorBehavior doors, RoomEne
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The door's animation, which its setup starts as the door is built (#2554).</summary>
-    internal CeresDoorAnimationState State { get; } = doors.Start(place, HorizontalDirection.Right, CeresDoorSegment.RidleyRoomDoor);
+    private readonly CeresDoorAnimationState state = doors.Start(place, HorizontalDirection.Right, CeresDoorSegment.RidleyRoomDoor);
 
     /// <summary>Attaches the door, as it is set up, to the room's Ceres doors, which show its overlay while its look is the overlay (#2573).</summary>
-    public void Initialize() => doors.AttachRidleyRoomDoor(Place, State);
+    public void Initialize() => doors.AttachRidleyRoomDoor(Place, state);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => doors.EscapeQuake.Keep(EarthquakeReach.SceneryAndEnemies);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, State, context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, state, context.Samus);
 }

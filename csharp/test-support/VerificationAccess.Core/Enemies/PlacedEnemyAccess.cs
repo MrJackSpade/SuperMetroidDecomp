@@ -66,6 +66,21 @@ internal static class PlacedEnemyAccess
 
         /// <summary>Runs the place's enemy's main AI as the enemy pass runs it in <paramref name="frame"/>.</summary>
         internal void RunMainAi(IEnemyAiFrame frame) => EnemyLifecycle.RunMainAi(self, frame);
+
+        /// <summary>
+        /// Advances the place's enemy's animation as the enemy pass does after its main AI, with <paramref name="samus"/> in
+        /// <paramref name="level"/>, an open room when none, nothing pressed and the camera at <paramref name="camera"/>.
+        /// </summary>
+        internal void AdvanceAnimation(SamusState samus, RoomLevelData? level = null, Position16<RoomPixels> camera = default) =>
+            EnemyAnimationPlayer.AdvanceAnimation(self, Ensure.NotNull(samus), level ?? RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), camera,
+                SuperMetroid.Core.Input.GameplayAction.None);
+
+        /// <summary>Runs the place's enemy's main AI and then its animation, as one update of the enemy pass runs them.</summary>
+        internal void RunUpdate(SamusState samus, int enemyFrame = 0, RoomLevelData? level = null, Position16<RoomPixels> camera = default)
+        {
+            EnemyLifecycle.RunMainAi(self, AiFrame(samus, enemyFrame, level, camera));
+            self.AdvanceAnimation(samus, level, camera);
+        }
     }
 
     /// <summary>

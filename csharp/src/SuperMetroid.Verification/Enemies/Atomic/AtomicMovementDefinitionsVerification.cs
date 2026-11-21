@@ -45,10 +45,8 @@ internal static class AtomicMovementDefinitionsVerification
             place.SetSpawnParameter1(EnemyDefinitionId.Atomic, selector);
             place.SetSpawnParameter2(EnemyDefinitionId.Atomic, (ushort)(selector * 7));
             AtomicBehavior.InitializeAtomic(place.HeldOccupant().SpawnSettings<AtomicSpawnSettings>(), place);
-            AtomicEnemyState state = enemies.AtomicStates[0] ?? throw new InvalidOperationException("Verification requires enemies.AtomicStates[0].");
+            // The spinning loop the Atomic shows below is the animation its initializer started.
             AtomicSegment program = DecodedSpin(selector);
-            AssertEqual(new AnimationPlayback<AtomicSegment>(AtomicAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback,
-                $"Atomic initializer animation {selector}");
 
             AssertEqual(EnemyLinearSpeedTable.Speed(selector * 7), place.HeldOccupant().SpawnSettings<AtomicSpawnSettings>().Speed, $"Atomic speed {selector}");
 

@@ -16,11 +16,11 @@ internal sealed class CeresDoorEntity(CeresDoorBehavior doors, RoomEnemyOccupant
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The door's animation, which its setup starts as the door is built (#2554).</summary>
-    internal CeresDoorAnimationState State { get; } = doors.Start(place, facing, CeresDoorSegment.Door);
+    private readonly CeresDoorAnimationState state = doors.Start(place, facing, CeresDoorSegment.Door);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => doors.EscapeQuake.Keep(EarthquakeReach.RoomBlocksSceneryAndEnemies);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, State, context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, state, context.Samus);
 }

@@ -44,16 +44,27 @@ internal static class CeresSteamDefinitionsVerification
             place.Bind(EnemyDefinitionId.SteamVent, place.KeptDefinition);
             ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
 
-            AssertEqual(new AnimationPlayback<CeresSteamSegment>(definition.Way.StartingAt[CeresSteamSegment.Dormant], AnimationPlace.StartOfAnimation), place.RequireSpeciesState<CeresSteamEnemyState>().Playback,
-                $"production Ceres steam {variant} program");
-            CeresSteamEnemyState steamState = place.SpeciesState<CeresSteamEnemyState>()
-                ?? throw new InvalidOperationException("The initialized vent has no state.");
-            AssertEqual<CeresSteamMotion>(definition.Action == CeresSteamAction.ApplyRotatingElevatorOffset
-                    ? new CeresSteamMotion.RidesShaftTurn(shaft)
-                    : CeresSteamMotion.HoldsItsPlace.Instance,
-                steamState.Motion, $"production Ceres steam {variant} motion carries out its function");
-            AssertEqual(32, steamState.UpdatesToActivation,
-                $"production Ceres steam {variant} waits the drawn 32 updates, the one it appears on included");
+            // The vent's motion carries out its function: a vent riding the shaft's turn is drawn where the turn carries the
+            // point it stands on, and one holding its place is drawn where it stands.
+            SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+            Position16<RoomPixels> standing = place.Position.Whole;
+            place.RunMainAi(samus);
+            AssertEqual(definition.Action == CeresSteamAction.ApplyRotatingElevatorOffset
+                    ? shaft.Transform.Transform(standing) - standing
+                    : default,
+                place.DrawOffset, $"production Ceres steam {variant} motion carries out its function");
+
+            // The dormant program hides the vent for the drawn 32 updates and shows the puff's first picture on the next.
+            bool Hidden() => place.Presence.HasAny(EnemyPresence.Hidden) && place.Contact.HasAny(EnemyContact.IgnoresSamus);
+            for (int update = 1; update <= 32; update++)
+            {
+                place.AdvanceAnimation(samus);
+                AssertTrue(Hidden(), $"production Ceres steam {variant} stays hidden on dormant update {update}");
+            }
+            place.AdvanceAnimation(samus);
+            AssertTrue(!Hidden(), $"production Ceres steam {variant} appears after the drawn 32 updates");
+            AssertEqual<EnemyFrameId?>(definition.Way.Segments.Beats(CeresSteamSegment.Puffing)[0].ShownFrame, place.Frame,
+                $"production Ceres steam {variant} program puffs as it appears");
         }
 
         AssertThrows<InvalidDataException>(

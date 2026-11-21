@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Bosses;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>

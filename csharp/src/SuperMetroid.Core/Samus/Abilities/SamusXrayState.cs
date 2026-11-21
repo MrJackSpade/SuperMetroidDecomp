@@ -32,21 +32,19 @@ public sealed class SamusXrayState
     internal SamusXrayState(SamusSpecialColouring colouring)
     {
         _colouring = Ensure.NotNull(colouring);
-        _scope = new LiveScope(this);
-        _control = new SamusControl(this);
     }
 
-    /// <summary>The live scope's steps, reached through <see cref="Scope"/>.</summary>
-    private readonly LiveScope _scope;
+    /// <summary>
+    /// The live scope, whose beam steps: from its activation until its teardown, including Reserve Mode, a view of this
+    /// X-ray made when it is reached; none while it is off.
+    /// </summary>
+    internal LiveScope? Scope => IsActive ? new LiveScope(this) : null;
 
-    /// <summary>The X-ray's hold on Samus's control, reached through <see cref="Control"/>.</summary>
-    private readonly SamusControl _control;
-
-    /// <summary>The live scope, whose beam steps: from its activation until its teardown, including Reserve Mode; none while it is off.</summary>
-    internal LiveScope? Scope => IsActive ? _scope : null;
-
-    /// <summary>The X-ray's hold on Samus's pose input and movement while it has them (<see cref="OwnsSamusControl"/>); none otherwise.</summary>
-    internal SamusControl? Control => OwnsSamusControl ? _control : null;
+    /// <summary>
+    /// The X-ray's hold on Samus's pose input and movement while it has them (<see cref="OwnsSamusControl"/>), a view of
+    /// this X-ray made when it is reached; none otherwise.
+    /// </summary>
+    internal SamusControl? Control => OwnsSamusControl ? new SamusControl(this) : null;
 
     /// <summary>Where the scope stands: off, or live with whether it holds Samus and whether time is frozen (#2560).</summary>
     public XrayScopeMode Mode { get; private set; }
@@ -669,7 +667,7 @@ public sealed class SamusXrayState
 
     /// <summary>The live X-ray scope (<see cref="Scope"/>): its cone effect steps from its activation until its teardown.</summary>
     /// <param name="xray">The X-ray state the scope belongs to.</param>
-    internal sealed class LiveScope(SamusXrayState xray)
+    internal readonly struct LiveScope(SamusXrayState xray)
     {
         /// <summary>
         /// Advances the cone effect by one update: an update of the beam's warm-up, until that is over, and then the beam's
@@ -681,7 +679,7 @@ public sealed class SamusXrayState
 
     /// <summary>The X-ray's hold on Samus's pose input and movement (<see cref="Control"/>).</summary>
     /// <param name="xray">The X-ray state that holds them.</param>
-    internal sealed class SamusControl(SamusXrayState xray)
+    internal readonly struct SamusControl(SamusXrayState xray)
     {
         /// <summary>
         /// Runs X-ray's own pose input, including the exact standing and crouching turns and their completion on the

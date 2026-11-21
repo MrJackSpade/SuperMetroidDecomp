@@ -310,7 +310,7 @@ internal sealed class RoomEnemySpecies
         // The registry is the species above that create their own entities, with the owners that create entities but keep no
         // room or frame state (#2557): the Ceres doors' and the Ridleys' factories, the steam vents, the gunship, the Baby's
         // cutscene, the n00b tube and the turning floor's elevator door.
-        Registry = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(() => enemies.Collision), [
+        enemies.Registry.AddRoomSpecies(new EnemyCommonParticipation(() => enemies.Collision), [
             .. FrameParticipants.OfType<IEnemyEntityFactory>(),
             new CeresDoorFactory(ceresDoorBehavior), steamVents, gunshipBehavior, babyMetroidCutsceneBehavior, noobTubeBehavior,
             new RidleyEntityFactory(norfairRidleyBehavior, ceresRidleyBehavior, RidleyEncounter),
@@ -371,9 +371,6 @@ internal sealed class RoomEnemySpecies
 
     /// <summary>Every species with room or frame lifecycle state, in the game's reset order.</summary>
     internal IReadOnlyList<IEnemySpecies> FrameParticipants { get; }
-
-    /// <summary>The registry that binds each installed occupant's entity through its species' factory.</summary>
-    internal EnemySpeciesRegistry Registry { get; }
 
     /// <summary>The species' work that steps at the start of each update, before the enemy pass selects its enemies.</summary>
     internal IReadOnlyList<IStepBeforeEnemySelection> BeforeSelection { get; }

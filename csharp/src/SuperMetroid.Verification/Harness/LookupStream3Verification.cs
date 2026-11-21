@@ -1063,7 +1063,7 @@ internal static class LookupStream3Verification
             // stagger's front, and the backward ones stand at the room's left.
             sequence.Encounter.Body.Position = sequence.Encounter.Body.Position.WithWholeX(
                 stage % 2 == 0 ? MotherBrainFightDefinitions.StaggerFrontX + 1 : 0);
-            global::SuperMetroid.Core.PrivateState.Set(sequence.DrainedByBaby, "PainfulWalkingStage", SuperMetroid.Core.Bosses.ListStep<MotherBrainStaggerStage>.At(stages, stage));
+            global::SuperMetroid.Core.PrivateState.Set(sequence.DrainedByBaby, "PainfulWalkingStage", SuperMetroid.Core.ListStep<MotherBrainStaggerStage>.At(stages, stage));
             // As the stagger's setup does before each walk: the stage selects its speed.
             global::SuperMetroid.Core.PrivateState.Set(sequence.DrainedByBaby, "PainfulWalkingSpeed", stages[stage].Speed);
             sequence.DrainedByBaby.StepPainfulWalking();

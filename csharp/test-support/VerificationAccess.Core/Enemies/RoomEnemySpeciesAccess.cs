@@ -85,7 +85,7 @@ internal static class RoomEnemySpeciesAccess
     private static IEnumerable<object> OwnersOf(RoomEnemySystem enemies)
     {
         RoomEnemySpecies species = enemies.SpeciesComposition;
-        foreach (IEnemyEntityFactory factory in species.Registry.Factories.Values)
+        foreach (IEnemyEntityFactory factory in enemies.Species.Factories.Values)
         {
             yield return factory;
             switch (factory)

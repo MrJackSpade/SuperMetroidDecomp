@@ -284,7 +284,7 @@ global using static SuperMetroid.Core.Bosses.Kraid.KraidMouthShapeReadPrivateAcc
 global using static SuperMetroid.Core.Bosses.Kraid.KraidPartsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Kraid.KraidProjectilesPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Kraid.KraidRisePrivateAccess;
-global using static SuperMetroid.Core.Bosses.ListStepPrivateAccess;
+global using static SuperMetroid.Core.ListStepPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneStatePrivateAccess;

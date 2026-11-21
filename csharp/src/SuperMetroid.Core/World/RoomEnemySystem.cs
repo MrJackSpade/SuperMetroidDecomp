@@ -40,7 +40,7 @@ namespace SuperMetroid.Core.World;
 /// Baby Metroid's victim) are compatibility services that read the places in order. A compacted list would lose those.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources, IEnemySpeciesSource
+public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
 {
     /// <summary>The enemies' draw phase: the live enemies the enemy pass queues to draw, and the frames each one shows.</summary>
     internal EnemyDrawList Drawing { get; }
@@ -105,11 +105,11 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources, 
     /// </summary>
     private RoomEnemySpecies SpeciesComposition { get; }
 
-    /// <summary>The species registry that binds each installed occupant's entity.</summary>
-    internal EnemySpeciesRegistry Species => SpeciesComposition.Registry;
-
-    /// <inheritdoc/>
-    EnemySpeciesRegistry IEnemySpeciesSource.Species => Species;
+    /// <summary>
+    /// The species registry that binds each installed occupant's entity: made before the places, which reach it, and
+    /// filled by the species composed over them.
+    /// </summary>
+    internal EnemySpeciesRegistry Species { get; } = new();
 
     /// <summary>The loaded room's enemy definitions, services and artwork, shared with the composed owners.</summary>
     private EnemyRoomBinding Room { get; }
@@ -302,7 +302,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources, 
         FrameContext = new EnemyFrameContext(session);
         Presentation = new EnemyPresentation(session, Ensure.NotNull(dependencies.Looks), compatibility.FadeStepCount);
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
-        Places = new EnemyPlaces(this);
+        Places = new EnemyPlaces(Species);
         Audio = new EnemyAudioQueue(session.AudioRequests);
         ProcessingWindow = new EnemyProcessingWindow(FrameContext, Places);
         Lifecycle = new EnemyLifecycle(Room, Places, ProcessingWindow);
@@ -317,7 +317,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources, 
         GrappleBehavior = new GrappleBehavior(Lifecycle, DeathsAndDrops);
         SpeciesComposition = new RoomEnemySpecies(new RoomEnemySpeciesDependencies
         {
-            Session = session, Room = Room, Places = Places, Lifecycle = Lifecycle, Audio = Audio, Projectiles = Projectiles,
+            Session = session, Registry = Species, Room = Room, Places = Places, Lifecycle = Lifecycle, Audio = Audio, Projectiles = Projectiles,
             EffectActors = EffectActors, Collision = Collision, DeathsAndDrops = DeathsAndDrops, Terrain = Terrain,
             Earthquake = Earthquake, PassEvents = PassEvents, FrameContext = FrameContext, Presentation = Presentation,
             BossPresentation = BossPresentation, BossArtworkBinding = BossArtworkBinding, BossEncounters = BossEncounters,

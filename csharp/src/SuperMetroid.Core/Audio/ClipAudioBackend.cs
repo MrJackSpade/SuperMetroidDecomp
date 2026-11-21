@@ -37,14 +37,13 @@ public sealed class ClipAudioBackend
     private readonly short[] mix = new short[FramesPerUpdate * PcmSampleFormat.StereoChannelCount];
 
     /// <summary>The render's progress through an update's events, kept so an update allocates none (#2553).</summary>
-    private readonly RenderPass renderPass;
+    private readonly RenderPass renderPass = new();
 
     /// <summary>Creates a backend over <paramref name="catalog"/>, continuing <paramref name="state"/> (a restored session's) or starting from power-on.</summary>
     /// <exception cref="ArgumentNullException"><paramref name="catalog"/> is null.</exception>
     public ClipAudioBackend(ClipAudioLibrary catalog, ClipPlaybackState? state = null)
     {
         this.catalog = Ensure.NotNull(catalog);
-        renderPass = new RenderPass(this);
         State = state ?? new ClipPlaybackState(catalog.InitialBeat);
     }
 
@@ -61,55 +60,59 @@ public sealed class ClipAudioBackend
         IReadOnlyList<AudioEvent> events = Ensure.NotNull(frame.Events);
         RenderPass pass = renderPass;
         pass.Begin(State.Sample);
+        var render = new Rendering(this, pass);
         foreach (AudioEvent audioEvent in events)
-            audioEvent.React(RenderReactions, pass);
+            audioEvent.React(RenderReactions, render);
         Mix(pass.FrameStart, pass.Cursor, FramesPerUpdate);
         State.RenderedTo(pass.FrameStart + FramesPerUpdate);
         mix.CopyTo(stereo[..AudioSession.PcmSamplesPerFrame]);
     }
 
     /// <summary>What <c>Render</c> does on each <see cref="AudioEvent"/> of an update, built once (#2553).</summary>
-    private static AudioEventReactions<RenderPass> RenderReactions { get; } = new(
-        ChangeMusicDataSet: static (change, pass) =>
+    private static AudioEventReactions<Rendering> RenderReactions { get; } = new(
+        ChangeMusicDataSet: static (change, render) =>
         {
-            RequireBeforeSteps(pass.Stepped, change);
-            pass.Backend.SwitchClipSet(change.DataSet, pass.FrameStart);
+            RequireBeforeSteps(render.Pass.Stepped, change);
+            render.Backend.SwitchClipSet(change.DataSet, render.Pass.FrameStart);
         },
-        SelectMusicTrack: static (selection, pass) =>
+        SelectMusicTrack: static (selection, render) =>
         {
-            RequireBeforeSteps(pass.Stepped, selection);
-            pass.Backend.State.SongChange.Hold(new SongChange.Play(selection.Track));
+            RequireBeforeSteps(render.Pass.Stepped, selection);
+            render.Backend.State.SongChange.Hold(new SongChange.Play(selection.Track));
         },
-        StopMusic: static (stop, pass) =>
+        StopMusic: static (stop, render) =>
         {
-            RequireBeforeSteps(pass.Stepped, stop);
-            pass.Backend.State.SongChange.Hold(new SongChange.Stop());
+            RequireBeforeSteps(render.Pass.Stepped, stop);
+            render.Backend.State.SongChange.Hold(new SongChange.Stop());
         },
-        ClockStep: static (step, pass) =>
+        ClockStep: static (step, render) =>
         {
+            RenderPass pass = render.Pass;
             if (step.SampleOffset < pass.Cursor || step.SampleOffset >= FramesPerUpdate)
                 throw new InvalidDataException($"Clock step at sample {step.SampleOffset} is out of order or outside the update.");
-            pass.Backend.Mix(pass.FrameStart, pass.Cursor, step.SampleOffset);
+            render.Backend.Mix(pass.FrameStart, pass.Cursor, step.SampleOffset);
             pass.StepAt(step.SampleOffset, step.ChecksRequests);
-            pass.Backend.Step(pass.FrameStart + pass.Cursor, step.Steps, step.ChecksRequests);
+            render.Backend.Step(pass.FrameStart + pass.Cursor, step.Steps, step.ChecksRequests);
         },
-        StartSoundEffect: static (startSoundEffect, pass) =>
+        StartSoundEffect: static (startSoundEffect, render) =>
         {
+            RenderPass pass = render.Pass;
             if (!pass.LastChecked || pass.LastStep != startSoundEffect.SampleOffset)
                 throw new InvalidDataException($"{startSoundEffect} does not follow its request-checking clock step.");
-            pass.Backend.StartSoundEffect(startSoundEffect.SoundEffect, pass.FrameStart + startSoundEffect.SampleOffset);
+            render.Backend.StartSoundEffect(startSoundEffect.SoundEffect, pass.FrameStart + startSoundEffect.SampleOffset);
         });
+
+    /// <summary>One update's render as its events' reactions read it: the backend rendering and its pass through the update.</summary>
+    /// <param name="Backend">The backend rendering.</param>
+    /// <param name="Pass">The backend's progress through the update's events.</param>
+    private readonly record struct Rendering(ClipAudioBackend Backend, RenderPass Pass);
 
     /// <summary>
     /// How far one update's render has come through its events (#2553): where the update starts, how far it has mixed, and
     /// the clock step it met last. One pass is kept per backend and begun afresh each update.
     /// </summary>
-    /// <param name="backend">The backend rendering.</param>
-    private sealed class RenderPass(ClipAudioBackend backend)
+    private sealed class RenderPass
     {
-        /// <summary>The backend rendering.</summary>
-        internal ClipAudioBackend Backend { get; } = backend;
-
         /// <summary>The sample the update starts at.</summary>
         internal long FrameStart { get; private set; }
 

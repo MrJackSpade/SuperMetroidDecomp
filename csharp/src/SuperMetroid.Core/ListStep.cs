@@ -1,7 +1,7 @@
-namespace SuperMetroid.Core.Bosses;
+namespace SuperMetroid.Core;
 
 /// <summary>
-/// One entry of an authored list a boss walks in the order the list shows (#2315): the entry, the entry after it, and the
+/// One entry of an authored list an owner walks in the order the list shows (#2315), a boss's or a growing shutter's: the entry, the entry after it, and the
 /// entries after and before it when the walk cycles, the first following the last.
 /// </summary>
 /// <typeparam name="T">The list's entries.</typeparam>

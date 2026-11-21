@@ -20,8 +20,8 @@ internal static class GrowingShutterSectionOriginsVerification
     }
 
     /// <summary>The fourth section to grow, three after the first.</summary>
-    private static SuperMetroid.Core.Bosses.ListStep<GrowingShutterSection> FourthSection =>
-        SuperMetroid.Core.Bosses.ListStep<GrowingShutterSection>.At(GrowingShutterDefinitions.Sections, 3);
+    private static SuperMetroid.Core.ListStep<GrowingShutterSection> FourthSection =>
+        SuperMetroid.Core.ListStep<GrowingShutterSection>.At(GrowingShutterDefinitions.Sections, 3);
 
     /// <summary>Runs the focused growing shutter section-origin check.</summary>
     [VerificationCommand("--growing-shutter-section-origins")]

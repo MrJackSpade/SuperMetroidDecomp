@@ -51,14 +51,13 @@ public sealed class SamusShinesparkState
         _colouring = Ensure.NotNull(colouring);
         _acceleration = Ensure.NotNull(acceleration);
         _orbitTravel = Ensure.NotNull(orbitTravel);
-        _movement = new SparkMovement(this);
     }
 
-    /// <summary>The spark's hold on Samus's movement, reached through <see cref="Movement"/>.</summary>
-    private readonly SparkMovement _movement;
-
-    /// <summary>The spark's hold on Samus's movement while it moves her (<see cref="OwnsMovement"/>); none otherwise.</summary>
-    internal SparkMovement? Movement => OwnsMovement ? _movement : null;
+    /// <summary>
+    /// The spark's hold on Samus's movement while it moves her (<see cref="OwnsMovement"/>), a view of this spark made
+    /// when it is reached; none otherwise.
+    /// </summary>
+    internal SparkMovement? Movement => OwnsMovement ? new SparkMovement(this) : null;
 
     /// <summary>The special colouring timer: <see cref="ShinesparkDefinitions.StoredShineFrames"/> stored, <see cref="ShinesparkDefinitions.WindupShadeFrames"/> in windup, and <see cref="ShinesparkDefinitions.SparkShadeFrames"/> during active motion.</summary>
     public UpdateCountdown ShineTimer { get; private set; } = UpdateCountdown.Ended();
@@ -685,7 +684,7 @@ public sealed class SamusShinesparkState
 
     /// <summary>The spark's hold on Samus's movement (<see cref="Movement"/>): from the windup, through the launch and the crash.</summary>
     /// <param name="spark">The shinespark that holds her movement.</param>
-    internal sealed class SparkMovement(SamusShinesparkState spark)
+    internal readonly struct SparkMovement(SamusShinesparkState spark)
     {
         /// <summary>Runs one frame of the spark's windup, flight or crash.</summary>
         /// <param name="terrain">The room terrain Samus's block collision probes: the level data and the room objects that react to touched blocks (#633).</param>

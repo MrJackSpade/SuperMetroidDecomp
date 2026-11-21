@@ -18,9 +18,9 @@ internal static class EndingFlyawayPrivateAccess
         }
 
         /// <summary>The private property <c>ShipShake</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Spatial.SignedSixteenSixteen> ShipShake
+        internal global::SuperMetroid.Core.ListStep<global::SuperMetroid.Core.Spatial.SignedSixteenSixteen> ShipShake
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Ending.EndingFlyaway, global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Spatial.SignedSixteenSixteen>>(self, "ShipShake");
+            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Ending.EndingFlyaway, global::SuperMetroid.Core.ListStep<global::SuperMetroid.Core.Spatial.SignedSixteenSixteen>>(self, "ShipShake");
         }
     }
 }

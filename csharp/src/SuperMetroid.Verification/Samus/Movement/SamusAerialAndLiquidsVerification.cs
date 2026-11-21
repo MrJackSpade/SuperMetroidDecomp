@@ -634,7 +634,7 @@ SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), screwRepeat, Ga
         submergedSpin.LiquidPhysics.BeginFrameSoundRequests();
         SamusPresentation.Animate(submergedSpin, new SamusAnimationStep { Random = new SharedRandom() });
     }
-    submergedSpin.LiquidPhysics.ConfigureWater(surfaceY: 100, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    submergedSpin.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(100));
     submergedSpin.LiquidPhysics.BeginFrameSoundRequests();
     SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), submergedSpin, 0, 0, 0);
     AssertEqual(SamusBodyAttack.None, submergedSpin.HorizontalSpeed.BodyAttack,
@@ -724,7 +724,7 @@ internal static void VerifySamusLiquidPhysics()
 
     var sample = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 100)) }.InPose(SamusPoseId.SpinJumpRightPose);
     sample.Kinematics.Radius = sample.Kinematics.Radius.WithY(12); // top 88, exclusive bottom 112, occupied bottom pixel 111
-    sample.LiquidPhysics.ConfigureWater(surfaceY: 110, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    sample.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(110));
     AssertEqual(SamusLiquidMedium.Water,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "water below the occupied bottom pixel affects movement");
@@ -733,24 +733,24 @@ internal static void VerifySamusLiquidPhysics()
     AssertTrue(!sample.LiquidPhysics.IsTopBoundarySubmerged(sample),
         "partially submerged body leaves top above water");
 
-    sample.LiquidPhysics.ConfigureWater(surfaceY: 111, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    sample.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(111));
     AssertEqual(SamusLiquidMedium.Air,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "occupied bottom pixel equal to surface remains dry, matching native DEC");
-    sample.LiquidPhysics.ConfigureWater(surfaceY: 112, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    sample.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(112));
     AssertEqual(SamusLiquidMedium.Air,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "liquid equality is not submerged");
     AssertTrue(!sample.LiquidPhysics.IsBottomBoundarySubmerged(sample),
         "palette liquid gate treats surface equality as dry");
-    sample.LiquidPhysics.ConfigureWater(surfaceY: 110, ignoresSurface: true, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    sample.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(110, ignoresSurfaceUntilEnabled: true));
     AssertEqual(SamusLiquidMedium.Air,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "water option bit two disables physics");
     AssertTrue(!sample.LiquidPhysics.IsBottomBoundarySubmerged(sample),
         "palette liquid gate also honors disabled-water option bit");
 
-    sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110, SuperMetroid.Core.Samus.Movement.LavaAcidRoomFx.Lava);
+    sample.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Lava(110));
     AssertEqual(SamusLiquidMedium.LavaOrAcid,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "negative general FX Y selects lava/acid surface");
@@ -766,7 +766,7 @@ internal static void VerifySamusLiquidPhysics()
     // Normal and Hi-Jump launch tables are orthogonal to medium selection. Gravity Suit
     // forces the air entry even while the raw water surface still contains Samus's feet.
     sample.EquippedItems = 0;
-    sample.LiquidPhysics.ConfigureWater(surfaceY: 110, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    sample.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(110));
     SamusAerialMovement.InitializeJump(sample);
     AssertEqual(1, sample.Kinematics.VerticalVelocity.Speed.Whole, "water normal-jump whole speed");
     AssertEqual(0xc000, sample.Kinematics.VerticalVelocity.Speed.Fraction, "water normal-jump fraction");
@@ -784,7 +784,7 @@ internal static void VerifySamusLiquidPhysics()
         "Gravity Suit forces air acceleration");
 
     sample.EquippedItems = 0;
-    sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110, SuperMetroid.Core.Samus.Movement.LavaAcidRoomFx.Lava);
+    sample.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Lava(110));
     SamusAerialMovement.InitializeJump(sample);
     AssertEqual(2, sample.Kinematics.VerticalVelocity.Speed.Whole, "lava normal-jump whole speed");
     AssertEqual(0x0900, sample.Kinematics.YAcceleration.Fraction, "lava gravity fraction");
@@ -825,10 +825,10 @@ internal static void VerifySamusLiquidPhysics()
     // bottom boundary and updates remembered `$0AD2`; prove both edges independently.
     sample.EquippedItems = 0;
     sample.SlowdownLevel = SamusHorizontalSpeedState.LargestSlowdownLevel;
-    sample.LiquidPhysics.ConfigureWater(surfaceY: 111, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    sample.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(111));
     AssertEqual(SamusHorizontalSpeedState.LargestSlowdownLevel, sample.LiquidPhysics.DeterminePoseChangeExtraAnimationDelay(sample),
         "pose-change surface equality uses speed divisor");
-    sample.LiquidPhysics.ConfigureWater(surfaceY: 110, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    sample.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(110));
     AssertEqual(3, sample.LiquidPhysics.DeterminePoseChangeExtraAnimationDelay(sample),
         "pose-change water delay below bottom-minus-one");
     sample.LiquidPhysics.BeginFrameSoundRequests();
@@ -850,7 +850,7 @@ internal static void VerifySamusLiquidPhysics()
         speedBoosterEquipped: false);
     sample.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
     sample.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(3, 0x4000);
-    sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110, SuperMetroid.Core.Samus.Movement.LavaAcidRoomFx.Lava);
+    sample.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Lava(110));
     sample.LiquidPhysics.BeginFrameSoundRequests();
     sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom(), frameCounter: 0, bossPresent: false);
     AssertTrue(!sample.HorizontalSpeed.HasRunningMomentum,
@@ -869,7 +869,7 @@ internal static void VerifySamusLiquidPhysics()
         speedBoosterEquipped: false);
     sample.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(2, 1);
     sample.HorizontalSpeed.ExtraRunSpeed = sample.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
-    sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110, SuperMetroid.Core.Samus.Movement.LavaAcidRoomFx.Acid);
+    sample.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Acid(110));
     sample.LiquidPhysics.BeginFrameSoundRequests();
     sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom(), frameCounter: 0, bossPresent: false);
     AssertTrue(sample.HorizontalSpeed.HasRunningMomentum, "acid preserves running momentum");
@@ -883,7 +883,7 @@ internal static void VerifySamusLiquidPhysics()
     // entry so the just-finished swing retains its prior flag for exactly one handler call.
     sample.EquippedItems = 0;
     sample.Grapple.Phase = GrapplePhase.ConnectedSwinging;
-    sample.LiquidPhysics.ConfigureWater(surfaceY: 111, ignoresSurface: true, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    sample.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(111, ignoresSurfaceUntilEnabled: true));
     SamusGrappleMovement.RefreshLiquidPhysicsFlag(sample);
     AssertTrue(sample.Grapple.Submerged, "grapple liquid flag disregards whether Samus ignores the water's surface");
     sample.Grapple.Phase = GrapplePhase.ReleaseFromSwing;
@@ -911,9 +911,9 @@ internal static void VerifySamusLiquidPhysics()
         released.HorizontalSpeed.BaseSpeed = released.HorizontalSpeed.BaseSpeed.WithWhole(2);
         released.Grapple.ReleasedMovementActive = true;
         if (medium == SamusLiquidMediumCodec.ToNative(SamusLiquidMedium.Water))
-            released.LiquidPhysics.ConfigureWater(surfaceY: 127, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+            released.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(127));
         else if (medium == SamusLiquidMediumCodec.ToNative(SamusLiquidMedium.LavaOrAcid))
-            released.LiquidPhysics.ConfigureLavaAcid(surfaceY: 127, SuperMetroid.Core.Samus.Movement.LavaAcidRoomFx.Lava);
+            released.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Lava(127));
         SamusAerialMovement.ConfigureEnvironmentGravity(released);
         SamusAerialMovement.StepReleasedFromGrapple(
 
@@ -962,7 +962,7 @@ SamusTerrain.InRoom(CreateEmptyRoom(new(16, 16)), SamusRoomObjectFixtures.Uninst
             VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(0, 0x8000), SamusVerticalDirection.Down),
         },
     }.InPose(SamusPoseId.SpaceJumpRightPose);
-    partialWaterSpaceJump.LiquidPhysics.ConfigureWater(surfaceY: 128, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    partialWaterSpaceJump.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(128));
     partialWaterSpaceJump.LiquidPhysics.InitializeRememberedMedium(partialWaterSpaceJump);
     SamusAerialMovement.ConfigureEnvironmentGravity(partialWaterSpaceJump);
     SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
@@ -989,7 +989,7 @@ SamusTerrain.InRoom(CreateEmptyRoom(new(16, 16)), SamusRoomObjectFixtures.Uninst
     }.InPose(SamusPoseId.ScrewAttackRightPose);
     WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.ScrewAttackRightPose),
         [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
-    fullySubmergedScrew.LiquidPhysics.ConfigureWater(surfaceY: 100, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    fullySubmergedScrew.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(100));
     fullySubmergedScrew.LiquidPhysics.InitializeRememberedMedium(fullySubmergedScrew);
     SamusAerialMovement.ConfigureEnvironmentGravity(fullySubmergedScrew);
     SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
@@ -1035,7 +1035,7 @@ internal static void VerifySamusAtmosphericEffects()
 
     // Movement type one is a diving splash according to the compiled `$81A4` policy. Keep NMI
     // away from the 128-frame bubble cadence so entry has exactly one sound request.
-    samus.LiquidPhysics.ConfigureWater(surfaceY: 110, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    samus.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(110));
     samus.LiquidPhysics.BeginFrameSoundRequests();
     samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1, bossPresent: false);
     SamusParticle entrySplash = particles.Single();
@@ -1049,7 +1049,7 @@ internal static void VerifySamusAtmosphericEffects()
 
     // Leaving water produces sound `$0E` and another splash through the same movement-
     // type table. A spin/wall-jump-only `$30` request is correctly absent for type one.
-    samus.LiquidPhysics.ConfigureWater(surfaceY: 112, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    samus.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(112));
     samus.LiquidPhysics.BeginFrameSoundRequests();
     samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 2, bossPresent: false);
     AssertEqual(new SoundRequest(EnemySound.SplashOut, SoundRequestPriority.Normal),
@@ -1057,7 +1057,7 @@ internal static void VerifySamusAtmosphericEffects()
 
     // Bubble admission samples top-24, every 128th accepted NMI, and the bubbles' wait.
     // Re-enter on frame one first so the cadence call below is an already-submerged pass.
-    samus.LiquidPhysics.ConfigureWater(surfaceY: 50, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    samus.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(50));
     samus.LiquidPhysics.BeginFrameSoundRequests();
     samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1, bossPresent: false);
     // The power-on word, $0061.
@@ -1089,7 +1089,7 @@ internal static void VerifySamusAtmosphericEffects()
 
     // Surface spray starts four lava-spray particles at exact asymmetric X positions. A half-unit
     // lava rate then borrows from fractional health on the same `$E9CE` consumer call.
-    samus.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110, SuperMetroid.Core.Samus.Movement.LavaAcidRoomFx.Lava);
+    samus.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Lava(110));
     samus.Health = 99;
     PrivateState.Set(samus, "EnergyFraction", PeriodicDamageEnergyFraction.None);
     samus.EquippedItems = 0;
@@ -1276,7 +1276,7 @@ internal static void VerifySamusAtmosphericEffects()
     AssertEqual(SamusParticleKind.Dust, landingParticles[^1].Kind, "Norfair cinematic landing particles are dust");
     PrivateState.Set(landing.Presentation, nameof(SamusPresentation.Mode), default(SamusPresentationMode));
 
-    landing.LiquidPhysics.ConfigureWater(surfaceY: 111, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    landing.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(111));
     int beforeSurface = landingParticles.Count;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
@@ -1287,7 +1287,7 @@ internal static void VerifySamusAtmosphericEffects()
     // Active liquid returns without touching the landing's particles or the bubbles' wait. This is intentionally not
     // deletion: seed a different wait and prove it survives.
     landingWaits.HoldBubbles(9);
-    landing.LiquidPhysics.ConfigureWater(surfaceY: 110, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
+    landing.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(110));
     landing.LiquidPhysics.BeginFrameSoundRequests();
     int beforeSubmerged = landingParticles.Count;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(

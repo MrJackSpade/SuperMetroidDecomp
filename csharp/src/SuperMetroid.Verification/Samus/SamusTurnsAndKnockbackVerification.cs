@@ -226,7 +226,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseSpeed.RawValue, "released turn retains base speed until next movement");
 
         var lavaEndpoint = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) }.InPose(source);
-        lavaEndpoint.LiquidPhysics.ConfigureLavaAcid(8, SuperMetroid.Core.Samus.Movement.LavaAcidRoomFx.Lava);
+        lavaEndpoint.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Lava(8));
         SamusPoseMetadata.RefreshCollisionRadii(lavaEndpoint);
         SamusPresentation.InitializeAnimation(lavaEndpoint);
         SamusPresentation.SetAnimationFrameFromMovementOwner(lavaEndpoint, lavaEndpoint.AnimationFrameNumbered(2), 1);

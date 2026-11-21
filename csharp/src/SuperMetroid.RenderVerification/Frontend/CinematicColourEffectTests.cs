@@ -134,7 +134,8 @@ internal static class CinematicColourEffectTests
         IntroCinematicState intro = RenderRetailFixture.CreateIntro(audio);
         int? start = null;
         int checks = 0;
-        for (int update = 0; intro.CurrentFlashbackMotherBrain?.NextPageRequested != true; update++)
+        // The fight runs until Mother Brain's page two starts its crossfade out of the flashback (#2554).
+        for (int update = 0; start is null || intro.Phase == IntroCinematicPhase.MotherBrainFlashback; update++)
         {
             if (update >= 20_000)
                 throw new InvalidOperationException("The intro did not reach page two.");

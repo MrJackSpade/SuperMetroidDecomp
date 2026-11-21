@@ -360,6 +360,11 @@ internal static class NativeSnapshotImport
         samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(bus);
         var kraidHeadCursors = new KraidHeadNativeCursors(bus);
+        // A Shaktool chain reaches its recorded target through its wall, whose reversal the segments' records then replace
+        // (#2554); its leading saw is the first enemy.
+        int firstEnemy = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(0);
+        if (W(firstEnemy) != 0 && runtime.Enemies.Places.InUpdateOrder[0].Holds(EnemyDefinitionId.Shaktool))
+            NativeEnemyFamilyStateImport.ImportShaktoolTarget(runtime.Enemies, W(firstEnemy + 48));
         // EnemyData +$0E onward; +$00 is the identity, +$02..+$08 the 16.16 position and
         // +$0A/+$0C the radii, each imported as one typed value below.
         for (int index = 0; index < runtime.Enemies.Places.InUpdateOrder.Count; index++)
@@ -576,18 +581,36 @@ internal static class NativeSnapshotImport
         else
         {
             RoomEnemyProjectileKind kind = EnemyProjectileNativeWords.Kinds.Decode(id, "enemy projectile definition");
-            // The room's load spawned the place's projectile, which carries its spawner's state; a place it left free is occupied afresh.
-            EnemyProjectile projectile = enemies.Projectiles.LatestInPlace(place) ?? enemies.OccupyProjectile(place, kind);
             VerificationAssertions.AssertTrue(NativeSlotOnlyEnemyProjectileKinds.Contains(kind),
-                $"initial native enemy projectile {projectile.Place} kind ${id:X4} has a verified slot-only import");
+                $"initial native enemy projectile {place} kind ${id:X4} has a verified slot-only import");
             // The snapshot's graphics word packs the projectile's tile base and palette row as an attribute word does: the
             // tile base names the owner whose sheet the projectile draws from (#1513), and the row is decoded into the
             // shading it denotes (#1512): a projectile at its spawner's characters draws in its spawner's row, its standard
             // colours, and one at character zero in the shared selection its row is.
-            var graphics = new SnesObjAttributeWord(W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
-            int standardRow = graphics.TileNumber == 0 ? SuperMetroid.AssetExtraction.Enemies.EnemySheetRowDefinitions.Common : graphics.PaletteIndex;
-            FamilyProjectileStarts.Initialize(enemies, projectile, kind, new SpriteGraphics(graphicsSet.OwnerDrawingAt(graphics.TileNumber),
-                SpriteColouringAccess.ShadingInRow(graphics.PaletteIndex, standardRow)));
+            var graphicsWord = new SnesObjAttributeWord(W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
+            int standardRow = graphicsWord.TileNumber == 0 ? SuperMetroid.AssetExtraction.Enemies.EnemySheetRowDefinitions.Common : graphicsWord.PaletteIndex;
+            var graphics = new SpriteGraphics(graphicsSet.OwnerDrawingAt(graphicsWord.TileNumber),
+                SpriteColouringAccess.ShadingInRow(graphicsWord.PaletteIndex, standardRow));
+            // A live projectile of the recorded kind that the room's load spawned into the place is the recorded one, which
+            // carries its spawner's state and must draw with the recorded graphics. A place the load left free, or holds with a
+            // projectile of another kind that the recorded one has since replaced there (Mother Brain's room turrets, gone by
+            // the time she charges her rainbow beam), is spawned into afresh, as the recorded kind's spawner does.
+            EnemyProjectile projectile;
+            if (enemies.Projectiles.LatestInPlace(place) is { IsActive: true } loaded && loaded.Kind == kind)
+            {
+                if (loaded.Graphics != graphics)
+                    throw new InvalidDataException(
+                        $"Initial native enemy projectile {place} is a {kind} drawing with {graphics}, but the room's load spawned it drawing with {loaded.Graphics}.");
+                projectile = loaded;
+            }
+            else
+            {
+                // The recorded place is restored directly until the import writes the pool through the generated state-graph
+                // restore (#2602).
+                projectile = enemies.OccupyProjectile(place, kind, graphics);
+                if (FamilyProjectileStarts.StartingAnimation(kind) is { } start)
+                    projectile.StartAnimation(start(enemies));
+            }
             // Each slot-only kind belongs to the room's Mother Brain, which her spawn gives it in her behaviour's table
             // (#2571): her head pins the charge and the small breath's end clears her flag. The place's previous projectile
             // leaves no entry the import may borrow, so the projectile is given its own as her spawn gives it.

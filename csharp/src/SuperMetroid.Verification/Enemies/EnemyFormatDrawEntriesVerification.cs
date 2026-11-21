@@ -63,15 +63,13 @@ internal static class EnemyFormatDrawEntriesVerification
         EnemyProjectileFrameId projectileFrame = EnemySheetComposer.CommonSpawnersOf(set, RoomEnemyGraphicsSetLists.Members).SelectMany(common => common.Objects.Projectiles).Order()
             .First(frame => EnemyProjectileFrames.Parts(projectileSpritemaps, frame).Length > 0
                 && !InstalledFixtures.EnemySheets.Spawned(set, SpawnedObjectOwner.Shared).ShowsNothing(EnemySheetDefinitions.ProjectileFrameName(frame)));
-        EnemyProjectile projectile = enemies.OccupyProjectile(17, RoomEnemyProjectileKind.RidleyFireball);
+        EnemyProjectile projectile = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.RidleyFireball, ProjectileGraphics);
         projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
         projectile.Frame = projectileFrame;
-        projectile.Graphics = ProjectileGraphics;
         projectile.Position = projectile.Position.WithWhole(new(30, 40));
 
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
         enemies.Drawing.Draw(enemies.Drawing.Advance(Position16<RoomPixels>.Zero), sprites, Position16<RoomPixels>.Zero, RoomEnemyFrameFixtures.StandaloneSamus());
         enemies.Projectiles.DrawEnemyProjectilesAt(sprites, Position16<RoomPixels>.Zero, EnemyProjectileDepth.InFrontOfSamus, false);
         sprites.FinalizeFrame();
@@ -97,7 +95,6 @@ internal static class EnemyFormatDrawEntriesVerification
         // An enemy drawn in another look shows its frame under that look's shading (#1512).
         ordinary.Shading = EnemyShades.FrozenLook;
         sprites.BeginFrame();
-        enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
         enemies.Drawing.Draw(enemies.Drawing.Advance(Position16<RoomPixels>.Zero), sprites, Position16<RoomPixels>.Zero, RoomEnemyFrameFixtures.StandaloneSamus());
         sprites.FinalizeFrame();
         AssertImage(sprites.Draws[0], new SpriteSource(SpriteSourceKind.Enemy), beetomSheet.Frame(EnemySheetDefinitions.FrameName(ordinaryFrame)),
@@ -111,7 +108,6 @@ internal static class EnemyFormatDrawEntriesVerification
         int undisplayed = ordinary.Shake.UpdatesLeft;
         ordinary.Shake.Restart(2);
         sprites.BeginFrame();
-        enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
         enemies.Drawing.Draw(enemies.Drawing.Advance(Position16<RoomPixels>.Zero), sprites, Position16<RoomPixels>.Zero, RoomEnemyFrameFixtures.StandaloneSamus());
         sprites.FinalizeFrame();
         AssertEqual(1, undisplayed, "An undrawn frame consumes one shake tick");
@@ -124,7 +120,6 @@ internal static class EnemyFormatDrawEntriesVerification
         ordinary.Shake.End();
         ordinary.Position = ordinary.Position.WithWhole(new(20, 10));
         sprites.BeginFrame();
-        enemies.Drawing.Advance(camera);
         enemies.Drawing.Draw(enemies.Drawing.Advance(camera), sprites, camera, RoomEnemyFrameFixtures.StandaloneSamus());
         sprites.FinalizeFrame();
         AssertEqual(new Offset16<ScreenPixels>(-16, -14), sprites.Draws[0].Origin, "An enemy left of and above the view draws at a negative place");
@@ -132,7 +127,6 @@ internal static class EnemyFormatDrawEntriesVerification
         ordinary.FrameCounter = Enumerable.Range(0, 16).First(EnemyDrawPhaseDefinitions.ShakeShiftsLeft.IsInSecondHalfAt);
         ordinary.Shake.Restart(1);
         sprites.BeginFrame();
-        enemies.Drawing.Advance(camera);
         enemies.Drawing.Draw(enemies.Drawing.Advance(camera), sprites, camera, RoomEnemyFrameFixtures.StandaloneSamus());
         sprites.FinalizeFrame();
         AssertEqual(new Offset16<ScreenPixels>(-1, 0), sprites.Draws[0].Origin, "A shake left at the view's edge draws the enemy one pixel left of the view");

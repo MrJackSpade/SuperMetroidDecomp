@@ -9,6 +9,8 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -51,78 +53,45 @@ internal static class IntroPoseHistoryVerification
         AssertEqual(SamusMovementType.Running, history.PreviousMovement, "intro same-pose fallback commits current metadata");
     }
 
-    /// <summary>Tracks flashback transitions, collision-radius handoff, and preservation of the persistent Samus owner.</summary>
+    /// <summary>
+    /// Runs the real intro and reads the scenes it composes (#2554): the flashback draws Samus from its setup update at her
+    /// starting place, her drawn body changes as its demo runs, knocks back and lands her, the page-two text that follows
+    /// Mother Brain's deletion draws no Samus, and the discovery carries her on, drawn right of the screen she enters from.
+    /// </summary>
     private static void VerifyIntroScenePoseHistory()
     {
         // The intro waits on its music queue, which the game runs after every dispatch.
         var audio = AudioQueues.Standalone();
         var intro = CreateRetailIntroFixture(audio);
-        var failures = new List<string>();
-        int transitions = 0;
-        bool setup = false, terminal = false, handoff = false;
-        bool jumpRadiusRetained = false, jumpRadiusPublished = false;
-        for (int tick = 0; tick < 20000 && !handoff; tick++)
+        _ = intro.StepToMotherBrainFlashback(audio);
+        LayeredScene scene = intro.ComposeScene();
+        AssertEqual<int?>(IntroCinematicDefinitions.Flashback.SamusPosition.X, scene.DrawnSamusOrigin?.X,
+            "the flashback draws Samus at her starting place from its setup update");
+        SpriteSheetFrame? shown = scene.DrawnSamusBody?.Image;
+        int bodyChanges = 0;
+        bool pageTwoText = false;
+        for (int tick = 0; intro.Phase != IntroCinematicPhase.BabyDiscoveryCrossfade; tick++)
         {
-            SamusState? before = intro.CurrentFlashbackSamus;
-            SamusPoseId? oldPose = before?.Pose;
-            SamusPoseId priorPose = before?.PoseHistory.PreviousPose ?? 0;
-            SamusMovementType priorMetadata = before?.PoseHistory.PreviousMovement ?? SamusMovementType.Standing;
-            SamusMovementType olderMetadata = before?.PoseHistory.MovementBeforePrevious ?? SamusMovementType.Standing;
-            bool demoEnabled = intro.CurrentFlashbackDemoInput?.Enabled == true;
-            bool hurtExpiry = before is { KnockbackHold.UpdatesLeft: 0, KnockbackDirection: not 0 };
-            // Publishing the display runs the draw passes whose side effects the scene keeps (projectile trails), as the
-            // frontend publishes every frame; rasterising it is the host's work, and nothing here reads pixels.
-            _ = intro.ComposeScene();
+            AssertTrue(tick < 20_000, $"the intro reaches the discovery; it stands in {intro.Phase}");
             intro.Step(tick % 47 == 0 ? ControllerButton.A : 0);
             audio.AdvanceFrame(default);
-            SamusState? after = intro.CurrentFlashbackSamus;
-            IntroBabyDiscoveryState? discovery = intro.CurrentBabyDiscovery;
-            bool ended = demoEnabled && intro.CurrentFlashbackDemoInput?.Enabled == false;
-            string? context = null;
-            if (before is null && after is not null) { setup = true; context = "flashback setup"; }
-            else if (before is not null && discovery is not null)
+            // Publishing the display runs the draw passes whose side effects the scene keeps (projectile trails), as the
+            // frontend publishes every frame.
+            scene = intro.ComposeScene();
+            if (intro.Phase is IntroCinematicPhase.PageText or IntroCinematicPhase.PageAwaitingInput)
             {
-                handoff = true;
-                after = discovery.Samus;
-                context = "discovery handoff";
-                if (!ReferenceEquals(before, after)) failures.Add("discovery replaced the native persistent Samus owner");
-            }
-            else if (after is not null && (oldPose != after.Pose || ended))
-            {
-                transitions++;
-                terminal |= ended;
-                context = ended ? "terminal demo command" : $"flashback pose {(oldPose is { } previousPose ? SamusPoseNumbers.Number(previousPose) : (int?)null):X2}->{(int)SamusPoseNumbers.Number(after.Pose):X2}";
-            }
-            else if (after is not null && hurtExpiry)
-                context = "same-pose hurt expiry command";
-            if (after is null) continue;
-            if (oldPose == SamusPoseId.MovingLeftNormalPose && after.Pose == SamusPoseId.SpinJumpLeftPose)
-            {
-                AssertEqual(21, after.Kinematics.Radius.Y, "intro jump commit retains running collision radius");
-                jumpRadiusRetained = true;
-            }
-            else if (jumpRadiusRetained && !jumpRadiusPublished && oldPose == SamusPoseId.SpinJumpLeftPose)
-            {
-                AssertEqual(12, after.Kinematics.Radius.Y, "intro next alpha publishes spin collision radius");
-                jumpRadiusPublished = true;
-            }
-            if (context is null)
-            {
-                var unchanged = after.PoseHistory;
-                if (unchanged.PreviousPose != priorPose || unchanged.PreviousMovement != priorMetadata ||
-                    unchanged.MovementBeforePrevious != olderMetadata)
-                    failures.Add($"tick {tick}: ordinary flashback frame unexpectedly shifted history");
+                pageTwoText = true;
+                AssertTrue(scene.DrawnSamusBody is null, $"tick {tick}: the page-two text after Mother Brain's deletion draws no Samus");
                 continue;
             }
-            var history = after.PoseHistory;
-            SamusMovementType metadata = SamusPoseMetadata.ReadMovementType(after);
-            if (history.MovementBeforePrevious != priorMetadata ||
-                history.PreviousPose != after.Pose || history.PreviousMovement != metadata)
-                failures.Add($"tick {tick}: {context} did not perform the native history shift");
+            if (scene.DrawnSamusBody is not { } body)
+                continue;
+            if (shown is not null && body.Image != shown)
+                bodyChanges++;
+            shown = body.Image;
         }
-        AssertTrue(setup && terminal && handoff && transitions == 9, $"intro history fixture covers hurt recovery, return run/jump/landing, terminal and discovery; setup={setup}, terminal={terminal}, handoff={handoff}, transitions={transitions}, final phase {intro.Phase}");
-        AssertTrue(jumpRadiusRetained && jumpRadiusPublished, "intro fixture covers jump radius publication across alpha/beta");
-        AssertEqual(0, failures.Count, "intro scene history: " + string.Join("; ", failures));
+        AssertTrue(pageTwoText && bodyChanges > 0, $"the flashback runs Samus and the page-two text follows it; body changes {bodyChanges}");
+        AssertTrue(intro.ComposeScene().DrawnSamusOrigin is { X: >= 256 }, "the discovery carries Samus on, drawn right of the screen she enters from");
     }
 
     /// <summary>Runs intro pose history and frontend rendering capture fixtures.</summary>

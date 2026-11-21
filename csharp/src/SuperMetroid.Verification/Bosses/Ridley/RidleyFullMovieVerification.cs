@@ -397,7 +397,7 @@ internal static class RidleyFullMovieVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
-        var projectile = runtime.Enemies.OccupyProjectile(16, RoomEnemyProjectileKind.RidleyFireball);
+        var projectile = FamilyProjectileStarts.Allocate(runtime.Enemies, RoomEnemyProjectileKind.RidleyFireball, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
         projectile.Position = new(new(0x49, 0x8c00), new(0x54, 0xd900));
         projectile.Velocity = new(new SignedEightEight(0xfb64), new SignedEightEight(0xfe1b));
         projectile.Radius = new(6, 6);

@@ -24,7 +24,7 @@ internal static class GunshipDustDefinitionsVerification
         var spawn = new Action<GunshipDustPlacement, SamusState>((placement, spawnSamus) => GunshipLiftoffDust.SpawnCloud(enemies.Projectiles, new GunshipLiftoffDust.GunshipDustBehavior(), placement, spawnSamus));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         // The place's projectile before each spawn is a stale cloud the check leaves there.
-        var slot = enemies.OccupyProjectile(17, RoomEnemyProjectileKind.GunshipLiftoffDustCloud);
+        var slot = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.GunshipLiftoffDustCloud, SpriteGraphics.SharedStandard);
         AssertEqual(6, GunshipDustDefinitions.LiftoffClouds.Count, "Six liftoff dust clouds");
         // Samus at least 128 pixels from either end of the room space on both axes keeps every cloud inside it.
         const int margin = 128;
@@ -61,9 +61,12 @@ internal static class GunshipDustDefinitionsVerification
                 AssertEqual((ushort)0, slot.Velocity.Y.RawValue, "Dust clears stale Y velocity");
             }
         }
-        foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity))
+        // The clouds go, and flames spawned into every place make the pool full.
+        foreach (EnemyProjectile cloud in enemies.Projectiles.EnemyProjectiles.ToList())
+            cloud.Delete();
+        foreach (EnemyProjectile occupied in FamilyProjectileStarts.FillPool(enemies, RoomEnemyProjectileKind.PhantoonStartingFlame,
+            new SpriteGraphics(SpawnedObjectOwner.Of(EnemyDefinitionId.PhantoonBody), SuperMetroid.Core.Assets.PictureShading.Standard)))
         {
-            EnemyProjectile occupied = enemies.OccupyProjectile(place, RoomEnemyProjectileKind.PhantoonStartingFlame);
             occupied.Position = occupied.Position.WithWholeX(0x1234);
             occupied.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         }

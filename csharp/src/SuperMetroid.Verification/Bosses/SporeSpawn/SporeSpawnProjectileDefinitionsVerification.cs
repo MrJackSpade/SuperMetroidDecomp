@@ -81,7 +81,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         for (int mirrored = 0; mirrored < 2; mirrored++)
         {
             int offset = step * 2;
-            EnemyProjectile spore = enemies.OccupyProjectile(0, RoomEnemyProjectileKind.SporeSpawnSpore);
+            EnemyProjectile spore = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.SporeSpawnSpore, SpriteGraphics.SharedIn(new SporeSpawnEnemyState().Colours.Sprites));
             spore.Position = spore.Position.WithWhole(new(0x0200, 0x0200));
             enemies.SporeSpawnBehavior.Spore.Drifts.Start(spore, new SporeSpawnSporeState(mirrored != 0 ? HorizontalDirection.Left : HorizontalDirection.Right) { PathStep = ListStep<Offset16<RoomPixels>>.At(SporeSpawnProjectileDefinitions.Drift, step) });
             int x = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset));
@@ -93,6 +93,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 $"Spore Spawn production Y {offset:X2}/{mirrored}");
             AssertEqual((step + 1) % 128, enemies.SporeSpawnBehavior.Spore.Drifts.Of(spore).PathStep.Place,
                 $"Spore Spawn production path step {offset:X2}/{mirrored}");
+            spore.Delete();
         }
 
         Console.WriteLine(

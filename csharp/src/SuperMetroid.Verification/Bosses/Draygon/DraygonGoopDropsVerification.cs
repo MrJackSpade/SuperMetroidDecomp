@@ -24,7 +24,7 @@ internal static class DraygonGoopDropsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon);
         runtime.Player.Samus.Health = 10;
         var enemies = runtime.Enemies;
-        var goop = enemies.OccupyProjectile(17, RoomEnemyProjectileKind.DraygonGoop);
+        var goop = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.DraygonGoop, SpriteGraphics.SharedIn(DraygonColours.Goop));
         goop.HoldStill();
         goop.StartAnimation(new DraygonProjectileAnimation(enemies.DraygonBehavior.Shots.Goop, DraygonProjectileSegment.GoopShot));
         goop.Position = goop.Position.WithWhole(new(120, 240));

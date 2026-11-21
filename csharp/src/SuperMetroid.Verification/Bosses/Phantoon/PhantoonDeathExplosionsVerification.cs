@@ -8,6 +8,10 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 
@@ -25,23 +29,29 @@ internal static class PhantoonDeathExplosionsVerification
             AssertEqual(DustExplosionAnimationIndices.Decode(rom.ReadCartridgeByte(0xa7da1f + i * 4)), entry.Type, "Native death explosion type");
             AssertEqual(rom.ReadCartridgeByte(0xa7da20 + i * 4), entry.Delay, "Native death explosion delay");
         }
+        // Phantoon is set up as his room sets him up: each run loads his room afresh, whose population spawns his parts.
+        var runtime = CreateRetailRuntimeFixture();
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         foreach (ushort origin in new ushort[] { 0, 128, 0xffff })
         foreach (bool full in new[] { false, true })
         {
-            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var body = enemies.Places.InUpdateOrder[0];
-            var tentacles = enemies.Places.InUpdateOrder[2];
-            var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, enemies.Places.InUpdateOrder[1], tentacles, enemies.Places.InUpdateOrder[3]);
-            enemies.BeginPhantoonAsSetUp(state);
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Phantoon);
+            RoomEnemySystem enemies = runtime.Enemies;
+            PhantoonEnemyState state = enemies.BossEncounters.Phantoon ?? throw new InvalidOperationException("Phantoon's room loads Phantoon.");
+            RoomEnemyPlace body = state.Body;
             Action<RoomEnemyPlace, PhantoonEnemyState> step = enemies.PhantoonBehavior.Death.RunPhantoonDyingExplosions;
             body.Position = body.Position.WithWhole(new(origin, origin));
             state.PhaseWait.LastFor(15);
             state.Phase = PhantoonPhase.DyingExplosions;
-            if (full) foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity)) enemies.OccupyProjectile(place, RoomEnemyProjectileKind.DustOrExplosion);
+            if (full) FamilyProjectileStarts.FillPool(enemies, RoomEnemyProjectileKind.DustOrExplosion, SpriteGraphics.SharedStandard);
             int index = 0, passes = 0, timer = 15, requests = 0;
             for (int frame = 0; passes < 3; frame++)
             {
                 AssertTrue(frame < 1024, "Death schedule reaches native handoff");
+                // Each frame is one game update, whose sound requests the room records.
+                runtime.AudioRequests.BeginRecordedUpdate();
                 if (!full) foreach (var projectile in enemies.Projectiles.EnemyProjectiles) projectile.Delete();
                 bool due = --timer <= 0;
                 int current = index;

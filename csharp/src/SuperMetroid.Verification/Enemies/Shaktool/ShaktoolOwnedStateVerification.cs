@@ -1,10 +1,11 @@
-using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Shaktool;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.MovieReplay;
 
 /// <summary>Checks the Shaktool segment state the chain owns: wrapping orbit angles, and the centre's orientation split from the saw's curl.</summary>
 internal static class ShaktoolOwnedStateVerification
@@ -85,6 +86,44 @@ internal static class ShaktoolOwnedStateVerification
         AssertThrows<InvalidDataException>(() => mismatchedEnemies.Places.InUpdateOrder[1].SetUpAsPlaced(),
             "a Shaktool segment placed moving otherwise than its leading saw is refused");
         Console.WriteLine("Shaktool owned state: orbit wrap, reversed orientation, wall reversal, the first-slot chain and the one chain motion match.");
+    }
+
+    /// <summary>
+    /// #2554: a recorded chain target reaches the chain through its wall, as the game sets one. The import of a nonzero
+    /// target reverses the chain (every segment stops for its head bob), and the target it leaves is the one the trailing
+    /// saw's curl then reaches: an orbit turning onto it puts every segment at it. A zero target leaves the placed chain as
+    /// it is, and a target between steps, which no wall leaves, is refused.
+    /// </summary>
+    internal static void VerifyShaktoolImportedTarget()
+    {
+        RoomEnemySystem untouched = CreateShaktoolGroup();
+        NativeEnemyFamilyStateImport.ImportShaktoolTarget(untouched, 0);
+        AssertEqual(ShaktoolSegmentDefinitions.TrailingSaw.Motion, untouched.ShaktoolSegments[6]?.Motion, "a zero target leaves the placed chain moving");
+        AssertThrows<InvalidDataException>(() => NativeEnemyFamilyStateImport.ImportShaktoolTarget(CreateShaktoolGroup(), 0x4080),
+            "a target between steps is refused");
+
+        RotationAngle target = RotationAngle.FromSteps(0x60);
+        RoomEnemySystem enemies = CreateShaktoolGroup();
+        NativeEnemyFamilyStateImport.ImportShaktoolTarget(enemies, target.RawValue);
+        ShaktoolSegmentState[] states = [.. Enumerable.Range(0, 7).Select(index =>
+            enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException($"Shaktool segment {index} has no state."))];
+        for (int index = 0; index < states.Length; index++)
+            AssertEqual(ShaktoolSegmentMotion.Idle, states[index].Motion, $"segment {index} stops for the wall that sets the target");
+
+        // The head bob over, the chain curls on clockwise; the trailing saw's turn onto the target puts the chain at it.
+        for (int index = 0; index < states.Length; index++)
+            states[index].Motion = ShaktoolSegmentDefinitions.Segments[index].Motion;
+        states[6].AngularVelocity = RotationAngle.FromSteps(1);
+        states[6].OrbitAngle = target - RotationAngle.FromSteps(2);
+        RoomEnemyPlace tail = enemies.Places.InUpdateOrder[6];
+        // The fixture's blank definition gives the saw no body; its move through the open room tests the rows a body spans.
+        tail.Radius = new(8, 8);
+        tail.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
+        AssertTrue(states.Take(6).All(state => state.OrbitAngle != target), "a turn short of the target leaves the chain where it was");
+        tail.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
+        for (int index = 0; index < states.Length; index++)
+            AssertEqual(target, states[index].OrbitAngle, $"segment {index} stands at the imported target once the trailing saw reaches it");
+        Console.WriteLine("Shaktool imported target: reached through the chain's wall, and the curl reaches it.");
     }
 
     /// <summary>Initializes the seven Shaktool segments in slots zero through six.</summary>

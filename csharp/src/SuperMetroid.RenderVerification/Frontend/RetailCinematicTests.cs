@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
@@ -28,8 +29,13 @@ internal static class RetailCinematicTests
         {
             // Drawing owns projectile-trail side effects: keep separate live owners
             // and execute each producer once even on frames not sent to the GPU.
-            var expected = legacy.Render();
+            LayeredScene legacyScene = legacy.ComposeScene();
+            var expected = FrontendScenePixelsAccess.Pixels(legacyScene);
             var scene = captured.ComposeScene();
+            // What the flashback shows of its actors after the last update (#2554): the drawn Samus and Mother Brain's look,
+            // which a hit's flash whitens.
+            if (legacyScene.DrawnSamusOrigin != scene.DrawnSamusOrigin || legacyScene.DrawnMotherBrainShading != scene.DrawnMotherBrainShading)
+                throw new InvalidOperationException($"Intro drawn actors diverged at tick {tick}.");
             bool changed = phases.Add(legacy.Phase);
             bool sample = changed || tick % 31 == 0;
             var packet = new DisplayPacket((ushort)tick, scene);
@@ -44,9 +50,7 @@ internal static class RetailCinematicTests
             legacyAudio.AdvanceFrame(default);
             captured.Step(input);
             capturedAudio.AdvanceFrame(default);
-            if (legacy.Phase != captured.Phase || legacy.MotherBrainHitCount != captured.MotherBrainHitCount ||
-                legacy.FlashbackSamusX != captured.FlashbackSamusX || legacy.FlashbackSamusY != captured.FlashbackSamusY ||
-                legacy.ActiveFlashbackProjectileCount != captured.ActiveFlashbackProjectileCount)
+            if (legacy.Phase != captured.Phase || legacy.ActiveFlashbackProjectileCount != captured.ActiveFlashbackProjectileCount)
                 throw new InvalidOperationException($"Intro display-owned state diverged at tick {tick}.");
             if (sample)
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),

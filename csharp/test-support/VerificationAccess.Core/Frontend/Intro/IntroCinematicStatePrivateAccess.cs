@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Intro;
+﻿namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// The private members of <see cref="SuperMetroid.Core.Frontend.Intro.IntroCinematicState"/> checks name (#2570), each an extension member of the
@@ -37,18 +37,6 @@ internal static class IntroCinematicStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Frontend.Intro.IntroCeresFlightState?>(self, "CurrentCeresFlight");
         }
 
-        /// <summary>The demo input the Mother Brain flashback replays, while it plays.</summary>
-        internal global::SuperMetroid.Core.Input.DemoInputState? CurrentFlashbackDemoInput => self.MotherBrainFlashback?.DemoInput;
-
-        /// <summary>The Mother Brain flashback's room level, while it plays.</summary>
-        internal global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData? CurrentFlashbackLevel => self.MotherBrainFlashback?.Level;
-
-        /// <summary>The Mother Brain flashback's Mother Brain, while it plays.</summary>
-        internal global::SuperMetroid.Core.Frontend.Intro.IntroMotherBrainSpriteState? CurrentFlashbackMotherBrain => self.MotherBrainFlashback?.MotherBrain;
-
-        /// <summary>The Mother Brain flashback's Samus, while it plays.</summary>
-        internal global::SuperMetroid.Core.Samus.SamusState? CurrentFlashbackSamus => self.MotherBrainFlashback?.Samus;
-
         /// <summary>The private property <c>CurrentNarration</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Frontend.Intro.IntroNarrationActors? CurrentNarration
         {
@@ -66,33 +54,9 @@ internal static class IntroCinematicStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Frontend.Intro.Artwork.IntroNarrationPageId>(self, "Page");
         }
 
-        /// <summary>The private method <c>PrepareIllustratedPageSprites</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Assets.SpriteFrameBuffer PrepareIllustratedPageSprites() =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Assets.SpriteFrameBuffer>(self, "PrepareIllustratedPageSprites", [], new object?[] {  });
-
-        /// <summary>The private method <c>PrepareMotherBrainSprites</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Assets.SpriteFrameBuffer PrepareMotherBrainSprites() =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Assets.SpriteFrameBuffer>(self, "PrepareMotherBrainSprites", [], new object?[] {  });
-
-        /// <summary>The private method <c>SetupBabyDiscoveryCrossfade</c>, invoked by name.</summary>
-        internal void SetupBabyDiscoveryCrossfade() =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState>(self, "SetupBabyDiscoveryCrossfade", [], new object?[] {  });
-
         /// <summary>The private method <c>SetupFirstIllustratedPage</c>, invoked by name.</summary>
         internal void SetupFirstIllustratedPage() =>
             PrivateState.Invoke<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState>(self, "SetupFirstIllustratedPage", [], new object?[] {  });
-
-        /// <summary>The private method <c>SetupMotherBrainFlashback</c>, invoked by name.</summary>
-        internal void SetupMotherBrainFlashback() =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState>(self, "SetupMotherBrainFlashback", [], new object?[] {  });
-
-        /// <summary>The private method <c>StepBabyDiscoveryCrossfade</c>, invoked by name.</summary>
-        internal void StepBabyDiscoveryCrossfade() =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState>(self, "StepBabyDiscoveryCrossfade", [], new object?[] {  });
-
-        /// <summary>The private method <c>StepMotherBrainDemo</c>, invoked by name.</summary>
-        internal void StepMotherBrainDemo() =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState>(self, "StepMotherBrainDemo", [], new object?[] {  });
 
         /// <summary>The private field <c>flashbackProjectiles</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem flashbackProjectiles => PrivateState.Field<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem>(self, "flashbackProjectiles");

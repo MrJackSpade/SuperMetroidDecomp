@@ -5,6 +5,11 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 
@@ -68,7 +73,7 @@ internal sealed class LowPercentIntroReplayChecks : IConvertedMovieChecks
 
     /// <inheritdoc/>
     /// <remarks>The intro checks read only the port's state after each update.</remarks>
-    IEnumerable<string> IConvertedMovieChecks.Compare(SuperMetroidGame game, int update, NativeCheckpointMemory native) => Compare(game, update);
+    IEnumerable<string> IConvertedMovieChecks.Compare(SuperMetroidGame game, int update, NativeCheckpointMemory native) => Compare(game, update, native);
 
     /// <inheritdoc/>
     IEnumerable<string> IConvertedMovieChecks.Finish() => [];
@@ -77,7 +82,7 @@ internal sealed class LowPercentIntroReplayChecks : IConvertedMovieChecks
     private string? previous;
 
     /// <summary>Checks the port intro phase and Samus milestone after an intro update.</summary>
-    internal IEnumerable<string> Compare(SuperMetroidGame game, int update)
+    internal IEnumerable<string> Compare(SuperMetroidGame game, int update, NativeCheckpointMemory native)
     {
         if (game.GameState != SuperMetroidGameState.IntroCinematic || game.Session.ScreenAs<IntroCinematicState>() is not { } intro)
             return [];
@@ -96,26 +101,27 @@ internal sealed class LowPercentIntroReplayChecks : IConvertedMovieChecks
         else if (previous is not null && phase != previous)
             mismatches.Add($"Intro phase: port entered {phase}, where native installs no new cinematic function");
         previous = phase;
-        CheckSamusMilestone(intro, update);
+        CheckSamusMilestone(game, intro, update, native);
         return mismatches;
     }
 
-    /// <summary>Native Samus values the 13% capture records at intro updates owned by one fix each.</summary>
-    private static void CheckSamusMilestone(IntroCinematicState intro, int update)
+    /// <summary>
+    /// The Samus the 13% capture records at intro updates owned by one fix each: in the Mother Brain flashback, the Samus the
+    /// scene draws is the one the capture holds (#2554).
+    /// </summary>
+    private static void CheckSamusMilestone(SuperMetroidGame game, IntroCinematicState intro, int update, NativeCheckpointMemory native)
     {
-        SamusState? flashback = intro.CurrentFlashbackSamus;
         SamusState? discovery = intro.CurrentBabyDiscovery is { } scene
             ? scene.Samus : null;
         switch (update)
         {
             case 1809:
-                // $90:A3BA: the demo's held shot restarts and holds the standing animation.
-                VerificationAssertions.AssertEqual((ushort)0x000f, (flashback ?? throw new InvalidOperationException("Verification requires flashback.")).AnimationFrameTimer.RawValue, "update 1809 standing-shot animation timer");
-                VerificationAssertions.AssertEqual(0, flashback.AnimationNumber, "update 1809 standing-shot animation frame");
-                break;
+                // $90:A3BA: the demo's held shot restarts and holds the standing animation's first frame.
             case 1884:
-                // $8B:B90B: Rinka zero, stepped in its spawn pass, strikes Samus on native's update.
-                VerificationAssertions.AssertEqual((byte)0x54, SamusPoseNumbers.Number((flashback ?? throw new InvalidOperationException("Verification requires flashback.")).Pose), "update 1884 Rinka knockback pose");
+                // $8B:B90B: Rinka zero, stepped in its spawn pass, strikes Samus on native's update: she shows knocked back.
+            case 2111:
+                // $91:874B: the demo-end lock keeps the running animation of an unchanged pose.
+                CheckDrawnFlashbackSamus(game, intro, update, native);
                 break;
             case 2050:
                 // $90:EB02 cleared the run's movement records, so the missile inherits nothing.
@@ -124,14 +130,10 @@ internal sealed class LowPercentIntroReplayChecks : IConvertedMovieChecks
                 VerificationAssertions.AssertEqual(-256, missile.Velocity.X.InTwoHundredFiftySixthsOfPixel, "update 2050 third missile launch velocity: a pixel leftward");
                 VerificationAssertions.AssertEqual((ushort)0x0088, missile.Position.X.Whole, "update 2050 third missile X");
                 break;
-            case 2111:
-                // $91:874B: the demo-end lock keeps the running animation of an unchanged pose.
-                VerificationAssertions.AssertEqual((ushort)0x000e, (flashback ?? throw new InvalidOperationException("Verification requires flashback.")).AnimationFrameTimer.RawValue, "update 2111 locked Samus animation timer");
-                break;
             case 2400:
-                // $8B:B842 cleared $1A57, so Samus is not processed during the page-two text.
-                VerificationAssertions.AssertEqual((ushort)0x0003, (flashback ?? throw new InvalidOperationException("Verification requires flashback.")).AnimationFrameTimer.RawValue, "update 2400 frozen Samus animation timer");
-                VerificationAssertions.AssertEqual(0, flashback.AnimationNumber, "update 2400 frozen Samus animation frame");
+                // $8B:B842 cleared $1A57, so Samus is not processed during the page-two text: Mother Brain's deletion hid her,
+                // and the discovery carries on the animation the freeze kept (update 3012).
+                VerificationAssertions.AssertTrue(intro.ComposeScene().DrawnSamusBody is null, "update 2400: the page-two text draws no Samus");
                 break;
             case 3012:
                 // $8B:AF99: pose two was already set, so the discovery keeps her animation running.
@@ -146,5 +148,32 @@ internal sealed class LowPercentIntroReplayChecks : IConvertedMovieChecks
             default:
                 break;
         }
+    }
+
+    /// <summary>
+    /// The flashback draws Samus's body as the capture's Samus shows at <paramref name="update"/>: her recorded pose at her
+    /// recorded animation frame, where the recording places her, drawn by the flashback's own artwork.
+    /// </summary>
+    private static void CheckDrawnFlashbackSamus(SuperMetroidGame game, IntroCinematicState intro, int update, NativeCheckpointMemory native)
+    {
+        ImageSpriteDraw drawn = intro.ComposeScene().DrawnSamusBody
+            ?? throw new InvalidOperationException($"Update {update}: the Mother Brain flashback draws no Samus.");
+        var recorded = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(),
+            SamusCompatibility.ForNewSamus(), new BeamChargeState(), game.Session.Artwork.FlashbackSamusArtwork())
+        {
+            Pose = SamusPoseNumbering.FromNumber(native.Word(NativeSnapshotMemory.Pose)),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(native.Word(NativeSnapshotMemory.X), native.Word(NativeSnapshotMemory.Y))),
+        };
+        SamusPoseMetadata.RefreshCollisionRadii(recorded);
+        SamusPresentation.InitializeAnimation(recorded);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(recorded, recorded.AnimationFrameNumbered(native.Word(NativeSnapshotMemory.Animation)),
+            native.Word(NativeSnapshotMemory.AnimationTimer));
+        var sprites = new SpriteFrameBuffer();
+        sprites.BeginFrame();
+        recorded.Presentation.Draw(recorded, sprites, Position16<RoomPixels>.Zero, frameCounter: 0);
+        sprites.FinalizeFrame();
+        ImageSpriteDraw expected = sprites.Draws.Single(draw => draw.Source.Kind == SpriteSourceKind.Samus).Published(PictureShading.Standard);
+        VerificationAssertions.AssertEqual(expected.Image, drawn.Image, $"update {update}: the drawn Samus shows the recorded pose at the recorded animation frame");
+        VerificationAssertions.AssertEqual(expected.Origin, drawn.Origin, $"update {update}: the drawn Samus stands where the recording places her");
     }
 }

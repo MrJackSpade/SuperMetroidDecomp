@@ -24,7 +24,7 @@ internal static class GameplayRuntimeFactory
         var runtime = new SuperMetroidRuntime(start.Assists, start.Artwork.Gameplay, start.Carryover);
         if (start.Selected is { } selected)
         {
-            runtime.JapaneseText = selected.JapaneseText;
+            runtime.Language = selected.Language;
             runtime.Options.ControllerBindings = selected.ControllerBindings;
             runtime.Options.MoonwalkEnabled = selected.MoonwalkEnabled;
             runtime.Options.IconCancelEnabled = selected.IconCancelEnabled;

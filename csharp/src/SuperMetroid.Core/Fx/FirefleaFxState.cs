@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms;
-
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>

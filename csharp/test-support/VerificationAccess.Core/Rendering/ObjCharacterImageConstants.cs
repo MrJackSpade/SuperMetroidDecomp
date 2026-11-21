@@ -127,7 +127,7 @@ internal static class ObjCharacterImageConstants
         // A record is drawn whole at the depth its priority places it among a gameplay room's layers (#1514), blending as the
         // import decides from its colours (#1633).
         SpriteSheetFrame frame = ComposedPictures.InstallWhole($"frontend OAM record {index} ({Interlocked.Increment(ref pictured)})",
-            new(size.X, size.Y), pixels, indices, SpriteImageColours.Sprite, standard) with { Depth = DepthOfPriority[corner.Priority] };
+            new(size.X, size.Y), pixels, ComposedPictures.InksAt(indices.Select(place => (int)place), SpriteImageColours.Sprite), SpriteImageColours.Sprite, standard) with { Depth = DepthOfPriority[corner.Priority] };
         SpriteImage image = frame.Sheet;
         // The picture stands for the record's cells, as a composed sheet frame stands for its composition.
         SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.Register(frame,

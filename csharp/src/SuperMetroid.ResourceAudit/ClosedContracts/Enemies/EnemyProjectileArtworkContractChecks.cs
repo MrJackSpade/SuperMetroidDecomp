@@ -9,7 +9,6 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
@@ -19,8 +18,8 @@ internal static class EnemyProjectileArtworkContractChecks
     /// <summary>Checks complete authored frame admission and static provider coverage without projectile simulation.</summary>
     internal static void Run()
     {
-        var direct = EnemyProjectileSpritemapDefinitions.DocumentFrameNames.ToDictionary(name => name, _ => Array.Empty<SpriteVisualPart>());
-        var programs = EnemyProjectilePresentationFrameSets.All.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
+        var direct = EnemyProjectileSpritemapDefinitions.DocumentFrameNames.ToDictionary(name => name, _ => Array.Empty<EnemyProjectilePartDocument>());
+        var programs = EnemyProjectilePresentationFrameSets.All.ToDictionary(frame => frame.Name, _ => Array.Empty<EnemyProjectilePartDocument>());
         var document = new EnemyProjectileSpritemapDocument {
             Version = EnemyProjectileSpritemapDocuments.Version, Frames = direct, ProgramFrames = programs };
         EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument value) =>

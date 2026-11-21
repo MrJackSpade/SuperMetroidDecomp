@@ -16,8 +16,8 @@ public sealed record SpriteSheetFrameDocument
     /// <summary>The frame's origin, from the rectangle's top-left pixel.</summary>
     public required Offset16<ImagePixels> Origin { get; init; }
 
-    /// <summary>The colour groups the frame was composed from, as the composed manifest stores them: a bit per group's place.</summary>
-    public required int ColourGroups { get; init; }
+    /// <summary>The colour groups the frame was composed from.</summary>
+    public required ImageColourGroups ColourGroups { get; init; }
 
     /// <summary>
     /// Where a gameplay draw of an actor's frame sits among the room's layers (#1514), by name, as the import decides it from

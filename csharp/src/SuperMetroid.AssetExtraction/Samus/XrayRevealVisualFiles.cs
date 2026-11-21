@@ -361,7 +361,7 @@ public static class XrayRevealVisualFiles
     {
         /// <summary>The document of <paramref name="appearance"/>.</summary>
         internal static AppearanceDocument Of(RoomBlockAppearance appearance) =>
-            new(appearance.ShowsNothing ? null : appearance.Block, appearance.Mirroring);
+            new(appearance.Shows == RoomBlockShown.Nothing ? null : appearance.Block, appearance.Mirroring);
 
         /// <summary>The appearance the document names.</summary>
         /// <exception cref="ArgumentOutOfRangeException">The block is negative, or the mirroring is not the two reflections.</exception>
@@ -402,17 +402,23 @@ public static class XrayRevealVisualFiles
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? BottomRight = null)
     {
         /// <summary>The document of the blocks <paramref name="blocks"/> a <paramref name="shape"/> copy shows.</summary>
-        internal static RevealBlocksDocument Of(XrayRevealShape shape, XrayRevealVisualBlocks blocks) => shape switch
+        internal static RevealBlocksDocument Of(XrayRevealShape shape, XrayRevealVisualBlocks blocks)
         {
-            XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar => new(Block: blocks.TopLeft.Block),
-            XrayRevealShape.CopyWide => new(Left: blocks.TopLeft.Block, Right: Required(blocks.TopRight, shape).Block),
-            XrayRevealShape.CopyTall => new(Top: blocks.TopLeft.Block, Bottom: Required(blocks.BottomLeft, shape).Block),
-            XrayRevealShape.CopySquare => new(TopLeft: blocks.TopLeft.Block, TopRight: Required(blocks.TopRight, shape).Block,
-                BottomLeft: Required(blocks.BottomLeft, shape).Block, BottomRight: Required(blocks.BottomRight, shape).Block),
-            XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension =>
-                throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape copies no blocks."),
-            _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, $"Undefined {nameof(XrayRevealShape)}."),
-        };
+            if (shape is XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension)
+                throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape copies no blocks.");
+            return blocks switch
+            {
+                XrayRevealVisualBlocks.OneBlock one when shape is XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar =>
+                    new(Block: one.Block.Block),
+                XrayRevealVisualBlocks.WidePair wide when shape == XrayRevealShape.CopyWide =>
+                    new(Left: wide.Left.Block, Right: wide.Right.Block),
+                XrayRevealVisualBlocks.TallPair tall when shape == XrayRevealShape.CopyTall =>
+                    new(Top: tall.Top.Block, Bottom: tall.Bottom.Block),
+                XrayRevealVisualBlocks.SquareOfFour square when shape == XrayRevealShape.CopySquare => new(TopLeft: square.UpperLeft.Block,
+                    TopRight: square.UpperRight.Block, BottomLeft: square.LowerLeft.Block, BottomRight: square.LowerRight.Block),
+                _ => throw new InvalidOperationException($"An X-ray {shape} reveal shows {blocks}, which is not that shape's copy."),
+            };
+        }
 
         /// <summary>Whether the document names exactly the places a <paramref name="shape"/> copy shows.</summary>
         /// <exception cref="ArgumentOutOfRangeException">The shape copies no blocks.</exception>
@@ -447,10 +453,6 @@ public static class XrayRevealVisualFiles
 
         /// <summary>The blocks of every place the document can name.</summary>
         private int?[] Named() => [Block, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight];
-
-        /// <summary>The picture a shape's place holds, which its blocks always name.</summary>
-        private static RoomCellPicture Required(RoomCellPicture? picture, XrayRevealShape shape) =>
-            picture ?? throw new InvalidOperationException($"An X-ray {shape} reveal is missing one of its blocks.");
     }
 
     /// <summary>The compiled copy shape of an entry <see cref="ValidateStructure"/> has admitted.</summary>

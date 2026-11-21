@@ -15,6 +15,8 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
 
+using SuperMetroid.Core.Compatibility;
+
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>Integer compute composition from owned display inputs.</summary>
@@ -639,12 +641,12 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>
     /// What the backend's background stage draws for <paramref name="layer"/> (#2573): a boss's body, its own layer, with its
     /// scroll, distortion and pixelation, where the room's background, which shows nothing behind it, would show; otherwise
-    /// the room's background with the view's scroll and the background's line scrolls.
+    /// the room's background, unpixelated, with the view's scroll and the background's line scrolls.
     /// </summary>
     private static BackgroundStage StageOf(GameplaySceneLayer layer) => layer.BossBody is { } body
         ? new((uint)D3D11RoomSource.BossBody | D3D11RoomSources.WrittenOverBackgroundOf(layer.Rooms), body.Scroll, body.Horizontal, body.Vertical, body.Pixelation)
         : new(D3D11RoomSources.BackgroundSourceOf(layer.Rooms), layer.View.BackgroundScroll, layer.BackgroundLineScrolls.Horizontal,
-            layer.BackgroundLineScrolls.Vertical, layer.View.BackgroundPixelation);
+            layer.BackgroundLineScrolls.Vertical, BackgroundPixelation.Unpixelated);
 
     /// <summary>What the background stage draws: its source word, its scroll, its line scrolls and its pixelation.</summary>
     /// <param name="Source">The Tiles.hlsl source word.</param>
@@ -925,7 +927,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                             _ => throw new InvalidOperationException($"Undefined sprite blend {sprites.Blend}."),
                         },
                         Green = sprites.Tint is not null ? 1u : 0u,
-                        Blue = sprites.Tint is { } tint ? PackedShaderLevels(tint) : 0,
+                        Blue = sprites.Tint is { } tint ? PackedShaderLevels(tint.ShownWith(D3D11ColourBlend.Instance)) : 0,
                     });
                     break;
                 case PictureGridLayer grid:
@@ -955,7 +957,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                     });
                     break;
                 case ScreenTintLayer add:
-                    FadeLevelColour addedLevels = ShaderLevels(add.Colour);
+                    FadeLevelColour addedLevels = ShaderLevels(add.Colour.ShownWith(D3D11ColourBlend.Instance));
                     DispatchTile(D3D11TileOperation.AddColour, new D3D11TileDispatch { Red = (uint)addedLevels.Red, Green = (uint)addedLevels.Green, Blue = (uint)addedLevels.Blue });
                     break;
                 case ScreenGradientLayer gradient:

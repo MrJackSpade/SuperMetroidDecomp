@@ -13,8 +13,7 @@ internal static class RidleyTailFixtures
     {
         foreach (RidleyTailLink link in tail.Links)
         {
-            link.Active = false;
-            link.StartedNextLink = true;
+            link.Swing = RidleyTailLinkSwing.Resting;
             link.SwingDirection = RotationDirection.Counterclockwise;
             link.Distance = SignedEightEight.Zero;
             link.TargetDistance = null;

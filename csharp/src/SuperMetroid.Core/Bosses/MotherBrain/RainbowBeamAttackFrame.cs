@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
@@ -25,8 +26,8 @@ public sealed record RainbowBeamAttackFrame
     /// </summary>
     public required Func<int> NextRandomNumber { get; init; }
 
-    /// <summary>Whether the game shows the escape's alternate text, the time-bomb subtitle the Japanese text adds.</summary>
-    public required bool AlternateEscapeText { get; init; }
+    /// <summary>The game's text language, whose escape warning her death types (#2560).</summary>
+    public required TextLanguage Language { get; init; }
 
     /// <summary>Whether the escape's typewriter finished its text on this update.</summary>
     public required bool TypewriterFinished { get; init; }

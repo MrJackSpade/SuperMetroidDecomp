@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 public static class CeresSteamDefinitions
 {
     /// <summary>The random selection the setup draws for a vent's activation delay, before adding one: 32 delays.</summary>
-    internal static readonly RandomSampleField ActivationDelay = new(0, 5);
+    internal static readonly RandomSampleField ActivationDelay = RandomSampleField.OneOf(32);
 
 
     /// <summary>

@@ -9,8 +9,8 @@ internal static class YappingMawAttackDefinitions
     /// <summary>The links of the Maw's tongue, root to mouth (#2162).</summary>
     internal const int TongueLinks = 4;
 
-    /// <summary>The largest curl the tongue's four links take, in whole angle units.</summary>
-    internal const int LargestCurl = 128;
+    /// <summary>The largest curl the tongue's four links take (#2563).</summary>
+    internal static YappingMawCurl LargestCurl { get; } = YappingMawCurl.FromWholeUnits(128);
 
     /// <summary>The curl, in whole angle units, per angle step each link of the chain bends by: the bend step is a quarter of the curl.</summary>
     internal const int CurlPerBendStep = 4;

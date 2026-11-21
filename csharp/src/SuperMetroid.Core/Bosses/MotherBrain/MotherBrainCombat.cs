@@ -51,7 +51,7 @@ internal sealed class MotherBrainCombat
             }
             // A Super Missile still shakes the room first.
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
+            _projectiles.CreateEnemyProjectileDudShot(c.Shot);
             return true;
         },
     };
@@ -109,7 +109,7 @@ internal sealed class MotherBrainCombat
         // not kill (#2255) then takes her health and starts her hurt reaction for its authored duration.
         RestartHurtFlash(head);
 
-        _ = _collision.ApplyNormalShotDamage(brain, projectile, projectileType, projectileDamage, _room.Area);
+        _ = _collision.ApplyNormalShotDamage(brain, held, projectileType, projectileDamage, _room.Area);
     }
 
     /// <summary>
@@ -161,7 +161,7 @@ internal sealed class MotherBrainCombat
 
         if (state.Form == MotherBrainForm.FakeDeath)
         {
-            _projectiles.CreateEnemyProjectileDudShot(projectile);
+            _projectiles.CreateEnemyProjectileDudShot(held);
             return;
         }
 
@@ -169,7 +169,7 @@ internal sealed class MotherBrainCombat
         // charged beams use the separate charged vulnerability after the ordinary
         // beam freeze check; Hyper would otherwise inherit Plasma's immunity; and Plasma's
         // hit immunity keeps a surviving penetrating beam from damaging the head every frame.
-        _ = _collision.ApplyNormalShotDamage(brain, projectile, projectileType, projectileDamage, _room.Area);
+        _ = _collision.ApplyNormalShotDamage(brain, held, projectileType, projectileDamage, _room.Area);
     }
 
     /// <summary>
@@ -187,7 +187,7 @@ internal sealed class MotherBrainCombat
     /// Restarts her head's hurt flash: a second hit during a flash keeps the flash white or plain as it was.
     /// </summary>
     private static void RestartHurtFlash(RoomEnemyPlace head) =>
-        head.HurtFlash.Restart(head.HurtFlash.IsRunning && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(head.HurtFlash.UpdatesLeft)
+        head.HurtFlash.Restart(head.HurtFlash.IsRunning && MotherBrainCadenceDefinitions.HurtFlashWhite.IsInSecondHalfAt(head.HurtFlash.UpdatesLeft)
             ? MotherBrainFightDefinitions.HurtFlashKeepingPhase
             : MotherBrainFightDefinitions.HurtFlash);
 
@@ -251,7 +251,7 @@ internal sealed class MotherBrainCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
+                return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? hitbox.Shot : hitbox.Touch);
             }
         }
         return EnemyHitboxContact.Missed;

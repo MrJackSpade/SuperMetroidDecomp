@@ -26,8 +26,12 @@ public sealed class FileSelectPresentation
     public int HelmetFrameDuration => placements.HelmetFrameDuration;
 
     /// <summary>Selects the main or data-management field anchors for one save slot.</summary>
-    internal FileSelectSlotFieldDocument Slot(bool dataManagement, SaveSlot slot) =>
-        Ensure.Listed(dataManagement ? placements.DataSlots : placements.MainSlots, slot);
+    internal FileSelectSlotFieldDocument Slot(FileSelectCursorPage page, SaveSlot slot) => Ensure.Listed(page switch
+    {
+        FileSelectCursorPage.Main => placements.MainSlots,
+        FileSelectCursorPage.DataManagement => placements.DataSlots,
+        _ => throw new ArgumentOutOfRangeException(nameof(page), page, "Undefined file-select page."),
+    }, slot);
 
     /// <summary>The page pixel a copy or clear prompt's slot letter is shown at.</summary>
     internal Position16<PlanePixels> DynamicAnchor(FileSelectAnchor anchor) => placements.DynamicAnchors[anchor];

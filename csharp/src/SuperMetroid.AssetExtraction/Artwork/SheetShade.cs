@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 
@@ -106,7 +105,7 @@ internal sealed record SheetShade(PictureShade Shade, ImmutableSortedDictionary<
         {
             if (!documents.TryAdd(shade.Shade.Key, new SpriteSheetShadeDocument
                 {
-                    InkColours = new SortedDictionary<int, ushort>(shade.InkColours.ToDictionary(entry => entry.Key, entry => entry.Value.ToWord())),
+                    InkColours = new SortedDictionary<int, RgbColor>(shade.InkColours),
                     ColourMath = shade.TakesColourMath,
                 }))
             {

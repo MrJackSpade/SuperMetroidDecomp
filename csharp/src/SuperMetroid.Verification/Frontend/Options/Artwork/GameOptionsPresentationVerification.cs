@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -25,38 +26,38 @@ internal static class GameOptionsPresentationVerification
         var nativeAudio = AudioQueues.Standalone();
         var installedAudio = AudioQueues.Standalone();
         var native = new GameOptionsMenuState(nativeAudio,
-            screenContent: original, spriteSheets: MenuSheetFixtures.For(original), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
+            screenContent: original, spriteSheets: MenuSheetFixtures.For(original), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
         var installed = new GameOptionsMenuState(
-            installedAudio, screenContent: original, spriteSheets: MenuSheetFixtures.For(original), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
+            installedAudio, screenContent: original, spriteSheets: MenuSheetFixtures.For(original), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
         int comparedFrames = 0;
 
-        Until(GameOptionsPhase.Main);
+        Until(GameOptionsPage.Primary);
         Press(ControllerButton.Down);
         Press(ControllerButton.A); // Switch language and rewrite the primary highlights.
         for (int row = 0; row < 3; row++)
             Press(ControllerButton.Down);
         Press(ControllerButton.A);
-        Until(GameOptionsPhase.ControllerSettings);
+        Until(GameOptionsPage.Controller);
         Press(ControllerButton.R); // Reassign Shoot and swap the displaced action label.
         for (int row = 0; row < 7; row++)
         {
             Press(ControllerButton.Down);
-            Until(GameOptionsPhase.ControllerSettings);
+            Until(GameOptionsPage.Controller);
         }
         Press(ControllerButton.A);
-        Until(GameOptionsPhase.Main);
+        Until(GameOptionsPage.Primary);
         for (int row = 0; row < 4; row++)
             Press(ControllerButton.Down);
         Press(ControllerButton.A);
-        Until(GameOptionsPhase.SpecialSettings);
+        Until(GameOptionsPage.Special);
         Press(ControllerButton.A);
         Press(ControllerButton.Down);
         Press(ControllerButton.Right);
         Press(ControllerButton.Down);
         Press(ControllerButton.A);
-        Until(GameOptionsPhase.Main);
+        Until(GameOptionsPage.Primary);
 
-        AssertTrue(native.JapaneseText && installed.JapaneseText,
+        AssertTrue(native.Language == TextLanguage.Japanese && installed.Language == TextLanguage.Japanese,
             "installed options path retains language behavior");
         AssertEqual(native.ControllerBindings, installed.ControllerBindings,
             "installed options path retains controller swaps");
@@ -67,12 +68,12 @@ internal static class GameOptionsPresentationVerification
         Console.WriteLine(
             "Options presentation: deterministic stock and native parity pass.");
 
-        void Until(GameOptionsPhase expected)
+        void Until(GameOptionsPage expected)
         {
-            for (int frame = 0; frame < 120 && native.Phase != expected; frame++)
+            for (int frame = 0; frame < 120 && !(native.Phase == GameOptionsPhase.Browsing && native.Page == expected); frame++)
                 Frame(0);
-            AssertEqual(expected, native.Phase, $"native options reaches {expected}");
-            AssertEqual(expected, installed.Phase, $"installed options reaches {expected}");
+            AssertTrue(native.Phase == GameOptionsPhase.Browsing && native.Page == expected, $"native options browses the {expected} page");
+            AssertTrue(installed.Phase == GameOptionsPhase.Browsing && installed.Page == expected, $"installed options browses the {expected} page");
         }
 
         void Press(ControllerButton button)

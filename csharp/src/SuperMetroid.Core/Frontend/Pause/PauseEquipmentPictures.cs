@@ -29,7 +29,7 @@ internal static class PauseEquipmentPictures
 
     /// <summary>The frame name of wireframe <paramref name="kind"/>.</summary>
     [InstalledKey]
-    internal static string WireframeFrame(PauseWireframeKind kind) => $"Pause.Equipment.Wireframe.{PauseWireframeKindKeys.Installed.Of(kind)}";
+    internal static string WireframeFrame(PauseWireframe wireframe) => $"Pause.Equipment.Wireframe.{PauseWireframeKeys.Of(wireframe)}";
 
     /// <summary>The frame name of the MODE label as written for <paramref name="mode"/>.</summary>
     [InstalledKey]

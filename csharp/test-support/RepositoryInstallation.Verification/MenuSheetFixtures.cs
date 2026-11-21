@@ -207,7 +207,7 @@ internal static class MenuSheetFixtures
     /// <summary>Loads one composed fixture tile sheet under a name of its own.</summary>
     private static SpriteSheet LoadTiles(SpriteSheetId id, ComposedSpriteSheet tiles, string fixture) =>
         SpriteSheetFileConstants.Load(tiles.Manifest,
-            $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices);
+            $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.Inks);
 
     /// <summary>File-select map sheets already composed, by presentation.</summary>
     private static readonly ConditionalWeakTable<ImportAreaMapPresentation, InstalledSpriteSheets> fileSelectMaps = new();
@@ -275,7 +275,7 @@ internal static class MenuSheetFixtures
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
         // A name of its own keeps its frames apart from the installed sheet's in the frame-source registry.
         SpriteSheet loaded = SpriteSheetFileConstants.Load(sheet.Manifest,
-            $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", sheet.Size, sheet.Pixels, sheet.PaletteIndices);
+            $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", sheet.Size, sheet.Pixels, sheet.Inks);
         SheetFrameSources.Register(loaded, sources);
         return loaded;
     }

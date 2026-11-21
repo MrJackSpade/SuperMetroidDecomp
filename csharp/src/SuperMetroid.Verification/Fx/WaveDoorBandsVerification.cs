@@ -26,11 +26,11 @@ internal static class WaveDoorBandsVerification
             var roomObjects = RoomObjectFixtures.Unbound();
             var shot = new SamusProjectile(0);
             SamusProjectileOccupant held = shot.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombinations.Of(SamusBeamFlags.Wave), charged: false));
-            shot.Position = new(new(72, 0), new(y, 0));
-            shot.Radius = new(1, 0);
-            shot.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(left ? -1 : 1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
+            shot.HeldShot().Position = new(new(72, 0), new(y, 0));
+            shot.HeldShot().Radius = new(1, 0);
+            shot.HeldShot().Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(left ? -1 : 1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
             // A one-pixel span avoids testing adjacent-row aggregation at the boundary.
-            shot.Radius = shot.Radius.WithY(1);
+            shot.HeldShot().Radius = shot.Radius.WithY(1);
             if (inside && (y & 15) == 0 && y > 0)
             {
                 words[target - 16] = words[target];

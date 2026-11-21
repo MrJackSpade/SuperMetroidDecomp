@@ -31,10 +31,10 @@ internal static class SpecialAttackReplacesFirstShots
     /// <typeparam name="TShot">The shot type.</typeparam>
     /// <param name="parts">The attack's particles' parts, one or more, each naming a different shot place.</param>
     /// <param name="placeOf">The shot place a part takes.</param>
-    /// <param name="replaceShotInPlace">Creates the new shot of a shot place, ending the one there.</param>
+    /// <param name="replaceShotInPlace">Creates the new shot of a part's shot place, ending the one there.</param>
     /// <returns>Each part with the shot that plays it, the part in the first place first.</returns>
     internal static IReadOnlyList<ParticleShot<TPart, TShot>> ParticleShots<TPart, TShot>(IReadOnlyList<TPart> parts, Func<TPart, int> placeOf,
-        Func<int, TShot> replaceShotInPlace)
+        Func<TPart, TShot> replaceShotInPlace)
     {
         Ensure.NotNull(parts);
         Ensure.NotNull(placeOf);
@@ -44,7 +44,7 @@ internal static class SpecialAttackReplacesFirstShots
             throw new InvalidDataException("Each of a special attack's particles takes a shot place of its own.");
         var shots = new List<ParticleShot<TPart, TShot>>(parts.Count);
         foreach (TPart part in parts.OrderByDescending(placeOf))
-            shots.Add(new(part, replaceShotInPlace(placeOf(part))));
+            shots.Add(new(part, replaceShotInPlace(part)));
         shots.Reverse();
         return shots;
     }

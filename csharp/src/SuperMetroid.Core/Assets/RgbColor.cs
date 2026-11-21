@@ -2,9 +2,9 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// One plain colour (#1420, #1544): red, green and blue, each from none (0) to full (<see cref="FullChannel"/>), as the
-/// display shows it. A colour is made from and read as its channels. Every colour the game shows lies on its fade scale
-/// (<see cref="FadeLevelColour"/>): a fade, flash, glow or ramp computes its steps on those levels and shows the plain
-/// colour of the level it reaches, so the colour itself holds no levels, no stored form and no colour arithmetic of its own.
+/// display shows it. A colour is made from and read as its channels. Every colour the game shows lies on its colour steps
+/// (<see cref="FadeLevelColour"/>): a glow steps on them, and the backend blends a fade in them (<see cref="IColourBlend"/>),
+/// so the colour itself holds no steps, no stored form and no colour arithmetic of its own.
 /// </summary>
 public readonly record struct RgbColor
 {

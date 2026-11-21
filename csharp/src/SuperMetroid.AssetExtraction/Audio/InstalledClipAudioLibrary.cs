@@ -59,17 +59,25 @@ public sealed class InstalledClipAudioLibrary
         }
         foreach (InstalledSoundEffectClip entry in manifest.SoundEffects)
         {
-            if (entry.Layers.Count == 0 && entry.ActiveFrames is null)
-                throw new InvalidDataException($"Never-ending {entry.Sound} has no layers.");
-            foreach (InstalledSoundEffectLayer layer in entry.Layers)
+            switch (entry.Shape)
             {
-                ValidateClip(layer.Clip);
-                if ((layer.LoopStart is null) != (entry.ActiveFrames is not null) ||
-                    layer.LoopStart is long loop && (loop < 0 || loop >= layer.Clip.Frames))
-                {
-                    throw new InvalidDataException(
-                        $"{entry.Sound} has inconsistent loop bounds.");
-                }
+                case InstalledOneShotSoundEffect { Clip: { } clip }:
+                    ValidateClip(clip);
+                    break;
+                case InstalledOneShotSoundEffect:
+                    break;
+                case InstalledLoopingSoundEffect { Layers.Count: 0 }:
+                    throw new InvalidDataException($"Never-ending {entry.Sound} has no layers.");
+                case InstalledLoopingSoundEffect looping:
+                    foreach (InstalledLoopingSoundEffectLayer layer in looping.Layers)
+                    {
+                        ValidateClip(layer.Clip);
+                        if (layer.LoopStart < 0 || layer.LoopStart >= layer.Clip.Frames)
+                            throw new InvalidDataException($"{entry.Sound} has inconsistent loop bounds.");
+                    }
+                    break;
+                default:
+                    throw new InvalidDataException($"{entry.Sound} has no shape.");
             }
         }
         return manifest;

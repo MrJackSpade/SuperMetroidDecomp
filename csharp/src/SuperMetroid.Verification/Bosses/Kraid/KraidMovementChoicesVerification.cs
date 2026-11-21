@@ -99,8 +99,7 @@ internal static class KraidMovementChoicesVerification
                 bool right = expected.TargetX >= raw;
                 AssertEqual(expected.TargetX, state.WalkTargetX, "Actual target includes fallback row");
                 AssertEqual(expected.ThinkUpdates, part.ThinkWait.UpdatesLeft, "Actual thinking delay includes weighted final choice");
-                AssertEqual(KraidFootPhase.SecondPhaseWalking, state.FootState.Phase, "A choice sets the foot walking");
-                AssertEqual(right ? HorizontalDirection.Right : HorizontalDirection.Left, state.FootState.WalkDirection, "He walks right to a target at or right of him, left otherwise (#2165, #2299)");
+                AssertEqual(right ? KraidFootPhase.SecondPhaseWalkingRight : KraidFootPhase.SecondPhaseWalkingLeft, state.FootState.Phase, "He walks right to a target at or right of him, left otherwise (#2165, #2299)");
                 AssertEqual(
                     new AnimationPlayback<KraidPartSegment>(KraidAnimations.StartingWith(right ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward), AnimationPlace.StartOfAnimation),
                     state.FootState.Playback,

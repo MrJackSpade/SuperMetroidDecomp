@@ -48,7 +48,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // Draygon dies on a white hurt frame here; his burial Evirs spawn in their own colours, not in his flash (#1544).
         var draygon = new DraygonEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.DraygonBody), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
-        draygon.Colours.ShowHurt(true);
+        draygon.Colours.ShowHurt(DraygonBodyColours.WhiteFlash);
 
         for (int entry = 5; entry >= 0; entry--)
         {

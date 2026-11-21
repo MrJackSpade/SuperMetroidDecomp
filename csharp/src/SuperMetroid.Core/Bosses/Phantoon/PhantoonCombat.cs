@@ -148,7 +148,7 @@ internal sealed class PhantoonCombat
         private void RunPhantoonStartingFlameWaiting(EnemyProjectile flame)
         {
             PhantoonOrbitingFlameState orbit = Orbits.Of(flame);
-            if (!orbit.Phantoon.StartingFlames.Orbiting)
+            if (orbit.Phantoon.Phase != PhantoonPhase.WaitForStartingFlamesToDisappear)
                 return;
             flame.StartMotion(IntroOrbiting);
             orbit.FullRadiusHold.LastFor(PhantoonFlameMotionDefinitions.IntroCircleHoldUpdates);
@@ -318,7 +318,7 @@ internal sealed class PhantoonCombat
             // Phantoon's shot reaction runs common normal-shot damage (#2255), including its charged-beam override, a
             // zero-damage shot's dud, and no death of its own; his own stage follows it. A special attack's particles
             // count as a charged beam, so the Wave Beam's shield attack damages him.
-            int appliedDamage = _collision.ApplyNormalShotDamage(state.BodyOccupant, projectile, projectileType, projectileDamage, _room.Area).HealthLost;
+            int appliedDamage = _collision.ApplyNormalShotDamage(state.BodyOccupant, held, projectileType, projectileDamage, _room.Area).HealthLost;
             ResolvePhantoonShotReaction(
                 body,
                 state,
@@ -344,7 +344,7 @@ internal sealed class PhantoonCombat
             return;
         }
 
-        if ((body.AiStates & EnemyAiStates.Hurt) == EnemyAiStates.None)
+        if (!body.IsHurt)
             return;
 
         _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
@@ -467,7 +467,7 @@ internal sealed class PhantoonCombat
         // The flame drifts left or right by the game's frame counter.
         flame.Velocity = flame.Velocity.WithX(
             PhantoonArenaDefinitions.CasualDriftSpeed.Toward(
-                PhantoonCadenceDefinitions.RisingFlameDriftsLeft.IsSetIn(frameCounter) ? HorizontalDirection.Left : HorizontalDirection.Right));
+                PhantoonCadenceDefinitions.RisingFlameDriftsLeft.IsInSecondHalfAt(frameCounter) ? HorizontalDirection.Left : HorizontalDirection.Right));
     }
 
     /// <summary>Advances the flame's post-impact bounce motion.</summary>
@@ -575,7 +575,7 @@ internal sealed class PhantoonCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
+                return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? hitbox.Shot : hitbox.Touch);
             }
         }
         return EnemyHitboxContact.Missed;

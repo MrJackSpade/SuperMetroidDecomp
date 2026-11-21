@@ -20,7 +20,7 @@ internal static class IntroEggEffectProgramsVerification
             ushort pointer = LittleEndianBytes.Word(IntroEggEffectFrameCatalogRomByte(rom, operand), IntroEggEffectFrameCatalogRomByte(rom, operand + 1));
             AssertEqual(pointer, CinematicSpritemapSources.Of(frames[index].Pose), "original egg-effect frame operand");
             AssertEqual(names[index], frames[index].Name, "published egg-effect name");
-            AssertEqual(IntroEggEffectSpriteDefinitions.StockPartCount,
+            AssertEqual(frames[index].StockPartCount,
                 LittleEndianBytes.Word(IntroEggEffectFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroEggEffectFrameCatalogRomByte(rom, 0x8c0001 + pointer)), "original one-part egg-effect record");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 11, int.MaxValue })

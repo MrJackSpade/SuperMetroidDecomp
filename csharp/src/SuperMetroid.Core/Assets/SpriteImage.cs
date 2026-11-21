@@ -120,7 +120,7 @@ public sealed class SpriteImage
     /// <summary>
     /// The image's distinct colour keys: each colour its visible pixels hold with its recolour region, in the order its pixels
     /// first show them, then the backdrop's where no visible pixel holds it. Clear pixels hold no key. A shading shows one
-    /// colour for each (<see cref="PictureShading.KeyColours(SpriteImage)"/>).
+    /// colour for each (<see cref="PictureShading.KeyColours(SpriteImage, IColourBlend)"/>).
     /// </summary>
     public ImmutableArray<ColourKey> ColourKeys => content.Value.Keys;
 

@@ -214,6 +214,27 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     public bool CollidesByFrameHitboxes { get; internal set; }
     /// <summary>Which of the ordinary, hurt, frozen and grappled behaviours the enemy's update runs.</summary>
     public EnemyAiStates AiStates { get; internal set; }
+
+    /// <summary>Whether the grapple beam holds the enemy (#2563).</summary>
+    public bool IsGrappled => AiStates.HasFlag(EnemyAiStates.Grappled);
+
+    /// <summary>Whether the enemy is hurt, from a damaging shot until its hurt flash ends (#2563).</summary>
+    public bool IsHurt => AiStates.HasFlag(EnemyAiStates.Hurt);
+
+    /// <summary>Whether the enemy is frozen (#2563).</summary>
+    public bool IsFrozen => AiStates.HasFlag(EnemyAiStates.Frozen);
+
+    /// <summary>The enemy becomes hurt, keeping its other states (#2563).</summary>
+    internal void MarkHurt() => AiStates |= EnemyAiStates.Hurt;
+
+    /// <summary>The enemy becomes frozen, keeping its other states (#2563).</summary>
+    internal void MarkFrozen() => AiStates |= EnemyAiStates.Frozen;
+
+    /// <summary>The enemy is no longer hurt, keeping its other states (#2563).</summary>
+    internal void ClearHurt() => AiStates &= ~EnemyAiStates.Hurt;
+
+    /// <summary>The enemy is no longer frozen, keeping its other states (#2563).</summary>
+    internal void ClearFrozen() => AiStates &= ~EnemyAiStates.Frozen;
     /// <summary>Remaining health, initially the definition's and reduced by weapon damage.</summary>
     public int Health { get; internal set; }
     /// <summary>The frame the enemy shows, an installed frame or the empty frame; null before any.</summary>
@@ -256,7 +277,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
 
     /// <summary>
     /// The enemy's own update count, independent of the game's frame counter: its behaviour and drawing read it only
-    /// through power-of-two cadences (an <see cref="UpdateCadence"/>, an <see cref="UpdateCounterField"/> or a random field
+    /// through power-of-two cadences (an <see cref="UpdateCadence"/>, an <see cref="UpdateAlternation"/>, an <see cref="UpdateCycle"/> or a random roll
     /// advanced by it), so it is a plain count (#2454).
     /// </summary>
     public int FrameCounter

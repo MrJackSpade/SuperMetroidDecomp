@@ -44,9 +44,7 @@ public static class EnemyExtendedFrameDocuments
             for (int index = 0; index < visual.Length; index++)
             {
                 EnemyExtendedVisualComponent? component = visual[index];
-                if (component is null || component.OffsetX is < short.MinValue or > short.MaxValue ||
-                    component.OffsetY is < short.MinValue or > short.MaxValue ||
-                    component.Parts is null)
+                if (component is null || component.Parts is null)
                     throw new InvalidDataException(
                         $"Extended enemy frame {definition.Name} component {index} is invalid.");
                 SpritePart[] parts = EnemySpritemapCompiler.CompileParts(
@@ -56,7 +54,7 @@ public static class EnemyExtendedFrameDocuments
                     throw new InvalidDataException(
                         $"Extended enemy frame {definition.Name} exceeds OAM capacity.");
                 compiled[index] = new EnemyExtendedDrawComponent(
-                    new((short)component.OffsetX, (short)component.OffsetY),
+                    new(component.OffsetX, component.OffsetY),
                     EnemySpritemapParts.FromOwnedArray(parts));
             }
             if (!frames.TryAdd(definition.Frame, compiled))

@@ -148,7 +148,7 @@ internal static class EnemyEffectMechanicsVerification
                 AssertEqual(2 * index + Math.Max(1, (index + 1) / 2), call, "exact per-row completion call");
                 AssertEqual(unchecked((ushort)(100 + (seed & 31) - 16)), dust.Position.X, "native dust X and sampled RNG");
                 AssertEqual((ushort)136, dust.Position.Y, "native dust Y");
-                AssertEqual((call & 7) == 0, dust.SoundEffectQueued, "native dust sound cadence");
+                AssertEqual((call & 7) == 0, dust.Sound is not null, "native dust sound cadence");
                 finished++;
             }
         }

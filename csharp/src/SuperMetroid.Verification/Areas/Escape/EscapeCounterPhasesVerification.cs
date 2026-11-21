@@ -17,7 +17,7 @@ internal static class EscapeCounterPhasesVerification
     {
         for (int input = 0; input <= ushort.MaxValue; input++)
         {
-            AssertSameAt(input & 127, EscapeTimerCadenceDefinitions.PeriodPlace.Of(input), "escape timer period place", input);
+            AssertSameAt(input & 127, EscapeTimerCadenceDefinitions.PeriodPlace.StepAt(input), "escape timer period place", input);
             AssertSameAt(input % 2 == 0, EscapeTypewriterDefinitions.GlyphClick.IsDue(input), "typewriter click", input);
             AssertSameAt((input & 15) < 8,
                 ZebesEscapeExplosionDefinitions.Draw.Choose(input) is ZebesEscapeExplosionDraw.Named,
@@ -28,7 +28,7 @@ internal static class EscapeCounterPhasesVerification
             AssertSameAt((input & 3) == 0, ZebesEscapeDefinitions.IndoorExplosion.IsDue(input), "indoor explosion", input);
         }
 
-        AssertEqual(EscapeTimerCadenceDefinitions.CentisecondsRemoved.Length, EscapeTimerCadenceDefinitions.PeriodPlace.Outcomes,
+        AssertEqual(EscapeTimerCadenceDefinitions.CentisecondsRemoved.Length, EscapeTimerCadenceDefinitions.PeriodPlace.Steps,
             "the cadence authors a step for every place of its period");
         Console.WriteLine("Escape counter phases: every value from 0 through 65535 reads as the expressions they replace.");
     }

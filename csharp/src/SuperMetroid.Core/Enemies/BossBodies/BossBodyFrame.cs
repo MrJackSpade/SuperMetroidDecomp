@@ -12,41 +12,34 @@ public sealed class BossBodyFrame
 {
     /// <summary>Holds the frame's picture, where it lies and the depth it is drawn at.</summary>
     /// <param name="name">The frame's name in its sheet.</param>
-    /// <param name="picture">The frame's whole picture, or null when the frame shows nothing.</param>
+    /// <param name="shown">The frame's whole picture with the depth it is drawn at, or null when the frame shows nothing.</param>
     /// <param name="anchor">Where the picture's top-left corner lies from where its boss places its body: its boss's position.</param>
-    /// <param name="depth">The depth the picture is drawn at; null exactly when the frame shows nothing.</param>
     /// <param name="dissolve">How a dissolve erases the picture step by step (#1652, #2478); null for a frame no dissolve erases.</param>
-    /// <exception cref="ArgumentException">
-    /// The frame has no name, a depth without a picture or a picture without one, or a dissolve but no picture of its size.
-    /// </exception>
-    public BossBodyFrame(string name, SpriteSheetFrame? picture, Offset16<RoomPixels> anchor, BossBodyDepth? depth,
-        PictureDissolve? dissolve = null)
+    /// <exception cref="ArgumentException">The frame has no name, or a dissolve but no picture of its size.</exception>
+    public BossBodyFrame(string name, BossBodyPicture? shown, Offset16<RoomPixels> anchor, PictureDissolve? dissolve = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
-        if (picture is null != depth is null)
-            throw new ArgumentException($"Boss body frame {name} needs a depth exactly when it has a picture.", nameof(depth));
-        if (dissolve is not null && (picture is null || dissolve.Size != picture.Size))
+        if (dissolve is not null && (shown is null || dissolve.Size != shown.Picture.Size))
             throw new ArgumentException($"Boss body frame {name} dissolves a picture it does not show at the dissolve's size.", nameof(dissolve));
         Name = name;
-        Picture = picture;
+        Shown = shown;
         Anchor = anchor;
-        Depth = depth;
         Dissolve = dissolve;
     }
 
-    /// <summary>This frame showing its picture with <paramref name="hidden"/>'s pixels hidden (#1652).</summary>
-    private BossBodyFrame(BossBodyFrame shown, BossBodyDepth? depth, HiddenPicturePixels? hidden)
-        : this(shown.Name, shown.Picture, shown.Anchor, depth, shown.Dissolve) =>
+    /// <summary>This frame showing <paramref name="shown"/> with <paramref name="hidden"/>'s pixels hidden (#1652).</summary>
+    private BossBodyFrame(BossBodyFrame frame, BossBodyPicture? shown, HiddenPicturePixels? hidden)
+        : this(frame.Name, shown, frame.Anchor, frame.Dissolve) =>
         Hidden = hidden;
 
     /// <summary>The frame's name in its sheet.</summary>
     public string Name { get; }
 
     /// <summary>
-    /// The frame's whole picture; null when the frame shows nothing, as a melt image the dissolve has erased whole does: the
-    /// part showing it is not drawn (#1513, #1540).
+    /// The frame's whole picture and the depth it is drawn at among the room's layers (#1634, #2560); null when the frame shows
+    /// nothing, as a melt image the dissolve has erased whole does: the part showing it is not drawn (#1513, #1540).
     /// </summary>
-    public SpriteSheetFrame? Picture { get; }
+    public BossBodyPicture? Shown { get; }
 
     /// <summary>
     /// Where the picture's top-left corner lies from where its boss places its body, its boss's position (#2031), as the import
@@ -54,11 +47,6 @@ public sealed class BossBodyFrame
     /// </summary>
     public Offset16<RoomPixels> Anchor { get; }
 
-    /// <summary>
-    /// The depth the picture is drawn at among the room's layers (#1634), as the import decided it from where the game draws
-    /// the frame; null when the frame shows nothing.
-    /// </summary>
-    public BossBodyDepth? Depth { get; }
 
     /// <summary>
     /// How a dissolve erases the picture step by step (#1652, #2478), as the import found it: Crocomire's melt images. Null for
@@ -77,11 +65,11 @@ public sealed class BossBodyFrame
     /// <exception cref="ArgumentException">The hidden pixels are not of the picture's size.</exception>
     public BossBodyFrame Hiding(HiddenPicturePixels hidden)
     {
-        if (Picture is null)
+        if (Shown is null)
             throw new InvalidOperationException($"Boss body frame {Name} shows no picture to hide pixels of.");
-        if (Ensure.NotNull(hidden).Size != Picture.Size)
+        if (Ensure.NotNull(hidden).Size != Shown.Picture.Size)
             throw new ArgumentException($"Boss body frame {Name} hides pixels of a picture of another size.", nameof(hidden));
-        return new(this, Depth, hidden);
+        return new(this, Shown, hidden);
     }
 
     /// <summary>
@@ -97,5 +85,5 @@ public sealed class BossBodyFrame
     /// This frame drawn at <paramref name="depth"/> instead, as Kraid's growth brings his body and the head it rises with in
     /// front of the sprites (#1634); a frame showing nothing stays as it is.
     /// </summary>
-    public BossBodyFrame At(BossBodyDepth depth) => Picture is null || Depth == depth ? this : new(this, depth, Hidden);
+    public BossBodyFrame At(BossBodyDepth depth) => Shown is null || Shown.Depth == depth ? this : new(this, Shown with { Depth = depth }, Hidden);
 }

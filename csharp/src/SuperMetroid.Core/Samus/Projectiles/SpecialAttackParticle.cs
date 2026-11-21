@@ -29,6 +29,9 @@ internal sealed record SpecialAttackParticle
     /// </summary>
     public bool SpazerTrail { get; init; }
 
+    /// <summary>The side a falling Spazer particle steps to (#2560): its trail particles step left, the others right.</summary>
+    public HorizontalDirection FallSideStep { get; init; } = HorizontalDirection.Right;
+
     /// <summary>Whether this Spazer particle voices the attack's convergence sound.</summary>
     public bool VoicesSpazerConvergence { get; init; }
 

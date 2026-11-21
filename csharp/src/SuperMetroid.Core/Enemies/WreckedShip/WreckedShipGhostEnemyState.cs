@@ -31,7 +31,9 @@ public sealed class WreckedShipGhostEnemyState
 
     /// <summary>
     /// The flicker step that starts when <see cref="FlickerTimer"/> runs out (#2451); none once the last step has started,
-    /// whose end ends the flicker. Each appearance starts the flicker before its first step.
+    /// whose end ends the flicker. Each appearance starts the flicker before its first step. The timer is the running step's
+    /// time and this the step after it, two facts rather than one choice encoded twice (#2560): a running flicker always has
+    /// a time left, and only its last step has no step after it.
     /// </summary>
     public WreckedShipGhostFlickerStep? NextFlickerStep { get; internal set; }
 

@@ -7,13 +7,13 @@ internal static class OwtchMovementDefinitions
     /// Whether a surfacing Owtch walks off right rather than left (#2479): an even choice, taken by half the random
     /// numbers.
     /// </summary>
-    internal static readonly RandomChance SurfacesMovingRight = RandomChance.Highest(1, new RandomSampleField(8, 1));
+    internal static readonly RandomChance SurfacesMovingRight = RandomChance.Highest(1, RandomSampleField.SecondOf(2));
 
     /// <summary>
     /// The random field a walking Owtch's burial roll starts from: whether it sinks into the ground. The roll adds the
     /// enemy's update count, so the updates it sinks on move on as the count advances.
     /// </summary>
-    internal static readonly RandomSampleField SinkRoll = new(0, 8);
+    internal static readonly RandomSampleField SinkRoll = RandomSampleField.OneOf(256);
 
     /// <summary>
     /// The chance a walking Owtch buries itself on an update (#1619): the lowest six of the 256 values its

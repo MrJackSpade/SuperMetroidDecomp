@@ -60,25 +60,25 @@ internal static class SamusSnapshotWords
     internal const ushort SpringBallBounceFamily = 6 << 8;
 
     /// <summary>Decodes <c>$0B20</c>: the rebound count in the low byte, with the Spring Ball family's high byte or none.</summary>
-    internal static SamusBallBounceState DecodeBallBounce(ushort word) => word switch
+    internal static SamusBallBounce? DecodeBallBounce(ushort word) => word switch
     {
-        0 => SamusBallBounceState.None,
-        1 => SamusBallBounceState.FirstRebound,
-        2 => SamusBallBounceState.SecondRebound,
-        SpringBallBounceFamily + 1 => SamusBallBounceState.SpringBallFirstRebound,
-        SpringBallBounceFamily + 2 => SamusBallBounceState.SpringBallSecondRebound,
+        0 => null,
+        1 => SamusBallBounce.MorphBallFirst,
+        2 => SamusBallBounce.MorphBallSecond,
+        SpringBallBounceFamily + 1 => SamusBallBounce.SpringBallFirst,
+        SpringBallBounceFamily + 2 => SamusBallBounce.SpringBallSecond,
         _ => throw new InvalidDataException($"Ball bounce word ${word:X4} is not a native bounce state."),
     };
 
     /// <summary>Encodes a bounce state as the word native code writes.</summary>
-    internal static int EncodeBallBounce(SamusBallBounceState state) => state switch
+    internal static int EncodeBallBounce(SamusBallBounce? state) => state switch
     {
-        SamusBallBounceState.None => 0,
-        SamusBallBounceState.FirstRebound => 1,
-        SamusBallBounceState.SecondRebound => 2,
-        SamusBallBounceState.SpringBallFirstRebound => SpringBallBounceFamily + 1,
-        SamusBallBounceState.SpringBallSecondRebound => SpringBallBounceFamily + 2,
-        _ => throw new InvalidOperationException($"Undefined {nameof(SamusBallBounceState)} {state}."),
+        null => 0,
+        { Ball: SamusBouncingBall.MorphBall, Rebound: SamusBallRebound.First } => 1,
+        { Ball: SamusBouncingBall.MorphBall, Rebound: SamusBallRebound.Second } => 2,
+        { Ball: SamusBouncingBall.SpringBall, Rebound: SamusBallRebound.First } => SpringBallBounceFamily + 1,
+        { Ball: SamusBouncingBall.SpringBall, Rebound: SamusBallRebound.Second } => SpringBallBounceFamily + 2,
+        _ => throw new InvalidOperationException($"Undefined ball bounce {state}."),
     };
 
     /// <summary>

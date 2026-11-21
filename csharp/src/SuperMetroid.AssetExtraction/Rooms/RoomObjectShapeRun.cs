@@ -81,9 +81,13 @@ internal readonly record struct RoomObjectShapeRun(Offset16<RoomBlocks> Start, R
     };
 
     /// <summary>
-    /// The one run the cartridge writes a line-shaped frame in: the shape's cells down its column when
-    /// <paramref name="down"/>, otherwise along its row.
+    /// The one run the cartridge writes a line-shaped frame in: the shape's cells along <paramref name="axis"/>, down its
+    /// column or along its row (#2560).
     /// </summary>
-    internal static RoomObjectShapeRun Line(bool down, RoomBlockShape shape) =>
-        down ? Column(new(0, 0), shape.Cells.Count) : Row(new(0, 0), shape.Cells.Count);
+    internal static RoomObjectShapeRun Line(Axis axis, RoomBlockShape shape) => axis switch
+    {
+        Axis.Vertical => Column(new(0, 0), shape.Cells.Count),
+        Axis.Horizontal => Row(new(0, 0), shape.Cells.Count),
+        _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "Undefined axis."),
+    };
 }

@@ -109,10 +109,14 @@ public static class RoomLevelWordCodec
     /// <param name="appearance">The appearance.</param>
     /// <exception cref="ArgumentOutOfRangeException">The block is past what a level word can name.</exception>
     public static int BlockNumberOf(RoomBlockAppearance appearance) =>
-        appearance.ShowsNothing ? NothingBlockNumber
-            : appearance.IsBeyondRoom ? Rooms.RoomLevelSpaceDefinitions.PrefillWord & BlockMask
-            : appearance.IsCollectiblePairBlock ? Rooms.CollectiblePairBlockNumbers.Of(appearance.PairBlock)
-            : Ensure.BetweenInclusive(0, BlockNumbers - 1, appearance.Block);
+        appearance.Shows switch
+        {
+            RoomBlockShown.Nothing => NothingBlockNumber,
+            RoomBlockShown.BeyondRoom => Rooms.RoomLevelSpaceDefinitions.PrefillWord & BlockMask,
+            RoomBlockShown.CollectiblePairBlock => Rooms.CollectiblePairBlockNumbers.Of(appearance.PairBlock),
+            RoomBlockShown.Block => Ensure.BetweenInclusive(0, BlockNumbers - 1, appearance.Block),
+            _ => throw new InvalidOperationException($"Undefined shown kind {appearance.Shows}."),
+        };
 
     /// <summary>
     /// The terrain a level word storing <paramref name="terrain"/> decodes to: the terrain itself, but a collectible's pair
@@ -120,7 +124,7 @@ public static class RoomLevelWordCodec
     /// </summary>
     /// <param name="terrain">The terrain block.</param>
     internal static RoomTerrainBlock AsStored(RoomTerrainBlock terrain) =>
-        terrain.Appearance.IsCollectiblePairBlock
+        terrain.Appearance.Shows == RoomBlockShown.CollectiblePairBlock
             ? new(AppearanceOf(BlockNumberOf(terrain.Appearance), terrain.Appearance.Mirroring), terrain.Collision)
             : terrain;
 }

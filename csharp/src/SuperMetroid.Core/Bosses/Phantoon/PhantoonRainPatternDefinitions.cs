@@ -30,7 +30,7 @@ public static class PhantoonRainPatternDefinitions
     /// twice as often.
     /// </summary>
     internal static WeightedRandomChoice<PhantoonRainPattern> LaterRain { get; } = WeightedRandomChoice<PhantoonRainPattern>.InTurn(
-        new RandomSampleField(0, 3), Centre, UpperRight, Right, LowerRight, Centre, UpperLeft, Left, LowerLeft);
+        RandomSampleField.OneOf(8), Centre, UpperRight, Right, LowerRight, Centre, UpperLeft, Left, LowerLeft);
 
     /// <summary>The first rain's pattern while his body is in the room's left half.</summary>
     public static PhantoonRainPattern FirstRainFromLeftHalf => Centre;

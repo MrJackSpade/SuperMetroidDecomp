@@ -9,7 +9,7 @@ public static class FallingSparkLaunchDefinitions
     /// (<see cref="FallingSparkUnauthoredLaunch"/>).
     /// </summary>
     internal static readonly WeightedRandomChoice<FallingSparkLaunch> Launch = WeightedRandomChoice<FallingSparkLaunch>.InTurn(
-        new RandomSampleField(2, 3),
+        EnemyRandomRolls.FallingSparkLaunch,
         new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromPixelFraction(-9, 32)),
         new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromPixelFraction(-1, 4)),
         new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromPixelFraction(-1, 8)),

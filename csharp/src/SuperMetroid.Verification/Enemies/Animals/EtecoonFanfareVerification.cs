@@ -70,7 +70,7 @@ internal static class EtecoonFanfareVerification
         {
             var pcm = renderer.RenderFrame(queue.AdvanceFrame(renderer.Acknowledgements));
             foreach (short sample in pcm) peak = Math.Max(peak, Math.Abs((int)sample));
-            if (channels[0].Disabled == 0) notes.Add(channels[0].Note);
+            if (!channels[0].Disabled) notes.Add(channels[0].Note);
         }
         AssertTrue(peak > 0 && notes.Count >= 4, "post-fade fanfare produces PCM and advances melody notes");
         Console.WriteLine($"Etecoon door fanfare: dormant gate, one Max15 request and audible melody verified (peak {peak}, notes {notes.Count}).");

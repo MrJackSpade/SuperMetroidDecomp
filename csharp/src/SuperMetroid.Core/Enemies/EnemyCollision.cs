@@ -323,7 +323,7 @@ internal sealed class EnemyCollision
                 return;
             }
 
-            NormalShotHit hit = ApplyNormalShotDamage(occupant, projectile, projectileType, projectileDamage, roomArea).Hit;
+            NormalShotHit hit = ApplyNormalShotDamage(occupant, held, projectileType, projectileDamage, roomArea).Hit;
             if (hit == NormalShotHit.Froze)
             {
                 reaction.AfterCommon?.Invoke(hitShot with { Froze = true });
@@ -334,10 +334,11 @@ internal sealed class EnemyCollision
             {
                 if (hit == NormalShotHit.HurtUnfrozen && reaction.ShowsHitBurst(hitShot))
                     ShowHitBurst(enemy);
-                if (enemy.Health == 0 && !reaction.ExemptFromGenericDeath)
+                if (enemy.Health == 0 && reaction.Lethal is not EnemyShotLethal.SpeciesOwnedDeath)
                 {
-                    reaction.BeforeGenericDeath?.Invoke(hitShot);
-                    if (reaction.ReplacesGenericDeath?.Invoke(hitShot) != true)
+                    if (reaction.Lethal is EnemyShotLethal.AfterStage before)
+                        before.Stage(hitShot);
+                    if (!(reaction.Lethal is EnemyShotLethal.Replaced replaced && replaced.Death(hitShot)))
                     {
                         _deathsAndDrops.StartGenericEnemyDeath(
                             occupant,
@@ -367,7 +368,7 @@ internal sealed class EnemyCollision
     /// <returns>Whether the shot froze the enemy outright, was a dud, or hurt it while it was frozen or not, and the health it lost.</returns>
     internal NormalShotOutcome ApplyNormalShotDamage(
         RoomEnemyOccupant occupant,
-        SamusProjectile projectile,
+        SamusProjectileOccupant projectile,
         SamusProjectileType projectileType,
         int projectileDamage,
         AreaId roomArea)
@@ -391,7 +392,7 @@ internal sealed class EnemyCollision
         }
 
         enemy.HurtFlash.Restart(enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension);
-        enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
+        enemy.MarkHurt();
         // The common shot reaction queues the definition's cry before subtracting health,
         // including lethal hits. Frozen targets suppress this cry; death
         // explosion animations retain their separate, later sound owner. The
@@ -531,7 +532,7 @@ internal sealed class EnemyCollision
             // The bomb collision marks the bomb before its reaction runs. Unlike an
             // ordinary beam impact, the bomb is already running its explosion animation, which the
             // common shot reaction leaves in place of an impact animation.
-            bomb.Spend();
+            placed.Spend();
             var bombContext = new EnemyBombContext(
                 occupant,
                 placed,
@@ -612,7 +613,7 @@ internal sealed class EnemyCollision
         }
 
         enemy.HurtFlash.Restart(enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension);
-        enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
+        enemy.MarkHurt();
         // The common shot reaction a bomb runs queues the definition's cry before subtracting health, lethal hits
         // included, as it does for a beam or a missile; a frozen enemy makes no cry.
         bool hurtUnfrozen = enemy.Freeze.IsOver;
@@ -732,15 +733,16 @@ internal sealed class EnemyCollision
             int damage = vulnerability.DamageFrom(SamusProjectileDamage.Read(SamusProjectileKind.PowerBomb));
             enemy.Invincibility.Restart(EnemyCollisionDefinitions.PowerBombInvincibilityUpdates);
             enemy.HurtFlash.Restart(enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension);
-            enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
+            enemy.MarkHurt();
             enemy.Health = damage >= enemy.Health
                 ? 0
                 : enemy.Health - damage;
-            if (enemy.Health == 0 && !reaction.ExemptFromGenericDeath)
+            if (enemy.Health == 0 && reaction.Lethal is not EnemyPowerBombLethal.SpeciesOwnedDeath)
             {
-                reaction.BeforeGenericDeath?.Invoke(context);
-                if (reaction.ReplacesGenericDeath is { } replaceDeath)
-                    replaceDeath(context);
+                if (reaction.Lethal is EnemyPowerBombLethal.AfterStage before)
+                    before.Stage(context);
+                if (reaction.Lethal is EnemyPowerBombLethal.Replaced replaced)
+                    replaced.Death(context);
                 else
                     _deathsAndDrops.StartGenericEnemyDeath(occupant, EnemyDeathExplosion.Small, samus);
             }
@@ -806,7 +808,7 @@ internal sealed class EnemyCollision
         enemy.Freeze.Restart(EnemyCollisionDefinitions.FreezeUpdatesByArea.TryGetValue(roomArea, out int areaFreeze)
             ? areaFreeze
             : EnemyCollisionDefinitions.FreezeUpdates);
-        enemy.AiStates = enemy.AiStates | EnemyAiStates.Frozen;
+        enemy.MarkFrozen();
         enemy.Invincibility.Restart(EnemyCollisionDefinitions.FreezeInvincibilityUpdates);
     }
 
@@ -984,7 +986,7 @@ internal sealed class EnemyCollision
         // power-bomb damage, which add their own visible flash. Samus's timers are also
         // cleared, because Samus touching it this way is Samus attacking the enemy.
         enemy.HurtFlash.Restart(enemy.HurtFlashFrames);
-        enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
+        enemy.MarkHurt();
         samus.ClearHurtTimers();
         enemy.Health = damage >= enemy.Health
             ? 0

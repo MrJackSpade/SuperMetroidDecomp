@@ -137,7 +137,7 @@ internal static class ProjectileSpriteNative
         internal int SpritemapPointer
         {
             get => slot.Sprite is { } sprite ? Address(sprite) : slot.Animation?.Shown is not null ? EmptyRecordAddress : 0;
-            set => slot.Sprite = value is 0 or EmptyRecordAddress ? null : Projectile(value);
+            set => slot.HeldShot().Sprite = value is 0 or EmptyRecordAddress ? null : Projectile(value);
         }
     }
 
@@ -148,7 +148,7 @@ internal static class ProjectileSpriteNative
         internal int SpritemapPointer
         {
             get => slot.Sprite is { } sprite ? Address(sprite) : slot.Animation?.Shown is not null ? EmptyRecordAddress : 0;
-            set => slot.Sprite = value is 0 or EmptyRecordAddress ? null : Projectile(value);
+            set => slot.HeldBomb().Sprite = value is 0 or EmptyRecordAddress ? null : Projectile(value);
         }
     }
 }

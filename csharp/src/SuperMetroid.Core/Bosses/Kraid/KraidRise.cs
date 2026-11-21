@@ -72,7 +72,7 @@ internal sealed class KraidRise
             // and untouchable. Showing those colours and the room's backdrop restores the defeated arena on every room
             // load, so the broken ceiling and removed floor spikes stay gone when Samus leaves and comes back.
             _access.Backdrop.ShowKraidColours();
-            state.BodyAppearance = KraidBodyAppearance.Hidden;
+            state.HideBody();
             ShowKraidRoomBackdrop();
             foreach (RoomObjectSpawnRequest<KraidRoomMutation> change in KraidObjectDefinitions.DefeatedRoom)
                 _passEvents.Publish(new KraidRoomChange(change));
@@ -124,10 +124,7 @@ internal sealed class KraidRise
     /// body grows; a defeated room's hidden body never reaches growth.
     /// </summary>
     /// <exception cref="InvalidOperationException">His body is not behind the sprites.</exception>
-    private static void BringKraidBodyInFront(KraidEnemyState state) =>
-        state.BodyAppearance = state.BodyAppearance == KraidBodyAppearance.BehindSprites
-            ? KraidBodyAppearance.InFrontOfSprites
-            : throw new InvalidOperationException($"Kraid's growth reached a body that appears {state.BodyAppearance}.");
+    private static void BringKraidBodyInFront(KraidEnemyState state) => state.BringBodyInFront();
 
     /// <summary>Restores the grown-body thinking state after an attack.</summary>
     private void SetupKraidSecondPhaseThinking(RoomEnemyPlace body, KraidEnemyState state)
@@ -152,7 +149,7 @@ internal sealed class KraidRise
                 if (KraidCadenceDefinitions.CeilingBreakRock.IsDue(body.FrameCounter))
                     RequestKraidRisingRock(body);
                 body.Position = body.Position.WithWholeX(body.Position.X.Whole +
-                    1.Toward(KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? HorizontalDirection.Left : HorizontalDirection.Right));
+                    1.Toward(KraidCadenceDefinitions.RiseSwayPhase.IsInSecondHalfAt(body.Position.Y.Whole) ? HorizontalDirection.Left : HorizontalDirection.Right));
                 body.Position = body.Position.WithWholeY(body.Position.Y.Whole - 1);
                 if (KraidCadenceDefinitions.CeilingRockRow.IsDue(body.Position.Y.Whole) &&
                     state.BodyState.NextCeilingRock is { } rock)
@@ -307,7 +304,7 @@ internal sealed class KraidRise
                     KraidCadenceDefinitions.RaisedBodySecondRockOfEight.IsDue(_earthquake.RemainingFrames))
                     RequestKraidRisingRock(body);
                 body.Position = body.Position.WithWholeX(body.Position.X.Whole +
-                    1.Toward(KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? HorizontalDirection.Right : HorizontalDirection.Left));
+                    1.Toward(KraidCadenceDefinitions.RiseSwayPhase.IsInSecondHalfAt(body.Position.Y.Whole) ? HorizontalDirection.Right : HorizontalDirection.Left));
                 body.Position = body.Position.AdvanceY(KraidArenaDefinitions.RisingBodyLift);
                 if (body.Position.Y.Whole < KraidArenaDefinitions.RisenY)
                 {

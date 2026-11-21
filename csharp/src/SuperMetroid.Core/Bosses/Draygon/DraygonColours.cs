@@ -11,19 +11,20 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// </summary>
 internal sealed class DraygonColours : IGameplayShadingSource
 {
-    /// <summary>Whether a hurt update has shown his material colours; before, his room's colours show.</summary>
-    private bool hurtShown;
-
-    /// <summary>Whether the last hurt update showed the white flash.</summary>
-    private bool white;
+    /// <summary>What his last hurt update showed (#2560): his room's colours before any, then his material colours or their white flash.</summary>
+    private DraygonBodyColours shown;
 
     /// <summary>His health band, or null before any is shown.</summary>
     private DraygonHealthBand? band;
 
     /// <summary>The shading his sprites show: his opening's colours, with his material colours or white flash over them.</summary>
-    internal PictureShading Sprites => !hurtShown
-        ? PictureShading.Shaded(DraygonShades.Intro)
-        : PictureShading.Shaded(DraygonShades.Intro).With(white ? DraygonShades.SpriteWhite : DraygonShades.Sprite);
+    internal PictureShading Sprites => shown switch
+    {
+        DraygonBodyColours.Room => PictureShading.Shaded(DraygonShades.Intro),
+        DraygonBodyColours.Material => PictureShading.Shaded(DraygonShades.Intro).With(DraygonShades.Sprite),
+        DraygonBodyColours.WhiteFlash => PictureShading.Shaded(DraygonShades.Intro).With(DraygonShades.SpriteWhite),
+        _ => throw new InvalidOperationException($"Undefined Draygon colours {shown}."),
+    };
 
     /// <summary>The shading his goop draws in: his opening's colours, which his hurt updates never change.</summary>
     internal static PictureShading Goop { get; } = PictureShading.Shaded(DraygonShades.Intro);
@@ -34,12 +35,8 @@ internal sealed class DraygonColours : IGameplayShadingSource
     /// </summary>
     internal static PictureShading Evirs { get; } = PictureShading.Shaded(DraygonShades.Sprite);
 
-    /// <summary>Shows a hurt update: his material colours with his band, or their white flash when <paramref name="whiteFrame"/>.</summary>
-    internal void ShowHurt(bool whiteFrame)
-    {
-        hurtShown = true;
-        white = whiteFrame;
-    }
+    /// <summary>Shows a hurt update's <paramref name="colours"/>: his material colours with his band, or their white flash.</summary>
+    internal void ShowHurt(DraygonBodyColours colours) => shown = colours;
 
     /// <summary>Shows <paramref name="shown"/>'s colours with his material colours; his white flash covers them.</summary>
     internal void ShowBand(DraygonHealthBand shown) => band = Ensure.NotNull(shown);
@@ -48,12 +45,12 @@ internal sealed class DraygonColours : IGameplayShadingSource
     public void ShadeGameplay(GameplayShadingBuilder frame)
     {
         Ensure.NotNull(frame);
-        if (hurtShown && white)
+        if (shown == DraygonBodyColours.WhiteFlash)
         {
             frame.Shade(GameplayPictures.BossBody, DraygonShades.BodyWhite);
             return;
         }
-        if (hurtShown)
+        if (shown == DraygonBodyColours.Material)
             frame.Shade(GameplayPictures.BossBody, DraygonShades.Body);
         if (band is { } shownBand)
             frame.Shade(GameplayPictures.BossBody, DraygonShades.Health(shownBand));

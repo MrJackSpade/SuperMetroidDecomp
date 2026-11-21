@@ -9,6 +9,4 @@ public sealed class PhantoonStartingFlamesState
     /// <summary>The intro's first starting flame, which every intro spawns first.</summary>
     internal static ListStep<TrigonometryAngle> First => ListStep<TrigonometryAngle>.FirstOf(PhantoonFlameSpawns.StartingFlameStarts);
 
-    /// <summary>Whether the starting flames are orbiting.</summary>
-    public bool Orbiting { get; internal set; }
 }

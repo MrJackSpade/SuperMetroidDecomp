@@ -114,7 +114,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         {
             body.HurtFlash.Restart(flash);
             enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, grappling);
-            if (DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(flash))
+            if (DraygonCadenceDefinitions.HurtWhiteFlashShown.IsInSecondHalfAt(flash))
                 continue;
             nonWhite++;
             AssertStartingBandShown($"the grapple shock's hurt update at flash {flash}");

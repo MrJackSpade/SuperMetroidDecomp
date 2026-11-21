@@ -36,7 +36,7 @@ internal static class SamusColoursAccess
         foreach (ColourEffect effect in shading.Effects)
         {
             for (int ink = 0; ink < inks.Length; ink++)
-                inks[ink] = effect.Apply(inks[ink]);
+                inks[ink] = effect.Apply(inks[ink], global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
         }
         foreach (PictureShade shade in shading.OverEffects)
             Lay(shades[shade.Key], inks);

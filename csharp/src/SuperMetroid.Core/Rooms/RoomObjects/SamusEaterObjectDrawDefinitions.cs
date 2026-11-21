@@ -15,11 +15,11 @@ internal static class SamusEaterObjectDrawDefinitions
     /// A waiting mouth: four blocks along its row from two left of the origin, its outer halves solid and its inner halves the
     /// special-air parent and its horizontal extension.
     /// </summary>
-    private static readonly RoomBlockShape MouthWaiting = RoomBlockShapes.Moved(RoomBlockShapes.Line(down: false,
+    private static readonly RoomBlockShape MouthWaiting = RoomBlockShapes.Moved(RoomBlockShapes.Line(Axis.Horizontal,
         [RoomCollisionType.SolidBlock, RoomCollisionType.HorizontalExtension, RoomCollisionType.SpecialAir, RoomCollisionType.SolidBlock]), new(-2, 0));
 
     /// <summary>A chewing mouth: its outer halves solid and its inner halves open.</summary>
-    private static readonly RoomBlockShape MouthChewing = RoomBlockShapes.Moved(RoomBlockShapes.Line(down: false,
+    private static readonly RoomBlockShape MouthChewing = RoomBlockShapes.Moved(RoomBlockShapes.Line(Axis.Horizontal,
         [RoomCollisionType.SolidBlock, RoomCollisionType.Air, RoomCollisionType.Air, RoomCollisionType.SolidBlock]), new(-2, 0));
 
     /// <summary>A floor plant's foliage: the four spiked-air blocks below its mouth.</summary>

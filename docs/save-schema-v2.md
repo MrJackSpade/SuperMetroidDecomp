@@ -13,7 +13,7 @@ The previously omitted meanings are:
 | JSON field | Native meaning | Runtime owner |
 | --- | --- | --- |
 | `slots[].japaneseText` | `$09E2`, alternate text option | Options and runtime language setting |
-| `gameCompleted` | Exact twelve-byte `supermetroid` signature at `$70:1FE0` | Ending final-message transition; fourth attract-demo set requires this and a valid slot |
+| `history` (`gameCompleted` through schema fifteen) | Exact twelve-byte `supermetroid` signature at `$70:1FE0`, or its power-on marker | Ending final-message transition; fourth attract-demo set requires `gameCompleted` and a valid slot |
 
 Schemas two through seven also carried `slots[].loadedItemCount`, the cartridge's cumulative item-PLM setup count at
 `$7E:D91A`. Nothing in the game reads it, so schema eight drops it (#1691): the upgrade discards it, `SaveRamCodec`
@@ -21,6 +21,9 @@ does not decode the SRAM word and writes zero there, the word a new file saved f
 Schemas two through twelve also carried `slots[].resources.reserveMissiles`, the excess missile accumulator at `$09D8`
 that the cartridge's missile drop spills into. Nothing in the game reads it, so schema thirteen drops it (#2364): the
 upgrade discards it, and `SaveRamCodec` does not decode the SRAM word and writes zero there, the word a new file stores.
+Schemas one through fifteen kept the save file's history as two marks, `gameCompleted` and `powerOnFoundNoValidSave`,
+which never held together; schema sixteen names it once as `history` (`none`, `gameCompleted` or
+`powerOnFoundNoValidSave`), and the upgrade turns the two marks into it (#2560).
 The signature has no NUL terminator: selected-slot metadata starts immediately after it.
 
 ## Complete native storage inventory
@@ -113,13 +116,13 @@ item code and one attract demonstration set, has no name. The import's equipment
 word and never writes it. The upgrade from schema nine drops `unassignedItem` from each slot's collected and equipped
 items, and a list it alone made up becomes `none`.
 
-## Schema sixteen (#2565)
+## Schema seventeen (#2565)
 
-Schema sixteen keys the saved slots by the slot's name, `A`, `B` or `C` (`GameSaveJsonFormat.SlotKey`), and names the
+Schema seventeen keys the saved slots by the slot's name, `A`, `B` or `C` (`GameSaveJsonFormat.SlotKey`), and names the
 selected slot the same way: `slots` is an object holding an entry for each slot that holds a save, an empty slot having
 no entry, and no slot numbers its own place. Earlier schemas listed the three slots in the file select's order, an empty
 slot as `null` and each saved slot numbering its place in `slot`, and numbered `selectedSlot` by its place, so a slot was
-known only by its position in the list. The upgrade from schema fifteen requires the three entries, each saved slot
+known only by its position in the list. The upgrade from schema sixteen requires the three entries, each saved slot
 numbering its own place, moves each saved slot to the entry of its slot's name without its number, and names the
 selected slot. A slot's defeated bosses and explored map cells, listed by area in area order, are read by the area
-each entry names. Schema sixteen is not readable by older builds.
+each entry names. Schema seventeen is not readable by older builds.

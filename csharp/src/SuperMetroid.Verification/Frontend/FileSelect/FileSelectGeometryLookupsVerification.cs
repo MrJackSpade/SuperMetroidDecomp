@@ -64,7 +64,6 @@ internal static class FileSelectGeometryLookupsVerification
     /// <summary>Compares three helmet anchors with native immediate operands and extracted artwork positions.</summary>
     private static void VerifyFileSelectHelmetY(ISnesAddressSpace rom, FileSelectLayoutDocument document)
     {
-        AssertEqual(3, FileSelectCursorPositions.SaveSlotCount, "helmet slot count");
         AssertEqual(3, document.HelmetAnchors.Count, "extracted helmet anchor count");
         for (int slot = 0; slot < 3; slot++)
         {

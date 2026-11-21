@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Menus;
@@ -105,7 +106,7 @@ public static class FileSelectPresentationExtractor
             [FileSelectParts.PatchName(FileSelectPatch.NoData)] = Document(Patch(FileSelectTilemapSourceDefinitions.NoData)),
             [FileSelectParts.PatchName(FileSelectPatch.TimeColon)] = Document(Patch(FileSelectTilemapSourceDefinitions.TimeColon)),
         };
-        var digits = Enumerable.Range(0, 10)
+        var digits = Enumerable.Range(0, FileSelectPresentationDefinitions.DigitCount)
             .Select(value => Cell(BackgroundTileWords.ToWord(FileSelectFieldTiles.Digit(value))))
             .ToArray();
         Dictionary<string, MapPresentationCell> letters = SaveSlots.All.ToDictionary(slot => SaveSlotKeys.Installed.Of(slot),
@@ -210,7 +211,7 @@ public static class FileSelectPresentationExtractor
         // Overlay each save slot's label and time label where <paramref name="destination"/> places the slot's fields.
         void AddSlotLabels(ushort[] page, Func<int, FileSelectSlotField, int> destination)
         {
-            for (int slot = 0; slot < FileSelectCursorPositions.SaveSlotCount; slot++)
+            for (int slot = 0; slot < SaveSlots.All.Count; slot++)
             {
                 Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(slot)), destination(slot, FileSelectSlotField.Label));
                 Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), destination(slot, FileSelectSlotField.TimeLabel));

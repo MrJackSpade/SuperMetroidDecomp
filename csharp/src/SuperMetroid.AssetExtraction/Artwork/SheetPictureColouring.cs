@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
@@ -59,19 +58,19 @@ internal sealed class SheetPictureColouring
         for (int ink = 0; ink < colours.Length; ink++)
         {
             if (Covers(groups, ink))
-                colours[ink] = RgbColor.FromWord(document.Colours[ink]);
+                colours[ink] = document.Colours[ink];
         }
         var shades = new SortedDictionary<string, SheetPictureShade>(StringComparer.Ordinal);
         foreach ((string key, SpriteSheetShadeDocument shade) in document.Shades ?? [])
         {
             var shown = new SortedDictionary<int, RgbColor>();
-            foreach (KeyValuePair<int, ushort> entry in shade.InkColours)
+            foreach (KeyValuePair<int, RgbColor> entry in shade.InkColours)
             {
                 int ink = entry.Key;
                 if (ink is < 0 or >= ImageColourGroup.HalfColours)
                     throw new InvalidDataException($"Shade {key} recolours ink {ink}, past a sprite sheet's {ImageColourGroup.HalfColours}.");
                 if (Covers(groups, ink))
-                    shown.Add(ink, RgbColor.FromWord(entry.Value));
+                    shown.Add(ink, entry.Value);
             }
             shades.Add(key, new SheetPictureShade(shade.ColourMath, shown));
         }
@@ -119,14 +118,14 @@ internal sealed class SheetPictureColouring
     }
 
     /// <summary>The 128 standard colours a sheet of this colouring installs, as packed colour words.</summary>
-    internal ushort[] ColourWords() => [.. colours.Select(colour => colour.ToWord())];
+    internal RgbColor[] Colours() => [.. colours];
 
     /// <summary>The shades a sheet of this colouring installs, by key, or none when it names no shade.</summary>
     internal Dictionary<string, SpriteSheetShadeDocument>? ShadeDocuments() =>
         shades.Count == 0 ? null
             : shades.ToDictionary(shade => shade.Key, shade => new SpriteSheetShadeDocument
             {
-                InkColours = new SortedDictionary<int, ushort>(shade.Value.Colours.ToDictionary(entry => entry.Key, entry => entry.Value.ToWord())),
+                InkColours = new SortedDictionary<int, RgbColor>(shade.Value.Colours),
                 ColourMath = shade.Value.Blends,
             }, StringComparer.Ordinal);
 

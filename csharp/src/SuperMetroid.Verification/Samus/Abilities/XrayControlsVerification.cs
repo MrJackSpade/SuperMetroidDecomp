@@ -64,11 +64,11 @@ internal static class XrayControlsVerification
             // ten-slot update gate. Its long instruction delay avoids consuming data.
             var pendingBomb = runtime.BombProjectiles.Bombs[0];
             pendingBomb.OccupyAsPlaced(SamusBombProjectileSystem.NormalBombType);
-            pendingBomb.Animation = SuperMetroid.Verification.Samus.Projectiles.ProjectileFixturePlaybacks.StartingAfter(SamusProjectileSegment.Bomb, 100);
+            pendingBomb.HeldBomb().Animation = SuperMetroid.Verification.Samus.Projectiles.ProjectileFixturePlaybacks.StartingAfter(SamusProjectileSegment.Bomb, 100);
             // The runtime draws the installation's bindings, which the fixture installs.
             pendingBomb.SpritemapPointer = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.GameArtwork.ProjectileFrameBindings
                 .Resolve(checked((ushort)pendingBomb.InstructionPointer));
-            pendingBomb.Fuse = UpdateCountdown.For(60);
+            pendingBomb.HeldBomb().Fuse = UpdateCountdown.For(60);
             int activationShots = BeamShotsDuring(() => runtime.StepFrame((runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash] | runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot])));
             AssertEqual(60, pendingBomb.Fuse.UpdatesLeft, "X-ray activation freezes an existing bomb fuse immediately");
             AssertEqual(100, pendingBomb.Animation!.UpdatesLeft, "X-ray activation skips existing bomb animation immediately");

@@ -22,7 +22,7 @@ internal static class GameOptionsPageCellsPrivateAccess
     extension(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells)
     {
         /// <summary>The private method <c>LanguagePaletteRegion</c>, invoked by name.</summary>
-        internal static global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsLanguagePaletteRegion LanguagePaletteRegion(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells.GameOptionsLabelLanguage language, global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells.GameOptionsLabelRow row) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsLanguagePaletteRegion>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells), "LanguagePaletteRegion", [typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells.GameOptionsLabelLanguage), typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells.GameOptionsLabelRow)], new object?[] { language, row });
+        internal static global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsLanguagePaletteRegion LanguagePaletteRegion(global::SuperMetroid.Core.Progression.TextLanguage language, global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells.GameOptionsLabelRow row) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsLanguagePaletteRegion>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells), "LanguagePaletteRegion", [typeof(global::SuperMetroid.Core.Progression.TextLanguage), typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells.GameOptionsLabelRow)], new object?[] { language, row });
     }
 }

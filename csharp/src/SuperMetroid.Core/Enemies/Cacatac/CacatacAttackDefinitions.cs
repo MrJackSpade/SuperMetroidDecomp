@@ -7,7 +7,7 @@ internal static class CacatacAttackDefinitions
     /// The random field a patrolling Cacatac's attack roll starts from. The roll adds the enemy's update count, so the
     /// updates it attacks on move on as the count advances.
     /// </summary>
-    internal static readonly RandomSampleField AttackRoll = new(0, 8);
+    internal static readonly RandomSampleField AttackRoll = RandomSampleField.OneOf(256);
 
     /// <summary>
     /// The chance a patrolling Cacatac stops to fire its spikes on an update (#1619): the lowest three of the 256 values its

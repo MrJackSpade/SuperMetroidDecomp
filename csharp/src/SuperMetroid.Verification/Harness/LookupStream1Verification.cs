@@ -876,7 +876,7 @@ internal static class LookupStream1Verification
         {
             var slot = new SamusProjectile(0);
             slot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination));
-            slot.Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
+            slot.HeldShot().Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
             initialize(stationary, slot);
             int speed = unchecked((short)Word(0x90c2d1 + combination * 4 + (direction is 1 or 3 or 6 or 8 ? 2 : 0)));
             AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)), slot.Velocity.X.InTwoHundredFiftySixthsOfPixel, "stream1 actual initializer X preserves adjacent missile-data overread");
@@ -1469,8 +1469,9 @@ internal static class LookupStream1Verification
             ushort duration = Word(0x930000 | pointer);
             // A record storing a composition again, byte for byte, shows that composition (#2295).
             ushort sprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(Word(0x930000 | (pointer + 2)));
-            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
-            shots.Animation.AdvanceProjectileAnimation(slot);
+            var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+            slot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
+            shots.Animation.AdvanceProjectileAnimation(slot.HeldShot());
             AssertTrue(slot.IsActive, "Actual native timed frame survives");
             // A list repeating one still picture is held: no timer, the place at the list's end (#2347).
             bool still = SamusProjectileProgramAddresses.ShowsStillPicture(pointer);
@@ -1484,8 +1485,8 @@ internal static class LookupStream1Verification
             if (duration == 0 || still) continue; // Existing bomb contract excludes zero-duration timed records; no bomb holds a still picture.
             var bomb = new SamusBomb(0);
             bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
-            bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
-            bombs.AdvanceProjectileAnimation(bomb);
+            bomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
+            bombs.AdvanceProjectileAnimation(bomb.HeldBomb());
             AssertTrue(bomb.IsActive, "Actual bomb timed frame survives");
             AssertEqual(duration, bomb.NativeFrameHold, "Actual bomb timer unchanged");
             AssertEqual(sprite, bomb.SpritemapPointer, "Installed bomb artwork selection");
@@ -1587,10 +1588,11 @@ internal static class LookupStream1Verification
         {
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings));
-            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start) };
+            var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+            slot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start);
             var bomb = new SamusBomb(0);
             bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
-            bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start);
+            bomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(program.Start);
             // No bomb shows a still picture, which a shot holds (#2347): the bomb owner plays only the lists that hold none.
             bool bombPlays = !SamusProjectileProgramAddresses.HoldsStillPicture(bomb.Playback?.Animation
                 ?? throw new InvalidOperationException($"Projectile list position ${program.Start:X4} names no playback."));
@@ -1619,11 +1621,11 @@ internal static class LookupStream1Verification
                         trail = pointer; pointer += 8;
                     }
                 }
-                shots.Animation.AdvanceProjectileAnimation(slot);
+                shots.Animation.AdvanceProjectileAnimation(slot.HeldShot());
                 AssertEqual(deleted, !slot.IsActive, "Exact native projectile deletion tick");
                 if (bombPlays)
                 {
-                    bombs.AdvanceProjectileAnimation(bomb);
+                    bombs.AdvanceProjectileAnimation(bomb.HeldBomb());
                     AssertEqual(deleted, !bomb.IsActive, "Exact native bomb deletion tick");
                 }
                 actualTicks++;

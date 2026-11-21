@@ -385,7 +385,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Lifetime.IsRunning)
         {
             state.Lifetime.Count();
-            bool visible = DachoraCadenceDefinitions.EchoOddUpdate.IsSetIn(frameCycle) == state.ShowsOnOddFrames;
+            bool visible = DachoraCadenceDefinitions.EchoOddUpdate.IsInSecondHalfAt(frameCycle) == state.ShowsOnOddFrames;
             place.Presence = visible
                 ? place.Presence.Without(EnemyPresence.Hidden)
                 : place.Presence.With(EnemyPresence.Hidden);

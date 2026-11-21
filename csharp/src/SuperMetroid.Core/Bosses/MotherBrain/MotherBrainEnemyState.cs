@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -59,89 +60,81 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// The stage her body is in (#2208), which names the type of the phase it runs on its next AI turn; setting a stage's
     /// phase enters that stage. Her body's setup leaves it in the <see cref="MotherBrainBodyStage.Glass"/> stage.
     /// </summary>
-    public MotherBrainBodyStage Stage { get; private set; }
+    public MotherBrainBodyStage Stage => step.Stage;
+
+    /// <summary>The stage the body is in with the phase of it it runs, one value (#2560): no phase of another stage is held.</summary>
+    private BossStagePhase<MotherBrainBodyStage> step = new BossStagePhase<MotherBrainBodyStage>.Phaseless(MotherBrainBodyStage.Glass);
 
     /// <summary>The phase of the <see cref="MotherBrainBodyStage.FakeDeathDescent"/> stage the body runs; setting it enters that stage.</summary>
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainDescentPhase DescentPhase
     {
-        get => PhaseIn(MotherBrainBodyStage.FakeDeathDescent, field);
-        internal set => field = Entering(MotherBrainBodyStage.FakeDeathDescent, value);
+        get => step is BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainDescentPhase> { Stage: MotherBrainBodyStage.FakeDeathDescent } inStage ? inStage.Phase : throw NotIn(MotherBrainBodyStage.FakeDeathDescent);
+        internal set => step = new BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainDescentPhase>(MotherBrainBodyStage.FakeDeathDescent, value);
     }
 
     /// <summary>The phase of the <see cref="MotherBrainBodyStage.FakeDeathAscent"/> stage the body runs; setting it enters that stage.</summary>
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainAscentPhase AscentPhase
     {
-        get => PhaseIn(MotherBrainBodyStage.FakeDeathAscent, field);
-        internal set => field = Entering(MotherBrainBodyStage.FakeDeathAscent, value);
+        get => step is BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainAscentPhase> { Stage: MotherBrainBodyStage.FakeDeathAscent } inStage ? inStage.Phase : throw NotIn(MotherBrainBodyStage.FakeDeathAscent);
+        internal set => step = new BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainAscentPhase>(MotherBrainBodyStage.FakeDeathAscent, value);
     }
 
     /// <summary>The phase of the <see cref="MotherBrainBodyStage.Phase2Fight"/> stage the body runs; setting it enters that stage.</summary>
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainPhase2FightPhase Phase2FightPhase
     {
-        get => PhaseIn(MotherBrainBodyStage.Phase2Fight, field);
-        internal set => field = Entering(MotherBrainBodyStage.Phase2Fight, value);
+        get => step is BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainPhase2FightPhase> { Stage: MotherBrainBodyStage.Phase2Fight } inStage ? inStage.Phase : throw NotIn(MotherBrainBodyStage.Phase2Fight);
+        internal set => step = new BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainPhase2FightPhase>(MotherBrainBodyStage.Phase2Fight, value);
     }
 
     /// <summary>The phase of the <see cref="MotherBrainBodyStage.RainbowBeam"/> stage the body runs; setting it enters that stage.</summary>
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainRainbowPhase RainbowPhase
     {
-        get => PhaseIn(MotherBrainBodyStage.RainbowBeam, field);
-        internal set => field = Entering(MotherBrainBodyStage.RainbowBeam, value);
+        get => step is BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainRainbowPhase> { Stage: MotherBrainBodyStage.RainbowBeam } inStage ? inStage.Phase : throw NotIn(MotherBrainBodyStage.RainbowBeam);
+        internal set => step = new BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainRainbowPhase>(MotherBrainBodyStage.RainbowBeam, value);
     }
 
     /// <summary>The phase of the <see cref="MotherBrainBodyStage.FinishingSamusOff"/> stage the body runs; setting it enters that stage.</summary>
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainFinishOffPhase FinishOffPhase
     {
-        get => PhaseIn(MotherBrainBodyStage.FinishingSamusOff, field);
-        internal set => field = Entering(MotherBrainBodyStage.FinishingSamusOff, value);
+        get => step is BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainFinishOffPhase> { Stage: MotherBrainBodyStage.FinishingSamusOff } inStage ? inStage.Phase : throw NotIn(MotherBrainBodyStage.FinishingSamusOff);
+        internal set => step = new BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainFinishOffPhase>(MotherBrainBodyStage.FinishingSamusOff, value);
     }
 
     /// <summary>The phase of the <see cref="MotherBrainBodyStage.DrainedByBaby"/> stage the body runs; setting it enters that stage.</summary>
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainDrainedPhase DrainedPhase
     {
-        get => PhaseIn(MotherBrainBodyStage.DrainedByBaby, field);
-        internal set => field = Entering(MotherBrainBodyStage.DrainedByBaby, value);
+        get => step is BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainDrainedPhase> { Stage: MotherBrainBodyStage.DrainedByBaby } inStage ? inStage.Phase : throw NotIn(MotherBrainBodyStage.DrainedByBaby);
+        internal set => step = new BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainDrainedPhase>(MotherBrainBodyStage.DrainedByBaby, value);
     }
 
     /// <summary>The phase of the <see cref="MotherBrainBodyStage.Reviving"/> stage the body runs; setting it enters that stage.</summary>
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainRevivalPhase RevivalPhase
     {
-        get => PhaseIn(MotherBrainBodyStage.Reviving, field);
-        internal set => field = Entering(MotherBrainBodyStage.Reviving, value);
+        get => step is BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainRevivalPhase> { Stage: MotherBrainBodyStage.Reviving } inStage ? inStage.Phase : throw NotIn(MotherBrainBodyStage.Reviving);
+        internal set => step = new BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainRevivalPhase>(MotherBrainBodyStage.Reviving, value);
     }
 
     /// <summary>The phase of the <see cref="MotherBrainBodyStage.Phase3Fight"/> stage the body runs; setting it enters that stage.</summary>
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainPhase3FightPhase Phase3FightPhase
     {
-        get => PhaseIn(MotherBrainBodyStage.Phase3Fight, field);
-        internal set => field = Entering(MotherBrainBodyStage.Phase3Fight, value);
+        get => step is BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainPhase3FightPhase> { Stage: MotherBrainBodyStage.Phase3Fight } inStage ? inStage.Phase : throw NotIn(MotherBrainBodyStage.Phase3Fight);
+        internal set => step = new BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainPhase3FightPhase>(MotherBrainBodyStage.Phase3Fight, value);
     }
 
     /// <summary>The phase of the <see cref="MotherBrainBodyStage.Dying"/> stage the body runs; setting it enters that stage.</summary>
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainDeathPhase DeathPhase
     {
-        get => PhaseIn(MotherBrainBodyStage.Dying, field);
-        internal set => field = Entering(MotherBrainBodyStage.Dying, value);
-    }
-
-    /// <summary>The <paramref name="phase"/> her body holds for <paramref name="stage"/>, read only while her body is in that stage.</summary>
-    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
-    private T PhaseIn<T>(MotherBrainBodyStage stage, T phase) => Stage == stage ? phase : throw NotIn(stage);
-
-    /// <summary>Enters <paramref name="stage"/>, whose phase her body then holds as <paramref name="phase"/>, which this returns.</summary>
-    private T Entering<T>(MotherBrainBodyStage stage, T phase)
-    {
-        Stage = stage;
-        return phase;
+        get => step is BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainDeathPhase> { Stage: MotherBrainBodyStage.Dying } inStage ? inStage.Phase : throw NotIn(MotherBrainBodyStage.Dying);
+        internal set => step = new BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainDeathPhase>(MotherBrainBodyStage.Dying, value);
     }
 
     /// <summary>The failure of reading a stage's phase while her body is in another.</summary>
@@ -395,6 +388,12 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// here.
     /// </summary>
     /// <returns>The late fight begun.</returns>
+    /// <summary>Her late fight, which a late-fight stage runs (#2560).</summary>
+    /// <exception cref="InvalidOperationException">Her late fight has not begun, which entering its first stage begins.</exception>
+    internal MotherBrainRainbowBeamAttackSequence LateFight =>
+        RainbowBeamSequence ?? throw new InvalidOperationException($"Mother Brain's body runs her {Stage} stage before her late fight began.");
+
+    /// <summary>Begins her late fight (#2560): the rainbow beam's attack sequence, which runs every late-fight stage.</summary>
     internal MotherBrainRainbowBeamAttackSequence BeginLateFight() => RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(this);
 
     /// <summary>

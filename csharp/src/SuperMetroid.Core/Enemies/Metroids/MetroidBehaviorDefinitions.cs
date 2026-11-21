@@ -14,7 +14,7 @@ internal static class MetroidBehaviorDefinitions
     /// squeal and the Metroid's shot sound, the three again, then the squeal and the shot sound, so the drain is played for
     /// two rolls and the other two for three each.
     /// </summary>
-    internal static readonly WeightedRandomChoice<SoundEffectId> Cry = new(new RandomSampleField(0, 3),
+    internal static readonly WeightedRandomChoice<SoundEffectId> Cry = new(RandomSampleField.OneOf(8),
         new(1, EnemySound.MetroidDrain), new(1, EnemySound.RisingSqueal), new(1, EnemySound.ShotMetroid),
         new(1, EnemySound.MetroidDrain), new(1, EnemySound.RisingSqueal), new(1, EnemySound.ShotMetroid),
         new(1, EnemySound.RisingSqueal), new(1, EnemySound.ShotMetroid));

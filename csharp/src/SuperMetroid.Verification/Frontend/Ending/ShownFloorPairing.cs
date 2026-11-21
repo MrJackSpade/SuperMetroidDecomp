@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 /// A live turning floor paired with the floor a memory image composes (#1568), so a frame check tells from the floors'
 /// descriptions whether they show alike. A backend lays a floor's pictures, each over those before it, and colours each
 /// pixel from its colour key alone (#1633): whether it is clear, and the colour its key shows under the floor's shading
-/// (<see cref="PictureShading.KeyColours(SpriteImage)"/>). Two floors that are clear at the same floor points and show the
+/// (<see cref="PictureShading.KeyColours(SpriteImage, IColourBlend)"/>). Two floors that are clear at the same floor points and show the
 /// same colour at every other floor point therefore draw the same pixels in any frame that shows either of them the same
 /// way. The memory floor's pixels are fixed by the image's palette indices; each shows the palette's colour at the palette
 /// index it was composed as. So the floors' pixels are paired once, and each frame compares only the colours of the paired
@@ -50,7 +50,7 @@ internal sealed class ShownFloorPairing
         for (int picture = 0; picture < composed.Pictures.Length; picture++)
         {
             SpriteImage sheet = composed.Pictures[picture].Sheet;
-            RgbColor[] shown = memoryShading.KeyColours(sheet);
+            RgbColor[] shown = memoryShading.KeyColours(sheet, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
             ImmutableArray<ColourKey> keys = sheet.ColourKeys;
             for (int key = 0; key < shown.Length; key++)
             {
@@ -88,7 +88,7 @@ internal sealed class ShownFloorPairing
         if (kindsDiffer)
             return false;
         PictureShading shading = ShadingOf(liveFloor);
-        RgbColor[][] liveColours = [.. liveFloor.Pictures.Select(picture => shading.KeyColours(picture.Sheet))];
+        RgbColor[][] liveColours = [.. liveFloor.Pictures.Select(picture => shading.KeyColours(picture.Sheet, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance))];
         foreach (ShownFloorPixelPair pair in pairs)
         {
             if (!pair.LiveClear && liveColours[pair.LivePicture][pair.LiveKey] != MemoryColour(palette, pair.MemoryIndex))

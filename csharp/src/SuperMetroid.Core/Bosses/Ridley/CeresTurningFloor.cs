@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 public sealed class CeresTurningFloor
 {
-    /// <summary>Gets whether the getaway's turning floor currently owns the Ridley and Baby presentation.</summary>
-    public bool Active { get; internal set; }
     /// <summary>
     /// The getaway's flight along its curves, counted once each getaway update: its age is the update of the getaway the
     /// next update flies, and the update after it is over ends the getaway.

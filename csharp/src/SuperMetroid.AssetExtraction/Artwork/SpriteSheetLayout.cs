@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
@@ -146,7 +145,7 @@ internal sealed class SpriteSheetLayout
                 Corner = laidComposition.Placed.Corner,
                 Size = bound.Size,
                 Origin = new(checked((short)-bound.TopLeft.X), checked((short)-bound.TopLeft.Y)),
-                ColourGroups = composed.Groups.ManifestMembers,
+                ColourGroups = composed.Groups,
                 Depth = composed.Depth,
             };
         }
@@ -156,9 +155,9 @@ internal sealed class SpriteSheetLayout
         foreach (NamedFrameImage frame in frameImages)
             manifest.Add(frame.Name, frameDocuments[frame.Image]);
         RgbColor[] spriteColours = sources.SpriteColours;
-        ushort[] colours = new ushort[spriteColours.Length];
+        RgbColor[] colours = new RgbColor[spriteColours.Length];
         for (int ink = 0; ink < colours.Length; ink++)
-            colours[ink] = spriteColours[DrawnColourOf(ink)].ToWord();
+            colours[ink] = spriteColours[DrawnColourOf(ink)];
         return new SpriteSheetDocument
         {
             Palette = SpriteImageColours.Sprite, Colours = colours, PaletteBits = sources.PaletteBits,
@@ -232,7 +231,7 @@ internal sealed class SpriteSheetLayout
         int framePalette = source.Palette ?? palette;
         ImageColourGroups groups = ImageColourGroups.None;
         // Each shown pixel's ink, zero where no part shows one, in the frame's own rectangle.
-        var inks = new byte[bound.Size.X * bound.Size.Y];
+        var inks = new ComposedInk[bound.Size.X * bound.Size.Y];
         // Each shown pixel's depth, none where no part shows one, in the frame's own rectangle.
         var shownDepths = new ActorDepth?[inks.Length];
         // Back to front, so the first part ends in front.
@@ -253,7 +252,7 @@ internal sealed class SpriteSheetLayout
                         continue;
                     int at = (part.Offset.Y - bound.TopLeft.Y + row) * bound.Size.X + part.Offset.X - bound.TopLeft.X + column;
                     int ink = ownRow * RowColours + colour;
-                    inks[at] = checked((byte)ink);
+                    inks[at] = new ComposedInk(ownRow, colour);
                     // Parts are laid back to front, so each pixel ends with the depth of the part in front.
                     shownDepths[at] = part.Depth ?? depth;
                     // A part keeping its own row under a drawn row keeps its colours under every row shade.
@@ -278,12 +277,12 @@ internal sealed class SpriteSheetLayout
         {
             for (int column = 0; column < size.X; column++)
             {
-                int ink = picture.Inks[row * size.X + column];
-                if (ink == 0)
+                ComposedInk ink = picture.Inks[row * size.X + column];
+                if (ink == ComposedInk.None)
                     continue;
                 int at = (corner.Y + row) * width + corner.X + column;
-                planes.Pixels[at] = spriteColours[DrawnColourOf(ink)].ToRgbaPixel();
-                planes.PaletteIndices[at] = checked((byte)ink);
+                planes.Pixels[at] = spriteColours[DrawnColourOf(ink.PlaceIn(SpriteImageColours.Sprite))].ToRgbaPixel();
+                planes.Inks[at] = ink;
             }
         }
     }
@@ -293,13 +292,13 @@ internal sealed class SpriteSheetLayout
     /// where none), the colour groups it is coloured from and the depth its draws sit at.
     /// </summary>
     /// <param name="Bounds">Its parts' cover relative to its origin.</param>
-    /// <param name="Inks">Each pixel's ink, row by row from the top, zero where no part shows one.</param>
+    /// <param name="Inks">Each pixel's ink, row by row from the top, <see cref="ComposedInk.None"/> where no part shows one.</param>
     /// <param name="Groups">The colour groups it is coloured from.</param>
     /// <param name="Depth">The depth its gameplay draws sit at; none for a frame showing no pixel.</param>
-    private sealed record FramePicture(FrameBounds Bounds, byte[] Inks, ImageColourGroups Groups, ActorDepth? Depth)
+    private sealed record FramePicture(FrameBounds Bounds, ComposedInk[] Inks, ImageColourGroups Groups, ActorDepth? Depth)
     {
         /// <summary>The picture spelled for telling pictures apart: its size and every pixel's ink.</summary>
-        internal string Key => $"{Bounds.Size.X.ToString(CultureInfo.InvariantCulture)}x{Bounds.Size.Y.ToString(CultureInfo.InvariantCulture)} {Convert.ToBase64String(Inks)}";
+        internal string Key => $"{Bounds.Size.X.ToString(CultureInfo.InvariantCulture)}x{Bounds.Size.Y.ToString(CultureInfo.InvariantCulture)} {string.Join(' ', Inks.Select(ink => $"{ink.Group.ToString(CultureInfo.InvariantCulture)}.{ink.Colour.ToString(CultureInfo.InvariantCulture)}"))}";
     }
 
     /// <summary>The laid compositions' pictures and where each distinct one is held on the sheet.</summary>

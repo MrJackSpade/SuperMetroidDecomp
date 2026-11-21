@@ -38,6 +38,12 @@ public sealed class YardKickTrackingDistance
     /// </summary>
     public SignedSixteenSixteen HorizontalDistancePlusOne { get; private set; }
 
+    /// <summary>
+    /// The speed the kick's choice reads from the distance (#2563): its whole pixels, a negative measure reading as its
+    /// whole pixels counted up from 65536, past every kick, so a measure of Samus moving left picks the fastest kick.
+    /// </summary>
+    public int KickChoiceSpeed => HorizontalDistancePlusOne.UnsignedWholePixels;
+
     /// <summary>The measure Samus's initialisation leaves before the camera has tracked her: no movement, plus one pixel.</summary>
     private static SignedSixteenSixteen InitialDistancePlusOne => SignedSixteenSixteen.OnePixel;
 

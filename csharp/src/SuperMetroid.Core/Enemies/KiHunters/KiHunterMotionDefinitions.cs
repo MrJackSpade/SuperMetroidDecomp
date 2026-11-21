@@ -92,7 +92,7 @@ public static class KiHunterMotionDefinitions
     /// Whether a grounded Ki-Hunter's hop starts a pixel an update slower than its jump speed (#2479): one hop in two
     /// does.
     /// </summary>
-    internal static readonly RandomSampleField GroundJumpSpeedTakenOff = new(0, 1);
+    internal static readonly RandomSampleField GroundJumpSpeedTakenOff = RandomSampleField.OneOf(2);
 
 
 

@@ -208,7 +208,7 @@ public sealed class FileSelectSourcePresentation
             "file-select patches");
         ValidateExactKeys(document.Sprites, FileSelectPresentationFormat.SpriteNames,
             "file-select sprites");
-        if (document.Digits is null || document.Digits.Length != 10)
+        if (document.Digits is null || document.Digits.Length != FileSelectPresentationDefinitions.DigitCount)
             throw new InvalidDataException("File select requires ten digit cells.");
         if (document.SlotLetters is null || document.SlotLetters.Count != SaveSlots.All.Count)
             throw new InvalidDataException("File select requires one slot-letter cell for each save slot.");
@@ -299,13 +299,13 @@ public sealed class FileSelectSourcePresentation
         ValidateExactKeys(document.DynamicAnchors,
             FileSelectPresentationFormat.Anchors.Select(FileSelectPresentationFormat.AnchorName),
             "file-select dynamic anchors");
-        if (document.MainSlots is null || document.MainSlots.Count != 3 ||
-            document.DataSlots is null || document.DataSlots.Count != 3)
+        if (document.MainSlots is null || document.MainSlots.Count != SaveSlots.All.Count ||
+            document.DataSlots is null || document.DataSlots.Count != SaveSlots.All.Count)
             throw new InvalidDataException("File select requires three main and three data slot layouts.");
-        ValidatePoints(document.MainCursorAnchors?.Values.ToArray(), 6, "main cursor");
-        ValidatePoints(document.DataCursorAnchors?.Values.ToArray(), 4, "data cursor");
-        ValidatePoints(document.ConfirmationCursorAnchors?.Values.ToArray(), 2, "confirmation cursor");
-        ValidatePoints(document.HelmetAnchors?.Values.ToArray(), 3, "helmet");
+        ValidatePoints(document.MainCursorAnchors?.Values.ToArray(), FileSelectItemRows.MainWithData.Count, "main cursor");
+        ValidatePoints(document.DataCursorAnchors?.Values.ToArray(), FileSelectItemRows.Data.Count, "data cursor");
+        ValidatePoints(document.ConfirmationCursorAnchors?.Values.ToArray(), FileSelectItemRows.Confirmation.Count, "confirmation cursor");
+        ValidatePoints(document.HelmetAnchors?.Values.ToArray(), SaveSlots.All.Count, "helmet");
         foreach (string name in FileSelectPresentationFormat.Borders.Select(FileSelectPresentationFormat.BorderName))
             ValidatePoint(document.BorderAnchors[name], $"{name} border");
         foreach (string name in FileSelectPresentationFormat.Anchors.Select(FileSelectPresentationFormat.AnchorName))

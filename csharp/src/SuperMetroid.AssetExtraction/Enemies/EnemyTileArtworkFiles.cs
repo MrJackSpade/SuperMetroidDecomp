@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
@@ -449,12 +450,7 @@ public static class EnemyTileArtworkFiles
             int word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));
             if (!ColourWordCodec.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException($"Enemy ${headerWord:X4} palette has an unrepresentable high bit.");
-            colors[color] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = word >> 5 & 31,
-                Blue = word >> 10 & 31,
-            };
+            colors[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         }
         byte[] paletteJson = EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument
         {
@@ -583,12 +579,7 @@ public static class EnemyTileArtworkFiles
             if (!ColourWordCodec.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException(
                     $"Kraid {source} color {index} has an unrepresentable high bit.");
-            colors[index] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = word >> 5 & 31,
-                Blue = word >> 10 & 31,
-            };
+            colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         }
         return colors;
     }

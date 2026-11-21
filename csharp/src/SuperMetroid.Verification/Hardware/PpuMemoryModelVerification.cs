@@ -6,7 +6,8 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Hardware;
-using SuperMetroid.Verification.Harness;
+using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks the import pipeline's typed VRAM, CGRAM and OAM views against their PPU backends.</summary>
 internal static class PpuMemoryModelVerification

@@ -142,7 +142,7 @@ public static class RoomVisualLayoutFiles
 
     /// <summary>A plane of appearances as a document writes it.</summary>
     private static RoomLayoutPlaneDocument WritePlane(RoomBlockAppearance[] blocks) =>
-        new([.. blocks.Select(block => block.ShowsNothing ? (int?)null : block.Block)],
+        new([.. blocks.Select(block => block.Shows == RoomBlockShown.Nothing ? (int?)null : block.Block)],
             new string(blocks.Select(block => MirroringCodes[block.Mirroring]).ToArray()));
 
     /// <summary>A document's plane as appearances.</summary>

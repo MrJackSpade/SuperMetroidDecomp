@@ -9,11 +9,10 @@ namespace SuperMetroid.Core.Frontend.Options;
 internal static class GameOptionsCursorPolicy
 {
     /// <summary>The page whose cursor a phase shows, or none during a transition.</summary>
-    internal static GameOptionsPage? Select(GameOptionsPhase phase) => phase switch
+    internal static GameOptionsPage? Select(GameOptionsPhase phase, GameOptionsPage page) => phase switch
     {
-        GameOptionsPhase.FadeIn or GameOptionsPhase.Main or GameOptionsPhase.FadeOutToFileSelect => GameOptionsPage.Primary,
-        GameOptionsPhase.ControllerSettings => GameOptionsPage.Controller,
-        GameOptionsPhase.SpecialSettings => GameOptionsPage.Special,
+        GameOptionsPhase.FadeIn or GameOptionsPhase.FadeOutToFileSelect => GameOptionsPage.Primary,
+        GameOptionsPhase.Browsing => page,
         GameOptionsPhase.DissolveOut or GameOptionsPhase.DissolveIn or
             GameOptionsPhase.ScrollControllerDown or GameOptionsPhase.ScrollControllerUp or
             GameOptionsPhase.FadeOutToIntro or GameOptionsPhase.StartGame or

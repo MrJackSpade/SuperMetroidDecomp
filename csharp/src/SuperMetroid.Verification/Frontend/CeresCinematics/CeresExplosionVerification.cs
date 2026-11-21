@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using static SuperMetroid.Verification.Samus.Palettes.PowerBombGlowColorsVerification;
@@ -22,7 +23,7 @@ internal static class CeresExplosionVerification
             new MemoryStream(PowerBombGlowColorExtractor.Extract(bus)));
         var audio = AudioQueues.Standalone();
         var scene = new CeresDestructionCinematicState(audio, glowColors: stockColors, artwork: artwork.BoundCatalog,
-            spriteSheets: CinematicSheetFixtures.WithIntro(artwork), outcome: SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionOutcome.SamusEscaped, japaneseText: false);
+            spriteSheets: CinematicSheetFixtures.WithIntro(artwork), outcome: SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionOutcome.SamusEscaped, language: TextLanguage.English);
         var referenceGlowColors = stockColors;
         var reference = new SamusPowerBombExplosionState();
         var phases = new HashSet<PowerBombExplosionPhase>();

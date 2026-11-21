@@ -41,7 +41,7 @@ internal static class RidleyHitFlashVerification
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Ridley));
         EnemySheetSource source = EnemySheetComposer.Sources(inputs, set).Enemies.Single(sheet => sheet.Enemy == EnemyDefinitionId.Ridley);
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
-        int[] painted = [.. sheet.PaletteIndices.Where(ink => ink != 0).Select(ink => (int)ink).Distinct().Order()];
+        int[] painted = [.. sheet.Inks.Where(ink => ink != SuperMetroid.AssetExtraction.Artwork.ComposedInk.None).Select(ink => ink.PlaceIn(sheet.Manifest.Palette)).Distinct().Order()];
         // Each ink is his part's own row and colour, drawn from that row with his draws' palette bits ORed in (#1512).
         AssertTrue(painted.Length > 0 && painted.All(ink => (ink / RowColours | sheet.Manifest.PaletteBits) == RidleyRow),
             $"Ridley's sheet is coloured in row seven, as his draws select (palette bits {sheet.Manifest.PaletteBits}; own rows " +
@@ -60,14 +60,14 @@ internal static class RidleyHitFlashVerification
 
         // Laid in the draw's order, the encounter's colours never show on a flashing frame.
         SpriteSheetShadeDocument start = shades[RidleyShades.NorfairStart.Key];
-        var shown = new Dictionary<int, ushort>();
+        var shown = new Dictionary<int, RgbColor>();
         foreach (SpriteSheetShadeDocument laid in new[] { start, flash })
         {
             foreach ((int ink, ushort colour) in laid.InkColours)
                 shown[ink] = colour;
         }
         foreach (int ink in painted)
-            AssertEqual(source.Sources.SpriteColours[ink].ToWord(), shown[ink], $"Flashing Ridley's ink {ink} shows its own row over his encounter's load");
+            AssertEqual(source.Sources.SpriteColours[ink], shown[ink], $"Flashing Ridley's ink {ink} shows its own row over his encounter's load");
         Console.WriteLine("Ridley hurt flash: the draw lays the flash after the encounter's shades, and the import's flash shade lists every painted ink in its own row's colours.");
         return 0;
     }

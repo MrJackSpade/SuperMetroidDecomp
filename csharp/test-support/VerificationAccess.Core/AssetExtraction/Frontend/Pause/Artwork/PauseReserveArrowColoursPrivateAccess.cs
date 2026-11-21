@@ -14,8 +14,8 @@ internal static class PauseReserveArrowColoursPrivateAccess
     extension(global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseReserveArrowColours self)
     {
         /// <summary>The private method <c>Pulse</c>, invoked by name.</summary>
-        internal global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.ReserveArrowColors Pulse(int frame) =>
-            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseReserveArrowColours, global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.ReserveArrowColors>(self, "Pulse", [typeof(int)], new object?[] { frame });
+        internal global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.ReserveArrowColors Pulse(global::SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowPulseFrame frame) =>
+            PrivateState.Invoke<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseReserveArrowColours, global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.ReserveArrowColors>(self, "Pulse", [typeof(global::SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowPulseFrame)], new object?[] { frame });
 
         /// <summary>The private property <c>Solid</c>, reached by name.</summary>
         internal global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.ReserveArrowColors Solid

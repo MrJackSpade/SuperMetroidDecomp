@@ -36,8 +36,8 @@ internal static class IntroSheetShades
             int[] inks = [.. IntroSheetInks.Background(scene)];
             for (int level = 0; level < IntroCrossfade.Levels; level++)
             {
-                var faded = new ColourLevel(level, IntroCrossfade.Levels);
-                shades.Add(SheetShade.Of(IntroShades.Faded(scene, level), inks, ink => faded.Apply(backgrounds[ink])));
+                var faded = new FadeLevel(level, IntroCrossfade.Levels);
+                shades.Add(SheetShade.Of(IntroShades.Faded(scene, level), inks, ink => PreColouredFade.AtLevel(backgrounds[ink], faded)));
             }
         }
         return shades;
@@ -64,13 +64,13 @@ internal static class IntroSheetShades
             int[] colours = [.. IntroSheetInks.Sprite(scene)];
             for (int level = 0; level < IntroCrossfade.Levels; level++)
             {
-                var faded = new ColourLevel(level, IntroCrossfade.Levels);
-                shades.Add(SheetShade.Of(IntroShades.Faded(scene, level), colours, colour => faded.Apply(sprites[colour])));
+                var faded = new FadeLevel(level, IntroCrossfade.Levels);
+                shades.Add(SheetShade.Of(IntroShades.Faded(scene, level), colours, colour => PreColouredFade.AtLevel(sprites[colour], faded)));
                 foreach (IntroSpriteColouring colouring in Colourings)
                 {
                     int set = IntroSheetInks.SpriteSet(colouring);
                     shades.Add(SheetShade.Of(IntroShades.Faded(scene, level, IntroShades.Drawn(colouring)),
-                        colours.Where(colour => colour / IntroSheetInks.SetColours == set), colour => faded.Apply(sprites[colour])));
+                        colours.Where(colour => colour / IntroSheetInks.SetColours == set), colour => PreColouredFade.AtLevel(sprites[colour], faded)));
                 }
             }
         }

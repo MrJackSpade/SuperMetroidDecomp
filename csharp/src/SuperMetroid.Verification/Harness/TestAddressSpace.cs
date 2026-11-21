@@ -81,10 +81,13 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     /// The bank-$A0 header pointer a fixture seeds graphics-set record <paramref name="record"/> at: its enemy's (see
     /// <see cref="FixtureHeaderPointer(EnemyDefinitionId)"/>), or the header of the artwork it loads for no enemy (#1686).
     /// </summary>
-    internal static ushort FixtureHeaderPointer(RoomEnemyGraphicsSetMember record) => record.DefinitionId is { } enemy
-        ? FixtureHeaderPointer(enemy)
-        : SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders.WordsByIdentity[
-            record.Unplaced ?? throw new InvalidOperationException("A graphics-set record names neither an enemy nor unplaced artwork.")].Single();
+    internal static ushort FixtureHeaderPointer(RoomEnemyGraphicsSetMember record) => record.Source switch
+    {
+        GraphicsSetEnemy enemy => FixtureHeaderPointer(enemy.DefinitionId),
+        GraphicsSetUnplacedArtwork unplaced =>
+            SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders.WordsByIdentity[unplaced.Artwork].Single(),
+        _ => throw new InvalidOperationException($"Graphics-set record {record.Name} loads an unknown source."),
+    };
 
     /// <summary>The identity a fixture's seeded header pointer names: the inverse of <see cref="FixtureHeaderPointer(EnemyDefinitionId)"/>.</summary>
     internal static EnemyDefinitionId FixtureDefinitionId(ushort pointer) =>

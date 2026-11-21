@@ -76,17 +76,27 @@ internal sealed class RoomColourEffect
     /// </summary>
     internal ColourEffectFrame? Frame { get; private set; }
 
-    /// <summary>Whether the effect has ended; its system drops it from the turns at the end of the update.</summary>
-    internal bool Ended { get; private set; }
+    /// <summary>Where the effect stands (#2560): running, ended, or settled on its final frame.</summary>
+    private RoomColourEffectProgress progress;
+
+    /// <summary>Whether the effect has ended, settled or not; its system drops it from the turns at the end of the update.</summary>
+    internal bool Ended => progress is not RoomColourEffectProgress.Running;
 
     /// <summary>
     /// Whether the effect ended by playing its animation to the end (#1597): it has settled on its final frame, which it
     /// keeps showing as the look its animation finishes on. An effect its condition ends has not settled and shows nothing.
     /// </summary>
-    internal bool Settled { get; private set; }
+    internal bool Settled => progress is RoomColourEffectProgress.Settled;
 
-    /// <summary>Ends the effect: it takes no further part in this update or any later one, and shows nothing.</summary>
-    internal void End() => Ended = true;
+    /// <summary>
+    /// Ends the effect: it takes no further part in this update or any later one, and shows nothing; an effect that has
+    /// settled stays settled.
+    /// </summary>
+    internal void End()
+    {
+        if (progress is RoomColourEffectProgress.Running)
+            progress = RoomColourEffectProgress.Ended;
+    }
 
     /// <summary>
     /// Restarts the effect showing the frames of <paramref name="framesOf"/>, playing its animation from
@@ -118,10 +128,7 @@ internal sealed class RoomColourEffect
             return Frame;
         }
         if (play.HasStopped)
-        {
-            End();
-            Settled = true;
-        }
+            progress = RoomColourEffectProgress.Settled;
         else if (play.IsResting)
             throw new InvalidOperationException($"Colour effect {Effect}'s animation came to rest without ending.");
         return null;

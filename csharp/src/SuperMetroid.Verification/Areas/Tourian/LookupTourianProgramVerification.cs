@@ -89,11 +89,11 @@ internal static class LookupTourianProgramVerification
                 case AnimatedTileInstruction.SetTourianStatueAnimationState:
                 {
                     TourianStatueNativeWords.AnimationOperand flags = TourianStatueNativeWords.AnimationState(operand, at);
-                    if (flags == new TourianStatueNativeWords.AnimationOperand(TourianGreyStatues.None, AllReleased: false, ReleaseInProgress: true))
+                    if (flags == new TourianStatueNativeWords.AnimationOperand(null, AllReleased: false, ReleaseInProgress: true))
                         steps.Add(Cue(TourianStatueBlockCue.ClaimRelease));
                     else
                     {
-                        AssertEqual(new TourianStatueNativeWords.AnimationOperand(TourianGreyStatueSets.Alone[definition.Statue], AllReleased: false, ReleaseInProgress: false), flags,
+                        AssertEqual(new TourianStatueNativeWords.AnimationOperand(definition.Statue, AllReleased: false, ReleaseInProgress: false), flags,
                             $"{at}: statue animating flag");
                         steps.Add(Cue(TourianStatueBlockCue.MarkAnimating));
                     }
@@ -104,13 +104,13 @@ internal static class LookupTourianProgramVerification
                     TourianStatueNativeWords.AnimationOperand flags = TourianStatueNativeWords.AnimationState(operand, at);
                     if (flags.ReleaseInProgress)
                     {
-                        AssertEqual(new TourianStatueNativeWords.AnimationOperand(TourianGreyStatueSets.Alone[definition.Statue], AllReleased: false, ReleaseInProgress: true), flags,
+                        AssertEqual(new TourianStatueNativeWords.AnimationOperand(definition.Statue, AllReleased: false, ReleaseInProgress: true), flags,
                             $"{at}: release finish clears the turn with the statue's flag");
                         steps.Add(Cue(TourianStatueBlockCue.FinishRelease));
                     }
                     else
                     {
-                        AssertEqual(new TourianStatueNativeWords.AnimationOperand(TourianGreyStatueSets.Alone[definition.Statue], AllReleased: false, ReleaseInProgress: false), flags,
+                        AssertEqual(new TourianStatueNativeWords.AnimationOperand(definition.Statue, AllReleased: false, ReleaseInProgress: false), flags,
                             $"{at}: statue animating flag");
                         steps.Add(Cue(TourianStatueBlockCue.ClearAnimating));
                     }

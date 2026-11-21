@@ -10,19 +10,19 @@ internal static class MotherBrainCadenceDefinitions
     /// The phase of the Baby Metroid's own update count that steps its shake: four steps, each held in turn,
     /// indexing its shaking offsets while it latches onto Mother Brain or Samus or recoils from the fatal blow.
     /// </summary>
-    internal static readonly UpdateCounterField BabyShakeStep = new(1, 2);
+    internal static readonly UpdateCycle BabyShakeStep = new(4, 2);
 
     /// <summary>
     /// The phase of the Baby Metroid's hit timer that steps its doubled shake while it is struck: four steps, each held in
     /// turn, indexing its shaking offsets.
     /// </summary>
-    internal static readonly UpdateCounterField BabyHitShakeStep = new(1, 2);
+    internal static readonly UpdateCycle BabyHitShakeStep = new(4, 2);
 
     /// <summary>
-    /// The phase of the Baby Metroid's own update count on which the dying Baby Metroid is shown: set on odd updates, so
+    /// The phase of the Baby Metroid's own update count on which the dying Baby Metroid is shown: on odd updates, so
     /// it flickers, hidden on every even one.
     /// </summary>
-    internal static readonly UpdateCounterField BabyDeathFlickerShown = new(0, 1);
+    internal static readonly UpdateAlternation BabyDeathFlickerShown = new(1);
 
     /// <summary>
     /// The enemy passes on which the Baby Metroid healing Samus queues the energy sound, counted on the enemy-pass counter
@@ -46,10 +46,10 @@ internal static class MotherBrainCadenceDefinitions
     internal static readonly UpdateCadence FinishOffPosture = new(32, 0);
 
     /// <summary>
-    /// The phase of Mother Brain's hurt flash timer on which her brain shows the white hurt colours: set on its odd
+    /// The phase of Mother Brain's hurt flash timer on which her brain shows the white hurt colours: on its odd
     /// counts. A second hit during a flash restarts it with the same phase, so a white update stays white.
     /// </summary>
-    internal static readonly UpdateCounterField HurtFlashWhite = new(0, 1);
+    internal static readonly UpdateAlternation HurtFlashWhite = new(1);
 
     /// <summary>
     /// The updates on which Mother Brain's body and the background behind it are hidden while her body fades out in
@@ -61,20 +61,20 @@ internal static class MotherBrainCadenceDefinitions
     /// The phase of Mother Brain's hurt flash timer that steps her neck's shake: four steps, each held in turn,
     /// indexing her shake offsets.
     /// </summary>
-    internal static readonly UpdateCounterField NeckShakeStep = new(1, 2);
+    internal static readonly UpdateCycle NeckShakeStep = new(4, 2);
 
     /// <summary>
     /// The phase of Mother Brain's brain shake count that steps her brain's shake (#1619): four steps, each held in
     /// turn, indexing her shake offsets. The count is her brain's own shake timer while it runs, or else her hurt flash
     /// timer, or else her shake timer.
     /// </summary>
-    internal static readonly UpdateCounterField BrainShakeStep = new(1, 2);
+    internal static readonly UpdateCycle BrainShakeStep = new(4, 2);
 
     /// <summary>
-    /// The phase of Mother Brain's body's own update count on which the rainbow beam steps its colours: set for two
+    /// The phase of Mother Brain's body's own update count on which the rainbow beam steps its colours: for two
     /// updates of every four, while the colours hold for the other two.
     /// </summary>
-    internal static readonly UpdateCounterField RainbowColoursStep = new(1, 1);
+    internal static readonly UpdateAlternation RainbowColoursStep = new(2);
 
     /// <summary>
     /// The enemy passes on which the rainbow beam drains Samus's missiles and super missiles, counted on the enemy-pass
@@ -86,6 +86,6 @@ internal static class MotherBrainCadenceDefinitions
     /// The phase of the Baby Metroid's own update count that steps its shake above the victim it drains or over Samus: four
     /// steps, each held in turn, indexing its shake offsets.
     /// </summary>
-    internal static readonly UpdateCounterField BabyMetroidShakeStep = new(1, 2);
+    internal static readonly UpdateCycle BabyMetroidShakeStep = new(4, 2);
 
 }

@@ -66,7 +66,7 @@ internal static class PauseEquipmentPageLayout
     /// </summary>
     internal static ShownEquipmentPage Reference { get; } = new(
         [.. PauseEquipmentControls.Upgrades.Select(control => new ShownEquipmentLabel(control.Label, PauseEquipmentLabelState.Blank))],
-        HyperBeam: false, PauseWireframeKind.PowerSuit, Reserve: null, ShownReserveArrow.NoReserves);
+        HyperBeam: false, new PauseWireframe(PauseWireframeSuit.PowerSuit, PauseWireframeBoots.RegularBoots), Reserve: null, ShownReserveArrow.NoReserves);
 
     /// <summary>
     /// Every picture of the equipment page (#1467, #1515). No part's picture shows a cell another part writes: the base
@@ -107,10 +107,10 @@ internal static class PauseEquipmentPageLayout
         }
         yield return new(PauseEquipmentPictures.HyperBeamsFrame, page => page.Part(PauseEquipmentPictures.HyperBeamsFrame,
             LayOut(page.Maps, Reference with { HyperBeam = true }), page.Footprints.HyperColumn, page.AfterHyper));
-        foreach (PauseWireframeKind kind in PauseSheetFrameOrder.Wireframes)
+        foreach (PauseWireframe wireframe in PauseSheetFrameOrder.Wireframes)
         {
-            string name = PauseEquipmentPictures.WireframeFrame(kind);
-            yield return new(name, page => page.Part(name, LayOut(page.Maps, Reference with { Wireframe = kind }), page.Footprints.Wireframe, page.AfterWireframe));
+            string name = PauseEquipmentPictures.WireframeFrame(wireframe);
+            yield return new(name, page => page.Part(name, LayOut(page.Maps, Reference with { Wireframe = wireframe }), page.Footprints.Wireframe, page.AfterWireframe));
         }
         yield return new(PauseEquipmentPictures.ReserveAbsentFrame, page => page.Part(PauseEquipmentPictures.ReserveAbsentFrame,
             LayOut(page.Maps, Reference), page.Footprints.Reserve, page.AfterReserve));

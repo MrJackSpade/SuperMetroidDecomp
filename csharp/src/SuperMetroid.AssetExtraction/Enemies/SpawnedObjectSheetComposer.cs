@@ -144,8 +144,8 @@ internal static class SpawnedObjectSheetComposer
             ?? throw new InvalidDataException("Spawned-object sheets require the installed projectile compositions.");
         EnemySpritemapCatalog spritemaps = enemies.Spritemaps
             ?? throw new InvalidDataException("Spawned-object sheets require the installed enemy compositions.");
-        int projectileBase = checked((ushort)plan.ProjectileCharacters);
-        int objectBase = checked((ushort)plan.ObjectCharacters);
+        int projectileBase = plan.ProjectileCharacters;
+        int objectBase = plan.ObjectCharacters;
         SpawnedObjects spawned = Spawned(plan);
         // Mother Brain's tank glass sheet is drawn from only by the glass's pieces, which shatter before she shows any look
         // after her room's load; the other objects of her body it holds are drawn from her body's own sheet, so none of its

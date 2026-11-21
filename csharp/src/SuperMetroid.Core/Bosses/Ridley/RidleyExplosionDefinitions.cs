@@ -13,9 +13,9 @@ internal static class RidleyExplosionDefinitions
     /// The breakup setup draws a fragment's horizontal speed from one random value as the sum of two
     /// selections: this one, none up to three sixteenths of a pixel per frame, and <see cref="FragmentSpeedWholePixel"/>.
     /// </summary>
-    internal static readonly RandomSpeed FragmentSpeedFraction = new(new(4, 2), SignedEightEight.Zero, SignedEightEight.FromPixelFraction(1, 16));
+    internal static readonly RandomSpeed FragmentSpeedFraction = new(RidleyRandomRolls.FragmentSpeedSixteenths, SignedEightEight.Zero, SignedEightEight.FromPixelFraction(1, 16));
     /// <summary>The selection of a whole pixel per frame or none that a fragment's horizontal speed adds.</summary>
-    internal static readonly RandomSpeed FragmentSpeedWholePixel = new(new(8, 1), SignedEightEight.Zero, SignedEightEight.FromPixels(1));
+    internal static readonly RandomSpeed FragmentSpeedWholePixel = new(RandomSampleField.SecondOf(2), SignedEightEight.Zero, SignedEightEight.FromPixels(1));
     /// <summary>
     /// The breakup's spawn order: the tail from tip to base, then wings, legs, torso, head and claw. The places the
     /// pieces take and the draw order make this sequence observable.

@@ -10,8 +10,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Rooms.Backgrounds;
-
+using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks installed Ceres door tiles, color rows, and Mode 7 transfer frames.</summary>

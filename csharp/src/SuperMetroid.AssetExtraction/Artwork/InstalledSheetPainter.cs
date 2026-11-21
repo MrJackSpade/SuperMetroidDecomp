@@ -19,7 +19,7 @@ internal sealed class InstalledSheetPainter
         Ensure.NotNull(layout);
         SpriteSheetPlanes planes = canvas.Cleared(layout.Size);
         SpriteSheetDocument manifest = layout.Paint(planes);
-        return InstalledSheetConversion.Install(manifest, planes.Size, planes.Pixels, planes.PaletteIndices);
+        return InstalledSheetConversion.Install(manifest, planes.Size, planes.Pixels, planes.Inks);
     }
 
     /// <summary>Paints a sheet of pictures already painted (#1513) on the reused canvas and converts it.</summary>
@@ -29,6 +29,6 @@ internal sealed class InstalledSheetPainter
         Ensure.NotNull(layout);
         SpriteSheetPlanes planes = canvas.Cleared(layout.Size);
         SpriteSheetDocument manifest = layout.Paint(planes);
-        return InstalledSheetConversion.Install(manifest, planes.Size, planes.Pixels, planes.PaletteIndices);
+        return InstalledSheetConversion.Install(manifest, planes.Size, planes.Pixels, planes.Inks);
     }
 }

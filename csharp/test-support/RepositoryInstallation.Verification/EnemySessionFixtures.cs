@@ -55,7 +55,7 @@ internal static class EnemySessionFixtures
         {
             CeresStatus = session.CeresStatus,
             CriticalEnergyDropBias = session.CriticalEnergyDropBias,
-            JapaneseText = session.JapaneseText,
+            Language = session.Language,
             EnemyPassCount = session.EnemyPassCount,
             DeathQuota = session.DeathQuota,
         };

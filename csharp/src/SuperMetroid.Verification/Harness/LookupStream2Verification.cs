@@ -439,19 +439,20 @@ internal static class LookupStream2Verification
     {
         byte[] json = PauseWireframeExtractor.Extract(rom);
         var stock = PauseWireframePresentation.Load(new MemoryStream(json));
-        foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
+        for (int place = 0; place < PauseWireframe.All.Count; place++)
         {
-            int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(((int)PauseMenuSourceDefinitions.PauseWireframePointers + (int)kind * 2)) | 0x820000;
+            PauseWireframe kind = PauseWireframe.All[place];
+            int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(((int)PauseMenuSourceDefinitions.PauseWireframePointers + place * 2)) | 0x820000;
             var native = new byte[PauseWireframeDefinitions.Cells * 2];
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + cell * 2)));
             Confirm(stock, kind, BackgroundTileWordBytes.Tiles(native), "Installed wireframe preserves every native tile word");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyTo(new BackgroundTile[PauseWireframeDefinitions.PageTiles], (PauseWireframeKind)4), "Wireframe kind bound");
-        AssertThrows<ArgumentException>(() => stock.ApplyTo(new BackgroundTile[1], PauseWireframeKind.PowerSuit), "Wireframe page bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyTo(new BackgroundTile[PauseWireframeDefinitions.PageTiles], new PauseWireframe((PauseWireframeSuit)4, PauseWireframeBoots.RegularBoots)), "Wireframe kind bound");
+        AssertThrows<ArgumentException>(() => stock.ApplyTo(new BackgroundTile[1], PauseWireframe.All[0]), "Wireframe page bound");
         Console.WriteLine("Wireframe composition: 544 native words, four full native patches and untouched-page/bounds checks pass.");
 
-        static void Confirm(PauseWireframePresentation presentation, PauseWireframeKind kind, BackgroundTile[] tiles, string context)
+        static void Confirm(PauseWireframePresentation presentation, PauseWireframe kind, BackgroundTile[] tiles, string context)
         {
             BackgroundTile[] actual = Enumerable.Repeat(BackgroundTileWords.ToTile(0xaaaa), PauseWireframeDefinitions.PageTiles).ToArray();
             BackgroundTile[] expected = actual.ToArray();
@@ -1078,8 +1079,8 @@ internal static class LookupStream2Verification
             var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var projectile = new SamusProjectile(0);
             projectile.OccupyAsFired(trailingType);
-            projectile.Animation = SamusProjectileProgramAddresses.StandingAt(0x86e3);
-            projectile.Position = new(new(SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.ShotColumn, 0), new(200, 0));
+            projectile.HeldShot().Animation = SamusProjectileProgramAddresses.StandingAt(0x86e3);
+            projectile.HeldShot().Position = new(new(SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.ShotColumn, 0), new(200, 0));
             projectiles.Trails.SpawnTrail(projectile.HeldShot());
             // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
             if (projectiles.LiveTrails.SingleOrDefault() is not { } trail)
@@ -1233,14 +1234,14 @@ internal static class LookupStream2Verification
             AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), pulse.InkColours[107], "Native arrow color11 reaches the arrow's light colour");
         }
         Check(stock, document);
-        Console.WriteLine("Reserve arrow ramps: all 64 native colors, shades and wrapping pass.");
+        Console.WriteLine("Reserve arrow ramps: all 64 native colors and shades pass.");
 
         static void Check(PauseReserveUiPresentation presentation, PauseReserveUiDocument expected)
         {
-            for (int frame = -1; frame <= 32; frame++)
+            foreach (SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowPulseFrame frame in SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowPulseFrame.All)
             {
                 var pulse = presentation.ArrowColours.Pulse(frame);
-                var row = expected.Arrow.Frames[frame & 31];
+                var row = expected.Arrow.Frames[frame.Frame];
                 AssertEqual(Pack(row.Shade), pulse.Shade, "Supplied color6");
                 AssertEqual(Pack(row.Light), pulse.Light, "Supplied color11");
             }
@@ -1486,9 +1487,10 @@ internal static class LookupStream2Verification
         for (int direction = 0; direction < 8; direction++)
         {
             ushort pointer = (ushort)(0x86db + direction * 12);
-            var shot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
+            var shot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+            shot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            system.Animation.AdvanceProjectileAnimation(shot);
+            system.Animation.AdvanceProjectileAnimation(shot.HeldShot());
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
         }
         int checkedWaveIce = 0;
@@ -1510,9 +1512,10 @@ internal static class LookupStream2Verification
                 checkedAxialEndPairs++;
             if (pointer is >= 0x8bfb and < 0x8c4f)
                 checkedCappedSweep++;
-            var shot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
+            var shot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+            shot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            system.Animation.AdvanceProjectileAnimation(shot);
+            system.Animation.AdvanceProjectileAnimation(shot.HeldShot());
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             checkedWaveIce++;
         }
@@ -1525,9 +1528,9 @@ internal static class LookupStream2Verification
             if (pointer is < 0x9f87 or >= 0xa007) continue;
             var bomb = new SamusBomb(0);
             bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
-            bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
+            bomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
-            bombs.AdvanceProjectileAnimation(bomb);
+            bombs.AdvanceProjectileAnimation(bomb.HeldBomb());
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");
             checkedBombs++;
         }

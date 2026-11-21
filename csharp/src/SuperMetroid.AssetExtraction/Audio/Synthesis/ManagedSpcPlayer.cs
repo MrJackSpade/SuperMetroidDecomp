@@ -134,7 +134,7 @@ public sealed class ManagedSpcPlayer
         Ensure.NotNull(state);
         SpcDriverSnapshot.AddBytes(state,
         [
-            Music.musicInputLatch, Music.musicPortToSnes, Music.affectedVolumeOrPitch, Voices.channelOnMask, Music.fastForward,
+            Music.musicInputLatch, Music.musicPortToSnes, SpcDriverSnapshot.DirtyByte(Music.affectedVolumeOrPitch), Voices.channelOnMask, Music.fastForward,
             Music.blockCount is 0 or > SpcDriverDefinitions.Music.RepeatReloadClassMinimum ? 0 : Music.blockCount,
             Voices.keyOn, Voices.keyOff, Voices.currentChannelBit, Voices.dspFlags, Voices.noiseEnable, Voices.echoEnable, Music.echoStoredTime, Music.echoDelay,
             Music.echoFeedback, Music.globalTransposition, includeTempoPhase ? Music.mainTempoAccumulator : 0,
@@ -214,7 +214,7 @@ public sealed class ManagedSpcPlayer
         if (tick.ChecksRequests)
         {
             foreach (SoundEffectLibrary library in SoundLibraryNumbers.InNumberOrder)
-                SoundLibraries.HandleSoundLibraryCommand(library, tick.Checks[library]);
+                SoundLibraries.HandleSoundLibraryCommand(library, tick.RanChecks[library]);
             if (Music.echoStoredTime != Music.echoDelay)
                 Music.echoStoredTime = SpcDriverWrap.Byte(Music.echoStoredTime + 1);
         }

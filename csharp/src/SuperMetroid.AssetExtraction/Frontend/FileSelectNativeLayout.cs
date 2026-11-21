@@ -104,7 +104,7 @@ internal static class FileSelectNativeLayout
     /// <summary>Converts a slot field's row and column on the selected page to a BG1 byte offset.</summary>
     private static int SlotDestination(int slot, FileSelectSlotField field, FileSelectSlotPage page)
     {
-        if ((uint)slot >= SuperMetroid.AssetExtraction.Frontend.FileSelect.FileSelectCursorPositions.SaveSlotCount)
+        if ((uint)slot >= SuperMetroid.Core.Saves.SaveSlots.All.Count)
             throw new ArgumentOutOfRangeException(nameof(slot));
         int column = field switch
         {

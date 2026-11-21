@@ -187,7 +187,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// extension only runs while the curl is 0 through <see cref="YappingMawAttackDefinitions.LargestCurl"/>: setup starts it at zero, the
     /// clamp caps it, and the update that carries it negative leaves the extension; a curl outside that range is refused.
     /// </summary>
-    private static int BendStepOf(int curl) => Ensure.BetweenInclusive(0, YappingMawAttackDefinitions.LargestCurl, curl) / YappingMawAttackDefinitions.CurlPerBendStep;
+    private static int BendStepOf(int curl) => Ensure.BetweenInclusive(0, YappingMawAttackDefinitions.LargestCurl.WholeUnits, curl) / YappingMawAttackDefinitions.CurlPerBendStep;
 
     /// <summary>Runs the curved four-link solver and state transition.</summary>
     private void AdvanceYappingMawExtension(
@@ -227,9 +227,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!state.Extension.IsNegative)
         {
-            if (state.Extension.WholeUnits >= YappingMawAttackDefinitions.LargestCurl)
+            if (state.Extension.WholeUnits >= YappingMawAttackDefinitions.LargestCurl.WholeUnits)
             {
-                state.Extension = YappingMawCurl.FromWholeUnits(YappingMawAttackDefinitions.LargestCurl);
+                state.Extension = YappingMawAttackDefinitions.LargestCurl;
                 // The turn-around steps half a mark further than the update's own advance: from extending at a mark's
                 // speed to retracting at the same mark's, or from retracting on to extending at the next mark's.
                 if (state.CurlPhase == YappingMawCurlPhase.Retracting)
@@ -391,7 +391,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The frozen colours flash back to the actor's own on alternating pairs only while fewer frozen updates are left
         // than the steady stretch's.
-        if (frozenTimer < EnemyDrawPhaseDefinitions.FrozenColoursSteadyUpdates && !EnemyDrawPhaseDefinitions.FrozenColoursShown.IsSetIn(frozenTimer))
+        if (frozenTimer < EnemyDrawPhaseDefinitions.FrozenColoursSteadyUpdates && !EnemyDrawPhaseDefinitions.FrozenColoursShown.IsInSecondHalfAt(frozenTimer))
             return originalShading;
         return EnemyShades.FrozenLook;
     }
@@ -425,12 +425,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera) =>
         !EnemyView.Contains(place.Position.Whole, camera);
 
-    /// <summary>
-    /// The axis distance, in pixels, from which the Maw's target distance is that axis's distance alone (#1627): nearer
-    /// on both axes, the distance is the sum of two short products, and the Maw's reach follows whichever it measures.
-    /// </summary>
-    private const int ShortProductReach = 255;
-
     /// <summary>The Maw's distance and bearing to Samus.</summary>
     private static YappingMawTarget CalculateYappingMawTarget(
         Position16<RoomPixels> origin,
@@ -438,12 +432,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int deltaX = samus.X - origin.X;
         int absoluteX = Math.Abs(deltaX);
-        if (absoluteX >= ShortProductReach)
+        if (YappingMawDistanceReach.MeasuresByAxisAlone(absoluteX))
             return new YappingMawTarget(absoluteX, TrigonometryAngle.QuarterTurn);
 
         int deltaY = samus.Y - origin.Y;
         int absoluteY = Math.Abs(deltaY);
-        if (absoluteY >= ShortProductReach)
+        if (YappingMawDistanceReach.MeasuresByAxisAlone(absoluteY))
             return new YappingMawTarget(absoluteY, TrigonometryAngle.QuarterTurn);
 
         TrigonometryAngle positiveQuadrantAngle = EnemyMath.CalculateAimAngle(new(absoluteX, absoluteY));

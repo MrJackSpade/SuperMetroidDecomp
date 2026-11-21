@@ -109,6 +109,6 @@ internal static class CeresCinematicPictureSheetComposer
         Corner = new Position16<ImagePixels>(checked((ushort)left), checked((ushort)top)),
         Size = new Extent16<ImagePixels>(checked((ushort)(columns * CharacterPixels)), checked((ushort)(rows * CharacterPixels))),
         Origin = default,
-        ColourGroups = coloured.ManifestMembers,
+        ColourGroups = coloured,
     };
 }

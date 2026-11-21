@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -35,12 +37,7 @@ internal static class MotherBrainHealthPaletteExtractor
             {
                 int address = source + color * sizeof(ushort);
                 int word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-                colours[color] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = word >> 5 & 31,
-                    Blue = word >> 10 & 31,
-                };
+                colours[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
             return colours;
         }

@@ -603,7 +603,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
         foreach (RoomEnemyPlace following in recipients)
         {
             following.Freeze.Restart(current.Freeze.UpdatesLeft);
-            following.AiStates = following.AiStates | EnemyAiStates.Frozen;
+            following.MarkFrozen();
         }
     }
 

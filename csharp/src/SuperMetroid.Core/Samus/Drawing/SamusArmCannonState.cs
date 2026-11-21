@@ -26,14 +26,8 @@ public sealed class SamusArmCannonState
     /// <summary>Starts a closed cover placed by <paramref name="artwork"/>'s arm-cannon placements.</summary>
     internal SamusArmCannonState(SamusArtworkBinding artwork) => _artwork = Ensure.NotNull(artwork);
 
-    /// <summary>Whether the cover is open or opening; false while closed or closing.</summary>
-    private bool IsOpen { get; set; }
-
-    /// <summary>Whether an opening or closing is still under way.</summary>
-    private bool IsTransitioning { get; set; }
-
-    /// <summary>The cover picture shown, or null while the cover is closed.</summary>
-    private SamusArmCannonCoverFrame? Frame { get; set; }
+    /// <summary>The cover: closed, opening, open or closing, with the picture it shows (#2560).</summary>
+    private SamusArmCannonCover Cover { get; set; } = SamusArmCannonCover.Closed;
 
     /// <summary>
     /// The HUD selection's stability wait, lasting <see cref="SamusArmCannonDefinitions.StableSelectionUpdates"/>: a
@@ -63,8 +57,8 @@ public sealed class SamusArmCannonState
             stability.Step();
         }
 
-        if (IsTransitioning)
-            AdvanceFrame();
+        if (Cover is SamusArmCannonCover.Opening or SamusArmCannonCover.Closing)
+            Cover = Cover.Advanced();
         else
             TryStartTransition(samus.SelectedHudItem);
 
@@ -85,7 +79,7 @@ public sealed class SamusArmCannonState
         Ensure.NotNull(samus);
 
         // The cannon shares Samus's invincibility flicker; a closed or flickered-out cover draws nothing.
-        if (Frame is not { } cover || (!samus.InvincibilityTimer.IsZero && SamusCadenceDefinitions.InvincibilityFlickerHidden.IsSetIn(frameCounter)))
+        if (Cover.Shown is not { } cover || (!samus.InvincibilityTimer.IsZero && SamusCadenceDefinitions.InvincibilityFlickerHidden.IsInSecondHalfAt(frameCounter)))
             return;
 
         SamusArmCannonPlacement placement = Placement(samus.Pose);
@@ -115,46 +109,16 @@ public sealed class SamusArmCannonState
             return;
 
         bool opens = SamusArmCannonOpening.Opens(selectedHudItem);
-        if (IsOpen == opens)
+        if (Cover.OpenOrOpening == opens)
             return;
 
-        Frame = opens ? SamusArmCannonCoverFrame.SlightlyOpen : SamusArmCannonCoverFrame.FullyOpen;
-        IsOpen = opens;
-        IsTransitioning = true;
+        Cover = opens
+            ? new SamusArmCannonCover.Opening(SamusArmCannonCoverFrame.SlightlyOpen)
+            : new SamusArmCannonCover.Closing(SamusArmCannonCoverFrame.FullyOpen);
     }
 
     /// <summary>Where the installed artwork places the cover for <paramref name="pose"/>.</summary>
     private SamusArmCannonPlacement Placement(SamusPoseId pose) =>
         _artwork.ArmCannon.Placement(pose);
-
-    /// <summary>
-    /// Moves the cover one picture toward fully open or closed; reaching either ends the transition while keeping the
-    /// open state.
-    /// </summary>
-    private void AdvanceFrame()
-    {
-        if (IsOpen)
-        {
-            Frame = Frame switch
-            {
-                null => SamusArmCannonCoverFrame.SlightlyOpen,
-                SamusArmCannonCoverFrame.SlightlyOpen => SamusArmCannonCoverFrame.HalfOpen,
-                SamusArmCannonCoverFrame.HalfOpen or SamusArmCannonCoverFrame.FullyOpen => SamusArmCannonCoverFrame.FullyOpen,
-                _ => throw new InvalidOperationException($"Undefined arm cannon cover frame {Frame}."),
-            };
-            IsTransitioning = Frame != SamusArmCannonCoverFrame.FullyOpen;
-        }
-        else
-        {
-            Frame = Frame switch
-            {
-                SamusArmCannonCoverFrame.FullyOpen => SamusArmCannonCoverFrame.HalfOpen,
-                SamusArmCannonCoverFrame.HalfOpen => SamusArmCannonCoverFrame.SlightlyOpen,
-                SamusArmCannonCoverFrame.SlightlyOpen or null => null,
-                _ => throw new InvalidOperationException($"Undefined arm cannon cover frame {Frame}."),
-            };
-            IsTransitioning = Frame is not null;
-        }
-    }
 
 }

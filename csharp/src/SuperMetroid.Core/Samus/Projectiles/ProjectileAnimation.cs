@@ -33,7 +33,7 @@ internal sealed class ProjectileAnimation
     /// </summary>
     /// <exception cref="InvalidOperationException">The projectile has ended and has no animation to play.</exception>
     internal void AdvanceProjectileAnimation(
-        SamusProjectile shot)
+        SamusProjectileOccupant shot)
     {
         AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation = shot.Animation
             ?? throw new InvalidOperationException("An ended projectile has no animation to play.");
@@ -44,7 +44,7 @@ internal sealed class ProjectileAnimation
             return;
         }
         if (animation.HasStopped)
-            ClearProjectile(shot);
+            ClearProjectile(shot.Projectile);
     }
 
 

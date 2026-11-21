@@ -30,7 +30,7 @@ internal static class FileSelectEnergyTankLayoutVerification
                 .Where(picture => picture.Frame == FileSelectParts.TankFrame(filled: true)
                     || picture.Frame == FileSelectParts.TankFrame(filled: false))
                 .Select(picture => picture.Origin)];
-            Position16<PlanePixels> energy = presentation.Slot(dataManagement: false, SaveSlot.A).EnergyAnchor;
+            Position16<PlanePixels> energy = presentation.Slot(FileSelectCursorPage.Main, SaveSlot.A).EnergyAnchor;
             Position16<PlanePixels>[] walked = WalkedTanks(energy, tanks);
             AssertEqual(walked.Length, shown.Length, $"{tanks} tanks shown");
             for (int tank = 0; tank < tanks; tank++)

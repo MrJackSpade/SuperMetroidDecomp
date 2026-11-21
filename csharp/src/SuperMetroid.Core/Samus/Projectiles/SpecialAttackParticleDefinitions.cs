@@ -33,6 +33,7 @@ internal static class SpecialAttackParticleDefinitions
             WaveStart = new Offset16<RoomPixels>(-128, -128),
             SpazerTurn = RotationDirection.Clockwise,
             SpazerTrail = true,
+            FallSideStep = HorizontalDirection.Left,
         },
         new()
         {
@@ -41,6 +42,7 @@ internal static class SpecialAttackParticleDefinitions
             WaveStart = new Offset16<RoomPixels>(-128, 128),
             SpazerTurn = RotationDirection.Counterclockwise,
             SpazerTrail = true,
+            FallSideStep = HorizontalDirection.Left,
             VoicesWavePulse = true,
         },
     ];

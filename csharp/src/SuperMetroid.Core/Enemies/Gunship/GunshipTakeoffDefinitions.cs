@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal static class GunshipTakeoffDefinitions
 {
     /// <summary>
-    /// The phase of the engines' rumble count on which the rumble shakes Samus and the gunship down; while clear it
+    /// The phase of the engines' rumble count on which the rumble shakes Samus and the gunship down; otherwise it
     /// shakes them up, so the shake alternates every update.
     /// </summary>
-    internal static readonly UpdateCounterField RumbleShakesDown = new(0, 1);
+    internal static readonly UpdateAlternation RumbleShakesDown = new(1);
 
     /// <summary>
     /// The updates the escape takeoff waits for the engines to fire up before the rumble begins, the last showing the

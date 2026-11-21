@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// pose or X-ray's activation) changed her pose that frame.
 /// </summary>
 /// <param name="Pose">The prospective connected pose.</param>
-/// <param name="Swinging">Whether the connection starts in swinging rather than locked mode.</param>
+/// <param name="Kind">The connection's kind (#2560): swinging, or locked in place.</param>
 /// <param name="Previous">The previous whole-pixel Samus position retained for movement resolution.</param>
 public readonly record struct GrapplePendingConnection(
     SamusPoseId Pose,
-    bool Swinging,
+    GrappleConnectionKind Kind,
     Position16<RoomPixels> Previous);

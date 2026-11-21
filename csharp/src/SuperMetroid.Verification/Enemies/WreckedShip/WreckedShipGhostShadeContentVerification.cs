@@ -43,7 +43,7 @@ internal static class WreckedShipGhostShadeContentVerification
         {
             // The sheet's colours laid out by the palette index each was composed as (#1544): a colour of the row none of
             // its pixels shows is not one of its colours, and nothing shows it.
-            RgbColor[] shown = InstalledPictureColoursConstants.ByComposedIndex(image, PictureShading.Shaded(shade).KeyColours(image));
+            RgbColor[] shown = InstalledPictureColoursConstants.ByComposedIndex(image, PictureShading.Shaded(shade).KeyColours(image, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance));
             for (int color = 0; color < WreckedShipGhostFade.ColourCount; color++)
             {
                 if (InstalledPictureColoursConstants.KeyComposedAs(image, first + color) is not null)

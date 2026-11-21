@@ -285,7 +285,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             cadenceBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, cadenceSamus, 0, 0);
             cadenceProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, cadenceSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), cadenceBombs, new SharedGameState(new SharedRandom()));
         }
-        AssertEqual<int?>(expectedReload, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile, global::SuperMetroid.Core.UpdateCountdown?>(cadenceProjectiles.Shots[0], "Trail")?.UpdatesLeft,
+        AssertEqual<int?>(expectedReload, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant, global::SuperMetroid.Core.UpdateCountdown?>(cadenceProjectiles.Shots[0].HeldShot(), "Trail")?.UpdatesLeft,
             $"wave combination {beamType} reloads native trail cadence");
     }
 
@@ -642,7 +642,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(1000, hyperSlot.HeldShot().Damage, "Hyper Beam overwrites ROM-table damage with 1000");
     AssertEqual(SamusShotBehaviors.HyperBeam, hyperSlot.Behavior,
         "Hyper Beam selects trail-free Wave movement");
-    AssertEqual<int?>(null, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile, global::SuperMetroid.Core.UpdateCountdown?>(hyperSlot, "Trail")?.UpdatesLeft, "Hyper Beam does not arm a projectile trail");
+    AssertEqual<int?>(null, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant, global::SuperMetroid.Core.UpdateCountdown?>(hyperSlot.HeldShot(), "Trail")?.UpdatesLeft, "Hyper Beam does not arm a projectile trail");
     AssertEqual(21, hyperBombs.CooldownTimer, "Hyper Beam installs literal cooldown 21");
     AssertEqual(
         (SoundEffectId?)SoundEffectCommands.Decode(
@@ -1539,7 +1539,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     }
     AssertEqual(1, superProjectiles.LiveTrails.Count,
         "super's initial four-count leaves its first exhaust trail");
-    AssertEqual<int?>(2, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile, global::SuperMetroid.Core.UpdateCountdown?>(super, "Trail")?.UpdatesLeft,
+    AssertEqual<int?>(2, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant, global::SuperMetroid.Core.UpdateCountdown?>(super.HeldShot(), "Trail")?.UpdatesLeft,
         "super exhaust reloads two instead of missile four");
 
     bool superExploded = false;
@@ -1581,12 +1581,12 @@ internal static void VerifySamusPowerBeamProjectiles()
     pillarProjectiles.StepFrame(new SamusTerrain { Level = pillarRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, pillarSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), pillarBombs, new SharedGameState(new SharedRandom()));
     var pillarOwner = pillarProjectiles.Shots[0];
     var pillarLink = pillarProjectiles.Shots[1];
-    pillarLink.Position = pillarLink.Position.WithWholeY(0xd1);
-    pillarOwner.Position = pillarOwner.Position.WithWhole(new(0x12f, 0xd1));
-    pillarOwner.Velocity = pillarOwner.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x1100));
-    pillarOwner.Position = pillarOwner.Position.WithFractionX(0);
-    pillarLink.Position = pillarLink.Position.WithWholeX(0x128);
-    pillarLink.Radius = pillarLink.Radius.WithX(8);
+    pillarLink.HeldShot().Position = pillarLink.Position.WithWholeY(0xd1);
+    pillarOwner.HeldShot().Position = pillarOwner.Position.WithWhole(new(0x12f, 0xd1));
+    pillarOwner.HeldShot().Velocity = pillarOwner.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x1100));
+    pillarOwner.HeldShot().Position = pillarOwner.Position.WithFractionX(0);
+    pillarLink.HeldShot().Position = pillarLink.Position.WithWholeX(0x128);
+    pillarLink.HeldShot().Radius = pillarLink.Radius.WithX(8);
     // Native explosion timing remains live long enough for this three-frame sequence.
     pillarProjectiles.StepFrame(new SamusTerrain { Level = pillarRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0x100, 0), pillarBombs, new SharedGameState(new SharedRandom()));
     AssertEqual(0x139, pillarLink.Position.X.Whole,
@@ -1677,9 +1677,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectile skippedLink = skippedProjectiles.Shots[1];
     AssertTrue(skippedOwner.HeldShot().Type.IsFamily(SamusProjectileFamily.SuperMissile) && skippedLink.IsActive,
         "the Super Missile and its link are in flight");
-    skippedLink.Position = skippedLink.Position.WithWholeX(0x5c);
-    skippedOwner.Position = skippedOwner.Position.WithWholeX(0x5c).WithFractionX(0);
-    skippedOwner.Velocity = skippedOwner.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x1400));
+    skippedLink.HeldShot().Position = skippedLink.Position.WithWholeX(0x5c);
+    skippedOwner.HeldShot().Position = skippedOwner.Position.WithWholeX(0x5c).WithFractionX(0);
+    skippedOwner.HeldShot().Velocity = skippedOwner.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x1400));
     skippedBombs.StepFrame(new SamusTerrain { Level = skippedWall, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, skippedSamus, 0, 0);
     skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, RoomObjects = skippedObjects }, skippedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), skippedBombs, new SharedGameState(new SharedRandom()));
     AssertEqual(SamusProjectileFamily.MissileExplosion, skippedOwner.HeldShot().Type.Family,

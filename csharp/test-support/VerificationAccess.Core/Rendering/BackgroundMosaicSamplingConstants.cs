@@ -5,9 +5,9 @@ internal static class BackgroundMosaicSamplingConstants
 {
     /// <summary>MOSAIC ($2106): BG2 enable is bit one; the high nibble encodes size minus one.</summary>
     public static BackgroundPixelation ForBg2(byte register) =>
-        (register & 2) == 0 ? default : new((register >> 4) + 1);
+        (register & 2) == 0 ? BackgroundPixelation.Unpixelated : new((register >> 4) + 1);
 
     /// <summary>MOSAIC ($2106): BG1 enable is bit zero; the high nibble encodes size minus one.</summary>
     public static BackgroundPixelation ForBg1(byte register) =>
-        (register & 1) == 0 ? default : new((register >> 4) + 1);
+        (register & 1) == 0 ? BackgroundPixelation.Unpixelated : new((register >> 4) + 1);
 }

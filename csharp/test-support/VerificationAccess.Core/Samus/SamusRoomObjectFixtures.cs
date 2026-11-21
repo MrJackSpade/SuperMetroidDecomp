@@ -24,7 +24,7 @@ internal static class SamusRoomObjectFixtures
     /// check reaches it: for checks whose terrain holds sand, special or bomb blocks, which consult the room's places.
     /// </summary>
     internal static ISamusRoomObjects WithQuicksand() =>
-        new UninstalledSamusRoomObjects(new RoomObjectPlaceList(new RoomObjectPlaces()));
+        new UninstalledSamusRoomObjects(new RoomObjectPlaceList());
 
     /// <summary>A room with no room objects installed, or only its places and the quicksand that takes them.</summary>
     private sealed class UninstalledSamusRoomObjects(RoomObjectPlaceList? places) : ISamusRoomObjects

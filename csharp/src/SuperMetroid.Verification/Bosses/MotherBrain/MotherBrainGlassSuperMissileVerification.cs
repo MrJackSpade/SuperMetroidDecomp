@@ -45,10 +45,10 @@ internal static class MotherBrainGlassSuperMissileVerification
         for (int slot = 0; slot < pair.Length; slot++)
         {
             var shot = shots.Shots[slot];
-            shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300); shot.Direction = SamusProjectileDirection.Left;
-            shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(pair[slot].Radius, pair[slot].Radius);
-            shot.Animation = SamusProjectileProgramAddresses.PlayerAt(pair[slot].List);
-            shot.Behavior = pair[slot].Pre;
+            shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300); shot.HeldShot().Direction = SamusProjectileDirection.Left;
+            shot.HeldShot().Position = shot.Position.WithWhole(new(128, 128)); shot.HeldShot().Radius = new(pair[slot].Radius, pair[slot].Radius);
+            shot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(pair[slot].List);
+            shot.HeldShot().Behavior = pair[slot].Pre;
         }
 
         enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus);

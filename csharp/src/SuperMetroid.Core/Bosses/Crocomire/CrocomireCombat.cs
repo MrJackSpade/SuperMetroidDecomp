@@ -36,9 +36,10 @@ internal sealed class CrocomireCombat
     /// <summary>Shows Crocomire's white hurt flash on his body.</summary>
     internal void ApplyCrocomireHurtFlash(RoomEnemyPlace body, CrocomireEnemyState state)
     {
-        bool white = body.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.EnemyPassCount);
         // His body shows its fight colours or the white flash as the import's shades of them (#1512).
-        state.Colours.ShowBody(white);
+        state.Colours.ShowBody(body.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsInSecondHalfAt(_frameContext.EnemyPassCount)
+            ? CrocomireBodyColours.HurtFlash
+            : CrocomireBodyColours.Fight);
     }
 
     /// <summary>
@@ -322,7 +323,7 @@ internal sealed class CrocomireCombat
         }
 
         body.HurtFlash.Lengthen(CrocomireFightDefinitions.MouthShotFlash);
-        body.AiStates |= EnemyAiStates.Hurt;
+        body.MarkHurt();
     }
 
     /// <summary>Places a dust effect at the shot impact while preserving its component-relative offset.</summary>
@@ -347,7 +348,7 @@ internal sealed class CrocomireCombat
             return;
 
         body.HurtFlash.Lengthen(CrocomireFightDefinitions.PowerBombFlash);
-        body.AiStates |= EnemyAiStates.Hurt;
+        body.MarkHurt();
         state.Phase = CrocomirePhase.PowerBombCharge;
 
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, SelectCrocomirePowerBombAnimation(state));
@@ -417,7 +418,7 @@ internal sealed class CrocomireCombat
                         componentOrigin.X + hitbox.Right,
                         componentOrigin.Y + hitbox.Bottom))
                     continue;
-                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
+                return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? hitbox.Shot : hitbox.Touch);
             }
         }
         return EnemyHitboxContact.Missed;

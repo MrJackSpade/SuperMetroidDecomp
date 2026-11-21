@@ -21,8 +21,6 @@ public sealed class KraidFootState : KraidAnimatedPartState
     /// </summary>
     public BossCountdown ThinkWait { get; } = new();
 
-    /// <summary>The way the second-phase foot walks the body toward its target (#2165).</summary>
-    public HorizontalDirection WalkDirection { get; internal set; }
 
     /// <summary>
     /// Whether the foot shows its walk's last frame (#1886, #2301), as the walk marks it: a forward walk or lunge has

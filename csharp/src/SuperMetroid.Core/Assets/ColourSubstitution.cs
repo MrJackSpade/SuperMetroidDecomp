@@ -17,6 +17,7 @@ public sealed record ColourSubstitution : ColourEffect
     /// <summary>The colour shown in place of each colour replaced, by the colour it replaces.</summary>
     public ImmutableDictionary<RgbColor, RgbColor> ShownInPlaceOf { get; }
 
-    /// <inheritdoc />
-    public override RgbColor Apply(RgbColor shown) => ShownInPlaceOf.TryGetValue(shown, out RgbColor substitute) ? substitute : shown;
+    /// <summary>The colour an ink showing <paramref name="shown"/> shows: its substitute, or itself where it is not replaced.</summary>
+    /// <param name="shown">The colour the ink shows before the substitution.</param>
+    internal RgbColor Substituted(RgbColor shown) => ShownInPlaceOf.TryGetValue(shown, out RgbColor substitute) ? substitute : shown;
 }

@@ -9,9 +9,9 @@ internal static class WaverMotionDefinitions
     /// <summary>How far above and below its line a Waver's wave reaches, in pixels.</summary>
     internal const int WaveHeight = 4;
 
-    /// <summary>How far a Waver's wave turns each update, in steps of the turn (#2182).</summary>
-    internal const int WaveStep = 2;
+    /// <summary>How far a Waver's wave turns each update (#2182, #2563).</summary>
+    internal static RotationAngle WaveStep { get; } = RotationAngle.FromSteps(2);
 
-    /// <summary>The steps into each half of its wave at which a Waver spins (#2182).</summary>
-    internal const int SpinStepsIntoHalfTurn = 56;
+    /// <summary>The place in each half of its wave at which a Waver spins (#2182, #2563).</summary>
+    internal static TrigonometryAngle SpinPlaceInHalfTurn { get; } = new(56);
 }

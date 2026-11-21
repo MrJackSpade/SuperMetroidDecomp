@@ -468,7 +468,6 @@ global using static SuperMetroid.Core.Enemies.Gunship.GunshipAnimationsPrivateAc
 global using static SuperMetroid.Core.Enemies.Hibashi.HibashiAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Hibashi.HibashiBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Hoppers.HopperAnimationsPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Hoppers.HoppersBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Kago.KagoAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Kago.KagoBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.KiHunters.KiHunterAnimationsPrivateAccess;

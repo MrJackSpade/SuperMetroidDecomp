@@ -69,7 +69,7 @@ internal static class PipeBugBehaviorVerification
     /// </summary>
     internal static void VerifyPipeBugStateQuantities()
     {
-        foreach ((int before, int after, bool departs) in new[] { new VerifyPipeBugStateQuantitiesCase(70, 71, false), new VerifyPipeBugStateQuantitiesCase(71, 0, true) })
+        foreach ((int waited, bool departs) in new[] { new VerifyPipeBugStateQuantitiesCase(70, false), new VerifyPipeBugStateQuantitiesCase(71, true) })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
@@ -77,12 +77,16 @@ internal static class PipeBugBehaviorVerification
             Initialize(place, EnemyDefinitionId.Gamet, 0);
             NorfairPipeBugState state = place.RequireSpeciesState<NorfairPipeBugState>();
             state.Action = NorfairPipeBugAction.WaitForStagger;
+            // The leader's role starts its wait for its departure count; its stagger wait counts one formation update on each
+            // of its updates.
             state.Role = new NorfairPipeBugRole.Leader(StaggerTarget: 72);
-            PrivateState.Set(state, "Departure", UpdateCountdownAccess.AtAge(72, before));
-            PipeBugsBehavior.RunNorfairPipeBugMainAi(place.HeldOccupant().SpawnSettings<NorfairPipeBugSpawnSettings>(), place, place.RequireSpeciesState<NorfairPipeBugState>(), Frame(new(200, 128)));
-            AssertEqual(after, state.Departure.Age, $"Norfair Pipe Bug count after {before}");
+            NorfairPipeBugSpawnSettings settings = place.HeldOccupant().SpawnSettings<NorfairPipeBugSpawnSettings>();
+            for (int update = 0; update < waited; update++)
+                PipeBugsBehavior.RunNorfairPipeBugMainAi(settings, place, state, Frame(new(200, 128)));
+            AssertEqual(NorfairPipeBugAction.WaitForStagger, state.Action, $"Norfair Pipe Bug still waits after {waited} counted updates");
+            PipeBugsBehavior.RunNorfairPipeBugMainAi(settings, place, state, Frame(new(200, 128)));
             AssertEqual(departs ? NorfairPipeBugAction.Fly : NorfairPipeBugAction.WaitForStagger, state.Action,
-                $"Norfair Pipe Bug departs only on reaching its target (count {before})");
+                $"Norfair Pipe Bug departs only on reaching its target of 72 counted updates (update {waited + 1})");
             if (departs)
                 AssertEqual(HorizontalDirection.Right, state.FlightDirection, "Norfair Pipe Bug departs toward Samus on its right");
         }
@@ -200,10 +204,8 @@ internal static class PipeBugBehaviorVerification
         place.SetSpawnParameter1(definition, parameter);
         switch (definition)
         {
-            case EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo:
-                PipeBugsBehavior.InitializeBrinstarPipeBug(place.HeldOccupant().SpawnSettings<BrinstarPipeBugSpawnSettings>(), place);
-                break;
-            case EnemyDefinitionId.Gamet:
+            // Each is set up as its room's population sets it up: its species builds its entity, whose setup builds its state.
+            case EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo or EnemyDefinitionId.Gamet:
                 place.SetUpAsPlaced();
                 break;
             case EnemyDefinitionId.Boyon:

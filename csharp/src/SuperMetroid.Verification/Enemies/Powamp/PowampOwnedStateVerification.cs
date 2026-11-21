@@ -26,8 +26,8 @@ internal static class PowampOwnedStateVerification
         // The balloon is set up as its room sets it up, so the body that follows it finds it.
         balloon.SetUpAsPlaced();
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
-        body.SetSpawnSettings(new PowampBodySpawnSettings(PowampContact.Accepts));
         body.Bind(EnemyDefinitionId.Powamp, body.KeptDefinition);
+        body.SetSpawnSettings(new PowampBodySpawnSettings(PowampContact.Accepts));
         // The body rests below its balloon, inside the room.
         body.Position = body.Position.WithWhole(new(0x0180, 0x0040));
         // The body's setup builds the state its main AI runs on.

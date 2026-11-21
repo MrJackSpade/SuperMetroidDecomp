@@ -38,7 +38,10 @@ internal static class BotwoonPositionHistoryVerification
             "InitAI_Botwoon hides the head from collision with property $0400");
         head.Contact = head.Contact.Without(EnemyContact.IgnoresSamus);
         head.Health = 0;
-        BotwoonBehavior.ResolveBotwoonCombatAfterCommon(head);
+        // Samus touches the head at zero health: the head the room placed finishes its contact with its own touch.
+        ((CommonParticipationEnemyEntity)(head.Entity ?? throw new InvalidOperationException("The room placed Botwoon's head with no entity."))).ReactToTouch(
+            new EnemyTouchContext(head.HeldOccupant(), runtime.Player.Samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), default, runtime.Room.LoadedLevelData,
+                UsesFrameHitboxes: false, HitboxTouch: head.Definition.Touch, Position16<RoomPixels>.Zero));
         AssertTrue(head.Contact.HasAny(EnemyContact.IgnoresSamus) &&
             !head.Contact.HasAny(EnemyContact.SolidToSamus),
             "a lethal hit makes the head intangible with property $0400");

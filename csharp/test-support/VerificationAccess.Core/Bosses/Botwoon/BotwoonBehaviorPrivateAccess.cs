@@ -41,10 +41,6 @@ internal static class BotwoonBehaviorPrivateAccess
         internal static void DetectBotwoonHole(global::SuperMetroid.Core.Enemies.RoomEnemyPlace head, global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEnemyState state) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior), "DetectBotwoonHole", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEnemyState)], new object?[] { head, state });
 
-        /// <summary>The private method <c>ResolveBotwoonCombatAfterCommon</c>, invoked by name.</summary>
-        internal static void ResolveBotwoonCombatAfterCommon(global::SuperMetroid.Core.Enemies.RoomEnemyPlace head) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior), "ResolveBotwoonCombatAfterCommon", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { head });
-
         /// <summary>The private method <c>RunBotwoonMovement</c>, invoked by name.</summary>
         internal static void RunBotwoonMovement(global::SuperMetroid.Core.Enemies.RoomEnemyPlace head, global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEnemyState state) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonBehavior), "RunBotwoonMovement", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEnemyState)], new object?[] { head, state });

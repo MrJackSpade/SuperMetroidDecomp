@@ -639,12 +639,12 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>
     /// What the backend's background stage draws for <paramref name="layer"/> (#2573): a boss's body, its own layer, with its
     /// scroll, distortion and pixelation, where the room's background, which shows nothing behind it, would show; otherwise
-    /// the room's background with the view's scroll and the background's line scrolls.
+    /// the room's background, unpixelated, with the view's scroll and the background's line scrolls.
     /// </summary>
     private static BackgroundStage StageOf(GameplaySceneLayer layer) => layer.BossBody is { } body
         ? new((uint)D3D11RoomSource.BossBody | D3D11RoomSources.WrittenOverBackgroundOf(layer.Rooms), body.Scroll, body.Horizontal, body.Vertical, body.Pixelation)
         : new(D3D11RoomSources.BackgroundSourceOf(layer.Rooms), layer.View.BackgroundScroll, layer.BackgroundLineScrolls.Horizontal,
-            layer.BackgroundLineScrolls.Vertical, layer.View.BackgroundPixelation);
+            layer.BackgroundLineScrolls.Vertical, BackgroundPixelation.Unpixelated);
 
     /// <summary>What the background stage draws: its source word, its scroll, its line scrolls and its pixelation.</summary>
     /// <param name="Source">The Tiles.hlsl source word.</param>

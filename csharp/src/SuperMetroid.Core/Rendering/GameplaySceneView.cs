@@ -23,8 +23,4 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="ShownLayers">The room's layers and the actors the frame shows, on every line no band of the scene shows its own.</param>
 public readonly record struct GameplaySceneView(
     Offset16<RoomPixels> ForegroundScroll, Offset16<BackgroundPixels> BackgroundScroll,
-    ScreenLayers ShownLayers)
-{
-    /// <summary>How the background is pixelated: unpixelated unless the view says otherwise.</summary>
-    public BackgroundPixelation BackgroundPixelation { get; init; } = BackgroundPixelation.Unpixelated;
-}
+    ScreenLayers ShownLayers);

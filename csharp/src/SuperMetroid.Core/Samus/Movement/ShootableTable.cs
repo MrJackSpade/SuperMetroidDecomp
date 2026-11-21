@@ -13,13 +13,13 @@ internal static class ShootableTable
 {
     /// <summary>
     /// The reactions that set off a room object of their own, neither a gate trigger, a blue door cap nor a shot block: the
-    /// resident and item triggers and the escape animals' wall. Declared before <see cref="Entries"/>, which reads it as it
-    /// is built.
+    /// resident and item triggers and the escape animals' wall. A block no object occupies hears nothing
+    /// (<see cref="Projectiles.ProjectileTriggerObjects.NotifyResidentProjectileHit"/>). Declared before <see cref="Entries"/>, which
+    /// reads it as it is built.
     /// </summary>
     private static readonly FrozenDictionary<ShootableReaction, Action<RoomTerrain, RoomCollisionBlock, BlockStrike, bool>> ObjectTriggers =
         new Dictionary<ShootableReaction, Action<RoomTerrain, RoomCollisionBlock, BlockStrike, bool>>
         {
-            // A block no object occupies hears nothing (ProjectileTriggerObjects.NotifyResidentProjectileHit).
             [ShootableReaction.ResidentObjectTrigger] = static (terrain, block, strike, _) =>
                 terrain.RoomObjects.ProjectileTriggers.NotifyResidentProjectileHit(block.At, strike),
             [ShootableReaction.CollectibleTrigger] = static (terrain, block, _, _) =>

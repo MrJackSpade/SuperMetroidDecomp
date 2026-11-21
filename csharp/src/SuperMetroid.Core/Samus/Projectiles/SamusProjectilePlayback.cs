@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -39,7 +40,7 @@ internal static class SamusProjectilePlayback
     internal static void PlayOn(
         AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation,
         InstalledProjectileFrameBindings frames,
-        Action<ProjectileSpriteId, Extent16<RoomPixels>> show,
+        Action<ProjectileSpriteId?, Extent16<RoomPixels>> show,
         Action delete)
     {
         Ensure.NotNull(frames);

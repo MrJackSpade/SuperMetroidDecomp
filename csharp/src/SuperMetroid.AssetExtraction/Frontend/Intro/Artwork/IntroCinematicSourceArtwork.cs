@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Areas.Ceres;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>
-/// The installed opening cinematic (#1463, #1616, #1636, #1638): what the game binds of it (<see cref="Cinematic"/>). Its
+/// The installed opening cinematic (#1463, #1616, #1636, #1638): what the game binds of it. Its
 /// characters, layouts, Mode 7 maps (#1693) and sprite compositions are import data the installation never holds, and its
 /// colours are palette documents only the import reads (<see cref="ImportIntroCinematicArtwork"/>); this read reads none of
 /// them and keeps the backdrops the backdrop document names (#1544). The sheets' frames are named from the families' poses

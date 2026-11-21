@@ -231,7 +231,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Plays her brain at her brain's draw as <c>AdvanceMotherBrainBrain</c> does, returning the picture it shows and
+    /// Plays her brain at her brain's draw, advancing it one update, returning the picture it shows and
     /// whether her brain's shake, which a shown picture counts down, was still shaking; null when the brain is not live.
     /// </summary>
     private MotherBrainBrainPicture? PlayMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)

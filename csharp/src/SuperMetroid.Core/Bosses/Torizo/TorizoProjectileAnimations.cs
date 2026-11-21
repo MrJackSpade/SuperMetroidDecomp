@@ -263,12 +263,9 @@ internal static class TorizoProjectileAnimations
         P.EyeBeamWallImpact, P.EyeBeamFloorFlames),
         P.EyeBeam);
 
-    /// <summary>How <paramref name="animation"/> plays.</summary>
-    internal static Animation<TorizoProjectileSegment> StartingWith(TorizoProjectileSegment animation) => StartingAt[animation];
-
     /// <summary>A cue's continuation into <paramref name="animation"/>, from its start.</summary>
     internal static AnimationContinuation<TorizoProjectileSegment> ContinueWith(TorizoProjectileSegment animation) =>
-        new(StartingWith(animation), AnimationPlace.StartOfAnimation);
+        new(StartingAt[animation], AnimationPlace.StartOfAnimation);
 
     /// <summary>
     /// A low-health drool that forms unseen for two updates before it is released and falls, holding its falling pose: one of

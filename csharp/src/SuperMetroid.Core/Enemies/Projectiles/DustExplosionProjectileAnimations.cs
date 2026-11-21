@@ -170,13 +170,6 @@ internal static class DustExplosionProjectileAnimations
         P.EyeDoorSmokePuff, P.Smoke, P.BigExplosion, P.RockParticles, P.ShortBigDustCloud, P.BigDustCloud,
         P.LongDraygonBreathBubbles);
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="segment"/> is not one of the fourteen animations.</exception>
-    internal static Animation<DustExplosionAnimation> StartingWith(DustExplosionAnimation segment) =>
-        StartingAt.TryGetValue(segment, out Animation<DustExplosionAnimation>? animation)
-            ? animation
-            : throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined misc-dust animation.");
-
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 

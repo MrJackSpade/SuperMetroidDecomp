@@ -175,7 +175,7 @@ internal static class KraidHeadAnimations
             : OpenHoldResume;
 
     /// <summary>The roar's wide-open hold, where growth resumes the head when it shows none of the closing poses next.</summary>
-    internal static KraidHeadGrowthResume OpenHoldResume { get; } = new(P.RoarOpenHold, KraidHeadFrame.Open);
+    private static KraidHeadGrowthResume OpenHoldResume { get; } = new(P.RoarOpenHold, KraidHeadFrame.Open);
 
     /// <summary>The outer mouth shape body hits are tested against where <paramref name="playback"/> stands.</summary>
     internal static KraidMouthHitbox OuterMouthAt(AnimationPlayback<KraidHeadSegment>? playback)

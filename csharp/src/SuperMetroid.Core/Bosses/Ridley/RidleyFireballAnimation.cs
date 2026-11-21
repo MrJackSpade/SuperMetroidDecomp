@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
 /// <param name="segment">Where the animation starts.</param>
 internal sealed class RidleyFireballAnimation(IEnemyProjectileCues<RidleyFireballCue> owner, RidleyFireballSegment segment)
-    : EnemyProjectileFrameAnimation<RidleyFireballSegment, RidleyFireballCue>(segment, RidleyFireballAnimations.StartingWith(segment), EnemyProjectileCueRunner<RidleyFireballSegment, RidleyFireballCue>.By(owner))
+    : EnemyProjectileFrameAnimation<RidleyFireballSegment, RidleyFireballCue>(segment, RidleyFireballAnimations.StartingAt[segment], EnemyProjectileCueRunner<RidleyFireballSegment, RidleyFireballCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<RidleyFireballSegment, EnemyProjectileFrameId, RidleyFireballCue> Segments =>

@@ -39,9 +39,6 @@ internal static class KiHunterAcidSpitAnimations
         [P.Right] = new([Segments.Whole(P.Right)], AnimationEnd.Holds),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<KiHunterAcidSpitSegment> StartingWith(KiHunterAcidSpitSegment segment) => StartingAt[segment];
-
     /// <summary>Acid spat over a facing's pictures and launch, <paramref name="droplet"/>, <paramref name="streak"/>, <paramref name="blob"/>, <paramref name="blobTrailing"/>, <paramref name="blobSpattering"/>, <paramref name="facing"/>, <paramref name="ball"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, KiHunterAcidSpitCue>[] Spat(EnemyProjectileFrameId droplet, EnemyProjectileFrameId streak, EnemyProjectileFrameId blob, EnemyProjectileFrameId blobTrailing, EnemyProjectileFrameId blobSpattering, HorizontalDirection facing, EnemyProjectileFrameId ball) =>
     [

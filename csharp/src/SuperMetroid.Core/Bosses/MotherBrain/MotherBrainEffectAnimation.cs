@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
 /// <param name="segment">Where the animation starts.</param>
 internal sealed class MotherBrainEffectAnimation(IEnemyProjectileCues<MotherBrainEffectCue> owner, MotherBrainEffectSegment segment)
-    : EnemyProjectileFrameAnimation<MotherBrainEffectSegment, MotherBrainEffectCue>(segment, MotherBrainEffectAnimations.StartingWith(segment), EnemyProjectileCueRunner<MotherBrainEffectSegment, MotherBrainEffectCue>.By(owner))
+    : EnemyProjectileFrameAnimation<MotherBrainEffectSegment, MotherBrainEffectCue>(segment, MotherBrainEffectAnimations.StartingAt[segment], EnemyProjectileCueRunner<MotherBrainEffectSegment, MotherBrainEffectCue>.By(owner))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments => MotherBrainEffectAnimations.Segments;

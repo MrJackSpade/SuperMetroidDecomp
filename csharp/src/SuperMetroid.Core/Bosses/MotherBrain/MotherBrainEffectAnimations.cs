@@ -138,9 +138,6 @@ internal static class MotherBrainEffectAnimations
                 .Select(segment => KeyValuePair.Create(segment, Animation<MotherBrainEffectSegment>.Looping([Segments.Whole(segment)]))))
             .ToDictionary();
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MotherBrainEffectSegment> StartingWith(MotherBrainEffectSegment segment) => StartingAt[segment];
-
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Frame(frame, duration);
 

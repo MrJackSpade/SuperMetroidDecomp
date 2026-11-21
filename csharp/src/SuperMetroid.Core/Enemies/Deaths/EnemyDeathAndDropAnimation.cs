@@ -14,7 +14,7 @@ internal sealed class EnemyDeathAndDropAnimation(IEnemyProjectileBranchingCues<E
 {
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal EnemyDeathAndDropAnimation(IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> owner, EnemyDeathAndDropSegment segment)
-        : this(owner, EnemyDeathAndDropAnimations.StartingWith(segment))
+        : this(owner, EnemyDeathAndDropAnimations.StartingAt[segment])
     {
     }
 

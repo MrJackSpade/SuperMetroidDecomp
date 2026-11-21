@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 public static class NorfairEnvironmentalPaletteFxColorDefinitions
 {
     /// <summary>Each phase writes five live BGR555 colors.</summary>
-    public const int ColorsPerFrame = 5;
+    private const int ColorsPerFrame = 5;
 
     /// <summary>The foreground colours that pulse with the heat phase.</summary>
     internal static NorfairEnvironmentalPaletteFxColorDefinition NorfairForegroundAndHeatPhase { get; } = new(ColourEffectId.NorfairForegroundAndHeatPhase, ColorsPerFrame);

@@ -16,7 +16,7 @@ internal sealed class TorizoProjectileAnimation(IEnemyProjectileBranchingCues<To
     /// <param name="owner">The family's cue owner.</param>
     /// <param name="segment">The segment the animation starts at.</param>
     internal TorizoProjectileAnimation(IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue> owner, TorizoProjectileSegment segment)
-        : this(owner, TorizoProjectileAnimations.StartingWith(segment))
+        : this(owner, TorizoProjectileAnimations.StartingAt[segment])
     {
     }
 

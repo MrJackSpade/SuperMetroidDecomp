@@ -1341,7 +1341,7 @@ internal static class PaletteFxInstructionCodesVerification
                 {
                     bool presentationByte = false;
                     for (int color = 0;
-                         color < NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame;
+                         color < definition.ColorFrames.ColorsPerFrame;
                          color++)
                     {
                         int colorOffset = source.Offset - definition.ColorPointer(frame, color);

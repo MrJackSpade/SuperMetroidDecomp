@@ -33,9 +33,6 @@ internal static class SpacePirateProjectileAnimations
         [P.ClawRight] = Animation<SpacePirateProjectileSegment>.LeadingInto([Segments.Whole(P.ClawRight)], [Segments.Whole(P.ClawRightSpin)]),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<SpacePirateProjectileSegment> StartingWith(SpacePirateProjectileSegment segment) => StartingAt[segment];
-
     /// <summary>A laser fired <paramref name="facing"/>: its flare grows, it fires, and the beam extends to its full length, flickering bright and dim.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[] Laser(HorizontalDirection facing) =>
     [

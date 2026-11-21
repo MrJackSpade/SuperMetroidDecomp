@@ -30,7 +30,7 @@ internal static class MotherBrainBombAfterburnPicturesVerification
         SpriteGraphics graphics = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
         // Each stage's spark runs on into the puff every stage shares (#2331): its animation plays both.
         EnemyProjectileFrameId[] frames = ChainSegments
-            .SelectMany(segment => RidleyFireballAnimations.StartingWith(segment).Phases)
+            .SelectMany(segment => RidleyFireballAnimations.StartingAt[segment].Phases)
             .SelectMany(phase => RidleyFireballAnimations.Segments.Beats(phase.Segment))
             .OfType<AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Frame>()
             .Select(beat => beat.Shown)

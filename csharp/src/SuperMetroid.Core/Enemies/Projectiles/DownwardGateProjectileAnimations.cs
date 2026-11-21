@@ -73,9 +73,6 @@ internal static class DownwardGateProjectileAnimations
         P.Moving, P.MovedOneBlock, P.MovedTwoBlocks, P.MovedThreeBlocks, P.Closed, P.Rising, P.RisenOneBlock,
         P.RisenTwoBlocks, P.RisenThreeBlocks, P.Vanishing);
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<DownwardGateProjectileSegment> StartingWith(DownwardGateProjectileSegment segment) => StartingAt[segment];
-
     /// <summary>
     /// The gate's travel, each stage named by the animation that starts it, and the stage each takes the gate on to
     /// (#2284): the moving gate slides down three blocks and stops closed; once woken, the closed gate rises three blocks

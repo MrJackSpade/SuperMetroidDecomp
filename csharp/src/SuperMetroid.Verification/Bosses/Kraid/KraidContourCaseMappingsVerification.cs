@@ -89,7 +89,7 @@ internal static class KraidContourCaseMappingsVerification
         };
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            KraidHeadGrowthResume resume = selected.GetValueOrDefault((ushort)raw, KraidHeadAnimations.OpenHoldResume);
+            KraidHeadGrowthResume resume = selected.GetValueOrDefault((ushort)raw, new KraidHeadGrowthResume(KraidHeadSegment.RoarOpenHold, KraidHeadFrame.Open));
             (ushort pointer, ushort timer) = NativeKraidGrowthResume(rom, (ushort)raw);
             KraidHeadEntry resumed = KraidHeadAnimations.GrowthResume(resume);
             AssertEqual(pointer, native.PointerAt(resumed.Playback), "Kraid native word-dependent resume cursor");

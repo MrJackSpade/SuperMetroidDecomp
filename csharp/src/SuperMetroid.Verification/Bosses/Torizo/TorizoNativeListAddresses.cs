@@ -324,7 +324,7 @@ internal static class TorizoNativeListAddresses
 
     /// <summary>The native place a projectile animation started by a segment or by its own name starts at.</summary>
     internal static ushort ProjectileEntryOf(Animation<TorizoProjectileSegment> animation) =>
-        ProjectileAnimationEntries.Where(pair => ReferenceEquals(TorizoProjectileAnimations.StartingWith(pair.Key), animation)).Select(pair => pair.Value)
+        ProjectileAnimationEntries.Where(pair => ReferenceEquals(TorizoProjectileAnimations.StartingAt[pair.Key], animation)).Select(pair => pair.Value)
             .Concat(NamedProjectileAnimationEntries.Where(named => ReferenceEquals(named.Animation, animation)).Select(named => named.Entry))
             .Single();
 

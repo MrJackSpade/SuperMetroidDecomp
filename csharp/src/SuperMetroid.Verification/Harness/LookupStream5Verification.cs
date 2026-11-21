@@ -400,7 +400,8 @@ internal static class LookupStream5Verification
             {
                 AssertEqual(PhantoonPhase.WaitingOnEye, state.Phase, "Unhit expiration hands off to eye close");
                 AssertEqual(PhantoonPartSegment.Body, state.BodyPart.PlayingProgram(), "Native invulnerable body handoff");
-                AssertEqual(PhantoonBodyHitArea.SolidifyingCentre, state.RequestedBodyHitArea, "Native invulnerable body hit area");
+                state.BodyPictureShown();
+                AssertEqual(PhantoonBodyHitArea.SolidifyingCentre, state.BodyHitArea, "Native invulnerable body hit area as his body's picture shows");
                 AssertEqual(PhantoonPartSegment.EyeCloseAndPickNewPattern, state.EyePart.PlayingProgram(), "Native close/reselect eye handoff");
                 AssertTrue(body.Contact.HasAny(EnemyContact.IgnoresSamus), "Expiration removes open-eye collision");
                 AssertEqual(true, state.NextPattern == PhantoonPatternChoice.FlameRain, "Unhit expiration requests next rain branch");

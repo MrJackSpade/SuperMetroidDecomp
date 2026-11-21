@@ -182,7 +182,7 @@ internal static class TorizoProjectileAnimationsVerification
                 (TorizoProjectileSegment.EggBouncingRight, TorizoProjectileSegment.EggHatchingRight),
             })
         {
-            AssertEqual(AnimationEnd.Holds, TorizoProjectileAnimations.StartingWith(rolling).End, $"{rolling} holds");
+            AssertEqual(AnimationEnd.Holds, TorizoProjectileAnimations.StartingAt[rolling].End, $"{rolling} holds");
             ushort sleep = unchecked((ushort)(ProjectileEntry(rolling) + 4));
             AssertEqual(ProjectileWord.Sleep, Words[(NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | sleep)].Word,
                 $"{rolling}'s sleep follows its frame");

@@ -115,7 +115,8 @@ internal static class PhantoonAnimationsVerification
         Pass(eye, forceExpiry: true);
         AssertTrue(enemies.Audio.LatestSound.HasValue, "the opened eye queues its materialization sound");
         AssertEqual(PhantoonPartSegment.Body, PartProgram(enemies, state.Body), "the opened eye restarts the body's picture");
-        AssertEqual(PhantoonBodyHitArea.EyeOnly, state.RequestedBodyHitArea, "the opened eye installs the eye-only body hitbox");
+        state.BodyPictureShown();
+        AssertEqual(PhantoonBodyHitArea.EyeOnly, state.BodyHitArea, "the opened eye installs the eye-only body hitbox as his body's picture shows");
         AssertEqual(PhantoonPartSegment.EyeOpen, PartProgram(enemies, eye), "the list's sleep keeps the eye on its opened program");
         AssertEqual(PhantoonPartFramesConstants.Spritemap(EnemyFrameId.PhantoonEyeballCentered), eye.SpritemapPointer, "the opened eye keeps its last frame");
         AssertEqual(1, eye.AnimationClock.Hold, "the callback's one-update timer survives the sleep");

@@ -44,7 +44,7 @@ internal static class RoomPaletteFxPresentationVerification
                  frame++)
             {
                 for (int color = 0;
-                     color < NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame;
+                     color < definition.ColorFrames.ColorsPerFrame;
                      color++)
                 {
                     ushort pointer = definition.ColorPointer(frame, color);

@@ -48,7 +48,7 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     internal PhantoonBodyHitArea BodyHitArea { get; private set; } = PhantoonBodyHitArea.SolidifyingCentre;
 
     /// <summary>The hit area his fight last asked his body for, live from the update its picture shows.</summary>
-    internal PhantoonBodyHitArea RequestedBodyHitArea { get; private set; } = PhantoonBodyHitArea.SolidifyingCentre;
+    private PhantoonBodyHitArea RequestedBodyHitArea { get; set; } = PhantoonBodyHitArea.SolidifyingCentre;
 
     /// <summary>Restarts his body's still picture with <paramref name="area"/> live from the update it shows.</summary>
     internal void ShowBody(PhantoonBodyHitArea area)

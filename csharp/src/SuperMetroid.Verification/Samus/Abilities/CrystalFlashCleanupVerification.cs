@@ -73,7 +73,7 @@ internal static class CrystalFlashCleanupVerification
         SamusPresentation.InitializeAnimation(samus);
         runtime.StepFrame(0);
         ushort startingY = samus.Position.Y.Whole;
-        runtime.StepFrame(runtime.Options.ControllerBindings.Shoot);
+        runtime.StepFrame(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot]);
         AssertEqual(capacity - 1, samus.PowerBombs, "normal placement consumes one Power Bomb");
         ControllerButton chord = (ControllerButton.Down | ControllerButton.L | ControllerButton.R | ControllerButton.X);
         int started = -1, finished = -1;

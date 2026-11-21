@@ -106,9 +106,9 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
     StepOptionsUntil(options, GameOptionsPhase.ControllerSettings);
 
     PressOptions(options, ControllerButton.R);
-    AssertEqual(ControllerButton.R, options.ControllerBindings.Shoot,
+    AssertEqual(ControllerButton.R, options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot],
         "controller page assigns physical R to Shoot");
-    AssertEqual(ControllerButton.X, options.ControllerBindings.AimUp,
+    AssertEqual(ControllerButton.X, options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.AimUp],
         "controller page swaps displaced Shoot button into Aim Up");
 
     for (int row = 0; row < 7; row++)

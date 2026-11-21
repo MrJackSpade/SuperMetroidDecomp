@@ -99,8 +99,47 @@ public static class LegacyGameSaveJson
             UpgradeSchemaThirteen(root);
         if (sourceSchemaVersion <= SchemaFourteen)
             UpgradeSchemaFourteen(root);
+        if (sourceSchemaVersion <= SchemaFifteen)
+            UpgradeSchemaFifteen(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
+    }
+
+    /// <summary>The last schema that listed the slots, and numbered the selected one, by their place in the file select's list.</summary>
+    private const int SchemaFifteen = 15;
+
+    /// <summary>
+    /// Schema fifteen to sixteen (#2565): schemas one through fifteen listed the three slots in the file select's order, an
+    /// empty slot as null and each saved slot numbering its place, and numbered the selected slot by its place; each saved
+    /// slot becomes the entry of the slot's name, without its number, and the selected slot is named.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The slots are not three, a slot numbers another place, or the selected slot is no place.</exception>
+    private static void UpgradeSchemaFifteen(JsonObject root)
+    {
+        JsonArray slots = root["slots"] as JsonArray ?? throw new InvalidDataException("slots is required");
+        if (slots.Count != SaveSlots.All.Count)
+            throw new InvalidDataException("slots must contain exactly three entries");
+        var named = new JsonObject();
+        int place = 0;
+        foreach (SaveSlot slot in SaveSlots.All)
+        {
+            JsonNode? entry = slots[place];
+            if (entry is not null)
+            {
+                JsonObject saved = entry as JsonObject ?? throw new InvalidDataException($"slots[{place}] must be an object");
+                if (saved["slot"] is not JsonValue number || !number.TryGetValue(out int numbered) || numbered != place)
+                    throw new InvalidDataException($"slots[{place}].slot must equal {place}");
+                saved.Remove("slot");
+                slots[place] = null;
+                named.Add(GameSaveJsonFormat.SlotKey(slot), saved);
+            }
+            place++;
+        }
+        root["slots"] = named;
+        if (root["selectedSlot"] is not JsonValue selected || !selected.TryGetValue(out int selectedPlace) ||
+            (uint)selectedPlace >= SaveSlots.All.Count)
+            throw new InvalidDataException("selectedSlot must be 0, 1, or 2");
+        root["selectedSlot"] = GameSaveJsonFormat.SlotKey(SaveSlots.All[selectedPlace]);
     }
 
     /// <summary>The last schema that kept no history of a power-on that found no valid save.</summary>

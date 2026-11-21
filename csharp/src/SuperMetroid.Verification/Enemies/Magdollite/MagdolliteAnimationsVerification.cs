@@ -33,7 +33,7 @@ internal static class MagdolliteAnimationsVerification
                     // The sound routine's cue is its operand decoded to the cue's sound; every other routine's cue is fixed.
                     MagdolliteCue expected = instruction.Operands switch
                     {
-                        "V" => new MagdolliteCue.PlaySoundIfOnScreen(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0])),
+                        "V" => new MagdolliteCue.PlaySoundIfOnScreen(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, operands[0])),
                         "" => instruction.Cue ?? throw new InvalidOperationException($"{at}: the routine names no cue."),
                         _ => throw new InvalidOperationException($"Undefined operand roles {instruction.Operands}."),
                     };

@@ -145,9 +145,9 @@ internal static class AudioClipBackendVerification
         script.Advance([new AudioRequest.RequestSound(low.Sound)]);
         script.Advance(4);
         AssertEqual<SoundEffectId?>(high.Sound, library2.Playback?.Sound.Sound, "a low-priority request is rejected while the high-priority sound holds the library");
-        script.Advance([new AudioRequest.RequestSound(EnemySound.Silence)]);
+        script.Advance([new AudioRequest.RequestSound(EnemySoundStop.Any)]);
         AssertTrue(library2.Playback is HoldingClipPlayback && library2.HighPriority, "the high-priority sound still holds library 2");
-        script.AdvanceUntil(() => library2.Playback?.Sound.Sound == EnemySound.Silence, SoundStartUpdates);
+        script.AdvanceUntil(() => library2.Playback?.Sound.Sound == EnemySoundStop.Any, SoundStartUpdates);
 
         ClipLibraryState library3 = script.State.Libraries[SoundEffectLibrary.Room];
         script.Advance([new AudioRequest.RequestSound(RoomSound.LowHealthBeep)]);
@@ -162,8 +162,8 @@ internal static class AudioClipBackendVerification
         AssertTrue(library3.Playback?.Sound.Sound == RoomSound.LowHealthBeep && library3.Playback?.Start == beepStart,
             "a clip-set switch leaves the looping beep playing on, unchanged");
 
-        script.Advance([new AudioRequest.RequestSound(RoomSound.Silence)]);
-        script.AdvanceUntil(() => library3.Playback?.Sound.Sound == RoomSound.Silence, SoundStartUpdates);
+        script.Advance([new AudioRequest.RequestSound(RoomSoundStop.Any)]);
+        script.AdvanceUntil(() => library3.Playback?.Sound.Sound == RoomSoundStop.Any, SoundStartUpdates);
         AssertTrue(!library3.InLowHealthMode, "$01 is accepted in low-health mode and clears it");
     }
 

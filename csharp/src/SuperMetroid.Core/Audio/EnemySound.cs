@@ -4,11 +4,17 @@ namespace SuperMetroid.Core.Audio;
 /// Every sound of the enemies' library (<see cref="SoundEffectLibrary.Enemies"/>): the enemies' and bosses' cries,
 /// shots and attacks, the drops they leave and the impacts and explosions that kill them, and the blocks, water, lava
 /// and stations around them. The library has its own queue: its sounds interrupt one another and never those of
-/// Samus's or the room's library.
+/// Samus's or the room's library. The requests that stop its sound and play nothing are <see cref="EnemySoundStop"/>'s
+/// (#2580).
 /// </summary>
 /// <remarks>
 /// Members are identities. Their values are arbitrary and nothing reads them; the import pipeline alone knows which
 /// installed sound effect each member requests.
+/// <para>
+/// Each different sound has one member (#2580), in this library or the room's, which names every use it serves. A request
+/// merged into a member of this library had its priority and length; one that came from another library says what
+/// interruption it gave up.
+/// </para>
 /// </remarks>
 public enum EnemySound
 {
@@ -16,18 +22,12 @@ public enum EnemySound
     SmallEnergyPickup,
     /// <summary>A big energy drop collected; a high-priority sound.</summary>
     BigEnergyPickup,
-    /// <summary>A missile drop collected; a high-priority sound.</summary>
-    MissilePickup,
-    /// <summary>A Super Missile drop collected; a high-priority sound.</summary>
-    SuperMissilePickup,
-    /// <summary>A Power Bomb drop collected; a high-priority sound.</summary>
-    PowerBombPickup,
+    /// <summary>A missile, Super Missile or Power Bomb drop collected; a high-priority sound.</summary>
+    AmmoPickup,
     /// <summary>A block destroyed by contact damage.</summary>
     ContactBlockBreak,
-    /// <summary>A missile or Super Missile striking a wall.</summary>
-    MissileImpact,
-    /// <summary>A Morph Ball bomb exploding.</summary>
-    BombExplosion,
+    /// <summary>A missile or Super Missile striking a wall, or a Morph Ball bomb exploding.</summary>
+    WeaponExplosion,
     /// <summary>An enemy killed.</summary>
     EnemyKilled,
     /// <summary>A block crumbling.</summary>
@@ -52,8 +52,6 @@ public enum EnemySound
     LavaBubblingFalling,
     /// <summary>Lava bubbling as two pops rising in pitch; one of the three the lava picks from at random.</summary>
     LavaBubblingRising,
-    /// <summary>The Maridia elevatube.</summary>
-    Elevatube,
     /// <summary>Fake Kraid's cry; a high-priority sound.</summary>
     FakeKraidCry,
     /// <summary>A morph ball eye's ray; a high-priority sound.</summary>
@@ -80,7 +78,8 @@ public enum EnemySound
     /// <summary>A shot fly hit.</summary>
     ShotFly,
     /// <summary>
-    /// A two-pulse screech warbling between 1.9 and 3 kHz (0.39 s): a Skree, Metaree, wall or ninja Space Pirate hit.
+    /// A two-pulse screech warbling between 1.9 and 3 kHz (0.39 s): a Skree, Metaree, wall or ninja Space Pirate hit, or
+    /// a Skree or Metaree launching its dive.
     /// </summary>
     Screech,
     /// <summary>
@@ -90,9 +89,17 @@ public enum EnemySound
     RisingSqueaks,
     /// <summary>Three squeaks between 580 and 780 Hz (0.28 s): a Zoomer, Zeela, Sova, Zero or Sidehopper hit.</summary>
     LowSqueaks,
-    /// <summary>A small explosion, as an enemy dies.</summary>
+    /// <summary>
+    /// A small explosion, as an enemy dies; also a projectile of Mother Brain or a Torizo striking a surface, the Baby
+    /// Metroid and Mother Brain exploding, and Kraid's rocks. Those last were the room library's requests: merged here
+    /// (#2580), they wait in this library's queue, and interrupt and are interrupted by this library's sounds and stops,
+    /// no longer the room library's.
+    /// </summary>
     SmallExplosion,
-    /// <summary>A big explosion: the Ceres door, Crocomire and its wall, Draygon's tail and Mother Brain.</summary>
+    /// <summary>
+    /// A big explosion: the Ceres door, Crocomire and its wall, Draygon's tail and Mother Brain; also a quake, as
+    /// Crocomire or Kraid moves or Ridley's tail strikes the floor.
+    /// </summary>
     BigExplosion,
     /// <summary>Bomb Torizo's explosive swipe.</summary>
     BombTorizoSwipe,
@@ -127,8 +134,8 @@ public enum EnemySound
     /// <summary>An Etecoon's cry.</summary>
     EtecoonCry,
     /// <summary>
-    /// A low thump swelling to its peak 0.19 s in, near 100 Hz (0.39 s): a Cacatac's spikes, or a Golden Torizo egg
-    /// released.
+    /// A low thump swelling to its peak 0.19 s in, near 100 Hz (0.39 s): a Cacatac's spikes, a Golden Torizo egg
+    /// released, or a Powamp hit.
     /// </summary>
     LowThump,
     /// <summary>The Etecoons' theme; a high-priority sound.</summary>
@@ -141,18 +148,10 @@ public enum EnemySound
     StationEngaged,
     /// <summary>A refill or map station's arm retracting.</summary>
     StationDisengaged,
-    /// <summary>The Speed Booster's run, as the Dachora runs; its clip is Samus's Speed Booster's.</summary>
-    SpeedBooster,
     /// <summary>A Mama Turtle spinning in her shell.</summary>
     MamaTurtleSpinning,
     /// <summary>A shinespark's launch, as the Dachora launches, also Crocomire's bridge collapsing under him.</summary>
     Shinespark,
-    /// <summary>
-    /// A shinespark ending, as the Dachora strikes the ceiling; its clip is Samus's shinespark end's.
-    /// </summary>
-    ShinesparkEnd,
-    /// <summary>A shinespark stored, as the Dachora charges; its clip is Samus's stored shinespark's.</summary>
-    StoredShinespark,
     /// <summary>
     /// A short buzz near 220 Hz (0.25 s): an Owtch, Multiviola, Ripper, Tripper, suspensor platform, Yard, yapping maw or
     /// Atomic hit.
@@ -166,8 +165,6 @@ public enum EnemySound
     BoulderBounce,
     /// <summary>A boulder exploding.</summary>
     BoulderExplosion,
-    /// <summary>A typewriter stroke of Ceres's self-destruct sequence.</summary>
-    CeresTypewriter,
     /// <summary>A lavaquake, also the Tourian reveal's rumble; a high-priority sound.</summary>
     Lavaquake,
     /// <summary>A Waver hit.</summary>
@@ -206,10 +203,6 @@ public enum EnemySound
     RidleyRoar,
     /// <summary>A Metroid hit, or a Metroid's cry.</summary>
     ShotMetroid,
-    /// <summary>
-    /// The screech <see cref="Screech"/> plays, as the library's own sound: a Skree or Metaree launching its dive.
-    /// </summary>
-    DiveScreech,
     /// <summary>A Skree or Metaree striking the ground as it burrows.</summary>
     Burrow,
     /// <summary>A Sidehopper jumping.</summary>
@@ -242,8 +235,6 @@ public enum EnemySound
     WorkRobot,
     /// <summary>A Shaktool hit.</summary>
     ShotShaktool,
-    /// <summary>A Powamp hit.</summary>
-    ShotPowamp,
     /// <summary>A Kago bug.</summary>
     KagoBug,
     /// <summary>A Ceres tile falling from the ceiling and landing.</summary>
@@ -254,8 +245,6 @@ public enum EnemySound
     MotherBrainLowCry,
     /// <summary>A Yard bouncing.</summary>
     YardBounce,
-    /// <summary>Silences the library; it interrupts any sound of the library.</summary>
-    Silence,
     /// <summary>The Baby Metroid's cry; a high-priority sound.</summary>
     BabyMetroidCry,
     /// <summary>
@@ -266,8 +255,6 @@ public enum EnemySound
     CrocomireCry,
     /// <summary>Crocomire's skeleton collapsing; a high-priority sound.</summary>
     CrocomireSkeletonCollapse,
-    /// <summary>A quake: Crocomire or Kraid moving, or Ridley's tail striking the floor.</summary>
-    Quake,
     /// <summary>Crocomire's melting cry; a high-priority sound.</summary>
     CrocomireMeltingCry,
     /// <summary>The Baby Metroid draining.</summary>

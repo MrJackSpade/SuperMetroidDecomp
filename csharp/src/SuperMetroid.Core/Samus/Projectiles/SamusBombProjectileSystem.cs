@@ -213,7 +213,7 @@ public sealed class SamusBombProjectileSystem
                 beamChargeConsumed |= rejectedPlacementClearedCharge;
             }
             if (beamChargeConsumed)
-                AudioRequests.QueueSound(SamusSound.Silence, SoundRequestPriority.High);
+                AudioRequests.QueueSound(SamusSoundStop.Any, SoundRequestPriority.High);
         }
         return beamChargeConsumed;
     }
@@ -247,7 +247,7 @@ public sealed class SamusBombProjectileSystem
                 // The fuse requests this sound at normal priority for every normal bomb
                 // whose fuse expires. Keep the append-only shape because several spread
                 // bombs can expire during one Samus projectile pass.
-                AudioRequests.QueueSound(EnemySound.BombExplosion, SoundRequestPriority.Normal);
+                AudioRequests.QueueSound(EnemySound.WeaponExplosion, SoundRequestPriority.Normal);
             }
 
             // A bomb its own update ended this pass shows nothing more.

@@ -194,8 +194,8 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(6, samus.AnimationNumber, "raise transition forces animation frame six");
     AssertTrue(raiseEnd.BubbleStarted,
         "raise transition publishes Crystal Flash HDMA spawn seam");
-    AssertSequenceEqual(new[] { new SoundRequest(RoomSound.Silence, SoundRequestPriority.Essential) },
-        samus.AudioRequests.SoundRequests.Where(request => request.SoundEffect == RoomSound.Silence),
+    AssertSequenceEqual(new[] { new SoundRequest(RoomSoundStop.Any, SoundRequestPriority.Essential) },
+        samus.AudioRequests.SoundRequests.Where(request => request.SoundEffect == RoomSoundStop.Any),
         "the raise's end queues the Crystal Flash activation sound once, at essential priority");
 
     var crystalWindowGlowColors = PowerBombGlowColorFile.Read(new MemoryStream(
@@ -545,7 +545,7 @@ internal static void VerifySamusXray()
     AssertEqual(SamusPoseId.FacingLeftNormalPose, standing.Pose, "left X-ray exits to ordinary standing");
     AssertEqual(XrayVisorShadeMode.TornDown, standing.Xray.VisorShadeMode,
         "X-ray teardown requests palette restoration");
-    AssertEqual(1, standing.AudioRequests.CountOf(SamusSound.XrayEnd), "X-ray teardown queues its sound once");
+    AssertEqual(1, standing.AudioRequests.CountOf(SamusSoundStop.Xray), "X-ray teardown queues its sound once");
     AssertTrue(standing.Xray.UpdateColouring(xrayColours, standing.EquippedItems),
         "X-ray teardown restores normal suit palette");
     AssertEqual(0x0104, xrayColours.ShownSuit(xraySources)[4], "normal palette replaces visor color");
@@ -767,7 +767,7 @@ internal static void VerifySamusDeathSequence()
         samus.PoseHistory.PreviousMovement, "death commits right metadata");
     AssertEqual(5, samus.AnimationNumber, "ordinary death starts unmorphed frame five");
     AssertEqual(new Offset16<ScreenPixels>(0x00a0, 0x00c0), samus.DeathSequence.ScreenPosition, "death captures screen position");
-    AssertEqual(0, samus.AudioRequests.CountOf(SamusSound.SpinJumpEnd), "ordinary death does not request spin SFX");
+    AssertEqual(0, samus.AudioRequests.CountOf(SamusSoundStop.SpinJump), "ordinary death does not request spin SFX");
     AssertEqual(2, samus.AnimationFrameTimer.RawValue, "death pose retains two-tick delay");
 
     var samusColours = new SamusColours();
@@ -845,8 +845,8 @@ internal static void VerifySamusDeathSequence()
     SamusPresentation.InitializeAnimation(spinning);
     spinning.DeathSequence.Begin(
         spinning, cameraPosition: new(0, 0));
-    AssertSequenceEqual(new[] { new SoundRequest(SamusSound.SpinJumpEnd, SoundRequestPriority.Normal) },
-        spinning.AudioRequests.SoundRequests.Where(request => request.SoundEffect == SamusSound.SpinJumpEnd),
+    AssertSequenceEqual(new[] { new SoundRequest(SamusSoundStop.SpinJump, SoundRequestPriority.Normal) },
+        spinning.AudioRequests.SoundRequests.Where(request => request.SoundEffect == SamusSoundStop.SpinJump),
         "spin death queues the spin's end once, at normal priority, as it begins");
     AssertEqual(5, spinning.AnimationNumber, "spin death begins unmorphed frame five");
 

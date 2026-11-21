@@ -12,7 +12,7 @@ public sealed class SamusHealthWarningState
     private static readonly SoundEffectId Start = RoomSound.LowHealthBeep;
 
     /// <summary>The room-library sound that stops the critical-energy warning.</summary>
-    private static readonly SoundEffectId Stop = RoomSound.Silence;
+    private static readonly SoundEffectId Stop = RoomSoundStop.Any;
 
     /// <summary>The latch, not confirmation that the warning sound actually started.</summary>
     private bool IsActive { get; set; }

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// <param name="SampleRate">The clips' rate in stereo frames per second: 32,040, one update's clock samples sixty times.</param>
 /// <param name="InitialBeat">How long the music's beat lasts at power-on, before any song has played.</param>
 /// <param name="Music">One clip per song of each clip set.</param>
-/// <param name="SoundEffects">One entry per sound effect.</param>
+/// <param name="SoundEffects">One entry per sound effect and per stop.</param>
 public sealed record AudioClipManifest(
     int FormatVersion,
     int SampleRate,
@@ -34,6 +34,10 @@ public sealed record AudioClipManifest(
     /// active length beside layers each with a nullable loop start. Version 10 (#2603) renders each sound that plays an
     /// instrument only a music data set defines with the data set its room loads, Phantoon's appearance and Crocomire's
     /// cries among them, where version 9 rendered those from the shared sounds alone, silent where they key that instrument.
+    /// Version 11 (#2580) names each request that stops a
+    /// library's sound and plays nothing by its stop list, <c>SamusSoundStop</c>, <c>EnemySoundStop</c> or
+    /// <c>RoomSoundStop</c>, where version 10 named it in the library's sound list, and holds each different sound once, under its one
+    /// name, where version 10 held 27 more names for sounds identical to another's.
     /// </summary>
-    public const int CurrentFormatVersion = 10;
+    public const int CurrentFormatVersion = 11;
 }

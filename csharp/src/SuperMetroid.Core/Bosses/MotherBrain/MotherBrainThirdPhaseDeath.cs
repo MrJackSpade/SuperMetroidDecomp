@@ -60,7 +60,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             requests.Add(new MotherBrainDeathExplosionRequest(
                 Offset: anchor,
                 Animation: animation,
-                SoundEffect: MotherBrainSoundDefinitions.Explosion));
+                Sound: MotherBrainSoundDefinitions.Explosion));
         }
     }
 
@@ -86,7 +86,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         return new DustExplosionRequest(
             Position: position,
             Animation: animation,
-            SoundEffect: EnemySound.SmallExplosion);
+            Sound: MotherBrainSoundDefinitions.Explosion);
     }
 
     /// <summary>

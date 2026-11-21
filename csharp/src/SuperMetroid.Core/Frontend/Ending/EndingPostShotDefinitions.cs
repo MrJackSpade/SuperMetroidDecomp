@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingPostShotDefinitions
 {
     /// <summary>The charged plasma-wave sound the shot queues.</summary>
-    public static readonly SoundEffectId ShotSound = SamusSound.ChargedPlasmaWave;
+    public static readonly SoundEffectId ShotSound = SamusSound.ChargedPlasma;
     /// <summary>The priority the post-shot step queues the shot's sound at: essential, so it joins any sound queue that is not full.</summary>
     public static SoundRequestPriority ShotSoundPriority { get; } = SoundRequestPriority.Essential;
     /// <summary>The post-credits turning floor's horizontal origin.</summary>

@@ -83,7 +83,7 @@ public static class IntroCinematicDefinitions
         /// <summary>The Baby Metroid's first cry.</summary>
         public static readonly SoundEffectId BabyHighCry = RoomSound.BabyMetroidHighCry;
         /// <summary>The typewriter sound while narration characters appear.</summary>
-        public static readonly SoundEffectId Typewriter = RoomSound.IntroTypewriter;
+        public static readonly SoundEffectId Typewriter = RoomSound.Typewriter;
         /// <summary>The sound of the Baby Metroid hatching.</summary>
         public static readonly SoundEffectId EggHatch = EnemySound.ContactKill;
     }

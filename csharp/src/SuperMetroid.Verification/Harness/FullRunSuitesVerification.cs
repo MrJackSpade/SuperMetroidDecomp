@@ -783,6 +783,12 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCartridgeImportAddressSpace), () => VerifyCartridgeImportAddressSpace()),
         new(nameof(VerifyCartridgeAudioQueues), () => VerifyCartridgeAudioQueues()),
         new(nameof(VerifyManagedSnesDsp), () => VerifyManagedSnesDsp()),
+        // Each stop plays only zero-volume notes and each sound a note above it, as the cartridge's programs hold (#2580).
+        new(nameof(SuperMetroid.Verification.Audio.SoundStopProgramsVerification.VerifyStopsPlayOnlySilentNotes),
+            SuperMetroid.Verification.Audio.SoundStopProgramsVerification.VerifyStopsPlayOnlySilentNotes),
+        // No two members of the sound lists install the same clip: each different sound has one name (#2580).
+        new(nameof(SuperMetroid.Verification.Audio.SoundListClipsVerification.VerifyEachSoundHasItsOwnClip),
+            SuperMetroid.Verification.Audio.SoundListClipsVerification.VerifyEachSoundHasItsOwnClip),
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),
         new(nameof(SuperMetroid.Verification.Rooms.LevelData.BlockParameterCarryOverVerification.VerifyBlockParameterCarryOver),
             SuperMetroid.Verification.Rooms.LevelData.BlockParameterCarryOverVerification.VerifyBlockParameterCarryOver),

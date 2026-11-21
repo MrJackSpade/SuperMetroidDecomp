@@ -6,7 +6,10 @@ internal static class EndingPostCreditsTextAccess
     /// <summary>Exposes <see cref="EndingPostCreditsText"/> state that only verification reads.</summary>
     extension(EndingPostCreditsText self)
     {
-        /// <summary>The typed texts the screen shows, in the order they started.</summary>
-        internal IReadOnlyList<EndingTypewriter> Typed => PrivateState.Field<EndingPostCreditsText, List<EndingTypewriter>>(self, "typed");
+        /// <summary>The typed texts the screen shows, in the order they started: the item percentage, then the final message.</summary>
+        internal IReadOnlyList<EndingTypewriter> Typed =>
+        [
+            .. new[] { self.ItemPercentage, self.FinalMessage }.OfType<EndingTypewriter>(),
+        ];
     }
 }

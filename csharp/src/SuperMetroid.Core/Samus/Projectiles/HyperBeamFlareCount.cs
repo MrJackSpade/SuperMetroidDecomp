@@ -19,12 +19,12 @@ internal sealed class HyperBeamFlareCount<TSegment, TPicture> : IHyperBeamFlareC
     /// <summary>Counts with <paramref name="player"/>, showing its pictures in <paramref name="composition"/>.</summary>
     private HyperBeamFlareCount(AnimationPlayer<TSegment, TPicture, NoAnimationCue> player, Func<HorizontalDirection, TPicture, ProjectileSpriteId> composition)
     {
-        this.player = player;
+        Player = player;
         this.composition = composition;
     }
 
     /// <summary>The play counted backward: the picture it shows and the updates that picture has left.</summary>
-    private readonly AnimationPlayer<TSegment, TPicture, NoAnimationCue> player;
+    internal AnimationPlayer<TSegment, TPicture, NoAnimationCue> Player { get; }
 
     /// <summary>The composition each of the component's pictures shows in, by Samus's facing.</summary>
     private readonly Func<HorizontalDirection, TPicture, ProjectileSpriteId> composition;
@@ -52,8 +52,8 @@ internal sealed class HyperBeamFlareCount<TSegment, TPicture> : IHyperBeamFlareC
     }
 
     /// <inheritdoc/>
-    public ProjectileSpriteId? Composition(HorizontalDirection facing) => player.Shown is { } shown ? composition(facing, shown) : null;
+    public ProjectileSpriteId? Composition(HorizontalDirection facing) => Player.Shown is { } shown ? composition(facing, shown) : null;
 
     /// <inheritdoc/>
-    public bool PlayBackward() => player.StepBackward(HyperBeamPictureUpdates, HyperBeamFirstPictureUpdates);
+    public bool PlayBackward() => Player.StepBackward(HyperBeamPictureUpdates, HyperBeamFirstPictureUpdates);
 }

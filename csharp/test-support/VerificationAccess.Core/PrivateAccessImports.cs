@@ -321,7 +321,6 @@ global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainAnimationsPr
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainAttacksPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodyPrivateAccess;
-global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBombBouncesPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainAnimationPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainColoursPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainCombatPrivateAccess;
@@ -558,7 +557,6 @@ global using static SuperMetroid.Core.Enemies.Sbug.SbugBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Shaktool.ShaktoolAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomControllerObjectPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Shutters.GrowingShutterEnemyStatePrivateAccess;
 global using static SuperMetroid.Core.Enemies.Shutters.ShutterAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Shutters.ShuttersBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Skree.SkreeBehaviorPrivateAccess;
@@ -728,7 +726,6 @@ global using static SuperMetroid.Core.Samus.Grapple.SamusGrappleSwingPrivateAcce
 global using static SuperMetroid.Core.Samus.HudItemsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Movement.SamusAerialMovementPrivateAccess;
 global using static SuperMetroid.Core.Samus.Movement.SamusHorizontalSpeedStatePrivateAccess;
-global using static SuperMetroid.Core.Samus.Movement.SamusKinematicsStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Movement.SamusLiquidPhysicsStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Movement.SamusSpeedBoostCounterPrivateAccess;
 global using static SuperMetroid.Core.Samus.Movement.ScrollBoundaryCameraPrivateAccess;
@@ -739,7 +736,6 @@ global using static SuperMetroid.Core.Samus.Poses.SamusPoseMetadataPrivateAccess
 global using static SuperMetroid.Core.Samus.Projectiles.BeamChargeLevelPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.BeamChargeStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.BeamCombosPrivateAccess;
-global using static SuperMetroid.Core.Samus.Projectiles.BeamFiringPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.BombSpreadFlightPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.ChargedShotGlowPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.HyperBeamColourEffectStatePrivateAccess;
@@ -747,7 +743,6 @@ global using static SuperMetroid.Core.Samus.Projectiles.PowerBombBlastTimelinePr
 global using static SuperMetroid.Core.Samus.Projectiles.PowerBombRadiusPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileAnimationPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileMotionPrivateAccess;
-global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollisionPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTrailSparkleAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTrailsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystemPrivateAccess;

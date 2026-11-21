@@ -42,10 +42,6 @@ internal static class SamusBombProjectileSystemPrivateAccess
         {
             get => PrivateState.StaticGet<global::SuperMetroid.Core.Progression.SamusProjectileType>(typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem), "PowerBombType");
         }
-
-        /// <summary>The private method <c>ReactToBombedBlock</c>, invoked by name.</summary>
-        internal static void ReactToBombedBlock(SamusTerrain terrain, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks> bombedBlock, global::SuperMetroid.Core.Progression.SamusProjectileType projectileType) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem), "ReactToBombedBlock", [typeof(global::SuperMetroid.Core.Samus.Movement.SamusTerrain), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>), typeof(global::SuperMetroid.Core.Progression.SamusProjectileType)], new object?[] { terrain, bombedBlock, projectileType });
     }
 
     /// <summary>The private instance members checks read or call.</summary>

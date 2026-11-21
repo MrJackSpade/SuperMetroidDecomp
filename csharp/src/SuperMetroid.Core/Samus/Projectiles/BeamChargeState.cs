@@ -76,24 +76,24 @@ internal sealed class BeamChargeState
     internal void RestartChargePulse() => ChargePulse = AnimationPlace.StartOfAnimation;
 
     /// <summary>Each flare component's ordinary animation: the picture it shows and the wait it holds it for.</summary>
-    private readonly IdentityTable<ChargeFlareComponent, IChargeFlarePlay> _flare = new(ChargeFlarePlays.Of);
+    internal IdentityTable<ChargeFlareComponent, IChargeFlarePlay> Flares { get; } = new(ChargeFlarePlays.Of);
 
     /// <summary>
     /// The Hyper Beam's backward count of each component's pictures (#2553), or none while the ordinary flare plays: a
     /// Hyper Beam shot starts it from the last pictures, the first backward update with the Hyper Beam takes the ordinary
     /// flare over where it stands, and a restart or a clear of the flare ends it.
     /// </summary>
-    private IdentityTable<ChargeFlareComponent, IHyperBeamFlareCount>? _hyperBeamCount;
+    internal IdentityTable<ChargeFlareComponent, IHyperBeamFlareCount>? HyperBeamCount { get; private set; }
 
     /// <summary>
     /// The composition flare <paramref name="component"/> shows for Samus's facing: the Hyper Beam's count's while it counts,
     /// none once it has stepped back past the component's first picture, and the ordinary flare's otherwise.
     /// </summary>
     internal ProjectileSpriteId? FlareComposition(ChargeFlareComponent component, HorizontalDirection facing) =>
-        _hyperBeamCount is { } count ? count[component].Composition(facing) : _flare[component].Composition(facing);
+        HyperBeamCount is { } count ? count[component].Composition(facing) : Flares[component].Composition(facing);
 
     /// <summary>Plays flare <paramref name="component"/>'s ordinary animation one update on.</summary>
-    internal void PlayFlareForward(ChargeFlareComponent component) => _flare[component].PlayForward();
+    internal void PlayFlareForward(ChargeFlareComponent component) => Flares[component].PlayForward();
 
     /// <summary>
     /// Counts the Hyper Beam's flare of <paramref name="component"/> one update back, the count taking the ordinary flare
@@ -102,15 +102,15 @@ internal sealed class BeamChargeState
     /// <returns>Whether the update reached the component's first picture.</returns>
     internal bool PlayHyperBeamFlareBackward(ChargeFlareComponent component)
     {
-        _hyperBeamCount ??= new(each => _flare[each].CountBackwardFromHere());
-        return _hyperBeamCount[component].PlayBackward();
+        HyperBeamCount ??= new(each => Flares[each].CountBackwardFromHere());
+        return HyperBeamCount[component].PlayBackward();
     }
 
     /// <summary>The ordinary charge flare's first update: every component starts its animation at its first picture.</summary>
     internal void StartChargeFlare()
     {
-        _hyperBeamCount = null;
-        foreach (IChargeFlarePlay flare in _flare.Values)
+        HyperBeamCount = null;
+        foreach (IChargeFlarePlay flare in Flares.Values)
             flare.Start();
     }
 
@@ -118,14 +118,14 @@ internal sealed class BeamChargeState
     internal void StartHyperBeamFlare()
     {
         Level = BeamChargeLevel.HyperBeam;
-        _hyperBeamCount = new(component => _flare[component].CountBackwardFromLast());
+        HyperBeamCount = new(component => Flares[component].CountBackwardFromLast());
     }
 
     /// <summary>Clears every flare component to its first picture with no wait, ending any Hyper Beam count.</summary>
     internal void ClearFlare()
     {
-        _hyperBeamCount = null;
-        foreach (IChargeFlarePlay flare in _flare.Values)
+        HyperBeamCount = null;
+        foreach (IChargeFlarePlay flare in Flares.Values)
             flare.Clear();
     }
 

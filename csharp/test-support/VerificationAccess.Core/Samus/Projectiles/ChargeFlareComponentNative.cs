@@ -11,12 +11,10 @@ internal sealed class ChargeFlareComponentNative(BeamChargeState charge, ChargeF
     internal ChargeFlareComponent Component { get; } = component;
 
     /// <summary>The component's ordinary play.</summary>
-    private IChargeFlarePlay Play =>
-        PrivateState.Field<BeamChargeState, IdentityTable<ChargeFlareComponent, IChargeFlarePlay>>(charge, "_flare")[Component];
+    private IChargeFlarePlay Play => charge.Flares[Component];
 
     /// <summary>The Hyper Beam's count of the component, or none while the ordinary flare plays.</summary>
-    private IHyperBeamFlareCount? Count =>
-        PrivateState.Field<BeamChargeState, IdentityTable<ChargeFlareComponent, IHyperBeamFlareCount>?>(charge, "_hyperBeamCount")?[Component];
+    private IHyperBeamFlareCount? Count => charge.HyperBeamCount?[Component];
 
     /// <summary>
     /// The number of the picture the component shows among its pictures, or null once the Hyper Beam's count has stepped

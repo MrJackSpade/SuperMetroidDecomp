@@ -15,13 +15,13 @@ internal sealed class EndingPostCreditsText
     /// <summary>
     /// The item-percentage text (#2541), the first typed text the screen shows: none until the logo's end.
     /// </summary>
-    private EndingTypewriter? itemPercentage;
+    internal EndingTypewriter? ItemPercentage { get; private set; }
 
     /// <summary>
     /// The final message (#2541), from the end of the move down on, below which the item percentage stays shown; none
     /// before. The screen draws it after the item percentage, whatever order they were started in (#2553).
     /// </summary>
-    private EndingTypewriter? finalMessage;
+    internal EndingTypewriter? FinalMessage { get; private set; }
 
     /// <summary>Pixels the text is moved down the screen, zero until the item percentage's move down.</summary>
     internal int Drop { get; set; }
@@ -30,8 +30,8 @@ internal sealed class EndingPostCreditsText
     internal void Clear()
     {
         Panel = EndingPostCreditsPanel.None;
-        itemPercentage = null;
-        finalMessage = null;
+        ItemPercentage = null;
+        FinalMessage = null;
     }
 
     /// <summary>
@@ -52,18 +52,18 @@ internal sealed class EndingPostCreditsText
     /// <summary>Starts the item-percentage text, the first typed text the screen shows.</summary>
     /// <returns>The text started.</returns>
     internal EndingTypewriter StartItemPercentage(EndingTypewriterSetup setup) =>
-        itemPercentage = new EndingTypewriter(setup, EndingTextSequence.ItemPercentage);
+        ItemPercentage = new EndingTypewriter(setup, EndingTextSequence.ItemPercentage);
 
     /// <summary>Starts the final message, below which the item-percentage text stays shown.</summary>
     /// <returns>The text started.</returns>
     internal EndingTypewriter StartFinalMessage(EndingTypewriterSetup setup) =>
-        finalMessage = new EndingTypewriter(setup, EndingTextSequence.FinalMessage);
+        FinalMessage = new EndingTypewriter(setup, EndingTextSequence.FinalMessage);
 
     /// <summary>Binds the typed texts' installed text when the game is bound to its installed content.</summary>
     internal void BindText(EndingTypewriterText value)
     {
-        itemPercentage?.BindText(value);
-        finalMessage?.BindText(value);
+        ItemPercentage?.BindText(value);
+        FinalMessage?.BindText(value);
     }
 
     /// <summary>The panel each post-credits panel choice shows: the result panel, the copyright panel, or none (#2553).</summary>
@@ -80,7 +80,7 @@ internal sealed class EndingPostCreditsText
     {
         foreach (EndingShownText panel in PanelTexts[Panel])
             yield return panel;
-        foreach (EndingTypewriter? text in (EndingTypewriter?[])[itemPercentage, finalMessage])
+        foreach (EndingTypewriter? text in (EndingTypewriter?[])[ItemPercentage, FinalMessage])
         {
             foreach (EndingShownText shown in text?.Shown() ?? [])
                 yield return shown;

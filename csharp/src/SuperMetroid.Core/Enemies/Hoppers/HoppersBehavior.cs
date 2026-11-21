@@ -11,8 +11,14 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     /// <remarks>Each hopper definition's creation carries the kind <see cref="HopperKindDefinitions.Kinds"/> gives it.</remarks>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= HopperKindDefinitions.Kinds.ToDictionary(
-        entry => entry.Key, entry => (EnemyEntityCreation)((occupant, place, common) => Create(occupant, place, common, entry.Value)));
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    {
+        [EnemyDefinitionId.Sidehopper] = (occupant, place, common) => Create(occupant, place, common, HopperKindDefinitions.Kinds[EnemyDefinitionId.Sidehopper]),
+        [EnemyDefinitionId.SidehopperLarge] = (occupant, place, common) => Create(occupant, place, common, HopperKindDefinitions.Kinds[EnemyDefinitionId.SidehopperLarge]),
+        [EnemyDefinitionId.SidehopperTourian] = (occupant, place, common) => Create(occupant, place, common, HopperKindDefinitions.Kinds[EnemyDefinitionId.SidehopperTourian]),
+        [EnemyDefinitionId.DessgeegaLarge] = (occupant, place, common) => Create(occupant, place, common, HopperKindDefinitions.Kinds[EnemyDefinitionId.DessgeegaLarge]),
+        [EnemyDefinitionId.Dessgeega] = (occupant, place, common) => Create(occupant, place, common, HopperKindDefinitions.Kinds[EnemyDefinitionId.Dessgeega]),
+    };
 
     /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
     /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>

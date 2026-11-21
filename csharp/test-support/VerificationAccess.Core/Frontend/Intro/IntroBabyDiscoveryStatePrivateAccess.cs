@@ -24,11 +24,6 @@ internal static class IntroBabyDiscoveryStatePrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Frontend.Intro.IntroBabyDiscoveryState self)
     {
-        /// <summary>The private property <c>Level</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData Level
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroBabyDiscoveryState, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData>(self, "Level");
-        }
 
         /// <summary>The private field <c>eggParticles</c>, reached by name.</summary>
         internal global::System.Collections.Generic.List<global::SuperMetroid.Core.Frontend.Intro.IntroEggParticle> eggParticles => PrivateState.Field<global::SuperMetroid.Core.Frontend.Intro.IntroBabyDiscoveryState, global::System.Collections.Generic.List<global::SuperMetroid.Core.Frontend.Intro.IntroEggParticle>>(self, "eggParticles");

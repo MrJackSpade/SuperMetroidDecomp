@@ -461,33 +461,6 @@ internal static class NativeSnapshotImport
     }
 
     /// <summary>
-    /// Restores the frame each live palette-FX object shows, in native slot order, as its handler pass showed it
-    /// (#1512, #1597): the effect holds the frame, which the room's pictures shade with; a frame of Samus's suit groups
-    /// is laid over her suit and one of an enemy's groups is shown over its owner's colours, as the runtime does after the
-    /// pass. Native colour memory already holds those frames' records at the checkpoint, while the imported slots only
-    /// resume their programs, which show their next frame later.
-    /// </summary>
-    /// <summary>
-    /// Imports the arm cannon cover's recorded state: whether it is open or opening, and the picture shown, which is where
-    /// it stands in its opening's or its closing's pictures. A recorded transition flag that disagrees with that place is no
-    /// state the game reaches.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The recorded picture or transition flag is no place in the cover's opening or closing.</exception>
-    private static void ImportArmCannonCover(SamusState samus, bool open, bool transitioning, SamusArmCannonCoverFrame? frame)
-    {
-        SamusArmCannonCoverFrame?[] pictures = open
-            ? [SamusArmCannonCoverFrame.SlightlyOpen, SamusArmCannonCoverFrame.HalfOpen, SamusArmCannonCoverFrame.FullyOpen]
-            : [SamusArmCannonCoverFrame.FullyOpen, SamusArmCannonCoverFrame.HalfOpen, SamusArmCannonCoverFrame.SlightlyOpen, null];
-        int step = Array.IndexOf(pictures, frame);
-        if (step < 0 || transitioning != step < pictures.Length - 1)
-            throw new InvalidDataException(
-                $"The recorded arm cannon cover (open {open}, transitioning {transitioning}, picture {frame}) is no place in its opening or closing.");
-        PrivateState.Set(samus.ArmCannon, "IsOpen", open);
-        PrivateState.Set(samus.ArmCannon, "ShownStep", step);
-    }
-
-    /// <exception cref="InvalidOperationException">A live object's frame lies in colours no gameplay picture shows.</exception>
-    /// <summary>
     /// The arm cannon cover the recorded open and transition flags and cover picture stand for: a closed cover shows
     /// nothing, an open one its fully open picture, and an opening or a closing the picture it is at.
     /// </summary>
@@ -503,6 +476,14 @@ internal static class NativeSnapshotImport
                 $"The recorded arm cannon cover (open {openOrOpening}, moving {transitioning}, picture {frame}) is no cover state."),
         };
 
+    /// <summary>
+    /// Restores the frame each live palette-FX object shows, in native slot order, as its handler pass showed it
+    /// (#1512, #1597): the effect holds the frame, which the room's pictures shade with; a frame of Samus's suit groups
+    /// is laid over her suit and one of an enemy's groups is shown over its owner's colours, as the runtime does after the
+    /// pass. Native colour memory already holds those frames' records at the checkpoint, while the imported slots only
+    /// resume their programs, which show their next frame later.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A live object's frame lies in colours no gameplay picture shows.</exception>
     private static void ImportShownPaletteFxFrames(SuperMetroidRuntime runtime)
     {
         // Native slot order is the reverse of the order the effects take their turns in.

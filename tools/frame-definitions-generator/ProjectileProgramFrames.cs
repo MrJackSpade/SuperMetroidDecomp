@@ -330,7 +330,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         {
             if (semantic.GetSymbolInfo(call).Symbol is not IMethodSymbol
                 {
-                    ContainingType.Name: "AnimationSegments", Name: "Starts" or "EachLooping" or "StartsEnding" or "EachEnding",
+                    ContainingType.Name: "AnimationSegments" or "AnimationSegmentPlay", Name: "Starts" or "EachLooping" or "StartsEnding" or "EachEnding",
                 })
             {
                 continue;

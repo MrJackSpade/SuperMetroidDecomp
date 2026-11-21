@@ -11,19 +11,17 @@ internal static class ChargeFlareNativePlay<TSegment, TPicture>
     where TPicture : struct
 {
     /// <summary>The ordinary play's player.</summary>
-    private static AnimationPlayer<TSegment, TPicture, NoAnimationCue> Player(ChargeFlarePlay<TSegment, TPicture> play) =>
-        PrivateState.Field<ChargeFlarePlay<TSegment, TPicture>, AnimationPlayer<TSegment, TPicture, NoAnimationCue>>(play, "player");
+    private static AnimationPlayer<TSegment, TPicture, NoAnimationCue> Player(ChargeFlarePlay<TSegment, TPicture> play) => play.Player;
 
     /// <summary>The ordinary play's animation.</summary>
-    private static Animation<TSegment> Animation(ChargeFlarePlay<TSegment, TPicture> play) =>
-        PrivateState.Field<ChargeFlarePlay<TSegment, TPicture>, LoopingAnimation<TSegment>>(play, "looping").Animation;
+    private static Animation<TSegment> Animation(ChargeFlarePlay<TSegment, TPicture> play) => play.Looping.Animation;
 
     /// <summary>The number of the picture the ordinary play shows.</summary>
     internal static int? Picture(ChargeFlarePlay<TSegment, TPicture> play) => PictureOf(Player(play));
 
     /// <summary>The number of the picture the Hyper Beam's count shows, or null once it has stepped back past the first.</summary>
     internal static int? Picture(HyperBeamFlareCount<TSegment, TPicture> count) =>
-        PictureOf(PrivateState.Field<HyperBeamFlareCount<TSegment, TPicture>, AnimationPlayer<TSegment, TPicture, NoAnimationCue>>(count, "player"));
+        PictureOf(count.Player);
 
     /// <summary>
     /// The ordinary play's wait as the original keeps it: the updates its picture still shows less one, so the update that

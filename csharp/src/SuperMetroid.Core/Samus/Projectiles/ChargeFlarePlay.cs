@@ -24,49 +24,49 @@ internal sealed class ChargeFlarePlay<TSegment, TPicture> : IChargeFlarePlay
         Func<HorizontalDirection, TPicture, ProjectileSpriteId> composition)
     {
         this.segments = segments;
-        this.looping = looping;
+        Looping = looping;
         this.composition = composition;
-        player = AnimationPlayer<TSegment, TPicture, NoAnimationCue>.StartShowing(segments, looping.Animation, ClearedPictureUpdates);
+        Player = AnimationPlayer<TSegment, TPicture, NoAnimationCue>.StartShowing(segments, Looping.Animation, ClearedPictureUpdates);
     }
 
     /// <summary>The component's runs of pictures.</summary>
     private readonly AnimationSegments<TSegment, TPicture, NoAnimationCue> segments;
 
     /// <summary>The component's animation, which loops.</summary>
-    private readonly LoopingAnimation<TSegment> looping;
+    internal LoopingAnimation<TSegment> Looping { get; }
 
     /// <summary>The composition each of the component's pictures shows in, by Samus's facing.</summary>
     private readonly Func<HorizontalDirection, TPicture, ProjectileSpriteId> composition;
 
     /// <summary>The play of the component's animation: the picture it shows and the updates that picture has left.</summary>
-    private readonly AnimationPlayer<TSegment, TPicture, NoAnimationCue> player;
+    internal AnimationPlayer<TSegment, TPicture, NoAnimationCue> Player { get; }
 
     /// <summary>The picture the component shows: a forward play always shows one.</summary>
-    internal TPicture Picture => player.Showing;
+    internal TPicture Picture => Player.Showing;
 
     /// <inheritdoc/>
     public ProjectileSpriteId Composition(HorizontalDirection facing) => composition(facing, Picture);
 
     /// <inheritdoc/>
-    public void Start() => player.Show(looping.Animation);
+    public void Start() => Player.Show(Looping.Animation);
 
     /// <summary>
     /// The grapple beam's flare when fired: the component restarts at its animation's loop, showing the loop's first picture
     /// for that picture's own updates, and plays on through the loop.
     /// </summary>
-    internal void RestartAtLoop() => player.ShowFrom(looping.Animation, AnimationPlace.Before(looping.CyclePhase));
+    internal void RestartAtLoop() => Player.ShowFrom(Looping.Animation, AnimationPlace.Before(Looping.CyclePhase));
 
     /// <inheritdoc/>
-    public void PlayForward() => player.Step();
+    public void PlayForward() => Player.Step();
 
     /// <inheritdoc/>
-    public void Clear() => player.Show(looping.Animation, ClearedPictureUpdates);
+    public void Clear() => Player.Show(Looping.Animation, ClearedPictureUpdates);
 
     /// <inheritdoc/>
     public IHyperBeamFlareCount CountBackwardFromLast() =>
-        HyperBeamFlareCount<TSegment, TPicture>.FromLast(segments, looping.Animation, composition);
+        HyperBeamFlareCount<TSegment, TPicture>.FromLast(segments, Looping.Animation, composition);
 
     /// <inheritdoc/>
     public IHyperBeamFlareCount CountBackwardFromHere() =>
-        HyperBeamFlareCount<TSegment, TPicture>.TakingOver(player, composition);
+        HyperBeamFlareCount<TSegment, TPicture>.TakingOver(Player, composition);
 }

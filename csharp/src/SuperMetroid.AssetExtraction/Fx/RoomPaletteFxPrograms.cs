@@ -3,20 +3,6 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 
-/// <summary>
-/// One colour program of the installed room palette-effect document (#2557): the key its colours are stored under, how a
-/// failure names it, and the record colours it holds, each record run validated against the document's frames. The
-/// Brinstar blue spores' ordinary and Spore Spawn programs share one entry.
-/// </summary>
-/// <param name="Key">The key the program's frames are stored under in the document.</param>
-/// <param name="Runs">The record runs the stored frames give colours to, each named as a failure names it; extraction reads the first.</param>
-internal sealed record RoomPaletteFxProgram(string Key, IReadOnlyList<RoomPaletteFxRun> Runs);
-
-/// <summary>One record run of a room palette-effect program and how a failure names it.</summary>
-/// <param name="Owner">How a failure names the run.</param>
-/// <param name="Frames">The records the run's colours go to.</param>
-internal sealed record RoomPaletteFxRun(string Owner, PaletteFxColorFrames Frames);
-
 /// <summary>Every colour program of the room palette-effect document, each listed once, in the document's order.</summary>
 internal static class RoomPaletteFxPrograms
 {

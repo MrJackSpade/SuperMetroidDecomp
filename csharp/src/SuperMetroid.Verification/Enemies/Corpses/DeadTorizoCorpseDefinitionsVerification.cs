@@ -26,7 +26,7 @@ internal static class DeadTorizoCorpseDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
         static void initialize(RoomEnemyPlace corpse)
         {
-            corpse.Bind(EnemyDefinitionId.DeadTorizo, corpse.KeptDefinition);
+            corpse.Bind(EnemyDefinitionId.CorpseTorizo, corpse.KeptDefinition);
             corpse.SetUpAsPlaced();
         }
         // A corpse keeps its own state on its own slot, wherever the room lists it (#1808): one listed first and one

@@ -73,15 +73,16 @@ internal static class MenuSheetFixtures
     }
 
     /// <summary>Map sprite sheets already composed, by catalog.</summary>
-    private static readonly ConditionalWeakTable<MapSpriteArtwork, SpriteSheet> mapSprites = new();
+    private static readonly ConditionalWeakTable<MapSpriteCompositions, SpriteSheet> mapSprites = new();
 
     /// <summary>The map sprite sheet <paramref name="catalog"/> composes, coloured with the installation's menus.</summary>
-    internal static SpriteSheet MapSprites(MapSpriteArtwork catalog)
+    internal static SpriteSheet MapSprites(MapSpriteCompositions catalog)
     {
         ArgumentNullException.ThrowIfNull(catalog);
         return ReferenceEquals(catalog, InstalledFixtures.ImportMaps.Sprites)
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.MapSprites)
-            : mapSprites.GetValue(catalog, key => Load(SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(key, InstalledFixtures.ImportMaps),
+            : mapSprites.GetValue(catalog, key => Load(SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(key as MapSpriteArtwork
+                ?? throw new ArgumentException($"Map sprites are composed from map sprite artwork, not {key.GetType().Name}.", nameof(catalog)), InstalledFixtures.ImportMaps),
                 $"catalog-{RuntimeHelpers.GetHashCode(key):X8}"));
     }
 

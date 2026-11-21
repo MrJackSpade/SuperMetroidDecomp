@@ -356,7 +356,6 @@ global using static SuperMetroid.Core.Bosses.Ridley.NorfairRidleyHealthBandDefin
 global using static SuperMetroid.Core.Bosses.Ridley.RidleyAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Ridley.RidleyColoursPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Ridley.RidleyDrawingPrivateAccess;
-global using static SuperMetroid.Core.Bosses.Ridley.RidleyEntityFactoryPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Ridley.RidleyProjectilesPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Ridley.RidleyRevealPrivateAccess;
 global using static SuperMetroid.Core.Bosses.Ridley.RidleyTailAnglePrivateAccess;
@@ -395,7 +394,6 @@ global using static SuperMetroid.Core.Compatibility.SaveChoiceInputCadencePrivat
 global using static SuperMetroid.Core.Compatibility.SharedEscapeAndDrainCountPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.ShortCircleProductPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.ShotAndProjectileSquaresPrivateAccess;
-global using static SuperMetroid.Core.Compatibility.SoundAcknowledgementPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SoundQueueAdmissionPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SoundRequestCheckTimerPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SuitPickupClosingLineWrapPrivateAccess;
@@ -670,7 +668,6 @@ global using static SuperMetroid.Core.Samus.Abilities.SamusHealthWarningStatePri
 global using static SuperMetroid.Core.Samus.Abilities.SamusShinesparkStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Abilities.SamusSuitPickupStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Abilities.SamusXrayStatePrivateAccess;
-global using static SuperMetroid.Core.Samus.Abilities.ShinesparkCrashEchoPrivateAccess;
 global using static SuperMetroid.Core.Samus.Abilities.XrayRevealVisualBlocksPrivateAccess;
 global using static SuperMetroid.Core.Samus.Colours.SamusColouredDrawPrivateAccess;
 global using static SuperMetroid.Core.Samus.Colours.SamusColoursPrivateAccess;
@@ -712,7 +709,6 @@ global using static SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSyste
 global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystemPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileTrailPrivateAccess;
-global using static SuperMetroid.Core.Samus.SamusCeresRidleyEjectionStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.SamusDraygonGrabbedStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.SamusFrameStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.SamusInputSnapshotPrivateAccess;
@@ -749,3 +745,7 @@ global using static SuperMetroid.Diagnostics.SaveStates.DefinitionCatalogPrivate
 global using static SuperMetroid.Diagnostics.SaveStates.DefinitionObjectsPrivateAccess;
 global using static SuperMetroid.Diagnostics.Saves.SaveRamCodecPrivateAccess;
 global using static SuperMetroid.Diagnostics.Saves.SaveRamMapPackingPrivateAccess;
+global using static SuperMetroid.Core.World.RoomEnemySpeciesRoomLoadPreparationPrivateAccess;
+global using static SuperMetroid.Core.Bosses.Ridley.CeresEncounterPrivateAccess;
+global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRoomActorsPrivateAccess;
+global using static SuperMetroid.Core.Enemies.Shaktool.ShaktoolEntityPrivateAccess;

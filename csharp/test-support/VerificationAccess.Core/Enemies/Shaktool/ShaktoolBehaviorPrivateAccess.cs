@@ -28,6 +28,12 @@ internal static class ShaktoolBehaviorPrivateAccess
         /// <exception cref="InvalidOperationException">The place holds no Shaktool segment.</exception>
         internal global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolChain ChainOf(global::SuperMetroid.Core.Enemies.RoomEnemyPlace segment) => EntityOf(segment).Chain;
 
+        /// <summary>The private method <c>PositionShaktoolAroundPreviousSegment</c>, invoked by name with the segment before it in its chain.</summary>
+        internal void PositionShaktoolAroundPreviousSegment(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentState state) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehavior), "PositionShaktoolAroundPreviousSegment",
+                [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentState), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)],
+                new object?[] { place, state, self.ChainOf(place).Before(SegmentOf(place)) });
+
         /// <summary>The private method <c>ReverseShaktoolAfterCollision</c>, invoked by name with the trailing saw's chain.</summary>
         internal void ReverseShaktoolAfterCollision(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentState state, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> previous) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehavior), "ReverseShaktoolAfterCollision", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentState), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>), typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolChain)],

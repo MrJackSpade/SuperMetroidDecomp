@@ -21,7 +21,8 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
+
 using SuperMetroid.Core.Compatibility;
 
 /// <summary>Verifies Samus's Crystal Flash, X-ray, and death state machines with focused cartridge fixtures.</summary>
@@ -789,8 +790,6 @@ internal static void VerifySamusDeathSequence()
         "60 flashing calls enter suit explosion");
     AssertEqual(SuperMetroid.Core.Samus.Artwork.SamusDeathExplosionFrame.SuitGlowing, samus.DeathSequence.ExplosionFrame,
         "explosion begins on its first picture");
-    AssertEqual(20, samus.DeathSequence.Explosion?.UpdatesLeft,
-        "same-call first explosion decrement");
     AssertEqual(0x081c, (samus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires samus.DeathSequence.ExplosionSpritemapIndex.")),
         "right explosion base spritemap");
     AssertEqual(0x0100, samusColours.ShownSuit(deathSources)[0], "finish restores suit palette zero");
@@ -808,8 +807,8 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(135, explosionCalls, "death explosion remaining call count");
     AssertTrue(step.Completed && step.Draws == SuperMetroid.Core.Samus.Death.SamusDeathDraw.Nothing,
         "terminal death call completes without drawing");
-    AssertEqual(true, samus.DeathSequence.Explosion?.HasStopped,
-        "the explosion has played its last picture");
+    AssertEqual(null, samus.DeathSequence.ExplosionFrame,
+        "the explosion has played its last picture and shows none");
     AssertEqual(SamusShades.DeathWhiteout(SuperMetroid.Core.Samus.Death.SamusWhiteoutShade.Final), samusColours.Beams,
         "the beams show the death's terminal whiteout shade");
     AssertEqual(RgbColor.White, samus.DeathSequence.Whiteout, "death whiteout the display shows reaches the cartridge's full white");

@@ -7,6 +7,6 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 internal sealed class BotwoonSpitAnimation() : EnemyProjectileSilentFrameAnimation<BotwoonSpitSegment>(BotwoonAnimations.SpitFlight.Phases[0].Segment, BotwoonAnimations.SpitFlight)
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<BotwoonSpitSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>
+    private protected override IUnpausedAnimationPlay<BotwoonSpitSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>
         BotwoonAnimations.SpitSegments;
 }

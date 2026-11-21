@@ -38,7 +38,7 @@ internal static class XrayGameStateVerification
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
             SamusState samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             // Open floor in the Scope chamber, as used by the X-ray input fixture.

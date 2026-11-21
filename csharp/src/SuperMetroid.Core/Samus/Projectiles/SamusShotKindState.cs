@@ -12,9 +12,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal abstract class SamusShotKindState
 {
     /// <summary>
-    /// What a beam fired into the place of the projectile that keeps this state finds there (#2524), from which
-    /// <see cref="BeamFiredOverLastShot"/> gives the beam its Power Bomb fuse: the kind with the ignition, ignition speed,
-    /// link place or departure angle it keeps.
+    /// What a beam fired into the shot's place finds of the kind (#2524): its ignition, ignition speed and link place, its
+    /// departure angle, or a special attack particle.
     /// </summary>
-    internal abstract BeamFiredOverLastShot.ReplacedShot ReplacedByBeam { get; }
+    /// <param name="reflectionHeadStart">The head start a reflected missile re-ignites with.</param>
+    internal abstract BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(SignedEightEight reflectionHeadStart);
 }

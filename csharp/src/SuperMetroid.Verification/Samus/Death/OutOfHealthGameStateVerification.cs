@@ -238,7 +238,7 @@ internal static class OutOfHealthGameStateVerification
         AssertEqual(SuperMetroidGameState.CeresDeparture, game.GameState, "the Ceres elevator takes the update Samus runs out of health on, not her death");
         AssertEqual(beforeElevator, runtime.GameTime.Reading, "the out-of-health check returns before counting the play time");
 
-        int holdUpdates = game.Session.ceresDeparture.Hold.UpdatesLeft;
+        int holdUpdates = game.Session.CeresDeparture.Hold.UpdatesLeft;
         for (int update = 0; update < holdUpdates + 2; update++)
         {
             game.Step(0);
@@ -365,12 +365,12 @@ internal static class OutOfHealthGameStateVerification
         samus.Control.Unlock();
         samus.Health = 999;
         samus.ReserveEnergy = 0;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
         samus.Shinespark.BeginWindup(samus);
-        samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
+        samus.Shinespark.BeginDirectionalLaunch(samus, SuperMetroid.Core.Samus.Abilities.ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkHorizontalRightPose));
         samus.CommitPoseHistory();
         samus.Position = samus.Position.WithWhole(new(128, 128));
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
@@ -407,7 +407,7 @@ internal static class OutOfHealthGameStateVerification
         runtime.EnemySession.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(128, 96));
@@ -439,7 +439,7 @@ internal static class OutOfHealthGameStateVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(128, 139));

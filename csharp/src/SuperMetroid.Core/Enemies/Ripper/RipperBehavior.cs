@@ -10,24 +10,12 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
-
-    /// <summary>The grapple Ripper, the ordinary Ripper or the jet Ripper (#2146).</summary>
-    /// <exception cref="KeyNotFoundException">The place holds no Ripper definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
-
-    /// <summary>
-    /// The factory of each part the species creates, by the definition that places it: the species serves these
-    /// definitions, and each builds its own part from the species it is given.
-    /// </summary>
-    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<RipperBehavior>> PartFactories =
-        new()
-        {
-            [EnemyDefinitionId.GrappleRipper] = static (species, occupant, place, common) => EnemyOccupant.Of(new GrappleRipperEntity(species, occupant, place, common)),
-            [EnemyDefinitionId.Ripper] = static (species, occupant, place, common) => EnemyOccupant.Of(new OrdinaryRipperEntity(species, occupant, place, common)),
-            [EnemyDefinitionId.JetRipper] = static (species, occupant, place, common) => EnemyOccupant.Of(new JetRipperEntity(species, occupant, place, common)),
-        };
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    {
+        [EnemyDefinitionId.GrappleRipper] = (occupant, place, common) => EnemyOccupant.Of(new GrappleRipperEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.Ripper] = (occupant, place, common) => EnemyOccupant.Of(new OrdinaryRipperEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.JetRipper] = (occupant, place, common) => EnemyOccupant.Of(new JetRipperEntity(this, occupant, place, common)),
+    };
 
     /// <summary>Resolves horizontal wall collisions for all three Ripper variants.</summary>
     private readonly EnemyTerrain _terrain;
@@ -184,8 +172,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         RipperEnemyState state = place.RequireSpeciesState<RipperEnemyState>();
         AnimationPlayback<RipperSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, RipperAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"Ripper's cue-free animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, RipperAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 

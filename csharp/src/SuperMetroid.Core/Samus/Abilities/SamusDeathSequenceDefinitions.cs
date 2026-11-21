@@ -29,7 +29,7 @@ public static class SamusDeathSequenceDefinitions
     internal static SamusAnimationFrame UprightStart { get; } = new(SamusAnimationSegmentName.Cycle, 0);
 
     /// <summary>The death pose's frame each movement type starts it on; InitialFrame looks it up.</summary>
-    internal static readonly IReadOnlyDictionary<SamusMovementType, SamusAnimationFrame> InitialFrames = new Dictionary<SamusMovementType, SamusAnimationFrame>
+    internal static readonly IdentityTable<SamusMovementType, SamusAnimationFrame> InitialFrames = new(new Dictionary<SamusMovementType, SamusAnimationFrame>
     {
         [SamusMovementType.MorphBallGround] = BallStart,
         [SamusMovementType.MorphBallFalling] = BallStart,
@@ -57,5 +57,5 @@ public static class SamusDeathSequenceDefinitions
         [SamusMovementType.DamageBoost] = UprightStart,
         [SamusMovementType.DraygonHeld] = UprightStart,
         [SamusMovementType.Special] = UprightStart,
-    };
+    });
 }

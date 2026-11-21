@@ -70,7 +70,7 @@ internal static class MotherBrainLaterContactVerification
             AssertTrue(shot.IsSpent, "Body blocks the beam or missile");
             AssertEqual((SoundEffectId?)SamusSound.DudShot, enemies.Audio.LatestSound, "Body emits native dud sound");
         }
-        AssertEqual(2, enemies.RoomEffectActors.Count(slot => slot.Kind == RoomEffectActorKind.DudShot),
+        AssertEqual(2, enemies.RoomEffectActors.Count(slot => slot.Shows(RoomEffectActorKind.DudShot)),
             "Both beam and missile callbacks create their dud sprite");
         Console.WriteLine("Mother Brain later contact: body/neck damage, side condition, post-dispatch position and projectile duds passed.");
         return 0;

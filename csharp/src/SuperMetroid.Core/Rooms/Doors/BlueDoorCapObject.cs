@@ -87,21 +87,18 @@ internal sealed class BlueDoorCapObject : DoorCapObject
         cap.Close(place, context);
     }
 
+    /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="BlueDoorCapPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<BlueDoorCapPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForBlueDoorCapPhase => field ??= new(new Dictionary<BlueDoorCapPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [BlueDoorCapPhase.Closing] = (place, context) => Close(place, context),
+        [BlueDoorCapPhase.Opening] = (place, context) => context.RoomObjects.DeleteObject(place),
+        [BlueDoorCapPhase.Closed] = (place, context) => context.RoomObjects.DeleteObject(place),
+    });
+
     /// <inheritdoc/>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (Phase)
-        {
-            case BlueDoorCapPhase.Closing:
-                Close(place, context);
-                return;
-            case BlueDoorCapPhase.Opening:
-            case BlueDoorCapPhase.Closed:
-                context.RoomObjects.DeleteObject(place);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined blue door cap phase {Phase}.");
-        }
+        SequenceEndedForBlueDoorCapPhase[Phase](place, context);
     }
 
     /// <summary>Makes the cap's block shootable again and shows its closed image.</summary>

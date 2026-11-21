@@ -84,7 +84,7 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
     /// <summary>The floor's pan position, whose whole pixels may lie left of zero.</summary>
     private FixedVector<FloorPixels> panPosition;
     /// <summary>The floor's zoom, animated from the close-up scene to the floor's own size.</summary>
-    private FloorZoom Zoom { get; set; }
+    private TitleFloorZoom Zoom { get; set; }
     /// <summary>The title's screen brightness and the cadence of its fades; the skip's and the fade-in's step every update.</summary>
     private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>Current screen brightness applied after composing title layers.</summary>
@@ -271,108 +271,107 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
             RestartColourEffects();
     }
 
+    /// <summary>What <see cref="StepRunningStep"/> does for each <see cref="TitleSequencePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<TitleSequencePhase, Action<bool>> StepRunningStepForTitleSequencePhase => field ??= new(new Dictionary<TitleSequencePhase, Action<bool>>
+    {
+        [TitleSequencePhase.YearText] = confirmPressed => StepTextSequence(),
+        [TitleSequencePhase.NintendoText] = confirmPressed => StepTextSequence(),
+        [TitleSequencePhase.PresentsText] = confirmPressed => StepTextSequence(),
+        [TitleSequencePhase.MetroidThreeText] = confirmPressed => StepTextSequence(),
+        [TitleSequencePhase.LowerPan] = confirmPressed =>
+        {
+            panPosition = panPosition.WithX(panPosition.X - TitleSequenceDefinitions.Scenes.PanVelocity);
+            if (panPosition.X.WholePixels < TitleSequenceDefinitions.Scenes.LowerPanEndX)
+                BeginTextSequence(TitleSequenceDefinitions.TextSequences.Nintendo);
+        },
+        [TitleSequencePhase.UpperPan] = confirmPressed =>
+        {
+            panPosition = panPosition.WithX(panPosition.X - TitleSequenceDefinitions.Scenes.PanVelocity);
+            if (panPosition.X.WholePixels < TitleSequenceDefinitions.Scenes.UpperPanEndX)
+                BeginTextSequence(TitleSequenceDefinitions.TextSequences.Presents);
+        },
+        [TitleSequencePhase.DownwardPan] = confirmPressed =>
+        {
+            panPosition = panPosition.WithY(panPosition.Y + TitleSequenceDefinitions.Scenes.PanVelocity);
+            if (panPosition.Y.WholePixels >= TitleSequenceDefinitions.Scenes.DownwardPanEndY)
+                BeginTextSequence(TitleSequenceDefinitions.TextSequences.MetroidThree);
+        },
+        [TitleSequencePhase.FinalZoom] = confirmPressed =>
+        {
+            // The zoom acts only at its cadence: it grows one step while the floor is smaller than its own
+            // size, and the first such update that finds it at its own size completes the zoom (#1715), so the zoom
+            // holds the floor's own size for one of its steps before the logo shows.
+            bool zoomSteps = TitleSequenceDefinitions.Scenes.FinalZoomCadence.IsDue(zoomAge.Age);
+            zoomAge.Count();
+            if (!zoomSteps)
+                return;
+            if (Zoom.Grown() is { } grown)
+                Zoom = grown;
+            else
+            {
+                ActiveSprite = TitleSprite.SuperMetroidLogo;
+                ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
+                ActiveColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
+                Phase = TitleSequencePhase.TitleLogoFade;
+                logoHold = UpdateCountdown.For(TitleSequenceDefinitions.Timing.LogoHoldFrames);
+                // The logo starts its fade as it first shows; the effect shows its first shade when the colour
+                // effects step at the end of this update, so the logo first shows black.
+                colourEffects.StartScreen(TitleSequenceDefinitions.Fades.Logo);
+            }
+        },
+        [TitleSequencePhase.TitleLogoFade] = confirmPressed =>
+        {
+            if (logoHold.Step())
+            {
+                // The copyright first shows, and starts its fade, as the logo's hold ends; it holds for its own hold
+                // (TitleSequenceDefinitions.Timing.CopyrightHoldFrames) before arming the demo countdown
+                // (TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames).
+                Phase = TitleSequencePhase.CopyrightFade;
+                copyrightHold = UpdateCountdown.For(TitleSequenceDefinitions.Timing.CopyrightHoldFrames);
+                colourEffects.StartScreen(TitleSequenceDefinitions.Fades.Copyright);
+            }
+        },
+        [TitleSequencePhase.CopyrightFade] = confirmPressed =>
+        {
+            if (copyrightHold.Step())
+                EnterTitleScreen();
+        },
+        [TitleSequencePhase.TitleScreenFadeIn] = confirmPressed =>
+        {
+            if (fade.Brighten(TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep))
+                EnterTitleScreen();
+        },
+        [TitleSequencePhase.TitleScreen] = confirmPressed =>
+        {
+            // The timeout check wins over confirmation on its final frame.
+            if (IdleTimeout.Step())
+            {
+                Phase = TitleSequencePhase.TitleScreenFadeOutToDemo;
+                fade.StepEvery(TitleSequenceDefinitions.Timing.TitleFadeUpdatesPerStep);
+            }
+            else if (confirmPressed)
+            {
+                Phase = TitleSequencePhase.TitleScreenFadeOutToFileSelect;
+                fade.StepEvery(TitleSequenceDefinitions.Timing.TitleFadeUpdatesPerStep);
+            }
+        },
+        [TitleSequencePhase.TitleScreenFadeOutToFileSelect] = confirmPressed =>
+        {
+            if (fade.Darken())
+                Outcome = TitleSequenceOutcome.FileSelect;
+        },
+        [TitleSequencePhase.TitleScreenFadeOutToDemo] = confirmPressed =>
+        {
+            if (fade.Darken())
+                Outcome = TitleSequenceOutcome.Demo;
+        },
+    });
+
     /// <summary>Runs one update of the title's running step.</summary>
     /// <param name="confirmPressed">Whether B, Start or A is newly pressed, which the idle title screen reads as its confirmation.</param>
     private void StepRunningStep(bool confirmPressed)
     {
-        switch (Phase)
-        {
-            case TitleSequencePhase.YearText:
-            case TitleSequencePhase.NintendoText:
-            case TitleSequencePhase.PresentsText:
-            case TitleSequencePhase.MetroidThreeText:
-                StepTextSequence();
-                break;
-
-            case TitleSequencePhase.LowerPan:
-                panPosition = panPosition.WithX(panPosition.X - TitleSequenceDefinitions.Scenes.PanVelocity);
-                if (panPosition.X.WholePixels < TitleSequenceDefinitions.Scenes.LowerPanEndX)
-                    BeginTextSequence(TitleSequenceDefinitions.TextSequences.Nintendo);
-                break;
-
-            case TitleSequencePhase.UpperPan:
-                panPosition = panPosition.WithX(panPosition.X - TitleSequenceDefinitions.Scenes.PanVelocity);
-                if (panPosition.X.WholePixels < TitleSequenceDefinitions.Scenes.UpperPanEndX)
-                    BeginTextSequence(TitleSequenceDefinitions.TextSequences.Presents);
-                break;
-
-            case TitleSequencePhase.DownwardPan:
-                panPosition = panPosition.WithY(panPosition.Y + TitleSequenceDefinitions.Scenes.PanVelocity);
-                if (panPosition.Y.WholePixels >= TitleSequenceDefinitions.Scenes.DownwardPanEndY)
-                    BeginTextSequence(TitleSequenceDefinitions.TextSequences.MetroidThree);
-                break;
-
-            case TitleSequencePhase.FinalZoom:
-                // The zoom acts only at its cadence: it grows one step while the floor is smaller than its own
-                // size, and the first such update that finds it at its own size completes the zoom (#1715), so the zoom
-                // holds the floor's own size for one of its steps before the logo shows.
-                bool zoomSteps = TitleSequenceDefinitions.Scenes.FinalZoomCadence.IsDue(zoomAge.Age);
-                zoomAge.Count();
-                if (!zoomSteps)
-                    break;
-                if (Zoom < FloorZoom.OwnSize)
-                    Zoom = Zoom.Widened(TitleSequenceDefinitions.Scenes.FinalZoomStep);
-                else
-                {
-                    ActiveSprite = TitleSprite.SuperMetroidLogo;
-                    ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
-                    ActiveColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
-                    Phase = TitleSequencePhase.TitleLogoFade;
-                    logoHold = UpdateCountdown.For(TitleSequenceDefinitions.Timing.LogoHoldFrames);
-                    // The logo starts its fade as it first shows; the effect shows its first shade when the colour
-                    // effects step at the end of this update, so the logo first shows black.
-                    colourEffects.StartScreen(TitleSequenceDefinitions.Fades.Logo);
-                }
-                break;
-
-            case TitleSequencePhase.TitleLogoFade:
-                if (logoHold.Step())
-                {
-                    // The copyright first shows, and starts its fade, as the logo's hold ends; it holds for its own hold
-                    // (TitleSequenceDefinitions.Timing.CopyrightHoldFrames) before arming the demo countdown
-                    // (TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames).
-                    Phase = TitleSequencePhase.CopyrightFade;
-                    copyrightHold = UpdateCountdown.For(TitleSequenceDefinitions.Timing.CopyrightHoldFrames);
-                    colourEffects.StartScreen(TitleSequenceDefinitions.Fades.Copyright);
-                }
-                break;
-
-            case TitleSequencePhase.CopyrightFade:
-                if (copyrightHold.Step())
-                    EnterTitleScreen();
-                break;
-
-            case TitleSequencePhase.TitleScreenFadeIn:
-                if (fade.Brighten(TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep))
-                    EnterTitleScreen();
-                break;
-
-            case TitleSequencePhase.TitleScreen:
-                // The timeout check wins over confirmation on its final frame.
-                if (IdleTimeout.Step())
-                {
-                    Phase = TitleSequencePhase.TitleScreenFadeOutToDemo;
-                    fade.StepEvery(TitleSequenceDefinitions.Timing.TitleFadeUpdatesPerStep);
-                }
-                else if (confirmPressed)
-                {
-                    Phase = TitleSequencePhase.TitleScreenFadeOutToFileSelect;
-                    fade.StepEvery(TitleSequenceDefinitions.Timing.TitleFadeUpdatesPerStep);
-                }
-                break;
-
-            case TitleSequencePhase.TitleScreenFadeOutToFileSelect:
-                if (fade.Darken())
-                    Outcome = TitleSequenceOutcome.FileSelect;
-                break;
-
-            case TitleSequencePhase.TitleScreenFadeOutToDemo:
-                if (fade.Darken())
-                    Outcome = TitleSequenceOutcome.Demo;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(TitleSequencePhase)} {Phase}.");
-        }
+        StepRunningStepForTitleSequencePhase[Phase](confirmPressed);
     }
 
     /// <summary>
@@ -436,7 +435,7 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
         bool floorShown = ShowsFloor(Phase);
         return new(new FramePaint(Backdrop, screenSprites.Draws),
             floorShown
-                ? new PlacedFloor(FloorView.Turned(TitleSequenceDefinitions.Scenes.Rotation, Zoom, TitleSequenceDefinitions.Scenes.FloorCentre,
+                ? new PlacedFloor(FloorView.Turned(TitleSequenceDefinitions.Scenes.Rotation, Zoom.FloorZoom, TitleSequenceDefinitions.Scenes.FloorCentre,
                     panPosition.Whole), TitleFloors.Of(spriteSheets, BabyPose).Shaded(FloorShading))
                 : null,
             Brightness, ShowsGradient(Phase) ? new ScreenGradientLayer(ResolveTitleGradient()) : null);
@@ -534,36 +533,25 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
             ActiveCard = textCard.Shown;
     }
 
+    /// <summary>What <see cref="RunCardCue"/> does for each <see cref="TitleCardCue"/> member, each member's own arm.</summary>
+    private IdentityTable<TitleCardCue, Action> RunCardCueForTitleCardCue => field ??= new(new Dictionary<TitleCardCue, Action>
+    {
+        [TitleCardCue.StartLowerPan] = () => ApplyScene(TitleSequenceDefinitions.Scenes.LowerPan),
+        [TitleCardCue.StartUpperPan] = () => ApplyScene(TitleSequenceDefinitions.Scenes.UpperPan),
+        [TitleCardCue.StartDownwardPan] = () => ApplyScene(TitleSequenceDefinitions.Scenes.DownwardPan),
+        [TitleCardCue.StartFinalZoom] = () =>
+        {
+            zoomAge.Restart();
+            ApplyScene(TitleSequenceDefinitions.Scenes.FinalZoom);
+        },
+        [TitleCardCue.RemoveCard] = () => ActiveCard = null,
+    });
+
     /// <summary>Runs a title card's scene or removal cue.</summary>
     /// <exception cref="InvalidOperationException">The cue is undefined.</exception>
     private void RunCardCue(TitleCardCue cue)
     {
-        switch (cue)
-        {
-            case TitleCardCue.StartLowerPan:
-                ApplyScene(TitleSequenceDefinitions.Scenes.LowerPan);
-                return;
-
-            case TitleCardCue.StartUpperPan:
-                ApplyScene(TitleSequenceDefinitions.Scenes.UpperPan);
-                return;
-
-            case TitleCardCue.StartDownwardPan:
-                ApplyScene(TitleSequenceDefinitions.Scenes.DownwardPan);
-                return;
-
-            case TitleCardCue.StartFinalZoom:
-                zoomAge.Restart();
-                ApplyScene(TitleSequenceDefinitions.Scenes.FinalZoom);
-                return;
-
-            case TitleCardCue.RemoveCard:
-                ActiveCard = null;
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined TitleCardCue {cue}.");
-        }
+        RunCardCueForTitleCardCue[cue]();
     }
 
     /// <summary>Starts a title card's animation with its sprites shown and the turning floor hidden.</summary>
@@ -590,7 +578,7 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
         // The pan returns to the floor's origin in whole pixels alone: the fractions an earlier pan left stay, as the game
         // resets only the pan's whole pixels.
         panPosition = panPosition.WithWhole(Offset16<FloorPixels>.Zero);
-        Zoom = FloorZoom.OwnSize;
+        Zoom = TitleFloorZoom.OwnSize;
     }
 
     /// <summary>Opens the idle title screen at full brightness with its demo countdown.</summary>

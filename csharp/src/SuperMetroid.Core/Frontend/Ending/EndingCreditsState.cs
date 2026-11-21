@@ -45,8 +45,8 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     private int cinematicFrame;
 
     /// <summary>
-    /// Current cinematic phase, including terminal display states (#2541): the phase its scene runs, which only the ending's
-    /// own updates change (#2560).
+    /// Current cinematic phase, including terminal display states: the scene's showing (#2553); only the ending's own updates
+    /// change it (#2541).
     /// </summary>
     public EndingCreditsPhase Phase => Scene.Phase;
 
@@ -117,10 +117,10 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// <summary>Enters the cast's <paramref name="phase"/>, which shows the cast in that phase and waits <paramref name="holdUpdates"/> updates.</summary>
     private void Enter(EndingCastPhase phase, int holdUpdates) => Show(new EndingCastScene(phase), holdUpdates);
 
-    /// <summary>Shows <paramref name="scene"/>, entering the phase it runs.</summary>
+    /// <summary>Shows <paramref name="scene"/>, which runs its own phase.</summary>
     private void Show(EndingScene scene) => Scene = Ensure.NotNull(scene);
 
-    /// <summary>Shows <paramref name="scene"/>, entering the phase it runs, which waits <paramref name="holdUpdates"/> updates.</summary>
+    /// <summary>Shows <paramref name="scene"/>, which runs its own phase, waiting <paramref name="holdUpdates"/> updates.</summary>
     private void Show(EndingScene scene, int holdUpdates)
     {
         PhaseHold = UpdateCountdown.Lasting(holdUpdates);
@@ -128,7 +128,6 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     }
 
     /// <summary>Runs one update of the ending and credits.</summary>
-    /// <exception cref="InvalidOperationException">The phase is not one the scene showing runs.</exception>
     public void Step()
     {
         if (!Scene.Step(this))
@@ -167,10 +166,11 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         EndingRewardJump jump = scene.Jump;
         EndingPostShot shot = scene.Shot;
         // The cinematic phase runs before actors; colour fades and queued
-        // picture replacements therefore precede the next sprite cue.
-        shot.Step(screen);
+        // picture replacements therefore precede the next sprite cue. The shot's scene is replaced as it hands over, so
+        // nothing steps the shot after its handoff.
+        bool readyForWhiteFlash = shot.Step(screen);
         jump.Step();
-        if (shot.ReadyForWhiteFlash)
+        if (readyForWhiteFlash)
             Show(new EndingWhiteFlashScene(jump, CreditsRoll.BeginPostCreditsWhiteFlash()),
                 EndingPostShotDefinitions.FadeSteps);
     }
@@ -181,7 +181,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         scene.Flash.Fade();
         scene.Jump.Step();
         if (PhaseHold.Count())
-            Show(new EndingLogoScene(CreditsRoll.FinishPostCreditsWhiteFlash(), EndingCreditsPhase.PostCreditsLogo));
+            Show(new EndingLogoScene(CreditsRoll.FinishPostCreditsWhiteFlash()));
     }
 
     /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.SetupEscapeFromZebes"/> phase.</summary>
@@ -458,7 +458,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         if (PhaseHold.Count())
         {
             // The backdrop wait's end shows the complete result panel before its hold.
-            InstalledArtwork.PostCreditsText.ShowResultPanel();
+            InstalledArtwork.PostCreditsText.ShowNextPanel();
             Enter(EndingCreditsPhase.PostCreditsWaitingSamus, EndingSequenceDefinitions.Timing.ResultPanelHoldFrames);
         }
         return true;
@@ -471,7 +471,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         if (PhaseHold.Count())
         {
             EscapeScenes.SpawnEndingRewardActors();
-            Show(new EndingRewardRevealScene(CreditsRoll.StartRewardFade(), EndingCreditsPhase.PostCreditsReward),
+            Show(new EndingRewardRevealScene(CreditsRoll.StartRewardFade()),
                 EndingSequenceDefinitions.Timing.RewardRevealHalfFrames);
         }
         return true;
@@ -492,44 +492,42 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// <summary>Runs the cast's actors in running order, their cues answered by <see cref="HandleSceneCue"/>.</summary>
     private void StepActors() => EscapeScenes.StepSprites(this, HandleSceneCue);
 
+    /// <summary>What <see cref="HandleSceneCue"/> does for each <see cref="EndingSceneCue"/> member, each member's own arm.</summary>
+    private IdentityTable<EndingSceneCue, Action<EndingSprite, EndingSceneCue>> HandleSceneCueForEndingSceneCue => field ??= new(new Dictionary<EndingSceneCue, Action<EndingSprite, EndingSceneCue>>
+    {
+        [EndingSceneCue.EndZebesExplosion] = (actor, cue) =>
+        {
+            // The scene hides the sprite layer without deleting the actors: the stars must still
+            // advance and become visible again when the flyaway starts.
+            Stage.Colours.Flash(EndingFlash.ExplosionWhiteout, RgbColor.White);
+            Enter(EndingCreditsPhase.WaitForPlanetEscapeMusic, EndingSequenceDefinitions.Timing.PlanetEscapeMusicWaitFrames);
+        },
+        [EndingSceneCue.TransitionToCredits] = (actor, cue) =>
+        {
+            Stage.StartFastFade();
+            Enter(EndingCreditsPhase.FadeOutToCredits);
+        },
+        [EndingSceneCue.WaitForFlyaway] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.FadeExplosionColours] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnExplosionSilhouette] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.StartZebesExplosion] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.ExplosionFinale] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnCompletedText] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnClearTime] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnHoursTens] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnHoursUnits] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnColon] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnMinutesTens] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnMinutesUnits] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+    });
+
     /// <summary>
     /// Answers a cast actor's cue: the explosion's end and the completion text's end change the ending's phase, and
     /// every other cue goes to the escape scenes.
     /// </summary>
     private void HandleSceneCue(EndingSprite actor, EndingSceneCue cue)
     {
-        switch (cue)
-        {
-            case EndingSceneCue.EndZebesExplosion:
-                // The scene hides the sprite layer without deleting the actors: the stars must still
-                // advance and become visible again when the flyaway starts.
-                Stage.Colours.Flash(EndingFlash.ExplosionWhiteout, RgbColor.White);
-                Enter(EndingCreditsPhase.WaitForPlanetEscapeMusic, EndingSequenceDefinitions.Timing.PlanetEscapeMusicWaitFrames);
-                return;
-
-            case EndingSceneCue.TransitionToCredits:
-                Stage.StartFastFade();
-                Enter(EndingCreditsPhase.FadeOutToCredits);
-                return;
-
-            case EndingSceneCue.WaitForFlyaway:
-            case EndingSceneCue.FadeExplosionColours:
-            case EndingSceneCue.SpawnExplosionSilhouette:
-            case EndingSceneCue.StartZebesExplosion:
-            case EndingSceneCue.ExplosionFinale:
-            case EndingSceneCue.SpawnCompletedText:
-            case EndingSceneCue.SpawnClearTime:
-            case EndingSceneCue.SpawnHoursTens:
-            case EndingSceneCue.SpawnHoursUnits:
-            case EndingSceneCue.SpawnColon:
-            case EndingSceneCue.SpawnMinutesTens:
-            case EndingSceneCue.SpawnMinutesUnits:
-                EscapeScenes.HandleSpriteCue(actor, cue);
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingSceneCue)} {cue}.");
-        }
+        HandleSceneCueForEndingSceneCue[cue](actor, cue);
     }
 
     /// <summary>One update of the staff credits, whose end blanks the screen for the post-credits scenes' first hold.</summary>
@@ -548,13 +546,16 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// </summary>
     internal void StepRewardReveal(EndingRewardRevealScene reveal)
     {
-        if (reveal.Phase == EndingCreditsPhase.PostCreditsCopyright)
+        if (reveal.CopyrightHolds)
         {
             // The sprites keep animating while only the copyright panel shows; hiding the actors must not reset their
             // animations or their reveal colour state.
             StepActors();
             if (PhaseHold.Count())
-                Show(new EndingRewardRevealScene(reveal.Fade, EndingCreditsPhase.PostCreditsReward), EndingSequenceDefinitions.Timing.RewardRevealHalfFrames);
+            {
+                reveal.ResumeReveal();
+                PhaseHold = UpdateCountdown.Lasting(EndingSequenceDefinitions.Timing.RewardRevealHalfFrames);
+            }
             return;
         }
         // Both halves advance their shared colour fade on the last update of each of its steps.
@@ -566,7 +567,8 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         {
             // The copyright panel replaces the producer panel. The text alone is shown until the copyright's hold ends.
             CreditsRoll.ShowRewardCopyright();
-            Show(new EndingRewardRevealScene(reveal.Fade, EndingCreditsPhase.PostCreditsCopyright), EndingSequenceDefinitions.Timing.CopyrightHoldFrames);
+            reveal.HoldCopyright();
+            PhaseHold = UpdateCountdown.Lasting(EndingSequenceDefinitions.Timing.CopyrightHoldFrames);
             return;
         }
         // The reward step replaces the idle actors with the gesture animations.
@@ -576,23 +578,23 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     }
 
     /// <summary>
-    /// One update of the final logo: its cues until it completes, which starts the item percentage, and the item
-    /// percentage's move down, whose end starts the final message.
+    /// One update of the final logo: its cues until it completes, which starts the item percentage. The logo's scene is
+    /// replaced as it completes, so nothing steps the completed logo.
     /// </summary>
     internal void StepLogo(EndingLogoScene scene)
     {
-        if (scene.Phase == EndingCreditsPhase.ItemPercentageScrollDown)
-        {
-            // The item-percentage scroll moves the shown text down by its drop each update before the final
-            // message starts above it.
-            InstalledArtwork.PostCreditsText.Drop += EndingSequenceDefinitions.Timing.TextDropPixelsPerUpdate;
-            if (PhaseHold.Count())
-                Show(new EndingTypingScene(scene.Logo, CreditsRoll.StartFinalMessage(), EndingCreditsPhase.SeeYouNextMission));
-            return;
-        }
-        scene.Logo.Step(Stage.Colours);
-        if (scene.Logo.Completed)
-            Show(new EndingTypingScene(scene.Logo, CreditsRoll.StartItemPercentage(), EndingCreditsPhase.ItemPercentage));
+        if (scene.Logo.Step(Stage.Colours))
+            Show(new EndingTypingScene(CreditsRoll.StartItemPercentage()));
+    }
+
+    /// <summary>One update of the item percentage's move down, whose end starts the final message.</summary>
+    internal void StepItemPercentageDrop()
+    {
+        // The item-percentage scroll moves the shown text down by its drop each update before the final message starts
+        // above it.
+        InstalledArtwork.PostCreditsText.Drop += EndingSequenceDefinitions.Timing.TextDropPixelsPerUpdate;
+        if (PhaseHold.Count())
+            Show(new EndingTypingScene(CreditsRoll.StartFinalMessage()));
     }
 
     /// <summary>
@@ -601,7 +603,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// </summary>
     internal void StepTyping(EndingTypingScene scene)
     {
-        if (scene.Phase == EndingCreditsPhase.SeeYouNextMission)
+        if (!scene.Typing.TypesItemPercentage)
         {
             // The ending stays on this final screen: nothing leaves it until the player resets the game.
             StepActors();
@@ -609,9 +611,8 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
             return;
         }
         scene.Typing.Step();
-        if (scene.Typing.TypesItemPercentage && scene.Typing.Completed)
-            Show(new EndingLogoScene(scene.Logo, EndingCreditsPhase.ItemPercentageScrollDown),
-                EndingSequenceDefinitions.Timing.ItemPercentageDropUpdates);
+        if (scene.Typing.Completed)
+            Show(new EndingItemPercentageDropScene(), EndingSequenceDefinitions.Timing.ItemPercentageDropUpdates);
     }
 
     /// <summary>

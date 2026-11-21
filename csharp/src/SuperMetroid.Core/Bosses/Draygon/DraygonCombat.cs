@@ -25,37 +25,40 @@ internal sealed class DraygonCombat
         _grab = grab;
     }
 
-    /// <summary>Routes body bomb hits through Draygon's special shot reaction.</summary>
-    internal EnemyBombReaction DraygonBombReaction => field ??= new()
+    /// <summary>
+    /// Routes the bomb hits of <paramref name="state"/>'s body through Draygon's special shot reaction; his body builds it
+    /// once for its encounter (#2553).
+    /// </summary>
+    internal EnemyBombReaction DraygonBombReaction(DraygonEnemyState state) => new()
     {
         RunsGenericDeath = false,
         // Draygon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        BeforeCommon = c => AdvanceDraygonShotAcceleration(DraygonEntity.EncounterOf(c.Enemy)),
-        AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
+        BeforeCommon = _ => AdvanceDraygonShotAcceleration(state),
+        AfterCommon = c => ResolveDraygonReaction(c.Enemy, state, c.Samus),
     };
 
-    /// <summary>Routes power-bomb damage for Draygon's body through its encounter reaction.</summary>
-    internal EnemyPowerBombReaction DraygonPowerBombReaction => field ??= new()
+    /// <summary>
+    /// Routes power-bomb damage for <paramref name="state"/>'s body through its encounter reaction; his body builds it once
+    /// for its encounter (#2553).
+    /// </summary>
+    internal EnemyPowerBombReaction DraygonPowerBombReaction(DraygonEnemyState state) => new()
     {
         Lethal = EnemyPowerBombLethal.SpeciesOwned,
-        AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
+        AfterCommon = c => ResolveDraygonReaction(c.Enemy, state, c.Samus),
     };
 
-    /// <summary>Runs the body's contact against Samus.</summary>
-    internal void ReactToDraygonTouch(EnemyTouchContext context)
+    /// <summary>Runs the contact of <paramref name="state"/>'s body against Samus.</summary>
+    /// <remarks>
+    /// His touches always meet his frames' hitboxes, which name the ignoring touch or his own, checked as his collision
+    /// loads (<see cref="DraygonCollision"/>).
+    /// </remarks>
+    internal void ReactToDraygonTouch(EnemyTouchContext context, DraygonEnemyState state)
     {
-        if (!context.UsesFrameHitboxes)
-            throw new InvalidDataException("Draygon requires his authored extended touch hitboxes.");
         if (context.HitboxTouch == EnemyReaction.Ignore)
             return; // The vulnerable eye rectangle is harmless to Samus.
-        if (context.HitboxTouch != DraygonReactions.Touch)
-        {
-            throw new InvalidDataException(
-                $"Draygon has no response to touch reaction {context.HitboxTouch}.");
-        }
         _collision.ResolveOrdinaryTouch(context, TouchDeathAnimation.Skip);
-        ResolveDraygonReaction(context.Place, context.Samus);
+        ResolveDraygonReaction(context.Place, state, context.Samus);
     }
 
     /// <summary>
@@ -85,7 +88,7 @@ internal sealed class DraygonCombat
         body.Health = body.Health <= DraygonArenaDefinitions.GrappleShockDamage
             ? 0
             : body.Health - DraygonArenaDefinitions.GrappleShockDamage;
-        ResolveDraygonReaction(body, samus);
+        ResolveDraygonReaction(body, state, samus);
     }
 
     /// <summary>
@@ -100,9 +103,8 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>Runs the common post-touch/shot/power-bomb reaction.</summary>
-    private void ResolveDraygonReaction(RoomEnemyPlace body, SamusState samus)
+    private void ResolveDraygonReaction(RoomEnemyPlace body, DraygonEnemyState state, SamusState samus)
     {
-        DraygonEnemyState state = DraygonEntity.EncounterOf(body);
         if (body.Health != 0)
         {
             UpdateDraygonHealthBand(state);
@@ -153,13 +155,15 @@ internal sealed class DraygonCombat
     /// <summary>A bomb striking one of Draygon's body dud-shot hitboxes: the dud flash where the bomb lies and the dud sound.</summary>
     internal void CreateBombDudShot(EnemyBombContext context) => _projectiles.CreateBombDudShot(context.Bomb);
 
-    /// <summary>Draygon's shot response, including acceleration and special death exemption.</summary>
-    internal EnemyShotReaction DraygonShotReaction => field ??= new()
+    /// <summary>
+    /// The shot response of <paramref name="state"/>'s body, including acceleration and special death exemption; his body
+    /// builds it once for its encounter (#2553).
+    /// </summary>
+    internal EnemyShotReaction DraygonShotReaction(DraygonEnemyState state) => new()
     {
+        // His shots always meet his frames' hitboxes, which name the dud shot or his own, checked as his collision loads.
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            if (!c.UsesFrameHitboxes)
-                throw new InvalidDataException("Draygon requires his authored extended shot hitboxes.");
             if (c.HitboxShot.IsDud)
             {
                 // Body, claws, and shell use the shared common touch; only the first
@@ -168,18 +172,13 @@ internal sealed class DraygonCombat
                 _projectiles.CreateEnemyProjectileDudShot(c.Shot);
                 return true;
             }
-            if (c.HitboxShot != DraygonReactions.Shot)
-            {
-                throw new InvalidDataException(
-                    $"Draygon has no response to shot reaction {c.HitboxShot}.");
-            }
             return false;
         },
-        AfterImpact = c => AdvanceDraygonShotAcceleration(DraygonEntity.EncounterOf(c.Enemy)),
+        AfterImpact = _ => AdvanceDraygonShotAcceleration(state),
         Lethal = EnemyShotLethal.SpeciesOwned,
         // Draygon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
+        AfterCommon = c => ResolveDraygonReaction(c.Enemy, state, c.Samus),
     };
 
     /// <summary>

@@ -10,10 +10,13 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWall, EnemyDefinitionId.PirateGreyWall, EnemyDefinitionId.PirateMagentaWall, EnemyDefinitionId.PirateSilverWall];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.PirateGoldWall, EnemyDefinitionId.PirateGreyWall, EnemyDefinitionId.PirateMagentaWall, EnemyDefinitionId.PirateSilverWall], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WallSpacePirateEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WallSpacePirateEntity(this, occupant, place, common));
 
     /// <summary>Advances the shared random source when a climbing cue chooses a new direction.</summary>
     private readonly EnemyRoomBinding _room;
@@ -37,12 +40,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateSpawnSettings settings = occupant.SpawnSettings<WallSpacePirateSpawnSettings>();
         // A slow jump and a fast jump each turn by their definition's steps, the fast one twice as quickly to endpoints
         // a little further round.
-        WallSpacePirateJump jump = settings.JumpSpeed switch
-        {
-            WallSpacePirateJumpSpeed.Slow => SpacePirateMotionDefinitions.SlowWallJump,
-            WallSpacePirateJumpSpeed.Fast => SpacePirateMotionDefinitions.FastWallJump,
-            _ => throw new InvalidDataException($"Undefined {nameof(WallSpacePirateJumpSpeed)} {settings.JumpSpeed}."),
-        };
+        WallSpacePirateJump jump = settings.JumpSpeed == WallSpacePirateJumpSpeed.Slow
+            ? SpacePirateMotionDefinitions.SlowWallJump : SpacePirateMotionDefinitions.FastWallJump;
         var state = new WallSpacePirateEnemyState(WallSpacePirateAction.Climbing, settings.Wall, jump);
         place.SetSpeciesState(state);
 
@@ -54,39 +53,36 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         SnapWallSpacePirateXToWallGrid(place);
     }
 
+    /// <summary>What <see cref="RunWallSpacePirateMain"/> does for each <see cref="WallSpacePirateAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<WallSpacePirateAction, Action<RoomEnemyOccupant, RoomEnemyPlace, WallSpacePirateEnemyState, SamusState>> RunWallSpacePirateMainForWallSpacePirateAction => field ??= new(new Dictionary<WallSpacePirateAction, Action<RoomEnemyOccupant, RoomEnemyPlace, WallSpacePirateEnemyState, SamusState>>
+    {
+        [WallSpacePirateAction.Climbing] = static (_, place, state, samus) =>
+        {
+            // A Pirate on the left wall fires and jumps right, and one on the right wall left.
+            if (WallSpacePirateCanAttack(place, samus))
+            {
+                StartWallSpacePirateAnimation(
+                    place,
+                    state,
+                    state.Wall == HorizontalDirection.Left
+                        ? WallSpacePirateSegment.FireAndJumpRight
+                        : WallSpacePirateSegment.FireAndJumpLeft);
+            }
+        },
+        [WallSpacePirateAction.Attacking] = static (_, place, state, samus) =>
+        {
+            // The attack animation moves and times the pirate; its cues ready the jump.
+        },
+        [WallSpacePirateAction.WallJumping] = static (occupant, place, state, samus) => StepWallSpacePirateJump(occupant, place, state, direction: state.Wall),
+    });
+
     /// <summary>Runs a wall Space Pirate's update: climbing its wall, attacking from it or jumping to the other.</summary>
     private static void RunWallSpacePirateMain(
         RoomEnemyOccupant occupant, RoomEnemyPlace place,
         WallSpacePirateEnemyState state,
         SamusState samus)
     {
-        switch (state.Action)
-        {
-            case WallSpacePirateAction.Climbing:
-                // A Pirate on the left wall fires and jumps right, and one on the right wall left.
-                if (WallSpacePirateCanAttack(place, samus))
-                {
-                    StartWallSpacePirateAnimation(
-                        place,
-                        state,
-                        state.Wall == HorizontalDirection.Left
-                            ? WallSpacePirateSegment.FireAndJumpRight
-                            : WallSpacePirateSegment.FireAndJumpLeft);
-                }
-                return;
-
-            case WallSpacePirateAction.Attacking:
-                // The attack animation moves and times the pirate; its cues ready the jump.
-                return;
-
-            case WallSpacePirateAction.WallJumping:
-                StepWallSpacePirateJump(occupant, place, state, direction: state.Wall);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Wall Space Pirate has no behaviour for action {state.Action}.");
-        }
+        RunWallSpacePirateMainForWallSpacePirateAction[state.Action](occupant, place, state, samus);
     }
 
     /// <summary>
@@ -184,19 +180,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>The animation of <paramref name="climb"/>: the way it climbs, on the wall it clings to.</summary>
-    private static WallSpacePirateSegment ClimbAnimation(WallSpacePirateClimb climb) => climb switch
-    {
-        (HorizontalDirection.Left, WallSpacePirateClimbDirection.Down) =>
-            WallSpacePirateSegment.MovingDownLeftWall,
-        (HorizontalDirection.Left, WallSpacePirateClimbDirection.Up) =>
-            WallSpacePirateSegment.MovingUpLeftWall,
-        (HorizontalDirection.Right, WallSpacePirateClimbDirection.Down) =>
-            WallSpacePirateSegment.MovingDownRightWall,
-        (HorizontalDirection.Right, WallSpacePirateClimbDirection.Up) =>
-            WallSpacePirateSegment.MovingUpRightWall,
-        _ => throw new InvalidOperationException(
-            $"Wall Pirate climb {climb} names no wall or climb direction."),
-    };
+    private static WallSpacePirateSegment ClimbAnimation(WallSpacePirateClimb climb) => climb.Wall == HorizontalDirection.Left
+        ? (climb.Direction == WallSpacePirateClimbDirection.Down ? WallSpacePirateSegment.MovingDownLeftWall : WallSpacePirateSegment.MovingUpLeftWall)
+        : (climb.Direction == WallSpacePirateClimbDirection.Down ? WallSpacePirateSegment.MovingDownRightWall : WallSpacePirateSegment.MovingUpRightWall);
 
     /// <summary>Captures the wall-to-wall destination, arc center, and starting angle from the jump span.</summary>
     private static void PrepareWallSpacePirateJump(
@@ -232,32 +218,47 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     private WallSpacePirateSegment? ApplyWallSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, WallSpacePirateCue cue, RoomLevelData level)
     {
         WallSpacePirateEnemyState state = place.RequireSpeciesState<WallSpacePirateEnemyState>();
-        switch (cue)
-        {
-            case WallSpacePirateCue.Climb climb:
-                return MoveWallSpacePirateAndReverseOnCollision(place, state, level, climb.ClimbPixels, wall: climb.Wall);
-            case WallSpacePirateCue.ChooseClimb choose:
-                return RandomizeWallSpacePirateClimbDirection(state, wall: choose.Wall);
-            case WallSpacePirateCue.PrepareJump jump:
-                PrepareWallSpacePirateJump(occupant, place, state, direction: jump.Direction);
-                return null;
-            case WallSpacePirateCue.FireLaser laser:
-                FireWallSpacePirateLaser(occupant, direction: laser.Direction);
-                return null;
-            case WallSpacePirateCue.Begin begin:
-                state.Action = begin.Action;
-                return null;
-            case WallSpacePirateCue.BeginOnWall begin:
-                state.Action = begin.Action;
-                state.Wall = begin.Wall;
-                return null;
-            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PlayJumpSound }:
-                Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);
-                return null;
-            default:
-                throw new InvalidOperationException($"The wall Space Pirates' animations have no {cue} cue.");
-        }
+        return cue.Match(ApplyWallSpacePirateCueCases, new ApplyWallSpacePirateCueContext(occupant, place, state, level, this));
     }
+
+    /// <summary>What <see cref="ApplyWallSpacePirateCue"/> does on each <see cref="WallSpacePirateCue"/>, built once (#2553).</summary>
+    private static WallSpacePirateCueCases<ApplyWallSpacePirateCueContext, WallSpacePirateSegment?> ApplyWallSpacePirateCueCases { get; } = new(
+        Climb: static (climb, context) => context.Owner.MoveWallSpacePirateAndReverseOnCollision(context.Place, context.State, context.Level, climb.ClimbPixels, wall: climb.Wall),
+        ChooseClimb: static (choose, context) => context.Owner.RandomizeWallSpacePirateClimbDirection(context.State, wall: choose.Wall),
+        FireLaser: static (laser, context) =>
+        {
+            context.Owner.FireWallSpacePirateLaser(context.Occupant, direction: laser.Direction);
+            return null;
+        },
+        PrepareJump: static (jump, context) =>
+        {
+            PrepareWallSpacePirateJump(context.Occupant, context.Place, context.State, direction: jump.Direction);
+            return null;
+        },
+        Begin: static (begin, context) =>
+        {
+            context.State.Action = begin.Action;
+            return null;
+        },
+        BeginOnWall: static (begin, context) =>
+        {
+            context.State.Action = begin.Action;
+            context.State.Wall = begin.Wall;
+            return null;
+        },
+        Signal: static (_, context) =>
+        {
+            context.Owner.Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);
+            return null;
+        });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Occupant">The occupant whose cue is carried out.</param>
+    /// <param name="Place">The place the cases read.</param>
+    /// <param name="State">The pirate's state <see cref="ApplyWallSpacePirateCue"/> works with.</param>
+    /// <param name="Level">The level the cases read.</param>
+    /// <param name="Owner">The <see cref="WallSpacePirateBehavior"/> reacting.</param>
+    private readonly record struct ApplyWallSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, WallSpacePirateEnemyState State, RoomLevelData Level, WallSpacePirateBehavior Owner);
 
     /// <summary>Runs the wall Space Pirate's main AI.</summary>
     internal static void RunWallSpacePirateMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)

@@ -10,7 +10,10 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <param name="motion">How the starfield starts moving with the flyaway.</param>
 internal sealed class EndingFlyawayStarsMotion(EndingStarsMotion motion) : EndingActorMotion
 {
-    /// <summary>The left starfield's motion: it waits for the flyaway from its spawn on.</summary>
+    /// <summary>
+    /// A starfield's motion waiting for the flyaway: the left starfield's from its spawn on, and the right one's once its
+    /// animation's cue (<see cref="EndingSceneCue.WaitForFlyaway"/>) has it wait, before it has moved.
+    /// </summary>
     internal static EndingFlyawayStarsMotion WaitingFromSpawn() => new(EndingStarsMotion.WaitingForFlyaway);
 
     /// <summary>
@@ -25,34 +28,23 @@ internal sealed class EndingFlyawayStarsMotion(EndingStarsMotion motion) : Endin
     /// <summary>The starfield's speed across the screen once the flyaway starts it.</summary>
     private SignedSixteenSixteen velocity;
 
-    /// <summary>Has the starfield wait for the flyaway to carry it away, on the cue its animation raises for it.</summary>
-    /// <exception cref="InvalidOperationException">The cue is not the flyaway's wait.</exception>
-    internal override void TakeCue(EndingSceneCue cue) => Motion = cue == EndingSceneCue.WaitForFlyaway
-        ? EndingStarsMotion.WaitingForFlyaway
-        : throw new InvalidOperationException($"A starfield's motion takes no {cue} cue.");
-
     /// <summary>Starts or continues the starfield's flyaway, then deletes it once the completion text starts.</summary>
     internal override void Step(ICinematicActor<EndingSceneCue> actor, IEndingActorScene scene)
     {
         Ensure.NotNull(actor);
         Ensure.NotNull(scene);
-        switch (Motion)
+        if (Motion == EndingStarsMotion.WaitingForFlyaway)
         {
-            case EndingStarsMotion.NotYetWaiting:
-                break;
-            case EndingStarsMotion.WaitingForFlyaway:
-                if (EndingCreditsPhaseGroups.StartingFlyaway.Contains(scene.Phase))
-                {
-                    Motion = EndingStarsMotion.Moving;
-                    velocity = EndingMotionDefinitions.StarsFlyawayInitialVelocity;
-                }
-                break;
-            case EndingStarsMotion.Moving:
-                velocity -= EndingMotionDefinitions.StarsFlyawayDeceleration;
-                actor.Position = actor.Position.WithX(actor.Position.X + velocity);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingStarsMotion)} {Motion}.");
+            if (EndingCreditsPhaseGroups.StartingFlyaway.Contains(scene.Phase))
+            {
+                Motion = EndingStarsMotion.Moving;
+                velocity = EndingMotionDefinitions.StarsFlyawayInitialVelocity;
+            }
+        }
+        else if (Motion == EndingStarsMotion.Moving)
+        {
+            velocity -= EndingMotionDefinitions.StarsFlyawayDeceleration;
+            actor.Position = actor.Position.WithX(actor.Position.X + velocity);
         }
         if (EndingCreditsPhaseGroups.CompletionText.Contains(scene.Phase))
             actor.Delete();

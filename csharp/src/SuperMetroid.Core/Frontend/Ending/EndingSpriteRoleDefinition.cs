@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// Creates the motion an actor of the role starts with, which keeps that actor's own motion state; a role whose actors have
 /// no motion of their own creates a still one (<see cref="EndingStillMotion"/>, #2541).
 /// </param>
-internal sealed record EndingSpriteRoleDefinition(CinematicSpriteFamily Pictures, EndingSpriteLayer Layer, Func<EndingActorMotion> Motion);
+internal sealed record EndingSpriteRoleDefinition(EndingSpriteFamily Pictures, EndingSpriteLayer Layer, Func<EndingActorMotion> Motion);

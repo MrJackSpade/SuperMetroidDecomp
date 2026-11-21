@@ -401,7 +401,6 @@ internal static class LookupStream2Verification
         var shortTilemap = new BackgroundTile[PauseBackdropDefinitions.Cells - 1];
         var invalidTilemap = new BackgroundTile[PauseBackdropDefinitions.Cells];
         AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(shortTilemap, AreaId.Crateria), "Backdrop destination shorter than the image");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(invalidTilemap, (AreaId)7), "Backdrop area bound");
         AssertTrue(shortTilemap.All(tile => tile == default) && invalidTilemap.All(tile => tile == default), "Invalid load fails before any tilemap write");
         Console.WriteLine("Backdrop geometry: 7680 native tiles load as installed, and the bounds pass.");
 

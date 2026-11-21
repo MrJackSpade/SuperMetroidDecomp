@@ -43,10 +43,10 @@ internal static class IntroCinematicStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Input.DemoInputState?>(self, "CurrentFlashbackDemoInput");
         }
 
-        /// <summary>The private property <c>CurrentFlashbackLevel</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData? CurrentFlashbackLevel
+        /// <summary>The private property <c>CurrentFlashbackTerrain</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Samus.Movement.PlainTerrain? CurrentFlashbackTerrain
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData?>(self, "CurrentFlashbackLevel");
+            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Samus.Movement.PlainTerrain?>(self, "CurrentFlashbackTerrain");
         }
 
         /// <summary>The private property <c>CurrentFlashbackMotherBrain</c>, reached by name.</summary>

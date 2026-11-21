@@ -54,21 +54,18 @@ public sealed class KraidEnemyState
     private KraidNailState SecondNailState { get; }
 
     /// <summary>His lint <paramref name="part"/>'s own state.</summary>
-    internal KraidLintState Lint(KraidLintPart part) => part switch
+    internal KraidLintState Lint(KraidLintPart part) => LintStates[part](this);
+
+    /// <summary>Each lint part's own state.</summary>
+    private static IdentityTable<KraidLintPart, Func<KraidEnemyState, KraidLintState>> LintStates => field ??= new(new Dictionary<KraidLintPart, Func<KraidEnemyState, KraidLintState>>
     {
-        KraidLintPart.Top => TopLintState,
-        KraidLintPart.Middle => MiddleLintState,
-        KraidLintPart.Bottom => BottomLintState,
-        _ => throw new InvalidOperationException($"Undefined {nameof(KraidLintPart)} {part}."),
-    };
+        [KraidLintPart.Top] = static kraid => kraid.TopLintState,
+        [KraidLintPart.Middle] = static kraid => kraid.MiddleLintState,
+        [KraidLintPart.Bottom] = static kraid => kraid.BottomLintState,
+    });
 
     /// <summary>His fingernail <paramref name="part"/>'s own state.</summary>
-    internal KraidNailState Nail(KraidNailPart part) => part switch
-    {
-        KraidNailPart.First => FirstNailState,
-        KraidNailPart.Second => SecondNailState,
-        _ => throw new InvalidOperationException($"Undefined {nameof(KraidNailPart)} {part}."),
-    };
+    internal KraidNailState Nail(KraidNailPart part) => part == KraidNailPart.First ? FirstNailState : SecondNailState;
 
     /// <summary>His three lints' own states, top first.</summary>
     internal IEnumerable<KraidLintState> Lints => [TopLintState, MiddleLintState, BottomLintState];
@@ -88,10 +85,11 @@ public sealed class KraidEnemyState
     /// for the small form and <see cref="KraidArenaDefinitions.GrownEjectionLimitY"/> once growth raises the clamp.
     /// </summary>
     public int EjectionLimitY { get; internal set; }
-
     /// <summary>
-    /// Whether his mouth reopens as it closes (#2400): a mouth hit while the reopens are armed marks it, and a closing mouth
-    /// that finds it removes one pending reopen.
+    /// Whether his mouth reopens as it closes (#2400): a mouth hit while reopens are pending marks it, and a closing mouth
+    /// that finds it spends one pending reopen. A charged body hit that started his eye glow arms the reopens, and only a
+    /// clear of his mouth, which forgets the mark too, disarms them, so his reopens are armed exactly while any is pending
+    /// and a marked mouth always has one to spend.
     /// </summary>
     internal bool MouthReopenMarked => mouthReopens is MarkedReopens;
 
@@ -207,14 +205,21 @@ public sealed class KraidEnemyState
     }
 
     /// <summary>
-    /// Removes one pending mouth reopen (#1627). Kraid removes one only while the mouth's reopen is pending, which a
-    /// mouth hit marks only after arming them, and the removal that leaves none clears the mouth, so a reopen is
-    /// always pending when one is removed.
+    /// His mouth closes (#1627): a marked mouth spends one pending reopen, and while any remain he waits to glow his eye
+    /// again; otherwise every hit that would reopen it is forgotten.
     /// </summary>
-    /// <exception cref="InvalidOperationException">No reopen is pending.</exception>
-    internal void RemoveOneMouthReopen() => mouthReopens = mouthReopens is MarkedReopens { Left: > 0 } marked
-        ? new MarkedReopens(marked.Left - 1)
-        : throw new InvalidOperationException("Removing a mouth reopen from none breaks Kraid's mouth-reopen order.");
+    /// <returns>Whether a reopen is still pending, so he waits to glow his eye again.</returns>
+    internal bool SpendMouthReopenAsMouthCloses()
+    {
+        if (mouthReopens is MarkedReopens { Left: > 1 } marked)
+        {
+            mouthReopens = new MarkedReopens(marked.Left - 1);
+            return true;
+        }
+
+        ClearMouthReactions();
+        return false;
+    }
 
     /// <summary>Forgets every hit on his mouth and body that would reopen it, and the reopens still pending.</summary>
     internal void ClearMouthReactions()

@@ -22,7 +22,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
     /// </remarks>
     public PhaseRandomStep RandomStep => session.DeathStep switch
     {
-        DeathSequenceStep.FinalGameplayPass or DeathSequenceStep.BlackingOutSurroundings or DeathSequenceStep.WaitingForMusic or
+        DeathSequenceStep.FinalGameplayPass or DeathSequenceStep.BlackingOutSurroundings or
             DeathSequenceStep.SamusDying => PhaseRandomStep.RuntimeOwned,
         DeathSequenceStep.FinalBlackOut => PhaseRandomStep.Advance,
         _ => throw new InvalidOperationException($"Undefined {nameof(DeathSequenceStep)} {session.DeathStep}."),
@@ -36,8 +36,9 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
     {
         DeathSequenceStep.FinalGameplayPass => "Death: final gameplay pass",
         DeathSequenceStep.BlackingOutSurroundings => "Death: surroundings black out",
-        DeathSequenceStep.WaitingForMusic => "Death: waiting for music",
-        DeathSequenceStep.SamusDying => $"Death: {session.GameplayRuntime.Player.IntroducedSamus.DeathSequence.Phase}",
+        DeathSequenceStep.SamusDying => session.GameplayRuntime.Player.IntroducedSamus.DeathSequence.Phase is SamusDeathSequencePhase.Begun dying
+            ? $"Death: {dying}"
+            : "Death: waiting for music",
         DeathSequenceStep.FinalBlackOut => "Death: final black-out",
         _ => throw new InvalidOperationException($"Undefined {nameof(DeathSequenceStep)} {session.DeathStep}."),
     };
@@ -45,29 +46,19 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
 
+    /// <summary>What <c>Step</c> does for each <see cref="DeathSequenceStep"/> member, each member's own arm.</summary>
+    private IdentityTable<DeathSequenceStep, Action<ControllerButton>> StepForDeathSequenceStep => field ??= new(new Dictionary<DeathSequenceStep, Action<ControllerButton>>
+    {
+        [DeathSequenceStep.FinalGameplayPass] = controllerInput => RunFinalGameplayPass(controllerInput),
+        [DeathSequenceStep.BlackingOutSurroundings] = controllerInput => BlackOutSurroundings(controllerInput),
+        [DeathSequenceStep.SamusDying] = controllerInput => StepSamusDeath(controllerInput),
+        [DeathSequenceStep.FinalBlackOut] = controllerInput => FinalBlackOut(controllerInput),
+    });
+
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        switch (session.DeathStep)
-        {
-            case DeathSequenceStep.FinalGameplayPass:
-                RunFinalGameplayPass(controllerInput);
-                break;
-            case DeathSequenceStep.BlackingOutSurroundings:
-                BlackOutSurroundings(controllerInput);
-                break;
-            case DeathSequenceStep.WaitingForMusic:
-                WaitForMusic(controllerInput);
-                break;
-            case DeathSequenceStep.SamusDying:
-                StepSamusDying(controllerInput);
-                break;
-            case DeathSequenceStep.FinalBlackOut:
-                FinalBlackOut(controllerInput);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DeathSequenceStep)} {session.DeathStep}.");
-        }
+        StepForDeathSequenceStep[session.DeathStep](controllerInput);
     }
 
     /// <summary>The final frozen gameplay pass, which prepares Samus and begins the surroundings' fade.</summary>
@@ -81,7 +72,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
         SamusState dyingSamus = session.GameplayRuntime.Player.IntroducedSamus;
         dyingSamus.SelectBeam();
         dyingSamus.ClearHurtTimers();
-        dyingSamus.Knockback = dyingSamus.Knockback.Released();
+        dyingSamus.Knockback = dyingSamus.Knockback.HandBack();
         session.Enter(DeathSequenceStep.BlackingOutSurroundings);
     }
 
@@ -99,8 +90,20 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
             session.audio.QueueMusic(MusicRequest.Stop);
             session.audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Death));
             session.audio.ScheduleMusic(MusicRequest.SelectTrack(SamusDeathDefinitions.FanfareTrack), SamusDeathDefinitions.FanfareDelay);
-            session.Enter(DeathSequenceStep.WaitingForMusic);
+            session.Enter(DeathSequenceStep.SamusDying);
         }
+    }
+
+    /// <summary>
+    /// One update of Samus's death: her fatal pose until the death music has been processed, which begins her death
+    /// sequence, then its animation.
+    /// </summary>
+    private void StepSamusDeath(ControllerButton controllerInput)
+    {
+        if (session.GameplayRuntime.Player.IntroducedSamus.DeathSequence.Phase is SamusDeathSequencePhase.Begun dying)
+            StepSamusDying(controllerInput, dying);
+        else
+            WaitForMusic(controllerInput);
     }
 
     /// <summary>One update of the fatal pose, which begins Samus's death animation once the death music is processed.</summary>
@@ -109,17 +112,14 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
         session.GameplayRuntime.DeathSequence.DrawFatalSamusFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
         session.display.PublishGameplay(session.GameplayRuntime);
         if (!session.audio.HasQueuedMusic)
-        {
             session.GameplayRuntime.DeathSequence.BeginDeathSequenceAfterMusicWait(session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
-            session.Enter(DeathSequenceStep.SamusDying);
-        }
     }
 
-    /// <summary>One update of Samus's death animation, which begins the final black-out once her death sequence completes.</summary>
-    private void StepSamusDying(ControllerButton controllerInput)
+    /// <summary>One update of Samus's death animation in <paramref name="dying"/>, which begins the final black-out once her death sequence completes.</summary>
+    private void StepSamusDying(ControllerButton controllerInput, SamusDeathSequencePhase.Begun dying)
     {
         SamusDeathSequenceStepResult deathStep =
-            session.GameplayRuntime.DeathSequence.StepDeathSequenceFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus);
+            session.GameplayRuntime.DeathSequence.StepDeathSequenceFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope, session.GameplayRuntime.Player.IntroducedSamus, dying);
         session.display.PublishGameplay(session.GameplayRuntime);
         if (deathStep.Completed)
         {

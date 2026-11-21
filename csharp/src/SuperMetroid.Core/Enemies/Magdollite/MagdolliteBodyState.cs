@@ -24,9 +24,9 @@ public sealed class MagdolliteBodyState : MagdollitePartState
     /// </summary>
     public int RiseDisplacementY { get; internal set; }
 
-    /// <summary>The head releases the dormant arm (#2439): the arm starts rising from its origin on its next update.</summary>
-    /// <exception cref="InvalidOperationException">The arm is not dormant.</exception>
-    internal void Release() => Action = Action == MagdolliteBodyAction.Dormant
-        ? MagdolliteBodyAction.Released
-        : throw new InvalidOperationException($"A Magdollite's head released its arm while the arm was {Action}.");
+    /// <summary>
+    /// The head releases the dormant arm (#2439): the arm moves into its released phase, which its next update consumes,
+    /// rising from its origin.
+    /// </summary>
+    internal void Release() => Action = MagdolliteBodyAction.Released;
 }

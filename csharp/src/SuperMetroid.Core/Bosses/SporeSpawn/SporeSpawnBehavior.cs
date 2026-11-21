@@ -17,10 +17,13 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SporeSpawn];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.SporeSpawn], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SporeSpawnEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SporeSpawnEntity(this, occupant, place, common));
 
     /// <summary>Provides boss event state, installed colors, and the room RNG.</summary>
     private readonly EnemyRoomBinding _room;
@@ -36,7 +39,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Receives Spore Spawn's sounds.</summary>
     private readonly EnemyAudioQueue _audio;
-
 
     /// <summary>Captures the room and combat systems used by boss and spore behavior.</summary>
     internal SporeSpawnBehavior(SporeSpawnBehaviorDependencies dependencies)
@@ -101,36 +103,22 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         UpdateSporeSpawnStalks(body, state);
     }
 
+    /// <summary>What <see cref="RunSporeSpawnMain"/> does for each <see cref="SporeSpawnMovement"/> member, each member's own arm.</summary>
+    private IdentityTable<SporeSpawnMovement, Action<RoomEnemyPlace, SporeSpawnEnemyState>> RunSporeSpawnMainForSporeSpawnMovement => field ??= new(new Dictionary<SporeSpawnMovement, Action<RoomEnemyPlace, SporeSpawnEnemyState>>
+    {
+        [SporeSpawnMovement.Idle] = (body, state) => { },
+        [SporeSpawnMovement.Descending] = (body, state) => RunSporeSpawnDescent(body, state),
+        [SporeSpawnMovement.Moving] = (body, state) => RunSporeSpawnMovement(body, state),
+        [SporeSpawnMovement.SetupDeath] = (body, state) => SetupSporeSpawnDeathVelocity(body, state),
+        [SporeSpawnMovement.Dying] = (body, state) => RunSporeSpawnDying(body, state),
+    });
+
     /// <summary>Runs Spore Spawn's movement for one update.</summary>
     private void RunSporeSpawnMain(
         RoomEnemyPlace body,
         SporeSpawnEnemyState state)
     {
-        switch (state.Movement)
-        {
-            case SporeSpawnMovement.Idle:
-                return;
-
-            case SporeSpawnMovement.Descending:
-                RunSporeSpawnDescent(body, state);
-                return;
-
-            case SporeSpawnMovement.Moving:
-                RunSporeSpawnMovement(body, state);
-                return;
-
-            case SporeSpawnMovement.SetupDeath:
-                SetupSporeSpawnDeathVelocity(body, state);
-                return;
-
-            case SporeSpawnMovement.Dying:
-                RunSporeSpawnDying(body, state);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Spore Spawn has no behaviour for movement {state.Movement}.");
-        }
+        RunSporeSpawnMainForSporeSpawnMovement[state.Movement](body, state);
     }
 
     /// <summary>Runs Spore Spawn's descent into the room.</summary>
@@ -281,7 +269,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// A link of Spore Spawn's stalk (#1760): it holds still, and a shot one restarts its pose. Its pose raises no event; the
     /// family's cue owner its animations are bound to is the spawners' (#2571).
     /// </summary>
-    private EnemyProjectileBehavior Stalk => field ??= new EnemyProjectileBehavior(shot: () => new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.Stalk));
+    private EnemyProjectileBehavior Stalk => field ??= new EnemyProjectileBehavior(shot: () => new SporeSpawnCeilingAnimation(Spawner, SporeSpawnCeilingSegment.Stalk));
 
     /// <summary>Runs SporeSpawn's main AI with the encounter his <paramref name="place"/> holds.</summary>
     internal void RunSporeSpawnMainAi(RoomEnemyPlace place, SporeSpawnEnemyState state) => RunSporeSpawnMain(place, state);
@@ -436,51 +424,50 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
+    /// <summary>What <see cref="ApplySporeSpawnCue"/> does for each <see cref="SporeSpawnCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<SporeSpawnCueKind, Action<RoomEnemyPlace, SporeSpawnEnemyState, SamusState>> ApplySporeSpawnCueForSporeSpawnCueKind => field ??= new(new Dictionary<SporeSpawnCueKind, Action<RoomEnemyPlace, SporeSpawnEnemyState, SamusState>>
+    {
+        [SporeSpawnCueKind.WidenSway] = (body, state, samus) => state.SwayRadius = state.SwayRadius.Widened(),
+        [SporeSpawnCueKind.ReopenToHits] = (body, state, samus) => state.Damaged = false,
+        [SporeSpawnCueKind.Harden] = (body, state, samus) =>
+        {
+            body.Position = body.Position.WithWhole(new(SporeSpawnArenaDefinitions.CentreX, SporeSpawnArenaDefinitions.CentreY));
+            body.Contact = body.Contact.Replace(EnemyContact.IgnoresSamus, EnemyContact.SolidToSamus);
+            body.Processing = body.Processing.With(EnemyProcessing.Animates);
+        },
+        [SporeSpawnCueKind.RequestDeathDrops] = (body, state, samus) => RequestSporeSpawnDeathDrops(samus),
+        [SporeSpawnCueKind.SpawnHardeningDust] = (body, state, samus) => SpawnSporeSpawnHardeningDust(body),
+        [SporeSpawnCueKind.SpawnDyingExplosion] = (body, state, samus) => SpawnSporeSpawnDyingExplosion(body),
+    });
+
     /// <summary>Carries out one cue of Spore Spawn's body animation.</summary>
     internal void ApplySporeSpawnCue(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnCue cue, SamusState samus)
     {
-        switch (cue)
-        {
-            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.WidenSway }:
-                state.SwayRadius = state.SwayRadius.Widened();
-                return;
-            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.ReopenToHits }:
-                state.Damaged = false;
-                return;
-            case SporeSpawnCue.SetSway setSway:
-                state.SwayRadius = setSway.Radius;
-                state.SwayStep = setSway.Step;
-                return;
-            case SporeSpawnCue.SetSporeGeneration setSporeGeneration:
-                state.SporeGenerationSuppressed = setSporeGeneration.SporeGenerationSuppressed;
-                return;
-            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.Harden }:
-                body.Position = body.Position.WithWhole(new(SporeSpawnArenaDefinitions.CentreX, SporeSpawnArenaDefinitions.CentreY));
-                body.Contact = body.Contact.Replace(EnemyContact.IgnoresSamus, EnemyContact.SolidToSamus);
-                body.Processing = body.Processing.With(EnemyProcessing.Animates);
-                return;
-            case SporeSpawnCue.QueueSound queueSound:
-                RequestSporeSpawnSound(queueSound.Sound);
-                return;
-            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.RequestDeathDrops }:
-                RequestSporeSpawnDeathDrops(samus);
-                return;
-            case SporeSpawnCue.SetMovement setMovement:
-                state.Movement = setMovement.Movement;
-                return;
-            case SporeSpawnCue.ShowDeathShade showDeathShade:
-                ShowSporeSpawnDeathShade(body, state, showDeathShade.DeathShadeStep);
-                return;
-            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.SpawnHardeningDust }:
-                SpawnSporeSpawnHardeningDust(body);
-                return;
-            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.SpawnDyingExplosion }:
-                SpawnSporeSpawnDyingExplosion(body);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SporeSpawnCueKind)} {cue}.");
-        }
+        cue.React(ApplySporeSpawnCueReactions, new ApplySporeSpawnCueContext(body, state, samus, this));
     }
+
+    /// <summary>What <see cref="ApplySporeSpawnCue"/> does on each <see cref="SporeSpawnCue"/>, built once (#2553).</summary>
+    private static SporeSpawnCueReactions<ApplySporeSpawnCueContext> ApplySporeSpawnCueReactions { get; } = new(
+        ShowDeathShade: static (showDeathShade, context) => ShowSporeSpawnDeathShade(context.Body, context.State, showDeathShade.DeathShadeStep),
+        QueueSound: static (queueSound, context) => context.Owner.RequestSporeSpawnSound(queueSound.Sound),
+        SetMovement: static (setMovement, context) => context.State.Movement = setMovement.Movement,
+        SetSway: static (setSway, context) =>
+        {
+            context.State.SwayRadius = setSway.Radius;
+            context.State.SwayStep = setSway.Step;
+        },
+        SetSporeGeneration: static (setSporeGeneration, context) => context.State.SporeGenerationSuppressed = setSporeGeneration.SporeGenerationSuppressed,
+        Signal: static (signal, context) =>
+        {
+            context.Owner.ApplySporeSpawnCueForSporeSpawnCueKind[signal.Kind](context.Body, context.State, context.Samus);
+        });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Body">The body the cases read.</param>
+    /// <param name="State">The state the cases read.</param>
+    /// <param name="Samus">The samus the cases read.</param>
+    /// <param name="Owner">The <see cref="SporeSpawnBehavior"/> reacting.</param>
+    private readonly record struct ApplySporeSpawnCueContext(RoomEnemyPlace Body, SporeSpawnEnemyState State, SamusState Samus, SporeSpawnBehavior Owner);
 
     /// <summary>Shows <paramref name="band"/>'s colours of <paramref name="state"/> on his <paramref name="body"/>.</summary>
     private static void ShowSporeSpawnHealthShade(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnHealthBand band)
@@ -537,10 +524,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <exception cref="InvalidOperationException">No projectile place is free: he spawns his stalk into his room's empty places.</exception>
     private SporeSpawnStalkLink SpawnSporeSpawnStalk(RoomEnemyOccupant occupant, RoomEnemyPlace body, SporeSpawnStalkLinkDefinition link)
     {
-        EnemyProjectile stalk = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk, SpriteGraphics.SpawnedBy(occupant, body.Shading)) ?? throw new InvalidOperationException(
+        EnemyProjectile stalk = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk, SpriteGraphics.SpawnedBy(occupant, body.Shading), new SporeSpawnCeilingAnimation(Spawner, SporeSpawnCeilingSegment.Stalk)) ?? throw new InvalidOperationException(
             "Spore Spawn's stalk found no free projectile place; he spawns it as his room loads, into its empty places.");
 
-        stalk.StartAnimation(new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.Stalk));
         stalk.Position = stalk.Position.WithWhole(body.Position.Whole + link.SpawnOffset);
         return new(link.Place, stalk);
     }
@@ -548,11 +534,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns the ceiling spore emitter at <paramref name="emitter"/> for <paramref name="state"/>'s fight and runs its setup.</summary>
     private void SpawnSporeSpawnSpawner(RoomEnemyOccupant occupant, RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnEmitter emitter)
     {
-        EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnSpawner, Spawner, SpriteGraphics.SpawnedBy(occupant, body.Shading));
+        EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnSpawner, Spawner, SpriteGraphics.SpawnedBy(occupant, body.Shading), new SporeSpawnCeilingAnimation(Spawner, SporeSpawnCeilingSegment.SpawnerClosed));
         if (spawner is null)
             return;
 
-        spawner.StartAnimation(new SporeSpawnProjectileAnimation(Spawner, SporeSpawnProjectileSegment.SpawnerClosed));
         spawner.Position = spawner.Position.WithWhole(emitter.Place);
         Spawner.Emitters.Start(spawner, new SporeSpawnEmitterState(state, emitter.Drift));
     }

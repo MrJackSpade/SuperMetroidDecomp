@@ -7,10 +7,13 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Squeept];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Squeept], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
             ? EnemyOccupant.Of(new NorfairLavaJumperFollowerEntity(this, occupant, place, common))
             : EnemyOccupant.Of(new SqueeptEntity(this, occupant, place, common));
@@ -68,6 +71,63 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
         FollowSqueeptParent(follower);
     }
 
+    /// <summary>What <see cref="RunSqueeptMain"/> does for each <see cref="SqueeptAction"/> member, each member's own arm.</summary>
+    private IdentityTable<SqueeptAction, Action<RoomEnemyPlace, SqueeptState, int>> RunSqueeptMainForSqueeptAction => field ??= new(new Dictionary<SqueeptAction, Action<RoomEnemyPlace, SqueeptState, int>>
+    {
+        [SqueeptAction.BeginJump] = (place, state, random) =>
+        {
+            state.YVelocity = NorfairLavaJumpDefinitions.Launch.Choose(random);
+            state.Action = SqueeptAction.RiseBeforeAnimationSwitch;
+            place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.SqueeptJumpSound, priority: SoundRequestPriority.Normal);
+        },
+        [SqueeptAction.RiseBeforeAnimationSwitch] = (place, state, random) =>
+        {
+            MoveSqueeptVertically(place, state);
+            state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
+
+            // The flip starts once the rise has slowed to its switch speed. Jumps start rising much faster, so the
+            // flip always comes before the top of the arc.
+            if (state.YVelocity.IsNegative && state.YVelocity >= NorfairLavaJumpDefinitions.AnimationSwitchVelocity)
+            {
+                StartSqueeptAnimation(place, state, NorfairLavaJumperSegment.Jump);
+                state.Action = SqueeptAction.MoveUntilAnimationSignal;
+            }
+        },
+        [SqueeptAction.MoveUntilAnimationSignal] = (place, state, random) =>
+        {
+            MoveSqueeptVertically(place, state);
+            state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
+        },
+        [SqueeptAction.Flipped] = (place, state, random) =>
+        {
+            // The update that finds the flip finished still moves as the flip did, then falls from the next.
+            MoveSqueeptVertically(place, state);
+            state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
+            state.Action = SqueeptAction.FallBackIntoLava;
+        },
+        [SqueeptAction.FallBackIntoLava] = (place, state, random) =>
+        {
+            MoveSqueeptVertically(place, state);
+
+            // Reaching the bottom block row of any room screen is how the jumper knows it is back in the lava,
+            // wherever the lava lies (gameplay-observable: a jumper whose fall crosses a screen's bottom row
+            // higher up is back in the lava there). Once the actor reaches that row it snaps to its exact
+            // population origin, restores the hidden animation, and rests off-screen until the next jump begins.
+            if (RoomGridConversions.LiesOnScreensBottomBlockRow(place.Position.Y.Whole))
+            {
+                place.Position = place.Position.WithWhole(state.SpawnPosition);
+                StartSqueeptAnimation(place, state, NorfairLavaJumperSegment.Hidden);
+                state.Action = SqueeptAction.BeginJump;
+                place.Processing = place.Processing.Without(EnemyProcessing.OffScreen);
+            }
+            else
+            {
+                state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
+            }
+        },
+    });
+
     /// <summary>
     /// Runs the jumping parent's main behaviour: its rising, flipping and falling actions. Main advances the shared
     /// random numbers once each update.
@@ -78,64 +138,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int random = _room.Random.Generate();
 
-        switch (state.Action)
-        {
-            case SqueeptAction.BeginJump:
-                state.YVelocity = NorfairLavaJumpDefinitions.Launch.Choose(random);
-                state.Action = SqueeptAction.RiseBeforeAnimationSwitch;
-                place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.SqueeptJumpSound, priority: SoundRequestPriority.Normal);
-                return;
-
-            case SqueeptAction.RiseBeforeAnimationSwitch:
-                MoveSqueeptVertically(place, state);
-                state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
-
-                // The flip starts once the rise has slowed to its switch speed. Jumps start rising much faster, so the
-                // flip always comes before the top of the arc.
-                if (state.YVelocity.IsNegative && state.YVelocity >= NorfairLavaJumpDefinitions.AnimationSwitchVelocity)
-                {
-                    StartSqueeptAnimation(place, state, NorfairLavaJumperSegment.Jump);
-                    state.Action = SqueeptAction.MoveUntilAnimationSignal;
-                }
-                return;
-
-            case SqueeptAction.MoveUntilAnimationSignal:
-                MoveSqueeptVertically(place, state);
-                state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
-                return;
-
-            case SqueeptAction.Flipped:
-                // The update that finds the flip finished still moves as the flip did, then falls from the next.
-                MoveSqueeptVertically(place, state);
-                state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
-                state.Action = SqueeptAction.FallBackIntoLava;
-                return;
-
-            case SqueeptAction.FallBackIntoLava:
-                MoveSqueeptVertically(place, state);
-
-                // Reaching the bottom block row of any room screen is how the jumper knows it is back in the lava,
-                // wherever the lava lies (gameplay-observable: a jumper whose fall crosses a screen's bottom row
-                // higher up is back in the lava there). Once the actor reaches that row it snaps to its exact
-                // population origin, restores the hidden animation, and rests off-screen until the next jump begins.
-                if (RoomGridConversions.LiesOnScreensBottomBlockRow(place.Position.Y.Whole))
-                {
-                    place.Position = place.Position.WithWhole(state.SpawnPosition);
-                    StartSqueeptAnimation(place, state, NorfairLavaJumperSegment.Hidden);
-                    state.Action = SqueeptAction.BeginJump;
-                    place.Processing = place.Processing.Without(EnemyProcessing.OffScreen);
-                }
-                else
-                {
-                    state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
-                }
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Norfair lava-jumping enemy has no behaviour for action {state.Action}.");
-        }
+        RunSqueeptMainForSqueeptAction[state.Action](place, state, random);
     }
 
     /// <summary>Carries out the flip animation's finishing cue (#2439): the flip has finished, and the next update falls.</summary>

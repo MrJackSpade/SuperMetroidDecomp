@@ -37,8 +37,8 @@ public static class GameplayMessageBoxDefinitions
     /// it takes input, which the save confirmations do not wait; what it asks the player to confirm; and the binding its
     /// panel names the button of.
     /// </summary>
-    public static IReadOnlyDictionary<GameplayMessageId, GameplayMessageDefinition> Messages { get; } =
-        new Dictionary<GameplayMessageId, GameplayMessageDefinition>
+    public static IdentityTable<GameplayMessageId, GameplayMessageDefinition> Messages { get; } =
+        new(new Dictionary<GameplayMessageId, GameplayMessageDefinition>
     {
         [GameplayMessageId.EnergyTank] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
         [GameplayMessageId.MissileTank] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, GameplayMessagePanelButtonBinding.Shoot),
@@ -67,11 +67,10 @@ public static class GameplayMessageBoxDefinitions
         [GameplayMessageId.ReserveTank] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
         [GameplayMessageId.GravitySuit] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
         [GameplayMessageId.GunshipSaveConfirmation] = new(null, GameplayMessageConfirmation.SaveThenCompletionNotice, null),
-    };
+    });
 
     /// <summary>The definition of <paramref name="messageId"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="messageId"/> is no message the table lists.</exception>
-    public static GameplayMessageDefinition Message(GameplayMessageId messageId) => Ensure.Listed(Messages, messageId);
+    public static GameplayMessageDefinition Message(GameplayMessageId messageId) => Messages[messageId];
 
     /// <summary>Which button an item panel names for its action.</summary>
     public static class Buttons

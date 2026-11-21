@@ -1,20 +1,48 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The gravity of Mother Brain's bomb after each bounce.</summary>
-internal static class MotherBrainBombBounces
+/// <summary>
+/// Where one of Mother Brain's bouncing bombs stands in its flight (#2553): its first fall, the gravity of the bounce it
+/// last made, or landed from its last bounce, so it expires. Each bounce leads to the next bounce's gravity or, after the
+/// last, to the landing, so no bounce past the authored ones exists.
+/// </summary>
+internal abstract record MotherBrainBombBounces
 {
-    /// <summary>The bounces a bomb makes before it expires.</summary>
-    private static int Count => MotherBrainBombBounceDefinitions.BounceAccelerations.Length;
-
-    /// <summary>Whether a bomb that has bounced <paramref name="bounces"/> times has landed from its last bounce, so it expires.</summary>
-    internal static bool HasExpired(int bounces) => bounces == Count + 1;
-
-    /// <summary>The gravity of a bomb that has bounced <paramref name="bounces"/> times, one through <see cref="Count"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="bounces"/> is not a bounce the bomb makes.</exception>
-    internal static SignedEightEight YAcceleration(int bounces)
+    /// <summary>Allows only the stands below.</summary>
+    private MotherBrainBombBounces()
     {
-        if (bounces < 1 || bounces > Count)
-            throw new InvalidDataException($"Mother Brain bomb bounce {bounces} is not one of its {Count} authored bounces.");
-        return MotherBrainBombBounceDefinitions.BounceAccelerations[bounces - 1];
     }
+
+    /// <summary>The bomb's first fall, before any bounce, at the ordinary gravity.</summary>
+    internal static Flying FirstFall { get; } = new Flying.Falling();
+
+    /// <summary>The bomb is in the air: falling for the first time, or after a bounce.</summary>
+    internal abstract record Flying : MotherBrainBombBounces
+    {
+        /// <summary>Allows only the flights below.</summary>
+        private Flying()
+        {
+        }
+
+        /// <summary>Where the bomb stands once it bounces off the floor from this flight.</summary>
+        internal abstract MotherBrainBombBounces Bounced { get; }
+
+        /// <summary>The bomb falls for the first time, before any bounce.</summary>
+        internal sealed record Falling : Flying
+        {
+            /// <inheritdoc/>
+            internal override MotherBrainBombBounces Bounced { get; } =
+                new Bouncing(ListStep<SignedEightEight>.FirstOf(MotherBrainBombBounceDefinitions.BounceAccelerations));
+        }
+
+        /// <summary>The bomb has bounced, and falls at the gravity of the bounce it last made.</summary>
+        /// <param name="Gravity">The bounce's gravity, among each bounce's in turn.</param>
+        internal sealed record Bouncing(ListStep<SignedEightEight> Gravity) : Flying
+        {
+            /// <inheritdoc/>
+            internal override MotherBrainBombBounces Bounced => Gravity.Following is { } next ? new Bouncing(next) : new Landed();
+        }
+    }
+
+    /// <summary>The bomb has landed from its last bounce: it expires on its next update.</summary>
+    internal sealed record Landed : MotherBrainBombBounces;
 }

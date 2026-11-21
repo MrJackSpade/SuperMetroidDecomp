@@ -8,8 +8,5 @@ public static class SamusMomentumResponses
     /// <summary>Reads the momentum response a movement type runs when its input finds no new pose.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The movement type has no definition.</exception>
     public static SamusMomentumResponse ForNoTransition(SamusMovementType movementType) =>
-        SamusMovementTypeDefinitions.Movements.TryGetValue(movementType, out SamusMovementTypeDefinition? definition)
-            ? definition.NoTransitionResponse
-            : throw new ArgumentOutOfRangeException(nameof(movementType), movementType,
-                "Movement type names no momentum response for input that chooses no new pose.");
+        SamusMovementTypeDefinitions.Movements[movementType].NoTransitionResponse;
 }

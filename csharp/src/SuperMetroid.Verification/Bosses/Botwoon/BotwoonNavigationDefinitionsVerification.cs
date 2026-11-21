@@ -105,9 +105,9 @@ internal static class BotwoonNavigationDefinitionsVerification
             BotwoonBehavior.StartBotwoonWalk(state, WalkOf(offset / RecordBytes));
             ushort pointer = ReadRomWord(rom, 0xb3e150 + offset);
             short direction = (short)ReadRomWord(rom, 0xb3e152 + offset);
-            BotwoonPathPosition start = BotwoonPathCodec.Locate(cartridge, direction < 0 ? pointer - BackwardRewindBytes : pointer);
-            AssertEqual(start.Path, TablePosition(state.Path ?? throw new InvalidOperationException("The walk sets a path.")), "Botwoon production path");
-            AssertEqual(start.Step, state.PathStep, "Botwoon production first step and backward rewind");
+            var start = BotwoonPathCodec.Locate(cartridge, direction < 0 ? pointer - BackwardRewindBytes : pointer);
+            AssertEqual(SuperMetroid.Core.Bosses.Botwoon.BotwoonPathPosition.At(BotwoonPathDefinitions.Paths[start.Path], start.Step), state.PathPosition,
+                "Botwoon production path, first step and backward rewind");
             AssertEqual(direction < 0 ? BotwoonPathTraversal.Backward : BotwoonPathTraversal.Forward, state.PathTraversal,
                 "Botwoon production path direction");
             AssertEqual(ReadRomWord(rom, 0xb3e154 + offset), RecordBytes * Array.FindIndex(BotwoonNavigationDefinitions.Holes, hole => hole.Hole == state.TargetHole),
@@ -137,7 +137,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             ushort pointer = ReadRomWord(rom, 0xb3e150 + offset);
             short direction = (short)ReadRomWord(rom, 0xb3e152 + offset);
             BotwoonPathWalk walk = WalkOf(offset / RecordBytes);
-            BotwoonPathPosition start = BotwoonPathCodec.Locate(cartridge, direction < 0 ? pointer - BackwardRewindBytes : pointer);
+            var start = BotwoonPathCodec.Locate(cartridge, direction < 0 ? pointer - BackwardRewindBytes : pointer);
             AssertEqual(start.Path, TablePosition(walk.Path), "Botwoon native descriptor path");
             AssertEqual(start.Step, walk.FirstStep, "Botwoon native descriptor first step");
         }
@@ -254,8 +254,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                     var state = new BotwoonEnemyState(body: [])
                     {
                         Movement = BotwoonMovement.FollowAuthoredPath,
-                        Path = definition,
-                        PathStep = step,
+                        PathPosition = global::SuperMetroid.Core.Bosses.Botwoon.BotwoonPathPosition.At(definition, step),
                         PathTraversal = traversal,
                     };
                     AssertEqual(2, state.SpeedStage.MovementSpeed, "Botwoon walks two path steps an update at full speed");
@@ -268,7 +267,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                     AssertEqual(terminates || nextTerminates, state.Movement == BotwoonMovement.Finished, $"{context} completion");
                     if (terminates || nextTerminates)
                     {
-                        AssertEqual(terminates ? step : step + sign, state.PathStep, $"{context} terminating step");
+                        AssertEqual(SuperMetroid.Core.Bosses.Botwoon.BotwoonPathPosition.At(definition, terminates ? step : step + sign), state.PathPosition, $"{context} terminating step");
                         AssertEqual((ushort)0x8000, movementHead.Position.X.Whole, $"{context} terminating X");
                         AssertEqual((ushort)0x8000, movementHead.Position.Y.Whole, $"{context} terminating Y");
                         continue;
@@ -277,7 +276,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                     Offset16<RoomPixels> next = BotwoonPathCodec.Sample(cartridge, nextAddress);
                     AssertEqual(unchecked((ushort)(0x8000 + sign * (expected.X + next.X))), movementHead.Position.X.Whole, $"{context} X");
                     AssertEqual(unchecked((ushort)(0x8000 + sign * (expected.Y + next.Y))), movementHead.Position.Y.Whole, $"{context} Y");
-                    AssertEqual(step + 2 * sign, state.PathStep, $"{context} next step");
+                    AssertEqual(SuperMetroid.Core.Bosses.Botwoon.BotwoonPathPosition.At(definition, step + 2 * sign), state.PathPosition, $"{context} next step");
                 }
                 movementStepCount++;
             }
@@ -324,13 +323,6 @@ internal static class BotwoonNavigationDefinitionsVerification
                 $"Botwoon hole {hole.Hole} exact-target movement angle");
         }
 
-        BotwoonPathDefinition first = BotwoonPathDefinitions.Paths[0];
-        AssertThrows<InvalidDataException>(
-            () => BotwoonNavigation.HasStep(first, -2),
-            "Botwoon path position before the walk's end");
-        AssertThrows<InvalidDataException>(
-            () => BotwoonNavigation.HasStep(first, first.Steps.Length + 1),
-            "Botwoon path position past the walk's end");
         AssertThrows<InvalidOperationException>(
             () => runMovement(movementHead, new BotwoonEnemyState(body: []) { Movement = BotwoonMovement.FollowAuthoredPath }),
             "Botwoon cannot follow a path before choosing one");

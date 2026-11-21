@@ -78,9 +78,9 @@ internal static class MapSpritesVerification
             system.Progress.ExploreEveryCell();
             var marker = new FileSelectStationMarker(LoadStationDefinitions.WreckedShipSave,
                 original.Maps.SaveMarkers);
-            var room = new FileSelectRoomMapGraphics(system, AreaId.WreckedShip, screenContent: original, sheets: MenuSheetFixtures.For(original));
+            var room = new FileSelectRoomMapGraphics(system, ZebesArea.WreckedShip, screenContent: original, sheets: MenuSheetFixtures.For(original));
             var nativeRoom = new FileSelectRoomMapGraphics(system,
-                AreaId.WreckedShip, screenContent: original, sheets: MenuSheetFixtures.For(original));
+                ZebesArea.WreckedShip, screenContent: original, sheets: MenuSheetFixtures.For(original));
             // Each comparison draws only scenes whose descriptions differ (#1532).
             LayeredScene before = nativeRoom.ComposeScene(new(0, 0), marker);
             AssertTrue(ScenePixels.Same(before, room.ComposeScene(new(0, 0), marker)), "stock map sprite pixels match with source reads blocked");

@@ -40,12 +40,11 @@ internal static class DraygonCannonAnimationDefinitions
         });
 
     /// <summary>What each facing's cannon shows.</summary>
-    internal static IReadOnlyDictionary<DraygonCannonOrientation, DraygonCannonLook> Looks { get; } =
-        new Dictionary<DraygonCannonOrientation, DraygonCannonLook>
+    internal static IdentityTable<DraygonCannonOrientation, DraygonCannonLook> Looks { get; } = new(new Dictionary<DraygonCannonOrientation, DraygonCannonLook>
         {
             [DraygonCannonOrientation.Right] = Look(S.RightShield, S.RightHitFlash, S.RightSparks),
             [DraygonCannonOrientation.Left] = Look(S.LeftShield, S.LeftHitFlash, S.LeftSparks),
-        };
+        });
 
     /// <summary>A facing's shield, held (#2557).</summary>
     private static AnimationBeat<DraygonCannonDraw, NoAnimationCue>[] Shield(DraygonCannonDraw shield) => [Show(shield, ShieldDuration)];

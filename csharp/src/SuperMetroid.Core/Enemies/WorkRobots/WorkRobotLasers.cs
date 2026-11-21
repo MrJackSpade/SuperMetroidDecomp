@@ -4,11 +4,13 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 internal static class WorkRobotLasers
 {
     /// <summary>The projectile definition <paramref name="laser"/> spawns.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="laser"/> is not a member.</exception>
-    internal static RoomEnemyProjectileKind ProjectileKind(this WorkRobotLaser laser) => laser switch
+    internal static RoomEnemyProjectileKind ProjectileKind(this WorkRobotLaser laser) => ProjectileKinds[laser];
+
+    /// <summary>The projectile definition each laser spawns: a diagonal laser upward or downward, a horizontal one level.</summary>
+    private static IdentityTable<WorkRobotLaser, RoomEnemyProjectileKind> ProjectileKinds { get; } = new(new Dictionary<WorkRobotLaser, RoomEnemyProjectileKind>
     {
-        WorkRobotLaser.Upward or WorkRobotLaser.Downward => RoomEnemyProjectileKind.WorkRobotLaserDiagonal,
-        WorkRobotLaser.Horizontal => RoomEnemyProjectileKind.WorkRobotLaserHorizontal,
-        _ => throw new ArgumentOutOfRangeException(nameof(laser), laser, "Undefined Work Robot laser."),
-    };
+        [WorkRobotLaser.Upward] = RoomEnemyProjectileKind.WorkRobotLaserDiagonal,
+        [WorkRobotLaser.Downward] = RoomEnemyProjectileKind.WorkRobotLaserDiagonal,
+        [WorkRobotLaser.Horizontal] = RoomEnemyProjectileKind.WorkRobotLaserHorizontal,
+    });
 }

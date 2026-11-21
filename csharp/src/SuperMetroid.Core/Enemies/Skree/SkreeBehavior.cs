@@ -11,10 +11,13 @@ namespace SuperMetroid.Core.Enemies.Skree;
 internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skree];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Skree], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SkreeEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SkreeEntity(this, occupant, place, common));
 
     /// <summary>Queues the dive and floor-impact sound requests at their AI transitions.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -41,42 +44,34 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.SkreeIdling), AnimationPlace.StartOfAnimation);
     }
 
+    /// <summary>What <see cref="RunSkreeMain"/> does for each <see cref="SkreeAction"/> member, each member's own arm.</summary>
+    private IdentityTable<SkreeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, RoomLevelData, SkreeEnemyState>> RunSkreeMainForSkreeAction => field ??= new(new Dictionary<SkreeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, RoomLevelData, SkreeEnemyState>>
+    {
+        [SkreeAction.Idling] = (_, place, samus, level, state) =>
+        {
+            if (Math.Abs(place.Position.X.Whole - samus.Position.X.Whole) < SkreeMotionDefinitions.WindUpDistance)
+            {
+                StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreePreparingAttack);
+                state.Action = SkreeAction.PreparingAttack;
+            }
+        },
+        [SkreeAction.PreparingAttack] = (_, place, samus, level, state) => { },
+        [SkreeAction.AttackReady] = (_, place, samus, level, state) =>
+        {
+            StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreeDiving);
+            state.Action = SkreeAction.Diving;
+            // The dive screeches on the update the wind-up releases it.
+            _audio.QueueEnemySound(EnemySound.Screech, priority: SoundRequestPriority.Normal);
+        },
+        [SkreeAction.Diving] = (_, place, samus, level, state) => RunSkreeDive(place, state, samus, level),
+        [SkreeAction.Burrowing] = (occupant, place, samus, level, state) => RunSkreeBurrow(occupant, place, state),
+    });
+
     /// <summary>Winds up near Samus, dives when the wind-up cue is ready, then burrows after floor contact.</summary>
     private void RunSkreeMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus, RoomLevelData level)
     {
         SkreeEnemyState state = place.RequireSpeciesState<SkreeEnemyState>();
-        switch (state.Action)
-        {
-            case SkreeAction.Idling:
-                if (Math.Abs(place.Position.X.Whole - samus.Position.X.Whole) < SkreeMotionDefinitions.WindUpDistance)
-                {
-                    StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreePreparingAttack);
-                    state.Action = SkreeAction.PreparingAttack;
-                }
-                return;
-
-            case SkreeAction.PreparingAttack:
-                return;
-
-            case SkreeAction.AttackReady:
-                StartSkreeAnimation(place, state, SkreeMetareeSegment.SkreeDiving);
-                state.Action = SkreeAction.Diving;
-                // The dive screeches on the update the wind-up releases it.
-                _audio.QueueEnemySound(EnemySound.Screech, priority: SoundRequestPriority.Normal);
-                return;
-
-            case SkreeAction.Diving:
-                RunSkreeDive(place, state, samus, level);
-                return;
-
-            case SkreeAction.Burrowing:
-                RunSkreeBurrow(occupant, place, state);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Skree has no behaviour for action {state.Action}.");
-        }
+        RunSkreeMainForSkreeAction[state.Action](occupant, place, samus, level, state);
     }
 
     /// <summary>Moves downward by <see cref="SkreeMotionDefinitions.DiveStep"/> and toward Samus by <see cref="SkreeMotionDefinitions.DiveDrift"/> until the downward solid-block probe starts burrowing.</summary>
@@ -141,16 +136,11 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             });
 
     /// <summary>
-    /// The wind-up's finishing cue (#2450): the dive is ready, and the Skree starts it on its next update.
+    /// The wind-up's finishing cue (#2450): the dive is ready, and the Skree starts it on its next update. The cue moves the
+    /// Skree into its ready phase as the game's animation sets the attack-ready flag, and the ready phase's step
+    /// consumes it, launching the dive.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The Skree is not winding up.</exception>
-    private static void ReadySkreeAttack(SkreeEnemyState state)
-    {
-        if (state.Action != SkreeAction.PreparingAttack)
-            throw new InvalidOperationException($"A Skree's dive was readied while it was {state.Action}.");
-        state.Action = SkreeAction.AttackReady;
-    }
-
+    private static void ReadySkreeAttack(SkreeEnemyState state) => state.Action = SkreeAction.AttackReady;
 
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>
     /// <remarks>The Skree's shot reaction adds its four debris actors after the shared normal shot response reports death, before the

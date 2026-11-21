@@ -104,7 +104,9 @@ public static class XrayRevealVisualFiles
             // Every behaviour holding the same reaction for the kind must reveal the same blocks: the installation names the
             // reaction, not the behaviour.
             BlockReaction? reaction = behavior.ReactionUnder(type);
-            XrayRevealGroupKey? key = native is { } drawn && InstalledXrayReveals.IsDrawable(drawn.Shape) ? new XrayRevealGroupKey(type, drawn) : null;
+            XrayRevealGroupKey? key = native is { } drawn && InstalledXrayReveals.IsDrawable(drawn.Shape, out XrayRevealCopyShape copy)
+                ? new XrayRevealGroupKey(type, drawn, copy)
+                : null;
             var named = new XrayRevealVisualKeyDocument(type, reaction);
             if (grouped.TryGetValue(named, out XrayRevealGroupKey? earlier))
             {
@@ -124,7 +126,7 @@ public static class XrayRevealVisualFiles
             .Select(pair => new XrayRevealVisualEntry(
                 pair.Key.Type, [.. pair.Value.OfType<BlockReaction>().Select(reaction => reaction.Key)],
                 NameOf(pair.Key.Definition.Shape),
-                RevealBlocksDocument.Of(pair.Key.Definition.Shape, pair.Key.Definition.Blocks ?? throw new InvalidOperationException(
+                RevealBlocksDocument.Of(pair.Key.Definition.Blocks ?? throw new InvalidOperationException(
                     $"Drawable X-ray reveal {pair.Key.Type} shows no blocks."))))
             .OrderBy(entry => CollisionOrder.PlaceOf(entry.CollisionType))
             .ThenBy(entry => entry.Reactions.Length != 0)
@@ -170,7 +172,7 @@ public static class XrayRevealVisualFiles
         var mappings = new List<XrayRevealVisualDefinition>();
         foreach (XrayRevealVisualEntry entry in document.Entries)
         {
-            var visual = entry.Blocks.ToBlocks(ShapeOf(entry));
+            var visual = entry.Blocks.ToBlocks(CopyShapeOf(entry));
             foreach (BlockReaction? reaction in ReadingsNamed(entry))
                 mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, reaction, visual));
         }
@@ -215,9 +217,9 @@ public static class XrayRevealVisualFiles
                     !ReactionsOf(entry.CollisionType).Any(reaction => string.Equals(reaction.Key, name, StringComparison.Ordinal))))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid reaction group.");
             if (XrayReveals.Find(entry.CollisionType, ReadingsNamed(entry)[0]) is not { } command ||
-                !InstalledXrayReveals.IsDrawable(command) || entry.Shape != NameOf(command))
+                !InstalledXrayReveals.IsDrawable(command, out XrayRevealCopyShape copy) || entry.Shape != NameOf(command))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid copy shape.");
-            if (entry.Blocks is null || !entry.Blocks.NamesExactlyThePlacesOf(command))
+            if (entry.Blocks is null || !entry.Blocks.NamesExactlyThePlacesOf(copy))
                 throw new InvalidDataException($"X-ray visuals {path} list other blocks than a {entry.Shape} reveal copies.");
         }
     }
@@ -267,9 +269,9 @@ public static class XrayRevealVisualFiles
                 XrayRevealShape command = SamusIdentityWords.XrayRevealShapes.Decode(
                     ReadWord(bus, pointer), "native X-ray reveal command");
                 // A copy command's blocks follow its word in reading order, as many as its shape copies.
-                return InstalledXrayReveals.IsDrawable(command)
-                    ? new(command, XrayRevealVisualBlocks.ForShape(command,
-                        [.. Enumerable.Range(1, XrayRevealVisualBlocks.CountFor(command)).Select(operand => RoomCellPicture.OfBlock(ReadWord(bus, pointer + operand * sizeof(ushort))))]))
+                return InstalledXrayReveals.IsDrawable(command, out XrayRevealCopyShape copy)
+                    ? new(command, XrayRevealVisualBlocks.ForShape(copy,
+                        [.. Enumerable.Range(1, XrayRevealVisualBlocks.CountFor(copy)).Select(operand => RoomCellPicture.OfBlock(ReadWord(bus, pointer + operand * sizeof(ushort))))]))
                     : new(command, null);
             }
         }
@@ -401,28 +403,27 @@ public static class XrayRevealVisualFiles
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? BottomLeft = null,
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? BottomRight = null)
     {
-        /// <summary>The document of the blocks <paramref name="blocks"/> a <paramref name="shape"/> copy shows.</summary>
-        internal static RevealBlocksDocument Of(XrayRevealShape shape, XrayRevealVisualBlocks blocks)
+
+        /// <summary>
+        /// The document of <paramref name="blocks"/>: each copy shape's blocks are their own kind (#2560), one block, a wide
+        /// or tall pair, or a square of four.
+        /// </summary>
+        internal static RevealBlocksDocument Of(XrayRevealVisualBlocks blocks)
         {
-            if (shape is XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension)
-                throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape copies no blocks.");
-            return blocks switch
-            {
-                XrayRevealVisualBlocks.OneBlock one when shape is XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar =>
-                    new(Block: one.Block.Block),
-                XrayRevealVisualBlocks.WidePair wide when shape == XrayRevealShape.CopyWide =>
-                    new(Left: wide.Left.Block, Right: wide.Right.Block),
-                XrayRevealVisualBlocks.TallPair tall when shape == XrayRevealShape.CopyTall =>
-                    new(Top: tall.Top.Block, Bottom: tall.Bottom.Block),
-                XrayRevealVisualBlocks.SquareOfFour square when shape == XrayRevealShape.CopySquare => new(TopLeft: square.UpperLeft.Block,
-                    TopRight: square.UpperRight.Block, BottomLeft: square.LowerLeft.Block, BottomRight: square.LowerRight.Block),
-                _ => throw new InvalidOperationException($"An X-ray {shape} reveal shows {blocks}, which is not that shape's copy."),
-            };
+            if (blocks is XrayRevealVisualBlocks.OneBlock one)
+                return new(Block: one.Block.Block);
+            if (blocks is XrayRevealVisualBlocks.WidePair wide)
+                return new(Left: wide.Left.Block, Right: wide.Right.Block);
+            if (blocks is XrayRevealVisualBlocks.TallPair tall)
+                return new(Top: tall.Top.Block, Bottom: tall.Bottom.Block);
+            // The remaining kind, a square of four.
+            var square = (XrayRevealVisualBlocks.SquareOfFour)blocks;
+            return new(TopLeft: square.UpperLeft.Block, TopRight: square.UpperRight.Block, BottomLeft: square.LowerLeft.Block,
+                BottomRight: square.LowerRight.Block);
         }
 
         /// <summary>Whether the document names exactly the places a <paramref name="shape"/> copy shows.</summary>
-        /// <exception cref="ArgumentOutOfRangeException">The shape copies no blocks.</exception>
-        internal bool NamesExactlyThePlacesOf(XrayRevealShape shape)
+        internal bool NamesExactlyThePlacesOf(XrayRevealCopyShape shape)
         {
             int?[] own = PlacesOf(shape);
             return Named().Count(named => named is not null) == own.Length && own.All(named => named is not null);
@@ -430,7 +431,7 @@ public static class XrayRevealVisualFiles
 
         /// <summary>The blocks the document names for a <paramref name="shape"/> copy.</summary>
         /// <exception cref="InvalidDataException">The document does not name exactly the shape's places.</exception>
-        internal XrayRevealVisualBlocks ToBlocks(XrayRevealShape shape)
+        internal XrayRevealVisualBlocks ToBlocks(XrayRevealCopyShape shape)
         {
             if (!NamesExactlyThePlacesOf(shape))
                 throw new InvalidDataException($"An X-ray {shape} reveal's blocks name other places than the shape copies.");
@@ -439,26 +440,28 @@ public static class XrayRevealVisualFiles
         }
 
         /// <summary>The blocks of the places a <paramref name="shape"/> copy shows, in the copy's reading order.</summary>
-        /// <exception cref="ArgumentOutOfRangeException">The shape copies no blocks.</exception>
-        private int?[] PlacesOf(XrayRevealShape shape) => shape switch
-        {
-            XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar => [Block],
-            XrayRevealShape.CopyWide => [Left, Right],
-            XrayRevealShape.CopyTall => [Top, Bottom],
-            XrayRevealShape.CopySquare => [TopLeft, TopRight, BottomLeft, BottomRight],
-            XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension =>
-                throw new ArgumentOutOfRangeException(nameof(shape), shape, "An extension shape copies no blocks."),
-            _ => throw new ArgumentOutOfRangeException(nameof(shape), shape, $"Undefined {nameof(XrayRevealShape)}."),
-        };
+        private int?[] PlacesOf(XrayRevealCopyShape shape) => Places[shape](this);
+
+        /// <summary>The places each copy shape shows, in the copy's reading order.</summary>
+        private static IdentityTable<XrayRevealCopyShape, Func<RevealBlocksDocument, int?[]>> Places => field ??=
+            new(new Dictionary<XrayRevealCopyShape, Func<RevealBlocksDocument, int?[]>>
+            {
+                [XrayRevealCopyShape.CopyOne] = static document => [document.Block],
+                [XrayRevealCopyShape.CopyBrinstar] = static document => [document.Block],
+                [XrayRevealCopyShape.CopyWide] = static document => [document.Left, document.Right],
+                [XrayRevealCopyShape.CopyTall] = static document => [document.Top, document.Bottom],
+                [XrayRevealCopyShape.CopySquare] = static document => [document.TopLeft, document.TopRight, document.BottomLeft, document.BottomRight],
+            });
 
         /// <summary>The blocks of every place the document can name.</summary>
         private int?[] Named() => [Block, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight];
     }
 
     /// <summary>The compiled copy shape of an entry <see cref="ValidateStructure"/> has admitted.</summary>
-    private static XrayRevealShape ShapeOf(XrayRevealVisualEntry entry) =>
-        XrayReveals.Find(entry.CollisionType, ReadingsNamed(entry)[0])
-            ?? throw new InvalidOperationException($"Admitted X-ray visual {entry.CollisionType} has no reveal rule.");
+    private static XrayRevealCopyShape CopyShapeOf(XrayRevealVisualEntry entry) =>
+        XrayReveals.Find(entry.CollisionType, ReadingsNamed(entry)[0]) is { } shape && InstalledXrayReveals.IsDrawable(shape, out XrayRevealCopyShape copy)
+            ? copy
+            : throw new InvalidOperationException($"Admitted X-ray visual {entry.CollisionType} has no copying reveal rule.");
 
     /// <summary>A collision kind and the reaction it reads, for checking that each is revealed alike.</summary>
     /// <param name="Type">The collision kind.</param>

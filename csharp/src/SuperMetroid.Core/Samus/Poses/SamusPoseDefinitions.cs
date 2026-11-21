@@ -22,8 +22,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusPoseDefinitions
 {
     /// <summary>Each authored pose's definition.</summary>
-    internal static IReadOnlyDictionary<SamusPoseId, SamusPoseDefinition> Poses { get; } =
-        new Dictionary<SamusPoseId, SamusPoseDefinition>
+    internal static IdentityTable<SamusPoseId, SamusPoseDefinition> Poses { get; } = new(new Dictionary<SamusPoseId, SamusPoseDefinition>
         {
             [SamusPoseId.ForwardFacingPowerSuitPose] = new(Facing.ForwardOrSpecial, Move.Standing, Fallback.KeepCurrentPose, ForwardFacingAnimation, ForwardFacing, VerticalRadius: ForwardFacingYRadius, new Aim.ShootingDisabled(), ProjectileHeight: 8),
             [SamusPoseId.ForwardFacingSuitedPose] = new(Facing.ForwardOrSpecial, Move.Standing, Fallback.KeepCurrentPose, ForwardFacingAnimation, ForwardFacing, VerticalRadius: ForwardFacingYRadius, new Aim.ShootingDisabled(), ProjectileHeight: 8),
@@ -241,5 +240,5 @@ internal static class SamusPoseDefinitions
             [SamusPoseId.SpinLandingLeftPose] = new(Facing.Left, Move.Standing, Fallback.KeepCurrentPose, SpinLandingLeftAnimation, StandingAndLandingLeft, VerticalRadius: 21, new Aim.Aiming(Shot.Left), ProjectileHeight: 3),
             [SamusPoseId.GlitchBallRightPose] = new(Facing.Right, Move.GlitchBall, Fallback.KeepCurrentPose, MorphBallAnimation, NoInputTransitions, VerticalRadius: 7, new Aim.ShootingDisabled(), ProjectileHeight: 0),
             [SamusPoseId.GlitchBallLeftPose] = new(Facing.Left, Move.GlitchBall, Fallback.KeepCurrentPose, MorphBallAnimation, NoInputTransitions, VerticalRadius: 7, new Aim.ShootingDisabled(), ProjectileHeight: 0),
-        };
+        });
 }

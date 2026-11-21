@@ -10,10 +10,13 @@ namespace SuperMetroid.Core.Enemies.Rios;
 internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Geruta];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Geruta], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
             ? EnemyOccupant.Of(new GerutaFollowerEntity(this, occupant, place, common))
             : EnemyOccupant.Of(new GerutaEntity(this, occupant, place, common));
@@ -61,6 +64,90 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
+    /// <summary>What <see cref="RunGerutaMain"/> does for each <see cref="GerutaAction"/> member, each member's own arm.</summary>
+    private IdentityTable<GerutaAction, Action<RoomEnemyPlace, GerutaEnemyState, SamusState, RoomLevelData, int>> RunGerutaMainForGerutaAction => field ??= new(new Dictionary<GerutaAction, Action<RoomEnemyPlace, GerutaEnemyState, SamusState, RoomLevelData, int>>
+    {
+        [GerutaAction.WaitForAttackOpportunity] = (place, state, samus, level, random) =>
+        {
+            // The Rio attacks only when Samus is horizontally within its trigger distance and this update's random
+            // number does not hold it back. A Rio that does not attack, and whose swoop's start has finished, rests
+            // idle again.
+            if (RioLaunchDefinitions.AttackHeldBack.IsTakenBy(random) ||
+                Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= RioLaunchDefinitions.NorfairTriggerDistance)
+            {
+                if (state.Finish.Take())
+                {
+                    RestGeruta(place, state);
+                }
+                return;
+            }
+
+            // The same random number picks the dive's fast or slow downward launch.
+            state.Velocity = new PixelVelocity<RoomPixels>(
+                RioLaunchDefinitions.NorfairXVelocity.Toward(RioLaunches.SideOfSamus(place, samus)),
+                RioLaunches.NorfairYVelocity(random));
+            StartGerutaSwoopAnimation(
+                place,
+                state,
+                GerutaSegment.StartDescending);
+            state.Action = GerutaAction.WaitForTakeoffAnimation;
+        },
+        [GerutaAction.WaitForTakeoffAnimation] = (place, state, samus, level, random) =>
+        {
+            if (!state.Finish.Take())
+                return;
+            StartGerutaSwoopAnimation(
+                place,
+                state,
+                GerutaSegment.Descending);
+            state.Action = GerutaAction.Dive;
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.GerutaDiveSound, priority: SoundRequestPriority.Normal);
+        },
+        [GerutaAction.Dive] = (place, state, samus, level, random) =>
+        {
+            MoveGerutaHorizontally(level, place, state);
+            if (_terrain.MoveEnemyVertically(
+                    level,
+                    place,
+                    state.Velocity.Y.ToSixteenSixteenDelta()))
+            {
+                BeginGerutaReturn(place, state);
+                return;
+            }
+
+            state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.NorfairGravity);
+            if (state.Velocity.Y.IsNegative)
+                BeginGerutaReturn(place, state);
+        },
+        [GerutaAction.ReturnToPerch] = (place, state, samus, level, random) =>
+        {
+            MoveGerutaHorizontally(level, place, state);
+            if (_terrain.MoveEnemyVertically(
+                    level,
+                    place,
+                    state.Velocity.Y.ToSixteenSixteenDelta()))
+            {
+                state.Action = GerutaAction.FinishLanding;
+                return;
+            }
+
+            state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.NorfairGravity);
+            if (state.Finish.Take())
+            {
+                StartGerutaSwoopAnimation(
+                    place,
+                    state,
+                    GerutaSegment.Ascending);
+            }
+        },
+        [GerutaAction.FinishLanding] = (place, state, samus, level, random) =>
+        {
+            // Finishing the landing takes one update and changes only the action: the animation the climb left
+            // keeps playing, its flames with it, while the Rio waits for another random attack.
+            state.Action = GerutaAction.WaitForAttackOpportunity;
+        },
+    });
+
     /// <summary>
     /// Runs the Geruta parent's main AI and each action it runs.
     /// Every parent, like every follower, advances the shared enemy RNG before it acts.
@@ -73,109 +160,23 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int random = _room.Random.Generate();
 
-        switch (state.Action)
-        {
-            case GerutaAction.WaitForAttackOpportunity:
-                // The Rio attacks only when Samus is horizontally within its trigger distance and this update's random
-                // number does not hold it back. A Rio that does not attack, and whose swoop's start has finished, rests
-                // idle again.
-                if (RioLaunchDefinitions.AttackHeldBack.IsTakenBy(random) ||
-                    Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= RioLaunchDefinitions.NorfairTriggerDistance)
-                {
-                    if (state.Finish.Take())
-                    {
-                        RestGeruta(place, state);
-                    }
-                    return;
-                }
-
-                // The same random number picks the dive's fast or slow downward launch.
-                state.Velocity = new PixelVelocity<RoomPixels>(
-                    RioLaunchDefinitions.NorfairXVelocity.Toward(RioLaunches.SideOfSamus(place, samus)),
-                    RioLaunches.NorfairYVelocity(random));
-                StartGerutaSwoopAnimation(
-                    place,
-                    state,
-                    GerutaSegment.StartDescending);
-                state.Action = GerutaAction.WaitForTakeoffAnimation;
-                return;
-
-            case GerutaAction.WaitForTakeoffAnimation:
-                if (!state.Finish.Take())
-                    return;
-                StartGerutaSwoopAnimation(
-                    place,
-                    state,
-                    GerutaSegment.Descending);
-                state.Action = GerutaAction.Dive;
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.GerutaDiveSound, priority: SoundRequestPriority.Normal);
-                return;
-
-            case GerutaAction.Dive:
-                MoveGerutaHorizontally(level, place, state);
-                if (_terrain.MoveEnemyVertically(
-                        level,
-                        place,
-                        state.Velocity.Y.ToSixteenSixteenDelta()))
-                {
-                    BeginGerutaReturn(place, state);
-                    return;
-                }
-
-                state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.NorfairGravity);
-                if (state.Velocity.Y.IsNegative)
-                    BeginGerutaReturn(place, state);
-                return;
-
-            case GerutaAction.ReturnToPerch:
-                MoveGerutaHorizontally(level, place, state);
-                if (_terrain.MoveEnemyVertically(
-                        level,
-                        place,
-                        state.Velocity.Y.ToSixteenSixteenDelta()))
-                {
-                    state.Action = GerutaAction.FinishLanding;
-                    return;
-                }
-
-                state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.NorfairGravity);
-                if (state.Finish.Take())
-                {
-                    StartGerutaSwoopAnimation(
-                        place,
-                        state,
-                        GerutaSegment.Ascending);
-                }
-                return;
-
-            case GerutaAction.FinishLanding:
-                // Finishing the landing takes one update and changes only the action: the animation the climb left
-                // keeps playing, its flames with it, while the Rio waits for another random attack.
-                state.Action = GerutaAction.WaitForAttackOpportunity;
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Norfair Rio has no behaviour for action {state.Action}.");
-        }
+        RunGerutaMainForGerutaAction[state.Action](place, state, samus, level, random);
     }
 
     /// <summary>Carries out one cue of the Geruta's animations: the end of its swoop's start, or a flame placement.</summary>
     private static void ApplyGerutaCue(GerutaEnemyState state, GerutaCue cue)
     {
-        switch (cue)
-        {
-            case GerutaCue.SwoopStartFinished:
-                state.Finish.Raise();
-                break;
-            case GerutaCue.PlaceFlames placeFlames:
-                state.FollowerYOffset = placeFlames.Below;
-                state.Flames = placeFlames.Flames;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(GerutaCue)} {cue}.");
-        }
+        cue.React(ApplyGerutaCueReactions, state);
     }
+
+    /// <summary>What <see cref="ApplyGerutaCue"/> does on each <see cref="GerutaCue"/>, built once (#2553).</summary>
+    private static GerutaCueReactions<GerutaEnemyState> ApplyGerutaCueReactions { get; } = new(
+        PlaceFlames: static (placeFlames, state) =>
+        {
+            state.FollowerYOffset = placeFlames.Below;
+            state.Flames = placeFlames.Flames;
+        },
+        SwoopStartFinished: static (_, state) => state.Finish.Raise());
 
     /// <summary>Copies parent freeze, visibility, animation, and flame offset to the adjacent follower.</summary>
     private void FollowGerutaParent(

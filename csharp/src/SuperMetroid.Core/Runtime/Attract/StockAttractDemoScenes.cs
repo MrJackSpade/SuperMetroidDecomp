@@ -34,7 +34,7 @@ public static class StockAttractDemoScenes
         SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma;
 
     /// <summary>The set the title plays first after power-on or a soft reset.</summary>
-    public static AttractDemoSet FirstSet { get; } = new(nameof(FirstSet),
+    private static AttractDemoSet FirstSet { get; } = new(nameof(FirstSet),
     [
         new(
             Room: RoomDefinitions.LandingSite,

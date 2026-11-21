@@ -100,12 +100,10 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         }
 
         if (!operationStartedThisUpdate && OperationPhase is StationOperationPhase.InUse { Use: var use })
-            StepAccess(context, stations, samus, use);
+            StepAccess(context, samus, use);
 
-        // A looping animation of images always shows its next image once the shown one's updates run out (#1627).
+        // A looping animation of images shows its next image once the shown one's updates run out (#1627).
         StationDraw? shown = _animation.StepToNewFrame();
-        if (_animation.IsResting)
-            throw new InvalidDataException($"{Kind} station animation {ShownAnimation} came to rest instead of showing its next image.");
         if (shown is { } image)
             context.Draw(place, StationObjectDraws.Family, image);
     }
@@ -114,9 +112,9 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
     /// Plays the arm's use one update on: it draws the pose the update shows anew, carries out the moments it passes, and
     /// ends the access once it is over.
     /// </summary>
-    private void StepAccess(RoomObjectStepContext context, StationObjects stations, IRoomSamus samus, StationAccessUse use)
+    private void StepAccess(RoomObjectStepContext context, IRoomSamus samus, StationAccessUse use)
     {
-        if (_arm.StepToNewFrame(cue => ReachAccessMoment(cue, context, stations, samus)) is { } pose)
+        if (_arm.StepToNewFrame(cue => ReachAccessMoment(cue, context, samus)) is { } pose)
         {
             DrawAccess(context, use, pose);
             return;
@@ -130,24 +128,24 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
         // the map.
     }
 
-    /// <summary>Carries out the moment <paramref name="cue"/> of the arm's use.</summary>
-    private void ReachAccessMoment(StationAccessCue cue, RoomObjectStepContext context, StationObjects stations, IRoomSamus samus)
+    /// <summary>What <see cref="ReachAccessMoment"/> does for each <see cref="StationAccessCue"/> member, each member's own arm.</summary>
+    private IdentityTable<StationAccessCue, Action<RoomObjectStepContext, IRoomSamus>> ReachAccessMomentForStationAccessCue => field ??= new(new Dictionary<StationAccessCue, Action<RoomObjectStepContext, IRoomSamus>>
     {
-        switch (cue)
+        [StationAccessCue.Activates] = (context, samus) =>
         {
-            case StationAccessCue.Activates:
-                Activate(stations, samus, context.Outcome);
-                // The recharges release Samus right after their message, before the arm retracts. The map leaves her
-                // locked for leaving the map screen to release.
-                if (Rule.Reward.ReleasesAtActivation)
-                    samus.Control.Unlock();
-                return;
-            case StationAccessCue.Disengages:
-                context.QueueSound(EnemySound.StationDisengaged, SoundRequestPriority.Normal);
-                return;
-            default:
-                throw new InvalidDataException($"Unknown station access moment {cue}.");
-        }
+            Activate(context.RoomObjects.Stations, samus, context.Outcome);
+            // The recharges release Samus right after their message, before the arm retracts. The map leaves her
+            // locked for leaving the map screen to release.
+            if (Rule.Reward.ReleasesAtActivation)
+                samus.Control.Unlock();
+        },
+        [StationAccessCue.Disengages] = static (context, _) => context.QueueSound(EnemySound.StationDisengaged, SoundRequestPriority.Normal),
+    });
+
+    /// <summary>Carries out the moment <paramref name="cue"/> of the arm's use.</summary>
+    private void ReachAccessMoment(StationAccessCue cue, RoomObjectStepContext context, IRoomSamus samus)
+    {
+        ReachAccessMomentForStationAccessCue[cue](context, samus);
     }
 
     /// <summary>

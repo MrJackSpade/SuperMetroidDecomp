@@ -106,7 +106,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.Round.Damage = words.B;
                 phantoon.Swoop.Velocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
                 PhantoonNativeWords.ImportSwoopTarget(phantoon.Swoop, words.E);
-                phantoon.Death.NextExplosion = SuperMetroid.Core.Bosses.ListStep<PhantoonDeathExplosionDefinition>.At(PhantoonDeathExplosions.Schedule, words.F);
+                phantoon.Death.NextExplosion = SuperMetroid.Core.ListStep<PhantoonDeathExplosionDefinition>.At(PhantoonDeathExplosions.Schedule, words.F);
             }
             else if (part == EnemyDefinitionId.PhantoonMouth)
             {
@@ -121,7 +121,7 @@ internal static class NativeEnemyFamilyStateImport
                 IReadOnlyList<PhantoonCasualFlame> flames = phantoon.CasualFlames.Schedule.Flames;
                 phantoon.CasualFlames.NextFlame = casualFlames < 0
                     ? null
-                    : SuperMetroid.Core.Bosses.ListStep<PhantoonCasualFlame>.At(flames, flames.Count - Math.Max(1, (int)casualFlames));
+                    : SuperMetroid.Core.ListStep<PhantoonCasualFlame>.At(flames, flames.Count - Math.Max(1, (int)casualFlames));
                 phantoon.Wave.Amplitude = UnsignedSixteenSixteen.FromRaw((uint)words.D << 8);
                 phantoon.Wave.AmplitudeShrinking = words.E != 0;
                 phantoon.Wave.PhaseStep = RotationAngle.WrappedSteps(words.F);
@@ -132,7 +132,7 @@ internal static class NativeEnemyFamilyStateImport
                 // figure-eight path while he runs it, and his death explosions' passes once he is dying. Only the starting
                 // flames' spawning reads the intro's place.
                 if (words.F != 0 && PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase") == PhantoonPhase.SpawnStartingFlames)
-                    phantoon.StartingFlames.NextFlame = SuperMetroid.Core.Bosses.ListStep<TrigonometryAngle>.At(PhantoonFlameSpawns.StartingFlameStarts, words.A);
+                    phantoon.StartingFlames.NextFlame = SuperMetroid.Core.ListStep<TrigonometryAngle>.At(PhantoonFlameSpawns.StartingFlameStarts, words.A);
                 phantoon.FigureEight.PathPlace = PhantoonPath.At(words.A);
                 phantoon.Death.ExplosionPasses = words.A;
                 phantoon.FigureEight.Speed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPathSpeed>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B) });
@@ -226,7 +226,7 @@ internal static class NativeEnemyFamilyStateImport
             fallingTubeRecord.FloorY = words.B;
             fallingTubeRecord.FallSpeed = new SignedEightEight(words.C);
             fallingTubeRecord.SmokeDelay.SetCartridgeCount(CoordinateAxis.AsSigned(words.D));
-            fallingTubeRecord.SmokePuff = SuperMetroid.Core.Bosses.ListStep<int>.At(MotherBrainTubeCollapseDefinitions.SmokeXOffsets, words.E);
+            fallingTubeRecord.SmokePuff = SuperMetroid.Core.ListStep<int>.At(MotherBrainTubeCollapseDefinitions.SmokeXOffsets, words.E);
         }
         if (enemy.SpeciesState<RidleyExplosionFragmentState>() is { } ridleyFragmentRecord)
         {
@@ -475,7 +475,13 @@ internal static class NativeEnemyFamilyStateImport
                 1 => HorizontalDirection.Right,
                 _ => throw new InvalidDataException($"Native Yard airborne facing {words.C:X4} is neither left nor right."),
             };
-            yardRecord.ConsecutiveTurnCounter = words.E;
+            // The recorded count is the misses in a row the Yard has counted, each counted as the game counts it.
+            yardRecord.ResetMissedProbes();
+            for (int miss = 1; miss <= words.E; miss++)
+            {
+                if (yardRecord.MissedSurfaceTooOften() && miss < words.E)
+                    throw new InvalidDataException($"Recorded Yard missed-probe count {words.E} lies past the {miss} misses that drop it.");
+            }
             yardRecord.Movement = YardNativeWords.YardMovements.Decode(words.F, "recorded YardMovement");
             // A crawl's routine names its way (#2278).
             if (yardRecord.Movement == YardMovement.Crawling)
@@ -564,13 +570,16 @@ internal static class NativeEnemyFamilyStateImport
             // recorded origins must be the ones it derives.
             global::SuperMetroid.Core.PrivateState.Set(growingShutterRecord, "SpawnY", (int)(words.B));
             ushort[] originRows = [words.B, words.C, words.D, words.E];
-            for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
+            for (int level = 0; level < GrowingShutterDefinitions.Sections.Length; level++)
             {
-                if (growingShutterRecord.SectionOriginY(level) != originRows[level])
+                if (growingShutterRecord.OriginY(ListStep<GrowingShutterSection>.At(GrowingShutterDefinitions.Sections, level)) != originRows[level])
                     throw new InvalidDataException(
                         $"Recorded growing shutter section {level} origin {originRows[level]:X4} does not follow from its spawn row {words.B:X4}.");
             }
-            growingShutterRecord.GrowthLevel = words.F;
+            // The recorded growth level counts the sections grown; a shutter that has grown every section grows no more.
+            growingShutterRecord.Growing = words.F < GrowingShutterDefinitions.Sections.Length
+                ? ListStep<GrowingShutterSection>.At(GrowingShutterDefinitions.Sections, words.F)
+                : null;
         }
         // A bobbing Fireflea keeps none of these words.
         if (enemy.SpeciesState<FirefleaEnemyState>() is { Flight: CirclingFirefleaState firefleaRecord })
@@ -820,9 +829,15 @@ internal static class NativeEnemyFamilyStateImport
             choot.Action = ChootNativeWords.ChootActions.Decode(words.A, "recorded ChootAction");
             // The ascent cursor is 8.8 and moves by whole records, so its signed high byte is the record index.
             choot.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(unchecked((short)words.B) >> 8);
-            choot.FallingLoop = (words.C & 0xff) == 0
-                ? UpdateCountdownAccess.AtAge(ChootFalls.LoopUpdates(enemy.HeldOccupant().SpawnSettings<ChootSpawnSettings>().FallingPath), words.C >> 8)
-                : throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
+            if ((words.C & 0xff) != 0)
+                throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
+            ChootFallLoop recordedLoop = ChootFallLoop.Of(enemy.HeldOccupant().SpawnSettings<ChootSpawnSettings>().FallingPath);
+            for (int shown = 0; shown < words.C >> 8; shown++)
+            {
+                if (!recordedLoop.TryShowNext(out _))
+                    throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} lies past its path's loop.");
+            }
+            choot.FallingLoop = recordedLoop;
             choot.FallingPatternLoopCounter = TrueDuration(words.D);
             // The Choot falls along its placement's path (#2476), which the recording's must be.
             ChootFallingPath chootPath = ChootNativeWords.ChootFallingPaths.Decode(words.E, "recorded Choot falling pattern");

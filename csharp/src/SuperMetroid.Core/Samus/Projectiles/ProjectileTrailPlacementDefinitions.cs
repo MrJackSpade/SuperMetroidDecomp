@@ -624,9 +624,9 @@ internal static class ProjectileTrailPlacementDefinitions
             new L(T.SpazerAttackTrailingPair, C.Down), new L(T.SpazerAttackTrailingPair, C.Down), new L(T.SpazerAttackTrailingPair, C.AnyDirection), new L(T.SpazerAttackTrailingPair, C.AnyDirection),
             new L(T.SpazerAttackTrailingPair, C.AnyDirection), new L(T.SpazerAttackTrailingPair, C.AnyDirection));
 
-    /// <summary>The list each family gives a shot in each direction it is fired in; null names no trail list.</summary>
-    internal static readonly FrozenDictionary<ProjectileTrailFamily, SamusProjectileDirectionMap<ProjectileTrailPlacementList?>> Lists =
-        new Dictionary<ProjectileTrailFamily, SamusProjectileDirectionMap<ProjectileTrailPlacementList?>>
+    /// <summary>The list each family gives a shot in each direction it is fired in.</summary>
+    internal static readonly FrozenDictionary<ProjectileTrailFamily, SamusProjectileDirectionMap<ProjectileTrailPlacementList>> Lists =
+        new Dictionary<ProjectileTrailFamily, SamusProjectileDirectionMap<ProjectileTrailPlacementList>>
         {
             [ProjectileTrailFamily.UnchargedDefault] = new(new L(T.UnchargedDefault, C.AnyDirection)),
             [ProjectileTrailFamily.UnchargedWave] = new(new L(T.UnchargedWave, C.Vertical), new L(T.UnchargedWave, C.RisingDiagonal), new L(T.UnchargedWave, C.Horizontal), new L(T.UnchargedWave, C.FallingDiagonal), new L(T.UnchargedWave, C.Vertical), new L(T.UnchargedWave, C.Vertical), new L(T.UnchargedWave, C.RisingDiagonal), new L(T.UnchargedWave, C.Horizontal), new L(T.UnchargedWave, C.FallingDiagonal), new L(T.UnchargedWave, C.Vertical)),

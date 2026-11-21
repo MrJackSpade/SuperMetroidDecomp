@@ -8,5 +8,5 @@ internal sealed class PolypRockAnimation(PolypRockSegment segment)
     : EnemyProjectileFrameAnimation<PolypRockSegment, EnemyProjectileCommonCue>(segment, PolypRockAnimations.StartingAt[segment], EnemyProjectileCueRunners.Common<PolypRockSegment>())
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<PolypRockSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => PolypRockAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<PolypRockSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => PolypRockAnimations.Segments;
 }

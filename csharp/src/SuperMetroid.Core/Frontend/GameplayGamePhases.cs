@@ -104,50 +104,87 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         EnterUpdateTransition(outcome.Transition);
     }
 
+    /// <summary>What <see cref="EnterUpdateTransition"/> does for each <see cref="GameplayUpdateTransition"/> member, each member's own arm.</summary>
+    private IdentityTable<GameplayUpdateTransition, Action> EnterUpdateTransitionForGameplayUpdateTransition => field ??= new(new Dictionary<GameplayUpdateTransition, Action>
+    {
+        [GameplayUpdateTransition.None] = () =>
+        {
+        },
+        [GameplayUpdateTransition.TimeUp] = () =>
+        {
+            // The escape countdown started the time-up during Samus's update, after her movement's door hits and
+            // before pause-check, which then sees the game no longer in main gameplay. Once the Zebes time bomb is
+            // set, Samus's draw returns the game to the time-up a run-out countdown started (#2518).
+            session.BeginTimeUp();
+        },
+        [GameplayUpdateTransition.LeavesZebes] = () => session.BeginZebesEscapeFade(),
+        [GameplayUpdateTransition.MapStationPause] = () =>
+        {
+            // The message box's close explicitly starts the pause for map acquisition, independently of Start or the
+            // station's input lock. Keep this separate from admission of a manual pause request.
+            session.Close<PauseMenuState>();
+            session.Enter(PauseStep.DarkeningGameplay);
+        },
+        [GameplayUpdateTransition.Pause] = () =>
+        {
+            // Samus's pause check runs during the main-gameplay update just completed. It sets the pause fade's wait
+            // before each step and starts the pause; the following update spends the first wait.
+            session.screenFade.SetCadence(PauseFadeTiming.WaitBeforeEachStep, PauseFadeTiming.WaitBeforeEachStep);
+            session.Close<PauseMenuState>();
+            session.Enter(PauseStep.DarkeningGameplay);
+        },
+        [GameplayUpdateTransition.CeresDeparture] = () =>
+        {
+            // The elevator has already selected standing pose and locked Samus. The following update owns the
+            // elevator hold (CeresElevatorDepartureDefinitions.DepartureHoldFrames); this update does not count it down.
+            session.BeginCeresDeparture();
+            session.Enter(session.Phases.CeresDeparture);
+        },
+        [GameplayUpdateTransition.Door] = () =>
+        {
+            // A door hit enters the door transition during the gameplay update. The already-produced gameplay image
+            // remains this frame's image; the following update reaches the door from that publication.
+            session.Enter(DoorTransitionStep.EnteringDoor);
+        },
+    });
+
     /// <summary>Enters the game state a main-gameplay update's steps moved the game to (#2517).</summary>
     private void EnterUpdateTransition(GameplayUpdateTransition transition)
     {
-        switch (transition)
-        {
-            case GameplayUpdateTransition.None:
-                break;
-            case GameplayUpdateTransition.TimeUp:
-                // The escape countdown started the time-up during Samus's update, after her movement's door hits and
-                // before pause-check, which then sees the game no longer in main gameplay. Once the Zebes time bomb is
-                // set, Samus's draw returns the game to the time-up a run-out countdown started (#2518).
-                session.BeginTimeUp();
-                break;
-            case GameplayUpdateTransition.LeavesZebes:
-                session.BeginZebesEscapeFade();
-                break;
-            case GameplayUpdateTransition.MapStationPause:
-                // The message box's close explicitly starts the pause for map acquisition, independently of Start or the
-                // station's input lock. Keep this separate from admission of a manual pause request.
-                session.Close<PauseMenuState>();
-                session.Enter(PauseStep.DarkeningGameplay);
-                break;
-            case GameplayUpdateTransition.Pause:
-                // Samus's pause check runs during the main-gameplay update just completed. It sets the pause fade's wait
-                // before each step and starts the pause; the following update spends the first wait.
-                session.screenFade.SetCadence(PauseFadeTiming.WaitBeforeEachStep, PauseFadeTiming.WaitBeforeEachStep);
-                session.Close<PauseMenuState>();
-                session.Enter(PauseStep.DarkeningGameplay);
-                break;
-            case GameplayUpdateTransition.CeresDeparture:
-                // The elevator has already selected standing pose and locked Samus. The following update owns the
-                // elevator hold (CeresElevatorDepartureDefinitions.DepartureHoldFrames); this update does not count it down.
-                session.ceresDeparture.Begin();
-                session.Enter(session.Phases.CeresDeparture);
-                break;
-            case GameplayUpdateTransition.Door:
-                // A door hit enters the door transition during the gameplay update. The already-produced gameplay image
-                // remains this frame's image; the following update reaches the door from that publication.
-                session.Enter(DoorTransitionStep.EnteringDoor);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(GameplayUpdateTransition)} {transition}.");
-        }
+        EnterUpdateTransitionForGameplayUpdateTransition[transition]();
     }
+
+    /// <summary>Where each route of the update's out-of-health check sends Samus, and whether the refill or the death takes the update.</summary>
+    private IdentityTable<SamusOutOfHealthRoute, Func<SamusState, bool>> OutOfHealthRoutes => field ??=
+        new(new Dictionary<SamusOutOfHealthRoute, Func<SamusState, bool>>
+        {
+            [SamusOutOfHealthRoute.HasHealth] = samus => false,
+            [SamusOutOfHealthRoute.NotChecked] = samus =>
+            {
+                // A message box suspended the update before its check, which the update the box closes on makes.
+                return false;
+            },
+            [SamusOutOfHealthRoute.DeathWithheld] = samus =>
+            {
+                // Another game state owns the update: it goes on with Samus out of health, and the check froze nothing.
+                return false;
+            },
+            [SamusOutOfHealthRoute.ReserveRefill] = samus =>
+            {
+                session.reserveRecovery.Begin(samus);
+                session.Enter(session.Phases.ReserveTankRefill);
+                return true;
+            },
+            [SamusOutOfHealthRoute.Death] = samus =>
+            {
+                // Samus's death disables colour effects and locks her input and drawing.
+                // Locking the player out is the shared representation;
+                // the death sequence's steps own colour and animation side effects.
+                samus.Control.LockOutPlayer();
+                session.Enter(DeathSequenceStep.FinalGameplayPass);
+                return true;
+            },
+        });
 
     /// <summary>
     /// Enters the reserve tanks' refill or death where the update's out-of-health check sent Samus; the check already froze
@@ -156,29 +193,6 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <returns>Whether the refill or the death takes the update.</returns>
     internal bool RouteOutOfHealth(SamusState samus, SamusOutOfHealthRoute route)
     {
-        switch (route)
-        {
-            case SamusOutOfHealthRoute.HasHealth:
-                return false;
-            case SamusOutOfHealthRoute.NotChecked:
-                // A message box suspended the update before its check, which the update the box closes on makes.
-                return false;
-            case SamusOutOfHealthRoute.DeathWithheld:
-                // Another game state owns the update: it goes on with Samus out of health, and the check froze nothing.
-                return false;
-            case SamusOutOfHealthRoute.ReserveRefill:
-                session.reserveRecovery.Begin(samus);
-                session.Enter(session.Phases.ReserveTankRefill);
-                return true;
-            case SamusOutOfHealthRoute.Death:
-                // Samus's death disables colour effects and locks her input and drawing.
-                // Locking the player out is the shared representation;
-                // the death sequence's steps own colour and animation side effects.
-                samus.Control.LockOutPlayer();
-                session.Enter(DeathSequenceStep.FinalGameplayPass);
-                return true;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SamusOutOfHealthRoute)} {route}.");
-        }
+        return OutOfHealthRoutes[route](samus);
     }
 }

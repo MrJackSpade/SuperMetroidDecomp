@@ -259,6 +259,9 @@ internal sealed class ProgramTracer(CoreModel model, Func<Unit, bool>? reaches)
             };
             while (initializer is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Expression: var converted }, ArgumentList.Arguments.Count: 0 })
                 initializer = converted;
+            // An identity table is built over the dictionary it is given (#2553): its values are that dictionary's.
+            while (initializer is BaseObjectCreationExpressionSyntax { Initializer: null, ArgumentList.Arguments: [{ Expression: BaseObjectCreationExpressionSyntax given }] })
+                initializer = given;
             IReadOnlyList<ExpressionSyntax>? values = initializer switch
             {
                 CollectionExpressionSyntax collection when collection.Elements.All(element => element is ExpressionElementSyntax) =>

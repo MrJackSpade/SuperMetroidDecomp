@@ -13,25 +13,13 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
-
-    /// <summary>Phantoon's body, eye, tentacles or mouth (#2146).</summary>
-    /// <exception cref="KeyNotFoundException">The place holds no Phantoon definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
-
-    /// <summary>
-    /// The factory of each part the species creates, by the definition that places it: the species serves these
-    /// definitions, and each builds its own part from the species it is given.
-    /// </summary>
-    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<PhantoonBehavior>> PartFactories =
-        new()
-        {
-            [EnemyDefinitionId.PhantoonBody] = static (species, occupant, place, common) => EnemyOccupant.Of(new PhantoonBodyEntity(species, occupant, place, common, species._bossArtwork)),
-            [EnemyDefinitionId.PhantoonEye] = static (species, occupant, place, common) => EnemyOccupant.Of(new PhantoonEyeEntity(species, occupant, place, common, species._bossArtwork)),
-            [EnemyDefinitionId.PhantoonMouth] = static (species, occupant, place, common) => EnemyOccupant.Of(new PhantoonMouthEntity(species, occupant, place, common, species._bossArtwork)),
-            [EnemyDefinitionId.PhantoonTentacles] = static (species, occupant, place, common) => EnemyOccupant.Of(new PhantoonTentaclesEntity(species, occupant, place, common, species._bossArtwork)),
-        };
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    {
+        [EnemyDefinitionId.PhantoonBody] = (occupant, place, common) => EnemyOccupant.Of(new PhantoonBodyEntity(this, occupant, place, common, _bossArtwork)),
+        [EnemyDefinitionId.PhantoonEye] = (occupant, place, common) => EnemyOccupant.Of(new PhantoonEyeEntity(this, occupant, place, common, _bossArtwork)),
+        [EnemyDefinitionId.PhantoonMouth] = (occupant, place, common) => EnemyOccupant.Of(new PhantoonMouthEntity(this, occupant, place, common, _bossArtwork)),
+        [EnemyDefinitionId.PhantoonTentacles] = (occupant, place, common) => EnemyOccupant.Of(new PhantoonTentaclesEntity(this, occupant, place, common, _bossArtwork)),
+    };
 
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -59,8 +47,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal PhantoonDeath Death { get; }
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
-
-
 
     /// <summary>Binds room and enemy services for the four-part boss actor.</summary>
     internal PhantoonBehavior(PhantoonBehaviorDependencies dependencies)
@@ -173,7 +159,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             part.Place.Position = part.Place.Position.WithWhole(body.Position.Whole);
     }
 
-
     /// <summary>Runs Phantoon's hurt reaction, which only flashes his colours.</summary>
     internal static void ApplyPhantoonHurt(RoomEnemyPlace body, PhantoonEnemyState state)
     {
@@ -222,35 +207,33 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             part.Phantoon.BodyPictureShown();
     }
 
+    /// <summary>What <see cref="ApplyPhantoonPartCue"/> does for each <see cref="PhantoonPartCue"/> member, each member's own arm.</summary>
+    private IdentityTable<PhantoonPartCue, Action<PhantoonEnemyState>> ApplyPhantoonPartCueForPhantoonPartCue => field ??= new(new Dictionary<PhantoonPartCue, Action<PhantoonEnemyState>>
+    {
+        [PhantoonPartCue.PlayMaterializationSound] = state =>
+        {
+            _audio.RequestPhantoonMaterializationSound(state.NextMaterializationSound.Entry);
+            state.NextMaterializationSound = state.NextMaterializationSound.NextInCycle;
+        },
+        [PhantoonPartCue.BeginEyeTracking] = state =>
+        {
+            BeginPhantoonEyeTracking(state);
+            // The eye shows its tracking animation from the next update; the body keeps its own animation.
+        },
+        [PhantoonPartCue.PickNewPattern] = state => Patterns.PickPhantoonSecondRoundPattern(state),
+        [PhantoonPartCue.SpawnCasualFlame] = state =>
+        {
+            Patterns.SpawnPhantoonCasualFlame(state.BodyOccupant, state.Body);
+            _audio.QueueEnemySound(PhantoonSoundDefinitions.CasualFlame, PhantoonSoundDefinitions.CasualFlamePriority);
+        },
+    });
+
     /// <summary>Carries out one cue of a Phantoon part animation.</summary>
     private void ApplyPhantoonPartCue(
         PhantoonEnemyState state,
         PhantoonPartCue cue)
     {
-        switch (cue)
-        {
-            case PhantoonPartCue.PlayMaterializationSound:
-                _audio.RequestPhantoonMaterializationSound(state.NextMaterializationSound.Entry);
-                state.NextMaterializationSound = state.NextMaterializationSound.NextInCycle;
-                return;
-
-            case PhantoonPartCue.BeginEyeTracking:
-                BeginPhantoonEyeTracking(state);
-                // The eye shows its tracking animation from the next update; the body keeps its own animation.
-                return;
-
-            case PhantoonPartCue.PickNewPattern:
-                Patterns.PickPhantoonSecondRoundPattern(state);
-                return;
-
-            case PhantoonPartCue.SpawnCasualFlame:
-                Patterns.SpawnPhantoonCasualFlame(state.BodyOccupant, state.Body);
-                _audio.QueueEnemySound(PhantoonSoundDefinitions.CasualFlame, PhantoonSoundDefinitions.CasualFlamePriority);
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(PhantoonPartCue)} {cue}.");
-        }
+        ApplyPhantoonPartCueForPhantoonPartCue[cue](state);
     }
 
     /// <summary>Starts the eye's Samus-tracking animation for the current attack phase.</summary>

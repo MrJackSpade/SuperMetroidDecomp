@@ -15,23 +15,11 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
-
-    /// <summary>Bomb Torizo or Golden Torizo (#2146).</summary>
-    /// <exception cref="KeyNotFoundException">The place holds no Torizo definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
-
-    /// <summary>
-    /// The factory of each part the species creates, by the definition that places it: the species serves these
-    /// definitions, and each builds its own part from the species it is given.
-    /// </summary>
-    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<TorizoBehavior>> PartFactories =
-        new()
-        {
-            [EnemyDefinitionId.BombTorizo] = static (species, occupant, place, common) => EnemyOccupant.FromSurroundings(new BombTorizoEntity(species, occupant, place, common)),
-            [EnemyDefinitionId.GoldenTorizo] = static (species, occupant, place, common) => EnemyOccupant.FromSurroundings(new GoldenTorizoEntity(species, occupant, place, common)),
-        };
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    {
+        [EnemyDefinitionId.BombTorizo] = (occupant, place, common) => EnemyOccupant.FromSurroundings(new BombTorizoEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.GoldenTorizo] = (occupant, place, common) => EnemyOccupant.FromSurroundings(new GoldenTorizoEntity(this, occupant, place, common)),
+    };
 
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
@@ -59,8 +47,6 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Bomb and Golden Torizo's hitboxes, touch and hurt, and what Samus's weapons do to them.</summary>
     internal TorizoCombat Combat { get; }
-
-
 
     /// <summary>The room effects the bosses request this update, where the fight's start asks for the belly's glow.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -95,6 +81,47 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetTorizoFadeTarget(TorizoEnemyState state, TorizoLookKind look) =>
         state.Colours.FadeToward(new TorizoLook(look));
 
+    /// <summary>What <see cref="RunTorizoMain"/> does for each <see cref="TorizoPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<TorizoPhase, Action<RoomEnemyOccupant, RoomEnemyPlace, TorizoEnemyState, SamusState, RoomLevelData>> RunTorizoMainForTorizoPhase => field ??= new(new Dictionary<TorizoPhase, Action<RoomEnemyOccupant, RoomEnemyPlace, TorizoEnemyState, SamusState, RoomLevelData>>
+    {
+        [TorizoPhase.Idle] = (_, torizo, state, samus, level) => { },
+        [TorizoPhase.Falling] = (occupant, torizo, state, samus, level) =>
+        {
+            Body.MaybeSpawnLowHealthDrool(occupant, torizo);
+            Movement.ApplyTorizoGravity(torizo, state, level);
+        },
+        [TorizoPhase.WaitForHandTrigger] = (_, torizo, state, samus, level) =>
+        {
+            // Bomb Torizo stays dormant, solid, while its statue's hand still stands in the room.
+            torizo.Contact = torizo.Contact.With(EnemyContact.SolidToSamus);
+            if (_room.Services.RoomObjects.BombTorizoHandRemains)
+                return;
+
+            RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.TorizoAwakening));
+            torizo.Contact = torizo.Contact.Without(EnemyContact.SolidToSamus);
+            // The dormant statue holds until its hand is gone, then awakens. Bomb Torizo always sits facing left; no
+            // room has him facing right (#1941).
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening));
+        },
+        [TorizoPhase.Active] = (occupant, torizo, state, samus, level) => Movement.RunBombTorizoActiveState(occupant, torizo, state, level),
+        [TorizoPhase.GoldenWaitForSamus] = (_, torizo, state, samus, level) =>
+        {
+            // The wake-up step advances the animation only after Samus has entered the
+            // lower-right trigger rectangle. This is the authored statue wake-up gate.
+            if (samus.Position.Y.Whole > TorizoDecisionDefinitions.GoldenWakeCorner.Y &&
+                samus.Position.X.Whole > TorizoDecisionDefinitions.GoldenWakeCorner.X)
+            {
+                // The dormant statue holds until Samus steps in, then awakens.
+                TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.GoldenTorizoAwakening));
+            }
+        },
+        [TorizoPhase.GoldenActive] = (occupant, torizo, state, samus, level) =>
+        {
+            Body.MaybeSpawnLowHealthDrool(occupant, torizo);
+            Movement.MoveBody(torizo, state, level);
+        },
+    });
+
     /// <summary>Runs the main phase of Bomb or Golden Torizo for one update.</summary>
     private void RunTorizoMain(
         RoomEnemyOccupant occupant, RoomEnemyPlace torizo,
@@ -102,53 +129,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        switch (state.Phase)
-        {
-            case TorizoPhase.Idle:
-                return;
-
-            case TorizoPhase.Falling:
-                Body.MaybeSpawnLowHealthDrool(occupant, torizo);
-                Movement.ApplyTorizoGravity(torizo, state, level);
-                return;
-
-            case TorizoPhase.WaitForHandTrigger:
-                // Bomb Torizo stays dormant, solid, while its statue's hand still stands in the room.
-                torizo.Contact = torizo.Contact.With(EnemyContact.SolidToSamus);
-                if (_room.Services.RoomObjects.BombTorizoHandRemains)
-                    return;
-
-                RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.TorizoAwakening));
-                torizo.Contact = torizo.Contact.Without(EnemyContact.SolidToSamus);
-                // The dormant statue holds until its hand is gone, then awakens. Bomb Torizo always sits facing left; no
-                // room has him facing right (#1941).
-                TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening));
-                return;
-
-            case TorizoPhase.Active:
-                Movement.RunBombTorizoActiveState(occupant, torizo, state, level);
-                return;
-
-            case TorizoPhase.GoldenWaitForSamus:
-                // The wake-up step advances the animation only after Samus has entered the
-                // lower-right trigger rectangle. This is the authored statue wake-up gate.
-                if (samus.Position.Y.Whole > TorizoDecisionDefinitions.GoldenWakeCorner.Y &&
-                    samus.Position.X.Whole > TorizoDecisionDefinitions.GoldenWakeCorner.X)
-                {
-                    // The dormant statue holds until Samus steps in, then awakens.
-                    TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.GoldenTorizoAwakening));
-                }
-                return;
-
-            case TorizoPhase.GoldenActive:
-                Body.MaybeSpawnLowHealthDrool(occupant, torizo);
-                Movement.MoveBody(torizo, state, level);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Torizo has no behaviour for phase {state.Phase}.");
-        }
+        RunTorizoMainForTorizoPhase[state.Phase](occupant, torizo, state, samus, level);
     }
 
     /// <summary>Counts consecutive Samus space-jump poses before running the shared statue step.</summary>
@@ -236,6 +217,309 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ShowTorizoArtwork(TorizoEnemyState state, TorizoArtworkLook look) =>
         _presentation.ShowLook(look.Of(state.Variant.Artwork));
 
+    /// <summary>What <see cref="ApplyTorizoCue"/> comes to for each <see cref="TorizoCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<TorizoCueKind, Func<RoomEnemyOccupant, RoomEnemyPlace, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>> ApplyTorizoCueForTorizoCueKind => field ??= new(new Dictionary<TorizoCueKind, Func<RoomEnemyOccupant, RoomEnemyPlace, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>>
+    {
+        [TorizoCueKind.StartWalking] = (_, torizo, state, inputs) =>
+        {
+            state.Motion = TorizoBodyMotion.Walking;
+            return null;
+        },
+        [TorizoCueKind.StartStanding] = (_, torizo, state, inputs) =>
+        {
+            state.Motion = TorizoBodyMotion.Standing;
+            return null;
+        },
+        [TorizoCueKind.StartLeaping] = (_, torizo, state, inputs) =>
+        {
+            state.Motion = TorizoBodyMotion.Leaping;
+            return null;
+        },
+        [TorizoCueKind.StopMoving] = (_, torizo, state, inputs) =>
+        {
+            state.Motion = TorizoBodyMotion.HoldingStill;
+            return null;
+        },
+        [TorizoCueKind.BlowUpGut] = (occupant, torizo, state, inputs) =>
+        {
+            if (state.Breakage == TorizoBreakage.Intact)
+                state.Breakage = TorizoBreakage.GutBlownUp;
+            for (int piece = 0; piece < TorizoDeathDefinitions.GutDroolPieces; piece++)
+                Attacks.SpawnBombTorizoLowHealthDrool(occupant, torizo);
+            return null;
+        },
+        [TorizoCueKind.MarkFaceBlownUp] = (_, torizo, state, inputs) =>
+        {
+            state.Breakage = TorizoBreakage.GutAndFaceBlownUp;
+            return null;
+        },
+        [TorizoCueKind.MakeVisible] = (_, torizo, state, inputs) =>
+        {
+            torizo.Presence = torizo.Presence.Without(EnemyPresence.Hidden);
+            return null;
+        },
+        [TorizoCueKind.MakeInvisible] = (_, torizo, state, inputs) =>
+        {
+            torizo.Presence = torizo.Presence.With(EnemyPresence.Hidden);
+            return null;
+        },
+        [TorizoCueKind.FadeToBlack] = (_, torizo, state, inputs) =>
+        {
+            SetTorizoFadeTarget(state, TorizoLookKind.Black);
+            return null;
+        },
+        [TorizoCueKind.FinishDeath] = (_, torizo, state, inputs) =>
+        {
+            FinishTorizoDeath(state, inputs.Samus);
+            return null;
+        },
+        [TorizoCueKind.AdvanceColourFade] = (_, torizo, state, inputs) =>
+        {
+            state.Colours.Step(_presentation.FadeStepCount);
+            torizo.Shading = state.Colours.Shading;
+            return null;
+        },
+        [TorizoCueKind.FadeToNormalColors] = (_, torizo, state, inputs) =>
+        {
+            SetTorizoFadeTarget(state, TorizoLookKind.Normal);
+            return null;
+        },
+        [TorizoCueKind.StartBombTorizoFight] = (_, torizo, state, inputs) =>
+        {
+            RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.RidleyAndDraygonBattle));
+            // The fight starts the belly's glow, which watches this Torizo and ends once it dies.
+            _passEvents.Publish(new TorizoBellyGlowRequest(TorizoBellyGlow.BombTorizo, inputs.Torizo));
+            return null;
+        },
+        [TorizoCueKind.LockAnimation] = (_, torizo, state, inputs) =>
+        {
+            state.AnimationLocked = true;
+            return null;
+        },
+        [TorizoCueKind.UnlockAnimation] = (_, torizo, state, inputs) =>
+        {
+            state.AnimationLocked = false;
+            return null;
+        },
+        [TorizoCueKind.ResumeWalk] = (_, torizo, state, inputs) => TorizoAnimations.ContinueAt(state.InterruptedWalk),
+        [TorizoCueKind.ResumeInterrupted] = (_, torizo, state, inputs) => TorizoAnimations.ContinueAt(state.InterruptedPlayback),
+        [TorizoCueKind.SpawnDeathExplosion] = (_, torizo, state, inputs) =>
+        {
+            Attacks.SpawnDeathExplosion(torizo);
+            torizo.HurtFlash.Restart(TorizoDeathDefinitions.DeathExplosionFlash);
+            return null;
+        },
+        [TorizoCueKind.SpawnLandingDust] = (_, torizo, state, inputs) =>
+        {
+            Attacks.SpawnLandingDust(torizo, foot: HorizontalDirection.Right);
+            Attacks.SpawnLandingDust(torizo, foot: HorizontalDirection.Left);
+            return null;
+        },
+        [TorizoCueKind.SpawnLowHealthDrool] = (occupant, torizo, state, inputs) =>
+        {
+            if (torizo.Health < TorizoDecisionDefinitions.GutBlowUpHealth)
+                Body.SpawnInitialDrool(occupant, torizo);
+            return null;
+        },
+        [TorizoCueKind.SetTurningAround] = (_, torizo, state, inputs) =>
+        {
+            SetPosture(torizo, TorizoFacing.Posture(torizo).TurningAround);
+            return null;
+        },
+        [TorizoCueKind.LeapingPoseShown] = (_, torizo, state, inputs) =>
+        {
+            // The jump holds its leaping pose while the Torizo rises; once it no longer rises, it falls in the fall its
+            // jump named.
+            return state.Velocity.Y.IsNegative ? null : TorizoAnimations.ContinueWith(state.Landing);
+        },
+        [TorizoCueKind.SpawnBombTorizoChozoOrbs] = (occupant, torizo, state, inputs) =>
+        {
+            for (int orb = 0; orb < TorizoChozoOrbDefinitions.BombTorizoOrbsPerBurst; orb++)
+                Attacks.SpawnBombTorizoChozoOrb(occupant, torizo);
+            return null;
+        },
+        [TorizoCueKind.SpawnBombTorizoSonicBoom] = (occupant, torizo, state, inputs) =>
+        {
+            Attacks.SpawnBombTorizoSonicBoom(occupant, torizo);
+            return null;
+        },
+        [TorizoCueKind.SpawnGoldenTorizoSonicBoom] = (occupant, torizo, state, inputs) =>
+        {
+            Attacks.SpawnGoldenTorizoSonicBoom(occupant, torizo);
+            return null;
+        },
+        [TorizoCueKind.PlayShotSound] = (_, torizo, state, inputs) =>
+        {
+            PlayTorizoSound(EnemySound.ShotTorizo);
+            return null;
+        },
+        [TorizoCueKind.PlayFootstepSound] = (_, torizo, state, inputs) =>
+        {
+            PlayTorizoSound(EnemySound.ChozoFootsteps);
+            return null;
+        },
+        [TorizoCueKind.DroppingPoseShown] = (_, torizo, state, inputs) =>
+        {
+            // The waking Golden Torizo holds its half-risen pose while it drops; on its floor, it settles.
+            return torizo.Position.Y.Whole == TorizoDecisionDefinitions.GoldenFloorY ? TorizoAnimations.ContinueWith(TorizoAnimation.GoldenTorizoSettling) : null;
+        },
+        [TorizoCueKind.FadeToGoldenColors] = (_, torizo, state, inputs) =>
+        {
+            SetTorizoFadeTarget(state, TorizoLookKind.Golden);
+            return null;
+        },
+        [TorizoCueKind.StartGoldenTorizoFight] = (_, torizo, state, inputs) =>
+        {
+            RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.RidleyAndDraygonBattle));
+            torizo.Radius = TorizoDecisionDefinitions.GoldenFightRadius;
+            _passEvents.Publish(new TorizoBellyGlowRequest(TorizoBellyGlow.GoldenTorizo, inputs.Torizo));
+            return null;
+        },
+        [TorizoCueKind.ClearCaughtSuperMissile] = (_, torizo, state, inputs) =>
+        {
+            state.CaughtSuperMissile = false;
+            return null;
+        },
+        [TorizoCueKind.SpawnEgg] = (occupant, torizo, state, inputs) =>
+        {
+            Attacks.SpawnGoldenTorizoEgg(occupant, torizo);
+            return null;
+        },
+        [TorizoCueKind.ChestHeldOpen] = (_, torizo, state, inputs) =>
+        {
+            // Golden Torizo holds its chest open while any of its eggs remains; once they are gone, it closes it.
+            return state.EggsRemain() ? null : TorizoAnimations.ContinueWith(TorizoAnimation.GoldenChestClosing);
+        },
+        [TorizoCueKind.DisableEyeBeamExplosions] = (_, torizo, state, inputs) =>
+        {
+            state.EyeBeamExplosionsEnabled = false;
+            return null;
+        },
+        [TorizoCueKind.EnableEyeBeamExplosions] = (_, torizo, state, inputs) =>
+        {
+            state.EyeBeamExplosionsEnabled = true;
+            return null;
+        },
+        [TorizoCueKind.UnmarkStunned] = (_, torizo, state, inputs) =>
+        {
+            state.Stunned = false;
+            return null;
+        },
+        [TorizoCueKind.PlayEggReleasedSound] = (_, torizo, state, inputs) =>
+        {
+            PlayTorizoSound(EnemySound.LowThump);
+            return null;
+        },
+        [TorizoCueKind.PlayLaserSound] = (_, torizo, state, inputs) =>
+        {
+            PlayTorizoSound(EnemySound.Laser);
+            return null;
+        },
+        [TorizoCueKind.PlaySonicBoomSound] = (_, torizo, state, inputs) =>
+        {
+            PlayTorizoSound(EnemySound.TorizoSonicBoom);
+            return null;
+        },
+        [TorizoCueKind.SpawnSuperMissile] = (occupant, torizo, state, inputs) =>
+        {
+            Attacks.SpawnGoldenTorizoSuperMissile(occupant, torizo);
+            return null;
+        },
+        [TorizoCueKind.SpawnEyeBeam] = (occupant, torizo, state, inputs) =>
+        {
+            Attacks.SpawnGoldenTorizoEyeBeam(occupant, torizo);
+            return null;
+        },
+        [TorizoCueKind.SpawnGoldenTorizoChozoOrbs] = (occupant, torizo, state, inputs) =>
+        {
+            Attacks.SpawnGoldenTorizoChozoOrb(occupant, torizo);
+            return null;
+        },
+    });
+
+    /// <summary>What <see cref="ApplyTorizoCue"/> comes to for each <see cref="TorizoChoiceKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<TorizoChoiceKind, Func<TorizoCue.Choice, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>> ApplyTorizoCueForTorizoChoiceKind => field ??= new(new Dictionary<TorizoChoiceKind, Func<TorizoCue.Choice, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>>
+    {
+        [TorizoChoiceKind.LandFacelessOrGolden] = static (choice, state, inputs) =>
+        {
+            if (state.FaceBlownUp)
+                return TorizoAnimations.ContinueWith(choice.Target);
+            return state.Variant.WalkOnFromLanding(choice.Alternate);
+        },
+        [TorizoChoiceKind.BombAttack] = ChooseTorizoAttack,
+        [TorizoChoiceKind.GoldenAttack] = ChooseTorizoAttack,
+    });
+
+    /// <summary>
+    /// A Torizo's attack choice: the first attack while Samus carries fewer missiles than the variant's threshold or while
+    /// the first-attack phase lasts, the alternate otherwise.
+    /// </summary>
+    private static AnimationContinuation<TorizoBodySegment>? ChooseTorizoAttack(TorizoCue.Choice choice, TorizoEnemyState state, TorizoCueInputs inputs)
+    {
+        bool chooseFirst = inputs.Samus.Missiles < state.Variant.FirstAttackMissiles ||
+            TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
+        return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
+    }
+
+    /// <summary>What <see cref="ApplyTorizoCue"/> comes to for each <see cref="TorizoInterruptKind"/> member, each member's own arm.</summary>
+    private IdentityTable<TorizoInterruptKind, Func<RoomEnemyPlace, TorizoCue.Interrupt, TorizoEnemyState, TorizoCueInputs, AnimationPlayback<TorizoBodySegment>, AnimationContinuation<TorizoBodySegment>?>> ApplyTorizoCueForTorizoInterruptKind => field ??= new(new Dictionary<TorizoInterruptKind, Func<RoomEnemyPlace, TorizoCue.Interrupt, TorizoEnemyState, TorizoCueInputs, AnimationPlayback<TorizoBodySegment>, AnimationContinuation<TorizoBodySegment>?>>
+    {
+        [TorizoInterruptKind.BombSwipeAtSamusBehind] = (torizo, interrupt, state, inputs, continuation) => TorizoChoices.SelectBombTorizoCloseBehindBranch(
+                            torizo,
+                            state,
+                            inputs.Samus,
+                            continuation,
+                            interrupt.Animation),
+        [TorizoInterruptKind.GoldenEyeBeamAtMediumRange] = (torizo, interrupt, state, inputs, continuation) => Choices.SelectGoldenTorizoMediumRangeBranch(
+                            torizo,
+                            state,
+                            inputs.Samus,
+                            continuation,
+                            interrupt.Animation),
+        [TorizoInterruptKind.GoldenEggsAtLowHealth] = (torizo, interrupt, state, inputs, continuation) =>
+        {
+            if (torizo.Health > TorizoDecisionDefinitions.GoldenEggsHealth || !TorizoRandomRolls.LowHealthEggs.IsTakenBy(_room.Random.Generate()))
+                return null;
+            state.DecisionCounter = 0;
+            state.InterruptedWalk = continuation;
+            return TorizoAnimations.ContinueWith(interrupt.Animation);
+        },
+        [TorizoInterruptKind.GoldenStaggerWhenStunned] = (torizo, interrupt, state, inputs, continuation) =>
+        {
+            if (torizo.Health <= TorizoDecisionDefinitions.GoldenStaggerHealth ||
+                !state.Stunned)
+                return null;
+            state.InterruptedWalk = continuation;
+            return TorizoAnimations.ContinueWith(interrupt.Animation);
+        },
+    });
+
+    /// <summary>What <see cref="ApplyTorizoCue"/> comes to for each <see cref="TorizoBranchKind"/> member, each member's own arm.</summary>
+    private IdentityTable<TorizoBranchKind, Func<RoomEnemyPlace, TorizoCue.Branch, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>> ApplyTorizoCueForTorizoBranchKind => field ??= new(new Dictionary<TorizoBranchKind, Func<RoomEnemyPlace, TorizoCue.Branch, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>>
+    {
+        [TorizoBranchKind.BombJumpBackFromSamusInFront] = (torizo, branch, state, inputs) => TorizoChoices.SelectBombTorizoCloseFrontJump(
+                            torizo,
+                            state,
+                            inputs.Samus,
+                            TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo))),
+        [TorizoBranchKind.GoldenSitOnSamusMorphedBehind] = (torizo, branch, state, inputs) => TorizoChoices.SelectGoldenTorizoMorphBallBranch(
+                            torizo,
+                            state,
+                            inputs.Samus,
+                            TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo))),
+        [TorizoBranchKind.GoldenLeapAtDistantSamus] = (torizo, branch, state, inputs) => Choices.SelectGoldenTorizoSpaceJumpCounter(
+                            torizo,
+                            state,
+                            inputs.Samus,
+                            inputs.ControllerInput,
+                            TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo))),
+        [TorizoBranchKind.GoldenJumpBackFromSamusInFront] = (torizo, branch, state, inputs) => TorizoChoices.SelectGoldenTorizoRepeatedJump(
+                            torizo,
+                            state,
+                            inputs.Samus,
+                            TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo))),
+    });
+
     /// <summary>
     /// Carries out one cue of Bomb or Golden Torizo's body animation, returning where a decision, an interruption or the end
     /// of one continues the play, or null to play on. <paramref name="continuation"/> is where the play stands just past the
@@ -249,305 +533,78 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         TorizoCue cue,
         AnimationPlayback<TorizoBodySegment> continuation)
     {
-        switch (cue)
-        {
-            case TorizoCue.Signal { Kind: TorizoCueKind.StartWalking }:
-                state.Motion = TorizoBodyMotion.Walking;
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.StartStanding }:
-                state.Motion = TorizoBodyMotion.Standing;
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.StartLeaping }:
-                state.Motion = TorizoBodyMotion.Leaping;
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.StopMoving }:
-                state.Motion = TorizoBodyMotion.HoldingStill;
-                return null;
-
-            case TorizoCue.SetPhase setPhase:
-                state.Phase = setPhase.Phase;
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.BlowUpGut }:
-                if (state.Breakage == TorizoBreakage.Intact)
-                    state.Breakage = TorizoBreakage.GutBlownUp;
-                for (int piece = 0; piece < TorizoDeathDefinitions.GutDroolPieces; piece++)
-                    Attacks.SpawnBombTorizoLowHealthDrool(occupant, torizo);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.MarkFaceBlownUp }:
-                state.Breakage = TorizoBreakage.GutAndFaceBlownUp;
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.MakeVisible }:
-                torizo.Presence = torizo.Presence.Without(EnemyPresence.Hidden);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.MakeInvisible }:
-                torizo.Presence = torizo.Presence.With(EnemyPresence.Hidden);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.FadeToBlack }:
-                SetTorizoFadeTarget(state, TorizoLookKind.Black);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.FinishDeath }:
-                FinishTorizoDeath(state, inputs.Samus);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.AdvanceColourFade }:
-                state.Colours.Step(_presentation.FadeStepCount);
-                torizo.Shading = state.Colours.Shading;
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.FadeToNormalColors }:
-                SetTorizoFadeTarget(state, TorizoLookKind.Normal);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.StartBombTorizoFight }:
-                RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.RidleyAndDraygonBattle));
-                // The fight starts the belly's glow, which watches this Torizo and ends once it dies.
-                _passEvents.Publish(new TorizoBellyGlowRequest(ColourEffectId.BombTorizoBelly, inputs.Torizo));
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.LockAnimation }:
-                state.AnimationLocked = true;
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.UnlockAnimation }:
-                state.AnimationLocked = false;
-                return null;
-
-            case TorizoCue.Choice { Kind: TorizoChoiceKind.LandFacelessOrGolden } choice:
-            {
-                if (state.FaceBlownUp)
-                    return TorizoAnimations.ContinueWith(choice.Target);
-                return state.Variant.WalkOnFromLanding(choice.Alternate);
-            }
-
-            case TorizoCue.LandIn landIn:
-                state.Landing = landIn.Landing;
-                return null;
-
-            case TorizoCue.WalkOn walkOn:
-                return TorizoAnimations.ContinueWith(walkOn.Walking);
-
-            case TorizoCue.Turn turn:
-                return TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(torizo) ? turn.WhenFacingRight : turn.WhenFacingLeft);
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.ResumeWalk }:
-                return TorizoAnimations.ContinueAt(state.InterruptedWalk);
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.ResumeInterrupted }:
-                return TorizoAnimations.ContinueAt(state.InterruptedPlayback);
-
-            case TorizoCue.LowHealthExplosions explosions:
-                for (int explosion = 0; explosion < TorizoDeathDefinitions.LowHealthExplosions; explosion++)
-                    Attacks.SpawnBombTorizoLowHealthExplosion(torizo, explosions.Site);
-                torizo.HurtFlash.Restart(TorizoDeathDefinitions.LowHealthExplosionFlash);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnDeathExplosion }:
-                Attacks.SpawnDeathExplosion(torizo);
-                torizo.HurtFlash.Restart(TorizoDeathDefinitions.DeathExplosionFlash);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnLandingDust }:
-                Attacks.SpawnLandingDust(torizo, foot: HorizontalDirection.Right);
-                Attacks.SpawnLandingDust(torizo, foot: HorizontalDirection.Left);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnLowHealthDrool }:
-                if (torizo.Health < TorizoDecisionDefinitions.GutBlowUpHealth)
-                    Body.SpawnInitialDrool(occupant, torizo);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.SetTurningAround }:
-                SetPosture(torizo, TorizoFacing.Posture(torizo).TurningAround);
-                return null;
-
-            case TorizoCue.Stepped stepped:
-                // The step replaces the whole posture: the way it faces, the foot it leads with, and any turn.
-                SetPosture(torizo, TorizoPosture.AfterStep(stepped.Direction, stepped.Foot));
-                state.CountDecisionStep();
-                return null;
-
-            case TorizoCue.Posture posture:
-                ApplyTorizoPosture(torizo, posture.Displacement, posture.Kind);
-                return null;
-
-            case TorizoCue.Walk walk:
-                return Choices.ProcessTorizoWalkStep(torizo, state, inputs.Samus, inputs.Level, walk.Walker, walk.Velocity);
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.LeapingPoseShown }:
-                // The jump holds its leaping pose while the Torizo rises; once it no longer rises, it falls in the fall its
-                // jump named.
-                return state.Velocity.Y.IsNegative ? null : TorizoAnimations.ContinueWith(state.Landing);
-
-            case TorizoCue.Interrupt { Kind: TorizoInterruptKind.BombSwipeAtSamusBehind } interrupt:
-                return TorizoChoices.SelectBombTorizoCloseBehindBranch(
-                    torizo,
-                    state,
-                    inputs.Samus,
-                    continuation,
-                    interrupt.Animation);
-
-            case TorizoCue.Branch { Kind: TorizoBranchKind.BombJumpBackFromSamusInFront } branch:
-                return TorizoChoices.SelectBombTorizoCloseFrontJump(
-                    torizo,
-                    state,
-                    inputs.Samus,
-                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
-
-            case TorizoCue.Choice { Kind: TorizoChoiceKind.BombAttack or TorizoChoiceKind.GoldenAttack } choice:
-            {
-                bool chooseFirst = inputs.Samus.Missiles < state.Variant.FirstAttackMissiles ||
-                    TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
-                return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
-            }
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnBombTorizoChozoOrbs }:
-                for (int orb = 0; orb < TorizoChozoOrbDefinitions.BombTorizoOrbsPerBurst; orb++)
-                    Attacks.SpawnBombTorizoChozoOrb(occupant, torizo);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnBombTorizoSonicBoom }:
-                Attacks.SpawnBombTorizoSonicBoom(occupant, torizo);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnGoldenTorizoSonicBoom }:
-                Attacks.SpawnGoldenTorizoSonicBoom(occupant, torizo);
-                return null;
-
-            case TorizoCue.Swipe swipe:
-                Attacks.SpawnBombTorizoExplosiveSwipe(torizo, swipe.Hand);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.PlayShotSound }:
-                PlayTorizoSound(EnemySound.ShotTorizo);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.PlayFootstepSound }:
-                PlayTorizoSound(EnemySound.ChozoFootsteps);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.DroppingPoseShown }:
-                // The waking Golden Torizo holds its half-risen pose while it drops; on its floor, it settles.
-                return torizo.Position.Y.Whole == TorizoDecisionDefinitions.GoldenFloorY ? TorizoAnimations.ContinueWith(TorizoAnimation.GoldenTorizoSettling) : null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.FadeToGoldenColors }:
-                SetTorizoFadeTarget(state, TorizoLookKind.Golden);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.StartGoldenTorizoFight }:
-                RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.RidleyAndDraygonBattle));
-                torizo.Radius = TorizoDecisionDefinitions.GoldenFightRadius;
-                _passEvents.Publish(new TorizoBellyGlowRequest(ColourEffectId.GoldenTorizoBelly, inputs.Torizo));
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.ClearCaughtSuperMissile }:
-                state.CaughtSuperMissile = false;
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnEgg }:
-                Attacks.SpawnGoldenTorizoEgg(occupant, torizo);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.ChestHeldOpen }:
-                // Golden Torizo holds its chest open while any of its eggs remains; once they are gone, it closes it.
-                return state.EggsRemain() ? null : TorizoAnimations.ContinueWith(TorizoAnimation.GoldenChestClosing);
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.DisableEyeBeamExplosions }:
-                state.EyeBeamExplosionsEnabled = false;
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.EnableEyeBeamExplosions }:
-                state.EyeBeamExplosionsEnabled = true;
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.UnmarkStunned }:
-                state.Stunned = false;
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.PlayEggReleasedSound }:
-                PlayTorizoSound(EnemySound.LowThump);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.PlayLaserSound }:
-                PlayTorizoSound(EnemySound.Laser);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.PlaySonicBoomSound }:
-                PlayTorizoSound(EnemySound.TorizoSonicBoom);
-                return null;
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnSuperMissile }:
-                Attacks.SpawnGoldenTorizoSuperMissile(occupant, torizo);
-                return null;
-
-            case TorizoCue.Branch { Kind: TorizoBranchKind.GoldenSitOnSamusMorphedBehind } branch:
-                return TorizoChoices.SelectGoldenTorizoMorphBallBranch(
-                    torizo,
-                    state,
-                    inputs.Samus,
-                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnEyeBeam }:
-                Attacks.SpawnGoldenTorizoEyeBeam(occupant, torizo);
-                return null;
-
-            case TorizoCue.Interrupt { Kind: TorizoInterruptKind.GoldenEyeBeamAtMediumRange } interrupt:
-                return Choices.SelectGoldenTorizoMediumRangeBranch(
-                    torizo,
-                    state,
-                    inputs.Samus,
-                    continuation,
-                    interrupt.Animation);
-
-            case TorizoCue.Interrupt { Kind: TorizoInterruptKind.GoldenEggsAtLowHealth } interrupt:
-                if (torizo.Health > TorizoDecisionDefinitions.GoldenEggsHealth || !TorizoRandomRolls.LowHealthEggs.IsTakenBy(_room.Random.Generate()))
-                    return null;
-                state.DecisionCounter = 0;
-                state.InterruptedWalk = continuation;
-                return TorizoAnimations.ContinueWith(interrupt.Animation);
-
-            case TorizoCue.Interrupt { Kind: TorizoInterruptKind.GoldenStaggerWhenStunned } interrupt:
-                if (torizo.Health <= TorizoDecisionDefinitions.GoldenStaggerHealth ||
-                    !state.Stunned)
-                    return null;
-                state.InterruptedWalk = continuation;
-                return TorizoAnimations.ContinueWith(interrupt.Animation);
-
-            case TorizoCue.Branch { Kind: TorizoBranchKind.GoldenLeapAtDistantSamus } branch:
-                return Choices.SelectGoldenTorizoSpaceJumpCounter(
-                    torizo,
-                    state,
-                    inputs.Samus,
-                    inputs.ControllerInput,
-                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
-
-            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnGoldenTorizoChozoOrbs }:
-                Attacks.SpawnGoldenTorizoChozoOrb(occupant, torizo);
-                return null;
-
-            case TorizoCue.Branch { Kind: TorizoBranchKind.GoldenJumpBackFromSamusInFront } branch:
-                return TorizoChoices.SelectGoldenTorizoRepeatedJump(
-                    torizo,
-                    state,
-                    inputs.Samus,
-                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
-
-            case TorizoCue.ShowArtwork showArtwork:
-                ShowTorizoArtwork(state, showArtwork.Look);
-                return null;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(TorizoCueKind)} {cue}.");
-        }
+        return cue.Match(ApplyTorizoCueCases, new ApplyTorizoCueContext(occupant, torizo, state, inputs, continuation, this));
     }
+
+    /// <summary>What <see cref="ApplyTorizoCue"/> does on each <see cref="TorizoCue"/>, built once (#2553).</summary>
+    private static TorizoCueCases<ApplyTorizoCueContext, AnimationContinuation<TorizoBodySegment>?> ApplyTorizoCueCases { get; } = new(
+        Branch: static (branch, context) =>
+        {
+            return context.Owner.ApplyTorizoCueForTorizoBranchKind[branch.Kind](context.Torizo, branch, context.State, context.Inputs);
+        },
+        Interrupt: static (interrupt, context) =>
+        {
+            return context.Owner.ApplyTorizoCueForTorizoInterruptKind[interrupt.Kind](context.Torizo, interrupt, context.State, context.Inputs, context.Continuation);
+        },
+        Choice: static (choice, context) =>
+        {
+            return ApplyTorizoCueForTorizoChoiceKind[choice.Kind](choice, context.State, context.Inputs);
+        },
+        LandIn: static (landIn, context) =>
+        {
+            context.State.Landing = landIn.Landing;
+            return null;
+        },
+        WalkOn: static (walkOn, _) => TorizoAnimations.ContinueWith(walkOn.Walking),
+        Turn: static (turn, context) => TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(context.Torizo) ? turn.WhenFacingRight : turn.WhenFacingLeft),
+        Posture: static (posture, context) =>
+        {
+            ApplyTorizoPosture(context.Torizo, posture.Displacement, posture.Kind);
+            return null;
+        },
+        Walk: static (walk, context) => context.Owner.Choices.ProcessTorizoWalkStep(context.Torizo, context.State, context.Inputs.Samus, context.Inputs.Level, walk.Walker, walk.Velocity),
+        Swipe: static (swipe, context) =>
+        {
+            context.Owner.Attacks.SpawnBombTorizoExplosiveSwipe(context.Torizo, swipe.Hand);
+            return null;
+        },
+        LowHealthExplosions: static (explosions, context) =>
+        {
+            for (int explosion = 0; explosion < TorizoDeathDefinitions.LowHealthExplosions; explosion++)
+                context.Owner.Attacks.SpawnBombTorizoLowHealthExplosion(context.Torizo, explosions.Site);
+            context.Torizo.HurtFlash.Restart(TorizoDeathDefinitions.LowHealthExplosionFlash);
+            return null;
+        },
+        SetPhase: static (setPhase, context) =>
+        {
+            context.State.Phase = setPhase.Phase;
+            return null;
+        },
+        ShowArtwork: static (showArtwork, context) =>
+        {
+            context.Owner.ShowTorizoArtwork(context.State, showArtwork.Look);
+            return null;
+        },
+        Stepped: static (stepped, context) =>
+        {
+            // The step replaces the whole posture: the way it faces, the foot it leads with, and any turn.
+            SetPosture(context.Torizo, TorizoPosture.AfterStep(stepped.Direction, stepped.Foot));
+            context.State.CountDecisionStep();
+            return null;
+        },
+        Signal: static (signal, context) =>
+        {
+            return context.Owner.ApplyTorizoCueForTorizoCueKind[signal.Kind](context.Occupant, context.Torizo, context.State, context.Inputs);
+        });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Occupant">The occupant whose cue is carried out.</param>
+    /// <param name="Torizo">The torizo the cases read.</param>
+    /// <param name="State">The state the cases read.</param>
+    /// <param name="Inputs">The inputs the cases read.</param>
+    /// <param name="Continuation">The continuation the cases read.</param>
+    /// <param name="Owner">The <see cref="TorizoBehavior"/> reacting.</param>
+    private readonly record struct ApplyTorizoCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Torizo, TorizoEnemyState State, TorizoCueInputs Inputs, AnimationPlayback<TorizoBodySegment> Continuation, TorizoBehavior Owner);
 
     /// <summary>Moves a Torizo by a posture change's displacement standing up, or back by it sitting down.</summary>
     private static void ApplyTorizoPosture(

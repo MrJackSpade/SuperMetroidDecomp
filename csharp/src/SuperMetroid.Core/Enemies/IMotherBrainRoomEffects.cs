@@ -8,4 +8,10 @@ public interface IMotherBrainRoomEffects
     /// strikes on its block; a hit once the glass has gone changes nothing.
     /// </summary>
     void CountHeadShotOnGlass();
+
+    /// <summary>
+    /// Confirms, as Mother Brain's body sets up, that her room set her glass up, which her head shots count on.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Her room set up no glass.</exception>
+    void ConfirmGlassLoaded();
 }

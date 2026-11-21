@@ -27,6 +27,11 @@ internal sealed class SamusAnimationLayout
     /// <param name="Offset">How far into the layout of the animation the place lies.</param>
     private readonly record struct LayoutPlace(SamusPoseAnimation Animation, int Offset);
 
+    /// <summary>A place of an animation's layout Samus's animation can reach and the step it reads there.</summary>
+    /// <param name="At">The place.</param>
+    /// <param name="Read">The step read there.</param>
+    private readonly record struct ReachedPlace(LayoutPlace At, StepRead Read);
+
     /// <summary>A program laid out after another: its animation and how many frames later it starts.</summary>
     private readonly record struct Successor(SamusPoseAnimation Animation, int Shift);
 
@@ -36,6 +41,9 @@ internal sealed class SamusAnimationLayout
     /// <summary>Each animation's program's successor, or none for the last program laid out.</summary>
     private readonly Dictionary<SamusPoseAnimation, Successor?> successors;
 
+    /// <summary>Where each animation's program starts in the programs' bank.</summary>
+    private readonly Dictionary<SamusPoseAnimation, int> starts;
+
     /// <summary>The step each cue value's frame of each animation reads, by frame counted from the program's start.</summary>
     private readonly Dictionary<SamusPoseAnimation, IReadOnlyDictionary<int, SamusPoseAnimationStep>> cueValueSteps;
 
@@ -44,11 +52,13 @@ internal sealed class SamusAnimationLayout
 
     /// <summary>Keeps the layout read from the cartridge.</summary>
     private SamusAnimationLayout(SamusPoseAnimation[] programs, Dictionary<SamusPoseAnimation, Successor?> successors,
+        Dictionary<SamusPoseAnimation, int> starts,
         Dictionary<SamusPoseAnimation, IReadOnlyDictionary<int, SamusPoseAnimationStep>> cueValueSteps,
         Dictionary<SamusPoseAnimation, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> documentCueValueSteps)
     {
         this.programs = programs;
         this.successors = successors;
+        this.starts = starts;
         this.cueValueSteps = cueValueSteps;
         this.documentCueValueSteps = documentCueValueSteps;
     }
@@ -79,7 +89,7 @@ internal sealed class SamusAnimationLayout
         }
         var names = new WrittenOrder<SamusAnimationName>(Ensure.EveryMemberOnce(SamusAnimationNameKeys.ListedOrder));
         SamusPoseAnimation[] programs = [.. laidOut.Select(program => program.Program).OrderBy(animation => names.PlaceOf(animation.Name))];
-        return new SamusAnimationLayout(programs, successors, steps, documentSteps);
+        return new SamusAnimationLayout(programs, successors, laidOut.ToDictionary(program => program.Program, program => program.Start), steps, documentSteps);
     }
 
     /// <summary>How far into the game's layout of <paramref name="animation"/> <paramref name="frame"/> lies.</summary>
@@ -235,6 +245,75 @@ internal sealed class SamusAnimationLayout
     internal Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>> ReadsPast()
     {
         var reads = programs.ToDictionary(animation => animation, _ => new SortedDictionary<int, SamusOverreadDocument.ReadPast>());
+        foreach (ReachedPlace reached in Reached())
+        {
+            if (reached.Read.Shift > 0)
+                reads[reached.At.Animation].Add(reached.At.Offset, ReadPast(reached.At.Animation, reached.Read));
+        }
+        return programs.ToDictionary(animation => SamusAnimationNameKeys.Installed.Of(animation.Name), animation =>
+            (IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>)reads[animation].ToDictionary(
+                pair => animation.NameOf(FrameAt(animation, pair.Key)), pair => pair.Value, StringComparer.Ordinal),
+            StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// The byte the game starts the frame timer from on every frame a pose start or a cue can move an animation to that holds
+    /// no delay of the animation's own, by the animation's name and the frame's name (#2553): the game reads the frame's byte
+    /// as the delay whatever it holds. A pose starts its animation on its first frame, the frame after it or a named place
+    /// landing in it; a restart moves it to its first frame, a repeat or the wall-jump selection to the frames they name, and
+    /// the breathing loop and the drained fall's handover to the frame after their cue, each read where Samus's animation can
+    /// reach it (<see cref="ReadsPast"/>).
+    /// </summary>
+    internal Dictionary<string, IReadOnlyDictionary<string, int>> DelaysRead(IImportCartridgeSource cartridge)
+    {
+        Ensure.NotNull(cartridge);
+        var moved = programs.ToDictionary(animation => animation, _ => new SortedSet<int>());
+        foreach (SamusPoseAnimation animation in programs)
+        {
+            moved[animation].Add(0);
+            moved[animation].Add(Offset(animation, animation.AfterStart));
+            foreach (SamusAnimationPlace place in SamusAnimationPlaces.All)
+                moved[animation].Add(Offset(place));
+        }
+        foreach (ReachedPlace reached in Reached())
+            moved[reached.At.Animation].UnionWith(MovedTo(reached.At.Animation, reached.At.Offset, reached.Read.Step));
+        return programs.ToDictionary(animation => SamusAnimationNameKeys.Installed.Of(animation.Name), animation =>
+            (IReadOnlyDictionary<string, int>)moved[animation]
+                .Where(offset => OwnStepAt(animation, offset) is not SamusAnimationDelay)
+                .ToDictionary(offset => animation.NameOf(FrameAt(animation, offset)), offset => (int)cartridge.ReadCartridgeByte(
+                    SnesAddressMath.AddWithinBank(SamusOverreadSourceDefinitions.SamusAnimationProgramBank, starts[animation] + offset)),
+                    StringComparer.Ordinal),
+            StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// The places of <paramref name="animation"/>'s layout a cue read at <paramref name="offset"/>, where it reads
+    /// <paramref name="step"/>, moves the animation to and starts the timer on: the start after a restart and the breathing
+    /// loop, the next frame after the breathing loop and the drained fall's handover, and the frames a repeat or the
+    /// wall-jump selection names. A delay, a hold and a transition move nothing.
+    /// </summary>
+    private int[] MovedTo(SamusPoseAnimation animation, int offset, SamusPoseAnimationStep step) => step switch
+    {
+        SamusAnimationInstallDrainedFall => [offset + 1],
+        SamusAnimationLoopUnlessLowEnergy => [offset + 1, 0],
+        SamusAnimationRestart => [0],
+        SamusAnimationRepeat repeat => [TargetOffset(animation, offset, repeat.Target)],
+        SamusAnimationWallJumpSelect select =>
+        [
+            TargetOffset(animation, offset, select.OrdinaryFrame),
+            TargetOffset(animation, offset, select.SpaceJumpFrame),
+            TargetOffset(animation, offset, select.ScrewAttackFrame),
+        ],
+        _ => [],
+    };
+
+    /// <summary>
+    /// Every place of every animation's layout Samus's animation can reach, with the step it reads there: every frame of
+    /// every animation and every named place landing in it, followed on as the animation plays (#2048).
+    /// </summary>
+    private List<ReachedPlace> Reached()
+    {
+        var reached = new List<ReachedPlace>();
         var visited = new HashSet<LayoutPlace>();
         var pending = new Queue<LayoutPlace>();
         void Visit(SamusPoseAnimation animation, int offset)
@@ -258,15 +337,11 @@ internal sealed class SamusAnimationLayout
         {
             if (Read(at.Animation, at.Offset) is not { } read)
                 continue;
-            if (read.Shift > 0)
-                reads[at.Animation].Add(at.Offset, ReadPast(at.Animation, read));
+            reached.Add(new ReachedPlace(at, read));
             foreach (int next in Following(at.Animation, at.Offset, read.Step))
                 Visit(at.Animation, next);
         }
-        return programs.ToDictionary(animation => SamusAnimationNameKeys.Installed.Of(animation.Name), animation =>
-            (IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>)reads[animation].ToDictionary(
-                pair => animation.NameOf(FrameAt(animation, pair.Key)), pair => pair.Value, StringComparer.Ordinal),
-            StringComparer.Ordinal);
+        return reached;
     }
 
     /// <summary>
@@ -281,23 +356,15 @@ internal sealed class SamusAnimationLayout
 
     /// <summary>
     /// The places of <paramref name="animation"/>'s layout it can go on to from <paramref name="offset"/>, where it reads
-    /// <paramref name="step"/>: the next frame after a delay, a hold, the breathing loop and the drained fall's handover,
-    /// the start after a restart and the breathing loop, and the frames a repeat or the wall-jump selection names. A
-    /// transition ends the animation.
+    /// <paramref name="step"/>: the next frame after a delay or a hold, and the places a cue moves it to
+    /// (<see cref="MovedTo"/>). A transition ends the animation.
     /// </summary>
     /// <exception cref="InvalidDataException">The step has no playback.</exception>
     private int[] Following(SamusPoseAnimation animation, int offset, SamusPoseAnimationStep step) => step switch
     {
-        SamusAnimationDelay or SamusAnimationHold or SamusAnimationInstallDrainedFall => [offset + 1],
-        SamusAnimationLoopUnlessLowEnergy => [offset + 1, 0],
-        SamusAnimationRestart => [0],
-        SamusAnimationRepeat repeat => [TargetOffset(animation, offset, repeat.Target)],
-        SamusAnimationWallJumpSelect select =>
-        [
-            TargetOffset(animation, offset, select.OrdinaryFrame),
-            TargetOffset(animation, offset, select.SpaceJumpFrame),
-            TargetOffset(animation, offset, select.ScrewAttackFrame),
-        ],
+        SamusAnimationDelay or SamusAnimationHold => [offset + 1],
+        SamusAnimationInstallDrainedFall or SamusAnimationLoopUnlessLowEnergy or SamusAnimationRestart or SamusAnimationRepeat or
+            SamusAnimationWallJumpSelect => MovedTo(animation, offset, step),
         SamusAnimationTransition or SamusAnimationTurnTransition or SamusAnimationItemTransition or
             SamusAnimationItemAirborneTransition or SamusAnimationVerticalSpeedTransition => [],
         _ => throw new InvalidDataException($"Samus animation step {step} has no playback."),

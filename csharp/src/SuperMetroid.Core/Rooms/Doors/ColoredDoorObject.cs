@@ -92,28 +92,25 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
         return true;
     }
 
+    /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="ColoredDoorPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<ColoredDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForColoredDoorPhase => field ??= new(new Dictionary<ColoredDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [ColoredDoorPhase.Placed] = (place, context) => Look(place, context),
+        [ColoredDoorPhase.Closing] = (place, context) => Look(place, context),
+        // Once it has looked, the cap rests on its closed image until a hit wakes it.
+        [ColoredDoorPhase.Waiting] = (place, context) => { },
+        [ColoredDoorPhase.Flashing] = (place, context) =>
+        {
+            // The cap rests on its closed image again until the next hit wakes it.
+            Phase = ColoredDoorPhase.Waiting;
+        },
+        [ColoredDoorPhase.Opening] = (place, context) => context.RoomObjects.DeleteObject(place),
+    });
+
     /// <inheritdoc/>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (Phase)
-        {
-            case ColoredDoorPhase.Placed:
-            case ColoredDoorPhase.Closing:
-                Look(place, context);
-                return;
-            case ColoredDoorPhase.Waiting:
-                // Once it has looked, the cap rests on its closed image until a hit wakes it.
-                return;
-            case ColoredDoorPhase.Flashing:
-                // The cap rests on its closed image again until the next hit wakes it.
-                Phase = ColoredDoorPhase.Waiting;
-                return;
-            case ColoredDoorPhase.Opening:
-                context.RoomObjects.DeleteObject(place);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ColoredDoorPhase)} {Phase}.");
-        }
+        SequenceEndedForColoredDoorPhase[Phase](place, context);
     }
 
     /// <summary>

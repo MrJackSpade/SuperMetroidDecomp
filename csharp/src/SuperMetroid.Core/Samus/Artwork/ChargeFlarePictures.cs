@@ -4,34 +4,28 @@ using static SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
-/// Which composition a charge-flare component shows for its picture and Samus's facing (#1624). The main flare's
+/// Which composition a charge-flare component shows for its picture and Samus's facing (#1624, #2553). The main flare's
 /// pictures are the same either way; each spark ring shows its own facing's six compositions.
 /// </summary>
-/// <remarks>
-/// A component shows only its own pictures. One the Hyper Beam's backward count has stepped back past its first picture
-/// shows nothing (<see cref="ChargeFlareComponentState"/>): it never draws the neighbouring run's picture.
-/// </remarks>
 public static class ChargeFlarePictures
 {
-    /// <summary>The composition <paramref name="component"/> shows for <paramref name="picture"/> facing left or right.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="picture"/> is not one of the component's pictures.</exception>
-    public static ProjectileSpriteId Of(ChargeFlareComponent component, bool facingLeft, ChargeFlarePicture picture)
-        => Compositions[FamilyOf(component, facingLeft)].TryGetValue(picture, out ProjectileSpriteId composition)
-            ? composition
-            : throw new ArgumentOutOfRangeException(nameof(picture), picture, $"Charge-flare {component} shows no such picture.");
+    /// <summary>The composition the main flare shows for <paramref name="picture"/>, facing either way.</summary>
+    public static ProjectileSpriteId MainFlare(MainFlarePicture picture) => MainFlareCompositions[picture];
 
-    /// <summary>The family of <paramref name="component"/>'s compositions for the facing.</summary>
-    private static ProjectileSpriteGroup FamilyOf(ChargeFlareComponent component, bool facingLeft) => component switch
-    {
-        ChargeFlareComponent.MainFlare => ProjectileSpriteGroup.FlareMain,
-        ChargeFlareComponent.SlowSparks => facingLeft ? ProjectileSpriteGroup.FlareSlowSparksLeft : ProjectileSpriteGroup.FlareSlowSparksRight,
-        ChargeFlareComponent.FastSparks => facingLeft ? ProjectileSpriteGroup.FlareFastSparksLeft : ProjectileSpriteGroup.FlareFastSparksRight,
-        _ => throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}."),
-    };
+    /// <summary>The composition the slow spark ring shows for <paramref name="picture"/> facing left or right.</summary>
+    public static ProjectileSpriteId SlowSparks(HorizontalDirection facing, SparkPicture picture) =>
+        SparkCompositions[facing == HorizontalDirection.Left ? ProjectileSpriteGroup.FlareSlowSparksLeft : ProjectileSpriteGroup.FlareSlowSparksRight][picture];
 
-    /// <summary>Each flare family's composition of each picture it shows, as <see cref="ChargeFlareSpriteDefinitions.All"/> lists them.</summary>
-    private static readonly Dictionary<ProjectileSpriteGroup, Dictionary<ChargeFlarePicture, ProjectileSpriteId>> Compositions =
-        SparkFamilies.Prepend(ProjectileSpriteGroup.FlareMain).ToDictionary(family => family, family =>
-            (family == ProjectileSpriteGroup.FlareMain ? MainPictures : SparkPictures).ToDictionary(picture => picture,
-                picture => All.Single(composition => composition.Group == family && composition.Pose == ChargeFlarePictureKeys.Installed.Of(picture))));
+    /// <summary>The composition the fast spark ring shows for <paramref name="picture"/> facing left or right.</summary>
+    public static ProjectileSpriteId FastSparks(HorizontalDirection facing, SparkPicture picture) =>
+        SparkCompositions[facing == HorizontalDirection.Left ? ProjectileSpriteGroup.FlareFastSparksLeft : ProjectileSpriteGroup.FlareFastSparksRight][picture];
+
+    /// <summary>The main flare's composition of each of its pictures, as <see cref="ChargeFlareSpriteDefinitions.All"/> lists them.</summary>
+    private static readonly IdentityTable<MainFlarePicture, ProjectileSpriteId> MainFlareCompositions = new(picture =>
+        All.Single(composition => composition.Group == ProjectileSpriteGroup.FlareMain && composition.Pose == ChargeFlarePictureKeys.MainFlare.Of(picture)));
+
+    /// <summary>Each spark family's composition of each spark picture, as <see cref="ChargeFlareSpriteDefinitions.All"/> lists them.</summary>
+    private static readonly Dictionary<ProjectileSpriteGroup, IdentityTable<SparkPicture, ProjectileSpriteId>> SparkCompositions =
+        SparkFamilies.ToDictionary(family => family, family => new IdentityTable<SparkPicture, ProjectileSpriteId>(picture =>
+            All.Single(composition => composition.Group == family && composition.Pose == ChargeFlarePictureKeys.Sparks.Of(picture))));
 }

@@ -43,7 +43,7 @@ public sealed class ProjectileObjectPages
     private SpriteArtwork Compose(SamusBeamCombination beam)
     {
         var id = new SpriteArtworkId(SpriteArtworkKind.ProjectileObjects, new BeamPageVariant(beam));
-        SpriteArtwork page = ObjCharacterPage.With(id, basePage, beams.Resolve(BeamTileCatalog.AssetFor(beam)).Span,
+        SpriteArtwork page = ObjCharacterPage.With(id, basePage, beams.Resolve(beam).Span,
             ProjectileObjectPageDefinitions.BeamFirstCharacter);
         page = ObjCharacterPage.With(id, page, trails.IceAndWave.Span, ProjectileObjectPageDefinitions.IceWaveTrailFirstCharacter);
         return ObjCharacterPage.With(id, page, trails.Missile.Span, ProjectileObjectPageDefinitions.MissileTrailFirstCharacter);

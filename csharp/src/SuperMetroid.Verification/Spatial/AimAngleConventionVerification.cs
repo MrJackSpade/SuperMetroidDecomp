@@ -24,6 +24,9 @@ internal static class AimAngleConventionVerification
     private const int LargestRadius = 255;
 
     /// <summary>The eight compass directions in clockwise order from up, as the cartridge's octants count them.</summary>
+    /// <summary>The straight directions clockwise from up, one a quarter of the turn.</summary>
+    private static readonly StraightDirection[] QuarterDirections = [StraightDirection.Up, StraightDirection.Right, StraightDirection.Down, StraightDirection.Left];
+
     private static readonly CompassDirection[] OctantDirections =
     [
         CompassDirection.Up, CompassDirection.UpRight, CompassDirection.Right, CompassDirection.DownRight,
@@ -85,7 +88,7 @@ internal static class AimAngleConventionVerification
             // The compass directions the aim picks are the word's octant, nearest octant and nearest quarter.
             AssertEqual(OctantDirections[word / 32], aim.DirectionOfEighth(), $"{context} octant");
             AssertEqual(OctantDirections[(word + 16) % 256 / 32], aim.NearestDirection(), $"{context} nearest octant");
-            AssertEqual(OctantDirections[(word + 32) % 256 / 64 * 2], aim.NearestStraightDirection(), $"{context} nearest quarter");
+            AssertEqual(QuarterDirections[(word + 32) % 256 / 64], aim.NearestStraightDirection(), $"{context} nearest quarter");
         }
         Console.WriteLine($"Aim angle convention: {compared} sine, velocity, acceleration and circle reads over every radius of all 256 aim words, " +
             "and every consumer's velocity and compass pick, equal the unconverted word's.");

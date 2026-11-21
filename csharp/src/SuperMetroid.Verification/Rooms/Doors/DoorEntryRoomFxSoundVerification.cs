@@ -79,7 +79,7 @@ internal static class DoorEntryRoomFxSoundVerification
         game.Session.Enter(DoorTransitionStep.EnteringDoor);
         game.Step(0);
 
-        AssertEqual(DoorTransitionPhase.WaitForSoundQueues, game.DoorTransitionPhaseForVerification,
+        AssertEqual(new DoorTransitionPhase.Running.WaitForSoundQueues(), game.DoorTransitionPhaseForVerification,
             "the entry frame begins the door sound wait");
         IReadOnlyList<SoundEffectId> queued = audio.SoundsQueuedSinceForVerification(start);
         AssertTrue(queued.Count >= 2, "the entry frame queues at least the rumble and the door's cancel");

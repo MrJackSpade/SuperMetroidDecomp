@@ -8,5 +8,5 @@ internal sealed class PowampSpikeAnimation(PowampSpikeSegment segment)
     : EnemyProjectileFrameAnimation<PowampSpikeSegment, EnemyProjectileCommonCue>(segment, PowampSpikeAnimations.StartingAt[segment], EnemyProjectileCueRunners.Common<PowampSpikeSegment>())
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<PowampSpikeSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => PowampSpikeAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<PowampSpikeSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => PowampSpikeAnimations.Segments;
 }

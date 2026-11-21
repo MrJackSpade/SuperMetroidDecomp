@@ -148,10 +148,8 @@ internal static class DraygonStateQuantitiesVerification
         VerifySwoopPath(acceleration: 1, resetY: 124, expectedCount: 513);
 
         (_, DraygonEnemyState still) = NewDraygon();
-        still.LeftSideReset = new Position16<RoomPixels>(65456, 128);
-        still.SwoopAcceleration = default;
-        AssertThrows<InvalidOperationException>(() => DraygonSwoops.BuildDraygonSwoopYPositions(still, NewSwoopSamus()),
-            "a swoop path is not planned without a swoop acceleration");
+        AssertThrows<ArgumentOutOfRangeException>(() => still.SwoopAcceleration = default,
+            "Draygon's swoop acceleration is never set to none");
         AssertTrue(still.SwoopPath is null, "Draygon has no swoop path before he plans one");
     }
 

@@ -107,7 +107,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public void InterruptFinalBeamForBabyDrain()
     {
-        Encounter.DrainedPhase = MotherBrainDrainedPhase.TakenAback;
+        State.DrainedPhase = MotherBrainDrainedPhase.TakenAback;
         State.RainbowBeamSoundPlaying = true; // The Baby's drain counts as her beam's sound playing.
     }
 
@@ -116,14 +116,14 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// stand-up to finish, until the Baby's flight sets the attack off.
     /// </summary>
     public void PrepareForFinalBabyMetroidAttack() =>
-        Encounter.RevivalPhase = MotherBrainRevivalPhase.PrepareForFinalBabyAttack;
+        State.RevivalPhase = MotherBrainRevivalPhase.PrepareForFinalBabyAttack;
 
     /// <summary>
     /// The Baby sets off Mother Brain's final attack on it: her head plays one last four-ring volley, and her body then holds
     /// still.
     /// </summary>
     public void ExecuteFinalBabyMetroidAttack() =>
-        Encounter.RevivalPhase = MotherBrainRevivalPhase.ExecuteFinalBabyAttack;
+        State.RevivalPhase = MotherBrainRevivalPhase.ExecuteFinalBabyAttack;
 
     /// <summary>
     /// Counts one more four-ring attack of her head's on the Baby, up to the most it counts
@@ -141,7 +141,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public void BeginPhase3RecoveryFromBabyCutscene()
     {
-        Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverMakeSomeDistance;
+        State.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverMakeSomeDistance;
 
         // The Baby is gone, so her head's attack choice no longer counts it as come.
         State.BabyMetroidSpawned = false;
@@ -176,6 +176,21 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         State.RequestWalkBackward(targetX, MotherBrainWalkSpeed.ReallyFast);
     }
 
+    /// <summary>
+    /// What each stage of the late fight runs on an update (#2553): true when it moves on into the next stage, which the
+    /// same update runs.
+    /// </summary>
+    private static IdentityTable<MotherBrainLateFightStage, Func<MotherBrainRainbowBeamAttackSequence, SamusState, RainbowBeamAttackFrame, MotherBrainRainbowBeamStepRequests, bool>> StageRuns { get; } = new(
+        new Dictionary<MotherBrainLateFightStage, Func<MotherBrainRainbowBeamAttackSequence, SamusState, RainbowBeamAttackFrame, MotherBrainRainbowBeamStepRequests, bool>>
+        {
+            [MotherBrainLateFightStage.RainbowBeam] = static (fight, samus, frame, requests) => fight.RainbowAttack.Run(samus, frame, requests),
+            [MotherBrainLateFightStage.FinishingSamusOff] = static (fight, samus, frame, requests) => fight.FinishSamusOff.Run(samus, frame, requests),
+            [MotherBrainLateFightStage.DrainedByBaby] = static (fight, _, _, requests) => fight.DrainedByBaby.Run(requests),
+            [MotherBrainLateFightStage.Reviving] = static (fight, _, frame, requests) => fight.Revival.Run(frame, requests),
+            [MotherBrainLateFightStage.Phase3Fight] = static (fight, _, frame, _) => fight.ThirdPhaseFight.Run(frame),
+            [MotherBrainLateFightStage.Dying] = static (fight, _, frame, requests) => fight.ThirdPhaseDeath.Run(frame, requests),
+        });
+
     /// <summary>Executes one update through the current Mother Brain body phase.</summary>
     public MotherBrainRainbowBeamAttackStepResult Step(SamusState samus, RainbowBeamAttackFrame frame)
     {
@@ -185,18 +200,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         bool handsOver;
         do
         {
-            handsOver = Encounter.Stage switch
-            {
-                MotherBrainBodyStage.RainbowBeam => RainbowAttack.Run(samus, frame, requests),
-                MotherBrainBodyStage.FinishingSamusOff => FinishSamusOff.Run(samus, frame, requests),
-                MotherBrainBodyStage.DrainedByBaby => DrainedByBaby.Run(requests),
-                MotherBrainBodyStage.Reviving => Revival.Run(frame, requests),
-                MotherBrainBodyStage.Phase3Fight => ThirdPhaseFight.Run(frame),
-                MotherBrainBodyStage.Dying => ThirdPhaseDeath.Run(frame, requests),
-                // The sequence runs only the rainbow beam and the stages after it; her earlier stages run apart from it.
-                MotherBrainBodyStage.Glass or MotherBrainBodyStage.FakeDeathDescent or MotherBrainBodyStage.FakeDeathAscent or MotherBrainBodyStage.Phase2Fight or _ =>
-                    throw new InvalidOperationException($"The late fight does not run Mother Brain's {Encounter.Stage} stage."),
-            };
+            handsOver = StageRuns[State.Stage](this, samus, frame, requests);
         }
         while (handsOver);
 

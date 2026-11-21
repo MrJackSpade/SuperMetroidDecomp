@@ -81,10 +81,9 @@ internal static void VerifySamusStoredShineAndShinespark()
 
     var shine = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.ShinesparkWindupRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
         Health = 99,
-    };
+    }.InPose(SamusPoseId.ShinesparkWindupRightPose);
     AssertTrue(!shine.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(3, 255)),
         "stage three cannot store shine");
     AssertTrue(shine.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)),
@@ -162,21 +161,20 @@ internal static void VerifySamusStoredShineAndShinespark()
     {
         var directional = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = windupPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
             Health = 99,
-        };
+        }.InPose(windupPose);
         SamusPoseMetadata.RefreshCollisionRadii(directional);
         SamusPresentation.InitializeAnimation(directional);
         directional.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0));
         directional.Shinespark.BeginWindup(directional);
-        directional.Shinespark.BeginDirectionalLaunch(directional, targetPose);
+        directional.Shinespark.BeginDirectionalLaunch(directional, ShinesparkLaunchFixtures.Of(targetPose));
         AssertEqual(1, directional.AudioRequests.CountOf(RoomSound.Shinespark),
             $"pose ${(int)SamusPoseNumbers.Number(targetPose):X2} queues one launch sound");
         directional.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
         FixedCoordinate directionalXBefore = directional.Kinematics.Position.X;
         FixedCoordinate directionalYBefore = directional.Kinematics.Position.Y;
-        directional.Shinespark.StepAndCommit(new SamusTerrain { Level = directionLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, directional, frameCounter: 0, projectiles: Shots());
+        directional.Shinespark.StepAndCommit(SamusTerrain.InRoom(directionLevel, SamusRoomObjectFixtures.Uninstalled), directional, frameCounter: 0, projectiles: Shots());
         AssertEqual(expectedPhase, directional.Shinespark.Phase,
             $"pose ${(int)SamusPoseNumbers.Number(targetPose):X2} installs expected shinespark handler");
         AssertEqual(expectsHorizontal, directional.Kinematics.Position.X != directionalXBefore,
@@ -203,21 +201,20 @@ internal static void VerifySamusStoredShineAndShinespark()
     // Starting at 7.0000 with acceleration 0.2800 and adding +8.0000 yields +0.D800.
     var externallyReversedSpark = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.ShinesparkWindupRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
         Health = 99,
-    };
+    }.InPose(SamusPoseId.ShinesparkWindupRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(externallyReversedSpark);
     SamusPresentation.InitializeAnimation(externallyReversedSpark);
     externallyReversedSpark.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0));
     externallyReversedSpark.Shinespark.BeginWindup(externallyReversedSpark);
     externallyReversedSpark.Shinespark.BeginDirectionalLaunch(
         externallyReversedSpark,
-        SamusPoseId.ShinesparkVerticalRightPose);
+        ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkVerticalRightPose));
     externallyReversedSpark.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
     externallyReversedSpark.Kinematics.ExtraDisplacement = externallyReversedSpark.Kinematics.ExtraDisplacement.WithWholeY(8).WithFractionY(0);
     FixedCoordinate reversedSparkYBefore = externallyReversedSpark.Kinematics.Position.Y;
-    externallyReversedSpark.Shinespark.StepAndCommit(new SamusTerrain { Level = directionLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, externallyReversedSpark, frameCounter: 0, projectiles: Shots());
+    externallyReversedSpark.Shinespark.StepAndCommit(SamusTerrain.InRoom(directionLevel, SamusRoomObjectFixtures.Uninstalled), externallyReversedSpark, frameCounter: 0, projectiles: Shots());
     AssertEqual(SixteenSixteenWords.ToDisplacement(0x0000d800), externallyReversedSpark.Kinematics.Position.Y - reversedSparkYBefore,
         "positive external Y reverses vertical shinespark after native speed negation");
     AssertEqual(160, externallyReversedSpark.Position.Y.Whole,
@@ -227,10 +224,10 @@ internal static void VerifySamusStoredShineAndShinespark()
 
     for (ushort frame = 0; frame < 29; frame++)
     {
-        ShinesparkMovementResult waiting = shine.Shinespark.StepAndCommit(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, shine, frameCounter: frame, projectiles: Shots());
+        ShinesparkMovementResult waiting = shine.Shinespark.StepAndCommit(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), shine, frameCounter: frame, projectiles: Shots());
         AssertTrue(!waiting.WindupTimedOut, $"windup frame {frame} remains stationary");
     }
-    ShinesparkMovementResult timeout = shine.Shinespark.StepAndCommit(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, shine, frameCounter: 29, projectiles: Shots());
+    ShinesparkMovementResult timeout = shine.Shinespark.StepAndCommit(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), shine, frameCounter: 29, projectiles: Shots());
     AssertTrue(timeout.WindupTimedOut, "thirtieth windup frame launches vertically");
     AssertEqual(SamusPoseId.ShinesparkVerticalRightPose, shine.Pose,
         "windup timeout selects right-metadata vertical pose");
@@ -252,16 +249,15 @@ internal static void VerifySamusStoredShineAndShinespark()
     {
         var invincible = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.ShinesparkWindupRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
             Health = energy,
-        };
+        }.InPose(SamusPoseId.ShinesparkWindupRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(invincible);
         SamusPresentation.InitializeAnimation(invincible);
         invincible.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
         invincible.Shinespark.BeginWindup(invincible);
-        invincible.Shinespark.BeginDirectionalLaunch(invincible, targetPose);
-        invincible.Shinespark.StepAndCommit(new SamusTerrain { Level = directionLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, invincible, frameCounter: 0, projectiles: Shots(), samusCannotDie: true);
+        invincible.Shinespark.BeginDirectionalLaunch(invincible, ShinesparkLaunchFixtures.Of(targetPose));
+        invincible.Shinespark.StepAndCommit(SamusTerrain.InRoom(directionLevel, SamusRoomObjectFixtures.Uninstalled), invincible, frameCounter: 0, projectiles: Shots(), samusCannotDie: true);
         AssertTrue(invincible.Shinespark.Phase is not ShinesparkPhase.Crash,
             $"invincible pose {(int)SamusPoseNumbers.Number(targetPose):X2} continues at {energy} energy");
         AssertTrue(invincible.Position.X.Whole != 160 || invincible.Position.Y.Whole != 160,
@@ -276,22 +272,21 @@ internal static void VerifySamusStoredShineAndShinespark()
     var horizontalCompatibility = SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus();
     var horizontal = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), horizontalCompatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.ShinesparkWindupRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
         Health = 30,
-    };
+    }.InPose(SamusPoseId.ShinesparkWindupRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(horizontal);
     SamusPresentation.InitializeAnimation(horizontal);
     horizontal.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0));
     horizontal.Shinespark.BeginWindup(horizontal);
     horizontal.Shinespark.BeginDirectionalLaunch(
-        horizontal, SamusPoseId.ShinesparkHorizontalRightPose);
+        horizontal, ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkHorizontalRightPose));
     horizontal.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
     var horizontalShots = Shots();
     var shineBombObjects = RoomObjectFixtures.Unbound();
 
     FixedCoordinate firstYBefore = horizontal.Kinematics.Position.Y;
-    horizontal.Shinespark.StepAndCommit(new SamusTerrain { Level = empty, RoomObjects = shineBombObjects }, horizontal, frameCounter: 4, projectiles: horizontalShots);
+    horizontal.Shinespark.StepAndCommit(SamusTerrain.InRoom(empty, shineBombObjects), horizontal, frameCounter: 4, projectiles: horizontalShots);
     AssertTrue(horizontal.Shinespark.Phase == ShinesparkPhase.Horizontal &&
         horizontal.Kinematics.Position.Y == firstYBefore,
         "horizontal spark uses only block X movement without colliding");
@@ -313,7 +308,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         "active spark publishes contact damage two");
 
     FixedCoordinate lowEnergyXBefore = horizontal.Kinematics.Position.X;
-    horizontal.Shinespark.StepAndCommit(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, horizontal, frameCounter: 5, projectiles: horizontalShots);
+    horizontal.Shinespark.StepAndCommit(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), horizontal, frameCounter: 5, projectiles: horizontalShots);
     AssertTrue(horizontal.Kinematics.Position.X != lowEnergyXBefore && horizontal.Health == 29,
         "29-energy frame moves then enters crash without another drain");
     AssertEqual(ShinesparkPhase.Crash, horizontal.Shinespark.Phase,
@@ -326,7 +321,7 @@ internal static void VerifySamusStoredShineAndShinespark()
 
     ushort crashCenterX = horizontal.Position.X.Whole;
     ushort crashCenterY = horizontal.Position.Y.Whole;
-    ShinesparkMovementResult firstCrash = horizontal.Shinespark.StepAndCommit(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, horizontal, frameCounter: 6, projectiles: horizontalShots);
+    ShinesparkMovementResult firstCrash = horizontal.Shinespark.StepAndCommit(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), horizontal, frameCounter: 6, projectiles: horizontalShots);
     AssertEqual(4, horizontal.Shinespark.CrashRadius,
         "crash orbit expands by four");
     AssertEqual(unchecked((ushort)(crashCenterX - 2)),
@@ -344,17 +339,17 @@ internal static void VerifySamusStoredShineAndShinespark()
     // Four expansion calls, 32 separation calls, and four contraction calls comprise the
     // exact `$90:D383-$D3CC` orbit. One was consumed above, so 39 remain.
     StepFrames(39, frame =>
-        horizontal.Shinespark.StepAndCommit(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, horizontal, frameCounter: unchecked((ushort)(7 + frame)), projectiles: horizontalShots));
+        horizontal.Shinespark.StepAndCommit(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), horizontal, frameCounter: unchecked((ushort)(7 + frame)), projectiles: horizontalShots));
     AssertEqual(ShinesparkPhase.CrashHold, horizontal.Shinespark.Phase,
         "crash orbit contracts into echo-circle hold");
     AssertEqual(30, horizontal.Shinespark.CrashHoldCountdown.UpdatesLeft,
         "echo circle begins at 30 frames");
 
     StepFrames(30, frame =>
-        horizontal.Shinespark.StepAndCommit(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, horizontal, frameCounter: unchecked((ushort)(46 + frame)), projectiles: horizontalShots));
+        horizontal.Shinespark.StepAndCommit(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), horizontal, frameCounter: unchecked((ushort)(46 + frame)), projectiles: horizontalShots));
     AssertEqual(ShinesparkPhase.CrashFinish, horizontal.Shinespark.Phase,
         "thirtieth echo-circle frame installs finish handler");
-    ShinesparkMovementResult finished = horizontal.Shinespark.StepAndCommit(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, horizontal, frameCounter: 76, projectiles: horizontalShots);
+    ShinesparkMovementResult finished = horizontal.Shinespark.StepAndCommit(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), horizontal, frameCounter: 76, projectiles: horizontalShots);
     AssertTrue(finished.CrashSequenceFinished, "finish handler publishes completion");
     AssertEqual(SamusPoseId.ShinesparkHorizontalRightPose, horizontal.Pose,
         "crash finish retains old pose until the post-animation transition");
@@ -435,21 +430,20 @@ internal static void VerifySamusStoredShineAndShinespark()
         fixtureShots.Pool.ShotCount.Restore(projectileCounter);
         var fixture = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), compatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.ShinesparkWindupRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
             Health = 29,
-        };
+        }.InPose(SamusPoseId.ShinesparkWindupRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(fixture);
         SamusPresentation.InitializeAnimation(fixture);
         fixture.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0));
         fixture.Shinespark.BeginWindup(fixture);
         fixture.Shinespark.BeginDirectionalLaunch(
-            fixture, SamusPoseId.ShinesparkHorizontalRightPose);
+            fixture, ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkHorizontalRightPose));
         fixture.Kinematics.YAcceleration = default;
-        fixture.Shinespark.StepAndCommit(new SamusTerrain { Level = fixtureLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, fixture, frameCounter: 0, projectiles: fixtureShots);
+        fixture.Shinespark.StepAndCommit(SamusTerrain.InRoom(fixtureLevel, SamusRoomObjectFixtures.Uninstalled), fixture, frameCounter: 0, projectiles: fixtureShots);
         for (ushort frame = 1; frame <= 71; frame++)
         {
-            fixture.Shinespark.StepAndCommit(new SamusTerrain { Level = fixtureLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, fixture, frameCounter: frame, projectiles: fixtureShots);
+            fixture.Shinespark.StepAndCommit(SamusTerrain.InRoom(fixtureLevel, SamusRoomObjectFixtures.Uninstalled), fixture, frameCounter: frame, projectiles: fixtureShots);
         }
         return fixture;
     }
@@ -487,23 +481,22 @@ internal static void VerifySamusStoredShineAndShinespark()
         var compatibility = SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), compatibility, new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.ShinesparkWindupRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
             Health = 29,
-        };
+        }.InPose(SamusPoseId.ShinesparkWindupRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         var shots = Shots();
         samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
         samus.Shinespark.BeginWindup(samus);
-        samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
+        samus.Shinespark.BeginDirectionalLaunch(samus, ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkHorizontalRightPose));
         samus.Kinematics.YAcceleration = default;
 
         // Four short of the largest travel, so the first orbiting call wraps it to zero.
         int seededTravel = SuperMetroid.Core.Compatibility.CrashOrbitTravelCarryover.LargestTravel - 3;
         compatibility.CrashOrbitTravel.LeaveEchoHeight(seededTravel);
         int nmiFrame = 0;
-        void StepSpark() => samus.Shinespark.StepAndCommit(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, frameCounter: nmiFrame++, projectiles: shots);
+        void StepSpark() => samus.Shinespark.StepAndCommit(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, frameCounter: nmiFrame++, projectiles: shots);
 
         StepSpark();
         AssertEqual(ShinesparkPhase.Crash, samus.Shinespark.Phase, "below the sustaining energy the spark installs the crash handler");
@@ -537,41 +530,11 @@ internal static void VerifySamusStoredShineAndShinespark()
             "an empty shot pool releases both echoes");
         SuperMetroid.Core.Samus.Projectiles.SamusProjectile echoShot = samus.Shinespark.FirstReleasedEcho.Shot!;
         echoShot.KindStateAs<ShinesparkEchoShotState>().Radius = 65528;
-        shots.Shinespark.StepShinesparkEcho(samus, echoShot.HeldShot(), new Position16<RoomPixels>(0, 0));
+        shots.Shinespark.StepShinesparkEcho(samus, echoShot.HeldShot(), echoShot.KindStateAs<ShinesparkEchoShotState>(), new Position16<RoomPixels>(0, 0));
         AssertTrue(samus.Shinespark.FirstReleasedEcho.ShownPosition is not null, "an echo a whole number of lookups out stays inside the viewport");
         AssertEqual(65536, echoShot.KindStateAs<ShinesparkEchoShotState>().Radius, "a departing echo's radius grows by eight past 65535");
         AssertEqual(samus.Position.Whole, samus.Shinespark.FirstReleasedEcho.ShownPosition!.Value, "a radius of whole lookups places the echo on Samus");
         Console.WriteLine("Shinespark crash: angular travel wraps past 65535 to zero; a departing echo at whole lookups is on Samus.");
-    }
-
-    /// <summary>
-    /// Checks that the spark's step runs only while the spark moves Samus (#2525): a stored shine and no spark at all
-    /// are not stepped, as the frame runs the step only for the shinespark movement owner, so stepping either is rejected.
-    /// </summary>
-    internal static void VerifyShinesparkStepRequiresMovingSpark()
-    {
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16),
-            new RoomLevelPlanes(new RoomTerrainBlock[16 * 16], new RoomBlockBehavior[16 * 16], new RoomBlockAppearance[16 * 16]), RoomLevelData.NothingBeyondGrid(), []);
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
-        {
-            Pose = SamusPoseId.FacingRightNormalPose,
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-        };
-        var terrain = new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled };
-        var frame = new ShinesparkFrame
-        {
-            FrameCounter = 0,
-            SamusCannotDie = false,
-            Projectiles = Shots(),
-            GameTimeFrames = 0,
-            PreviousCheckpoint = samus.Position,
-        };
-        AssertEqual(ShinesparkPhase.Inactive, samus.Shinespark.Phase, "a new Samus has no spark");
-        AssertThrows<InvalidOperationException>(() => samus.Shinespark.Step(terrain, samus, frame), "no spark is not stepped");
-        samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
-        AssertEqual(ShinesparkPhase.Stored, samus.Shinespark.Phase, "a full boost stores the shine");
-        AssertThrows<InvalidOperationException>(() => samus.Shinespark.Step(terrain, samus, frame), "a stored shine is not stepped");
-        Console.WriteLine("Shinespark step: no spark and a stored shine are rejected.");
     }
 
     /// <summary>

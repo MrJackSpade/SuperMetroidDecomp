@@ -12,7 +12,7 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </summary>
 internal sealed class NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEvent>(
     NativeProgramEntry<TSegment>[] entries,
-    AnimationSegments<TSegment, TFrame, TEvent> segments,
+    Func<TSegment, IReadOnlyList<IAnimationBeat<TFrame, TEvent>>> segments,
     IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
     Func<TFrame, ushort> presentationKey,
     NativeEnemyProjectileCueRules<TEvent> rules,

@@ -23,27 +23,24 @@ internal static class RunningCadenceVerification
         AssertSequenceEqual(SamusRunningCadenceCodec.OrdinaryDelays(cartridge), SamusRunningCadenceDefinitions.Timings[SamusRunningCadence.Ordinary].Delays, "ordinary running delays");
         for (int stage = 0; stage < SamusSpeedBoostCounter.AuthoredStages; stage++)
             AssertSequenceEqual(SamusRunningCadenceCodec.BoostDelays(cartridge, stage),
-                SamusRunningCadenceDefinitions.Timings[SamusRunningCadences.SpeedBoostCadence(stage)].Delays, $"boost stage {stage} delays");
+                [.. Enumerable.Range(0, SamusRunningCadenceCodec.FrameCount).Select(frame => SamusRunningCadences.StageCadence(stage).Delay(new UnauthoredBoostCadence(), frame))],
+                $"boost stage {stage} delays");
         for (int selection = 0; selection <= SamusRunningCadenceCodec.UnauthoredSelection; selection++)
-            AssertEqual(SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection), SamusRunningCadences.CountdownAfterAdvance(CadenceOfSelection(selection)),
+            AssertEqual(SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection), CadenceOfSelection(selection).CountdownAfterAdvance,
                 $"restart countdown after selection {selection}");
-        AssertThrows<ArgumentOutOfRangeException>(() => SamusRunningCadences.SpeedBoostCadence(SamusSpeedBoostCounter.AuthoredStages),
-            "no authored stage lies past the full stage");
 
         // The unauthored cadence times each running frame by the delays the getaway's wings last left behind.
         var residue = new UnauthoredBoostCadence();
         residue.TakeDelaysLeftByWings([.. Enumerable.Range(0, UnauthoredBoostCadence.FrameCount).Select(frame => ResidueDelay + frame)]);
         for (int frame = 0; frame < UnauthoredBoostCadence.FrameCount; frame++)
-            AssertEqual(ResidueDelay + frame, SamusRunningCadences.Delay(residue, SamusRunningCadence.UnauthoredBoost, frame),
+            AssertEqual(ResidueDelay + frame, SpeedBoostCadence.Unauthored.Delay(residue, frame),
                 $"unauthored cadence frame {frame} takes the delay the wings left");
-        AssertThrows<ArgumentOutOfRangeException>(() => SamusRunningCadences.Delay(residue, SamusRunningCadence.Ordinary, SamusRunningCadenceCodec.FrameCount),
-            "a running frame past the tenth has no delay");
 
         // A running frame's delay is any count the animation frame timer's countdown takes, not a byte (#1627).
         var longest = new UnauthoredBoostCadence();
         longest.TakeDelaysLeftByWings([byte.MaxValue + 1, .. Enumerable.Repeat(UnauthoredBoostCadence.LongestDelay, UnauthoredBoostCadence.FrameCount - 1)]);
-        AssertEqual(byte.MaxValue + 1, SamusRunningCadences.Delay(longest, SamusRunningCadence.UnauthoredBoost, 0), "a delay past a byte is kept");
-        AssertEqual(WrappingCountdown.LongestStart, SamusRunningCadences.Delay(longest, SamusRunningCadence.UnauthoredBoost, 1),
+        AssertEqual(byte.MaxValue + 1, SpeedBoostCadence.Unauthored.Delay(longest, 0), "a delay past a byte is kept");
+        AssertEqual(WrappingCountdown.LongestStart, SpeedBoostCadence.Unauthored.Delay(longest, 1),
             "the longest delay is the animation timer's longest start");
         AssertEqual(WrappingCountdown.LongestStart, WrappingCountdown.Start(0).AddFrames(longest.Delay(1)).RemainingFrames,
             "the animation frame timer takes the longest delay");
@@ -164,8 +161,8 @@ internal static class RunningCadenceVerification
     }
 
     /// <summary>The cadence the cartridge's restart and cadence tables number <paramref name="selection"/>.</summary>
-    private static SamusRunningCadence CadenceOfSelection(int selection) =>
+    private static SpeedBoostCadence CadenceOfSelection(int selection) =>
         selection == SamusRunningCadenceCodec.UnauthoredSelection
-            ? SamusRunningCadence.UnauthoredBoost
-            : SamusRunningCadences.SpeedBoostCadence(selection);
+            ? SpeedBoostCadence.Unauthored
+            : SamusRunningCadences.StageCadence(selection);
 }

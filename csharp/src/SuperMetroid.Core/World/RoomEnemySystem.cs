@@ -105,8 +105,11 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// </summary>
     private RoomEnemySpecies SpeciesComposition { get; }
 
-    /// <summary>The species registry that binds each installed occupant's entity.</summary>
-    internal EnemySpeciesRegistry Species => SpeciesComposition.Registry;
+    /// <summary>
+    /// The species registry that binds each installed occupant's entity: made before the places, which reach it, and
+    /// given the factories of the species composed over them.
+    /// </summary>
+    private EnemySpeciesRegistry Species { get; } = new();
 
     /// <summary>The loaded room's enemy definitions, services and artwork, shared with the composed owners.</summary>
     private EnemyRoomBinding Room { get; }
@@ -299,7 +302,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         FrameContext = new EnemyFrameContext(session);
         Presentation = new EnemyPresentation(session, Ensure.NotNull(dependencies.Looks), compatibility.FadeStepCount);
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
-        Places = new EnemyPlaces();
+        Places = new EnemyPlaces(Species);
         Audio = new EnemyAudioQueue(session.AudioRequests);
         ProcessingWindow = new EnemyProcessingWindow(FrameContext, Places);
         Lifecycle = new EnemyLifecycle(Room, Places, ProcessingWindow);
@@ -325,9 +328,10 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
             UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence, YardKickDistance = compatibility.YardKickDistance,
             FallingSparkFloorProbe = compatibility.FallingSparkFloorProbe,
         });
+        EnemyCollision collision = Collision;
+        Species.AddRoomSpecies(new EnemyCommonParticipation(() => collision), SpeciesComposition.Factories, SpeciesComposition.WithoutScenery);
         AnimationPlayer = new EnemyAnimationPlayer(Presentation);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { LateDraws = SpeciesComposition.LateDraws, FrameContext = FrameContext, AnimationPlayer = AnimationPlayer, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
-        Places.InstallPlaces(Species);
     }
 
     /// <summary>

@@ -73,7 +73,7 @@ internal static class RidleyPlayerOpeningVerification
         {
             var expected = Read(frame);
             samus.Position = samus.Position.WithWhole(new(W(expected, 0xaf6), W(expected, 0xafa)));
-            samus.Pose = SamusPoseNumbering.FromNumber(W(expected, 0xa1c)); SamusPoseMetadata.RefreshCollisionRadii(samus);
+            samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(W(expected, 0xa1c))); SamusPoseMetadata.RefreshCollisionRadii(samus);
             random = W(expected, 0x5e5);
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(W(expected, 0x911), W(expected, 0x915)), TimeIsFrozen = false, Samus = samus, ControllerInput = GameplayActionWordCodec.FromJoypadWord(W(expected, 0x8b), "native Ridley opening held input"), SamusProjectiles = runtime.Projectiles, SamusBombs = runtime.BombProjectiles });
             // The AI function is an identity; the native table's routine word for it lines up with the recorded word.

@@ -10,5 +10,5 @@ public static class GameOverPresentationNames
     /// <returns>The corresponding <c>Baby.</c> sprite dictionary key.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The frame is unsupported.</exception>
     public static string BabyFrameName(GameOverBabyFrame frame) =>
-        Ensure.Listed(GameOverPresentationDefinitions.BabyFrameNames, frame);
+        GameOverPresentationDefinitions.BabyFrameNames[frame];
 }

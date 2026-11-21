@@ -15,24 +15,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    {
+        [EnemyDefinitionId.MotherBrainBody] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork)),
+        [EnemyDefinitionId.MotherBrainHead] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainHeadEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.MotherBrainTubes] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainTubesEntity(this, occupant, place, common)),
+    };
 
-    /// <summary>Mother Brain's body, her head, or a tube of her fake death (#2146).</summary>
-    /// <exception cref="KeyNotFoundException">The place holds no Mother Brain definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
-
-    /// <summary>
-    /// The factory of each part the species creates, by the definition that places it: the species serves these
-    /// definitions, and each builds its own part from the species it is given.
-    /// </summary>
-    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<MotherBrainBehavior>> PartFactories =
-        new()
-        {
-            [EnemyDefinitionId.MotherBrainBody] = static (species, occupant, place, common) => EnemyOccupant.Of(new MotherBrainBodyEntity(species, occupant, place, common, species._bossArtwork)),
-            [EnemyDefinitionId.MotherBrainHead] = static (species, occupant, place, common) => EnemyOccupant.Of(new MotherBrainHeadEntity(species, occupant, place, common)),
-            [EnemyDefinitionId.MotherBrainTubes] = static (species, occupant, place, common) => EnemyOccupant.Of(new MotherBrainTubesEntity(species, occupant, place, common)),
-        };
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Draws encounter artwork and applies installed colours.</summary>
@@ -69,8 +58,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
 
-
-
     /// <summary>Binds the encounter's room services while keeping one state owner for body and head.</summary>
     internal MotherBrainBehavior(MotherBrainBehaviorDependencies dependencies)
     {
@@ -89,8 +76,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         Attacks = new MotherBrainAttacks(_room);
         Combat = new MotherBrainCombat(_room, dependencies.Projectiles, dependencies.Audio, dependencies.Collision);
     }
-
-
 
     /// <summary>Runs her room flash, her body's stage and her contact with Samus.</summary>
     internal void RunMotherBrainBodyMain(
@@ -119,98 +104,83 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         SamusBombProjectileSystem samusBombs)
     {
-        switch (state.Stage)
+        if (state.RainbowBeamSequence is { } lateFight)
         {
-            case MotherBrainBodyStage.Glass:
-                Body.RunMotherBrainFirstPhase(state, samus);
-                return;
-            case MotherBrainBodyStage.FakeDeathDescent:
-                RunMotherBrainFakeDeath(state, samus);
-                return;
-            case MotherBrainBodyStage.FakeDeathAscent:
-                RunMotherBrainAscent(state);
-                return;
-            case MotherBrainBodyStage.Phase2Fight:
-                RunMotherBrainPhase2Fight(state, samus);
-                return;
-            // The stages from the rainbow beam on are her late fight's, which runs them from the update it begins (#2560).
-            case MotherBrainBodyStage.RainbowBeam:
-            case MotherBrainBodyStage.FinishingSamusOff:
-            case MotherBrainBodyStage.DrainedByBaby:
-            case MotherBrainBodyStage.Reviving:
-            case MotherBrainBodyStage.Phase3Fight:
-            case MotherBrainBodyStage.Dying:
-                RainbowAndDeath.RunLiveMotherBrainRainbowBeam(state.LateFight, samus, state.Body.FrameCounter, samusBombs);
-                return;
-            default:
-                throw new InvalidDataException($"Mother Brain's body has no behaviour for its {state.Stage} stage.");
+            RainbowAndDeath.RunLiveMotherBrainRainbowBeam(lateFight, samus, state.Body.FrameCounter, samusBombs);
+            return;
+        }
+        // Before her late fight her body runs one of its own stages.
+        if (state.Stage == MotherBrainBodyStage.Glass)
+            Body.RunMotherBrainFirstPhase(state, samus);
+        else if (state.Stage == MotherBrainBodyStage.FakeDeathDescent)
+            RunMotherBrainFakeDeath(state, samus);
+        else if (state.Stage == MotherBrainBodyStage.FakeDeathAscent)
+            RunMotherBrainAscent(state);
+        else
+        {
+            // The remaining member, MotherBrainBodyStage.Phase2Fight.
+            RunMotherBrainPhase2Fight(state, samus);
         }
     }
+
+    /// <summary>What <see cref="RunMotherBrainFakeDeath"/> does for each <see cref="MotherBrainDescentPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<MotherBrainDescentPhase, Action<MotherBrainEnemyState, SamusState>> RunMotherBrainFakeDeathForMotherBrainDescentPhase => field ??= new(new Dictionary<MotherBrainDescentPhase, Action<MotherBrainEnemyState, SamusState>>
+    {
+        [MotherBrainDescentPhase.InitialPause] = (state, samus) =>
+        {
+            // The fake death's start begins the pause before the lock, whose first update is this same update.
+            state.DescentPhase = MotherBrainDescentPhase.PauseBeforeLock;
+            state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeLockUpdates);
+            RunMotherBrainPauseBeforeLock(state, samus);
+        },
+        [MotherBrainDescentPhase.PauseBeforeLock] = (state, samus) => RunMotherBrainPauseBeforeLock(state, samus),
+        [MotherBrainDescentPhase.PauseBeforeMusic] = (state, samus) =>
+        {
+            if (!state.PhaseTimer.StepRunsOut())
+                return;
+            _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
+            _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.MotherBrain), MusicQueueDelay.Shortest);
+            state.DescentPhase = MotherBrainDescentPhase.PauseBeforeUnlock;
+            state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeUnlockUpdates);
+            RunMotherBrainFakeDeath(state, samus);
+        },
+        [MotherBrainDescentPhase.PauseBeforeUnlock] = (state, samus) =>
+        {
+            if (!state.PhaseTimer.StepRunsOut())
+                return;
+            // Samus's control returns to normal.
+            samus.Control.Unlock();
+            state.DescentPhase = MotherBrainDescentPhase.PauseBeforeFlash;
+            state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeFlashUpdates);
+            RunMotherBrainFakeDeath(state, samus);
+        },
+        [MotherBrainDescentPhase.PauseBeforeFlash] = (state, samus) =>
+        {
+            if (!state.PhaseTimer.StepRunsOut())
+                return;
+
+            // The fake-death flash starts the looping room flash, drains the room's acid,
+            // arms the head's independent tube sequence, and clears both fade timers.
+            state.RoomFlash = MotherBrainRoomFlashAnimations.Starting();
+            _passEvents.Publish(new MotherBrainAcidChange(MotherBrainRoomFxDefinitions.AcidDrains));
+            state.TubeCollapse = MotherBrainTubeCollapseProgress.Start;
+            state.TubeCollapseTimer.LastFor(1);
+            state.DescentPhase = MotherBrainDescentPhase.FadeToGray;
+            state.FakeDeathGreying.StartAfter(1);
+            Access.RequestMotherBrainObject(MotherBrainTubeCollapseDefinitions.CeilingBlock.Block, MotherBrainTubeCollapseDefinitions.CeilingBlock.RoomObject);
+        },
+        [MotherBrainDescentPhase.FadeToGray] = (state, samus) => FakeDeath.RunMotherBrainFadeToGray(state),
+        [MotherBrainDescentPhase.CollapseTubes] = (state, samus) =>
+        {
+            FakeDeath.RunMotherBrainTubeCollapse(state);
+            FakeDeath.RunMotherBrainFakeDeathExplosion(state);
+        },
+    });
 
     /// <summary>Runs the phase of her fake death's descent her body is in, after her first phase ends.</summary>
     private void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState samus)
     {
-        switch (state.DescentPhase)
-        {
-            case MotherBrainDescentPhase.InitialPause:
-                // The fake death's start begins the pause before the lock, whose first update is this same update.
-                state.DescentPhase = MotherBrainDescentPhase.PauseBeforeLock;
-                state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeLockUpdates);
-                RunMotherBrainPauseBeforeLock(state, samus);
-                return;
-
-            case MotherBrainDescentPhase.PauseBeforeLock:
-                RunMotherBrainPauseBeforeLock(state, samus);
-                return;
-
-            case MotherBrainDescentPhase.PauseBeforeMusic:
-                if (!state.PhaseTimer.StepRunsOut())
-                    return;
-                _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
-                _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.MotherBrain), MusicQueueDelay.Shortest);
-                state.DescentPhase = MotherBrainDescentPhase.PauseBeforeUnlock;
-                state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeUnlockUpdates);
-                RunMotherBrainFakeDeath(state, samus);
-                return;
-
-            case MotherBrainDescentPhase.PauseBeforeUnlock:
-                if (!state.PhaseTimer.StepRunsOut())
-                    return;
-                // Samus's control returns to normal.
-                samus.Control.Unlock();
-                state.DescentPhase = MotherBrainDescentPhase.PauseBeforeFlash;
-                state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeFlashUpdates);
-                RunMotherBrainFakeDeath(state, samus);
-                return;
-
-            case MotherBrainDescentPhase.PauseBeforeFlash:
-                if (!state.PhaseTimer.StepRunsOut())
-                    return;
-
-                // The fake-death flash starts the looping room flash, drains the room's acid,
-                // arms the head's independent tube sequence, and clears both fade timers.
-                state.RoomFlash = MotherBrainRoomFlashAnimations.Starting();
-                _passEvents.Publish(new MotherBrainAcidChange(MotherBrainRoomFxDefinitions.AcidDrains));
-                state.TubeCollapse = MotherBrainTubeCollapseProgress.Start;
-                state.TubeCollapseTimer.LastFor(1);
-                state.DescentPhase = MotherBrainDescentPhase.FadeToGray;
-                state.FakeDeathGreying.StartAfter(1);
-                Access.RequestMotherBrainObject(MotherBrainTubeCollapseDefinitions.CeilingBlock.Block, MotherBrainTubeCollapseDefinitions.CeilingBlock.RoomObject);
-                return;
-
-            case MotherBrainDescentPhase.FadeToGray:
-                FakeDeath.RunMotherBrainFadeToGray(state);
-                return;
-
-            case MotherBrainDescentPhase.CollapseTubes:
-                FakeDeath.RunMotherBrainTubeCollapse(state);
-                FakeDeath.RunMotherBrainFakeDeathExplosion(state);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Mother Brain's fake death's descent has no behaviour for phase {state.DescentPhase}.");
-        }
+        RunMotherBrainFakeDeathForMotherBrainDescentPhase[state.DescentPhase](state, samus);
     }
 
     /// <summary>Waits through the fake-death pause before control is locked for the next phase.</summary>
@@ -244,49 +214,51 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Colours.ShowRoomFlash(flash.Showing);
     }
 
+    /// <summary>What <see cref="RunMotherBrainAscent"/> does for each <see cref="MotherBrainAscentPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<MotherBrainAscentPhase, Action<MotherBrainEnemyState>> RunMotherBrainAscentForMotherBrainAscentPhase => field ??= new(new Dictionary<MotherBrainAscentPhase, Action<MotherBrainEnemyState>>
+    {
+        [MotherBrainAscentPhase.DrawMural] = state => FakeDeath.DrawNextMuralRows(state),
+        [MotherBrainAscentPhase.SetupPhase2Graphics] = state => Ascent.SetupMotherBrainPhaseTwoGraphics(state),
+        [MotherBrainAscentPhase.SetupPhase2Brain] = state => MotherBrainAscent.SetupMotherBrainPhaseTwoBrain(state),
+        [MotherBrainAscentPhase.PauseForSuspense] = state => MotherBrainAscent.PauseBeforeMotherBrainRises(state),
+        [MotherBrainAscentPhase.PrepareForRising] = state => MotherBrainAscent.PrepareMotherBrainForRising(state),
+        [MotherBrainAscentPhase.WaitBeforePause] = state => MotherBrainAscent.WaitBeforeMotherBrainAscentPause(state),
+        [MotherBrainAscentPhase.ContinuePausing] = state => MotherBrainAscent.ContinueMotherBrainAscentPause(state),
+        [MotherBrainAscentPhase.StartMusicAndEarthquake] = state => Ascent.StartMotherBrainAscent(state),
+        [MotherBrainAscentPhase.RaiseMotherBrain] = state => Ascent.RaiseMotherBrain(state),
+        [MotherBrainAscentPhase.WaitUntilUncrouched] = state => MotherBrainAscent.WaitForMotherBrainToFinishUncrouching(state),
+        [MotherBrainAscentPhase.TransitionFromGray] = state => MotherBrainFakeDeath.TransitionMotherBrainFromGray(state),
+    });
+
     /// <summary>Runs the phase of her rise out of the fake death her body is in, from the mural to her colours' return.</summary>
     private void RunMotherBrainAscent(MotherBrainEnemyState state)
     {
-        switch (state.AscentPhase)
-        {
-            case MotherBrainAscentPhase.DrawMural:
-                FakeDeath.DrawNextMuralRows(state);
-                return;
-            case MotherBrainAscentPhase.SetupPhase2Graphics:
-                Ascent.SetupMotherBrainPhaseTwoGraphics(state);
-                return;
-            case MotherBrainAscentPhase.SetupPhase2Brain:
-                MotherBrainAscent.SetupMotherBrainPhaseTwoBrain(state);
-                return;
-            case MotherBrainAscentPhase.PauseForSuspense:
-                MotherBrainAscent.PauseBeforeMotherBrainRises(state);
-                return;
-            case MotherBrainAscentPhase.PrepareForRising:
-                MotherBrainAscent.PrepareMotherBrainForRising(state);
-                return;
-            case MotherBrainAscentPhase.WaitBeforePause:
-                MotherBrainAscent.WaitBeforeMotherBrainAscentPause(state);
-                return;
-            case MotherBrainAscentPhase.ContinuePausing:
-                MotherBrainAscent.ContinueMotherBrainAscentPause(state);
-                return;
-            case MotherBrainAscentPhase.StartMusicAndEarthquake:
-                Ascent.StartMotherBrainAscent(state);
-                return;
-            case MotherBrainAscentPhase.RaiseMotherBrain:
-                Ascent.RaiseMotherBrain(state);
-                return;
-            case MotherBrainAscentPhase.WaitUntilUncrouched:
-                MotherBrainAscent.WaitForMotherBrainToFinishUncrouching(state);
-                return;
-            case MotherBrainAscentPhase.TransitionFromGray:
-                MotherBrainFakeDeath.TransitionMotherBrainFromGray(state);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Mother Brain's rise has no behaviour for phase {state.AscentPhase}.");
-        }
+        RunMotherBrainAscentForMotherBrainAscentPhase[state.AscentPhase](state);
     }
+
+    /// <summary>What <see cref="RunMotherBrainPhase2Fight"/> does for each <see cref="MotherBrainPhase2FightPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<MotherBrainPhase2FightPhase, Action<MotherBrainEnemyState, SamusState>> RunMotherBrainPhase2FightForMotherBrainPhase2FightPhase => field ??= new(new Dictionary<MotherBrainPhase2FightPhase, Action<MotherBrainEnemyState, SamusState>>
+    {
+        [MotherBrainPhase2FightPhase.StretchingShakeHead] = (state, samus) => MotherBrainAscent.ShakeMotherBrainHeadMenacingly(state),
+        [MotherBrainPhase2FightPhase.StretchingBringHeadUp] = (state, samus) => MotherBrainAscent.BringMotherBrainHeadBackUp(state),
+        [MotherBrainPhase2FightPhase.StretchingFinish] = (state, samus) => MotherBrainAscent.FinishMotherBrainStretching(state),
+        [MotherBrainPhase2FightPhase.Thinking] = (state, samus) => Attacks.RunMotherBrainSecondPhaseThinking(state),
+        [MotherBrainPhase2FightPhase.TryAttack] = (state, samus) => Attacks.RunMotherBrainSecondPhaseTryAttack(state, samus),
+        [MotherBrainPhase2FightPhase.BombDecideWalking] = (state, samus) => Attacks.DecideMotherBrainBombWalking(state),
+        [MotherBrainPhase2FightPhase.BombWalkingBackwards] = (state, samus) => Attacks.ContinueMotherBrainBombWalk(state),
+        [MotherBrainPhase2FightPhase.BombCrouch] = (state, samus) => MotherBrainAttacks.CrouchMotherBrainForBomb(state),
+        [MotherBrainPhase2FightPhase.BombFired] = (state, samus) => MotherBrainAttacks.WaitAfterMotherBrainBomb(state),
+        [MotherBrainPhase2FightPhase.BombStandUp] = (state, samus) => MotherBrainAttacks.StandMotherBrainAfterBomb(state),
+        [MotherBrainPhase2FightPhase.LaserPositionHeadQuickly] = (state, samus) =>
+        {
+            MotherBrainAttacks.PositionMotherBrainHeadQuicklyForLaser(
+                state,
+                samus);
+        },
+        [MotherBrainPhase2FightPhase.LaserPositionHeadSlowlyAndFire] = (state, samus) => MotherBrainAttacks.PositionMotherBrainHeadSlowlyAndFireLaser(state),
+        [MotherBrainPhase2FightPhase.LaserFinishAttack] = (state, samus) => Attacks.FinishMotherBrainLaserAttack(state),
+        [MotherBrainPhase2FightPhase.HandBeam] = (state, samus) => MotherBrainAttacks.RunMotherBrainHandBeamAttack(state),
+    });
 
     /// <summary>
     /// Runs the phase of her second phase's fight her body is in, from her stretch to her attacks, until her health first
@@ -294,55 +266,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void RunMotherBrainPhase2Fight(MotherBrainEnemyState state, SamusState samus)
     {
-        switch (state.Phase2FightPhase)
-        {
-            case MotherBrainPhase2FightPhase.StretchingShakeHead:
-                MotherBrainAscent.ShakeMotherBrainHeadMenacingly(state);
-                return;
-            case MotherBrainPhase2FightPhase.StretchingBringHeadUp:
-                MotherBrainAscent.BringMotherBrainHeadBackUp(state);
-                return;
-            case MotherBrainPhase2FightPhase.StretchingFinish:
-                MotherBrainAscent.FinishMotherBrainStretching(state);
-                return;
-            case MotherBrainPhase2FightPhase.Thinking:
-                Attacks.RunMotherBrainSecondPhaseThinking(state);
-                return;
-            case MotherBrainPhase2FightPhase.TryAttack:
-                Attacks.RunMotherBrainSecondPhaseTryAttack(state, samus);
-                return;
-            case MotherBrainPhase2FightPhase.BombDecideWalking:
-                Attacks.DecideMotherBrainBombWalking(state);
-                return;
-            case MotherBrainPhase2FightPhase.BombWalkingBackwards:
-                Attacks.ContinueMotherBrainBombWalk(state);
-                return;
-            case MotherBrainPhase2FightPhase.BombCrouch:
-                MotherBrainAttacks.CrouchMotherBrainForBomb(state);
-                return;
-            case MotherBrainPhase2FightPhase.BombFired:
-                MotherBrainAttacks.WaitAfterMotherBrainBomb(state);
-                return;
-            case MotherBrainPhase2FightPhase.BombStandUp:
-                MotherBrainAttacks.StandMotherBrainAfterBomb(state);
-                return;
-            case MotherBrainPhase2FightPhase.LaserPositionHeadQuickly:
-                MotherBrainAttacks.PositionMotherBrainHeadQuicklyForLaser(
-                    state,
-                    samus);
-                return;
-            case MotherBrainPhase2FightPhase.LaserPositionHeadSlowlyAndFire:
-                MotherBrainAttacks.PositionMotherBrainHeadSlowlyAndFireLaser(state);
-                return;
-            case MotherBrainPhase2FightPhase.LaserFinishAttack:
-                Attacks.FinishMotherBrainLaserAttack(state);
-                return;
-            case MotherBrainPhase2FightPhase.HandBeam:
-                MotherBrainAttacks.RunMotherBrainHandBeamAttack(state);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Mother Brain's second-phase fight has no behaviour for phase {state.Phase2FightPhase}.");
-        }
+        RunMotherBrainPhase2FightForMotherBrainPhase2FightPhase[state.Phase2FightPhase](state, samus);
     }
 }

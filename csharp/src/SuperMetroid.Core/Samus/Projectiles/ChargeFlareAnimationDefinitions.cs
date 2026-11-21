@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Animation;
-using C = SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponent;
-using P = SuperMetroid.Core.Samus.Projectiles.ChargeFlarePicture;
-using S = SuperMetroid.Core.Samus.Projectiles.ChargeFlareSegment;
+using M = SuperMetroid.Core.Samus.Projectiles.MainFlareSegment;
+using P = SuperMetroid.Core.Samus.Projectiles.MainFlarePicture;
+using R = SuperMetroid.Core.Samus.Projectiles.SparkSegment;
+using S = SuperMetroid.Core.Samus.Projectiles.SparkPicture;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -41,31 +42,39 @@ internal static class ChargeFlareAnimationDefinitions
     /// <summary>The times one round of the main flare's loop alternates the white ball and the starburst.</summary>
     internal const int StarburstPlays = 7;
 
-    /// <summary>Every run's pictures, each with the updates it shows for.</summary>
-    internal static AnimationSegments<S, ChargeFlarePicture, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<S, AnimationBeat<ChargeFlarePicture, NoAnimationCue>[]>
+    /// <summary>The main flare's runs of pictures, each with the updates it shows for.</summary>
+    internal static AnimationSegments<M, MainFlarePicture, NoAnimationCue> MainFlareSegments { get; } = new(
+        new Dictionary<M, AnimationBeat<MainFlarePicture, NoAnimationCue>[]>
     {
-        [S.EmberAndGlow] = [Show(P.Ember, 4), Show(P.Glow, 4)],
-        [S.WhiteBallAndGlow] = [Show(P.WhiteBall, 4), Show(P.Glow, 4)],
-        [S.WhiteBallAndStarburst] = [Show(P.WhiteBall, 4), Show(P.Starburst, 4)],
-        [S.SlowSparks] = [Show(P.SparksWidest, 6), Show(P.SparksWider, 5), Show(P.SparksWide, 4), Show(P.SparksNarrow, 4), Show(P.SparksNarrower, 4), Show(P.SparksNarrowest, 4)],
-        [S.FastSparks] = [Show(P.SparksWidest, 5), Show(P.SparksWider, 4), Show(P.SparksWide, 3), Show(P.SparksNarrow, 3), Show(P.SparksNarrower, 3), Show(P.SparksNarrowest, 3)],
+        [M.EmberAndGlow] = [Show(P.Ember, 4), Show(P.Glow, 4)],
+        [M.WhiteBallAndGlow] = [Show(P.WhiteBall, 4), Show(P.Glow, 4)],
+        [M.WhiteBallAndStarburst] = [Show(P.WhiteBall, 4), Show(P.Starburst, 4)],
     });
 
-    /// <summary>
-    /// Each component's animation, its phases read from its runs (#2387): the main flare's opening once and then its loop
-    /// repeated, each spark ring's cycle repeated.
-    /// </summary>
-    internal static IReadOnlyDictionary<C, Animation<S>> Animations { get; } = new Dictionary<C, Animation<S>>
+    /// <summary>The spark rings' runs of pictures, each with the updates it shows for.</summary>
+    internal static AnimationSegments<R, SparkPicture, NoAnimationCue> SparkSegments { get; } = new(
+        new Dictionary<R, AnimationBeat<SparkPicture, NoAnimationCue>[]>
     {
-        [C.MainFlare] = Animation<S>.LeadingInto(
-            [Segments.Repeated(S.EmberAndGlow, EmberGlowPlays), Segments.Repeated(S.WhiteBallAndGlow, EmberGlowPlays)],
-            [Segments.Repeated(S.WhiteBallAndStarburst, StarburstPlays)]),
-        [C.SlowSparks] = Animation<S>.Looping([Segments.Whole(S.SlowSparks)]),
-        [C.FastSparks] = Animation<S>.Looping([Segments.Whole(S.FastSparks)]),
-    };
+        [R.SlowSparks] = [Show(S.Widest, 6), Show(S.Wider, 5), Show(S.Wide, 4), Show(S.Narrow, 4), Show(S.Narrower, 4), Show(S.Narrowest, 4)],
+        [R.FastSparks] = [Show(S.Widest, 5), Show(S.Wider, 4), Show(S.Wide, 3), Show(S.Narrow, 3), Show(S.Narrower, 3), Show(S.Narrowest, 3)],
+    });
+
+    /// <summary>The main flare's animation, its phases read from its runs (#2387): its opening once and then its loop repeated.</summary>
+    internal static LoopingAnimation<M> MainFlareAnimation { get; } = LoopingAnimation<M>.LeadingInto(
+        [MainFlareSegments.Repeated(M.EmberAndGlow, EmberGlowPlays), MainFlareSegments.Repeated(M.WhiteBallAndGlow, EmberGlowPlays)],
+        [MainFlareSegments.Repeated(M.WhiteBallAndStarburst, StarburstPlays)]);
+
+    /// <summary>The slow spark ring's animation, its cycle repeated.</summary>
+    internal static LoopingAnimation<R> SlowSparksAnimation { get; } = LoopingAnimation<R>.Looping([SparkSegments.Whole(R.SlowSparks)]);
+
+    /// <summary>The fast spark ring's animation, its cycle repeated.</summary>
+    internal static LoopingAnimation<R> FastSparksAnimation { get; } = LoopingAnimation<R>.Looping([SparkSegments.Whole(R.FastSparks)]);
 
     /// <summary>Shows <paramref name="picture"/> for <paramref name="updates"/> updates.</summary>
-    private static AnimationBeat<ChargeFlarePicture, NoAnimationCue> Show(ChargeFlarePicture picture, int updates) =>
-        new AnimationBeat<ChargeFlarePicture, NoAnimationCue>.Frame(picture, updates);
+    private static AnimationBeat<MainFlarePicture, NoAnimationCue> Show(MainFlarePicture picture, int updates) =>
+        new AnimationBeat<MainFlarePicture, NoAnimationCue>.Frame(picture, updates);
+
+    /// <summary>Shows <paramref name="picture"/> for <paramref name="updates"/> updates.</summary>
+    private static AnimationBeat<SparkPicture, NoAnimationCue> Show(SparkPicture picture, int updates) =>
+        new AnimationBeat<SparkPicture, NoAnimationCue>.Frame(picture, updates);
 }

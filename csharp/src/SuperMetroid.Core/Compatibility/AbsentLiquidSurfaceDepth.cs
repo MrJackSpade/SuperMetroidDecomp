@@ -10,8 +10,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Consulted whenever the liquid's rise waits for its speed to point from its surface toward its target, when a moving
-/// liquid with no surface takes its step, and during the room effect's per-line liquid motion before the update's random
-/// draw. Evidence: the rise routines compare the room effect's base and target words without testing their sign, as
+/// liquid with no surface takes its step, during the room effect's per-line liquid motion before the update's random
+/// draw, and where Crocomire's acid smoke rises from the room's lava/acid line (#2553), which a room whose liquid is not
+/// lava or acid, or lava or acid with no surface, leaves at the line the room load stores. Evidence: the rise routines compare the room effect's base and target words without testing their sign, as
 /// unsigned words, and move the base word by the speed, wrapping as a word; a room effect record that names no surface or
 /// target stores the word 65535, the largest word.
 /// </remarks>

@@ -25,7 +25,7 @@ internal static class FileSelectSoundVerification
         for (int frame = 0; frame < 180; frame++)
         {
             // Accept on the first update the native main menu reads input.
-            bool accept = !accepted && menu.Phase == FileSelectPhase.Main;
+            bool accept = !accepted && menu.Phase is FileSelectPhase.Main;
             menu.Step(accept ? ControllerButton.A : 0);
             var commands = audio.AdvanceFrame(renderer.Acknowledgements);
             writes += commands.Count(command => command == new AudioRequest.RequestSound(SamusSound.FileSelected));

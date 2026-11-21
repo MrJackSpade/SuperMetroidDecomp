@@ -104,8 +104,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         AssertTrue(!motherBrain.IsVisible,
             "intro Mother Brain page-two crossfade deletes the actor at timer zero");
 
-        var explosions = new IntroMotherBrainExplosionSystem();
-        explosions.SpawnFourthHitExplosions();
+        var explosions = IntroMotherBrainExplosionSystem.SpawnFourthHitExplosions();
         AssertEqual(8, explosions.ActiveCount, "intro Mother Brain allocates all explosion actors");
         var explosionActors = explosions.actors;
         for (int frame = 0; frame < 192; frame++)
@@ -167,7 +166,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             // its place until its animation ends, and the cartridge's test ($8B:B786) passes over it as no missile. The
             // missile holds its place with its type and damage (#2558).
             SamusProjectile missile = shots.Shots[hit - 1];
-            missile.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), SamusProjectileDamage.Read(SamusProjectileSelection.NonBeam(SamusProjectileFamily.Missile)));
+            missile.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), SamusProjectileDamage.Read(SamusProjectileSelection.Missile(super: false)));
             missile.HeldShot().Position = missile.Position.WithWhole(new(0x40, 0x80));
             bool fourth = motherBrain.TakeMissileHit(shots.EnemyImpacts, bombs);
             AssertEqual(hit == 4, fourth, $"missile {hit} starts the explosion only on the fourth hit");
@@ -193,7 +192,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         {
             // A loop lasts its shown frames, its pauses and the updates it hides the actor; a cue takes no update.
             AnimationBeat<CinematicSpritePose, NoAnimationCue>.Frame frame => frame.Duration,
-            AnimationBeat<CinematicSpritePose, NoAnimationCue>.Hidden hidden => hidden.Duration,
+            AnimationHiddenBeat<CinematicSpritePose, NoAnimationCue> hidden => hidden.Duration,
             AnimationBeat<CinematicSpritePose, NoAnimationCue>.Pause pause => pause.Duration,
             _ => 0,
         });

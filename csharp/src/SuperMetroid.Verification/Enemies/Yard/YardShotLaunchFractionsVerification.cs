@@ -33,7 +33,7 @@ internal static class YardShotLaunchFractionsVerification
         int launches = 0;
         foreach ((SamusPoseId pose, int sideways) in new[] { (SamusPoseId.FacingLeftNormalPose, -1), (SamusPoseId.FacingRightNormalPose, 1) })
         {
-            samus.Pose = pose;
+            samus.ChangePoseKeepingAnimation(pose);
             foreach (int sidewaysFraction in fractions)
             foreach (int verticalFraction in fractions)
             {

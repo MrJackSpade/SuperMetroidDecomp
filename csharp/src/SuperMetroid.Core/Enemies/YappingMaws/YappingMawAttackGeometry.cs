@@ -11,5 +11,5 @@ public static class YappingMawAttackGeometry
 
     /// <summary>Where a maw aiming <paramref name="aim"/> holds Samus, from its mouth.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="aim"/> is not one of the eight aims.</exception>
-    internal static Offset16<RoomPixels> HeldSamusOffset(YappingMawAim aim) => Ensure.Listed(YappingMawHoldDefinitions.HeldSamusOffsets, aim);
+    internal static Offset16<RoomPixels> HeldSamusOffset(YappingMawAim aim) => YappingMawHoldDefinitions.HeldSamusOffsets[aim];
 }

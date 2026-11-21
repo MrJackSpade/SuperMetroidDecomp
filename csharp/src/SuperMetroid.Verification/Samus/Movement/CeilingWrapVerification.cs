@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction;
@@ -36,7 +37,7 @@ internal static class CeilingWrapVerification
             shot.HeldShot().Direction = SamusProjectileDirection.Right;
             for (int call = 0; call < 45; call++)
             {
-                system.TerrainCollision.RunInitialBeamCollision(level, shot.HeldShot(), roomObjects, true);
+                system.TerrainCollision.RunInitialBeamCollision(SamusTerrain.InRoom(level, roomObjects), shot.HeldShot(), true);
                 int owner = roomObjects.Places.ActiveCount == 0 ? 0 : level.Size.RowMajorIndex(roomObjects.PopulationPlaces[0].Block) * 2;
                 string actual = $"{tileX},{call},{roomObjects.Places.ActiveCount},{owner:X4},{RoomLevelWordEncoder.Encode(level.GetCollisionBlockByIndex(tileX).Terrain):X4},{RoomLevelWordEncoder.Encode(level.GetCollisionBlockByIndex(tileX + 1).Terrain):X4}";
                 string expected = native[cursor++];

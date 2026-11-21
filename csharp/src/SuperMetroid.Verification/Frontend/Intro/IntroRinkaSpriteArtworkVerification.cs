@@ -79,7 +79,7 @@ internal static class IntroRinkaSpriteArtworkVerification
         var rinkas = new IntroRinkaSystem();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0100)) };
         for (int frame = 0; frame <= 75; frame++)
-            rinkas.Step(samus, motherBrainExploding: false, explosionsAllocated: false);
+            rinkas.Step(samus, motherBrainExploding: false);
         AssertEqual(2, rinkas.LiveRinkas.Count,
             "intro Rinka first two-wave actors exist for installed artwork test");
         var stockOam = ScreenSpritesFixtures.Blank();

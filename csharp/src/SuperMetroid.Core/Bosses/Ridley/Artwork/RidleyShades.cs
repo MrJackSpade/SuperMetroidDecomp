@@ -16,14 +16,14 @@ public static class RidleyShades
     /// The installed name of each of the Ceres Baby's shades (#2409), written out so renaming a shade's identity never
     /// changes a name on disk.
     /// </summary>
-    private static readonly FrozenDictionary<CeresBabyShade, string> BabyKeys =
-        new Dictionary<CeresBabyShade, string>
+    private static readonly IdentityTable<CeresBabyShade, string> BabyKeys =
+        new(new Dictionary<CeresBabyShade, string>
         {
             [CeresBabyShade.Resting] = "ridley-baby-Resting",
             [CeresBabyShade.HorizontalSquish] = "ridley-baby-HorizontalSquish",
             [CeresBabyShade.Round] = "ridley-baby-Round",
             [CeresBabyShade.VerticalSquish] = "ridley-baby-VerticalSquish",
-        }.ToFrozenDictionary();
+        });
 
     /// <summary>The Ceres door, container and Baby as Ceres Ridley's fight starts.</summary>
     public static PictureShade CeresStart { get; } = new("ridley-ceres-start", 0);
@@ -48,7 +48,7 @@ public static class RidleyShades
 
     /// <summary>The Baby's and its container's <paramref name="shade"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The shade has no installed name.</exception>
-    public static PictureShade Baby(CeresBabyShade shade) => new(Ensure.Listed(BabyKeys, shade), 0);
+    public static PictureShade Baby(CeresBabyShade shade) => new(BabyKeys[shade], 0);
 
     /// <summary>The look of Norfair Ridley's arena as his fight starts.</summary>
     public static PictureShade NorfairStart { get; } = new("ridley-norfair-start", 0);

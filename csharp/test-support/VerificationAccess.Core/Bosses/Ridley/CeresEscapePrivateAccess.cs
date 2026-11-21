@@ -15,12 +15,6 @@ internal static class CeresEscapePrivateAccess
         internal void BeginSelfDestruct() =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Ridley.CeresEscape>(self, "BeginSelfDestruct", [], new object?[] {  });
 
-        /// <summary>The private property <c>Floor</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Ridley.CeresTurningFloor Floor
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.CeresEscape, global::SuperMetroid.Core.Bosses.Ridley.CeresTurningFloor>(self, "Floor");
-        }
-
         /// <summary>The private method <c>ShowFloorZoom</c>, invoked by name.</summary>
         internal void ShowFloorZoom(global::SuperMetroid.Core.Spatial.FloorZoom zoom) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Ridley.CeresEscape>(self, "ShowFloorZoom", [typeof(global::SuperMetroid.Core.Spatial.FloorZoom)], new object?[] { zoom });

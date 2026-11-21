@@ -43,29 +43,4 @@ internal static class BotwoonNavigation
     /// </summary>
     private static int BackwardFirstStep(BotwoonPathDefinition path) =>
         path.Steps.Length - BotwoonNavigationDefinitions.BackwardStartStepsBeforeEnd;
-
-    /// <summary>
-    /// Whether <paramref name="step"/> is one of <paramref name="path"/>'s steps. The two positions just outside the
-    /// path, one before its first step and one after its last, are where a walk ends; any other position is corrupt
-    /// state.
-    /// </summary>
-    internal static bool HasStep(BotwoonPathDefinition path, int step)
-    {
-        int length = path.Steps.Length;
-        if (step < -1 || step > length)
-            throw new InvalidDataException($"Botwoon's path from {path.From} to {path.To} has no position {step}.");
-        return step >= 0 && step < length;
-    }
-
-    /// <summary>The movement of step <paramref name="step"/> of authored path <paramref name="path"/>, as authored.</summary>
-    internal static Offset16<RoomPixels> Step(BotwoonPathDefinition path, int step) =>
-        step >= 0 && step < path.Steps.Length
-            ? Movement(path.Steps[step])
-            : throw new InvalidDataException($"Botwoon's path from {path.From} to {path.To} has no step {step}.");
-
-    /// <summary>The one-pixel movement a path step stands for.</summary>
-    private static Offset16<RoomPixels> Movement(BotwoonPathStep step) =>
-        BotwoonNavigationDefinitions.StepMovements.TryGetValue(step, out Offset16<RoomPixels> movement)
-            ? movement
-            : throw new InvalidDataException($"Undefined Botwoon path step {step}.");
 }

@@ -108,19 +108,11 @@ internal sealed class MessageBoxFlow
                     $"The message box closed with {answer.Choice}, but what waited on it ('{outcome}') waits for no answer."),
             };
         }
-        switch (outcome)
-        {
-            case MessageBoxOutcome.GunshipSaveAnswer or MessageBoxOutcome.SaveConfirmation:
-                throw new InvalidDataException($"{outcome} waited for an answer its message box closed without.");
-            case MessageBoxOutcome.SaveCompletion completion:
-                room.RoomObjects.Stations.CompleteSaveStation(completion.Station);
-                break;
-            case MessageBoxOutcome.SuitTransformation:
-            case null:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined message-box outcome {outcome}.");
-        }
+        // A suit's transformation, and a box nothing waited on, have nothing to finish here.
+        if (outcome is MessageBoxOutcome.GunshipSaveAnswer or MessageBoxOutcome.SaveConfirmation)
+            throw new InvalidDataException($"{outcome} waited for an answer its message box closed without.");
+        if (outcome is MessageBoxOutcome.SaveCompletion completion)
+            room.RoomObjects.Stations.CompleteSaveStation(completion.Station);
 
         room.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(room.LevelData);
         // The resumed update shows the new inventory itself; otherwise the close refreshes the HUD here.

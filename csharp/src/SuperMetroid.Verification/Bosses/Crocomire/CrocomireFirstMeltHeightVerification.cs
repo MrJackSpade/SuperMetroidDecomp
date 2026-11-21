@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Crocomire;

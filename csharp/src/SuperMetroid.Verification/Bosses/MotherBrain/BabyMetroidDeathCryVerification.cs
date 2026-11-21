@@ -26,7 +26,7 @@ internal static class BabyMetroidDeathCryVerification
         var sequence = MotherBrainLateFightFixtures.NewSequence();
         // The Baby's health lives in the place the final beam's spawn makes it in (#2572).
         var baby = MotherBrainLateFightFixtures.Arrive(sequence, FixedPosition<RoomPixels>.Zero);
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.FinalCharge);
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", new BabyMetroidCutscenePhase.Flying.FinalCharge());
         global::SuperMetroid.Core.PrivateState.Set(baby, "Health", 79);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         Action<BabyMetroidCutsceneStepResult> apply = step => enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(motherBrain.Colours, step);
@@ -37,7 +37,7 @@ internal static class BabyMetroidDeathCryVerification
             AssertEqual((ushort)(index + 1), charged[index], "Live final charge preserves room colors");
         baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
         var fatal = baby.Step(samus, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
-        AssertEqual(BabyMetroidCutscenePhase.TakeFinalBlow, fatal.PhaseAfter, "Fatal hit enters native shake phase");
+        AssertEqual(new BabyMetroidCutscenePhase.Flying.TakeFinalBlow(), fatal.PhaseAfter, "Fatal hit enters native shake phase");
         apply(fatal);
         ushort[] blackout = Shown();
         for (int index = 0; index < 256; index++)
@@ -54,7 +54,7 @@ internal static class BabyMetroidDeathCryVerification
             apply(baby.Step(samus, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0));
             AssertEqual(0, enemies.Audio.SoundRequests.Count, "Fatal shake does not replay the death cry");
         }
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.FinalCutscene);
+        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", new BabyMetroidCutscenePhase.Flying.FinalCutscene());
         for (int frame = 0; frame < 7; frame++)
         {
             var recovery = baby.Step(samus, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);

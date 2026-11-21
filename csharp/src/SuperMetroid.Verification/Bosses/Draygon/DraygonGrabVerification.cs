@@ -86,7 +86,7 @@ internal static class DraygonGrabVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon);
         SamusState samus = runtime.Player.IntroducedSamus;
-        samus.Pose = SamusPoseId.MovingLeftNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.MovingLeftNormalPose);
         samus.SlowdownLevel = 1;
         if (pendingPose is { } cuePose)
             samus.CuePose.Name(cuePose);

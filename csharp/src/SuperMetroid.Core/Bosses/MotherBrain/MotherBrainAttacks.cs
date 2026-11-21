@@ -21,47 +21,46 @@ internal sealed class MotherBrainAttacks
         _room = room;
     }
 
+    /// <summary>What <see cref="RunMotherBrainHandBeamAttack"/> does for each <see cref="MotherBrainHandBeamPhase"/> member, each member's own arm.</summary>
+    private static IdentityTable<MotherBrainHandBeamPhase, Action<MotherBrainEnemyState>> RunMotherBrainHandBeamAttackForMotherBrainHandBeamPhase => field ??= new(new Dictionary<MotherBrainHandBeamPhase, Action<MotherBrainEnemyState>>
+    {
+        [MotherBrainHandBeamPhase.BackUp] = static state =>
+        {
+            // She backs up slowly toward the back of the room; the walk's back limit can report her there first.
+            if (!MotherBrainWalks.Backwards(state, MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.Slow))
+                return;
+            state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
+            state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
+            state.HandBeamPhase = MotherBrainHandBeamPhase.WaitForBombs;
+        },
+        [MotherBrainHandBeamPhase.WaitForBombs] = static state =>
+        {
+            // Bombs share the room's places for enemy projectiles. Waits for
+            // every active shell before starting the visually dense recursive beam.
+            if (state.BombCounter != 0)
+                return;
+            MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.HandBeam);
+            state.HandBeamPhase = MotherBrainHandBeamPhase.Firing;
+        },
+        [MotherBrainHandBeamPhase.Firing] = static state =>
+        {
+            // The charge-beam phase is intentionally empty. The body animation owns the
+            // charge effects, projectile emission, the beam's hold, and phase advance.
+        },
+        [MotherBrainHandBeamPhase.Finish] = static state =>
+        {
+            MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2);
+            state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
+            state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
+            state.HandBeamPhase = MotherBrainHandBeamPhase.BackUp;
+            state.Phase2FightPhase = MotherBrainPhase2FightPhase.Thinking;
+        },
+    });
+
     /// <summary>Runs the body's current phase, one of four.</summary>
     internal static void RunMotherBrainHandBeamAttack(MotherBrainEnemyState state)
     {
-        switch (state.HandBeamPhase)
-        {
-            case MotherBrainHandBeamPhase.BackUp:
-                // She backs up slowly toward the back of the room; the walk's back limit can report her there first.
-                if (!MotherBrainWalks.Backwards(state, MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.Slow))
-                    return;
-                state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
-                state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
-                state.HandBeamPhase = MotherBrainHandBeamPhase.WaitForBombs;
-                return;
-
-            case MotherBrainHandBeamPhase.WaitForBombs:
-                // Bombs share the room's places for enemy projectiles. Waits for
-                // every active shell before starting the visually dense recursive beam.
-                if (state.BombCounter != 0)
-                    return;
-                MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.HandBeam);
-                state.HandBeamPhase = MotherBrainHandBeamPhase.Firing;
-                return;
-
-            case MotherBrainHandBeamPhase.Firing:
-                // The charge-beam phase is intentionally empty. The body animation owns the
-                // charge effects, projectile emission, the beam's hold, and phase advance.
-                return;
-
-            case MotherBrainHandBeamPhase.Finish:
-                MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2);
-                state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
-                state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
-                state.HandBeamPhase = MotherBrainHandBeamPhase.BackUp;
-                state.Phase2FightPhase = MotherBrainPhase2FightPhase.Thinking;
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Mother Brain hand-beam phase {state.HandBeamPhase} is " +
-                    "outside the four hand-beam phases.");
-        }
+        RunMotherBrainHandBeamAttackForMotherBrainHandBeamPhase[state.HandBeamPhase](state);
     }
 
     /// <summary>Advances the between-attacks delay and chooses when another attack may start.</summary>
@@ -103,6 +102,22 @@ internal sealed class MotherBrainAttacks
         state.Phase2FightPhase = MotherBrainPhase2FightPhase.HandBeam;
     }
 
+    /// <summary>What <see cref="RunMotherBrainSecondPhaseTryAttack"/> does for each <see cref="MotherBrainAttackPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<MotherBrainAttackPhase, Action<MotherBrainEnemyState, SamusState>> RunMotherBrainSecondPhaseTryAttackForMotherBrainAttackPhase => field ??= new(new Dictionary<MotherBrainAttackPhase, Action<MotherBrainEnemyState, SamusState>>
+    {
+        [MotherBrainAttackPhase.ChooseAttack] = (state, samus) => ChooseMotherBrainSecondPhaseAttack(state, samus),
+        [MotherBrainAttackPhase.Cooldown] = (state, samus) =>
+        {
+            if (state.AttackCooldown.StepRunsOut())
+                state.AttackPhase = MotherBrainAttackPhase.EndAttack;
+        },
+        [MotherBrainAttackPhase.EndAttack] = (state, samus) =>
+        {
+            state.AttackPhase = MotherBrainAttackPhase.ChooseAttack;
+            state.Phase2FightPhase = MotherBrainPhase2FightPhase.Thinking;
+        },
+    });
+
     /// <summary>
     /// Runs the body's choice among its three attacks. The selected head
     /// animation is an ordinary enemy animation, so attacks remain synchronized with its frame
@@ -112,28 +127,33 @@ internal sealed class MotherBrainAttacks
         MotherBrainEnemyState state,
         SamusState samus)
     {
-        switch (state.AttackPhase)
-        {
-            case MotherBrainAttackPhase.ChooseAttack:
-                ChooseMotherBrainSecondPhaseAttack(state, samus);
-                return;
-
-            case MotherBrainAttackPhase.Cooldown:
-                if (state.AttackCooldown.StepRunsOut())
-                    state.AttackPhase = MotherBrainAttackPhase.EndAttack;
-                return;
-
-            case MotherBrainAttackPhase.EndAttack:
-                state.AttackPhase = MotherBrainAttackPhase.ChooseAttack;
-                state.Phase2FightPhase = MotherBrainPhase2FightPhase.Thinking;
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Mother Brain attack phase {state.AttackPhase} is outside the " +
-                    "three attack phases.");
-        }
+        RunMotherBrainSecondPhaseTryAttackForMotherBrainAttackPhase[state.AttackPhase](state, samus);
     }
+
+    /// <summary>What <see cref="ChooseMotherBrainSecondPhaseAttack"/> does for each <see cref="MotherBrainSecondPhaseAttack"/> member, each member's own arm.</summary>
+    private IdentityTable<MotherBrainSecondPhaseAttack, Action<MotherBrainEnemyState, SamusState>> ChooseMotherBrainSecondPhaseAttackForMotherBrainSecondPhaseAttack => field ??= new(new Dictionary<MotherBrainSecondPhaseAttack, Action<MotherBrainEnemyState, SamusState>>
+    {
+        [MotherBrainSecondPhaseAttack.Neutral] = (state, samus) => MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2),
+        [MotherBrainSecondPhaseAttack.FourOnionRings] = (state, samus) => MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.FourOnionRingsPhase2),
+        [MotherBrainSecondPhaseAttack.Laser] = (state, samus) =>
+        {
+            state.Phase2FightPhase = MotherBrainPhase2FightPhase.LaserPositionHeadQuickly;
+            PositionMotherBrainHeadQuicklyForLaser(state, samus);
+        },
+        [MotherBrainSecondPhaseAttack.Bomb] = (state, samus) =>
+        {
+            if (state.BombCounter >= 1)
+            {
+                // A bomb attack with a bomb already alive does nothing, leaving the head's animation as it is. The body
+                // still waits out MotherBrainAttackPhase.Cooldown in phase one.
+            }
+            else
+            {
+                state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombDecideWalking;
+                DecideMotherBrainBombWalking(state);
+            }
+        },
+    });
 
     /// <summary>Chooses Mother Brain's second-phase attack, whose airborne branches end the whole choice at once.</summary>
     private void ChooseMotherBrainSecondPhaseAttack(
@@ -176,29 +196,7 @@ internal sealed class MotherBrainAttacks
             ? MotherBrainRandomDefinitions.NearAttack
             : MotherBrainRandomDefinitions.FarAttack;
         MotherBrainSecondPhaseAttack attack = attacks.Choose(random);
-        switch (attack)
-        {
-            case MotherBrainSecondPhaseAttack.Neutral:
-                MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2);
-                return;
-            case MotherBrainSecondPhaseAttack.FourOnionRings:
-                MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.FourOnionRingsPhase2);
-                return;
-            case MotherBrainSecondPhaseAttack.Laser:
-                state.Phase2FightPhase = MotherBrainPhase2FightPhase.LaserPositionHeadQuickly;
-                PositionMotherBrainHeadQuicklyForLaser(state, samus);
-                return;
-            case MotherBrainSecondPhaseAttack.Bomb when state.BombCounter >= 1:
-                // A bomb attack with a bomb already alive does nothing, leaving the head's animation as it is. The body
-                // still waits out MotherBrainAttackPhase.Cooldown in phase one.
-                return;
-            case MotherBrainSecondPhaseAttack.Bomb:
-                state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombDecideWalking;
-                DecideMotherBrainBombWalking(state);
-                return;
-            default:
-                throw new InvalidOperationException($"Mother Brain's attack roll chose the undefined attack {attack}.");
-        }
+        ChooseMotherBrainSecondPhaseAttackForMotherBrainSecondPhaseAttack[attack](state, samus);
     }
 
     /// <summary>Identifies Samus movement types considered airborne by the attack chooser.</summary>
@@ -307,26 +305,29 @@ internal sealed class MotherBrainAttacks
         return false;
     }
 
+    /// <summary>What <see cref="TryMakeMotherBrainStand"/> comes to for each <see cref="MotherBrainBodyPose"/> member, each member's own arm.</summary>
+    private static IdentityTable<MotherBrainBodyPose, Func<MotherBrainEnemyState, bool>> TryMakeMotherBrainStandForMotherBrainBodyPose => field ??= new(new Dictionary<MotherBrainBodyPose, Func<MotherBrainEnemyState, bool>>
+    {
+        [MotherBrainBodyPose.Standing] = static state => true,
+        [MotherBrainBodyPose.Crouched] = static state =>
+        {
+            MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.StandAfterCrouchFast);
+            return false;
+        },
+        [MotherBrainBodyPose.LeaningDown] = static state =>
+        {
+            MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.StandAfterLeaning);
+            return false;
+        },
+        [MotherBrainBodyPose.Walking] = static state => false,
+        [MotherBrainBodyPose.CrouchingTransition] = static state => false,
+        [MotherBrainBodyPose.DeathBeam] = static state => false,
+    });
+
     /// <summary>Whether Mother Brain is standing; a crouched or leaning Mother Brain starts standing up.</summary>
     private static bool TryMakeMotherBrainStand(MotherBrainEnemyState state)
     {
-        switch (state.Pose)
-        {
-            case MotherBrainBodyPose.Standing:
-                return true;
-            case MotherBrainBodyPose.Crouched:
-                MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.StandAfterCrouchFast);
-                return false;
-            case MotherBrainBodyPose.LeaningDown:
-                MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.StandAfterLeaning);
-                return false;
-            case MotherBrainBodyPose.Walking:
-            case MotherBrainBodyPose.CrouchingTransition:
-            case MotherBrainBodyPose.DeathBeam:
-                return false;
-            default:
-                throw new InvalidOperationException($"Undefined MotherBrainBodyPose {state.Pose}.");
-        }
+        return TryMakeMotherBrainStandForMotherBrainBodyPose[state.Pose](state);
     }
 
     /// <summary>

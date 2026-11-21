@@ -47,13 +47,7 @@ public static class BlockAnimationLoops
     }
 
     /// <summary>Whether <paramref name="animation"/> has a loop: the Tourian statues and no animation have none.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="animation"/> is undefined.</exception>
-    public static bool HasLoop(BlockAnimation animation)
-    {
-        if (!Enum.IsDefined(animation))
-            throw new InvalidOperationException($"Undefined {nameof(BlockAnimation)} {animation}.");
-        return BlockAnimationLoopDefinitions.IdleLoops.ContainsKey(animation);
-    }
+    public static bool HasLoop(BlockAnimation animation) => BlockAnimationLoopDefinitions.IdleLoops.ContainsKey(animation);
 
     /// <summary>
     /// The loop of every animation with one, built once with the segments, so every start of a loop plays the one loop
@@ -64,7 +58,6 @@ public static class BlockAnimationLoops
             animation => animation, animation => Animation<BlockAnimation>.Looping([Segments.Whole(animation)]));
 
     /// <summary>The loop of <paramref name="animation"/>: its idle segment, over and over.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="animation"/> is undefined or has no loop.</exception>
     internal static Animation<BlockAnimation> Idle(BlockAnimation animation) => IdleAnimations[Require(animation)];
 
     /// <summary>Starts playing the loop of <paramref name="animation"/>, showing nothing until its first pass shows its first frame.</summary>
@@ -87,11 +80,11 @@ public static class BlockAnimationLoops
     /// The frames the loop of <paramref name="animation"/> shows, in order, each with the passes it is shown for: what the
     /// import pictures under each frame's name.
     /// </summary>
+    /// <remarks>Every beat of a loop is a timed frame, as <see cref="OwnTimedFrames"/> checks once when the segments are built.</remarks>
     /// <exception cref="InvalidOperationException"><paramref name="animation"/> is undefined or has no loop.</exception>
     public static IReadOnlyList<TimedArtworkFrame> Frames(BlockAnimation animation) =>
-        [.. Segments.Beats(Require(animation)).Select(beat => beat is AnimationBeat<ArtworkFrame, NoAnimationCue>.Frame frame
-            ? new TimedArtworkFrame(frame.Shown)
-            : throw new InvalidOperationException($"The {animation} loop holds a beat that is not a timed frame."))];
+        [.. Segments.Beats(Require(animation)).OfType<AnimationBeat<ArtworkFrame, NoAnimationCue>.Frame>()
+            .Select(frame => new TimedArtworkFrame(frame.Shown))];
 
     /// <summary>
     /// Whether the loop of <paramref name="animation"/> waits for the area's boss to be defeated before its first frame
@@ -102,20 +95,21 @@ public static class BlockAnimationLoops
         BlockAnimationLoopDefinitions.AwaitingAreaBoss.Contains(Require(animation));
 
     /// <summary>The animation a room effect of <paramref name="type"/> shows on the effect overlay, or null for one that shows none.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="type"/> is undefined.</exception>
-    public static BlockAnimation? OnEffectOverlay(RoomFxType type)
-    {
-        if (!Enum.IsDefined(type))
-            throw new InvalidOperationException($"Undefined {nameof(RoomFxType)} {type}.");
-        return BlockAnimationLoopDefinitions.EffectOverlayAnimations.TryGetValue(type, out BlockAnimation animation)
-            ? Require(animation) : null;
-    }
+    public static BlockAnimation? OnEffectOverlay(RoomFxType type) =>
+        EffectOverlayLoops.TryGetValue(type, out BlockAnimation animation) ? animation : null;
+
+    /// <summary>
+    /// The animation each room effect type shows on the effect overlay, each checked once, as the loops are built, to have a
+    /// loop, so no effect's animation is checked again as it starts (#2553).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">An effect's animation has no loop.</exception>
+    private static Dictionary<RoomFxType, BlockAnimation> EffectOverlayLoops { get; } =
+        BlockAnimationLoopDefinitions.EffectOverlayAnimations.ToDictionary(entry => entry.Key, entry => Require(entry.Value));
 
     /// <summary>The treadmill animation a Wrecked Ship entrance door starts for a belt pushing <paramref name="direction"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is undefined.</exception>
     public static BlockAnimation Treadmill(WreckedShipTreadmillDirection direction) =>
-        BlockAnimationLoopDefinitions.TreadmillAnimations.TryGetValue(direction, out BlockAnimation animation) ? animation
-            : throw new InvalidDataException($"Unknown Wrecked Ship treadmill direction {direction}.");
+        BlockAnimationLoopDefinitions.TreadmillAnimations[direction];
 
     /// <summary><paramref name="animation"/>, which must have a loop.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="animation"/> is undefined or has no loop.</exception>

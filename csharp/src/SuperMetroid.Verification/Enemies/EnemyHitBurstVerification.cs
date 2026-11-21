@@ -93,7 +93,7 @@ internal static class EnemyHitBurstVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place) = RoomWith(id, definition, health: 1000, frozenTimer);
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
-            bomb.Occupy(SamusBombProjectileSystem.NormalBombType, 30);
+            bomb.Occupy(SamusBombKind.Bomb, 30);
             bomb.HeldBomb().Radius = new(4, 4);
             bomb.HeldBomb().Position = FixedPosition<RoomPixels>.FromWhole(Place);
             (SamusProjectileSystem shots, _) = ShotAt(SamusBeamCombination.Power);
@@ -298,7 +298,7 @@ internal static class EnemyHitBurstVerification
 
     /// <summary>The live bursts of <paramref name="enemies"/>' room.</summary>
     private static RoomEffectActor[] Bursts(RoomEnemySystem enemies) =>
-        [.. enemies.EffectActors.Live.Where(spawned => spawned.Kind == RoomEffectActorKind.HitBurst)];
+        [.. enemies.EffectActors.Live.Where(spawned => spawned.Shows(RoomEffectActorKind.HitBurst))];
 
     /// <summary>A dud flash at <see cref="Place"/>, as a shot an enemy part shrugs off leaves.</summary>
     private static RoomEffectActor SpawnDud(RoomEnemySystem enemies)

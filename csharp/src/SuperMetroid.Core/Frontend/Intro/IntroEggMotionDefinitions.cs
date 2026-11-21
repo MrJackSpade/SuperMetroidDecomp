@@ -9,8 +9,7 @@ internal static class IntroEggMotionDefinitions
     /// Each piece of the shell: where it starts and its horizontal launch speed, which
     /// <see cref="IntroEggMotion.FragmentInitialPosition"/> and <see cref="IntroEggMotion.FragmentX"/> select.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<IntroEggShellFragment, IntroEggShellPiece> ShellPieces =
-        new Dictionary<IntroEggShellFragment, IntroEggShellPiece>
+    internal static readonly IdentityTable<IntroEggShellFragment, IntroEggShellPiece> ShellPieces = new(new Dictionary<IntroEggShellFragment, IntroEggShellPiece>
         {
             [IntroEggShellFragment.UpperLeft] = new(new(108, 147), SignedSixteenSixteen.FromPixelFraction(-3, 4)),
             [IntroEggShellFragment.UpperRight] = new(new(115, 147), SignedSixteenSixteen.FromPixelFraction(1, 4)),
@@ -18,11 +17,10 @@ internal static class IntroEggMotionDefinitions
             [IntroEggShellFragment.Centre] = new(new(112, 150), SignedSixteenSixteen.FromPixelFraction(-7, 8)),
             [IntroEggShellFragment.Right] = new(new(118, 153), SignedSixteenSixteen.FromPixelFraction(1, 2)),
             [IntroEggShellFragment.Lower] = new(new(115, 155), SignedSixteenSixteen.FromPixelFraction(1, 8)),
-        };
+        });
 
     /// <summary>The definition of <paramref name="fragment"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="fragment"/> is not a piece of the shell.</exception>
-    internal static IntroEggShellPiece ShellPiece(IntroEggShellFragment fragment) => Ensure.Listed(ShellPieces, fragment);
+    internal static IntroEggShellPiece ShellPiece(IntroEggShellFragment fragment) => ShellPieces[fragment];
 
     /// <summary>
     /// The updates <see cref="ShellFall"/> covers. The upper-left and upper-right pieces fly three updates past it before

@@ -10,12 +10,14 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 [RoomLifetime]
 internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SuspensorPlatform, EnemyDefinitionId.Tripper];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.SuspensorPlatform, EnemyDefinitionId.Tripper], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new PlatformsEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new PlatformsEntity(this, occupant, place, common));
 
     /// <summary>Clips the Tripper's and the suspensor platform's horizontal and vertical displacement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
@@ -101,6 +103,13 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         StartPlatformStillAnimationForHeading(place, state);
     }
 
+    /// <summary>What <see cref="MovePlatformVertically"/> does for each <see cref="PlatformVerticalMovement"/> member, each member's own arm.</summary>
+    private IdentityTable<PlatformVerticalMovement, Action<RoomEnemyOccupant, RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>> MovePlatformVerticallyForPlatformVerticalMovement => field ??= new(new Dictionary<PlatformVerticalMovement, Action<RoomEnemyOccupant, RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>>
+    {
+        [PlatformVerticalMovement.Rising] = (occupant, place, state, samus, level, preHorizontalX) => RaisePlatform(occupant, place, state, level),
+        [PlatformVerticalMovement.Sinking] = (occupant, place, state, samus, level, preHorizontalX) => SinkPlatform(occupant, place, state, samus, level, preHorizontalX),
+    });
+
     /// <summary>Routes the platform through rise or sink physics and carries a riding Samus by accepted motion.</summary>
     /// <param name="occupant">The enemy holding <paramref name="place"/>.</param>
     /// <param name="place">The platform's place.</param>
@@ -117,18 +126,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformVerticalMovement movement,
         int preHorizontalX)
     {
-        switch (movement)
-        {
-            case PlatformVerticalMovement.Rising:
-                RaisePlatform(occupant, place, state, level);
-                return;
-            case PlatformVerticalMovement.Sinking:
-                SinkPlatform(occupant, place, state, samus, level, preHorizontalX);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Platform Y movement {movement} is neither rising nor falling.");
-        }
+        MovePlatformVerticallyForPlatformVerticalMovement[movement](occupant, place, state, samus, level, preHorizontalX);
     }
 
     /// <summary>Returns a depressed platform toward its spawn height, stopping at its resting depth.</summary>

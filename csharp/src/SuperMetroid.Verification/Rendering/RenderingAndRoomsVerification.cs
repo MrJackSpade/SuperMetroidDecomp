@@ -1032,7 +1032,7 @@ internal static void VerifyPowerBombColorMathWindow()
     AssertEqual(ScreenWindow.Closed, CaptureWindow().Window, "power-bomb spawn frame has no premature oval");
 
     explosion.StepFrame(explosionGlowColors);
-    AssertEqual(PowerBombExplosionPhase.Inactive, explosion.Blast.RenderedPhase,
+    AssertEqual(new PowerBombExplosionPhase.Inactive(), explosion.Blast.RenderedPhase,
         "first HDMA pass initializes the list without generating a window");
     // The first frame draws radius 4, then advances the live state to radius 52. The oval is that drawn radius wide
     // and three quarters of it tall (#1468): using the already-updated radius would be far wider.
@@ -1047,10 +1047,10 @@ internal static void VerifyPowerBombColorMathWindow()
     AssertEqual(new RgbColor(8, 16, 24), scaled.Colour, "the first flash adds the installed fixed colour");
 
     // The walked yellow ovals are centred on the blast, not on a screen midpoint.
-    while (explosion.Blast.Phase == PowerBombExplosionPhase.PreExplosionWhite)
+    while (explosion.Blast.Phase is PowerBombExplosionPhase.Running.PreExplosionWhite)
         explosion.StepFrame(explosionGlowColors);
     explosion.StepFrame(explosionGlowColors);
-    AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.Blast.RenderedPhase,
+    AssertEqual(new PowerBombExplosionPhase.Running.PreExplosionYellow(), explosion.Blast.RenderedPhase,
         "first pre-scaled yellow frame is retained for composition");
     AssertEqual<int?>(SuperMetroid.Core.Samus.Abilities.PowerBombExplosionDefinitions.YellowOvalRadii[0], explosion.Blast.RenderedOvalRadius,
         "first yellow frame selects the first yellow oval");

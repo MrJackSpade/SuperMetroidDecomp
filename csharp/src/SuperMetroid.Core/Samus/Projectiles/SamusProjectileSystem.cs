@@ -136,17 +136,11 @@ public sealed class SamusProjectileSystem
         ShowBeamShade(colours, SamusBeamCombinations.Of(equippedBeams));
 
     /// <summary>
-    /// Shows a beam combination's shade as the beams' colours: a combination's, the glitched Chainsaw beam's, which
-    /// is Plasma and Wave's (#1736), or the Spacetime beam's (#1512).
+    /// Shows a beam combination's shade as the beams' colours: every combination the pause screen can equip, the glitched
+    /// Spazer-with-Plasma ones among them, shows one (<see cref="SamusShades.Beam"/>).
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The combination has no shade the game can show.</exception>
-    private static void ShowBeamShade(SamusColours colours, SamusBeamCombination selection)
-    {
-        Ensure.NotNull(colours);
-        if (!SamusBeamGraphicsDefinitions.ShownShades.ContainsKey(selection))
-            throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no beam shade.");
-        colours.ShowBeams(SamusShades.Beam(selection));
-    }
+    private static void ShowBeamShade(SamusColours colours, SamusBeamCombination selection) =>
+        Ensure.NotNull(colours).ShowBeams(SamusShades.Beam(selection));
 
     /// <summary>
     /// Runs the beam charge colours on
@@ -184,9 +178,9 @@ public sealed class SamusProjectileSystem
             if (chargeGlowActive)
             {
                 bool pseudoScrew = samus.HorizontalSpeed.BodyAttack == SamusBodyAttack.PseudoScrew;
-                colours.ShowSuit(Charge.PlayChargePulse(
+                Charge.PlayChargePulse(
                     pseudoScrew ? SamusChargeKind.PseudoScrew : SamusChargeKind.ChargedBeam,
-                    samus.EquippedItems.ShownSuit()));
+                    samus.EquippedItems.ShownSuit(), colours);
                 return false;
             }
 
@@ -204,8 +198,8 @@ public sealed class SamusProjectileSystem
         // A charged shot's glow plays its sequence, painting each shade as it shows it: an ordinary shot's flash paints the
         // yellow glow on each of its updates; the Hyper Beam shot's glow shows each frame for its hold.
         // On the update after its last shade the glow ends and the suit's own shade returns.
-        PictureShade? shown = glow.PlayUpdate();
-        if (glow.HasEnded)
+        PictureShade? shown = glow.PlayUpdate(out bool ended);
+        if (ended)
         {
             Charge.ChargedShotGlow = null;
             SamusSuitShade.Show(colours, samus.EquippedItems);
@@ -288,13 +282,12 @@ public sealed class SamusProjectileSystem
             if (samus.SelectedHudItem is HudItem.Beam or HudItem.PowerBomb || xrayBeamFallback)
             {
                 queued = Firing.HandleBeamInput(
-                    terrain.Level,
+                    terrain,
                     samus,
                     buttons.ControllerInput,
                     // Uncharged firing tests both current and prior new-input latches.
                     buttons.ControllerNewInput | buttons.ControllerPreviousNewInput,
-                    samusBombs,
-                    terrain.RoomObjects).Request;
+                    samusBombs).Request;
             }
             else if (samus.SelectedHudItem is HudItem.Missile or HudItem.SuperMissile)
             {
@@ -367,7 +360,7 @@ public sealed class SamusProjectileSystem
             ChargeFlareComponents hyper = ChargeFlareComponents.HyperBeamFlare;
             foreach (ChargeFlareComponent component in hyper.DrawOrder)
             {
-                if (Charge.Flare(component).PlayBackward() && component == ChargeFlareComponent.FastSparks)
+                if (Charge.PlayHyperBeamFlareBackward(component) && component == ChargeFlareComponent.FastSparks)
                     Charge.ClearCount();
             }
             // Every component is shown, the fast spark first, even on the frame that ends the flare.

@@ -52,24 +52,24 @@ internal sealed class KraidHead
             UpdateKraidHealthColours(body, state, shown);
     }
 
+    /// <summary>What <see cref="UpdateKraidHealthColours"/> does for each <see cref="KraidHurtFlashShade"/> member, each member's own arm.</summary>
+    private IdentityTable<KraidHurtFlashShade, Action<RoomEnemyPlace, KraidEnemyState>> UpdateKraidHealthColoursForKraidHurtFlashShade => field ??= new(new Dictionary<KraidHurtFlashShade, Action<RoomEnemyPlace, KraidEnemyState>>
+    {
+        [KraidHurtFlashShade.HurtColours] = (body, state) => state.Colours.ShowHurtFlash(_background.EyeColours.Hurt, _background.EyeColours.Shaded),
+        [KraidHurtFlashShade.BandColours] = (body, state) =>
+        {
+            KraidHealthBand band = HealthBand(body, state);
+            state.Colours.ShowBand(band, BandEyes(band), _background.EyeColours.Shaded);
+        },
+    });
+
     /// <summary>
     /// Shows Kraid in <paramref name="shown"/>, his hurt colours or his current health band's (#1512): his body and every
     /// sprite part take the shade, and his eyes its colours at once.
     /// </summary>
     private void UpdateKraidHealthColours(RoomEnemyPlace body, KraidEnemyState state, KraidHurtFlashShade shown)
     {
-        switch (shown)
-        {
-            case KraidHurtFlashShade.HurtColours:
-                state.Colours.ShowHurtFlash(_background.EyeColours.Hurt, _background.EyeColours.Shaded);
-                break;
-            case KraidHurtFlashShade.BandColours:
-                KraidHealthBand band = HealthBand(body, state);
-                state.Colours.ShowBand(band, BandEyes(band), _background.EyeColours.Shaded);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(KraidHurtFlashShade)} {shown}.");
-        }
+        UpdateKraidHealthColoursForKraidHurtFlashShade[shown](body, state);
         PictureShading parts = state.Colours.Parts;
         foreach (RoomEnemyPlace part in _parts.All)
             part.Shading = parts;
@@ -165,22 +165,17 @@ internal sealed class KraidHead
         };
     }
 
+    /// <summary>What <see cref="PublishKraidHeadCue"/> does for each <see cref="KraidHeadCue"/> member, each member's own arm.</summary>
+    private IdentityTable<KraidHeadCue, Action> PublishKraidHeadCueForKraidHeadCue => field ??= new(new Dictionary<KraidHeadCue, Action>
+    {
+        [KraidHeadCue.Roar] = () => _access.RequestKraidSound(KraidSoundDefinitions.HeadRoar),
+        [KraidHeadCue.DyingCry] = () => _access.RequestKraidSound(KraidSoundDefinitions.HeadDyingCry),
+    });
+
     /// <summary>Plays a head animation's cry.</summary>
     private void PublishKraidHeadCue(KraidHeadCue cue)
     {
-        switch (cue)
-        {
-            case KraidHeadCue.Roar:
-                _access.RequestKraidSound(KraidSoundDefinitions.HeadRoar);
-                return;
-
-            case KraidHeadCue.DyingCry:
-                _access.RequestKraidSound(KraidSoundDefinitions.HeadDyingCry);
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(KraidHeadCue)} {cue}.");
-        }
+        PublishKraidHeadCueForKraidHeadCue[cue]();
     }
 
     /// <summary>Updates the mouth-open reaction after a damaging shot.</summary>
@@ -200,17 +195,11 @@ internal sealed class KraidHead
     private static void CloseKraidMouth(KraidEnemyState state)
     {
         state.HoldClosedMouth();
-        if (state.MouthReopenMarked)
+        if (state.SpendMouthReopenAsMouthCloses())
         {
-            state.RemoveOneMouthReopen();
-            if (state.PendingMouthReopens != 0)
-            {
-                state.BodyState.FightPhase = KraidFightPhase.WaitBeforeEyeGlow;
-                state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.EyeGlowDelayUpdates);
-                return;
-            }
+            state.BodyState.FightPhase = KraidFightPhase.WaitBeforeEyeGlow;
+            state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.EyeGlowDelayUpdates);
         }
-        state.ClearMouthReactions();
     }
 
     /// <summary>Seeds eye-glow colour state after a body hit.</summary>
@@ -245,11 +234,10 @@ internal sealed class KraidHead
     /// <summary>Emits a mouth rock when a projectile place is free.</summary>
     private void SpawnKraidSpitRock(RoomEnemyPlace body)
     {
-        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KraidSpitRock, _spitRock, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
+        EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KraidSpitRock, _spitRock, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading), new KraidRockAnimation(_spitRock, KraidRockSegment.SharedPose));
         if (rock is null)
             return;
 
-        rock.StartAnimation(new KraidRockAnimation(_spitRock, KraidRockSegment.SharedPose));
         int random = _access.ReadKraidRandomNumber();
         rock.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + KraidArenaDefinitions.SpitRockOffset);
         rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.SpitLaunch.Choose(random));

@@ -45,22 +45,25 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
         state.Playback = playback;
     }
 
+    /// <summary>What <see cref="CarryOut"/> does for each <see cref="CeresSteamCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<CeresSteamCueKind, Action<RoomEnemyPlace>> CarryOutForCeresSteamCueKind => field ??= new(new Dictionary<CeresSteamCueKind, Action<RoomEnemyPlace>>
+    {
+        [CeresSteamCueKind.Vanish] = static place =>
+        {
+            place.Presence = place.Presence.With(EnemyPresence.Hidden);
+            place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+        },
+        [CeresSteamCueKind.Appear] = static place =>
+        {
+            place.Presence = place.Presence.Without(EnemyPresence.Hidden);
+            place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
+        },
+    });
+
     /// <summary>Carries out one cue of a vent's animation; the play runs on after each.</summary>
     private static void CarryOut(RoomEnemyPlace place, CeresSteamCueKind cue)
     {
-        switch (cue)
-        {
-            case CeresSteamCueKind.Vanish:
-                place.Presence = place.Presence.With(EnemyPresence.Hidden);
-                place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-                return;
-            case CeresSteamCueKind.Appear:
-                place.Presence = place.Presence.Without(EnemyPresence.Hidden);
-                place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined Ceres steam cue {cue}.");
-        }
+        CarryOutForCeresSteamCueKind[cue](place);
     }
 
     /// <summary>Initializes the Ceres steam, drawn where the motion <paramref name="motions"/> give its variant puts it.</summary>
@@ -91,19 +94,11 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
     internal static void RunCeresSteamMainAi(RoomEnemyPlace place) =>
         place.RequireSpeciesState<CeresSteamEnemyState>().Motion.Move(place);
 
-    /// <summary>Handles contact only for the steam's authored extended hitbox reaction.</summary>
+    /// <summary>Handles the steam's touch, the one reaction its plumes' hitboxes and its definition name.</summary>
     internal void ReactToCeresSteamTouch(EnemyTouchContext context)
     {
-        // Every visible steam frame stores the steam's touch reaction in its authored hitbox.
-        // The last two dispersal frames have no plume and touch nothing. Steam touches Samus only where a frame's
-        // authored hitbox carries the touch reaction.
-        if (!context.UsesFrameHitboxes || context.HitboxTouch != CeresSteamReactions.Touch)
-        {
-            throw new InvalidDataException(
-                $"Ceres steam touches through its frames' hitboxes with {CeresSteamReactions.Touch}; " +
-                $"frame hitboxes={context.UsesFrameHitboxes}, touch={context.HitboxTouch}, " +
-                $"frame={context.Place.Frame}.");
-        }
+        // Every visible steam frame's plume carries the steam's one touch reaction (CeresSteamCollisionDefinitions); the
+        // last two dispersal frames have no plume and touch nothing.
 
         // Definition damage is zero: contact still installs the common invincibility and knockback, while the steam's
         // definition takes no damage from any weapon or contact, so the Screw Attack or the Speed Booster cannot destroy it.

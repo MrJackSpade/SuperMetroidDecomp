@@ -64,7 +64,7 @@ internal static class MapLoadAnchorsVerification
         AssertEqual(6, FileSelectMapAreaOrder.Labels.Count, "the world map labels the six Zebes areas");
         for (int displayIndex = 0; displayIndex < 6; displayIndex++)
             AssertEqual(ReadVerificationWord(bus, 0x81aaa0 + displayIndex * 2),
-                (ushort)SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(FileSelectMapAreaOrder.Labels[displayIndex]), "native menu-to-game area identity");
+                (ushort)SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaIds.Area(FileSelectMapAreaOrder.Labels[displayIndex])), "native menu-to-game area identity");
     }
 
     /// <summary>Checks all 34 horizontal save-station anchors against preserved coordinates and native records.</summary>

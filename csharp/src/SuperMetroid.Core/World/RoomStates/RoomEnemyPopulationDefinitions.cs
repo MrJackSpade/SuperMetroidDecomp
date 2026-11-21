@@ -4,15 +4,15 @@ namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Each room state's ordered enemy placements, grouped by the area of the rooms that load them.</summary>
 /// <remarks>
-/// The populations and their placements are the ones the room states select, which the import's check of the game's data
-/// confirms. Placement order decides which place each linked enemy takes; each list states the kills that clear its room
-/// as its death quota when it places enemies; an empty list has none.
+/// The populations and their placements are the ones the room
+/// states select. Placement order decides which place each linked enemy takes; each list states the kills that clear
+/// its room as its death quota when it places enemies; an empty list has none.
 /// </remarks>
 [NumberedIdentities("Each numbered member is the enemy population of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); nothing indexes the populations by number.")]
 public static class RoomEnemyPopulationDefinitions
 {
-    /// <summary>The rooms' enemy populations in their authored list order, each named once, checked before gameplay can use them.</summary>
-    internal static readonly RoomEnemyPopulationDefinition[] Definitions = RoomEnemyPopulations.Complete(
+    /// <summary>The rooms' enemy populations in their authored list order.</summary>
+    internal static readonly RoomEnemyPopulationDefinition[] Definitions =
     [
         ..CrateriaRoomEnemyPopulationDefinitions.Lists,
         ..BrinstarRoomEnemyPopulationDefinitions.Lists,
@@ -21,7 +21,7 @@ public static class RoomEnemyPopulationDefinitions
         ..MaridiaRoomEnemyPopulationDefinitions.Lists,
         ..TourianRoomEnemyPopulationDefinitions.Lists,
         ..CeresRoomEnemyPopulationDefinitions.Lists,
-    ]);
+    ];
 
     /// <summary>The enemy population of the Draygon room once Maridia's boss is dead: none.</summary>
     public static RoomEnemyPopulationDefinition DraygonWhenAreaBossDead => MaridiaRoomEnemyPopulationDefinitions.DraygonWhenAreaBossDead;

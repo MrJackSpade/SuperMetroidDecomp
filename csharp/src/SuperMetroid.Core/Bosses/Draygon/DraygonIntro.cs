@@ -73,18 +73,10 @@ internal sealed class DraygonIntro
         // The dance moves the Evirs it spawned, in the order they spawned, each once it has waited out its start delay.
         foreach (DraygonIntroDancer dancer in state.IntroDancers)
         {
-            RoomEffectActor sprite = dancer.Sprite;
-            int step = state.IntroStage.Age - dancer.StartDelay;
-            if (step < 0 || !sprite.IsActive)
+            if (state.IntroStage.Age < dancer.StartDelay || !dancer.Sprite.IsActive)
                 continue;
 
-            if (DraygonIntroDance.HasDanced(step))
-            {
-                sprite.End();
-                continue;
-            }
-
-            sprite.Position += DraygonIntroDance.Move(step);
+            dancer.Step();
         }
 
         state.IntroStage.Count();

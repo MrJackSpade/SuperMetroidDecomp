@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="owner">The room's tube owner, which reaches Samus, the events, the water, the earthquake and the debris.</param>
 [RoomLifetime]
-internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObject<NoobTubeSegment, TerrainChangeFrame, NoAnimationCue>(NoobTubeAnimations.Segments), IShootableRoomObject
+internal sealed class NoobTubeObject(NoobTubeObjects owner) : SilentSequencedRoomObject<NoobTubeSegment, TerrainChangeFrame>(NoobTubeAnimations.Segments), IShootableRoomObject
 {
     /// <summary>The room's tube owner.</summary>
     private readonly NoobTubeObjects _owner = Ensure.NotNull(owner);
@@ -36,44 +36,83 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObjec
         base.Update(place, context);
     }
 
+    /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="NoobTubePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<NoobTubePhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForNoobTubePhase => field ??= new(new Dictionary<NoobTubePhase, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [NoobTubePhase.Starting] = (place, context) =>
+        {
+            if (_owner.IsBroken())
+            {
+                _owner.EnableWaterPhysics();
+                context.RoomObjects.DeleteObject(place);
+            }
+            else
+            {
+                Phase = NoobTubePhase.WaitingForPowerBomb;
+                Play(NoobTubeAnimations.Intact, place, context);
+            }
+        },
+        // The tube rests until a wake starts its next step.
+        [NoobTubePhase.WaitingForPowerBomb] = static (_, _) => { },
+        [NoobTubePhase.WaitingForInput] = static (_, _) => { },
+        [NoobTubePhase.Cracking] = (place, context) =>
+        {
+            context.QueueSound(NoobTubeObjectDefinitions.BreakSound, NoobTubeObjectDefinitions.BreakSoundPriority);
+            _owner.SpawnShardsAndBubbles(place);
+            _owner.TriggerEarthquake();
+            Phase = NoobTubePhase.Shattered;
+            Play(NoobTubeAnimations.Shattered, place, context);
+        },
+        [NoobTubePhase.Shattered] = (place, context) =>
+        {
+            _owner.SetBrokenEvent();
+            _owner.EnableWaterPhysics();
+            _owner.UnlockSamus();
+            context.RoomObjects.DeleteObject(place);
+        },
+    });
+
     /// <inheritdoc/>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (Phase)
-        {
-            case NoobTubePhase.Starting when _owner.IsBroken():
-                _owner.EnableWaterPhysics();
-                context.RoomObjects.DeleteObject(place);
-                return;
-            case NoobTubePhase.Starting:
-                Phase = NoobTubePhase.WaitingForPowerBomb;
-                Play(NoobTubeAnimations.Intact, place, context);
-                return;
-            case NoobTubePhase.WaitingForPowerBomb:
-            case NoobTubePhase.WaitingForInput:
-                // The tube rests until a wake starts its next step.
-                return;
-            case NoobTubePhase.Cracking:
-                context.QueueSound(NoobTubeObjectDefinitions.BreakSound, NoobTubeObjectDefinitions.BreakSoundPriority);
-                _owner.SpawnShardsAndBubbles(place);
-                _owner.TriggerEarthquake();
-                Phase = NoobTubePhase.Shattered;
-                Play(NoobTubeAnimations.Shattered, place, context);
-                return;
-            case NoobTubePhase.Shattered:
-                _owner.SetBrokenEvent();
-                _owner.EnableWaterPhysics();
-                _owner.UnlockSamus();
-                context.RoomObjects.DeleteObject(place);
-                return;
-            default:
-                throw new InvalidOperationException($"The n00b tube's sequence ended in {nameof(NoobTubePhase)} {Phase}.");
-        }
+        SequenceEndedForNoobTubePhase[Phase](place, context);
     }
 
     /// <inheritdoc/>
     private protected override void Show(TerrainChangeFrame frame, RoomObjectPlace place, RoomObjectStepContext context) =>
         context.Draw(place, frame.Draw);
+
+    /// <summary>What <c>Wake</c> does for each <see cref="NoobTubePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<NoobTubePhase, Action<RoomObjectPlace, RoomObjectStepContext>> WakeForNoobTubePhase => field ??= new(new Dictionary<NoobTubePhase, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [NoobTubePhase.WaitingForPowerBomb] = (place, context) =>
+        {
+            ResidentObjectProjectileHit? hit = strike.Take();
+            if (hit?.Family == SamusProjectileFamily.PowerBomb)
+            {
+                Phase = NoobTubePhase.WaitingForInput;
+                EndOnNextUpdate();
+            }
+            else if (hit is not null)
+            {
+                context.QueueSound(NoobTubeObjectDefinitions.IneffectiveShotSound, SoundRequestPriority.Normal);
+            }
+        },
+        [NoobTubePhase.Starting] = (place, context) => { },
+        [NoobTubePhase.WaitingForInput] = (place, context) =>
+        {
+            if ((context.Frame.ControllerNewInput & NoobTubeObjectDefinitions.AcceptedWakeInputMask) != GameplayAction.None)
+            {
+                // The break starts on this update.
+                _owner.LockSamus();
+                _owner.SpawnCrack(place);
+                Phase = NoobTubePhase.Cracking;
+                PlayFromNextUpdate(NoobTubeAnimations.Cracking);
+            }
+        },
+        [NoobTubePhase.Cracking] = (place, context) => { },
+        [NoobTubePhase.Shattered] = (place, context) => { },
+    });
 
     /// <summary>
     /// Reads the update's strike or input while the tube waits for one, and starts the step it wakes: a Power Bomb's
@@ -82,34 +121,6 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SequencedRoomObjec
     /// </summary>
     private void Wake(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (Phase)
-        {
-            case NoobTubePhase.WaitingForPowerBomb:
-                ResidentObjectProjectileHit? hit = strike.Take();
-                if (hit?.Family == SamusProjectileFamily.PowerBomb)
-                {
-                    Phase = NoobTubePhase.WaitingForInput;
-                    EndOnNextUpdate();
-                }
-                else if (hit is not null)
-                {
-                    context.QueueSound(NoobTubeObjectDefinitions.IneffectiveShotSound, SoundRequestPriority.Normal);
-                }
-                return;
-            case NoobTubePhase.WaitingForInput when (context.Frame.ControllerNewInput & NoobTubeObjectDefinitions.AcceptedWakeInputMask) != GameplayAction.None:
-                // The break starts on this update.
-                _owner.LockSamus();
-                _owner.SpawnCrack(place);
-                Phase = NoobTubePhase.Cracking;
-                PlayFromNextUpdate(NoobTubeAnimations.Cracking);
-                return;
-            case NoobTubePhase.Starting:
-            case NoobTubePhase.WaitingForInput:
-            case NoobTubePhase.Cracking:
-            case NoobTubePhase.Shattered:
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(NoobTubePhase)} {Phase}.");
-        }
+        WakeForNoobTubePhase[Phase](place, context);
     }
 }

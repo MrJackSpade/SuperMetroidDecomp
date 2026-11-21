@@ -21,10 +21,12 @@ internal sealed class CeresElevatorDoorFactory(CeresDoorBehavior doors, RoomFloo
     private readonly RoomFloor _floor = Ensure.NotNull(floor);
 
     /// <inheritdoc/>
-    /// <remarks>Only a room with a turning floor can place these.</remarks>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CeresElevatorDoor];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.CeresElevatorDoor], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         EnemyOccupant.Of(new CeresElevatorDoorEntity(_doors, occupant, Ensure.NotNull(place), common, _floor));
 }

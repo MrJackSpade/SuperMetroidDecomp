@@ -59,30 +59,28 @@ internal sealed class EndingColours
     internal ColourEffectSystem ColourEffects { get; private set; } = ColourEffectSystem.ForScreen();
 
     /// <summary>
-    /// Shows the installed colours <paramref name="load"/>. A scene's whole screen of colours starts that scene, with
-    /// <paramref name="backdrop"/> as its backdrop: nothing shown before it shows any more. A load within a scene restores
-    /// some of its colours and ends the effects in them.
+    /// Shows the installed colours of scene <paramref name="sceneLoad"/>, its whole screen of colours, which starts that
+    /// scene with <paramref name="backdrop"/> as its backdrop: nothing shown before it shows any more.
     /// </summary>
-    /// <exception cref="ArgumentException">A scene's load names no backdrop, or a load within a scene names one.</exception>
-    /// <exception cref="InvalidOperationException">A load within a scene restores colours a running colour effect still animates.</exception>
-    internal void Load(EndingColourLoad load, RgbColor? backdrop)
+    internal void StartScene(EndingColourLoad sceneLoad, RgbColor backdrop)
     {
-        if (StartsScene(load))
-        {
-            scene = load;
-            sceneBackdrop = backdrop ?? throw new ArgumentException($"The ending's {load} scene names no backdrop.", nameof(backdrop));
-            restored.Clear();
-            restoredColourEffects.Clear();
-            fades.Clear();
-            flashes.Clear();
-            logoCrossfadeStep = null;
-            return;
-        }
-        if (backdrop is not null)
-            throw new ArgumentException($"The ending's {load} load restores colours within its scene and shows no backdrop of its own.", nameof(backdrop));
-        EndingRestoredEffects restores = EndingColourOwnerDefinitions.Restores.TryGetValue(load, out EndingRestoredEffects? listed)
-            ? listed
-            : throw new InvalidDataException($"The ending's {load} load lists nothing it restores.");
+        scene = sceneLoad;
+        sceneBackdrop = backdrop;
+        restored.Clear();
+        restoredColourEffects.Clear();
+        fades.Clear();
+        flashes.Clear();
+        logoCrossfadeStep = null;
+    }
+
+    /// <summary>
+    /// Shows the installed colours <paramref name="load"/> restores within the running scene, which shows no backdrop of its
+    /// own, and ends the effects in them.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The load restores colours a running colour effect still animates.</exception>
+    internal void Restore(EndingColourLoad load)
+    {
+        EndingRestoredEffects restores = EndingColourOwnerDefinitions.Restores[load];
         foreach (EndingFade fade in restores.Fades)
             fades.Remove(fade);
         foreach (ColourEffectColours colours in restores.ColourEffects)
@@ -207,8 +205,6 @@ internal sealed class EndingColours
         return new PictureShading(shades.ToImmutable(), []);
     }
 
-    /// <summary>Whether <paramref name="load"/> is a scene's whole screen of colours, which starts that scene.</summary>
-    private static bool StartsScene(EndingColourLoad load) => EndingColourLoadDefinitions.StartingScenes.Contains(load);
 
     /// <summary>The backdrop colour <paramref name="flash"/> shows while the scene shows it, or none.</summary>
     private RgbColor? FlashBackdrop(EndingFlash flash) => flashes.TryGetValue(flash, out RgbColor? backdrop) ? backdrop : null;

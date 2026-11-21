@@ -25,11 +25,11 @@ public static class GameSaveJsonCodec
     /// The save's Japanese-text field for each text language (#2560): the one map between a slot's language and the true or
     /// false field saves have always kept for it, read in both directions.
     /// </summary>
-    private static readonly FrozenDictionary<TextLanguage, bool> SavedJapaneseText = new Dictionary<TextLanguage, bool>
+    private static readonly IdentityTable<TextLanguage, bool> SavedJapaneseText = new(new Dictionary<TextLanguage, bool>
     {
         [TextLanguage.English] = false,
         [TextLanguage.Japanese] = true,
-    }.ToFrozenDictionary();
+    });
 
     /// <summary>The text language each value of a save's Japanese-text field names: <see cref="SavedJapaneseText"/> read back.</summary>
     private static readonly FrozenDictionary<bool, TextLanguage> SavedLanguages =
@@ -127,7 +127,7 @@ public static class GameSaveJsonCodec
         HudItem = slot.HudItem,
         MoonwalkEnabled = slot.MoonwalkEnabled,
         IconCancelEnabled = slot.IconCancelEnabled,
-        JapaneseText = Ensure.Listed(SavedJapaneseText, slot.Language),
+        JapaneseText = SavedJapaneseText[slot.Language],
         StartupRoute = slot.StartupRoute,
         Progression = CaptureProgression(slot.Progression),
     };
@@ -251,12 +251,6 @@ public static class GameSaveJsonCodec
             slot.GameTime is null || slot.Controller is null || slot.Progression is null)
             throw new InvalidDataException($"slots.{expectedSlot} is missing a required domain object");
         _ = Checkpoint(slot.Checkpoint, $"slots.{expectedSlot}.checkpoint");
-        if (!Enum.IsDefined(slot.ReserveMode))
-            throw new InvalidDataException($"slots.{expectedSlot}.reserveMode names no reserve-tank mode");
-        if (!Enum.IsDefined(slot.HudItem))
-            throw new InvalidDataException($"slots.{expectedSlot}.hudItem names no HUD item");
-        if (!Enum.IsDefined(slot.StartupRoute))
-            throw new InvalidDataException($"slots.{expectedSlot}.startupRoute names no startup route");
         SaveResourcesJsonDocument resources = slot.Resources;
         foreach ((int value, string property) in new SaveFieldCheck[]
                  {

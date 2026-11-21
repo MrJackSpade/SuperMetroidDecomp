@@ -10,6 +10,6 @@ internal sealed class CrocomireProjectileAnimation(IEnemyProjectileCues<Crocomir
     : EnemyProjectileFrameAnimation<CrocomireProjectileSegment, CrocomireProjectileCue>(segment, CrocomireAnimations.ProjectileStartingWith(segment), EnemyProjectileCueRunner<CrocomireProjectileSegment, CrocomireProjectileCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<CrocomireProjectileSegment, EnemyProjectileFrameId, CrocomireProjectileCue> Segments =>
+    private protected override IUnpausedAnimationPlay<CrocomireProjectileSegment, EnemyProjectileFrameId, CrocomireProjectileCue> Segments =>
         CrocomireAnimations.ProjectileSegments;
 }

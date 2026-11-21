@@ -310,17 +310,16 @@ internal sealed class RoomEnemySpecies
         // The registry is the species above that create their own entities, with the owners that create entities but keep no
         // room or frame state (#2557): the Ceres doors' and the Ridleys' factories, the steam vents, the gunship, the Baby's
         // cutscene, the n00b tube and the turning floor's elevator door.
-        Registry = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(() => enemies.Collision), [
+        Factories = [
             .. FrameParticipants.OfType<IEnemyEntityFactory>(),
             new CeresDoorFactory(ceresDoorBehavior), steamVents, gunshipBehavior, babyMetroidCutsceneBehavior, noobTubeBehavior,
             new RidleyEntityFactory(norfairRidleyBehavior, ceresRidleyBehavior, RidleyEncounter),
-            .. Present<IEnemyEntityFactory>(elevatorDoors)],
-            // What the owners the room's scenery did not let it build would have placed; the registry refuses a room that
-            // builds an owner of one, or lacks an owner of any other.
-            [
-                .. tourianEntranceStatueBehavior is null ? [EnemyDefinitionId.TourianStatue] : Array.Empty<EnemyDefinitionId>(),
-                .. elevatorDoors is null ? [EnemyDefinitionId.CeresElevatorDoor] : Array.Empty<EnemyDefinitionId>(),
-            ]);
+            .. Present<IEnemyEntityFactory>(elevatorDoors)];
+        WithoutScenery =
+        [
+            .. tourianEntranceStatueBehavior is null ? [EnemyDefinitionId.TourianStatue] : Array.Empty<EnemyDefinitionId>(),
+            .. elevatorDoors is null ? [EnemyDefinitionId.CeresElevatorDoor] : Array.Empty<EnemyDefinitionId>(),
+        ];
         BeforeSelection = [new MorphBallEyeBeamStep(morphBallEyeBehavior)];
         // The room-wide glows step in the game's order: the work robots', the Magdollites', the face blocks'.
         Glows = [workRobotBehavior, magdolliteBehavior, blueBrinstarFaceBlockBehavior];
@@ -372,8 +371,18 @@ internal sealed class RoomEnemySpecies
     /// <summary>Every species with room or frame lifecycle state, in the game's reset order.</summary>
     internal IReadOnlyList<IEnemySpecies> FrameParticipants { get; }
 
-    /// <summary>The registry that binds each installed occupant's entity through its species' factory.</summary>
-    internal EnemySpeciesRegistry Registry { get; }
+    /// <summary>
+    /// The factories of the room's species, which the room's registry binds each installed occupant's entity through: the
+    /// species above that create their own entities, with the owners that create entities but keep no room or frame state
+    /// (#2557).
+    /// </summary>
+    internal IReadOnlyList<IEnemyEntityFactory> Factories { get; }
+
+    /// <summary>
+    /// What the owners the room's scenery did not let it build would have placed; the registry refuses a room that builds
+    /// an owner of one, or lacks an owner of any other.
+    /// </summary>
+    internal IReadOnlyCollection<EnemyDefinitionId> WithoutScenery { get; }
 
     /// <summary>The species' work that steps at the start of each update, before the enemy pass selects its enemies.</summary>
     internal IReadOnlyList<IStepBeforeEnemySelection> BeforeSelection { get; }

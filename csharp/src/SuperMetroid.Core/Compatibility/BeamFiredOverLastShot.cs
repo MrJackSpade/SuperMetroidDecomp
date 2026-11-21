@@ -64,19 +64,7 @@ public static class BeamFiredOverLastShot
     /// The place holds a special attack's particle: a beam takes a held place only when every place is held, and then the
     /// last, which no particle holds.
     /// </exception>
-    public static int FuseLeftBy(ReplacedShot replaced) => Ensure.NotNull(replaced) switch
-    {
-        ReplacedShot.FreePlace or ReplacedShot.UnignitedMissile => 0,
-        ReplacedShot.ReflectedMissile reflected => reflected.HeadStart.InTwoHundredFiftySixthsOfPixel,
-        ReplacedShot.IgnitedMissile { LinkChainPosition: { } linkPlace } superMissile =>
-            LinkedSuperMissileCount(superMissile.IgnitionSpeed, linkPlace).InTwoHundredFiftySixthsOfPixel,
-        ReplacedShot.IgnitedMissile missile => missile.IgnitionSpeed.InTwoHundredFiftySixthsOfPixel,
-        ReplacedShot.CrashEcho echo => echo.DepartureAngle.RawValue,
-        ReplacedShot.Beam beam => beam.CarriedFuse,
-        ReplacedShot.SpecialAttackParticle => throw new InvalidOperationException(
-            "A beam fired with every place held takes the last place, which no special attack particle holds, yet a particle was replaced."),
-        _ => throw new ArgumentOutOfRangeException(nameof(replaced), replaced, $"Undefined {nameof(ReplacedShot)}."),
-    };
+    public static int FuseLeftBy(ReplacedShot replaced) => Ensure.NotNull(replaced).FuseLeft;
 
     /// <summary>
     /// What a beam fired into one of Samus's shot places finds there (#2524), which <see cref="FuseLeftBy"/> turns
@@ -90,17 +78,33 @@ public static class BeamFiredOverLastShot
         {
         }
 
+        /// <summary>The fuse the replaced shot leaves the beam that takes its place.</summary>
+        /// <exception cref="InvalidOperationException">The place holds a special attack's particle.</exception>
+        internal abstract int FuseLeft { get; }
+
         /// <summary>A place no shot holds.</summary>
-        public sealed record FreePlace : ReplacedShot;
+        public sealed record FreePlace : ReplacedShot
+        {
+            /// <inheritdoc/>
+            internal override int FuseLeft => 0;
+        }
 
         /// <summary>
         /// A missile or Super Missile fired and not yet ignited, or a Super Missile's invisible link, which never ignites.
         /// </summary>
-        public sealed record UnignitedMissile : ReplacedShot;
+        public sealed record UnignitedMissile : ReplacedShot
+        {
+            /// <inheritdoc/>
+            internal override int FuseLeft => 0;
+        }
 
         /// <summary>A missile or Super Missile an enemy reflected, waiting to re-ignite.</summary>
         /// <param name="HeadStart">The head start its reflection gave it toward the speed it re-ignites at.</param>
-        public sealed record ReflectedMissile(SignedEightEight HeadStart) : ReplacedShot;
+        public sealed record ReflectedMissile(SignedEightEight HeadStart) : ReplacedShot
+        {
+            /// <inheritdoc/>
+            internal override int FuseLeft => HeadStart.InTwoHundredFiftySixthsOfPixel;
+        }
 
         /// <summary>An ignited missile or Super Missile, or the explosion of one.</summary>
         public sealed record IgnitedMissile : ReplacedShot
@@ -120,11 +124,20 @@ public static class BeamFiredOverLastShot
 
             /// <summary>The place an ignited Super Missile names as its link, or null for a missile or a Super Missile naming none.</summary>
             public int? LinkChainPosition { get; }
+
+            /// <inheritdoc/>
+            internal override int FuseLeft => LinkChainPosition is { } linkPlace
+                ? LinkedSuperMissileCount(IgnitionSpeed, linkPlace).InTwoHundredFiftySixthsOfPixel
+                : IgnitionSpeed.InTwoHundredFiftySixthsOfPixel;
         }
 
         /// <summary>A shinespark crash echo flying out from Samus.</summary>
         /// <param name="DepartureAngle">The angle it was released at.</param>
-        public sealed record CrashEcho(TrigonometryAngle DepartureAngle) : ReplacedShot;
+        public sealed record CrashEcho(TrigonometryAngle DepartureAngle) : ReplacedShot
+        {
+            /// <inheritdoc/>
+            internal override int FuseLeft => DepartureAngle.RawValue;
+        }
 
         /// <summary>A beam or the Hyper Beam's shot, or the explosion of either.</summary>
         public sealed record Beam : ReplacedShot
@@ -136,9 +149,17 @@ public static class BeamFiredOverLastShot
 
             /// <summary>The Power Bomb fuse it carries, in updates.</summary>
             public int CarriedFuse { get; }
+
+            /// <inheritdoc/>
+            internal override int FuseLeft => CarriedFuse;
         }
 
         /// <summary>One of a special attack's particles.</summary>
-        public sealed record SpecialAttackParticle : ReplacedShot;
+        public sealed record SpecialAttackParticle : ReplacedShot
+        {
+            /// <inheritdoc/>
+            internal override int FuseLeft => throw new InvalidOperationException(
+                "A beam fired with every place held takes the last place, which no special attack particle holds, yet a particle was replaced.");
+        }
     }
 }

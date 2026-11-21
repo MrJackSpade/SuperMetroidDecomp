@@ -8,7 +8,8 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// where its shot last placed it for as long as the shot carries it, and on Samus on the update it departs, before its
 /// shot first moves.
 /// </summary>
-public sealed class ShinesparkCrashEcho
+/// <param name="release">Which of the crash's two echoes this is.</param>
+public sealed class ShinesparkCrashEcho(ShinesparkCrashEchoRelease release)
 {
     /// <summary>Where the echo was last placed: Samus's position as it departed, then where its shot moved it.</summary>
     private Position16<RoomPixels> _position;
@@ -20,9 +21,11 @@ public sealed class ShinesparkCrashEcho
     public Position16<RoomPixels>? ShownPosition =>
         Shot is { Behavior: ShinesparkEchoFlight } ? _position : null;
 
-    /// <summary>Whether <paramref name="shot"/> is the shot that carries this echo.</summary>
-    /// <param name="shot">A shot running the echo's update.</param>
-    internal bool IsCarriedBy(SamusProjectile shot) => ReferenceEquals(Shot, shot);
+    /// <summary>
+    /// Which of the crash's two echoes this is: the first's flight leaves its height for the crash's orbit, and clears it
+    /// once it leaves the screen (<see cref="SamusShinesparkState.FirstReleasedEcho"/>).
+    /// </summary>
+    internal ShinesparkCrashEchoRelease Release { get; } = release;
 
     /// <summary>The echo departs on <paramref name="shot"/> from where the crash finished.</summary>
     /// <param name="shot">The shot that now carries the echo.</param>

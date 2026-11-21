@@ -1386,28 +1386,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.HibashiFlameTopVanishing,
     ];
 
-    /// <summary>The frames <c>Enemies/Hoppers/HoppersBehavior.cs</c> shows for <c>Dessgeega</c>.</summary>
-    private static readonly EnemyFrameId[] DessgeegaFrames =
-    [
-        EnemyFrameId.DessgeegaLegsStraight,
-        EnemyFrameId.DessgeegaLegsBent,
-        EnemyFrameId.DessgeegaLegsCrouched,
-        EnemyFrameId.DessgeegaOnCeilingLegsStraight,
-        EnemyFrameId.DessgeegaOnCeilingLegsBent,
-        EnemyFrameId.DessgeegaOnCeilingLegsCrouched,
-    ];
-
-    /// <summary>The frames <c>Enemies/Hoppers/HoppersBehavior.cs</c> shows for <c>DessgeegaLarge</c>.</summary>
-    private static readonly EnemyFrameId[] DessgeegaLargeFrames =
-    [
-        EnemyFrameId.LargeDessgeegaLegsStraight,
-        EnemyFrameId.LargeDessgeegaLegsBent,
-        EnemyFrameId.LargeDessgeegaLegsCrouched,
-        EnemyFrameId.LargeDessgeegaOnCeilingLegsStraight,
-        EnemyFrameId.LargeDessgeegaOnCeilingLegsBent,
-        EnemyFrameId.LargeDessgeegaOnCeilingLegsCrouched,
-    ];
-
     /// <summary>The frames <c>Enemies/Hoppers/HoppersBehavior.cs</c> shows for <c>Sidehopper</c>.</summary>
     private static readonly EnemyFrameId[] SidehopperFrames =
     [
@@ -1428,6 +1406,28 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.LargeSidehopperOnCeilingLegsStraight,
         EnemyFrameId.LargeSidehopperOnCeilingLegsBent,
         EnemyFrameId.LargeSidehopperOnCeilingLegsCrouched,
+    ];
+
+    /// <summary>The frames <c>Enemies/Hoppers/HoppersBehavior.cs</c> shows for <c>DessgeegaLarge</c>.</summary>
+    private static readonly EnemyFrameId[] DessgeegaLargeFrames =
+    [
+        EnemyFrameId.LargeDessgeegaLegsStraight,
+        EnemyFrameId.LargeDessgeegaLegsBent,
+        EnemyFrameId.LargeDessgeegaLegsCrouched,
+        EnemyFrameId.LargeDessgeegaOnCeilingLegsStraight,
+        EnemyFrameId.LargeDessgeegaOnCeilingLegsBent,
+        EnemyFrameId.LargeDessgeegaOnCeilingLegsCrouched,
+    ];
+
+    /// <summary>The frames <c>Enemies/Hoppers/HoppersBehavior.cs</c> shows for <c>Dessgeega</c>.</summary>
+    private static readonly EnemyFrameId[] DessgeegaFrames =
+    [
+        EnemyFrameId.DessgeegaLegsStraight,
+        EnemyFrameId.DessgeegaLegsBent,
+        EnemyFrameId.DessgeegaLegsCrouched,
+        EnemyFrameId.DessgeegaOnCeilingLegsStraight,
+        EnemyFrameId.DessgeegaOnCeilingLegsBent,
+        EnemyFrameId.DessgeegaOnCeilingLegsCrouched,
     ];
 
     /// <summary>The frames <c>Enemies/Kago/KagoBehavior.cs</c> shows.</summary>
@@ -2444,11 +2444,11 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.ShipBottomEntrance] = ShipBottomEntranceFrames,
             [EnemyDefinitionId.ShipTop] = ShipTopFrames,
             [EnemyDefinitionId.Hibashi] = Hibashi,
-            [EnemyDefinitionId.Dessgeega] = DessgeegaFrames,
-            [EnemyDefinitionId.DessgeegaLarge] = DessgeegaLargeFrames,
             [EnemyDefinitionId.Sidehopper] = SidehopperFrames,
             [EnemyDefinitionId.SidehopperLarge] = SidehopperLargeFrames,
             [EnemyDefinitionId.SidehopperTourian] = SidehopperLargeFrames,
+            [EnemyDefinitionId.DessgeegaLarge] = DessgeegaLargeFrames,
+            [EnemyDefinitionId.Dessgeega] = DessgeegaFrames,
             [EnemyDefinitionId.Kago] = Kago,
             [EnemyDefinitionId.KihunterGreen] = KihunterGreenFrames,
             [EnemyDefinitionId.KihunterGreenWings] = KihunterGreenWingsFrames,

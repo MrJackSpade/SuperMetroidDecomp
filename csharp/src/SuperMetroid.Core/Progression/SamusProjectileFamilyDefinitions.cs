@@ -7,8 +7,8 @@ internal static class SamusProjectileFamilyDefinitions
     /// Each family's role: beams, missiles and Super Missiles are fired shots, bombs and Power Bombs are bombs, and the
     /// beam and missile explosions are the explosions shots leave.
     /// </summary>
-    internal static IReadOnlyDictionary<SamusProjectileFamily, SamusProjectileFamilyRole> Roles { get; } =
-        new Dictionary<SamusProjectileFamily, SamusProjectileFamilyRole>
+    internal static IdentityTable<SamusProjectileFamily, SamusProjectileFamilyRole> Roles { get; } =
+        new(new Dictionary<SamusProjectileFamily, SamusProjectileFamilyRole>
         {
             [SamusProjectileFamily.Beam] = SamusProjectileFamilyRole.FiredShot,
             [SamusProjectileFamily.Missile] = SamusProjectileFamilyRole.FiredShot,
@@ -17,5 +17,5 @@ internal static class SamusProjectileFamilyDefinitions
             [SamusProjectileFamily.Bomb] = SamusProjectileFamilyRole.Bomb,
             [SamusProjectileFamily.BeamExplosion] = SamusProjectileFamilyRole.Explosion,
             [SamusProjectileFamily.MissileExplosion] = SamusProjectileFamilyRole.Explosion,
-        };
+        });
 }

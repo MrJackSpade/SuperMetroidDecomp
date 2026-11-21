@@ -56,8 +56,8 @@ internal static class CrocomireAnimations
     /// held for good (#1627); the
     /// shot fight projectile's five four-update explosion frames, then a drop with Crocomire's chances and deletion.
     /// </summary>
-    internal static AnimationSegments<CrocomireProjectileSegment, EnemyProjectileFrameId, CrocomireProjectileCue> ProjectileSegments { get; } = new(
-        new Dictionary<CrocomireProjectileSegment, AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>[]>
+    internal static UnpausedAnimationSegments<CrocomireProjectileSegment, EnemyProjectileFrameId, CrocomireProjectileCue> ProjectileSegments { get; } = new(
+        new Dictionary<CrocomireProjectileSegment, AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>.Unpaused[]>
         {
             [CrocomireProjectileSegment.Mouth] =
             [
@@ -101,6 +101,6 @@ internal static class CrocomireAnimations
         new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 
     /// <summary>Shows projectile frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue> ProjectileFrame(EnemyProjectileFrameId frame, int duration) =>
+    private static AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>.Unpaused ProjectileFrame(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>.Frame(frame, duration);
 }

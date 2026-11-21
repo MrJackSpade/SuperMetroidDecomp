@@ -12,10 +12,13 @@ namespace SuperMetroid.Core.Enemies.Kago;
 internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kago];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Kago], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.WithoutMainAi(new KagoEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.WithoutMainAi(new KagoEntity(this, occupant, place, common));
 
     /// <summary>Provides the room's random number sampled by bug spawns and jumps without advancing the generator.</summary>
     private readonly EnemyRoomBinding _room;
@@ -110,48 +113,36 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation ShotAnimation() => new KagoBugProjectileAnimation(this, KagoBugProjectileSegment.Shot);
 
+        /// <summary>What <c>Move</c> does for each <see cref="KagoBugMotion"/> member, each member's own arm.</summary>
+        private IdentityTable<KagoBugMotion, Action<EnemyProjectileMotionContext>> MoveForKagoBugMotion => field ??= new(new Dictionary<KagoBugMotion, Action<EnemyProjectileMotionContext>>
+        {
+            [KagoBugMotion.Waiting] = context => RunKagoBugIdle(context.Projectile),
+            [KagoBugMotion.Jumping] = context => RunKagoBugJumping(context.Projectile, context.Level),
+            [KagoBugMotion.Falling] = context => RunKagoBugFalling(context.Projectile, context.Level),
+        });
+
         /// <inheritdoc/>
         internal override void Move(EnemyProjectileMotionContext context, KagoBugMotion motion)
         {
-            switch (motion)
-            {
-                case KagoBugMotion.Waiting:
-                    RunKagoBugIdle(context.Projectile);
-                    break;
-                case KagoBugMotion.Jumping:
-                    RunKagoBugJumping(context.Projectile, context.Level);
-                    break;
-                case KagoBugMotion.Falling:
-                    RunKagoBugFalling(context.Projectile, context.Level);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KagoBugMotion)} {motion}.");
-            }
+            MoveForKagoBugMotion[motion](context);
         }
 
         /// <inheritdoc/>
         public void RunCue(EnemyProjectileCueContext context, KagoBugProjectileCue cue) => ApplyKagoBugCue(context.Projectile, cue, context.Samus);
 
+        /// <summary>What <see cref="ApplyKagoBugCue"/> does for each <see cref="KagoBugProjectileCueKind"/> member, each member's own arm.</summary>
+        private IdentityTable<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>> ApplyKagoBugCueForKagoBugProjectileCueKind => field ??= new(new Dictionary<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>>
+        {
+            [KagoBugProjectileCueKind.StartJump] = (projectile, samus) => StartKagoBugJump(projectile),
+            [KagoBugProjectileCueKind.StartIdle] = (projectile, samus) => StartKagoBugIdle(projectile),
+            [KagoBugProjectileCueKind.SpawnDrop] = (projectile, samus) => RequestKagoBugDrop(projectile, samus),
+            [KagoBugProjectileCueKind.Delete] = (projectile, samus) => projectile.Delete(),
+        });
+
         /// <summary>Carries out one cue of the bugs' animations.</summary>
         private void ApplyKagoBugCue(EnemyProjectile projectile, KagoBugProjectileCue cue, SamusState samus)
         {
-            switch (cue.Kind)
-            {
-                case KagoBugProjectileCueKind.StartJump:
-                    StartKagoBugJump(projectile);
-                    break;
-                case KagoBugProjectileCueKind.StartIdle:
-                    StartKagoBugIdle(projectile);
-                    break;
-                case KagoBugProjectileCueKind.SpawnDrop:
-                    RequestKagoBugDrop(projectile, samus);
-                    break;
-                case KagoBugProjectileCueKind.Delete:
-                    projectile.Delete();
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KagoBugProjectileCueKind)} {cue.Kind}.");
-            }
+            ApplyKagoBugCueForKagoBugProjectileCueKind[cue.Kind](projectile, samus);
         }
 
         /// <summary>Runs the shared enemy sound countdown every live bug state uses.</summary>
@@ -281,8 +272,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         KagoEnemyState state = place.RequireSpeciesState<KagoEnemyState>();
         AnimationPlayback<KagoSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, KagoAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"A cue-free Kago animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, KagoAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 
@@ -296,7 +286,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns and initializes a Kago bug; with no projectile place free, none spawns.</summary>
     private void SpawnKagoBug(RoomEnemyOccupant occupant, RoomEnemyPlace source)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KagoBug, Bug, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KagoBug, Bug, SpriteGraphics.SpawnedBy(occupant, source.Shading), new KagoBugProjectileAnimation(Bug, KagoBugProjectileSegment.Waiting));
         if (projectile is null)
             return;
 
@@ -312,7 +302,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             SoundDelay = UpdateCountdown.Lasting(firstGroundWait + KagoDefinitions.FirstSoundPastFirstHop),
         });
         projectile.StartMotion(Bug, KagoBugMotion.Waiting);
-        projectile.StartAnimation(new KagoBugProjectileAnimation(Bug, KagoBugProjectileSegment.Waiting));
     }
 
     /// <summary>

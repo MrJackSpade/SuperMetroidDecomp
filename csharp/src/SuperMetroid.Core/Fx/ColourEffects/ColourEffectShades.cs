@@ -75,8 +75,8 @@ public static class ColourEffectShades
     /// Each colour effect's name in its colour animations' installed names (#2511), written out so renaming an effect's
     /// identity never changes a name on disk.
     /// </summary>
-    private static readonly FrozenDictionary<ColourEffectId, string> EffectKeys =
-        new Dictionary<ColourEffectId, string>
+    private static readonly IdentityTable<ColourEffectId, string> EffectKeys =
+        new(new Dictionary<ColourEffectId, string>
         {
             [ColourEffectId.FadeInSuperMetroidTitleLogo] = "FadeInSuperMetroidTitleLogo",
             [ColourEffectId.FadeInNintendoCopyright] = "FadeInNintendoCopyright",
@@ -138,10 +138,10 @@ public static class ColourEffectShades
             [ColourEffectId.UpperCrateriaRedFlashing] = "UpperCrateriaRedFlashing",
             [ColourEffectId.CrateriaEscapeYellowLightning] = "CrateriaEscapeYellowLightning",
             [ColourEffectId.ParlorEscapeSkyFlicker] = "ParlorEscapeSkyFlicker",
-        }.ToFrozenDictionary();
+        });
 
     /// <summary>The shade of <paramref name="colours"/> showing <paramref name="frame"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The group or the frame's effect has no installed name.</exception>
     public static PictureShade Of(ColourEffectColours colours, ColourEffectFrame frame) =>
-        new($"colour-animation-{Ensure.Listed(ColourKeys, colours)}-{Ensure.Listed(EffectKeys, frame.Effect)}", frame.Frame);
+        new($"colour-animation-{ColourKeys[colours]}-{EffectKeys[frame.Effect]}", frame.Frame);
 }

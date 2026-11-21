@@ -22,22 +22,19 @@ internal sealed class CrocomireMelting
         _bodyLayer = bodyLayer;
     }
 
+    /// <summary>What <see cref="ShowCrocomireMeltImage"/> does for each <see cref="CrocomireMeltingIllustration"/> member, each member's own arm.</summary>
+    private IdentityTable<CrocomireMeltingIllustration, Action<CrocomireEnemyState>> ShowCrocomireMeltImageForCrocomireMeltingIllustration => field ??= new(new Dictionary<CrocomireMeltingIllustration, Action<CrocomireEnemyState>>
+    {
+        [CrocomireMeltingIllustration.Flesh] = state => ShowFirstCrocomireMeltImage(state),
+        [CrocomireMeltingIllustration.BareSkull] = state => ShowSecondCrocomireMeltImage(state),
+    });
+
     /// <summary>Shows <paramref name="illustration"/>'s melt image on his body and hands his death over to its next stage.</summary>
     /// <exception cref="InvalidDataException">His body sheet has no such melt image.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="illustration"/> is not one of his two melting illustrations.</exception>
     internal void ShowCrocomireMeltImage(CrocomireEnemyState state, CrocomireMeltingIllustration illustration)
     {
-        switch (illustration)
-        {
-            case CrocomireMeltingIllustration.Flesh:
-                ShowFirstCrocomireMeltImage(state);
-                return;
-            case CrocomireMeltingIllustration.BareSkull:
-                ShowSecondCrocomireMeltImage(state);
-                return;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(illustration), illustration, "Crocomire melts through his first and second illustrations only.");
-        }
+        ShowCrocomireMeltImageForCrocomireMeltingIllustration[illustration](state);
     }
 
     /// <summary>

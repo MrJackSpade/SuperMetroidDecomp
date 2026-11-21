@@ -66,7 +66,7 @@ internal static class CeresCountdownVerification
     {
         SamusState samus = InstalledFixtures.CreateSamus();
         samus.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 0));
-        var arrival = new CeresElevatorArrivalState(samus);
+        var arrival = new CeresElevatorArrivalState(samus.Position.Whole);
         for (int update = 1; update < 60; update++)
         {
             arrival.Step(samus);

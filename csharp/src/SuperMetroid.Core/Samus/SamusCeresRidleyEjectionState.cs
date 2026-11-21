@@ -38,7 +38,7 @@ public sealed class SamusCeresRidleyEjectionState
         // Crystal Flash's raise/drain/finish held her, its
         // independent suit colouring and its lock on her pose input survive instead. Neither
         // displaced movement owner can resume after Ridley's shove ends.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.CeresRidleyEjection);
+        SamusMovementHandOver.ToCeresRidleyEjection(samus);
 
         // The shove takes only her movement; her control stays unlocked. Her held chords still choose poses and her
         // weapons and HUD still answer, and while the shove lasts the runtime discards any damage boost she would take.
@@ -46,13 +46,12 @@ public sealed class SamusCeresRidleyEjectionState
 
     /// <summary>Runs one update of the shove.</summary>
     internal void Step(
-        RoomLevelData level,
-        ISamusRoomObjects roomObjects,
+        SamusTerrain terrain,
         SamusState samus,
         int cameraX,
         int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
         if (!IsActive)
             throw new InvalidOperationException("Ceres Ridley ejection is not active.");
@@ -65,10 +64,9 @@ public sealed class SamusCeresRidleyEjectionState
             // radius, so the alignment from the source pose's live radius to the hurt pose's uses that live radius; the
             // ordinary pose change publishes the hurt pose's radius on the following frame.
             bool facingLeft = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left;
-            samus.Pose = facingLeft
+            samus.ChangePose(facingLeft
                 ? SamusPoseId.KnockbackLeftPose
-                : SamusPoseId.KnockbackRightPose;
-            SamusPresentation.InitializeAnimation(samus);
+                : SamusPoseId.KnockbackRightPose);
             // The shove's first update shifts her pose history, once. Moving her centre by the hurt pose's radius less
             // her live one keeps her in Ceres Ridley's room, whose top row is solid: her top lies at least a block below
             // the room's, and the move is at most 14 pixels either way.
@@ -100,7 +98,7 @@ public sealed class SamusCeresRidleyEjectionState
         var requestedX = SamusHorizontalDisplacement.Toward(
             Phase is Pushing { Side: var side } ? side : throw new InvalidOperationException("Ceres Ridley's shove moves Samus toward no wall."),
             samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
 
         if (horizontal.Collided)
         {
@@ -123,7 +121,7 @@ public sealed class SamusCeresRidleyEjectionState
         UnsignedSixteenSixteen fallSpeed = samus.Kinematics.VerticalVelocity.Speed;
         if (fallSpeed.IsSlowerThan(SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed))
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(fallSpeed + samus.Kinematics.YAcceleration);
-        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusVerticalVelocity.Falling(samus.Kinematics.VerticalVelocity.Speed).Displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SamusVerticalVelocity.Falling(samus.Kinematics.VerticalVelocity.Speed).Displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
     }
 
     /// <summary>Where Ceres Ridley's shove stands: inactive, starting, or pushing toward its side.</summary>

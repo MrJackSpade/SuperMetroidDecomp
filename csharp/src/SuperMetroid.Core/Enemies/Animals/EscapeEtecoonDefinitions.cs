@@ -8,7 +8,7 @@ internal static class EscapeEtecoonDefinitions
     /// The position, action, animation, walking direction and speed each of the
     /// left walker, right walker and event-waiting roles starts with.
     /// </summary>
-    internal static readonly Dictionary<EscapeEtecoonRole, EscapeEtecoonInitialization> Initializations = new()
+    internal static readonly IdentityTable<EscapeEtecoonRole, EscapeEtecoonInitialization> Initializations = new(new Dictionary<EscapeEtecoonRole, EscapeEtecoonInitialization>
     {
         [EscapeEtecoonRole.LeftWalker] = new(new(128, 200), EscapeEtecoonAction.Walking,
             EscapeEtecoonSegment.RunningLeftLowTide, HorizontalDirection.Left, SignedEightEight.FromPixels(2)),
@@ -16,5 +16,5 @@ internal static class EscapeEtecoonDefinitions
             EscapeEtecoonSegment.RunningRightLowTide, HorizontalDirection.Right, SignedEightEight.FromPixelFraction(5, 2)),
         [EscapeEtecoonRole.WaitForEscapeEvent] = new(new(232, 200), EscapeEtecoonAction.AwaitingEscape,
             EscapeEtecoonSegment.Stationary, HorizontalDirection.Right, default),
-    };
+    });
 }

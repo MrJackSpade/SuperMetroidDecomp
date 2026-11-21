@@ -11,5 +11,5 @@ internal sealed class ChozoTourianDustAnimation(Animation<ChozoTourianDustSegmen
     : EnemyProjectileFrameAnimation<ChozoTourianDustSegment, EnemyProjectileCommonCue>(animation.Phases[0].Segment, animation, EnemyProjectileCueRunners.Common<ChozoTourianDustSegment>())
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<ChozoTourianDustSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => ChozoTourianDustAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<ChozoTourianDustSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => ChozoTourianDustAnimations.Segments;
 }

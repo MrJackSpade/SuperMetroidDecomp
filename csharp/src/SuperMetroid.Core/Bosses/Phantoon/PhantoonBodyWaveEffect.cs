@@ -48,14 +48,16 @@ public sealed class PhantoonBodyWaveEffect
         shape.Phase.ToTrigonometryAngle(),
         Period(length));
 
+    /// <summary>The period of each length.</summary>
+    private static IdentityTable<PhantoonWaveLength, int> PeriodByLength => field ??= new(new Dictionary<PhantoonWaveLength, int>
+    {
+        [PhantoonWaveLength.Short] = PhantoonWaveDefinitions.ShortPeriod,
+        [PhantoonWaveLength.Long] = PhantoonWaveDefinitions.LongPeriod,
+    });
+
     /// <summary>The screen lines of one whole cycle of a wave of <paramref name="length"/>.</summary>
     /// <param name="length">The wave's length.</param>
-    private static int Period(PhantoonWaveLength length) => length switch
-    {
-        PhantoonWaveLength.Short => PhantoonWaveDefinitions.ShortPeriod,
-        PhantoonWaveLength.Long => PhantoonWaveDefinitions.LongPeriod,
-        _ => throw new ArgumentOutOfRangeException(nameof(length), length, "Undefined Phantoon wave length."),
-    };
+    private static int Period(PhantoonWaveLength length) => PeriodByLength[length];
 
     /// <summary>
     /// A fatal hit flattens the wave: every line shows his body where it is placed, a wave of
@@ -71,13 +73,13 @@ public sealed class PhantoonBodyWaveEffect
     }
 
     /// <summary>Runs one update of the wave: a pending setup consumes the update; later active updates end the wave once it is ended or advance its phase and rebuild its shape.</summary>
-    /// <param name="boss">Owning Phantoon state; its wave's length, phase step and amplitude remain boss-owned inputs.</param>
+    /// <param name="boss">Owning Phantoon state; its wave's ending, phase step and amplitude remain boss-owned inputs.</param>
     /// <remarks>Does not publish the wave. Ending it keeps its last shape, and a new setup does not clear it; LatchDisplay owns the displayed snapshot.</remarks>
     public void Step(PhantoonEnemyState boss)
     {
         if (_wave is RequestedWave requested)
         {
-            boss.Wave.SetUp(requested.Length);
+            boss.Wave.SetUp();
             _wave = new RipplingWave(requested.Length);
             Phase = PhantoonWaveDefinitions.InitialPhase;
             return; // The setup update does not also ripple.
@@ -88,9 +90,8 @@ public sealed class PhantoonBodyWaveEffect
             _wave = new EndedWave(rippling.Length); // The wave ends, keeping its last shape.
             return;
         }
+        // The wave keeps the length it was begun with: only a new begin changes it.
         Phase += boss.Wave.PhaseStep;
-        if (boss.Wave.Length != rippling.Length)
-            throw new InvalidOperationException($"Phantoon's wave length {boss.Wave.Length} changed from its setup length {rippling.Length}.");
         _built = new(Phase, boss.Wave.Amplitude);
     }
 

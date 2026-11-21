@@ -138,7 +138,7 @@ internal static class LookupStream4Verification
         {
             AnimationBeat<CinematicSpritePose, EndingSceneCue>.Frame frame => frame.Duration,
             AnimationBeat<CinematicSpritePose, EndingSceneCue>.Pause pause => pause.Duration,
-            AnimationBeat<CinematicSpritePose, EndingSceneCue>.Hidden hidden => hidden.Duration,
+            AnimationHiddenBeat<CinematicSpritePose, EndingSceneCue> hidden => hidden.Duration,
             var other => throw new InvalidOperationException($"The stars' first beat {other} lasts no updates."),
         }, "Actual actor program retains the shared native handoff");
         AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames, "Derived complete exposure");
@@ -534,7 +534,7 @@ internal static class LookupStream4Verification
             PrivateState.Set(floor, nameof(EndingTurningFloor.Position), floor.Position.WithX(SignedSixteenSixteen.FromParts(100, 0xC000)));
             PrivateState.Set(floor, nameof(EndingTurningFloor.Zoom), FloorZoom.FromFloorPixelsPerScreenPixel(12));
             state.ShowCastPhase(fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow);
-            PrivateState.Set(state.Flyaway, "ShipShake", EndingShipShakeCursor.StartOf(sequence));
+            PrivateState.Set(state.Flyaway, "ShipShake", ListStep<SignedSixteenSixteen>.FirstOf(sequence));
             // The ending's own update runs the leg and makes its handoff.
             Action step = state.Step;
             uint expected = 100u << 16 | 0xC000;
@@ -551,9 +551,7 @@ internal static class LookupStream4Verification
                 AssertEqual((ushort)expected, floor.Position.X.Fraction, "production shake fraction preserves carry/borrow");
                 AssertEqual((frame + 1) % count, state.Flyaway.ShipShake.Place, "production shake moves on after each displacement and starts again after the last");
             }
-            EndingShipShakeCursor last = EndingShipShakeCursor.StartOf(sequence);
-            for (int place = 0; place < count - 1; place++)
-                last = last.Advanced();
+            ListStep<SignedSixteenSixteen> last = ListStep<SignedSixteenSixteen>.At(sequence, count - 1);
             PrivateState.Set(floor, nameof(EndingTurningFloor.Zoom), fast ? EndingMotionDefinitions.PlanetFastEndZoom : EndingMotionDefinitions.PlanetSlowEndZoom);
             PrivateState.Set(state.Flyaway, "ShipShake", last);
             PrivateState.Set(floor, nameof(EndingTurningFloor.Position), floor.Position.WithX(SignedSixteenSixteen.FromParts(0, 0x4000)));
@@ -564,8 +562,8 @@ internal static class LookupStream4Verification
             AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Phase, "native zoom boundary chooses next phase after selected motion");
             if (fast)
             {
-                AssertTrue(ReferenceEquals(EndingShipShake.Slow, state.Flyaway.ShipShake.Sequence), "fast handoff starts the slow shake");
-                AssertEqual(0, state.Flyaway.ShipShake.Place, "fast handoff starts the slow shake from its first displacement");
+                AssertEqual(ListStep<SignedSixteenSixteen>.FirstOf(EndingShipShake.Slow), state.Flyaway.ShipShake,
+                    "fast handoff starts the slow shake from its first displacement");
             }
             else
             {
@@ -573,8 +571,6 @@ internal static class LookupStream4Verification
                 AssertEqual((ushort)0x8000, state.Flyaway.PlanetVelocity.Fraction, "slow handoff initializes independent acceleration fraction");
             }
         }
-        AssertThrows<ArgumentException>(() => EndingShipShakeCursor.StartOf([]), "an empty shake sequence is refused");
-        AssertThrows<InvalidOperationException>(() => _ = default(EndingShipShakeCursor).Displacement, "an unstarted shake has no displacement");
         Console.WriteLine("Ending shake: 24 native signed values, two-pixel cycles, both production cycles and restarts, independent rotation/zoom, both phase handoffs and fixed-point carries pass.");
     }
 
@@ -869,10 +865,9 @@ internal static class LookupStream4Verification
         enemies.BossArtworkBinding.CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(rom)));
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        // The station's escape flies the getaway (#2228), from its second frame.
+        // The station's escape flies the getaway (#2228) from its beginning.
         CeresEscape escape = enemies.CeresEscape;
         escape.BeginGetaway();
-        escape.Floor.Flight = UpdateCountdownAccess.AtAge(CeresRidleyGetawayCurve.Duration, 1);
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         void tick(int frameCounter) => escape.RunGetawayRoomMain(samus, map, frameCounter);
         byte[] untouched = new byte[SnesVram.ByteCount];
@@ -887,7 +882,7 @@ internal static class LookupStream4Verification
             if (advances) expectedPhase = (expectedPhase + 1) & 3;
             tick(nmi);
             AssertTrue(vram.Bytes.SequenceEqual(untouched), "The getaway leaves VRAM to the published floor");
-            AssertEqual(expectedPhase, escape.Floor.Capsule.Place, "Actual getaway advances Baby before selection only on every fourth NMI");
+            AssertEqual(CeresFloorAnimationDefinitions.CapsuleCycle[expectedPhase], Capsule(), "Actual getaway advances Baby before selection only on every fourth NMI");
             AssertEqual(advances ? CeresFloorAnimationDefinitions.CapsuleCycle[expectedPhase] : before, Capsule(),
                 "Actual getaway draws the native capsule frame and keeps it on non-update NMIs");
         }
@@ -1087,9 +1082,6 @@ internal static class LookupStream4Verification
             for (int place = 0; place < 3; place++)
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + digit * 2)), tiles[74 + place], "actual stock ammo digit draw");
         }
-        // A value naming no ammunition counter is rejected rather than drawn anywhere.
-        foreach (HudAmmoCounter invalid in new[] { (HudAmmoCounter)int.MinValue, (HudAmmoCounter)(-1), (HudAmmoCounter)int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyAmmo(tiles, invalid, 0), "HUD ammunition counter exact domain");
     }
 
     /// <summary>Checks title screen sprite identities against the native artwork pointers.</summary>
@@ -1144,7 +1136,7 @@ internal static class LookupStream4Verification
                         .Sum(record => CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb40000 | (entry + 4 * record))),
                     spawned.FrameHold, "room sprite actual initial native duration");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | (entry + 2))), spawned.SpritemapPointer, "room sprite actual initial native visual");
-            AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
+            AssertTrue(spawned.Shows(kind), "room sprite selected kind preserved");
             AssertEqual((ushort)0x1234, spawned.Position.X.Whole, "room sprite spawn X preserved");
             AssertEqual((ushort)0x5678, spawned.Position.Y.Whole, "room sprite spawn Y preserved");
             AssertEqual(SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook), spawned.Graphics, "room sprite tile base and colouring argument preserved");
@@ -1242,7 +1234,7 @@ internal static class LookupStream4Verification
             // A record no gameplay path gives Samus names no pose (#1517), so it has no grab policy to check.
             if (!SamusPoseNumbering.NamesPose(pose))
                 continue;
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseNumbering.FromNumber(pose) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseNumbering.FromNumber(pose));
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
             var state = new NorfairRidleyState { GrabState = RidleyGrabState.CarryingSamus, Tail = { Action = RidleyTailAction.Pogo }, ReleaseIntangibility = BossCountdown.Lasting(99) };

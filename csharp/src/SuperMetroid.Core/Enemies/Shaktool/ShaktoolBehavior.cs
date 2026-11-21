@@ -9,10 +9,13 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Shaktool];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Shaktool], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ShaktoolEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ShaktoolEntity(this, occupant, place, common));
 
     /// <summary>Checks terrain collisions along each segment's orbit and attack path.</summary>
     private readonly EnemyTerrain _terrain;
@@ -108,33 +111,22 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The chain a segment found when it was placed: its segments and their shared motion and target (#2452).</summary>
     private ShaktoolChain ChainOf(RoomEnemyPlace segment) => _chains.Of(segment).Chain;
 
+    /// <summary>What <see cref="RunShaktoolMain"/> does for each <see cref="ShaktoolSegmentMotion"/> member, each member's own arm.</summary>
+    private IdentityTable<ShaktoolSegmentMotion, Action<RoomEnemyPlace, ShaktoolSegmentState, RoomLevelData>> RunShaktoolMainForShaktoolSegmentMotion => field ??= new(new Dictionary<ShaktoolSegmentMotion, Action<RoomEnemyPlace, ShaktoolSegmentState, RoomLevelData>>
+    {
+        [ShaktoolSegmentMotion.Idle] = (place, state, level) => { },
+        [ShaktoolSegmentMotion.OrbitPreviousSegment] = (place, state, level) => AdvanceShaktoolOrbit(place, state),
+        [ShaktoolSegmentMotion.OrbitAndOrientCenter] = (place, state, level) => AdvanceAndOrientShaktoolCenter(place, state),
+        [ShaktoolSegmentMotion.DriveTailAndReverseAtWalls] = (place, state, level) => DriveShaktoolTail(place, state, level),
+    });
+
     /// <summary>Runs Shaktool's hurt and main behaviours.</summary>
     private void RunShaktoolMain(
         RoomEnemyPlace place,
         ShaktoolSegmentState state,
         RoomLevelData level)
     {
-        switch (state.Motion)
-        {
-            case ShaktoolSegmentMotion.Idle:
-                return;
-
-            case ShaktoolSegmentMotion.OrbitPreviousSegment:
-                AdvanceShaktoolOrbit(place, state);
-                return;
-
-            case ShaktoolSegmentMotion.OrbitAndOrientCenter:
-                AdvanceAndOrientShaktoolCenter(place, state);
-                return;
-
-            case ShaktoolSegmentMotion.DriveTailAndReverseAtWalls:
-                DriveShaktoolTail(place, state, level);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Shaktool has no motion {state.Motion}.");
-        }
+        RunShaktoolMainForShaktoolSegmentMotion[state.Motion](place, state, level);
     }
 
     /// <summary>Places the segment on its orbit around the segment before it in the chain.</summary>
@@ -249,6 +241,19 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             chain.Motion = chain.Motion with { Phase = ShaktoolChainPhase.Straightening };
     }
 
+    /// <summary>What <see cref="ReverseShaktoolAfterCollision"/> does for each <see cref="ShaktoolWallResponse"/> member, each member's own arm.</summary>
+    private IdentityTable<ShaktoolWallResponse, Action<RoomEnemyPlace, Position16<RoomPixels>, ShaktoolChain, ShaktoolChainMotion>> ReverseShaktoolAfterCollisionForShaktoolWallResponse => field ??= new(new Dictionary<ShaktoolWallResponse, Action<RoomEnemyPlace, Position16<RoomPixels>, ShaktoolChain, ShaktoolChainMotion>>
+    {
+        [ShaktoolWallResponse.ReverseOrbit] = (place, previous, chain, motion) => chain.Motion = new(ShaktoolChainPhase.Curling, ShaktoolWallResponse.TurnEndForEnd, motion.OrbitDirection.Reversed()),
+        [ShaktoolWallResponse.TurnEndForEnd] = (place, previous, chain, motion) =>
+        {
+            place.Position = place.Position.WithWhole(previous);
+            ReverseShaktoolChainEndpoints(place);
+            // The chain curls again, and the next wall reverses its orbit (#2284).
+            chain.Motion = motion with { Phase = ShaktoolChainPhase.Curling, NextWall = ShaktoolWallResponse.ReverseOrbit };
+        },
+    });
+
     /// <summary>
     /// Reverses the chain at terrain contact as its next wall response says: it turns end for end, or its orbit turns the
     /// other way round; either way it curls again and turns toward a new target.
@@ -260,22 +265,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ShaktoolChain chain = ChainOf(place);
         ShaktoolChainMotion motion = chain.Motion;
-        switch (motion.NextWall)
-        {
-            case ShaktoolWallResponse.ReverseOrbit:
-                chain.Motion = new(ShaktoolChainPhase.Curling, ShaktoolWallResponse.TurnEndForEnd, motion.OrbitDirection.Reversed());
-                break;
-
-            case ShaktoolWallResponse.TurnEndForEnd:
-                place.Position = place.Position.WithWhole(previous);
-                ReverseShaktoolChainEndpoints(place);
-                // The chain curls again, and the next wall reverses its orbit (#2284).
-                chain.Motion = motion with { Phase = ShaktoolChainPhase.Curling, NextWall = ShaktoolWallResponse.ReverseOrbit };
-                break;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ShaktoolWallResponse)} {motion.NextWall}.");
-        }
+        ReverseShaktoolAfterCollisionForShaktoolWallResponse[motion.NextWall](place, previous, chain, motion);
 
         state.ResetOrientation();
         RoomEnemyPlace owner = chain.LeadingSaw;
@@ -364,23 +354,11 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The seven segments of the chain a segment found when it was placed, <paramref name="anySegment"/> among them, each
-    /// validated as initialized.
+    /// The seven segments of the chain a segment found when it was placed, <paramref name="anySegment"/> among them. Each
+    /// segment's state is read in its place (<see cref="RequireShaktoolState"/>): the chain keeps moving through the rest of
+    /// the update that kills a segment, reaching the killed segment's cleared state.
     /// </summary>
-    private IReadOnlyList<ShaktoolChainSegment> GetShaktoolGroup(RoomEnemyPlace anySegment)
-    {
-        IReadOnlyList<ShaktoolChainSegment> group = ChainOf(anySegment).Segments;
-        foreach (ShaktoolChainSegment segment in group)
-        {
-            // The chain keeps moving through the rest of the update that kills a segment, reaching the killed segment's cleared state.
-            if (segment.Place.FoundOrClearedState<ShaktoolSegmentState>() is null)
-            {
-                throw new InvalidDataException(
-                    $"Shaktool group rooted at place {group[0].Place.Ordinal} is missing its segment at place {segment.Place.Ordinal}.");
-            }
-        }
-        return group;
-    }
+    private IReadOnlyList<ShaktoolChainSegment> GetShaktoolGroup(RoomEnemyPlace anySegment) => ChainOf(anySegment).Segments;
 
     /// <summary>The enemy listed after a linked segment center, which it found when it was placed.</summary>
     private RoomEnemyPlace GetNextShaktoolSegment(RoomEnemyPlace place) =>
@@ -396,33 +374,33 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         place.FoundOrClearedState<ShaktoolSegmentState>() ?? throw new InvalidOperationException(
             $"Enemy place {place.Ordinal} has no initialized Shaktool state.");
 
+    /// <summary>What <see cref="ApplyShaktoolCue"/> does for each <see cref="ShaktoolCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<ShaktoolCueKind, Action<RoomEnemyPlace, ShaktoolCue>> ApplyShaktoolCueForShaktoolCueKind => field ??= new(new Dictionary<ShaktoolCueKind, Action<RoomEnemyPlace, ShaktoolCue>>
+    {
+        [ShaktoolCueKind.Lower] = (place, cue) => ApplyShaktoolCueForShaktoolCueKindLower(place, cue),
+        [ShaktoolCueKind.Raise] = (place, cue) => ApplyShaktoolCueForShaktoolCueKindLower(place, cue),
+        [ShaktoolCueKind.ResumeMotion] = (place, cue) =>
+        {
+            foreach (ShaktoolChainSegment segment in GetShaktoolGroup(place))
+                RequireShaktoolState(segment.Place).Motion = segment.Definition.Motion;
+        },
+    });
+
+    /// <summary>What <see cref="ApplyShaktoolCueForShaktoolCueKind"/> does for <see cref="ShaktoolCueKind.Lower"/>, <see cref="ShaktoolCueKind.Raise"/>.</summary>
+    private void ApplyShaktoolCueForShaktoolCueKindLower(RoomEnemyPlace place, ShaktoolCue cue)
+    {
+        TrigonometryAngle targetDirection = ChainOf(place).TargetAngle.ToTrigonometryAngle();
+        MoveShaktoolSegmentForAnimation(
+            place,
+            cue.Kind == ShaktoolCueKind.Lower
+                ? targetDirection + TrigonometryAngle.HalfTurn
+                : targetDirection);
+    }
+
     /// <summary>Carries out one cue of a Shaktool segment's animation.</summary>
     private void ApplyShaktoolCue(RoomEnemyPlace place, ShaktoolCue cue)
     {
-        switch (cue.Kind)
-        {
-            case ShaktoolCueKind.Lower:
-            case ShaktoolCueKind.Raise:
-            {
-                TrigonometryAngle targetDirection = ChainOf(place).TargetAngle.ToTrigonometryAngle();
-                MoveShaktoolSegmentForAnimation(
-                    place,
-                    cue.Kind == ShaktoolCueKind.Lower
-                        ? targetDirection + TrigonometryAngle.HalfTurn
-                        : targetDirection);
-                break;
-            }
-
-            case ShaktoolCueKind.ResumeMotion:
-            {
-                foreach (ShaktoolChainSegment segment in GetShaktoolGroup(place))
-                    RequireShaktoolState(segment.Place).Motion = segment.Definition.Motion;
-                break;
-            }
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ShaktoolCueKind)} {cue.Kind}.");
-        }
+        ApplyShaktoolCueForShaktoolCueKind[cue.Kind](place, cue);
     }
 
     /// <summary>Moves the segment one update along <paramref name="angle"/>, a pixel at most, as its cue raises or lowers it.</summary>

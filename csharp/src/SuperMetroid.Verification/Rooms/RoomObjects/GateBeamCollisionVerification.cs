@@ -41,8 +41,8 @@ internal static class GateBeamCollisionVerification
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
         GameplayAction input = GameplayAction.Shoot;
-        bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
-        shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new(0, 224), bombs, new SharedGameState(new SharedRandom()));
+        bombs.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
+        shots.StepFrame(SamusTerrain.InRoom(level, roomObjects), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new(0, 224), bombs, new SharedGameState(new SharedRandom()));
         var shot = shots.Shots[0];
         AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false).AsFamily(SamusProjectileFamily.BeamExplosion), shot.HeldShot().Type, "Native beam impacts gate during producer collision");
         AssertEqual((ushort)113, shot.Position.X.Whole, "Native impact X, before any continuing flight");
@@ -74,18 +74,19 @@ internal static class GateBeamCollisionVerification
                 for (int i = 0; i < 40; i++)
                     AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, level.BlockAt(first), 0x10, BlockStrike.GrappleTouch.Instance, true), "Fill gate probe pool");
             var shot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
-            shot.HeldShot().Position = new(new(33, 0), new(33, 0));
+            // The shot stands a 256th of a pixel into its pixels, which its move by a 256th of a pixel back leaves it in.
+            shot.HeldShot().Position = new(new(33, 256), new(33, 256));
             shot.HeldShot().Radius = new(17, 17);
             shot.HeldShot().Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1));
             // The scans take the shot holding its place (#2558): an uncharged Power beam, which strikes the gate probes
             // as the unfired place the check used before did.
             SamusProjectileOccupant held = shot.HeldShot();
             bool result = false;
-            if (wave && horizontal) ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, held, roomObjects, InstalledFixtures.SamusOverreads.StraddledTerrain);
-            else if (wave) ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, held, roomObjects);
+            if (wave && horizontal) WaveShotTerrainMoves.MoveWaveShotHorizontally(SamusTerrain.InRoom(level, roomObjects), held, InstalledFixtures.SamusOverreads.StraddledTerrain);
+            else if (wave) ProjectileTerrainCollision.ScanVerticalWaveShotReactions(SamusTerrain.InRoom(level, roomObjects), held);
             else result = horizontal
-                ? ProjectileTerrainCollision.ScanHorizontalShotReactions(level, held, roomObjects)
-                : ProjectileTerrainCollision.ScanVerticalShotReactions(level, held, roomObjects);
+                ? ProjectileTerrainCollision.MoveHorizontally(SamusTerrain.InRoom(level, roomObjects), held)
+                : ProjectileTerrainCollision.MoveVertically(SamusTerrain.InRoom(level, roomObjects), held);
             AssertEqual(full ? 40 : 1, roomObjects.Places.ActiveCount, "Gate setup terminates span after first allocation");
             if (!wave) AssertEqual(!full, result, "Only executed gate setup overrides earlier air reaction");
             AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.ShootableBlock), level.GetCollisionBlockByIndex(first).Terrain, "Gate scan does not mutate terrain");

@@ -29,7 +29,7 @@ internal static class PoseDispatchDefinitionsVerification
             int address = SamusSourceDefinitions.PoseDefinitions.Value + pose * SamusSourceDefinitions.PoseDefinitionByteCount;
             byte facing = rom.ReadCartridgeByte(address), movement = rom.ReadCartridgeByte(address + 1), fallback = rom.ReadCartridgeByte(address + 2);
             ISnesAddressSpace source = forbidden;
-            samus.Pose = SamusPoseNumbering.FromNumber(pose);
+            samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(pose));
             byte aim = rom.ReadCartridgeByte(address + 3);
             AssertEqual(SamusPoseRecordDecoding.DecodeAim(aim), SamusPoseMetadata.ReadAim(samus), "Live aim answers what the native aim byte reads as, restrictions included, without authored ROM reads");
             AssertEqual(SamusPoseRecordDecoding.DecodeAim(aim), SamusPoseMetadata.ReadAim(SamusPoseNumbering.FromNumber(pose)), "Prospective aim answers what the native aim byte reads as");

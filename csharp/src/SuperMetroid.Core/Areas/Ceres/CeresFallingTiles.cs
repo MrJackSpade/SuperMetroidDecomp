@@ -39,13 +39,12 @@ internal sealed class CeresFallingTiles
     /// </summary>
     internal void Spawn(int xPosition, EnemyProjectileAnimation animation, SpriteGraphics graphics)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CeresFallingDebris, Behavior, graphics);
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CeresFallingDebris, Behavior, graphics, animation);
         if (projectile is null)
             return;
 
         projectile.Position = projectile.Position.WithWhole(new(xPosition, CeresFallingDebrisDefinitions.StartingY));
         projectile.Velocity = new(SignedEightEight.Zero, CeresFallingDebrisDefinitions.StartingFallSpeed);
-        projectile.StartAnimation(animation);
     }
 
     /// <summary>Drops a tile, accelerating, and raises dust and sounds its fall where it strikes the room.</summary>

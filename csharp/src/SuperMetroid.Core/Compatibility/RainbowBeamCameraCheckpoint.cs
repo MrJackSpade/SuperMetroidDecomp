@@ -94,13 +94,11 @@ public sealed class RainbowBeamCameraCheckpoint
         }
 
         /// <summary>The record's sub-pixel <paramref name="recorded"/> with this replacement applied.</summary>
-        public int ApplyTo(int recorded) => Extent switch
-        {
-            HiddenExtent.None => recorded,
-            HiddenExtent.Coarse => Fraction + Fine(recorded),
-            HiddenExtent.Complete => Fraction,
-            _ => throw new InvalidOperationException($"Undefined hidden extent {Extent}."),
-        };
+        public int ApplyTo(int recorded) =>
+            Extent == HiddenExtent.None ? recorded
+            : Extent == HiddenExtent.Coarse ? Fraction + Fine(recorded)
+            // The remaining member, HiddenExtent.Complete.
+            : Fraction;
 
         /// <summary>The whole coarse steps of a sub-pixel position.</summary>
         private static int Coarse(int fraction) => fraction - Fine(fraction);

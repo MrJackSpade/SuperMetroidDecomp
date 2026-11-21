@@ -53,10 +53,28 @@ internal static class FileSelectNavigationLookupVerification
         foreach ((SaveSlot source, int list) in SaveSlots.All.Select((slot, list) => (slot, list)))
         {
             VerifyOriginalSubmenuChoices(original[list], (selected, pressed) =>
-                FileSelectDataNavigation.MoveCopyDestination(selected, source, pressed),
+                FileSelectDataNavigation.MoveCopyDestination(CopyDestinationRowShowing(source, selected), pressed).Item,
                 $"copy destination source={source}");
         }
         Console.WriteLine("Copy destination navigation: all three original choice lists, nine selectable states and input priority pass.");
+    }
+
+    /// <summary>
+    /// The row of <paramref name="source"/>'s copy-destination menu that shows <paramref name="item"/>, reached as the menu
+    /// is walked: from its top row down.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The menu shows no row of <paramref name="item"/>: the item is not selectable there.</exception>
+    private static FileCopyDestinationRow CopyDestinationRowShowing(SaveSlot source, FileSelectItem item)
+    {
+        FileCopyDestinationRow row = FileCopyDestinationRow.FirstFrom(source);
+        while (row.Item != item)
+        {
+            FileCopyDestinationRow below = row.Below;
+            if (ReferenceEquals(below, row))
+                throw new InvalidDataException($"Submenu item {item} is not selectable.");
+            row = below;
+        }
+        return row;
     }
 
     /// <summary>Reads a native destination-navigation opcode for comparison with the compiled selection rule.</summary>

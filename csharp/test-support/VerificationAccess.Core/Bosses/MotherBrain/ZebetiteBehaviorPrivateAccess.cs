@@ -22,15 +22,11 @@ internal static class ZebetiteBehaviorPrivateAccess
         }
 
         /// <summary>The private property <c>SharedPulse</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.MotherBrain.ZebetitePulse> SharedPulse
+        internal global::SuperMetroid.Core.ListStep<global::SuperMetroid.Core.Bosses.MotherBrain.ZebetitePulse> SharedPulse
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.ZebetiteBehavior, global::SuperMetroid.Core.Bosses.ListStep<global::SuperMetroid.Core.Bosses.MotherBrain.ZebetitePulse>>(self, "SharedPulse");
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.ZebetiteBehavior, global::SuperMetroid.Core.ListStep<global::SuperMetroid.Core.Bosses.MotherBrain.ZebetitePulse>>(self, "SharedPulse");
             set => PrivateState.Set(self, "SharedPulse", value);
         }
-
-        /// <summary>The private method <c>SpawnZebetite</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.RoomEnemyPlace SpawnZebetite(global::SuperMetroid.Core.Bosses.MotherBrain.ZebetiteHalf half) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.MotherBrain.ZebetiteBehavior, global::SuperMetroid.Core.Enemies.RoomEnemyPlace>(self, "SpawnZebetite", [typeof(global::SuperMetroid.Core.Bosses.MotherBrain.ZebetiteHalf)], new object?[] { half });
     }
 
     /// <summary>The private static members checks name.</summary>

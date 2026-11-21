@@ -10,10 +10,13 @@ namespace SuperMetroid.Core.Enemies.Flies;
 internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mella, EnemyDefinitionId.Mellow, EnemyDefinitionId.MaridiaFly];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Mella, EnemyDefinitionId.Mellow, EnemyDefinitionId.MaridiaFly], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new FliesEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new FliesEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared room RNG whose advance is part of each fly AI update.</summary>
     private readonly EnemyRoomBinding _room;
@@ -23,7 +26,6 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _room = room;
     }
-
 
     /// <summary>Starts a newly loaded fly at angle zero with its flight animation and clockwise motion.</summary>
     internal static void InitializeFly(RoomEnemyPlace place)
@@ -39,6 +41,23 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         place.AnimationClock.StepOnNextUpdate();
     }
 
+    /// <summary>What <see cref="RunFlyMain"/> does for each <see cref="FlyAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<FlyAction, Action<RoomEnemyPlace, SamusState, FlyEnemyState>> RunFlyMainForFlyAction => field ??= new(new Dictionary<FlyAction, Action<RoomEnemyPlace, SamusState, FlyEnemyState>>
+    {
+        [FlyAction.Circling] = static (place, samus, state) => RunFlyCircle(place, state, samus),
+        [FlyAction.AttackSamus] = static (place, samus, state) => RunFlyAttack(place, state),
+        [FlyAction.Retreat] = static (place, samus, state) =>
+        {
+            MoveFlyAccordingToVelocities(place, state);
+            if (state.RetreatUpdatesLeft.Count())
+            {
+                state.CooldownUpdatesLeft = UpdateCountdown.For(FlyMotionDefinitions.AttackCooldown);
+                state.Action = FlyAction.Circling;
+                state.Rotation = RotationDirection.Clockwise;
+            }
+        },
+    });
+
     /// <summary>Advances room RNG and runs a fly's circle, attack or retreat phase.</summary>
     private void RunFlyMain(RoomEnemyPlace place, SamusState samus)
     {
@@ -46,27 +65,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         // returned number. The side effect matters when several random enemies share a room.
         _room.Random.Generate();
         FlyEnemyState state = place.RequireSpeciesState<FlyEnemyState>();
-        switch (state.Action)
-        {
-            case FlyAction.Circling:
-                RunFlyCircle(place, state, samus);
-                return;
-            case FlyAction.AttackSamus:
-                RunFlyAttack(place, state);
-                return;
-            case FlyAction.Retreat:
-                MoveFlyAccordingToVelocities(place, state);
-                if (state.RetreatUpdatesLeft.Count())
-                {
-                    state.CooldownUpdatesLeft = UpdateCountdown.For(FlyMotionDefinitions.AttackCooldown);
-                    state.Action = FlyAction.Circling;
-                    state.Rotation = RotationDirection.Clockwise;
-                }
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Fly has no behaviour for action {state.Action}.");
-        }
+        RunFlyMainForFlyAction[state.Action](place, samus, state);
     }
 
     /// <summary>Rotates a fly around its flight path, reversing direction each revolution or diving when Samus enters range.</summary>
@@ -168,8 +167,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         FlyEnemyState state = place.RequireSpeciesState<FlyEnemyState>();
         AnimationPlayback<FlySegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, FlyAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"A cue-free fly animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, FlyAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 

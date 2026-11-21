@@ -62,21 +62,22 @@ public sealed class MotherBrainBrainAnimation
         AnimationPlace place = playback.Place;
         AnimationShown<MotherBrainHeadSegment, EnemyFrameId> shown = MotherBrainAnimations.HeadSegments.PlayToNextFrame(ref animation, ref place, react);
         Playback = new AnimationPlayback<MotherBrainHeadSegment>(animation, place);
-        switch (shown)
-        {
-            case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Frame frame:
-                ShownFrame = frame.Shown;
-                Clock.Show(frame.Duration);
-                return;
-            case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.HeldFrame held:
-                ShownFrame = held.Shown;
-                Clock.ShowForGood();
-                return;
-            case AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Held:
-                Clock.Stop();
-                return;
-            default:
-                throw new InvalidOperationException($"Mother Brain's brain animations have no {shown} beat.");
-        }
+        shown.React(StepReactions, this);
     }
+
+    /// <summary>What <c>Step</c> does on each <see cref="AnimationShown{MotherBrainHeadSegment, EnemyFrameId}"/>, built once (#2553).</summary>
+    private static AnimationShownReactions<MotherBrainHeadSegment, EnemyFrameId, MotherBrainBrainAnimation> StepReactions { get; } = new(
+        Frame: static (frame, owner) =>
+        {
+            owner.ShownFrame = frame.Shown;
+            owner.Clock.Show(frame.Duration);
+        },
+        HeldFrame: static (held, owner) =>
+        {
+            owner.ShownFrame = held.Shown;
+            owner.Clock.ShowForGood();
+        },
+        Paused: static (paused, owner) => owner.Clock.Pause(paused.Duration),
+        Held: static (_, owner) => owner.Clock.Stop(),
+        Ended: static (_, owner) => owner.Clock.Stop());
 }

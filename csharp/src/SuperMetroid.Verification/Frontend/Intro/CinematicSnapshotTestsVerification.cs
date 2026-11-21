@@ -183,6 +183,9 @@ internal static class CinematicSnapshotTestsVerification
     [VerificationCommand("--cinematic-fixtures")]
     internal static int CinematicFixturesCommand()
     {
-     VerifyCinematicRenderSnapshots(); VerifyEndingRenderSnapshots(); VerifyEndingCreditsState(); return 0; 
+        Suite(nameof(VerifyCinematicRenderSnapshots), VerifyCinematicRenderSnapshots);
+        Suite(nameof(VerifyEndingRenderSnapshots), VerifyEndingRenderSnapshots);
+        Suite(nameof(VerifyEndingCreditsState), VerifyEndingCreditsState);
+        return 0;
     }
 }

@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Animation;
-using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId, SuperMetroid.Core.Enemies.Projectiles.KraidRockCue>;
+using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId, SuperMetroid.Core.Enemies.Projectiles.KraidRockCue>.Unpaused;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -13,7 +13,7 @@ internal static class KraidRockAnimations
     /// <summary>
     /// Each rock segment's beats: the shared and right rising rocks hold their still pose for good (#1627); the spat rock's burst stops its flight, shows the rock breaking apart, then deletes itself.
     /// </summary>
-    internal static AnimationSegments<KraidRockSegment, EnemyProjectileFrameId, KraidRockCue> Segments { get; } = new(
+    internal static UnpausedAnimationSegments<KraidRockSegment, EnemyProjectileFrameId, KraidRockCue> Segments { get; } = new(
         new Dictionary<KraidRockSegment, Beat[]>
         {
             [KraidRockSegment.SharedPose] = [new Beat.HeldFrame(EnemyProjectileFrameId.KraidRockLarge)],

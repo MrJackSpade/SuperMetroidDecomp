@@ -287,7 +287,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             "n00b-tube flicker instruction uses installed OAM without visual ROM reads");
 
         var installedSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0)) };
-        var installedArrival = new CeresElevatorArrivalState(installedSamus);
+        var installedArrival = new CeresElevatorArrivalState(installedSamus.Position.Whole);
         for (int frame = 0; frame < 3; frame++)
         {
             installedArrival.Step(installedSamus);

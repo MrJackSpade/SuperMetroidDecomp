@@ -44,7 +44,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(0x0e), AreaId.Crateria);
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: false);
 
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(level, roomObjects), samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
 
         AssertTrue(result.Collided,
             "inactive contact with BTS $0E retains the special-solid collision result");
@@ -62,7 +62,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(0x0e), AreaId.Crateria);
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
 
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(level, roomObjects), samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
 
         AssertTrue(!result.Collided,
             "stage-four downward contact passes through the newly cleared floor block");
@@ -103,7 +103,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         (_, RoomLevelData level, RoomObjectSystem roomObjects, int blockIndex) = CreateSpeedBoosterBlockFixture(
             RoomBlockBehaviorCodec.Decode(0x0e), AreaId.Crateria, BlockMirroring.Horizontal | BlockMirroring.Vertical);
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
-        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose,
+        SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(level, roomObjects), samus.Kinematics, samus, samus.Pose,
             new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
         AssertEqual(RoomBlockAppearance.Of(0x0b6), level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance,
             "a mirrored Speed Booster block's setup shows the parent block unmirrored");
@@ -117,7 +117,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
         samus.Position = samus.Position.WithWhole(new(34, 72));
 
-        BlockMoveResult result = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4) });
+        BlockMoveResult result = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, roomObjects), samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4) });
 
         AssertTrue(!result.Collided,
             "stage-four horizontal contact passes through permanent speed terrain");
@@ -150,7 +150,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             (_, RoomLevelData level, RoomObjectSystem roomObjects, int blockIndex) =
                 CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, bts), AreaId.Brinstar);
             SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
-            BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
+            BlockMoveResult result = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(level, roomObjects), samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
 
             AssertTrue(!result.Collided,
                 $"Brinstar BTS ${bts:X2} clears through the production collision path");
@@ -193,9 +193,8 @@ internal static class SpeedBoosterCollisionBlocksVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(40, 54)),
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         samus.Kinematics.Radius = new(5, 8);
         samus.HorizontalSpeed.SpeedBoostCounter = active
             ? SamusSpeedBoostCounter.AtFullStage

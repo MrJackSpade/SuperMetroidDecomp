@@ -13,10 +13,13 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CorpseTorizo];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.CorpseTorizo], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new DeadTorizoEntity(this, occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new DeadTorizoEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared random seed.</summary>
     private readonly EnemyRoomBinding _room;
@@ -59,6 +62,28 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
+    /// <summary>What <see cref="RunDeadTorizoMain"/> does for each <see cref="CorpsePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTorizoEnemyState>> RunDeadTorizoMainForDeadTorizoPhase => field ??= new(new Dictionary<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTorizoEnemyState>>
+    {
+        [CorpsePhase.Waiting] = WaitToRot,
+        [CorpsePhase.PreRotDelay] = WaitToRot,
+        [CorpsePhase.Rotting] = (place, samus, state) => RunDeadTorizoRotting(place, state),
+        [CorpsePhase.Finished] = (place, samus, state) =>
+        {
+        },
+    });
+
+    /// <summary>
+    /// Waits for Samus's touch and then the delay before the corpse rots; the update its delay runs out on, the corpse
+    /// already rots.
+    /// </summary>
+    private void WaitToRot(RoomEnemyPlace place, SamusState samus, DeadTorizoEnemyState state)
+    {
+        state.Phase = CorpseRotWait.Step(state.Phase, place, samus, state.PreRotDelay);
+        if (state.Phase == CorpsePhase.Rotting)
+            RunDeadTorizoRotting(place, state);
+    }
+
     /// <summary>Runs the dead Torizo's main AI.</summary>
     private void RunDeadTorizoMain(RoomEnemyPlace place, SamusState samus)
     {
@@ -72,29 +97,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             TriggerDeadTorizoRotting(place);
         }
 
-        switch (state.Phase)
-        {
-            case CorpsePhase.Waiting:
-            case CorpsePhase.PreRotDelay:
-                // The update its delay runs out on, the corpse already rots.
-                state.Phase = CorpseRotWait.Step(state.Phase, place, samus, state.PreRotDelay);
-                if (state.Phase == CorpsePhase.Rotting)
-                    RunDeadTorizoRotting(place, state);
-                break;
-
-            case CorpsePhase.Rotting:
-                RunDeadTorizoRotting(place, state);
-                break;
-
-            case CorpsePhase.Finished:
-                break;
-
-            default:
-                throw new InvalidDataException(
-                    $"Dead Torizo has no behaviour for phase {state.Phase}.");
-        }
+        RunDeadTorizoMainForDeadTorizoPhase[state.Phase](place, samus, state);
     }
-
 
     /// <summary>Advances the corpse's fall and runs one rot update of its schedule.</summary>
     private void RunDeadTorizoRotting(RoomEnemyPlace place, DeadTorizoEnemyState state)
@@ -204,8 +208,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         DeadTorizoEnemyState state = place.RequireSpeciesState<DeadTorizoEnemyState>();
         AnimationPlayback<DeadTorizoSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, DeadTorizoAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"A cue-free dead Torizo animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, DeadTorizoAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 

@@ -16,7 +16,7 @@ internal static class CinematicBeats<TFrame, TCue>
     internal static AnimationBeat<TFrame, TCue> Hold(TFrame frame) => new AnimationBeat<TFrame, TCue>.HeldFrame(frame);
 
     /// <summary>Hides the actor for <paramref name="duration"/> updates (#2558): it shows no pose until the next frame.</summary>
-    internal static AnimationBeat<TFrame, TCue> Hide(int duration) => new AnimationBeat<TFrame, TCue>.Hidden(duration);
+    internal static AnimationHiddenBeat<TFrame, TCue> Hide(int duration) => new(duration);
 
     /// <summary>Publishes <paramref name="cue"/> to the actor's owner.</summary>
     internal static AnimationBeat<TFrame, TCue> Raise(TCue cue) => new AnimationBeat<TFrame, TCue>.Event(cue);

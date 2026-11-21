@@ -8,17 +8,16 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// </summary>
 public sealed class IntroNarrationPresentation
 {
-    /// <summary>The six opening text pages, keyed by page in typewriter order.</summary>
-    private readonly Dictionary<IntroNarrationPageId, NarrationPage> pages;
+    /// <summary>The six opening text pages, keyed by page in typewriter order, every page checked present as they are kept.</summary>
+    private readonly IdentityTable<IntroNarrationPageId, NarrationPage> pages;
 
     /// <summary>Retains the six pages the import validated.</summary>
-    internal IntroNarrationPresentation(Dictionary<IntroNarrationPageId, NarrationPage> pages) => this.pages = pages;
+    /// <exception cref="ArgumentException">A page is missing.</exception>
+    internal IntroNarrationPresentation(Dictionary<IntroNarrationPageId, NarrationPage> pages) => this.pages = new(pages);
 
     /// <summary>Ordered editable lines for one of the six narration pages.</summary>
-    private NarrationPage GetLines(IntroNarrationPageId page) =>
-        pages.TryGetValue(page, out NarrationPage? lines)
-            ? lines
-            : throw new ArgumentOutOfRangeException(nameof(page), page, "The narration catalog does not contain this page.");
+    private NarrationPage GetLines(IntroNarrationPageId page) => pages[page];
+
     /// <summary>Builds a narration page's ordered typewriter character placements.</summary>
     public IntroNarrationCharacter[] Compile(IntroNarrationPageId page)
     {

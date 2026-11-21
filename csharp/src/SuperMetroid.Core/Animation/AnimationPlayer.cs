@@ -336,33 +336,38 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         AnimationPlace place = Playback.Place;
         AnimationShown<TSegment, TFrame> next = segments.PlayToNextFrame(ref animation, ref place, react);
         Playback = new(animation, place);
-        switch (next)
-        {
-            case AnimationShown<TSegment, TFrame>.Frame frame:
-                Shown = frame.Shown;
-                UpdatesLeft = frame.Duration;
-                return frame.Shown;
-            case AnimationShown<TSegment, TFrame>.Paused pause:
-                UpdatesLeft = pause.Duration;
-                return null;
-            case AnimationShown<TSegment, TFrame>.Hidden hidden:
-                Shown = null;
-                UpdatesLeft = hidden.Duration;
-                return null;
-            case AnimationShown<TSegment, TFrame>.HeldFrame held:
-                Shown = held.Shown;
-                Motion = AnimationMotion.Resting;
-                return held.Shown;
-            case AnimationShown<TSegment, TFrame>.Held:
-                Motion = AnimationMotion.Resting;
-                return null;
-            case AnimationShown<TSegment, TFrame>.Ended:
-                Motion = AnimationMotion.Stopped;
-                return null;
-            default:
-                throw new InvalidOperationException($"The animation played on to {next}.");
-        }
+        return next.Match(PlayOnCases, this);
     }
+
+    /// <summary>What <see cref="PlayOnReacting"/> makes of each <see cref="AnimationShown{TSegment, TFrame}"/>, built once (#2553).</summary>
+    private static AnimationShownCases<TSegment, TFrame, AnimationPlayer<TSegment, TFrame, TEvent>, TFrame?> PlayOnCases { get; } = new(
+        Frame: static (frame, player) =>
+        {
+            player.Shown = frame.Shown;
+            player.UpdatesLeft = frame.Duration;
+            return frame.Shown;
+        },
+        HeldFrame: static (held, player) =>
+        {
+            player.Shown = held.Shown;
+            player.Motion = AnimationMotion.Resting;
+            return held.Shown;
+        },
+        Paused: static (pause, player) =>
+        {
+            player.UpdatesLeft = pause.Duration;
+            return null;
+        },
+        Held: static (_, player) =>
+        {
+            player.Motion = AnimationMotion.Resting;
+            return null;
+        },
+        Ended: static (_, player) =>
+        {
+            player.Motion = AnimationMotion.Stopped;
+            return null;
+        });
 
     /// <summary>
     /// Starts <paramref name="animation"/> again at <paramref name="place"/>, showing at once the frame it plays to from
@@ -449,6 +454,12 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
         UpdatesLeft = first ? firstFrameUpdates : frameUpdates;
         return first;
     }
+
+    /// <summary>
+    /// A play of the same animation standing where this one stands, its shown frame keeping its updates left (#2553): an
+    /// owner that hands the play over to another way of counting goes on in the copy.
+    /// </summary>
+    internal AnimationPlayer<TSegment, TFrame, TEvent> Copy() => (AnimationPlayer<TSegment, TFrame, TEvent>)MemberwiseClone();
 
     /// <summary>
     /// Shows the shown frame for <paramref name="updates"/> more updates from now, in place of the updates it had left

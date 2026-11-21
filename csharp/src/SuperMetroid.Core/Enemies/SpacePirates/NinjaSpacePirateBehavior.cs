@@ -13,23 +13,11 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
-
-    /// <inheritdoc/>
-    /// <exception cref="KeyNotFoundException">The place holds no ninja definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
-
-    /// <summary>
-    /// The factory of each part the species creates, by the definition that places it: the species serves these
-    /// definitions, and each builds its own part from the species it is given.
-    /// </summary>
-    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<NinjaSpacePirateBehavior>> PartFactories =
-        new()
-        {
-            [EnemyDefinitionId.PirateGoldNinja] = static (species, occupant, place, common) => EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(species, occupant, place, common)),
-            [EnemyDefinitionId.PirateSilverNinja] = static (species, occupant, place, common) => EnemyOccupant.Of(new NinjaSpacePirateEntity(species, occupant, place, common)),
-        };
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    {
+        [EnemyDefinitionId.PirateGoldNinja] = (occupant, place, common) => EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(this, occupant, place, common)),
+        [EnemyDefinitionId.PirateSilverNinja] = (occupant, place, common) => EnemyOccupant.Of(new NinjaSpacePirateEntity(this, occupant, place, common)),
+    };
 
     /// <summary>Provides the shared RNG used by divekick selection.</summary>
     private readonly EnemyRoomBinding _room;
@@ -60,12 +48,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         place.SetSpeciesState(state);
 
         NinjaSpacePirateSpawnSettings settings = occupant.SpawnSettings<NinjaSpacePirateSpawnSettings>();
-        bool startsAtLeft = settings.StartPost switch
-        {
-            NinjaSpacePirateStartPost.Left => true,
-            NinjaSpacePirateStartPost.Right => false,
-            _ => throw new InvalidOperationException($"Undefined {nameof(NinjaSpacePirateStartPost)} {settings.StartPost}."),
-        };
+        bool startsAtLeft = settings.StartPost == NinjaSpacePirateStartPost.Left;
         NinjaSpacePirateSegment initial = startsAtLeft
             ? NinjaSpacePirateSegment.AwaitingSamusFacingRight
             : NinjaSpacePirateSegment.AwaitingSamusFacingLeft;
@@ -98,6 +81,27 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.SpawnPosition = place.Position.Whole;
     }
 
+    /// <summary>What <see cref="RunNinjaSpacePirateMain"/> does for each <see cref="NinjaSpacePirateAction"/> member, each member's own arm.</summary>
+    private IdentityTable<NinjaSpacePirateAction, Action<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, RoomLevelData, SamusProjectileSystem>> RunNinjaSpacePirateMainForNinjaSpacePirateAction => field ??= new(new Dictionary<NinjaSpacePirateAction, Action<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, RoomLevelData, SamusProjectileSystem>>
+    {
+        [NinjaSpacePirateAction.StandingStill] = (place, state, samus, level, samusProjectiles) => { },
+        [NinjaSpacePirateAction.AwaitingSamus] = (place, state, samus, level, samusProjectiles) => RunNinjaPirateAwaitingSamus(place, state, samus, samusProjectiles),
+        [NinjaSpacePirateAction.Active] = (place, state, samus, level, samusProjectiles) => RunNinjaPirateActive(place, state, samus, samusProjectiles),
+        [NinjaSpacePirateAction.SpinJumpRising] = (place, state, samus, level, samusProjectiles) => StepNinjaPirateSpinJump(place, state, state.Heading, vertical: VerticalDirection.Up),
+        [NinjaSpacePirateAction.SpinJumpFalling] = (place, state, samus, level, samusProjectiles) => StepNinjaPirateSpinJump(place, state, state.Heading, vertical: VerticalDirection.Down),
+        [NinjaSpacePirateAction.ReadyToDivekick] = (place, state, samus, level, samusProjectiles) =>
+        {
+            RunNinjaPirateReadyToDivekick(
+                place,
+                state,
+                samus,
+                samusProjectiles);
+        },
+        [NinjaSpacePirateAction.DivekickJump] = (place, state, samus, level, samusProjectiles) => StepNinjaPirateDiveJump(place, state, state.Heading),
+        [NinjaSpacePirateAction.DivekickDive] = (place, state, samus, level, samusProjectiles) => StepNinjaPirateDive(place, state, level, state.Heading),
+        [NinjaSpacePirateAction.DivekickWalkToPost] = (place, state, samus, level, samusProjectiles) => StepNinjaPirateWalkToPost(place, state, state.Heading),
+    });
+
     /// <summary>Runs the Ninja Space Pirate's current behaviour.</summary>
     private void RunNinjaSpacePirateMain(
         RoomEnemyPlace place,
@@ -106,42 +110,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         RoomLevelData level,
         SamusProjectileSystem samusProjectiles)
     {
-        switch (state.Action)
-        {
-            case NinjaSpacePirateAction.StandingStill:
-                return;
-            case NinjaSpacePirateAction.AwaitingSamus:
-                RunNinjaPirateAwaitingSamus(place, state, samus, samusProjectiles);
-                return;
-            case NinjaSpacePirateAction.Active:
-                RunNinjaPirateActive(place, state, samus, samusProjectiles);
-                return;
-            case NinjaSpacePirateAction.SpinJumpRising:
-                StepNinjaPirateSpinJump(place, state, state.Heading, vertical: VerticalDirection.Up);
-                return;
-            case NinjaSpacePirateAction.SpinJumpFalling:
-                StepNinjaPirateSpinJump(place, state, state.Heading, vertical: VerticalDirection.Down);
-                return;
-            case NinjaSpacePirateAction.ReadyToDivekick:
-                RunNinjaPirateReadyToDivekick(
-                    place,
-                    state,
-                    samus,
-                    samusProjectiles);
-                return;
-            case NinjaSpacePirateAction.DivekickJump:
-                StepNinjaPirateDiveJump(place, state, state.Heading);
-                return;
-            case NinjaSpacePirateAction.DivekickDive:
-                StepNinjaPirateDive(place, state, level, state.Heading);
-                return;
-            case NinjaSpacePirateAction.DivekickWalkToPost:
-                StepNinjaPirateWalkToPost(place, state, state.Heading);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Ninja Space Pirate has no behaviour for action {state.Action}.");
-        }
+        RunNinjaSpacePirateMainForNinjaSpacePirateAction[state.Action](place, state, samus, level, samusProjectiles);
     }
 
     /// <summary>Waits for Samus to approach, then selects the active animation facing her.</summary>
@@ -463,14 +432,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection thrown,
         Offset16<RoomPixels> spawnOffset)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateClaw, Claw, SpriteGraphics.SpawnedBy(occupant, source.Shading));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PirateClaw, Claw, SpriteGraphics.SpawnedBy(occupant, source.Shading), new SpacePirateProjectileAnimation(Claw, thrown == HorizontalDirection.Right
+            ? SpacePirateProjectileSegment.ClawRight
+            : SpacePirateProjectileSegment.ClawLeft));
         if (projectile is null)
             return;
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
-        projectile.StartAnimation(new SpacePirateProjectileAnimation(Claw, thrown == HorizontalDirection.Right
-            ? SpacePirateProjectileSegment.ClawRight
-            : SpacePirateProjectileSegment.ClawLeft));
         Claw.Claws.Start(projectile, new NinjaPirateClawState(SpacePirateMotionDefinitions.NinjaClawLaunchSpeed, thrown));
     }
 
@@ -505,18 +473,55 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, NinjaSpacePirateCue cue, SamusState samus)
     {
         NinjaSpacePirateEnemyState state = place.RequireSpeciesState<NinjaSpacePirateEnemyState>();
-        switch (cue)
+        return cue.Match(ApplyNinjaSpacePirateCueCases, new ApplyNinjaSpacePirateCueContext(occupant, place, state, samus, this));
+    }
+
+    /// <summary>What <see cref="ApplyNinjaSpacePirateCue"/> does on each <see cref="NinjaSpacePirateCue"/>, built once (#2553).</summary>
+    private static NinjaSpacePirateCueCases<ApplyNinjaSpacePirateCueContext, NinjaSpacePirateSegment?> ApplyNinjaSpacePirateCueCases { get; } = new(
+        PlaySound: static (playSound, context) =>
         {
-            case NinjaSpacePirateCue.SetShading setShading:
-                place.Shading = setShading.Shading;
-                return null;
-            case NinjaSpacePirateCue.PlaySound playSound:
-                Walking.RequestSpacePirateSound(playSound.Sound);
-                return null;
-            case NinjaSpacePirateCue.ThrowClaw throwClaw:
-                SpawnNinjaPirateClaw(occupant, place, throwClaw.Throw, throwClaw.Offset);
-                return null;
-            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartActive }:
+            context.Owner.Walking.RequestSpacePirateSound(playSound.Sound);
+            return null;
+        },
+        SetShading: static (setShading, context) =>
+        {
+            context.Place.Shading = setShading.Shading;
+            return null;
+        },
+        ThrowClaw: static (throwClaw, context) =>
+        {
+            context.Owner.SpawnNinjaPirateClaw(context.Occupant, context.Place, throwClaw.Throw, throwClaw.Offset);
+            return null;
+        },
+        Begin: static (begin, context) =>
+        {
+            // The animation does not jump to the move it begins: main AI runs it from the next update, as the
+            // animation runs on.
+            context.State.Action = begin.Action;
+            return null;
+        },
+        BeginHeading: static (begin, context) =>
+        {
+            // As a plain begin, main AI runs the move from the next update, the cue's way (#2165).
+            context.State.Action = begin.Action;
+            context.State.Heading = begin.Heading;
+            return null;
+        },
+        Signal: static (signal, context) => context.Owner.NinjaSignals[signal.Kind](context.Place, context.State, context.Samus));
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Occupant">The occupant whose cue is carried out.</param>
+    /// <param name="Place">The place the cases read.</param>
+    /// <param name="State">The pirate's state <see cref="ApplyNinjaSpacePirateCue"/> works with.</param>
+    /// <param name="Samus">The samus the cases read.</param>
+    /// <param name="Owner">The <see cref="NinjaSpacePirateBehavior"/> reacting.</param>
+    private readonly record struct ApplyNinjaSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, NinjaSpacePirateEnemyState State, SamusState Samus, NinjaSpacePirateBehavior Owner);
+
+    /// <summary>What each of the ninja Space Pirates' signals does, and the animation it continues at, or null to run on.</summary>
+    private IdentityTable<NinjaSpacePirateCueKind, Func<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, NinjaSpacePirateSegment?>> NinjaSignals => field ??=
+        new(new Dictionary<NinjaSpacePirateCueKind, Func<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, NinjaSpacePirateSegment?>>
+        {
+            [NinjaSpacePirateCueKind.StartActive] = static (place, _, samus) =>
             {
                 NinjaSpacePirateSegment active = place.Position.X.Whole < samus.Position.X.Whole
                     ? NinjaSpacePirateSegment.ActiveFacingRight
@@ -526,27 +531,18 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 // Re-entering that animation runs its action cue and restores decision AI
                 // after the idle animation set the action that waits for it.
                 return active;
-            }
-            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.ResetSpinSpeed }:
+            },
+            [NinjaSpacePirateCueKind.ResetSpinSpeed] = static (_, state, _) =>
+            {
                 state.SpinSpeed = SignedEightEight.Zero;
                 return null;
-            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartDivekick }:
+            },
+            [NinjaSpacePirateCueKind.StartDivekick] = (_, state, _) =>
+            {
                 InitializeNinjaPirateDive(state);
                 return null;
-            case NinjaSpacePirateCue.Begin begin:
-                // The animation does not jump to the move it begins: main AI runs it from the next update, as the
-                // animation runs on.
-                state.Action = begin.Action;
-                return null;
-            case NinjaSpacePirateCue.BeginHeading begin:
-                // As a plain begin, main AI runs the move from the next update, the cue's way (#2165).
-                state.Action = begin.Action;
-                state.Heading = begin.Heading;
-                return null;
-            default:
-                throw new InvalidOperationException($"The ninja Space Pirates' animations have no {cue} cue.");
-        }
-    }
+            },
+        });
 
     /// <summary>Starts an animation and restarts its frame timer.</summary>
     private static void StartNinjaPirateAnimation(
@@ -576,17 +572,15 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             FlyNinjaPirateClaw(this, context.Projectile, context.Camera);
 
         /// <inheritdoc/>
-        /// <exception cref="InvalidOperationException">
-        /// The cue is not a claw's throw, or throws the claw a way other than its thrower chose.
-        /// </exception>
+        /// <remarks>
+        /// The cue starts the claw's flight the way its thrower chose, the one place the way is held (#2553); a firing cue also
+        /// runs the flight's first update at once, as <see cref="SpacePirateProjectileCueKind.FireLaser"/> says.
+        /// </remarks>
         public void RunCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue)
         {
-            if (cue.Kind != SpacePirateProjectileCueKind.ThrowClaw)
-                throw new InvalidOperationException($"A claw's animation published {cue}.");
-            HorizontalDirection thrown = Claws.Of(context.Projectile).Thrown;
-            if (cue.Direction != thrown)
-                throw new InvalidOperationException($"A claw its pirate threw {thrown} played the animation that throws it {cue.Direction}.");
             context.Projectile.StartMotion(this, SingleMotion.Moving);
+            if (cue.Kind == SpacePirateProjectileCueKind.FireLaser)
+                FlyNinjaPirateClaw(this, context.Projectile, context.Camera);
         }
     }
 
@@ -609,12 +603,4 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 ? new AnimationContinuation<NinjaSpacePirateSegment>(NinjaSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 
-    /// <summary>Accepts gold ninja extended-hitbox bomb overlaps without damage or generic death.</summary>
-    internal static void ReactToGoldNinjaPirateBomb(EnemyBombContext c)
-    {
-        PirateHitboxShotActions.RequireGoldNinjaNormalBombReaction(c.SelectedShot);
-        // Both of the Gold Ninja's body reactions answer only a Power Bomb. The bomb's overlap with the Ninja's hitbox has
-        // already been counted, so the bomb touches it without damage, an impact, a reflection or the Gold Ninja's
-        // special-drop death.
-    }
 }

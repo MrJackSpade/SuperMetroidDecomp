@@ -35,7 +35,7 @@ internal static class XrayControlsVerification
                 : ControllerBindings.Default;
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             samus.Position = samus.Position.WithWhole(new(128, 139));
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);

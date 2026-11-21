@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using D = SuperMetroid.Core.Enemies.OldTourianWall.OldTourianEscapeShaftWallExplosionAnimationDefinitions;
-using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId, SuperMetroid.Core.Rooms.RoomObjects.OldTourianWallExplosionCue>;
+using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId, SuperMetroid.Core.Rooms.RoomObjects.OldTourianWallExplosionCue>.Unpaused;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
@@ -16,7 +16,7 @@ internal sealed class OldTourianWallExplosionAnimation(IEnemyProjectileCues<OldT
     /// The segments' beats: the setup that stops the movement, the burst that scatters, plays its sound and shows the six
     /// pictures of a small explosion, and the deletion after the burst's last picture (#2276).
     /// </summary>
-    private static AnimationSegments<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue> AllSegments { get; } = new(
+    private static UnpausedAnimationSegments<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue> AllSegments { get; } = new(
         new Dictionary<OldTourianWallExplosionSegment, Beat[]>
         {
             [OldTourianWallExplosionSegment.Start] =
@@ -51,7 +51,7 @@ internal sealed class OldTourianWallExplosionAnimation(IEnemyProjectileCues<OldT
         };
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue> Segments => AllSegments;
+    private protected override IUnpausedAnimationPlay<OldTourianWallExplosionSegment, EnemyProjectileFrameId, OldTourianWallExplosionCue> Segments => AllSegments;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(EnemyProjectileFrameId frame) => frame;

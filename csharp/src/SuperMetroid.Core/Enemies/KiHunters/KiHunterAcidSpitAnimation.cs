@@ -10,5 +10,5 @@ internal sealed class KiHunterAcidSpitAnimation(IEnemyProjectileCues<KiHunterAci
     : EnemyProjectileFrameAnimation<KiHunterAcidSpitSegment, KiHunterAcidSpitCue>(segment, KiHunterAcidSpitAnimations.StartingAt[segment], EnemyProjectileCueRunner<KiHunterAcidSpitSegment, KiHunterAcidSpitCue>.By(owner))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<KiHunterAcidSpitSegment, EnemyProjectileFrameId, KiHunterAcidSpitCue> Segments => KiHunterAcidSpitAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<KiHunterAcidSpitSegment, EnemyProjectileFrameId, KiHunterAcidSpitCue> Segments => KiHunterAcidSpitAnimations.Segments;
 }

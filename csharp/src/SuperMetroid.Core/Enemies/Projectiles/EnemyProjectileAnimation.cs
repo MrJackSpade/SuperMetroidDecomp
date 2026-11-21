@@ -25,36 +25,37 @@ internal abstract class EnemyProjectileAnimation
         EnemyProjectileFrameStep step = NextFrame(context);
         if (projectile.Animation != this)
             return;
-        switch (step)
-        {
-            case EnemyProjectileFrameStep.Show shown:
-                projectile.FrameHold = WrappingCountdown.Start(shown.Duration);
-                projectile.Frame = shown.Frame;
-                projectile.FramePlacement = shown.Placement;
-                return;
-            case EnemyProjectileFrameStep.ShowForGood held:
-                // A frame shown for good stops the hold: the projectile shows it until its owner sets the hold again or
-                // starts another animation.
-                projectile.StopFrameHold();
-                projectile.Frame = held.Frame;
-                projectile.FramePlacement = held.Placement;
-                return;
-            case EnemyProjectileFrameStep.Hide hidden:
-                projectile.FrameHold = WrappingCountdown.Start(hidden.Duration);
-                projectile.Frame = null;
-                return;
-            case EnemyProjectileFrameStep.Rest:
-                // A held timeline rests on the frame it shows: the hold stops until the projectile's owner sets it again or
-                // starts another animation.
-                projectile.StopFrameHold();
-                return;
-            case EnemyProjectileFrameStep.Delete:
-                projectile.Delete();
-                return;
-            default:
-                throw new InvalidOperationException($"A projectile animation took an undefined step {step}.");
-        }
+        step.React(AdvanceReactions, projectile);
     }
+
+    /// <summary>What <c>Advance</c> does on each <see cref="EnemyProjectileFrameStep"/>, built once (#2553).</summary>
+    private static EnemyProjectileFrameStepReactions<EnemyProjectile> AdvanceReactions { get; } = new(
+        Show: static (shown, projectile) =>
+        {
+            projectile.FrameHold = WrappingCountdown.Start(shown.Duration);
+            projectile.Frame = shown.Frame;
+            projectile.FramePlacement = shown.Placement;
+        },
+        ShowForGood: static (held, projectile) =>
+        {
+            // A frame shown for good stops the hold: the projectile shows it until its owner sets the hold again or
+            // starts another animation.
+            projectile.StopFrameHold();
+            projectile.Frame = held.Frame;
+            projectile.FramePlacement = held.Placement;
+        },
+        Hide: static (hidden, projectile) =>
+        {
+            projectile.FrameHold = WrappingCountdown.Start(hidden.Duration);
+            projectile.Frame = null;
+        },
+        Rest: static (_, projectile) =>
+        {
+            // A held timeline rests on the frame it shows: the hold stops until the projectile's owner sets it again or
+            // starts another animation.
+            projectile.StopFrameHold();
+        },
+        Delete: static (_, projectile) => projectile.Delete());
 
     /// <summary>Advances the timeline to its next frame, a frame shown for good, or its rest.</summary>
     /// <param name="context">

@@ -48,7 +48,7 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.EquippedItems |= SamusEquipmentFlags.ScrewAttack;
-        samus.Pose = SamusPoseId.ScrewAttackRightPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.ScrewAttackRightPose);
         // EnemyMain reads the body attack the previous frame's spin movement set.
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;
         // Inside the upper body's touch boxes, in thin water with no floor below.

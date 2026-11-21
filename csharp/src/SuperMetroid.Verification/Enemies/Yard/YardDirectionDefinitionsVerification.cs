@@ -121,12 +121,9 @@ internal static class YardDirectionDefinitionsVerification
             state.Behavior = YardBehavior.NormalCrawling;
             state.Movement = YardMovement.Crawling;
             state.Crawl = YardDirection.OnFloorMovingLeft;
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
-            {
-                Pose = facing == 0
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(facing == 0
                     ? SamusPoseId.FacingLeftNormalPose
-                    : SamusPoseId.FacingRightNormalPose,
-            };
+                    : SamusPoseId.FacingRightNormalPose);
             var kickDistance = new SuperMetroid.Core.Compatibility.YardKickTrackingDistance();
             kickDistance.Record(SignedSixteenSixteen.FromParts(1, 32768));
             YardEnemyBehavior.KickYardIntoAir(place, state, samus, kickDistance);

@@ -118,11 +118,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
         itemSelector = AnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue>.StartShowing(
             selectors.Segments, selectors.Cycling, selectors.InitialDurationTicks);
         area = entry.Area;
-        _ = AreaIds.Require(entry.Area);
         this.roomMapPosition = entry.RoomMapPosition;
-        this.mapRevealMode = Enum.IsDefined(entry.MapRevealMode)
-            ? entry.MapRevealMode
-            : throw new ArgumentOutOfRangeException(nameof(entry.MapRevealMode));
+        this.mapRevealMode = entry.MapRevealMode;
 
         // The pause screen shows the map, the pause interface, the menu sprites and the HUD.
         screen = new PauseScreen(entry.ScreenContent, entry.SpriteSheets);
@@ -166,11 +163,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
             MapArrows.StepArrows(ActiveMapScroll.CanScroll);
         ControllerButton delayedPressed = delayedHeldInput;
         ControllerButton newlyPressed = newlyPressedInput;
-        if (Transition is not null)
-        {
-            StepPageTransition();
+        if (StepPageTransition())
             return false;
-        }
 
         if (ScreenMode == PauseScreenMode.Map)
         {
@@ -293,48 +287,43 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
         screen.Sprites.FinishFrame();
     }
 
-    /// <summary>Advances map/equipment fade, page load, and brightness phases.</summary>
-    private void StepPageTransition()
+    /// <summary>
+    /// Advances map/equipment fade, page load, and brightness phases (#2553), and reports whether a page transition ran this
+    /// update: with none under way the page's own controls run instead.
+    /// </summary>
+    private bool StepPageTransition()
     {
-        PausePageTransition transition = Transition ?? throw new InvalidDataException("No pause-page transition is in progress.");
-        switch (transition.Stage)
+        if (Transition is not { } transition)
+            return false;
+        if (transition.Stage == PausePageTransitionStage.FadeOut)
         {
-            case PausePageTransitionStage.FadeOut:
-                if (!transitionFade.Darken())
-                    return;
-
-                // The fade-out returns at black before the separate load update.
+            // The fade-out returns at black before the separate load update.
+            if (transitionFade.Darken())
                 Transition = transition with { Stage = PausePageTransitionStage.Load };
-                return;
-
-            case PausePageTransitionStage.Load:
-                ScreenMode = transition.Destination;
-                switch (transition.Destination)
-                {
-                    case PauseScreenMode.Equipment:
-                        // The selector resets on each equipment-page entry.
-                        SelectFirstCollectedEquipment();
-                        ResetItemSelectorAnimation();
-                        break;
-                    case PauseScreenMode.Map:
-                        LoadMapPage();
-                        break;
-                    default:
-                        throw new InvalidDataException($"Invalid pause-page destination {transition.Destination}.");
-                }
-                Transition = transition with { Stage = PausePageTransitionStage.FadeIn };
-                transitionFade.Restart(DisplayBrightness.Black, PauseFadeTiming.WaitBeforeEachStep);
-                return;
-
-            case PausePageTransitionStage.FadeIn:
-                // The load set the fade to wait one update before each brightness step.
-                if (transitionFade.Brighten())
-                    Transition = null;
-                return;
-
-            default:
-                throw new InvalidDataException($"Invalid pause-page transition {transition}.");
         }
+        else if (transition.Stage == PausePageTransitionStage.Load)
+        {
+            ScreenMode = transition.Destination;
+            if (transition.Destination == PauseScreenMode.Equipment)
+            {
+                // The selector resets on each equipment-page entry.
+                SelectFirstCollectedEquipment();
+                ResetItemSelectorAnimation();
+            }
+            else
+            {
+                LoadMapPage();
+            }
+            Transition = transition with { Stage = PausePageTransitionStage.FadeIn };
+            transitionFade.Restart(DisplayBrightness.Black, PauseFadeTiming.WaitBeforeEachStep);
+        }
+        else
+        {
+            // The remaining member, the fade-in: the load set the fade to wait one update before each brightness step.
+            if (transitionFade.Brighten())
+                Transition = null;
+        }
+        return true;
     }
 
     /// <summary>Selects reserves first when available, otherwise the first collected inventory item.</summary>
@@ -440,7 +429,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
     /// next capture.
     /// </summary>
     private void SetPauseButtonLabelMode(PauseButtonHighlight highlight) =>
-        ButtonHighlight = Enum.IsDefined(highlight) ? highlight : throw new ArgumentOutOfRangeException(nameof(highlight), highlight, "Undefined pause highlight.");
+        ButtonHighlight = highlight;
 
     /// <summary>Draws a map sprite sheet frame in the map's colours <paramref name="colouring"/>.</summary>
     private void DrawMapSprite(MapSpriteId id, Offset16<ScreenPixels> origin, MapSpriteColouring colouring) =>
@@ -527,7 +516,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
     /// </summary>
     private bool TrySelectNeighbour(ImmutableArray<PauseUpgradeControl> column, ColumnSearch direction)
     {
-        int selected = column.IndexOf((PauseUpgradeControl)SelectedControl);
+        int selected = PlaceInColumn(column, SelectedControl);
         return TrySelectEquipmentFrom(column, direction == ColumnSearch.Down ? selected + 1 : selected - 1, direction);
     }
 
@@ -571,6 +560,67 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
         return true;
     }
 
+    /// <summary>What <see cref="MoveEquipmentSelector"/> does for each <see cref="PauseEquipmentCategory"/> member, each member's own arm.</summary>
+    private IdentityTable<PauseEquipmentCategory, Action<bool, bool, bool, bool, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>>> MoveEquipmentSelectorForPauseEquipmentCategory => field ??= new(new Dictionary<PauseEquipmentCategory, Action<bool, bool, bool, bool, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>>>
+    {
+        [PauseEquipmentCategory.Beams] = (left, right, up, down, beams, suits, boots) =>
+        {
+            if (right)
+            {
+                if (!TrySelectEquipment(suits, up ? suits[0] : PauseEquipmentControls.BeamsRightSuitEntry, ColumnSearch.Down) && !up)
+                    TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
+            }
+            else if (down) TrySelectNeighbour(beams, ColumnSearch.Down);
+            else if (up && !TrySelectNeighbour(beams, ColumnSearch.Up)) TrySelectReserves();
+        },
+        [PauseEquipmentCategory.Suits] = (left, right, up, down, beams, suits, boots) =>
+        {
+            if (left)
+            {
+                if (down || !TrySelectReserves()) TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
+            }
+            else if (up) TrySelectNeighbour(suits, ColumnSearch.Up);
+            else if (down && !TrySelectNeighbour(suits, ColumnSearch.Down)) TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
+        },
+        [PauseEquipmentCategory.Boots] = (left, right, up, down, beams, suits, boots) =>
+        {
+            if (left)
+            {
+                if (up || !TrySelectEquipment(beams, beams[^1], ColumnSearch.Up)) TrySelectReserves();
+            }
+            else if (down) TrySelectNeighbour(boots, ColumnSearch.Down);
+            else if (up && !TrySelectNeighbour(boots, ColumnSearch.Up))
+                TrySelectEquipment(suits, suits[^1], ColumnSearch.Up);
+        },
+        [PauseEquipmentCategory.Reserves] = (left, right, up, down, beams, suits, boots) =>
+        {
+            if (right)
+            {
+                if (down || !TrySelectEquipment(suits, suits[0], ColumnSearch.Down)) TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
+            }
+            else if (up)
+            {
+                if (SelectedControl != PauseEquipmentControls.ReserveMode)
+                {
+                    SelectedControl = ReserveNeighbour(ColumnSearch.Up);
+                    audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
+                }
+            }
+            else if (down)
+            {
+                if (SelectedControl == PauseEquipmentControls.ReserveTransfer ||
+                    samus.ReserveTankMode == ReserveTankMode.Auto)
+                    TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
+                else
+                {
+                    SelectedControl = ReserveNeighbour(ColumnSearch.Down);
+                    if (samus.ReserveEnergy == 0) TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
+                    else audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
+                }
+            }
+        },
+    });
+
     /// <summary>Applies the directional links among beam, suit, boot, and reserve rows.</summary>
     private void MoveEquipmentSelector(ControllerButton pressed)
     {
@@ -578,70 +628,27 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
         bool up = (pressed & ControllerButton.Up) != ControllerButton.None, down = (pressed & ControllerButton.Down) != ControllerButton.None;
         ImmutableArray<PauseUpgradeControl> beams = PauseEquipmentControls.Beams, suits = PauseEquipmentControls.Suits,
             boots = PauseEquipmentControls.Boots;
-        switch (SelectedControl.Category)
-        {
-            case PauseEquipmentCategory.Beams:
-                if (right)
-                {
-                    if (!TrySelectEquipment(suits, up ? suits[0] : PauseEquipmentControls.BeamsRightSuitEntry, ColumnSearch.Down) && !up)
-                        TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
-                }
-                else if (down) TrySelectNeighbour(beams, ColumnSearch.Down);
-                else if (up && !TrySelectNeighbour(beams, ColumnSearch.Up)) TrySelectReserves();
-                break;
-            case PauseEquipmentCategory.Suits:
-                if (left)
-                {
-                    if (down || !TrySelectReserves()) TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
-                }
-                else if (up) TrySelectNeighbour(suits, ColumnSearch.Up);
-                else if (down && !TrySelectNeighbour(suits, ColumnSearch.Down)) TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
-                break;
-            case PauseEquipmentCategory.Boots:
-                if (left)
-                {
-                    if (up || !TrySelectEquipment(beams, beams[^1], ColumnSearch.Up)) TrySelectReserves();
-                }
-                else if (down) TrySelectNeighbour(boots, ColumnSearch.Down);
-                else if (up && !TrySelectNeighbour(boots, ColumnSearch.Up))
-                    TrySelectEquipment(suits, suits[^1], ColumnSearch.Up);
-                break;
-            case PauseEquipmentCategory.Reserves:
-                if (right)
-                {
-                    if (down || !TrySelectEquipment(suits, suits[0], ColumnSearch.Down)) TrySelectEquipment(boots, boots[0], ColumnSearch.Down);
-                }
-                else if (up)
-                {
-                    if (SelectedControl != PauseEquipmentControls.ReserveMode)
-                    {
-                        SelectedControl = ReserveNeighbour(ColumnSearch.Up);
-                        audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
-                    }
-                }
-                else if (down)
-                {
-                    if (SelectedControl == PauseEquipmentControls.ReserveTransfer ||
-                        samus.ReserveTankMode == ReserveTankMode.Auto)
-                        TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
-                    else
-                    {
-                        SelectedControl = ReserveNeighbour(ColumnSearch.Down);
-                        if (samus.ReserveEnergy == 0) TrySelectEquipment(beams, beams[0], ColumnSearch.Down);
-                        else audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
-                    }
-                }
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(PauseEquipmentCategory)} {SelectedControl.Category}.");
-        }
+        MoveEquipmentSelectorForPauseEquipmentCategory[SelectedControl.Category](left, right, up, down, beams, suits, boots);
+    }
+
+    /// <summary>
+    /// Where <paramref name="control"/> stands in <paramref name="column"/>, the column of its own category: each control
+    /// stands in the column its category names, which the selector's moves search from.
+    /// </summary>
+    private static int PlaceInColumn<TControl>(ImmutableArray<TControl> column, PauseEquipmentControl control)
+        where TControl : PauseEquipmentControl
+    {
+        int place = 0;
+        while (!ReferenceEquals(column[place], control))
+            place++;
+        return place;
     }
 
     /// <summary>The selected reserve control's neighbour in <paramref name="direction"/>.</summary>
     private PauseReserveControl ReserveNeighbour(ColumnSearch direction)
     {
         ImmutableArray<PauseReserveControl> reserves = PauseEquipmentControls.Reserves;
-        int selected = reserves.IndexOf((PauseReserveControl)SelectedControl);
+        int selected = PlaceInColumn(reserves, SelectedControl);
         return reserves[direction == ColumnSearch.Down ? selected + 1 : selected - 1];
     }
 

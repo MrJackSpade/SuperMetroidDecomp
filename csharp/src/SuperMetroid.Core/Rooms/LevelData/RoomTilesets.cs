@@ -42,9 +42,5 @@ public static class RoomTilesets
         [.. GraphicsSetOrder.Select(graphicsSet => new TilesetDefinition(graphicsSet))];
 
     /// <summary>The tileset definition of the room state's graphics set, which names the set's pictures.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="graphicsSet"/> is not a room graphics set.</exception>
-    public static TilesetDefinition Get(RoomGraphicsSet graphicsSet) =>
-        Enum.IsDefined(graphicsSet)
-            ? new TilesetDefinition(graphicsSet)
-            : throw new ArgumentOutOfRangeException(nameof(graphicsSet), graphicsSet, "Not a room graphics set.");
+    public static TilesetDefinition Get(RoomGraphicsSet graphicsSet) => new(graphicsSet);
 }

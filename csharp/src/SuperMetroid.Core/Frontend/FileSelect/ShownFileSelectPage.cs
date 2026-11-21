@@ -7,14 +7,16 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>
-/// What the file-select page shows (#1467): the page last selected, each slot's field (none for an empty slot) and the slots
-/// the copy and clear pages name, as they were when the page was last selected or its slots last changed.
+/// What the file-select page shows (#1467): the page last selected with the slots its prompt names (#2553) and each slot's
+/// field (none for an empty slot), as they were when the page was last selected or its slots last changed.
 /// </summary>
-/// <param name="Page">The page.</param>
+/// <param name="Selected">The page and the slots its prompt names.</param>
 /// <param name="Slots">Each slot's field, or none where the slot holds no save.</param>
-/// <param name="SlotChoice">The slots the copy or clear has chosen, which its prompts name.</param>
-internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDictionary<SaveSlot, ShownFileSelectSave?> Slots, FileSelectSlotChoice SlotChoice)
+internal sealed record ShownFileSelectPage(SelectedFileSelectPage Selected, ImmutableDictionary<SaveSlot, ShownFileSelectSave?> Slots)
 {
+    /// <summary>The page.</summary>
+    private FileSelectPage Page => Selected.Page;
+
     /// <summary>Whether the page lays its slots out as the main menu does, rather than as copy and clear do.</summary>
     internal bool Main => Page is FileSelectPage.MainWithData or FileSelectPage.MainEmpty;
 
@@ -31,20 +33,9 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDiction
             foreach (PlacedFrame field in Field(Ensure.Listed(Slots, slot), presentation.Slot(Main ? FileSelectCursorPage.Main : FileSelectCursorPage.DataManagement, slot)))
                 yield return field;
         }
-        foreach (FileSelectPromptLetter letter in Letters())
+        foreach (FileSelectPromptLetter letter in Selected.Letters)
             yield return new PlacedFrame(FileSelectParts.LetterFrame(letter.Slot), presentation.DynamicAnchor(letter.Anchor));
     }
-
-    /// <summary>The slot letters the page names and where.</summary>
-    private FileSelectPromptLetter[] Letters() => Page switch
-    {
-        FileSelectPage.CopyDestination => [new(FileSelectAnchor.CopyDestinationSource, SlotChoice.ChosenSource)],
-        FileSelectPage.CopyConfirm or FileSelectPage.CopyCompleted =>
-            [new(FileSelectAnchor.CopyConfirmSource, SlotChoice.ChosenSource), new(FileSelectAnchor.CopyConfirmDestination, SlotChoice.ChosenTarget)],
-        FileSelectPage.ClearConfirm or FileSelectPage.ClearCompleted => [new(FileSelectAnchor.ClearConfirmSource, SlotChoice.ChosenSource)],
-        FileSelectPage.MainWithData or FileSelectPage.MainEmpty or FileSelectPage.CopySource or FileSelectPage.ClearSelection => [],
-        _ => throw new InvalidOperationException($"Undefined file-select page {Page}."),
-    };
 
     /// <summary>
     /// One slot's field at <paramref name="layout"/>'s anchors: NO DATA for an empty slot, else ENERGY, the health's last two

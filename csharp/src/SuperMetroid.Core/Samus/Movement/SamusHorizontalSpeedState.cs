@@ -139,14 +139,7 @@ public sealed class SamusHorizontalSpeedState
     /// The medium whose speeds Samus moves by, as the update's inside-block reaction or movement last chose it:
     /// air, water or lava and acid. Each movement takes its speeds from it (<see cref="Speeds"/>).
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The value set is not a medium.</exception>
-    private SamusLiquidMedium SpeedMedium
-    {
-        get;
-        set => field = Enum.IsDefined(value)
-            ? value
-            : throw new ArgumentOutOfRangeException(nameof(value), value, "Samus moves by the speeds of air, water or lava and acid.");
-    } = SamusLiquidMedium.Air;
+    private SamusLiquidMedium SpeedMedium { get; set; } = SamusLiquidMedium.Air;
 
     /// <summary>
     /// Has Samus move by air's speeds, as the inside-block reaction does before movement in ordinary air.
@@ -270,7 +263,7 @@ public sealed class SamusHorizontalSpeedState
         if (!countdownExpired)
             return false;
 
-        SamusRunningCadence? cadenceAfterEcho = null;
+        SpeedBoostCadence? cadenceAfterEcho = null;
         if (!SpeedBoostCounter.IsAtFullStage)
         {
             SpeedBoostCounter = SpeedBoostCounter.AdvanceStage();
@@ -283,11 +276,11 @@ public sealed class SamusHorizontalSpeedState
             }
         }
 
-        SamusRunningCadence cadence = cadenceAfterEcho ?? SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage);
-        SpeedBoostCounter = SpeedBoostCounter.WithCountdown(SamusRunningCadences.CountdownAfterAdvance(cadence));
+        SpeedBoostCadence cadence = cadenceAfterEcho ?? SamusRunningCadences.StageCadence(SpeedBoostCounter.Stage);
+        SpeedBoostCounter = SpeedBoostCounter.WithCountdown(cadence.CountdownAfterAdvance);
 
         animationFrameTimer = WrappingCountdown.Start(extraAnimationDelay)
-            .AddFrames(SamusRunningCadences.Delay(unauthoredBoostCadence, cadence, frame: 0)).RemainingFrames;
+            .AddFrames(cadence.Delay(unauthoredBoostCadence, frame: 0)).RemainingFrames;
         // Animation runs after movement: the boost's stage changes its cadence and sound, and its contact damage starts
         // on the next movement update.
         return true;
@@ -297,7 +290,7 @@ public sealed class SamusHorizontalSpeedState
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which a full sound queue selects.</param>
     /// <param name="frame">The running frame, zero through nine.</param>
     internal int SpeedBoosterDelay(UnauthoredBoostCadence unauthoredBoostCadence, int frame) =>
-        SamusRunningCadences.Delay(unauthoredBoostCadence, SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage), frame);
+        SamusRunningCadences.StageCadence(SpeedBoostCounter.Stage).Delay(unauthoredBoostCadence, frame);
 
     /// <summary>
     /// Runs the Speed Booster's share of the Screw Attack and Speed Booster glow when she is out of liquid.
@@ -415,7 +408,7 @@ public sealed class SamusHorizontalSpeedState
         SamusSuit suit)
     {
         AnimationPlayback<SamusGlowSegment> cycle = FullBodyGlow.Playback;
-        colours.ShowSuit(SamusGlowPlay.NextShade(SamusGlowSegment.In(SamusGlow.ScrewAttack, suit), ref cycle).Shown);
+        SamusGlowPlay.ShowNextShade(SamusGlowSegment.In(SamusGlow.ScrewAttack, suit), ref cycle, colours);
         FullBodyGlow.GoOnFrom(cycle);
     }
 
@@ -430,31 +423,32 @@ public sealed class SamusHorizontalSpeedState
         Position16<RoomPixels> position)
     {
         Ensure.AtLeastZero(gameTimeFrames);
-        if (!IsActivelySpeedBoosting ||
-            SpeedEchoesDeparting ||
-            !SamusCadenceDefinitions.SpeedEchoCapture.IsDue(gameTimeFrames))
-        {
+        if (!IsActivelySpeedBoosting || !SamusCadenceDefinitions.SpeedEchoCapture.IsDue(gameTimeFrames))
             return false;
-        }
-
-        switch (SpeedEchoPhase)
-        {
-            case SpeedEchoPhase.CapturingFirst:
-                SpeedEchoes[SpeedEcho.First].Position = position;
-                SpeedEchoPhase = SpeedEchoPhase.CapturingSecond;
-                break;
-            case SpeedEchoPhase.CapturingSecond:
-                SpeedEchoes[SpeedEcho.Second].Position = position;
-                SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
-                break;
-            case SpeedEchoPhase.Departing:
-                throw new InvalidOperationException("Departing echoes are not captured.");
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SpeedEchoPhase)} {SpeedEchoPhase}.");
-        }
-
-        return true;
+        return EchoCaptures[SpeedEchoPhase](this, position);
     }
+
+    /// <summary>
+    /// What a due capture does in each echo phase (#2553): fills the echo the phase names and points the next capture at
+    /// the other, or, while the echoes depart, captures nothing. Each says whether it captured.
+    /// </summary>
+    private static IdentityTable<SpeedEchoPhase, Func<SamusHorizontalSpeedState, Position16<RoomPixels>, bool>> EchoCaptures => field ??= new(
+        new Dictionary<SpeedEchoPhase, Func<SamusHorizontalSpeedState, Position16<RoomPixels>, bool>>
+        {
+            [SpeedEchoPhase.CapturingFirst] = static (speed, position) =>
+            {
+                speed.SpeedEchoes[SpeedEcho.First].Position = position;
+                speed.SpeedEchoPhase = SpeedEchoPhase.CapturingSecond;
+                return true;
+            },
+            [SpeedEchoPhase.CapturingSecond] = static (speed, position) =>
+            {
+                speed.SpeedEchoes[SpeedEcho.Second].Position = position;
+                speed.SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
+                return true;
+            },
+            [SpeedEchoPhase.Departing] = static (_, _) => false,
+        });
 
     /// <summary>
     /// Removes both echoes, stops their departure and points the next capture at the first echo: a shinespark's
@@ -475,7 +469,7 @@ public sealed class SamusHorizontalSpeedState
     private void StartBoost()
     {
         SamusGlowPlay.RestartAfter(FullBodyGlow, FullBodyGlowStart, SamusShadeDefinitions.FullBodyCycles.SpeedBoosterFirstStepWait);
-        SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, countdown: SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage0));
+        SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, countdown: SamusRunningCadences.StageCadence(0).CountdownAfterAdvance);
     }
 
     /// <summary>Adds the extra-run increment, a fraction past a whole pixel carrying into the whole pixels.</summary>
@@ -623,7 +617,7 @@ public sealed class SamusHorizontalSpeedState
         if (!SpeedEchoesDeparting)
             return;
 
-        SamusSpeedEcho departing = Ensure.Listed(SpeedEchoes, echo);
+        SamusSpeedEcho departing = SpeedEchoes[echo];
         if (departing.Position is not { } standing)
             return;
 
@@ -667,7 +661,7 @@ public sealed class SamusHorizontalSpeedState
     private SamusHorizontalSpeeds Speeds(SamusMovementType movementType) =>
         SpeedMedium == SamusLiquidMedium.Air && _waterSpeedsInAir.TryRead(movementType, out SamusHorizontalSpeeds waterSpeeds)
             ? waterSpeeds
-            : Ensure.Listed(Ensure.Listed(SamusHorizontalSpeedDefinitions.ByMedium, SpeedMedium), movementType);
+            : Ensure.Listed(SamusHorizontalSpeedDefinitions.ByMedium[SpeedMedium], movementType);
 
     /// <summary>
     /// Calculates the horizontal base speed and returns its

@@ -35,7 +35,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusMovementTypeDefinitions
 {
     /// <summary>Each movement type's definition.</summary>
-    internal static IReadOnlyDictionary<Move, SamusMovementTypeDefinition> Movements { get; } = new Dictionary<Move, SamusMovementTypeDefinition>
+    internal static IdentityTable<Move, SamusMovementTypeDefinition> Movements { get; } = new(new Dictionary<Move, SamusMovementTypeDefinition>
     {
         [Move.Standing] = new(Response.Stop, Bomb.ForwardJumpUnlessTimeFrozen, Xray.Standing, Splash.GroundedPair,
             Firing.Fires, Selection.Standard, Knockback.Upright, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.Standing),
@@ -68,11 +68,11 @@ internal static class SamusMovementTypeDefinitions
         [Move.Moonwalking] = new(Response.Stop, Bomb.ForwardJump, Xray.Disallowed, Splash.GroundedPair,
             Firing.Fires, Selection.Standard, Knockback.Upright, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.Moonwalking),
         [Move.SpringBallGround] = new(Response.KillXSpeed, Bomb.KeepPose, Xray.Disallowed, Splash.GroundedPair,
-            Firing.Cancelled, Selection.MorphBall, Knockback.Ball, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.MorphBallGrounded),
+            Firing.Cancelled, Selection.MorphBall, Knockback.Ball, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.SpringBallGrounded),
         [Move.SpringBallInAir] = new(Response.KillXSpeed, Bomb.KeepPose, Xray.Disallowed, Splash.Diving,
             Firing.Cancelled, Selection.MorphBall, Knockback.Ball, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.SpringBallInAir),
         [Move.SpringBallFalling] = new(Response.KillXSpeed, Bomb.KeepPose, Xray.Disallowed, Splash.Diving,
-            Firing.Cancelled, Selection.MorphBall, Knockback.Ball, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.MorphBallFalling),
+            Firing.Cancelled, Selection.MorphBall, Knockback.Ball, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.SpringBallFalling),
         [Move.WallJumping] = new(Response.KillXSpeed, Bomb.ForwardJump, Xray.Disallowed, Splash.Diving,
             Firing.Cancelled, Selection.Jump, Knockback.Upright, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.WallJump, SilencesItemSelection: true),
         [Move.RanIntoWall] = new(Response.Stop, Bomb.ForwardJump, Xray.Standing, Splash.GroundedPair,
@@ -89,5 +89,5 @@ internal static class SamusMovementTypeDefinitions
             Firing.Fires, Selection.DraygonHeld, Knockback.Refused, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.DraygonHeld),
         [Move.Special] = new(Response.Stop, Bomb.TurnedDown, Xray.Disallowed, Splash.Diving,
             Firing.Cancelled, Selection.Jump, Knockback.Refused, Setup.KeepsMomentum),
-    };
+    });
 }

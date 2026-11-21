@@ -83,15 +83,13 @@ internal static class SamusProjectileSelectionDefinitions
     internal static readonly MurderBeamDirectionAnimations<SamusProjectileDirection, SamusProjectileSegment> MurderBeamAnimations =
         new(MurderBeamDirectionAnimations);
 
-    /// <summary>The kind of each fired missile and placed bomb, by its projectile family.</summary>
-    internal static readonly IReadOnlyDictionary<SamusProjectileFamily, SamusProjectileKind> NonBeamProjectiles =
-        new Dictionary<SamusProjectileFamily, SamusProjectileKind>
+    /// <summary>The kind of each placed bomb.</summary>
+    internal static readonly IdentityTable<SamusBombKind, SamusProjectileKind> Bombs = new(
+        new Dictionary<SamusBombKind, SamusProjectileKind>
         {
-            [SamusProjectileFamily.Missile] = SamusProjectileKind.Missile,
-            [SamusProjectileFamily.SuperMissile] = SamusProjectileKind.SuperMissile,
-            [SamusProjectileFamily.PowerBomb] = SamusProjectileKind.PowerBomb,
-            [SamusProjectileFamily.Bomb] = SamusProjectileKind.Bomb,
-        };
+            [SamusBombKind.PowerBomb] = SamusProjectileKind.PowerBomb,
+            [SamusBombKind.Bomb] = SamusProjectileKind.Bomb,
+        });
 
     /// <summary>
     /// The kind of each special attack's particles, by the beam combination that fires it: Wave, Spazer and Plasma alone.
@@ -107,10 +105,10 @@ internal static class SamusProjectileSelectionDefinitions
         };
 
     /// <summary>The kind of each echo.</summary>
-    internal static readonly IReadOnlyDictionary<SamusBeamEcho, SamusProjectileKind> Echoes =
+    internal static readonly IdentityTable<SamusBeamEcho, SamusProjectileKind> Echoes = new(
         new Dictionary<SamusBeamEcho, SamusProjectileKind>
         {
             [SamusBeamEcho.SpazerComboTrail] = SamusProjectileKind.SpazerSpecialAttackTrail,
             [SamusBeamEcho.ShinesparkEcho] = SamusProjectileKind.ShinesparkEcho,
-        };
+        });
 }

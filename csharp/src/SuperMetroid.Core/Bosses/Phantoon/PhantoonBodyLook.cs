@@ -9,22 +9,14 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public readonly record struct PhantoonBodyLook
 {
     /// <summary>
-    /// Each colouring's name in its installed shades' names (#2472), written out so renaming a colouring's identity never
-    /// changes a name on disk, as Torizo's are (#2409). A health colouring is named by its band instead.
+    /// The colouring of <paramref name="kind"/> named <paramref name="key"/>, showing <paramref name="band"/>'s colours for a
+    /// health colouring.
     /// </summary>
-    private static readonly FrozenDictionary<PhantoonBodyLookKind, string> Keys =
-        new Dictionary<PhantoonBodyLookKind, string>
-        {
-            [PhantoonBodyLookKind.Black] = "black",
-            [PhantoonBodyLookKind.White] = "white",
-            [PhantoonBodyLookKind.FadedOut] = "fadedout",
-        }.ToFrozenDictionary();
-
-    /// <summary>The colouring of <paramref name="kind"/>, showing <paramref name="band"/>'s colours for a health colouring.</summary>
-    private PhantoonBodyLook(PhantoonBodyLookKind kind, PhantoonHealthBand? band)
+    private PhantoonBodyLook(PhantoonBodyLookKind kind, PhantoonHealthBand? band, string key)
     {
         Kind = kind;
         Band = band;
+        Key = key;
     }
 
     /// <summary>Which colouring.</summary>
@@ -34,19 +26,21 @@ public readonly record struct PhantoonBodyLook
     public PhantoonHealthBand? Band { get; }
 
     /// <summary>His body black, as his fight starts.</summary>
-    public static PhantoonBodyLook Black => new(PhantoonBodyLookKind.Black, null);
+    public static PhantoonBodyLook Black => new(PhantoonBodyLookKind.Black, null, "black");
 
     /// <summary>His body white, as he flashes when hurt.</summary>
-    public static PhantoonBodyLook White => new(PhantoonBodyLookKind.White, null);
+    public static PhantoonBodyLook White => new(PhantoonBodyLookKind.White, null, "white");
 
     /// <summary>His body faded out, as he vanishes.</summary>
-    public static PhantoonBodyLook FadedOut => new(PhantoonBodyLookKind.FadedOut, null);
+    public static PhantoonBodyLook FadedOut => new(PhantoonBodyLookKind.FadedOut, null, "fadedout");
 
     /// <summary>His body in <paramref name="band"/>'s colours.</summary>
-    public static PhantoonBodyLook Health(PhantoonHealthBand band) => new(PhantoonBodyLookKind.Health, Ensure.NotNull(band));
+    public static PhantoonBodyLook Health(PhantoonHealthBand band) => new(PhantoonBodyLookKind.Health, Ensure.NotNull(band), $"health-{band.Key}");
 
-    /// <summary>The colouring's name in its shades' names.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The colouring is a health colouring that names no band.</exception>
+    /// <summary>
+    /// The colouring's name in its installed shades' names (#2472), written out where each colouring is made so renaming a
+    /// colouring's identity never changes a name on disk, as Torizo's are (#2409); a health colouring is named by its band.
+    /// </summary>
     [InstalledKey]
-    public string Key => Band is { } band ? $"health-{band.Key}" : Ensure.Listed(Keys, Kind);
+    public string Key { get; }
 }

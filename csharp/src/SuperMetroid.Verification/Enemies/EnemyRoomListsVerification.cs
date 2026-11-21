@@ -26,6 +26,9 @@ internal static class EnemyRoomListsVerification
             .Select(state => RoomEnemyGraphicsSetDefinitions.PointerOf(RoomEnemyGraphicsSetLists.Of(state))).Distinct().Order().ToArray();
         AssertEqual(RoomEnemyPopulationDefinitions.Definitions.Length, populationPointers.Length,
             "all retail population identities are compiled");
+        AssertEqual(RoomEnemyPopulationDefinitions.Definitions.Length,
+            RoomEnemyPopulationDefinitions.Definitions.Select(list => list.Name).Distinct().Count(),
+            "every compiled population has its own name");
         AssertEqual(RoomEnemyGraphicsSetLists.ListCount, graphicsPointers.Length,
             "all retail graphics-set identities are compiled");
         AssertTrue(populationPointers.SequenceEqual(RoomEnemyPopulationDefinitions.Pointers),

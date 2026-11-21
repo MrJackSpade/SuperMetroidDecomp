@@ -70,7 +70,7 @@ internal static class MotherBrainFakeDeathLockVerification
         state.PhaseTimer.LastFor(101);
         state.TubeCollapse = new MotherBrainTubeCollapseProgress(Tube: null, MotherBrainTubeDropStage.Standing);
         IReadOnlyList<Position16<RoomPixels>> positions = MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions;
-        state.NextFakeDeathExplosion = SuperMetroid.Core.Bosses.ListStep<Position16<RoomPixels>>.At(positions, positions.Count - 1);
+        state.NextFakeDeathExplosion = SuperMetroid.Core.ListStep<Position16<RoomPixels>>.At(positions, positions.Count - 1);
 
         // The last position, which the game's place counted back from the first reaches first, is followed by the first.
         int[] expectedNext = [0, 1];

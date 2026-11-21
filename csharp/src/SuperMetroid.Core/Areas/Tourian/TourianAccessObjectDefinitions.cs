@@ -30,8 +30,7 @@ internal static class TourianAccessObjectDefinitions
     /// Each floor state's change, which its room object makes: the crumble walks down the access's rows
     /// (<see cref="CrumbleRows"/>), crumbling each through its images (<see cref="CrumbleRow"/>); the clear erases the access at once.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<TourianAccessFloor, TerrainChange> Floors =
-        new Dictionary<TourianAccessFloor, TerrainChange>
+    internal static readonly IdentityTable<TourianAccessFloor, TerrainChange> Floors = new(new Dictionary<TourianAccessFloor, TerrainChange>
         {
             [TourianAccessFloor.Clear] = TerrainChange.DrawnOnce(TourianAccessDraws.Family.Of(TourianAccessDraw.Clear)),
             [TourianAccessFloor.Crumble] = new TerrainChange(1,
@@ -39,5 +38,5 @@ internal static class TourianAccessObjectDefinitions
                 .. CrumbleRow(Offset16<RoomBlocks>.Zero),
                 .. Enumerable.Repeat(NextRow, CrumbleRows - 1).SelectMany(CrumbleRow),
             ]),
-        };
+        });
 }

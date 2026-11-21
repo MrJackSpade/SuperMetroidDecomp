@@ -13,13 +13,16 @@ internal static class DoorCaps
     /// the look it shows in the paint it is drawn in: the cleared opening in the grey caps', one of the paint's closing
     /// images in its own, or the blue cap a hit flashes in the blue paint's.
     /// </summary>
-    internal static RoomObjectDraw Image(DoorCapPaint paint, ColoredDoorOrientation orientation, DoorCapShown image) => (image.Paint switch
+    internal static RoomObjectDraw Image(DoorCapPaint paint, ColoredDoorOrientation orientation, DoorCapShown image) =>
+        PaintsShown[image.Paint](paint).Of(orientation, image.Look);
+
+    /// <summary>The paint each shown paint draws in, given the cap's own.</summary>
+    private static IdentityTable<DoorCapShownPaint, Func<DoorCapPaint, DoorCapPaint>> PaintsShown { get; } = new(new Dictionary<DoorCapShownPaint, Func<DoorCapPaint, DoorCapPaint>>
     {
-        DoorCapShownPaint.Own => paint,
-        DoorCapShownPaint.Grey => DoorCapPaint.Grey,
-        DoorCapShownPaint.Blue => DoorCapPaint.Blue,
-        _ => throw new InvalidOperationException($"Undefined {nameof(DoorCapShownPaint)} {image.Paint}."),
-    }).Of(orientation, image.Look);
+        [DoorCapShownPaint.Own] = static paint => paint,
+        [DoorCapShownPaint.Grey] = static _ => DoorCapPaint.Grey,
+        [DoorCapShownPaint.Blue] = static _ => DoorCapPaint.Blue,
+    });
 
     /// <summary>The four looks of a cap closing and sliding aside, in the order it opens.</summary>
     internal static IReadOnlyList<DoorCapLook> OpeningLooks { get; } =

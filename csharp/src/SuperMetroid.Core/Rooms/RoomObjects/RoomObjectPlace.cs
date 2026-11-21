@@ -52,7 +52,6 @@ internal sealed class RoomObjectPlace
     internal void Become(RoomObjectBehaviour behaviour)
     {
         Ensure.NotNull(behaviour);
-        RequireAwaitingObject();
         _holding = new Holding.Held(behaviour);
     }
 
@@ -65,7 +64,6 @@ internal sealed class RoomObjectPlace
         where TDoor : RoomObjectBehaviour, IDoorBehindSamus
     {
         Ensure.NotNull(door);
-        RequireAwaitingObject();
         _holding = new Holding.HeldInDoor(door, door);
     }
 
@@ -105,14 +103,6 @@ internal sealed class RoomObjectPlace
     {
         Block = default;
         _holding = Holding.Free;
-    }
-
-    /// <summary>Requires the place to be one a spawn has taken and no object holds yet.</summary>
-    /// <exception cref="InvalidOperationException">The place is free, or already holds a typed object.</exception>
-    private void RequireAwaitingObject()
-    {
-        if (_holding is not Holding.Awaiting)
-            throw new InvalidOperationException("Only a freshly taken room-object place can become a typed room object.");
     }
 
     /// <summary>What a room-object place holds (#2560), one of the four cases below.</summary>

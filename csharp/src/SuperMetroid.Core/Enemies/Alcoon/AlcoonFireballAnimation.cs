@@ -8,5 +8,5 @@ internal sealed class AlcoonFireballAnimation(AlcoonFireballSegment segment)
     : EnemyProjectileFrameAnimation<AlcoonFireballSegment, EnemyProjectileCommonCue>(segment, AlcoonFireballAnimations.StartingAt[segment], EnemyProjectileCueRunners.Common<AlcoonFireballSegment>())
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<AlcoonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => AlcoonFireballAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<AlcoonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => AlcoonFireballAnimations.Segments;
 }

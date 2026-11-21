@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Movement;
+
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
@@ -27,10 +29,6 @@ internal static class SamusBombProjectileSystemPrivateAccess
         internal static bool BombSpreadCollides(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level, global::SuperMetroid.Core.Samus.Projectiles.SamusBomb bomb) =>
             PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem), "BombSpreadCollides", [typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBomb)], new object?[] { level, bomb });
 
-        /// <summary>The private method <c>Place</c>, invoked by name.</summary>
-        internal static global::SuperMetroid.Core.Samus.Projectiles.SamusBombOccupant Place(global::SuperMetroid.Core.Samus.Projectiles.SamusBomb bomb, global::SuperMetroid.Core.Progression.SamusProjectileType type) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.Core.Samus.Projectiles.SamusBombOccupant>(typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem), "Place", [typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBomb), typeof(global::SuperMetroid.Core.Progression.SamusProjectileType)], new object?[] { bomb, type });
-
         /// <summary>The private method <c>PowerBombBoundaryBlocks</c>, invoked by name.</summary>
         internal static global::System.Collections.Generic.List<global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>> PowerBombBoundaryBlocks(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> explosion, global::SuperMetroid.Core.Samus.Projectiles.PowerBombRadius explosionRadius) =>
             PrivateState.InvokeStatic<global::System.Collections.Generic.List<global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>>>(typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem), "PowerBombBoundaryBlocks", [typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>), typeof(global::SuperMetroid.Core.Samus.Projectiles.PowerBombRadius)], new object?[] { level, explosion, explosionRadius });
@@ -40,10 +38,6 @@ internal static class SamusBombProjectileSystemPrivateAccess
         {
             get => PrivateState.StaticGet<global::SuperMetroid.Core.Progression.SamusProjectileType>(typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem), "PowerBombType");
         }
-
-        /// <summary>The private method <c>ReactToBombedBlock</c>, invoked by name.</summary>
-        internal static void ReactToBombedBlock(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks> bombedBlock, global::SuperMetroid.Core.Samus.ISamusRoomObjects roomObjects, global::SuperMetroid.Core.Progression.SamusProjectileType projectileType) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem), "ReactToBombedBlock", [typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>), typeof(global::SuperMetroid.Core.Samus.ISamusRoomObjects), typeof(global::SuperMetroid.Core.Progression.SamusProjectileType)], new object?[] { level, bombedBlock, roomObjects, projectileType });
     }
 
     /// <summary>The private instance members checks read or call.</summary>

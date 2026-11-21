@@ -15,14 +15,14 @@ internal static class KnockbackHorizontalStopVerification
         var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
         foreach (bool right in new[] { false, true })
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) }.InPose(SamusPoseId.FacingLeftNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = right ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left, KnockbackTimer = SuperMetroid.Core.Enemies.EnemyCollisionDefinitions.SamusTouchKnockbackUpdates }, poseCollision: new KnockbackPoseCollision(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, 0));
+            SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = right ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left, KnockbackTimer = SuperMetroid.Core.Enemies.EnemyCollisionDefinitions.SamusTouchKnockbackUpdates }, poseCollision: new KnockbackPoseCollision(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), 0));
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.InteractiveEnemies =
             [new SolidEnemyCollisionBody(new SolidEnemyFixture(), new((ushort)(right ? 111 : 89), 100), new(5, 8), Solid: true)];
             FixedCoordinate clippedBefore = samus.Kinematics.Position.X;
-            SamusKnockbackMovement.Step(level, samus, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            SamusKnockbackMovement.Step(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, (SamusKnockback.Moving)samus.Knockback, 0);
             AssertTrue(Math.Abs((samus.Kinematics.Position.X - clippedBefore).RawValue) < 98304,
                 "knockback encounters nearby solid enemy and is clipped short of its 1.5-pixel move");
             AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "clipped knockback clears base momentum immediately");
@@ -30,7 +30,7 @@ internal static class KnockbackHorizontalStopVerification
             AssertEqual(0, samus.HorizontalSpeed.ExtraRunSpeed.Fraction, "clipped knockback clears extra fractional momentum");
             samus.Kinematics.InteractiveEnemies = [];
             FixedCoordinate before = samus.Kinematics.Position.X;
-            SamusKnockbackMovement.Step(level, samus, 1, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            SamusKnockbackMovement.Step(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, (SamusKnockback.Moving)samus.Knockback, 1);
             AssertEqual(SixteenSixteenWords.ToDisplacement(right ? 98304 : -98304), samus.Kinematics.Position.X - before,
                 "next clear knockback frame moves by the reset native 1.5 pixels instead of retaining clipped acceleration");
         }

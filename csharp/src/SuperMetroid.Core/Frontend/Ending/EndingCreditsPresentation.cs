@@ -98,15 +98,14 @@ internal static class EndingCreditsPresentation
     /// The final logo's screen: while the logo's picture fades in, the picture with the logo's sprites glowing over it; then
     /// the post-credits text in front.
     /// </summary>
-    internal static LayeredScene CaptureLogo(EndingCreditsState ending, EndingLogo logo, FramePaint paint)
+    internal static LayeredScene CaptureLogo(EndingCreditsState ending, SpriteBlend sprites, FramePaint paint)
     {
         var layers = new List<DisplayLayer>();
-        bool crossfading = logo.CrossfadeStarted;
-        if (crossfading)
+        if (sprites == SpriteBlend.Glows)
             layers.Add(new PicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.Logo, EndingScenery.LogoPicture),
                 Offset16<PlanePixels>.Zero));
         // While the logo's picture fades in, its sprites glow over it.
-        layers.Add(Sprites(ending, blend: crossfading ? SpriteBlend.Glows : SpriteBlend.Drawn));
+        layers.Add(Sprites(ending, blend: sprites));
         layers.Add(PostCreditsLayer(ending));
         return new(paint, layers.ToArray(), ending.Stage.Brightness);
     }
@@ -187,7 +186,9 @@ internal static class EndingCreditsPresentation
         var sprites = new ScreenSprites();
         sprites.BeginFrame();
         // A scene's own actors show on the actors' layer; the cast's each on its own role's layer.
-        ending.Scene.DrawActors(ending, sprites, Shows);
+        // The item-percentage drop and the typed texts have no actors.
+        if (ending.Scene is EndingActorScene acting)
+            acting.DrawActors(ending, sprites, Shows);
         if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Phase) && Shows(EndingSpriteLayer.Stars))
             ending.CreditsRoll.ShootingStars.Draw(sprites, Sheet(ending, EndingSpriteSheets.Reward(ending.Stage.EndingReward)),
                 ending.screen.Colours.Drawn(EndingShades.Drawn(EndingShootingStarDefinitions.Colouring)));
@@ -212,12 +213,12 @@ internal static class EndingCreditsPresentation
 
     /// <summary>Places the jumping Samus's frames, and the falling Samus's once she falls back.</summary>
     internal static void DrawJump(EndingCreditsState ending, ScreenSprites sprites, EndingRewardJump jump) =>
-        jump.Draw(sprites, ActorArt(ending, CinematicSpriteFamily.EndingReward),
+        jump.Draw(sprites, ActorArt(ending, EndingSpriteFamily.EndingReward),
             new CinematicSpriteSheet(Sheet(ending, EndingSpriteSheets.FallingSamusAndLogo), CinematicSpriteFamily.EndingReward, ending.screen.Colours.Drawn));
 
     /// <summary>A family's frames from the sheet they lie on, drawn in the ending's colours under the colouring each actor names.</summary>
-    internal static IIntroCinematicSpritePresentation ActorArt(EndingCreditsState ending, CinematicSpriteFamily family) =>
-        new CinematicSpriteSheet(Sheet(ending, EndingSpriteSheets.Of(family, ending.Stage.EndingReward)), family, ending.screen.Colours.Drawn);
+    internal static IIntroCinematicSpritePresentation ActorArt(EndingCreditsState ending, EndingSpriteFamily family) =>
+        new CinematicSpriteSheet(Sheet(ending, EndingSpriteSheets.Of(family, ending.Stage.EndingReward)), EndingSpriteSheets.Cinematic(family), ending.screen.Colours.Drawn);
 
     /// <summary>One of the installed sprite sheets the ending draws from.</summary>
     private static SpriteSheet Sheet(EndingCreditsState ending, SpriteSheetId sheet) => ending.InstalledArtwork.SpriteSheet(sheet);

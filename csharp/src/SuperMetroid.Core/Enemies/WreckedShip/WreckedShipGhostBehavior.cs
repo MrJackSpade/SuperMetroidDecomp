@@ -10,10 +10,13 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Coven];
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Coven], Create);
 
-    /// <inheritdoc/>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WreckedShipGhostEntity(occupant, place, common));
+    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
+    /// <param name="place">The place, already holding the occupant.</param>
+    /// <param name="common">The shared participation the entity composes.</param>
+    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WreckedShipGhostEntity(occupant, place, common));
 
     /// <summary>Initializes the Wrecked Ship ghost.</summary>
     internal static void InitializeWreckedShipGhost(RoomEnemyPlace place)
@@ -41,36 +44,24 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     private static void ShowFade(RoomEnemyPlace place, WreckedShipGhostEnemyState state) =>
         place.Shading = PictureShading.Shaded(WreckedShipGhostFadeShade.Of(state.Fade));
 
+    /// <summary>What <see cref="RunWreckedShipGhostMain"/> does for each <see cref="WreckedShipGhostAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<WreckedShipGhostAction, Action<RoomEnemyPlace, WreckedShipGhostEnemyState, SamusState>> RunWreckedShipGhostMainForWreckedShipGhostAction => field ??= new(new Dictionary<WreckedShipGhostAction, Action<RoomEnemyPlace, WreckedShipGhostEnemyState, SamusState>>
+    {
+        [WreckedShipGhostAction.BrighteningAndFlickering] = static (place, state, samus) => RunWreckedShipGhostBrightening(place, state),
+        [WreckedShipGhostAction.FadingToGhostColours] = static (place, state, samus) => RunWreckedShipGhostColourFade(place, state, samus),
+        [WreckedShipGhostAction.WaitingForWhiteFade] = static (place, state, samus) => RunWreckedShipGhostWhiteFade(place, state),
+        [WreckedShipGhostAction.BobbingWhileVisible] = static (place, state, samus) => RunWreckedShipGhostBobbing(place, state),
+        [WreckedShipGhostAction.InitialInvisibleDelay] = static (place, state, samus) => RunWreckedShipGhostInitialDelay(state),
+        [WreckedShipGhostAction.TrackingSamusForSpawn] = static (place, state, samus) => RunWreckedShipGhostTracking(place, state, samus),
+    });
+
     /// <summary>Runs the Wrecked Ship ghost's actions.</summary>
     private static void RunWreckedShipGhostMain(
         RoomEnemyPlace place,
         WreckedShipGhostEnemyState state,
         SamusState samus)
     {
-        switch (state.Action)
-        {
-            case WreckedShipGhostAction.BrighteningAndFlickering:
-                RunWreckedShipGhostBrightening(place, state);
-                break;
-            case WreckedShipGhostAction.FadingToGhostColours:
-                RunWreckedShipGhostColourFade(place, state, samus);
-                break;
-            case WreckedShipGhostAction.WaitingForWhiteFade:
-                RunWreckedShipGhostWhiteFade(place, state);
-                break;
-            case WreckedShipGhostAction.BobbingWhileVisible:
-                RunWreckedShipGhostBobbing(place, state);
-                break;
-            case WreckedShipGhostAction.InitialInvisibleDelay:
-                RunWreckedShipGhostInitialDelay(state);
-                break;
-            case WreckedShipGhostAction.TrackingSamusForSpawn:
-                RunWreckedShipGhostTracking(place, state, samus);
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Wrecked Ship ghost has no behaviour for action {state.Action}.");
-        }
+        RunWreckedShipGhostMainForWreckedShipGhostAction[state.Action](place, state, samus);
     }
 
     /// <summary>
@@ -300,9 +291,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>Advances the Wrecked Ship ghost's typed animation.</summary>
     internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, WreckedShipGhostAnimations.Segments,
-            static (WreckedShipGhostEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"The Wrecked Ship ghost's cue-free animation raised {cue}."));
+        EnemyAnimationPlayback.AdvanceSilently(place, WreckedShipGhostAnimations.Segments,
+            static (WreckedShipGhostEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs the Wrecked Ship ghost's main AI.</summary>
     internal static void RunWreckedShipGhostMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

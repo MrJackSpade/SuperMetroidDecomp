@@ -75,12 +75,15 @@ internal static class GateBeamCollisionVerification
                     AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, level.BlockAt(first), 0x10, BlockStrike.GrappleTouch.Instance, true), "Fill gate probe pool");
             var shot = new SamusProjectile(0) { Position = new(new(33, 0), new(33, 0)),
                 Radius = new(17, 17), Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1)) };
+            // The scans take the shot holding its place (#2558): an uncharged Power beam, which strikes the gate probes
+            // as the unfired place the check used before did.
+            SamusProjectileOccupant held = shot.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
             bool result = false;
-            if (wave && horizontal) ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, shot, roomObjects, InstalledFixtures.SamusOverreads.StraddledTerrain);
-            else if (wave) ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, shot.HeldShot(), roomObjects);
+            if (wave && horizontal) ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, held, roomObjects, InstalledFixtures.SamusOverreads.StraddledTerrain);
+            else if (wave) ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, held, roomObjects);
             else result = horizontal
-                ? ProjectileTerrainCollision.ScanHorizontalShotReactions(level, shot, roomObjects)
-                : ProjectileTerrainCollision.ScanVerticalShotReactions(level, shot, roomObjects);
+                ? ProjectileTerrainCollision.ScanHorizontalShotReactions(level, held, roomObjects)
+                : ProjectileTerrainCollision.ScanVerticalShotReactions(level, held, roomObjects);
             AssertEqual(full ? 40 : 1, roomObjects.Places.ActiveCount, "Gate setup terminates span after first allocation");
             if (!wave) AssertEqual(!full, result, "Only executed gate setup overrides earlier air reaction");
             AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.ShootableBlock), level.GetCollisionBlockByIndex(first).Terrain, "Gate scan does not mutate terrain");

@@ -56,8 +56,10 @@ internal static class WrapShotRoomsVerification
                 runtime.Projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new(cameraX, cameraY), runtime.BombProjectiles, new SharedGameState(new SharedRandom()));
                 if (firstHit < 0 && runtime.RoomObjects.PopulationPlaces.Any(place => place.Block == level.BlockAt(setup.Target) && place.Behaviour is BlueDoorCapObject { Orientation: ColoredDoorOrientation.Right, Phase: BlueDoorCapPhase.Opening }))
                     firstHit = frame;
+                // The runtime's room-object sounds go on into its session's queues, which the update's mark reads (#2602).
+                runtime.RoomObjects.Sounds.Requests.BeginRecordedUpdate();
                 runtime.RoomObjects.Step(level);
-                openingSound |= runtime.RoomObjects.Sounds.SoundRequests.Any(request => request == new SoundRequest(RoomSound.DoorOpened, SoundRequestPriority.Normal));
+                openingSound |= runtime.RoomObjects.Sounds.Requests.SoundsQueued.Contains(RoomSound.DoorOpened);
                 if (firstClear < 0 && Enumerable.Range(0, 4).All(row => level.GetCollisionBlockByIndex(setup.Target + row * level.Size.X).CollisionType == RoomCollisionType.Air))
                     firstClear = frame;
             }

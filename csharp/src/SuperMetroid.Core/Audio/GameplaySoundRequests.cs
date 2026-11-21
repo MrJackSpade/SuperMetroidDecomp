@@ -15,11 +15,18 @@ namespace SuperMetroid.Core.Audio;
 /// the HUD in turn, and each of them calls the game's sound queues at the point it runs; none holds a request back for a
 /// later system.
 /// </remarks>
-/// <param name="sounds">The sound queues every request goes on into as it is made.</param>
-internal partial class GameplaySoundRequests(IGameplaySoundQueue sounds)
+internal partial class GameplaySoundRequests
 {
     /// <summary>The sound queues the requests go on into.</summary>
-    internal readonly IGameplaySoundQueue sounds = Ensure.NotNull(sounds);
+    internal readonly IGameplaySoundQueue sounds;
+
+    /// <summary>
+    /// Requests that go on into <paramref name="sounds"/>. The queues reach the session, which reaches the systems holding
+    /// these requests, so a stored state restores the requests before what their queues hold (#2602): an ordinary
+    /// constructor, not a primary one, whose arguments a restore would have to rebuild first.
+    /// </summary>
+    /// <param name="sounds">The sound queues every request goes on into as it is made.</param>
+    internal GameplaySoundRequests(IGameplaySoundQueue sounds) => this.sounds = Ensure.NotNull(sounds);
 
     /// <summary>
     /// Requests <paramref name="request"/>'s sound now, after the update's earlier sound requests, returning what its queue

@@ -10,12 +10,15 @@ namespace SuperMetroid.Core.Audio;
 /// Evidence for the run order: each of the game's systems calls the game's music queue at the point it runs; none holds a
 /// request back for a later system.
 /// </remarks>
-/// <param name="sounds">The sound queues every sound request goes on into as it is made.</param>
-/// <param name="music">The music queue every music request goes on into as it is made.</param>
-internal sealed partial class GameplayAudioRequests(IGameplaySoundQueue sounds, IGameplayMusicQueue music) : GameplaySoundRequests(sounds)
+internal sealed partial class GameplayAudioRequests : GameplaySoundRequests
 {
     /// <summary>The music queue the requests go on into.</summary>
-    internal readonly IGameplayMusicQueue music = Ensure.NotNull(music);
+    internal readonly IGameplayMusicQueue music;
+
+    /// <summary>Requests that go on into <paramref name="sounds"/> and <paramref name="music"/> (see <see cref="GameplaySoundRequests"/>).</summary>
+    /// <param name="sounds">The sound queues every sound request goes on into as it is made.</param>
+    /// <param name="music">The music queue every music request goes on into as it is made.</param>
+    internal GameplayAudioRequests(IGameplaySoundQueue sounds, IGameplayMusicQueue music) : base(sounds) => this.music = Ensure.NotNull(music);
 
     /// <summary>Schedules <paramref name="request"/> now, after the update's earlier music requests.</summary>
     internal void ScheduleMusic(DelayedMusicRequest request) => QueueMusic(new GameplayMusicRequest.Scheduled(request));

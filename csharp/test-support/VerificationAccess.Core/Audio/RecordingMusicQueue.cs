@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Audio;
 /// goes straight on into the music queue the record wraps.
 /// </summary>
 /// <param name="queue">The music queue every request goes on into.</param>
-internal sealed class RecordingMusicQueue(IGameplayMusicQueue queue) : IGameplayMusicQueue
+internal sealed partial class RecordingMusicQueue(IGameplayMusicQueue queue) : IGameplayMusicQueue
 {
     /// <summary>The music queue the requests go on into.</summary>
     private readonly IGameplayMusicQueue queue = Ensure.NotNull(queue);

@@ -36,9 +36,10 @@ internal static class BabyMetroidDeathExplosionSoundVerification
 
         runtime.Enemies.Audio.BeginFrame();
         runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(state.Colours, step);
+        // A runtime's requests go on into its session's queues, which admit them in request order (#2602).
         AssertSequenceEqual(
-            new[] { MotherBrainSoundDefinitions.Explosion },
-            runtime.Enemies.Audio.SoundRequests, "the explosion queues the enemies' small explosion at low priority, and nothing else");
+            new[] { MotherBrainSoundDefinitions.Explosion.SoundEffect },
+            runtime.Enemies.Audio.Requests.SoundsQueued, "the explosion queues the enemies' small explosion, and nothing else");
 
         // Mother Brain's corpse-rot dust ($A9:B252) and escape-door explosion ($A9:B346) both
         // request library-two sounds at low priority.
@@ -52,12 +53,8 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         runtime.Enemies.Audio.BeginFrame();
         runtime.Enemies.MotherBrainBehavior.RainbowAndDeath.ApplyLiveMotherBrainDeath(state, death);
         AssertSequenceEqual(
-            new[]
-            {
-                new SoundRequest(EnemySound.LiquidDamage, SoundRequestPriority.Low),
-                new SoundRequest(EnemySound.SmallExplosion, SoundRequestPriority.Low),
-            },
-            runtime.Enemies.Audio.SoundRequests, "the rot dust and door explosion request library-two sounds at low priority");
+            new SoundEffectId[] { EnemySound.LiquidDamage, EnemySound.SmallExplosion },
+            runtime.Enemies.Audio.Requests.SoundsQueued, "the rot dust and door explosion queue library-two sounds");
         Console.WriteLine("  Escape explosion sounds: the Baby Metroid's, Mother Brain's dust and the door's in library two.");
     }
 

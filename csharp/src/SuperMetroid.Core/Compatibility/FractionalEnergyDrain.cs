@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Compatibility;
 public readonly record struct FractionalEnergyDrain
 {
     /// <summary>The parts one energy is drained in: a fraction and what is held over are counted in these parts.</summary>
-    public const int PartsPerEnergy = WrappingCounter.LargestCount + 1;
+    private const int PartsPerEnergy = WrappingCounter.LargestCount + 1;
 
     /// <summary>Stores what is held over, 0 through one part short of an energy; callers use <see cref="Start"/> or <see cref="After"/>.</summary>
     private FractionalEnergyDrain(int heldOver) => HeldOver = Ensure.BetweenInclusive(0, PartsPerEnergy - 1, heldOver);

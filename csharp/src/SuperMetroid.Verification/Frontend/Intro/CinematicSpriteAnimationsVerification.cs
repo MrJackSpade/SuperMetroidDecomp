@@ -59,19 +59,31 @@ internal static class CinematicSpriteAnimationsVerification
         int updates = 0;
         updates += CompareFamily(cartridge, IntroMotherBrainAnimations.MotherBrain, MotherBrainCues, Pictures, compared);
         updates += CompareFamily(cartridge, IntroMotherBrainAnimations.Explosions, NativeCinematicCues<NoAnimationCue>.None, Pictures, compared);
-        updates += CompareFamily(cartridge, IntroBabyAnimations.Discovery, DiscoveryCues, Pictures, compared);
-        updates += CompareFamily(cartridge, IntroBabyAnimations.Laboratory, LaboratoryCues, Pictures, compared);
+        // The discovery and the laboratory share one animation identity: the discovery's egg and confused Baby, the
+        // laboratory's every other native start of the Baby.
+        IntroBabyAnimation[] discovered = [IntroBabyAnimation.Egg, IntroBabyAnimation.EggHatching, IntroBabyAnimation.ConfusedBaby];
+        updates += CompareFamily(cartridge, IntroBabyAnimations.Discovery, discovered, DiscoveryCues, Pictures, compared);
+        updates += CompareFamily(cartridge, IntroBabyAnimations.Laboratory, [.. NativeStartsOf<IntroBabyAnimation>().Except(discovered)],
+            LaboratoryCues, Pictures, compared);
         updates += CompareFamily(cartridge, IntroEggEffectAnimations.ShellPieces, NativeCinematicCues<NoAnimationCue>.None, Pictures, compared);
         updates += CompareFamily(cartridge, IntroEggEffectAnimations.Effects, NativeCinematicCues<NoAnimationCue>.None, Pictures, compared);
         updates += CompareFamily(cartridge, IntroRinkaAnimations.Rinka, RinkaCues, Pictures, compared);
         updates += CompareRinkaLaunches(cartridge);
         updates += CompareFamily(cartridge, IntroNarrationAnimations.Narration, NativeCinematicCues<NoAnimationCue>.None, Pictures, compared);
-        updates += CompareFamily(cartridge, CeresAnimations.Scenes, CeresCues, Pictures, compared);
-        updates += CompareFamily(cartridge, CeresAnimations.ExplosionSpawner, ExplosionSpawnerCues, Pictures, compared);
+        // Ceres's scenes and its explosion spawner share one animation identity: the spawner's own list, the scenes' every
+        // other native start of Ceres.
+        CeresAnimation[] spawner = [CeresAnimation.ExplosionSpawner];
+        updates += CompareFamily(cartridge, CeresAnimations.Scenes, [.. NativeStartsOf<CeresAnimation>().Except(spawner)], CeresCues, Pictures, compared);
+        updates += CompareFamily(cartridge, CeresAnimations.ExplosionSpawner, spawner, ExplosionSpawnerCues, Pictures, compared);
         updates += CompareFamily(cartridge, EndingSceneAnimations.Pictures, EndingSceneCues, Pictures, compared);
         updates += CompareFamily(cartridge, EndingTextAnimations.Texts, EndingSceneCues, TypedTexts, compared);
-        updates += CompareFamily(cartridge, EndingRewardAnimations.Gesture, RewardGestureCues, Pictures, compared);
-        updates += CompareFamily(cartridge, EndingRewardAnimations.Jump, RewardJumpCues, Pictures, compared);
+        // The gesture and the jump share one animation identity: the gesture's are those its cast's actors start, the
+        // jump's every other native start of a reward.
+        EndingRewardAnimation[] gestures = [.. EndingRewardDefinitions.Rewards.Values.SelectMany(reward => reward.Gesture)
+            .Select(actor => EndingRewardActors.Get(actor).Animation).Distinct()];
+        updates += CompareFamily(cartridge, EndingRewardAnimations.Gesture, gestures, RewardGestureCues, Pictures, compared);
+        updates += CompareFamily(cartridge, EndingRewardAnimations.Jump, [.. NativeStartsOf<EndingRewardAnimation>().Except(gestures)],
+            RewardJumpCues, Pictures, compared);
         updates += CompareFamily(cartridge, EndingLogoAnimations.Logo, LogoCues, Pictures, compared);
         AssertEqual(compared.Count, compared.Distinct().Count(), "no animation is compared twice");
         AssertTrue(Starts.Keys.All(compared.Contains) && compared.All(Starts.ContainsKey),
@@ -115,15 +127,35 @@ internal static class CinematicSpriteAnimationsVerification
     private static bool TypedTexts(EndingTextTyping? typed, ushort native) =>
         typed is { } shown ? CinematicSpritemapSources.Of(shown) == native : native == 0;
 
-    /// <summary>Plays every animation an actor of <paramref name="animations"/>' family starts against its native list; returns the updates.</summary>
+    /// <summary>
+    /// Plays every native start of <paramref name="animations"/>' animation identity, each of which an actor of the family
+    /// starts, against its native list; returns the updates.
+    /// </summary>
     private static int CompareFamily<TAnimation, TFrame, TCue>(IImportCartridgeSource cartridge, CinematicAnimations<TAnimation, TFrame, TCue> animations,
         NativeCinematicCues<TCue> cues, Func<TFrame?, ushort, bool> shows, List<Enum> compared)
         where TAnimation : struct, Enum
         where TFrame : struct
+        where TCue : notnull =>
+        CompareFamily(cartridge, animations, [.. NativeStartsOf<TAnimation>()], cues, shows, compared);
+
+    /// <summary>The native starts of animations of <typeparamref name="TAnimation"/>.</summary>
+    private static IEnumerable<TAnimation> NativeStartsOf<TAnimation>()
+        where TAnimation : struct, Enum =>
+        Starts.Keys.OfType<TAnimation>();
+
+    /// <summary>
+    /// Plays each of <paramref name="starting"/>, animations an actor of <paramref name="animations"/>' family starts, against
+    /// its native list; returns the updates.
+    /// </summary>
+    private static int CompareFamily<TAnimation, TFrame, TCue>(IImportCartridgeSource cartridge, CinematicAnimations<TAnimation, TFrame, TCue> animations,
+        TAnimation[] starting, NativeCinematicCues<TCue> cues, Func<TFrame?, ushort, bool> shows, List<Enum> compared)
+        where TAnimation : struct, Enum
+        where TFrame : struct
         where TCue : notnull
     {
+        AssertTrue(starting.Length > 0, "the family has a native start");
         int updates = 0;
-        foreach (TAnimation animation in animations.starts.Keys)
+        foreach (TAnimation animation in starting)
         {
             compared.Add(animation);
             updates += ComparePlayback(cartridge, animations, cues, shows, animation);

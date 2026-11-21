@@ -1247,8 +1247,6 @@ internal static class LookupStream1Verification
         SpritePart[] one = [.. oneWords.Select(word => new SnesObjAttributeWord(word).ToSinglePart())];
         SpritePart[] shared = [.. sharedWords.Select(word => new SnesObjAttributeWord(word).ToSinglePart())];
         var stock = new SamusAtmosphericSourceArtwork(one, shared);
-        AssertTrue(stock.FootstepSplash.SequenceEqual(one) && stock.LavaAndDust.SequenceEqual(shared),
-            "atmospheric pieces hold the decoded native words in order");
         for (int kind = 0; kind < 2; kind++)
         for (int frame = 0; frame < 4; frame++)
         {

@@ -17,9 +17,9 @@ internal sealed class CinematicAnimations<TAnimation, TFrame, TCue>
 {
     /// <summary>
     /// The animation each actor of the family starts, by the animation it is named for, which <see cref="StartingWith"/>
-    /// reads; checks of the family's animations walk it (#2604).
+    /// reads.
     /// </summary>
-    internal readonly Dictionary<TAnimation, Animation<TAnimation>> starts;
+    private readonly Dictionary<TAnimation, Animation<TAnimation>> starts;
 
     /// <summary>
     /// Creates the family's animations: <paramref name="segments"/> are the beats each segment plays, and

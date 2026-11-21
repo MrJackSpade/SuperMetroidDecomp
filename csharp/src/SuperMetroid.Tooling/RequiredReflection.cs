@@ -1,9 +1,8 @@
 namespace SuperMetroid.Tooling;
 
 /// <summary>
-/// Public-member reflection lookups for members that must exist (#623). Each returns a non-null member or throws the precise
-/// missing-member exception naming the declaring type and the requested member, instead of leaving a null that
-/// fails later. They reach public members only: a non-public lookup belongs to its audited caller (#622).
+/// The runtime's own assembly paths, which a tool's fixture compilations reference. Its member-lookup helpers went with the
+/// rest of the game's reflection (#2602).
 /// </summary>
 public static class RequiredReflection
 {

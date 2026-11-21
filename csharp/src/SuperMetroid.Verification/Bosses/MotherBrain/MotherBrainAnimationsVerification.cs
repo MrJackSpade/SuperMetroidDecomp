@@ -88,13 +88,13 @@ internal static class MotherBrainAnimationsVerification
             AssertEqual<EnemyFrameId?>(frames[0].Shown, state.Brain.ShownFrame, $"{program} shows its first frame from its start");
             for (int draw = 1; draw < frames[0].Duration; draw++)
             {
-                AssertEqual((EnemyFrameId?)frames[0].Shown, enemies.MotherBrainBehavior.Head.DrawBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
+                AssertEqual((EnemyFrameId?)frames[0].Shown, enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
                     $"{program} shows its first frame on draw {draw}");
                 AssertTrue(!state.Brain.Clock.ShowsNewFrame, $"{program} holds its first frame on draw {draw}");
             }
             for (int draw = 0; draw < 2; draw++)
             {
-                AssertEqual((EnemyFrameId?)frames[1].Shown, enemies.MotherBrainBehavior.Head.DrawBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
+                AssertEqual((EnemyFrameId?)frames[1].Shown, enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
                     $"{program} shows its second frame on its draw {draw}");
                 AssertEqual(draw == 0, state.Brain.Clock.ShowsNewFrame, $"{program} moves on to its second frame on its draw {draw} alone");
             }
@@ -106,11 +106,11 @@ internal static class MotherBrainAnimationsVerification
             AssertEqual<EnemyFrameId?>(null, state.Brain.ShownFrame, "a stretch, which opens with a cue, shows nothing before its first draw");
             for (int draw = 0; draw < opening.Duration; draw++)
             {
-                AssertEqual((EnemyFrameId?)opening.Shown, enemies.MotherBrainBehavior.Head.DrawBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
+                AssertEqual((EnemyFrameId?)opening.Shown, enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
                     $"the stretch shows its first frame on draw {draw}");
                 AssertEqual(draw == 0, state.Brain.Clock.ShowsNewFrame, $"the stretch's first frame is shown on its first draw alone, draw {draw}");
             }
-            enemies.MotherBrainBehavior.Head.DrawBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+            enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
             AssertTrue(state.Brain.Clock.ShowsNewFrame, "the stretch moves on past its first frame once its updates have passed");
         }
     }
@@ -127,7 +127,7 @@ internal static class MotherBrainAnimationsVerification
             enemies.VerificationServices().ReadRandom = () => random;
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2Hold);
             for (int draw = 0; draw <= 8; draw++)
-                enemies.MotherBrainBehavior.Head.DrawBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+                enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
             // Holding restarts the hold's animation and shows its first frame; leaving shows the hold's last frame before its goto.
             AssertEqual(new AnimationPlayback<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.NeutralPhase2Hold),
                     new AnimationPlace(0, holds ? 1 : 3)),
@@ -143,7 +143,7 @@ internal static class MotherBrainAnimationsVerification
             state.Brain.ShownFrame = loopFrame.Shown;
             state.Brain.Clock.Show(loopFrame.Duration);
             for (int draw = 0; draw < loopFrame.Duration; draw++)
-                enemies.MotherBrainBehavior.Head.DrawBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+                enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
             AnimationPlayback<MotherBrainHeadSegment> drooling = state.Brain.Playback ?? throw new InvalidOperationException("Verification requires a brain playback.");
             AssertEqual(bursts ? MotherBrainHeadSegment.DyingDroolBurst : MotherBrainHeadSegment.DyingDroolLoop, drooling.Animation.Phases[drooling.Place.Phase].Segment,
                 $"random {random} {(bursts ? "bursts into more drool" : "keeps the drool loop")}");

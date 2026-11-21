@@ -8,41 +8,42 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// </summary>
 internal static class ShaktoolBehaviorPrivateAccess
 {
-    /// <summary>The private instance members checks read or call.</summary>
-    extension(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehavior self)
+    /// <summary>The private members checks call, each handed the segment's chain.</summary>
+    extension(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehavior)
     {
         /// <summary>The private method <c>AdvanceAndOrientShaktoolCenter</c>, invoked by name with the centre's neighbours in its chain.</summary>
-        internal void AdvanceAndOrientShaktoolCenter(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentState state)
+        internal static void AdvanceAndOrientShaktoolCenter(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentState state)
         {
-            global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolChain chain = self.ChainOf(place);
+            global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolChain chain = ChainOf(place);
             global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentDefinition segment = SegmentOf(place);
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehavior), "AdvanceAndOrientShaktoolCenter", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentState), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolChainSegment), typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolChain)],
                 new object?[] { place, state, chain.Before(segment), chain.After(segment), chain });
         }
 
         /// <summary>The private method <c>ApplyShaktoolCue</c>, invoked by name with the chain of the segment the cue plays in.</summary>
-        internal void ApplyShaktoolCue(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolCue cue) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehavior), "ApplyShaktoolCue", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolChain), typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolCue)], new object?[] { place, self.ChainOf(place), cue });
+        internal static void ApplyShaktoolCue(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolCue cue) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehavior), "ApplyShaktoolCue", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolChain), typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolCue)], new object?[] { place, ChainOf(place), cue });
 
-        /// <summary>The chain <paramref name="segment"/>'s Shaktool is in, which its entity holds from its setup.</summary>
-        /// <exception cref="InvalidOperationException">The place holds no Shaktool segment.</exception>
-        internal global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolChain ChainOf(global::SuperMetroid.Core.Enemies.RoomEnemyPlace segment) => EntityOf(segment).Chain;
 
         /// <summary>The private method <c>PositionShaktoolAroundPreviousSegment</c>, invoked by name with the segment before it in its chain.</summary>
-        internal void PositionShaktoolAroundPreviousSegment(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentState state) =>
+        internal static void PositionShaktoolAroundPreviousSegment(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentState state) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehavior), "PositionShaktoolAroundPreviousSegment",
                 [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentState), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)],
-                new object?[] { place, state, self.ChainOf(place).Before(SegmentOf(place)) });
+                new object?[] { place, state, ChainOf(place).Before(SegmentOf(place)) });
 
         /// <summary>The private method <c>ReverseShaktoolAfterCollision</c>, invoked by name with the trailing saw's chain.</summary>
-        internal void ReverseShaktoolAfterCollision(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentState state, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> previous) =>
+        internal static void ReverseShaktoolAfterCollision(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentState state, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> previous) =>
             PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehavior), "ReverseShaktoolAfterCollision", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentState), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>), typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolChain)],
-                new object?[] { place, state, previous, self.ChainOf(place) });
+                new object?[] { place, state, previous, ChainOf(place) });
     }
 
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehavior)
     {
+        /// <summary>The chain <paramref name="segment"/>'s Shaktool is in, which its entity holds from its setup.</summary>
+        /// <exception cref="InvalidOperationException">The place holds no Shaktool segment.</exception>
+        internal static global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolChain ChainOf(global::SuperMetroid.Core.Enemies.RoomEnemyPlace segment) => EntityOf(segment).Chain;
+
         /// <summary>The private method <c>OrbitDisplacement</c>, invoked by name.</summary>
         internal static global::SuperMetroid.Core.Spatial.FixedVector<global::SuperMetroid.Core.Spatial.RoomPixels> OrbitDisplacement(global::SuperMetroid.Core.Spatial.TrigonometryAngle angle) =>
             PrivateState.InvokeStatic<global::SuperMetroid.Core.Spatial.FixedVector<global::SuperMetroid.Core.Spatial.RoomPixels>>(typeof(global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehavior), "OrbitDisplacement", [typeof(global::SuperMetroid.Core.Spatial.TrigonometryAngle)], new object?[] { angle });

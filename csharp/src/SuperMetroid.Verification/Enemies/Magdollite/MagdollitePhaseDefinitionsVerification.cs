@@ -32,7 +32,7 @@ internal static class MagdollitePhaseDefinitionsVerification
         Action<RoomEnemyPlace, SamusState> initialize = static (place, samus) => place.InitializeAsPlaced(samus);
         Action<RoomEnemyPlace, MagdolliteBodyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
         Action<RoomEnemyPlace, MagdolliteBodyState> fall = enemies.MagdolliteBehavior.RunMagdolliteBodyFalling;
-        Action<RoomEnemyPlace, MagdolliteOverlayState, SamusState> trackRise = enemies.MagdolliteBehavior.RunMagdolliteOverlayTrackingRise;
+        Action<RoomEnemyPlace, MagdolliteOverlayState, SamusState> trackRise = MagdolliteBehavior.RunMagdolliteOverlayTrackingRise;
 
         for (int index = 0; index < 3; index++)
         {

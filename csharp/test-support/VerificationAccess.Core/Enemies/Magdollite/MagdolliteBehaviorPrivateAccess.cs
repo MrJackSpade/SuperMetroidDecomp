@@ -25,14 +25,6 @@ internal static class MagdolliteBehaviorPrivateAccess
         internal void RunMagdolliteBodyRising(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body, global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBodyState state, global::SuperMetroid.Core.Samus.SamusState samus) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior>(self, "RunMagdolliteBodyRising", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBodyState), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { body, state, samus });
 
-        /// <summary>The private method <c>RunMagdolliteOverlayTrackingRise</c>, invoked by name with the partners the overlay's entity holds.</summary>
-        /// <exception cref="InvalidOperationException">The place holds no Magdollite overlay.</exception>
-        internal void RunMagdolliteOverlayTrackingRise(global::SuperMetroid.Core.Enemies.RoomEnemyPlace overlay, global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayState state, global::SuperMetroid.Core.Samus.SamusState samus) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior), "RunMagdolliteOverlayTrackingRise",
-                [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayState), typeof(global::SuperMetroid.Core.Enemies.Magdollite.MagdollitePartners), typeof(global::SuperMetroid.Core.Samus.SamusState)],
-                new object?[] { overlay, state, (overlay.Entity as global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayEntity
-                    ?? throw new InvalidOperationException($"Enemy place {overlay.Ordinal} holds no Magdollite overlay.")).Partners, samus });
-
         /// <summary>The private method <c>SpawnMagdolliteLava</c>, invoked by name.</summary>
         internal void SpawnMagdolliteLava(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Spatial.HorizontalDirection thrown) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior>(self, "SpawnMagdolliteLava", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection)], new object?[] { occupant, source, thrown });
@@ -46,5 +38,17 @@ internal static class MagdolliteBehaviorPrivateAccess
         {
             get => PrivateState.Get<global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior, global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior.LavaBehavior>(self, "Lava");
         }
+    }
+
+    /// <summary>The private static members checks name.</summary>
+    extension(global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior)
+    {
+        /// <summary>The private method <c>RunMagdolliteOverlayTrackingRise</c>, invoked by name with the partners the overlay's entity holds.</summary>
+        /// <exception cref="InvalidOperationException">The place holds no Magdollite overlay.</exception>
+        internal static void RunMagdolliteOverlayTrackingRise(global::SuperMetroid.Core.Enemies.RoomEnemyPlace overlay, global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayState state, global::SuperMetroid.Core.Samus.SamusState samus) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehavior), "RunMagdolliteOverlayTrackingRise",
+                [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayState), typeof(global::SuperMetroid.Core.Enemies.Magdollite.MagdollitePartners), typeof(global::SuperMetroid.Core.Samus.SamusState)],
+                new object?[] { overlay, state, (overlay.Entity as global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayEntity
+                    ?? throw new InvalidOperationException($"Enemy place {overlay.Ordinal} holds no Magdollite overlay.")).Partners, samus });
     }
 }

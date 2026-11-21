@@ -2,9 +2,9 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// A species' creation of the enemies its bound entries place wherever they are set up (#2554), held as one object every
-/// entry bound to it shares. The game's debugger state writes each entry's reference to it once it is written: the enemies
-/// it builds reach those entries again, which a creation held by each entry as a delegate would reach before the delegate
-/// itself is written.
+/// entry bound to it shares, so a copy of the game's state holds it once and each entry reaches it by reference: the
+/// enemies it builds reach those entries again, which a creation each entry held as its own delegate would reach before
+/// the copy held the delegate.
 /// </summary>
 /// <typeparam name="TSettings">The settings the creation takes.</typeparam>
 /// <param name="create">The species' creation.</param>

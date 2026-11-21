@@ -21,7 +21,7 @@ internal static class ShaktoolOwnedStateVerification
             enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException($"Shaktool segment {index} has no state."))];
         RoomEnemyPlace center = enemies.Places.InUpdateOrder[3];
         ShaktoolSegmentState centerState = states[3];
-        ShaktoolChain chain = enemies.ShaktoolBehavior.ChainOf(center);
+        ShaktoolChain chain = ShaktoolBehavior.ChainOf(center);
 
         foreach ((bool reversed, CompassDirection expectedOrientation) in new[] { new VerifyShaktoolOwnedStateCase(false, CompassDirection.Down), new VerifyShaktoolOwnedStateCase(true, CompassDirection.Up) })
         {
@@ -31,7 +31,7 @@ internal static class ShaktoolOwnedStateVerification
             centerState.ResetOrientation();
             centerState.OrientationReversed = reversed;
             states[4].OrbitAngle = RotationAngleConstants.FromRaw(0x8080);
-            enemies.ShaktoolBehavior.AdvanceAndOrientShaktoolCenter(center, centerState);
+            ShaktoolBehavior.AdvanceAndOrientShaktoolCenter(center, centerState);
             AssertEqual((ushort)0x0080, centerState.OrbitAngle.RawValue, "the centre's orbit wraps through zero");
             AssertEqual(expectedOrientation, centerState.Orientation, $"reversed={reversed} selects the expected head orientation");
             AssertEqual(reversed, centerState.OrientationReversed, "orienting keeps the chain's reversal");
@@ -41,7 +41,7 @@ internal static class ShaktoolOwnedStateVerification
         centerState.ResetOrientation();
         RoomEnemyPlace tail = enemies.Places.InUpdateOrder[6];
         states[6].CurlProgress = RotationAngle.FromSteps(0x12, 0x34);
-        enemies.ShaktoolBehavior.ReverseShaktoolAfterCollision(tail, states[6], tail.Position.Whole);
+        ShaktoolBehavior.ReverseShaktoolAfterCollision(tail, states[6], tail.Position.Whole);
         AssertEqual(RotationAngle.Zero, states[6].CurlProgress, "a wall reversal empties the saw's curl progress");
         AssertTrue(centerState.OrientationReversed, "a first wall reversal swaps the chain's ends");
         AssertEqual(ShaktoolChainMotion.CurlingClockwise with { NextWall = ShaktoolWallResponse.ReverseOrbit }, chain.Motion, "the chain curls again and its next wall reverses its orbit");

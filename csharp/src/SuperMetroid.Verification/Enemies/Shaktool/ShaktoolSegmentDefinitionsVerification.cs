@@ -67,7 +67,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
         foreach (ShaktoolSegmentState? state in enemies.ShaktoolSegments.Take(7))
             (state ?? throw new InvalidOperationException("Verification requires state.")).Motion = ShaktoolSegmentMotion.Idle;
         // The reset cue carries out its reaction and the animation plays on: a cue's reaction continues nowhere else.
-        enemies.ShaktoolBehavior.ApplyShaktoolCue(enemies.Places.InUpdateOrder[0], new ShaktoolCue(ShaktoolCueKind.ResumeMotion));
+        ShaktoolBehavior.ApplyShaktoolCue(enemies.Places.InUpdateOrder[0], new ShaktoolCue(ShaktoolCueKind.ResumeMotion));
         for (int index = 0; index < definitions.Length; index++)
         {
             AssertEqual(definitions[index].Motion,

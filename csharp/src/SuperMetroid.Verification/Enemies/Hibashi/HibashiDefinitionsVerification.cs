@@ -22,7 +22,7 @@ internal static class HibashiDefinitionsVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemyPlace> initialize = static place => place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
-        Action<RoomEnemyPlace, HibashiEruptionStep> applyStep = enemies.HibashiBehavior.ApplyHibashiEruptionStep;
+        Action<RoomEnemyPlace, HibashiEruptionStep> applyStep = HibashiBehavior.ApplyHibashiEruptionStep;
 
         RoomEnemyPlace graphics = enemies.Places.InUpdateOrder[0];
         graphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);

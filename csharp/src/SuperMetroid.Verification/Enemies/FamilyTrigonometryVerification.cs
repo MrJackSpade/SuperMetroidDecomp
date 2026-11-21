@@ -126,7 +126,7 @@ internal static class FamilyTrigonometryVerification
             segment.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 2);
             segment.SetUpAsPlaced();
             var segmentState = new ShaktoolSegmentState();
-            Action<RoomEnemyPlace, ShaktoolSegmentState> place = enemies.ShaktoolBehavior.PositionShaktoolAroundPreviousSegment;
+            Action<RoomEnemyPlace, ShaktoolSegmentState> place = ShaktoolBehavior.PositionShaktoolAroundPreviousSegment;
             int firstAngle = block * AnglesPerBlock;
             foreach (uint initial in origins)
             for (int angle = firstAngle; angle < firstAngle + AnglesPerBlock; angle++)

@@ -40,8 +40,8 @@ internal static class ShaktoolInstructionDefinitionsVerification
         RoomEnemyPlace center = enemies.Places.InUpdateOrder[3];
         ShaktoolSegmentState centerState = (enemies.ShaktoolSegments[3] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[3]."));
         ShaktoolSegmentState nextState = (enemies.ShaktoolSegments[4] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[4]."));
-        Action<RoomEnemyPlace, ShaktoolSegmentState> orient = enemies.ShaktoolBehavior.AdvanceAndOrientShaktoolCenter;
-        ShaktoolChain chain = enemies.ShaktoolBehavior.ChainOf(center);
+        Action<RoomEnemyPlace, ShaktoolSegmentState> orient = ShaktoolBehavior.AdvanceAndOrientShaktoolCenter;
+        ShaktoolChain chain = ShaktoolBehavior.ChainOf(center);
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
             ushort midpoint = unchecked((ushort)(bucket << 8));
@@ -60,7 +60,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
 
         RoomEnemyPlace tail = enemies.Places.InUpdateOrder[6];
         ShaktoolSegmentState tailState = (enemies.ShaktoolSegments[6] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[6]."));
-        Action<RoomEnemyPlace, ShaktoolSegmentState, Position16<RoomPixels>> reverse = enemies.ShaktoolBehavior.ReverseShaktoolAfterCollision;
+        Action<RoomEnemyPlace, ShaktoolSegmentState, Position16<RoomPixels>> reverse = ShaktoolBehavior.ReverseShaktoolAfterCollision;
         reverse(tail, (tailState), tail.Position.Whole);
         for (int index = 0; index < 7; index++)
         {
@@ -101,7 +101,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
 
         RoomEnemyPlace tail = enemies.Places.InUpdateOrder[6];
         ShaktoolSegmentState tailState = enemies.ShaktoolSegments[6] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[6].");
-        enemies.ShaktoolBehavior.ReverseShaktoolAfterCollision(tail, tailState, tail.Position.Whole);
+        ShaktoolBehavior.ReverseShaktoolAfterCollision(tail, tailState, tail.Position.Whole);
         for (int index = 0; index < 7; index++)
             RunForcedShaktoolInstructions(enemies.Places.InUpdateOrder[index], 8);
 

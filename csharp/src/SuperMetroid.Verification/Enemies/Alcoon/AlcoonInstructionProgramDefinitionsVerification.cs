@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Verification.Enemies.Alcoon;
 
 using SuperMetroid.Verification.Harness;

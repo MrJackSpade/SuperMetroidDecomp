@@ -50,7 +50,7 @@ internal static class EtecoonFanfareVerification
         AssertEqual(EnemySound.EtecoonTheme, request.SoundEffect,
             "native Etecoon fanfare identity");
         AssertEqual(15, request.Priority.Requests, "native wake request uses Max15");
-        AssertEqual(EnemyFrameId.EtecoonHopCrouchFacingRight, enemies.Places.InUpdateOrder[0].Frame,
+        AssertEqual(SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.EtecoonHopCrouchFacingRight, enemies.Places.InUpdateOrder[0].Frame,
             "Samus coming level wakes the Etecoon, which shows its flex's first pose");
 
         var renderer = AudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());

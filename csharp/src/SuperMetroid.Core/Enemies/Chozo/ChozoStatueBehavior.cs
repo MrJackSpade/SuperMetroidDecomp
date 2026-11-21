@@ -241,7 +241,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Places the Wrecked Ship footstep projectile beneath the statue at its signed horizontal offset.</summary>
     internal void SpawnWreckedShipChozoFootstep(RoomEnemyPlace statue, int footstepOffsetX)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard, new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingWith(ChozoTourianDustSegment.Footsteps)));
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard, new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingAt[ChozoTourianDustSegment.Footsteps]));
         if (projectile is null)
             return;
 

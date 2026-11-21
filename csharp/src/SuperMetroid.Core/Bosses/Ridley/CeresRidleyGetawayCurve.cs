@@ -14,16 +14,27 @@ public static class CeresRidleyGetawayCurve
     /// <summary>The getaway's duration in updates: every update of its zoom curve, which its drift curve matches.</summary>
     public static int Duration => Steps.Count;
 
-    /// <summary>The curves laid out one step per update, which must last as long as each other.</summary>
+    /// <summary>
+    /// The curves laid out one step per update: each update of the zoom curve, with the drift its own curve has reached by
+    /// then. The two curves advance side by side, each through its own stretches, and last as long as each other.
+    /// </summary>
     private static CeresRidleyGetawayStep[] LaidOut()
     {
-        FloorZoom[] zooms = [.. CeresRidleyGetawayDefinitions.ZoomCurve
-            .SelectMany(stretch => Enumerable.Range(0, stretch.Updates).Select(stretch.ZoomAfter))];
-        Offset16<FloorPixels>[] drifts = [.. CeresRidleyGetawayDefinitions.DriftCurve
-            .SelectMany(stretch => Enumerable.Repeat(stretch.Drift, stretch.Updates))];
-        return zooms.Length == drifts.Length
-            ? [.. zooms.Zip(drifts, (zoom, drift) => new CeresRidleyGetawayStep(zoom, drift))]
-            : throw new InvalidDataException($"Ceres Ridley's getaway zoom lasts {zooms.Length} updates but its drift {drifts.Length}.");
+        var steps = new List<CeresRidleyGetawayStep>();
+        int driftStretch = 0;
+        UpdateCountdown driftLeft = UpdateCountdown.For(CeresRidleyGetawayDefinitions.DriftCurve[driftStretch].Updates);
+        foreach (CeresRidleyGetawayZoomStretch zoom in CeresRidleyGetawayDefinitions.ZoomCurve)
+        {
+            foreach (int update in Enumerable.Range(0, zoom.Updates))
+            {
+                steps.Add(new CeresRidleyGetawayStep(zoom.ZoomAfter(update), CeresRidleyGetawayDefinitions.DriftCurve[driftStretch].Drift));
+                // The drift curve moves on to its next stretch once this one's updates are shown, as the last one's are
+                // on the getaway's last update.
+                if (driftLeft.StepEnds() && ++driftStretch < CeresRidleyGetawayDefinitions.DriftCurve.Count)
+                    driftLeft.Restart(CeresRidleyGetawayDefinitions.DriftCurve[driftStretch].Updates);
+            }
+        }
+        return [.. steps];
     }
 }
 

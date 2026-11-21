@@ -105,7 +105,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySpawnFactory<Work
 
     /// <summary>Initializes an unpowered robot.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal UnpoweredWorkRobotEnemyState InitializeUnpoweredWorkRobot(RoomEnemyOccupant occupant, WorkRobotSpawnSettings workRobotSpawnSettings, RoomEnemyPlace place)
+    internal UnpoweredWorkRobotEnemyState InitializeUnpoweredWorkRobot(WorkRobotSpawnSettings workRobotSpawnSettings, RoomEnemyPlace place)
     {
         // The placement names the unpowered pose the robot holds.
         var state = new UnpoweredWorkRobotEnemyState(
@@ -297,7 +297,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySpawnFactory<Work
 
     /// <summary>Applies a powered robot's recoil after the bomb damage it takes, which it never rejects once powered.</summary>
     /// <param name="state">The state of the robot the reaction is built for.</param>
-    internal EnemyBombReaction PoweredWorkRobotBombReaction(WorkRobotEnemyState state) => new()
+    internal static EnemyBombReaction PoweredWorkRobotBombReaction(WorkRobotEnemyState state) => new()
     {
         AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, state, c.Samus),
     };
@@ -334,7 +334,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemySpawnFactory<Work
 
     /// <summary>The powered robot's shot reaction: the common damage, then its recoil.</summary>
     /// <param name="state">The state of the robot the reaction is built for.</param>
-    internal EnemyShotReaction WorkRobotShotReaction(WorkRobotEnemyState state) => new()
+    internal static EnemyShotReaction WorkRobotShotReaction(WorkRobotEnemyState state) => new()
     {
         AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, state, c.Samus),
     };

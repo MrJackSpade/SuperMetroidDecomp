@@ -14,7 +14,7 @@ internal static class CacatacMovementDefinitionsVerification
         const int distanceTable = 0xa29f36;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = fixturePlace => CacatacBehavior.InitializeCacatac(fixturePlace.HeldOccupant(), fixturePlace);
+        Action<RoomEnemyPlace> initialize = fixturePlace => CacatacBehavior.InitializeCacatac(fixturePlace);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Cacatac, place.KeptDefinition);
 

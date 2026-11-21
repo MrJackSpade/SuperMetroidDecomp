@@ -21,7 +21,7 @@ internal static class RipperVariantOwnedStateVerification
         const int speedRecord = 3;
         place.SetSpawnParameter1(EnemyDefinitionId.JetRipper, speedRecord);
         place.SetSpawnParameter2(EnemyDefinitionId.JetRipper, 0);
-        RipperBehavior.InitializeJetRipper(place.HeldOccupant(), place);
+        RipperBehavior.InitializeJetRipper(place);
         RipperEnemyState state = place.SpeciesState<RipperEnemyState>()
             ?? throw new InvalidOperationException("The Ripper II has no state.");
 

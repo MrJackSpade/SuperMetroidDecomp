@@ -19,7 +19,7 @@ internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemyOccupant occup
     internal OwtchSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal OwtchEnemyState State { get; } = OwtchBehavior.InitializeOwtch(occupant, settings, place);
+    internal OwtchEnemyState State { get; } = OwtchBehavior.InitializeOwtch(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Occupant, Settings, Place, State);

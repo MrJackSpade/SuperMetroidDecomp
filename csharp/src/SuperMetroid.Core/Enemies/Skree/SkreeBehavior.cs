@@ -35,7 +35,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
 
     /// <summary>Starts a Skree in its idle action and initial shared animation.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static SkreeEnemyState InitializeSkree(RoomEnemyPlace place)
+    internal static SkreeEnemyState InitializeSkree()
     {
         var state = new SkreeEnemyState(SkreeAction.Idling);
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.SkreeIdling), AnimationPlace.StartOfAnimation);

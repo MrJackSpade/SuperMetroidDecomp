@@ -49,7 +49,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
 
     /// <summary>Initializes either shipped statue.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal ChozoStatueState InitializeChozoStatue(RoomEnemyOccupant occupant, ChozoStatueSpawnSettings chozoStatueSpawnSettings, RoomEnemyPlace statue)
+    internal ChozoStatueState InitializeChozoStatue(ChozoStatueSpawnSettings chozoStatueSpawnSettings, RoomEnemyPlace statue)
     {
         ChozoStatueSite site = chozoStatueSpawnSettings.Site;
         if (!Enum.IsDefined(site))
@@ -115,7 +115,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
     /// Starts the statue's activation once Samus has triggered its hand while it waits for her; the Wrecked Ship's hand
     /// admits her only once Phantoon is defeated. The animation does the rest.
     /// </summary>
-    private static void RunChozoStatueMain(RoomEnemyOccupant occupant, ChozoStatueSpawnSettings chozoStatueSpawnSettings, RoomEnemyPlace statue, ChozoStatueState state)
+    private static void RunChozoStatueMain(ChozoStatueSpawnSettings chozoStatueSpawnSettings, RoomEnemyPlace statue, ChozoStatueState state)
     {
         if (state.Phase != ChozoStatuePhase.HandTriggered)
             return;
@@ -281,7 +281,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
     /// <summary>Runs ChozoStatue's main AI.</summary>
     internal static void RunChozoStatueMainAi(RoomEnemyOccupant occupant, ChozoStatueSpawnSettings chozoStatueSpawnSettings, RoomEnemyPlace place, ChozoStatueState chozoStatueState)
     {
-        RunChozoStatueMain(occupant, chozoStatueSpawnSettings, place, chozoStatueState);
+        RunChozoStatueMain(chozoStatueSpawnSettings, place, chozoStatueState);
     }
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>

@@ -20,7 +20,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOc
     internal CorpseSpawnSettings Settings { get; } = settings;
 
     /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(Place, State);
+    public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(State);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal DeadTourianCorpseEnemyState State { get; } = DeadTourianBehavior.InitializeDeadTourianCorpse(place, occupant, settings);

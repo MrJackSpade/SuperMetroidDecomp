@@ -182,7 +182,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
     }
 
     /// <summary>Replaces Torizo's posture, keeping the rest of its state.</summary>
-    private static void SetPosture(RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState, TorizoPosture posture) =>
+    private static void SetPosture(TorizoEnemyState torizoEnemyState, TorizoPosture posture) =>
         torizoEnemyState.Posture = posture;
 
     /// <summary>Queues <paramref name="sound"/> through the shared enemy queue.</summary>
@@ -360,12 +360,12 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SetTurningAround }:
-                SetPosture(torizo, state, TorizoFacing.Posture(torizo, state).TurningAround);
+                SetPosture(state, TorizoFacing.Posture(state).TurningAround);
                 return null;
 
             case TorizoCue.Stepped stepped:
                 // The step replaces the whole posture: the way it faces, the foot it leads with, and any turn.
-                SetPosture(torizo, state, TorizoPosture.AfterStep(stepped.Direction, stepped.Foot));
+                SetPosture(state, TorizoPosture.AfterStep(stepped.Direction, stepped.Foot));
                 state.CountDecisionStep();
                 return null;
 
@@ -394,7 +394,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
                     torizo,
                     state,
                     inputs.Samus,
-                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo, state)));
+                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(state)));
 
             case TorizoCue.Choice { Kind: TorizoChoiceKind.BombAttack } choice:
             {
@@ -487,7 +487,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
                     torizo,
                     state,
                     inputs.Samus,
-                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo, state)));
+                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(state)));
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnEyeBeam }:
                 Attacks.SpawnGoldenTorizoEyeBeam(occupant, torizo, state);
@@ -521,7 +521,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
                     state,
                     inputs.Samus,
                     inputs.ControllerInput,
-                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo, state)));
+                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(state)));
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SpawnGoldenTorizoChozoOrbs }:
                 Attacks.SpawnGoldenTorizoChozoOrb(occupant, torizo, state);
@@ -532,7 +532,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
                     torizo,
                     state,
                     inputs.Samus,
-                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo, state)));
+                    TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(state)));
 
             case TorizoCue.Choice { Kind: TorizoChoiceKind.GoldenAttack } choice:
             {

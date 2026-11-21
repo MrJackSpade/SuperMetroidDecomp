@@ -42,9 +42,9 @@ internal static class CrawlerBehaviorVerification
             else
                 place.SetSpawnSettings(new CrawlerSpawnSettings(orientation, CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             if (definition == EnemyDefinitionId.OrangeZoomer)
-                CrawlersBehavior.InitializeOrangeZoomer(place.HeldOccupant(), place);
+                CrawlersBehavior.InitializeOrangeZoomer(place);
             else
-                CrawlersBehavior.InitializeCrawler(place.HeldOccupant(), place, family);
+                CrawlersBehavior.InitializeCrawler(place, family);
             CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
             CrawlerSegment program = CrawlerSurfaceAnimations.AnimationFor(family, orientation);
             string context = $"{family} {orientation}";

@@ -17,10 +17,10 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     internal DeadSidehopperSpawnSettings Settings { get; } = settings;
 
     /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(Place, State);
+    public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(State);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal DeadSidehopperEnemyState State { get; } = species.InitializeDeadSidehopper(occupant, settings, place);
+    internal DeadSidehopperEnemyState State { get; } = species.InitializeDeadSidehopper(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadSidehopperMainAi(Place, State, frame);

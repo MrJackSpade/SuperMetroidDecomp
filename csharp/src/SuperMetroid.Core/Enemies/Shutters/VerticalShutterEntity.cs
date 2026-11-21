@@ -19,7 +19,7 @@ internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnem
     internal ShutterSpawnSettings Settings { get; } = settings;
 
     /// <summary>The shutter's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal VerticalShutterEnemyState State { get; } = ShuttersBehavior.InitializeVerticalShutter(occupant, settings, place, pose);
+    internal VerticalShutterEnemyState State { get; } = ShuttersBehavior.InitializeVerticalShutter(settings, place, pose);
 
     /// <summary>The vertical shutters' own Power Bomb reaction, built once for this shutter.</summary>
     private EnemyPowerBombReaction OwnPowerBomb => field ??= Species.VerticalShutterPowerBombReaction(Occupant, Settings, State);

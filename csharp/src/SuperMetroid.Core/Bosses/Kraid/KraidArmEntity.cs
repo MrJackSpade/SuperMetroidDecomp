@@ -27,7 +27,7 @@ internal sealed class KraidArmEntity(KraidBehavior species, RoomEnemyOccupant oc
     protected override void ReactToLimbBomb(EnemyBombContext context) => Species.Combat.ReactToArmBomb(context);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.Limbs.RunKraidArmMain(Place, Encounter, frame.Camera.Y);
+    public override void RunMainAi(IEnemyAiFrame frame) => KraidLimbs.RunKraidArmMain(Place, Encounter, frame.Camera.Y);
 
     /// <summary>Whether the arm's push, where its definition leaves Samus's touch to it, or a shared touch applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == KraidReactions.ArmTouch || base.ReactsToTouch;

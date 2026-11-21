@@ -76,7 +76,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
 
     /// <summary>Initializes a Powamp's body with its own state (#1845), resting, joined to the balloon its room lists before it.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal PowampBodyState InitializePowampBody(RoomEnemyPlace place)
+    internal static PowampBodyState InitializePowampBody(RoomEnemyPlace place)
     {
         PrepareToAnimate(place);
         var state = new PowampBodyState(PowampAction.DeflatedResting);
@@ -564,7 +564,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
     /// <param name="balloon">The balloon the body holds.</param>
     internal static EnemyShotReaction PowampBodyShotReaction(RoomEnemyOccupant body, PowampSpawnSettings powampSpawnSettings, PowampBodyState bodyState,
         RoomEnemyPlace balloon) =>
-        ShotReactionSkipping(place => BodyRefusesContact(body, powampSpawnSettings, place, bodyState),
+        ShotReactionSkipping(place => BodyRefusesContact(body, powampSpawnSettings, bodyState),
             c => ResolvePowampShotAfterCommon(c.Enemy, bodyState, balloon));
 
     /// <summary>The Powamp's shot reaction as the balloon takes it, skipped while the balloon refuses contact.</summary>
@@ -573,12 +573,12 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
         ShotReactionSkipping(_ => balloonState.RefusesContact, c => ResolvePowampBalloonShotAfterCommon(c.Enemy, balloonState));
 
     /// <summary>Whether a half's placement refuses Samus's touch and shots (#2474), as a grappled balloon's does.</summary>
-    private static bool PlacementRefusesContact(RoomEnemyOccupant half, PowampSpawnSettings powampSpawnSettings) =>
+    private static bool PlacementRefusesContact(PowampSpawnSettings powampSpawnSettings) =>
         powampSpawnSettings.Contact == PowampContact.Refuses;
 
     /// <summary>Whether the body refuses Samus's touch and shots: its placement refuses them, or it is dying (#2474).</summary>
-    private static bool BodyRefusesContact(RoomEnemyOccupant occupant, PowampSpawnSettings powampSpawnSettings, RoomEnemyPlace body, PowampBodyState powampBodyState) =>
-        PlacementRefusesContact(occupant, powampSpawnSettings) || powampBodyState.IsDying;
+    private static bool BodyRefusesContact(RoomEnemyOccupant occupant, PowampSpawnSettings powampSpawnSettings, PowampBodyState powampBodyState) =>
+        PlacementRefusesContact(powampSpawnSettings) || powampBodyState.IsDying;
 
     /// <summary>
     /// The Powamp's shot reaction for a half that refuses shots while <paramref name="refusesContact"/> says so, a body
@@ -599,7 +599,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
     internal void ReactToPowampBodyTouch(RoomEnemyOccupant occupant, PowampSpawnSettings powampSpawnSettings, EnemyTouchContext context, PowampBodyState powampBodyState,
         RoomEnemyPlace balloon)
     {
-        if (!BodyRefusesContact(occupant, powampSpawnSettings, context.Place, powampBodyState))
+        if (!BodyRefusesContact(occupant, powampSpawnSettings, powampBodyState))
             ResolvePowampTouch(occupant, context.Place, balloon, context.Samus, context.PseudoScrew);
     }
 

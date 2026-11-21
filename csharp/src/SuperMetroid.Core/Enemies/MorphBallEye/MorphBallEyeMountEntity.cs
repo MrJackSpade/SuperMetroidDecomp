@@ -17,7 +17,7 @@ internal sealed class MorphBallEyeMountEntity(MorphBallEyeBehavior species, Room
     internal MorphBallEyeMountSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal MorphBallEyeMountState State { get; } = species.InitializeMorphBallEyeMount(occupant, settings, place);
+    internal MorphBallEyeMountState State { get; } = species.InitializeMorphBallEyeMount(settings, place);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MorphBallEyeBehavior.AdvanceMorphBallEyeMountTypedAnimation(Place, State);

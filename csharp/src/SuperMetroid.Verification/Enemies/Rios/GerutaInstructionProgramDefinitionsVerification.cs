@@ -76,7 +76,7 @@ internal static class GerutaInstructionProgramDefinitionsVerification
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
         parent.BindPlaced(EnemyDefinitionId.Geruta, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         parent.Bind(parent.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        GerutaBehavior.InitializeGeruta(parent);
+        GerutaBehavior.InitializeGeruta();
         AssertEqual(new AnimationPlayback<GerutaSegment>(GerutaAnimations.StartingWith(GerutaSegment.Idle), AnimationPlace.StartOfAnimation),
             enemies.Places.InUpdateOrder[0].EntityState<GerutaEntity, GerutaEnemyState>()?.Playback,
             "Norfair Rio parent initializer selects idle");

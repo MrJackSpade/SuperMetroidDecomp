@@ -112,7 +112,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Initializes an Evir's body, facing Samus.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal EvirBodyState InitializeEvirBody(RoomEnemyOccupant occupant, EvirSpawnSettings settings, RoomEnemyPlace place, SamusState samus)
+    internal EvirBodyState InitializeEvirBody(EvirSpawnSettings settings, RoomEnemyPlace place, SamusState samus)
     {
         var state = new EvirBodyState(spit: _places.Member(place, EvirPartListingDefinitions.Listing, EvirMember.Body, EvirMember.Spit));
         SetEvirBodyFacing(place, state, samus);
@@ -187,7 +187,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Tracks Samus while the spit is present and alternates the body's timed vertical travel.</summary>
-    private static void RunEvirMain(RoomEnemyOccupant occupant, EvirSpawnSettings settings, RoomEnemyPlace place, EvirBodyState state, SamusState samus)
+    private static void RunEvirMain(EvirSpawnSettings settings, RoomEnemyPlace place, EvirBodyState state, SamusState samus)
     {
         // Direction is allowed to follow Samus only while the projectile is fully present.
         // During regeneration the mouth, arms, and projectile retain their launch facing. The body reads its spit's place
@@ -456,7 +456,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs an Evir body's main AI: it bobs and turns.</summary>
     internal static void RunEvirBodyMainAi(RoomEnemyOccupant occupant, EvirSpawnSettings evirSpawnSettings, RoomEnemyPlace place, EvirBodyState evirBodyState, IEnemyAiFrame frame) =>
-        RunEvirMain(occupant, evirSpawnSettings, place, evirBodyState, frame.Samus);
+        RunEvirMain(evirSpawnSettings, place, evirBodyState, frame.Samus);
 
     /// <summary>Runs an Evir's arms' main AI: they follow the body.</summary>
     internal static void RunEvirArmsMainAi(RoomEnemyPlace place, EvirArmsState evirArmsState) =>

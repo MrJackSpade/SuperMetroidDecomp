@@ -15,7 +15,7 @@ internal sealed class BabyTurtleEntity(MamaTurtleBehavior species, RoomEnemyOccu
     internal BabyTurtleSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal BabyTurtleEnemyState State { get; } = MamaTurtleBehavior.InitializeBabyTurtle(occupant, settings, place, family);
+    internal BabyTurtleEnemyState State { get; } = MamaTurtleBehavior.InitializeBabyTurtle(settings, place, family);
 
     /// <summary>The baby's own shot reaction, which wakes its Mama.</summary>
     private EnemyShotReaction OwnShot => field ??= MamaTurtleBehavior.BabyTurtleShotReaction(State);

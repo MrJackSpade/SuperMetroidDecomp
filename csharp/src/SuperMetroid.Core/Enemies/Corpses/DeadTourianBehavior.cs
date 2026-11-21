@@ -121,7 +121,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySpawnFactory<Co
     }
 
     /// <summary>The rows <paramref name="place"/>'s frames show: its corpse's own, as its rot has left them (#1539).</summary>
-    internal static CorpseRotRows ShownDeadTourianRows(RoomEnemyPlace place, DeadTourianCorpseEnemyState deadTourianCorpseEnemyState) => deadTourianCorpseEnemyState.Rows.Shown;
+    internal static CorpseRotRows ShownDeadTourianRows(DeadTourianCorpseEnemyState deadTourianCorpseEnemyState) => deadTourianCorpseEnemyState.Rows.Shown;
 
     /// <summary>Spawns randomized dust for a completed rot row and gates its sound on the enemy counter.</summary>
     private void FinishDeadTourianCorpseRow(RoomEnemyPlace place) =>

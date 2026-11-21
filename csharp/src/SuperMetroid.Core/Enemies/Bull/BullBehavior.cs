@@ -22,7 +22,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawn
 
     /// <summary>Initializes the Bull.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal BullEnemyState InitializeBull(RoomEnemyOccupant occupant, BullSpawnSettings settings, RoomEnemyPlace place)
+    internal BullEnemyState InitializeBull(BullSpawnSettings settings, RoomEnemyPlace place)
     {
         BullEnemyState state = _inheritance.Inherit(place, static previous => new BullEnemyState(previous, BullAction.MovementDelay));
 
@@ -57,7 +57,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawn
 
             case BullAction.Accelerating:
                 if (state.IsBelow(bullSpawnSettings.MaximumSpeed))
-                    AccelerateBull(occupant, bullSpawnSettings, state);
+                    AccelerateBull(bullSpawnSettings, state);
                 MoveBull(place, state);
                 TriggerBullDecelerationIfOffTarget(place, state, samus);
                 return;
@@ -72,7 +72,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawn
                     return;
                 }
                 MoveBull(place, state);
-                DecelerateBull(occupant, bullSpawnSettings, state);
+                DecelerateBull(bullSpawnSettings, state);
                 return;
 
             default:
@@ -93,7 +93,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawn
             new(DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole), DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole)))).ToAngle();
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
-    private static void AccelerateBull(RoomEnemyOccupant occupant, BullSpawnSettings bullSpawnSettings, BullEnemyState state)
+    private static void AccelerateBull(BullSpawnSettings bullSpawnSettings, BullEnemyState state)
     {
         if (!state.AccelerationIntervalTimer.StepEnds())
             return;
@@ -103,7 +103,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawn
     }
 
     /// <summary>Reduces acceleration and speed on the configured deceleration cadence.</summary>
-    private static void DecelerateBull(RoomEnemyOccupant occupant, BullSpawnSettings bullSpawnSettings, BullEnemyState state)
+    private static void DecelerateBull(BullSpawnSettings bullSpawnSettings, BullEnemyState state)
     {
         if (!state.AccelerationIntervalTimer.StepEnds())
             return;

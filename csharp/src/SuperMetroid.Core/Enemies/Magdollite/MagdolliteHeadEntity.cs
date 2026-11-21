@@ -25,7 +25,7 @@ internal sealed class MagdolliteHeadEntity(MagdolliteBehavior species, RoomEnemy
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) =>
-        Species.RunMagdolliteHead(Occupant, Settings, Place, Head, Partners, Ensure.NotNull(frame).Samus);
+        MagdolliteBehavior.RunMagdolliteHead(Settings, Place, Head, Partners, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) =>

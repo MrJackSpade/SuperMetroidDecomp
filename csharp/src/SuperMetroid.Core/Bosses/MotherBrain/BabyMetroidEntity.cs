@@ -12,7 +12,7 @@ internal sealed class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOc
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' BabyMetroidShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnBabyMetroidShotReaction => field ??= species.BabyMetroidShotReaction(State);
+    private EnemyShotReaction OwnBabyMetroidShotReaction => field ??= BabyMetroidBehavior.BabyMetroidShotReaction(State);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal BabyMetroidEnemyState State { get; } = BabyMetroidBehavior.InitializeBabyMetroid(place, surroundings.Camera.X);

@@ -16,7 +16,7 @@ internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant oc
     internal YardSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal YardEnemyState State { get; } = YardEnemyBehavior.InitializeYard(occupant, settings, place);
+    internal YardEnemyState State { get; } = YardEnemyBehavior.InitializeYard(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunYardMainAi(Place, State, frame);

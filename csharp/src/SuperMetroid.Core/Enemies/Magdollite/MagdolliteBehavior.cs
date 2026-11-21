@@ -199,7 +199,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
     }
 
     /// <summary>Runs the head's current action.</summary>
-    internal void RunMagdolliteHead(RoomEnemyOccupant occupant, MagdolliteHeadSpawnSettings magdolliteHeadSpawnSettings, RoomEnemyPlace place, MagdolliteHeadState state, MagdollitePartners partners, SamusState samus)
+    internal static void RunMagdolliteHead(MagdolliteHeadSpawnSettings magdolliteHeadSpawnSettings, RoomEnemyPlace place, MagdolliteHeadState state, MagdollitePartners partners, SamusState samus)
     {
         switch (state.Action)
         {

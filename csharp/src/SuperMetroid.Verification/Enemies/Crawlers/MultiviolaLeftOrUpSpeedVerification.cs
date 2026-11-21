@@ -50,7 +50,7 @@ internal static class MultiviolaLeftOrUpSpeedVerification
             var angle = new TrigonometryAngle(heading);
             place.SetSpawnSettings(new MultiviolaSpawnSettings(angle, speed));
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(Centre, Centre));
-            MultiviolaBehavior.InitializeMultiviola(place.HeldOccupant(), place);
+            MultiviolaBehavior.InitializeMultiviola(place);
             enemies.MultiviolaBehavior.RunMultiviolaMainAi(place.HeldOccupant(), place, frame);
 
             // The original turns an axis left when the heading a quarter turn on lies in the turn's first half, and up

@@ -35,7 +35,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
                 PlayHibashiEruptionSound();
                 break;
             case HibashiCue.EruptionStep step:
-                ApplyHibashiEruptionStep(place, hibashiEnemyState, step.Step);
+                ApplyHibashiEruptionStep(hibashiEnemyState, step.Step);
                 break;
             case HibashiCue.Signal { Kind: HibashiCueKind.FinishActivity }:
                 FinishHibashiActivity(place, hibashiEnemyState);
@@ -85,7 +85,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
                 return;
 
             case HibashiAction.Finished:
-                RestHibashi(occupant, hibashiFlameSpawnSettings, state);
+                RestHibashi(hibashiFlameSpawnSettings, state);
                 return;
 
             default:
@@ -95,7 +95,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     }
 
     /// <summary>Runs the inactive Hibashi.</summary>
-    private void RunHibashiInactive(RoomEnemyPlace flame, HibashiEnemyState state)
+    private static void RunHibashiInactive(RoomEnemyPlace flame, HibashiEnemyState state)
     {
         // The wait lasts its whole duration: the update that takes it to zero erupts (#2340).
         if (!state.InactiveTimer.StepEnds())
@@ -115,7 +115,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     /// Rests the flame whose eruption has finished, which hid it: its wait restarts at its placement's inactive time and the
     /// update it runs out on (#2340).
     /// </summary>
-    private static void RestHibashi(RoomEnemyOccupant occupant, HibashiFlameSpawnSettings hibashiFlameSpawnSettings, HibashiEnemyState state)
+    private static void RestHibashi(HibashiFlameSpawnSettings hibashiFlameSpawnSettings, HibashiEnemyState state)
     {
         state.InactiveTimer = UpdateCountdown.For(hibashiFlameSpawnSettings.InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = HibashiAction.Inactive;
@@ -132,7 +132,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     /// Runs a rising cue: moves the collision part to the step's height above the spawn and gives it the step's
     /// half-height, and the first step its half-width.
     /// </summary>
-    private void ApplyHibashiEruptionStep(RoomEnemyPlace flame, HibashiEnemyState state, HibashiEruptionStep step)
+    private static void ApplyHibashiEruptionStep(HibashiEnemyState state, HibashiEruptionStep step)
     {
         RoomEnemyPlace hitbox = state.Hitbox;
         hitbox.Position = hitbox.Position.WithWholeY(state.SpawnY - step.YOffset);
@@ -146,7 +146,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     /// and it has finished: its next update rests it.
     /// </summary>
     /// <exception cref="InvalidOperationException">The flame is not erupting.</exception>
-    private void FinishHibashiActivity(RoomEnemyPlace flame, HibashiEnemyState state)
+    private static void FinishHibashiActivity(RoomEnemyPlace flame, HibashiEnemyState state)
     {
         RoomEnemyPlace hitbox = state.Hitbox;
 

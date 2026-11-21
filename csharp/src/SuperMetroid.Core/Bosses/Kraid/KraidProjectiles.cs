@@ -58,7 +58,7 @@ internal sealed class KraidProjectiles
     /// deleting themselves only once his body's health reads below one.
     /// </summary>
     /// <returns>The encounter the fingernail joins, which it holds from its setup.</returns>
-    internal KraidEnemyState InitializeKraidNail(RoomEnemyPlace nail, KraidNailPart expected, KraidEnemyState state)
+    internal static KraidEnemyState InitializeKraidNail(RoomEnemyPlace nail, KraidNailPart expected, KraidEnemyState state)
     {
         // The fingernail joins the encounter its body began, which it holds from here (#2218).
         Ensure.NotNull(state);
@@ -292,7 +292,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Places a lint at its body-relative offset while its phase wait runs, and produces it on the wait's last update.</summary>
-    private void AlignKraidLint(RoomEnemyPlace lint, KraidLintState part)
+    private static void AlignKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
         lint.Position = lint.Position.WithWholeX(part.Kraid.Parts.Body.Position.X.Whole - lint.Radius.X);
         if (part.PhaseWait.StepRunsOut())
@@ -300,7 +300,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Starts a lint projectile from the attached part.</summary>
-    private void ProduceKraidLint(RoomEnemyPlace lint, KraidLintState part)
+    private static void ProduceKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
         lint.Contact = lint.Contact.Without(EnemyContact.IgnoresSamus);
         lint.Presence = lint.Presence.Without(EnemyPresence.Hidden);

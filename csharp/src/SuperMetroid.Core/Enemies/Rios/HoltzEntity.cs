@@ -12,7 +12,7 @@ internal sealed class HoltzEntity(HoltzBehavior species, RoomEnemyOccupant occup
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal HoltzEnemyState State { get; } = HoltzBehavior.InitializeHoltz(place);
+    internal HoltzEnemyState State { get; } = HoltzBehavior.InitializeHoltz();
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunHoltzMainAi(Place, State, frame);

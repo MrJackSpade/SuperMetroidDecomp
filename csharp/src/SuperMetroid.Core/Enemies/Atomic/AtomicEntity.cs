@@ -12,10 +12,10 @@ internal sealed class AtomicEntity(RoomEnemyOccupant occupant, RoomEnemyPlace pl
     internal AtomicSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal AtomicEnemyState State { get; } = AtomicBehavior.InitializeAtomic(occupant, settings, place);
+    internal AtomicEnemyState State { get; } = AtomicBehavior.InitializeAtomic(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => AtomicBehavior.MoveAtomicTowardSamus(Occupant, Settings, Place, Ensure.NotNull(frame).Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => AtomicBehavior.MoveAtomicTowardSamus(Settings, Place, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => AtomicBehavior.AdvanceAtomicTypedAnimation(Place, State);

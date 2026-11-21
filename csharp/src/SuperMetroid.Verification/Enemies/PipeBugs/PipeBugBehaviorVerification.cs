@@ -330,7 +330,7 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.PirateMagentaWalking:
             case EnemyDefinitionId.PirateSilverWalking:
             default:
-                PipeBugsBehavior.InitializeYellowPipeBug(place.HeldOccupant(), place);
+                PipeBugsBehavior.InitializeYellowPipeBug(place);
                 break;
         }
     }

@@ -10,13 +10,13 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccu
         IShowsCorpseRotRows
 {
     /// <summary>The species' DeadTorizoShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnDeadTorizoShotReaction => field ??= species.DeadTorizoShotReaction(State);
+    private EnemyShotReaction OwnDeadTorizoShotReaction => field ??= DeadTorizoBehavior.DeadTorizoShotReaction(State);
 
     /// <summary>The species' DeadTorizoPowerBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyPowerBombReaction OwnDeadTorizoPowerBombReaction => field ??= species.DeadTorizoPowerBombReaction(State);
+    private EnemyPowerBombReaction OwnDeadTorizoPowerBombReaction => field ??= DeadTorizoBehavior.DeadTorizoPowerBombReaction(State);
 
     /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => DeadTorizoBehavior.ShownDeadTorizoRows(Place, State);
+    public CorpseRotRows ShownRotRows => DeadTorizoBehavior.ShownDeadTorizoRows(State);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal DeadTorizoEnemyState State { get; } = species.InitializeDeadTorizo(place);

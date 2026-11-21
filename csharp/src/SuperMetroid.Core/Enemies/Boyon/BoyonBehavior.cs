@@ -70,7 +70,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySpawnFactory<BoyonSpa
             return;
         }
 
-        if (IsBoyonSamusWithinHorizontalRange(occupant, boyonSpawnSettings, place, samus))
+        if (IsBoyonSamusWithinHorizontalRange(boyonSpawnSettings, place, samus))
         {
             // Proximity permits another bounce: a resting Boyon starts bouncing and a landed one bounces again, its
             // bouncing animation restarting; an arc already under way plays on. Every bounce starts with its rise.
@@ -95,10 +95,10 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySpawnFactory<BoyonSpa
         switch (state.Phase)
         {
             case BoyonPhase.Falling:
-                MoveBoyonFalling(occupant, boyonSpawnSettings, place, state);
+                MoveBoyonFalling(boyonSpawnSettings, place, state);
                 break;
             case BoyonPhase.Rising:
-                MoveBoyonRising(occupant, boyonSpawnSettings, place, state);
+                MoveBoyonRising(boyonSpawnSettings, place, state);
                 break;
             case BoyonPhase.DerivingArc:
             case BoyonPhase.Resting:
@@ -138,7 +138,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySpawnFactory<BoyonSpa
     }
 
     /// <summary>Runs falling movement.</summary>
-    private static void MoveBoyonFalling(RoomEnemyOccupant occupant, BoyonSpawnSettings boyonSpawnSettings, RoomEnemyPlace place, BoyonEnemyState state)
+    private static void MoveBoyonFalling(BoyonSpawnSettings boyonSpawnSettings, RoomEnemyPlace place, BoyonEnemyState state)
     {
         state.FallOneEntry();
         UnsignedSixteenSixteen speed = MultiplyBoyonCurveEntry(state, boyonSpawnSettings.SpeedMultiplier);
@@ -153,7 +153,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySpawnFactory<BoyonSpa
     }
 
     /// <summary>Runs rising movement.</summary>
-    private static void MoveBoyonRising(RoomEnemyOccupant occupant, BoyonSpawnSettings boyonSpawnSettings, RoomEnemyPlace place, BoyonEnemyState state)
+    private static void MoveBoyonRising(BoyonSpawnSettings boyonSpawnSettings, RoomEnemyPlace place, BoyonEnemyState state)
     {
         UnsignedSixteenSixteen speed = MultiplyBoyonCurveEntry(state, boyonSpawnSettings.SpeedMultiplier);
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole - speed.Whole);
@@ -169,7 +169,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemySpawnFactory<BoyonSpa
         BoyonBounceCurve.Multiply(state.CurvePlace, multiplier);
 
     /// <summary>Whether Samus lies within Boyon's authored horizontal reach, in pixel columns, of the enemy.</summary>
-    private static bool IsBoyonSamusWithinHorizontalRange(RoomEnemyOccupant occupant, BoyonSpawnSettings boyonSpawnSettings, RoomEnemyPlace place, SamusState samus)
+    private static bool IsBoyonSamusWithinHorizontalRange(BoyonSpawnSettings boyonSpawnSettings, RoomEnemyPlace place, SamusState samus)
     {
         int distance = Math.Abs(samus.Position.X.Whole - place.Position.X.Whole);
         return distance < boyonSpawnSettings.TriggerDistance;

@@ -33,7 +33,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Initializes the top's idle animation, fall speed, fall distance and wait timer from its spawn settings.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static KzanEnemyState InitializeKzanTop(RoomEnemyOccupant occupant, KzanSpawnSettings kzanSpawnSettings, RoomEnemyPlace place)
+    internal static KzanEnemyState InitializeKzanTop(KzanSpawnSettings kzanSpawnSettings, RoomEnemyPlace place)
     {
         var state = new KzanEnemyState(KzanAction.WaitingToFall);
 
@@ -74,7 +74,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case KzanAction.WaitingToFall:
-                RunKzanWaitingToFall(occupant, kzanSpawnSettings, state);
+                RunKzanWaitingToFall(kzanSpawnSettings, state);
                 return;
 
             case KzanAction.Falling:
@@ -96,7 +96,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Decrements the wrapping top wait and resets the fall speed when descent begins.</summary>
-    private static void RunKzanWaitingToFall(RoomEnemyOccupant occupant, KzanSpawnSettings kzanSpawnSettings, KzanEnemyState state)
+    private static void RunKzanWaitingToFall(KzanSpawnSettings kzanSpawnSettings, KzanEnemyState state)
     {
         state.FallWaitTimer = state.FallWaitTimer.Decrement().Remaining;
         if (!state.FallWaitTimer.IsZero)

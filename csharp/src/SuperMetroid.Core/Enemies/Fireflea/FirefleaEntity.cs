@@ -13,7 +13,7 @@ internal sealed class FirefleaEntity(FirefleaBehavior species, RoomEnemyOccupant
     internal FirefleaSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal FirefleaEnemyState State { get; } = FirefleaBehavior.InitializeFireflea(occupant, settings, place);
+    internal FirefleaEnemyState State { get; } = FirefleaBehavior.InitializeFireflea(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => FirefleaBehavior.RunFirefleaMainAi(Occupant, Settings, Place, State);

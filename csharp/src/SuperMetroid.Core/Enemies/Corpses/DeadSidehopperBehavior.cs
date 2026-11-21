@@ -51,7 +51,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySpawnFactory
         {
             case DeadTourianCueKind.EndHop:
                 // The end-hop cue ends the landing animation and hands ownership back to main AI.
-                SelectDeadSidehopperPostAnimationState(place, deadSidehopperEnemyState);
+                SelectDeadSidehopperPostAnimationState(deadSidehopperEnemyState);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(DeadTourianCueKind)} {cue.Kind}.");
@@ -60,7 +60,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySpawnFactory
 
     /// <summary>Initializes the dead Sidehopper.</summary>
     /// <returns>The state the corpse holds from its setup.</returns>
-    internal DeadSidehopperEnemyState InitializeDeadSidehopper(RoomEnemyOccupant occupant, DeadSidehopperSpawnSettings deadSidehopperSpawnSettings, RoomEnemyPlace place)
+    internal DeadSidehopperEnemyState InitializeDeadSidehopper(DeadSidehopperSpawnSettings deadSidehopperSpawnSettings, RoomEnemyPlace place)
     {
         DeadSidehopperLayout layout = deadSidehopperSpawnSettings.Layout;
         return layout switch
@@ -86,7 +86,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySpawnFactory
         place.Radius = place.Radius.WithY(DeadSidehopperVictimDefinitions.LivingHalfHeight);
 
         // The victim shows the colours the Baby Metroid's entry gives it, the target the room's colours fade to (#1512).
-        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(place, DeadSidehopperAction.AliveWaitForCamera,
+        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(DeadSidehopperAction.AliveWaitForCamera,
             new SidehopperVictim(SidehopperDrainStage.Untouched));
         SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperIdle);
         place.Shading = state.Shading;
@@ -97,7 +97,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySpawnFactory
     /// <summary>Lays out a Sidehopper corpse placed already dead, drained from the start and waiting for Samus to touch it.</summary>
     private static DeadSidehopperEnemyState InitializeAlreadyDeadSidehopper(RoomEnemyPlace place)
     {
-        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(place, DeadSidehopperAction.WaitForSamusCollision,
+        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(DeadSidehopperAction.WaitForSamusCollision,
             SidehopperCorpseLayout.PlacedDead);
         SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperInitiallyDead);
         place.Shading = state.Shading;
@@ -105,7 +105,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySpawnFactory
     }
 
     /// <summary>A corpse's state with its own rot schedule, its own rows, its first action and its layout.</summary>
-    private static DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(RoomEnemyPlace place, DeadSidehopperAction action,
+    private static DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(DeadSidehopperAction action,
         SidehopperCorpseLayout layout) =>
         new(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), action, layout);
 
@@ -291,7 +291,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySpawnFactory
     /// The end of the landing animation selects what follows the landing, from whether the Baby Metroid has begun
     /// draining the victim.
     /// </summary>
-    private static void SelectDeadSidehopperPostAnimationState(RoomEnemyPlace place, DeadSidehopperEnemyState state)
+    private static void SelectDeadSidehopperPostAnimationState(DeadSidehopperEnemyState state)
     {
         state.Action = state.HasBegunDraining
             ? DeadSidehopperAction.Draining
@@ -299,7 +299,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySpawnFactory
     }
 
     /// <summary>Begins Baby Metroid's drain of its victim, when the Baby Metroid latches on to feed.</summary>
-    internal static void ActivateDeadSidehopperVictim(RoomEnemyPlace victim, DeadSidehopperEnemyState deadSidehopperEnemyState) =>
+    internal static void ActivateDeadSidehopperVictim(DeadSidehopperEnemyState deadSidehopperEnemyState) =>
         deadSidehopperEnemyState.Layout = new SidehopperVictim(SidehopperDrainStage.LatchedOn);
 
     /// <summary>Resolves a shot hitting the dead Sidehopper.</summary>
@@ -367,7 +367,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemySpawnFactory
     }
 
     /// <summary>The rows <paramref name="place"/>'s frames show: its corpse's own, as its rot has left them (#1539).</summary>
-    internal static CorpseRotRows ShownDeadSidehopperRows(RoomEnemyPlace place, DeadSidehopperEnemyState deadSidehopperEnemyState) => deadSidehopperEnemyState.Rows.Shown;
+    internal static CorpseRotRows ShownDeadSidehopperRows(DeadSidehopperEnemyState deadSidehopperEnemyState) => deadSidehopperEnemyState.Rows.Shown;
 
     /// <summary>Spawns a completed row's dust at its randomized X offset, and conditionally requests sound.</summary>
     private void FinishDeadSidehopperCorpseRow(RoomEnemyPlace place) =>

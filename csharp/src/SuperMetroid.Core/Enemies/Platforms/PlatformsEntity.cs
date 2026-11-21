@@ -19,7 +19,7 @@ internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemyOccupa
     internal PlatformSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal PlatformEnemyState State { get; } = PlatformsBehavior.InitializePlatform(occupant, settings, place);
+    internal PlatformEnemyState State { get; } = PlatformsBehavior.InitializePlatform(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunPlatformsMainAi(Occupant, Settings, Place, State, frame);

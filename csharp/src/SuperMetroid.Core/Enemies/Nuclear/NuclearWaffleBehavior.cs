@@ -62,11 +62,11 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySpawnFactory<
         switch (state.Action)
         {
             case NuclearWaffleAction.Waiting:
-                RunNuclearWaffleWaiting(occupant, nuclearWaffleSpawnSettings, place, state);
+                RunNuclearWaffleWaiting(nuclearWaffleSpawnSettings, place, state);
                 return;
 
             case NuclearWaffleAction.Sweeping:
-                RunNuclearWaffleSweep(occupant, nuclearWaffleSpawnSettings, place, state);
+                RunNuclearWaffleSweep(nuclearWaffleSpawnSettings, place, state);
                 return;
 
             default:
@@ -77,7 +77,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySpawnFactory<
 
     /// <summary>Waits before a sweep.</summary>
     private static void RunNuclearWaffleWaiting(
-        RoomEnemyOccupant occupant, NuclearWaffleSpawnSettings settings, RoomEnemyPlace place,
+        NuclearWaffleSpawnSettings settings, RoomEnemyPlace place,
         NuclearWaffleEnemyState state)
     {
         if (!state.WaitingTimer.Step())
@@ -90,7 +90,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemySpawnFactory<
     }
 
     /// <summary>Runs a sweep: the head and every link stand on the orbit of the spawn settings' radius.</summary>
-    private void RunNuclearWaffleSweep(RoomEnemyOccupant occupant, NuclearWaffleSpawnSettings settings, RoomEnemyPlace place, NuclearWaffleEnemyState state)
+    private void RunNuclearWaffleSweep(NuclearWaffleSpawnSettings settings, RoomEnemyPlace place, NuclearWaffleEnemyState state)
     {
         NuclearWaffleOrientation headOrientation = GetNuclearWaffleOrientation(
             settings,

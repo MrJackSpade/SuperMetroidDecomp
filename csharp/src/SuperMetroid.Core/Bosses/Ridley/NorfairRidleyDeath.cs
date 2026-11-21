@@ -206,7 +206,7 @@ internal sealed class NorfairRidleyDeath : IEnemyJoiningFactory<RidleyBreakupSou
 
     /// <summary>Sets up one of the breakup's twelve pieces from the breakup it joined.</summary>
     /// <returns>The state the piece holds from its setup.</returns>
-    internal RidleyExplosionFragmentState InitializeNorfairRidleyExplosion(RoomEnemyOccupant occupant, RidleyExplosionSpawnSettings ridleyExplosionSpawnSettings, RoomEnemyPlace fragment, RidleyBreakupSource source)
+    internal RidleyExplosionFragmentState InitializeNorfairRidleyExplosion(RidleyExplosionSpawnSettings ridleyExplosionSpawnSettings, RoomEnemyPlace fragment, RidleyBreakupSource source)
     {
         NorfairRidleyState state = source.Ridley;
         RidleyExplosionPart part = ridleyExplosionSpawnSettings.Part;

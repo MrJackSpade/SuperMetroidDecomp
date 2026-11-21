@@ -75,7 +75,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyFol
 
     /// <summary>Initializes a Holtz parent, idle with its flames hidden.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static HoltzEnemyState InitializeHoltz(RoomEnemyPlace place)
+    internal static HoltzEnemyState InitializeHoltz()
     {
         var state = new HoltzEnemyState(HoltzAction.WaitForAttackOpportunity)
         {
@@ -211,7 +211,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyFol
     }
 
     /// <summary>Mirrors the preceding parent's freeze and visibility, placing live flames their drop below it.</summary>
-    private void FollowHoltzParent(RoomEnemyPlace follower, HoltzFollowerState followerState)
+    private static void FollowHoltzParent(RoomEnemyPlace follower, HoltzFollowerState followerState)
     {
         RoomEnemyPlace parent = followerState.ParentPlace;
         if (parent.Health == 0)

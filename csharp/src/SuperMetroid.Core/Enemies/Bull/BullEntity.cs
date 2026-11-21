@@ -16,7 +16,7 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemyOccupant occupan
     internal BullSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal BullEnemyState State { get; } = species.InitializeBull(occupant, settings, place);
+    internal BullEnemyState State { get; } = species.InitializeBull(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>

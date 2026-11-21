@@ -177,7 +177,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyF
     /// Shows the cosmetic follower at the preceding parent's height while the parent rises and is not frozen, and hides
     /// it otherwise.
     /// </summary>
-    private void FollowSqueeptParent(RoomEnemyPlace follower, NorfairLavaJumperFollowerState followerState)
+    private static void FollowSqueeptParent(RoomEnemyPlace follower, NorfairLavaJumperFollowerState followerState)
     {
         RoomEnemyPlace parent = followerState.ParentPlace;
 

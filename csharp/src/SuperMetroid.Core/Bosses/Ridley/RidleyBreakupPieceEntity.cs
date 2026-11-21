@@ -18,7 +18,7 @@ internal sealed class RidleyBreakupPieceEntity(NorfairRidleyDeath death, RoomEne
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <summary>The piece's flight, which its setup builds from the breakup it joins.</summary>
-    private RidleyExplosionFragmentState Fragment { get; } = death.InitializeNorfairRidleyExplosion(occupant, settings, place, breakup);
+    private RidleyExplosionFragmentState Fragment { get; } = death.InitializeNorfairRidleyExplosion(settings, place, breakup);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => death.RunNorfairRidleyExplosionMain(Occupant, Fragment, Ensure.NotNull(frame).Samus);

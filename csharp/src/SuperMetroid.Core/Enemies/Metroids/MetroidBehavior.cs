@@ -346,7 +346,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemySpawnFactory<Metroi
     }
 
     /// <summary>Kills both composited outer layers and clears Samus's Metroid flash state.</summary>
-    internal static void FinishMetroidDeath(RoomEnemyPlace place, MetroidEnemyState state, SamusState samus)
+    internal static void FinishMetroidDeath(MetroidEnemyState state, SamusState samus)
     {
         state.Electricity.End();
         state.Shell.End();
@@ -445,7 +445,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemySpawnFactory<Metroi
     /// <param name="state">The state of the Metroid the reaction is built for.</param>
     internal static EnemyPowerBombReaction PowerBombReaction(MetroidEnemyState state) => new()
     {
-        BeforeGenericDeath = c => FinishMetroidDeath(c.Enemy, state, c.Samus),
+        BeforeGenericDeath = c => FinishMetroidDeath(state, c.Samus),
     };
 
     /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation once the shot has marked its
@@ -484,7 +484,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemySpawnFactory<Metroi
                 // The death records the drop origin, the enemy's death spawns the explosion, and only then
                 // the drops spawn.
                 Position16<RoomPixels> dropOrigin = enemy.Position.Whole;
-                FinishMetroidDeath(enemy, state, c.Samus);
+                FinishMetroidDeath(state, c.Samus);
                 _deathsAndDrops.StartGenericEnemyDeath(c.Occupant, EnemyDeathExplosion.Big, c.Samus);
                 RequestMetroidDrops(dropOrigin, c.Samus);
             }

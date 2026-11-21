@@ -25,7 +25,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySpawnFactory<Mul
 
     /// <summary>Initializes the Multiviola.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static MultiviolaEnemyState InitializeMultiviola(RoomEnemyOccupant occupant, MultiviolaSpawnSettings multiviolaSpawnSettings, RoomEnemyPlace place)
+    internal static MultiviolaEnemyState InitializeMultiviola(MultiviolaSpawnSettings multiviolaSpawnSettings)
     {
         var state = new MultiviolaEnemyState
         {
@@ -37,7 +37,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySpawnFactory<Mul
 
     /// <summary>Runs the Multiviola's main AI.</summary>
     private void RunMultiviolaMain(
-        RoomEnemyOccupant occupant, MultiviolaSpawnSettings multiviolaSpawnSettings, RoomEnemyPlace place,
+        MultiviolaSpawnSettings multiviolaSpawnSettings, RoomEnemyPlace place,
         MultiviolaEnemyState state,
         RoomLevelData level)
     {
@@ -71,6 +71,6 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemySpawnFactory<Mul
     /// <summary>Runs Multiviola's main AI.</summary>
     internal void RunMultiviolaMainAi(RoomEnemyOccupant occupant, MultiviolaSpawnSettings multiviolaSpawnSettings, RoomEnemyPlace place, MultiviolaEnemyState multiviolaEnemyState, IEnemyAiFrame frame)
     {
-        RunMultiviolaMain(occupant, multiviolaSpawnSettings, place, multiviolaEnemyState, frame.Level);
+        RunMultiviolaMain(multiviolaSpawnSettings, place, multiviolaEnemyState, frame.Level);
     }
 }

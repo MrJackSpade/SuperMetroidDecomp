@@ -19,7 +19,7 @@ internal class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnem
     protected NinjaSpacePirateBehavior Species => species;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal NinjaSpacePirateEnemyState State { get; } = NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(occupant, settings, place);
+    internal NinjaSpacePirateEnemyState State { get; } = NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunNinjaSpacePirateMainAi(Place, State, frame);

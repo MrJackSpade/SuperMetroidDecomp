@@ -87,7 +87,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         place.Position = place.Position.WithWhole(new(0x0100, 0x0080));
 
         place.Bind(EnemyDefinitionId.Metaree, place.KeptDefinition);
-        MetareeBehavior.InitializeMetaree(place);
+        MetareeBehavior.InitializeMetaree();
         MetareeEnemyState state = (enemies.MetareeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MetareeStates[0]."));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
@@ -110,7 +110,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         place.Position = place.Position.WithWhole(new(0x0100, 0x0080));
 
         place.Bind(EnemyDefinitionId.Skree, place.KeptDefinition);
-        SkreeBehavior.InitializeSkree(place);
+        SkreeBehavior.InitializeSkree();
         SkreeEnemyState state = (enemies.SkreeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SkreeStates[0]."));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {

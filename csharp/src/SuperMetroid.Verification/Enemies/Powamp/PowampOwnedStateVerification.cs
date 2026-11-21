@@ -29,7 +29,7 @@ internal static class PowampOwnedStateVerification
         body.Bind(EnemyDefinitionId.Powamp, body.KeptDefinition);
         // The body rests below its balloon, inside the room.
         body.Position = body.Position.WithWhole(new(0x0180, 0x0040));
-        enemies.PowampBehavior.InitializePowampBody(body);
+        PowampBehavior.InitializePowampBody(body);
 
         // Parameter one selects the balloon half, which has its own state (#1845).
         PowampBalloonState balloonState = balloon.SpeciesState<PowampBalloonState>()

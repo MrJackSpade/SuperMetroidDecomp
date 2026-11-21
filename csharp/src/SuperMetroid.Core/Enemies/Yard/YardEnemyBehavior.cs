@@ -104,7 +104,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
 
     /// <summary>Initializes the Yard.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static YardEnemyState InitializeYard(RoomEnemyOccupant occupant, YardSpawnSettings settings, RoomEnemyPlace place)
+    internal static YardEnemyState InitializeYard(YardSpawnSettings settings, RoomEnemyPlace place)
     {
         YardDirection direction = settings.Direction;
 

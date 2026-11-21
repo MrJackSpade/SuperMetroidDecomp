@@ -33,7 +33,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactor
 
     /// <summary>Initializes the wall Space Pirate.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static WallSpacePirateEnemyState InitializeWallSpacePirate(RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings settings, RoomEnemyPlace place)
+    internal static WallSpacePirateEnemyState InitializeWallSpacePirate(WallSpacePirateSpawnSettings settings, RoomEnemyPlace place)
     {
         // A slow jump and a fast jump each turn by their definition's steps, the fast one twice as quickly to endpoints
         // a little further round.
@@ -98,7 +98,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactor
         WallSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
-        PositionWallSpacePirateOnArc(occupant, wallSpacePirateSpawnSettings, place, state);
+        PositionWallSpacePirateOnArc(wallSpacePirateSpawnSettings, place, state);
         state.WallJumpArcAngle = state.WallJumpArcAngle.TurnedBySteps(state.Jump.StepsPerUpdate.Toward(direction.Reversed()));
         if (state.WallJumpArcAngle != (direction == HorizontalDirection.Right ? state.Jump.RightTarget : state.Jump.LeftTarget))
             return;
@@ -112,7 +112,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactor
 
     /// <summary>Uses sine and cosine products to place the Pirate on a jump ellipse sized by its jump span.</summary>
     private static void PositionWallSpacePirateOnArc(
-        RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place,
+        WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place,
         WallSpacePirateEnemyState state)
     {
         // The arc places the Pirate's whole pixels each update; its fractions carry over. The jump ellipse is the jump span wide and
@@ -200,7 +200,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactor
 
     /// <summary>Captures the wall-to-wall destination, arc center, and starting angle from the jump span.</summary>
     private static void PrepareWallSpacePirateJump(
-        RoomEnemyOccupant occupant, WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place,
+        WallSpacePirateSpawnSettings wallSpacePirateSpawnSettings, RoomEnemyPlace place,
         WallSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
@@ -238,7 +238,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactor
             case WallSpacePirateCue.ChooseClimb choose:
                 return RandomizeWallSpacePirateClimbDirection(state, wall: choose.Wall);
             case WallSpacePirateCue.PrepareJump jump:
-                PrepareWallSpacePirateJump(occupant, wallSpacePirateSpawnSettings, place, state, direction: jump.Direction);
+                PrepareWallSpacePirateJump(wallSpacePirateSpawnSettings, place, state, direction: jump.Direction);
                 return null;
             case WallSpacePirateCue.FireLaser laser:
                 FireWallSpacePirateLaser(occupant, wallSpacePirateSpawnSettings, direction: laser.Direction);

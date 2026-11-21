@@ -28,14 +28,14 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
 
     /// <summary>Carries out one cue of the platforms' animations: each publishes the horizontal direction main AI moves in.</summary>
     private static void ApplyPlatformCue(RoomEnemyPlace place, PlatformEnemyState platformEnemyState, PlatformCue cue) =>
-        SetPlatformHorizontalMovementFromCue(place, platformEnemyState, cue.Movement);
+        SetPlatformHorizontalMovementFromCue(platformEnemyState, cue.Movement);
 
     /// <summary>
     /// Sets up a Tripper or a suspensor platform: its direction and speed from its spawn settings, its first rise and the
     /// height it rests at below where it was placed.
     /// </summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static PlatformEnemyState InitializePlatform(RoomEnemyOccupant occupant, PlatformSpawnSettings settings, RoomEnemyPlace place)
+    internal static PlatformEnemyState InitializePlatform(PlatformSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new PlatformEnemyState
         {
@@ -70,7 +70,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
 
         // The sinking carry measures the horizontal step from the position before it.
         int preHorizontalX = place.Position.X.Whole;
-        MovePlatformHorizontally(occupant, platformSpawnSettings, place, state, level);
+        MovePlatformHorizontally(platformSpawnSettings, place, state, level);
         MovePlatformVertically(occupant, platformSpawnSettings, place, state, samus, level, movement, preHorizontalX);
 
         // A newly selected vertical movement restarts the speed curve only after its first update:
@@ -82,7 +82,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
 
     /// <summary>Applies horizontal movement, reversing the horizontal direction and still-art animation on wall collision.</summary>
     private void MovePlatformHorizontally(
-        RoomEnemyOccupant occupant, PlatformSpawnSettings platformSpawnSettings, RoomEnemyPlace place,
+        PlatformSpawnSettings platformSpawnSettings, RoomEnemyPlace place,
         PlatformEnemyState state,
         RoomLevelData level)
     {
@@ -148,7 +148,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
         }
 
         SetPlatformVerticallyMovingAnimation(place, state);
-        IncrementAndClampPlatformYSpeed(occupant, platformSpawnSettings, state);
+        IncrementAndClampPlatformYSpeed(platformSpawnSettings, state);
         SignedSixteenSixteen displacement = state.YSpeedCurvePlace.Speed.Negative;
         if (!_terrain.MoveEnemyVertically(level, place, displacement))
             return;
@@ -173,7 +173,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
         int preHorizontalX)
     {
         // Sinking always accelerates.
-        IncrementAndClampPlatformYSpeed(occupant, platformSpawnSettings, state);
+        IncrementAndClampPlatformYSpeed(platformSpawnSettings, state);
 
         // Add the whole-pixel horizontal step to Samus's extra displacement; fractional
         // displacement is deliberately untouched because this enemy carries only whole pixels.
@@ -198,7 +198,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
     /// Steps the place one mark on along the quadratic speed curve, holding it at the cap its spawn settings name: as many
     /// marks on as their vertical acceleration updates.
     /// </summary>
-    private static void IncrementAndClampPlatformYSpeed(RoomEnemyOccupant occupant, PlatformSpawnSettings platformSpawnSettings, PlatformEnemyState state)
+    private static void IncrementAndClampPlatformYSpeed(PlatformSpawnSettings platformSpawnSettings, PlatformEnemyState state)
     {
         QuadraticSpeedCurvePlace cap = QuadraticSpeedCurvePlace.FromMarks(platformSpawnSettings.VerticalAccelerationUpdates);
         state.YSpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
@@ -254,7 +254,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
 
     /// <summary>Sets the direction main AI moves the platform, <paramref name="movement"/>, as a movement cue asks.</summary>
     private static void SetPlatformHorizontalMovementFromCue(
-        RoomEnemyPlace place, PlatformEnemyState platformEnemyState,
+        PlatformEnemyState platformEnemyState,
         HorizontalDirection movement)
     {
         platformEnemyState.XMovement = movement;

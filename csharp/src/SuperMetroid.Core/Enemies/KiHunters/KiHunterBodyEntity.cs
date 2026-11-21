@@ -22,7 +22,7 @@ internal sealed class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccu
     internal KiHunterSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal KiHunterBodyState State { get; } = species.InitializeKiHunter(occupant, settings, place);
+    internal KiHunterBodyState State { get; } = species.InitializeKiHunter(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterBodyMainAi(Place, State, frame);

@@ -75,7 +75,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// animations it shows on each surface and switches between at corners.
     /// </summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static CrawlerEnemyState InitializeCrawler(RoomEnemyOccupant occupant, CrawlerSpawnSettings settings, RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
+    internal static CrawlerEnemyState InitializeCrawler(CrawlerSpawnSettings settings, RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
     {
         CrawlerSurfaceOrientation orientation = settings.Orientation;
         CrawlerSurfaceOrientation blockSide = settings.BlockSide;
@@ -124,7 +124,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the separate orange-Zoomer setup.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static CrawlerEnemyState InitializeOrangeZoomer(RoomEnemyOccupant occupant, CrawlerSpawnSettings settings, RoomEnemyPlace place)
+    internal static CrawlerEnemyState InitializeOrangeZoomer(CrawlerSpawnSettings settings, RoomEnemyPlace place)
     {
         SignedEightEight crawlSpeed = settings.CrawlSpeed ??
             throw new InvalidDataException("An orange Zoomer's placement keeps its velocity, which its setup has no speed for.");

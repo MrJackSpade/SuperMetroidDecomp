@@ -53,7 +53,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySpawnFactory<Dachor
 
     /// <summary>Initializes a speed-boost echo: it faces the way the body does; each trail placement later gives it its life (<see cref="DachoraTimingDefinitions.EchoLifetime"/>).</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static DachoraEchoState InitializeDachoraEcho(RoomEnemyOccupant occupant, DachoraSpawnSettings settings, RoomEnemyPlace place)
+    internal static DachoraEchoState InitializeDachoraEcho(DachoraSpawnSettings settings, RoomEnemyPlace place)
     {
         var echo = new DachoraEchoState();
         PrepareDachoraPlace(place);
@@ -65,7 +65,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySpawnFactory<Dachor
 
     /// <summary>Initializes the Dachora's body, whose echoes, listed after it, join its trail as each is built.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static DachoraEnemyState InitializeDachora(RoomEnemyOccupant occupant, DachoraSpawnSettings settings, RoomEnemyPlace place)
+    internal static DachoraEnemyState InitializeDachora(DachoraSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new DachoraEnemyState(DachoraAction.WaitingForSamus)
         {
@@ -359,7 +359,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySpawnFactory<Dachor
     }
 
     /// <summary>Spaces the body's trail of echoes, each new echo taking the first free one (#2147).</summary>
-    private void UpdateDachoraEchoPositions(RoomEnemyPlace body, DachoraEnemyState state)
+    private static void UpdateDachoraEchoPositions(RoomEnemyPlace body, DachoraEnemyState state)
     {
         IReadOnlyList<DachoraEchoEntity> echoes = state.Echoes.Joined;
         if (state.TrailTimer.IsRunning)

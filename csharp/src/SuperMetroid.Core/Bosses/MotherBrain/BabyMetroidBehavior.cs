@@ -169,7 +169,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<E
 
             case BabyMetroidAction.ActivateSidehopperCorpse:
                 DeadSidehopperEntity corpse = RequireBabyMetroidVictimCorpse(place);
-                DeadSidehopperBehavior.ActivateDeadSidehopperVictim(corpse.Place, corpse.State);
+                DeadSidehopperBehavior.ActivateDeadSidehopperVictim(corpse.State);
                 state.Action = BabyMetroidAction.RiseAfterFeeding;
                 state.StateTimer.LastFor(BabyMetroidFightDefinitions.RiseUpdates);
                 goto case BabyMetroidAction.RiseAfterFeeding;
@@ -750,7 +750,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedFactory<E
 
     /// <summary>Marks projectile collision and converts shot damage into recoil without vulnerability damage.</summary>
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal EnemyShotReaction BabyMetroidShotReaction(BabyMetroidEnemyState state) => new()
+    internal static EnemyShotReaction BabyMetroidShotReaction(BabyMetroidEnemyState state) => new()
     {
         // A shot marks its collision and the Baby recoils, without hurting it: the shot's strength and the first shot's
         // aim decide the recoil.

@@ -59,7 +59,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Mama Turtle's animations; rising to hover continues at its spin.</summary>
-    private MamaTurtleSegment? ApplyMamaTurtleCue(RoomEnemyPlace place, MamaTurtleEnemyState mamaTurtleEnemyState, MamaTurtleCue cue)
+    private MamaTurtleSegment? ApplyMamaTurtleCue(MamaTurtleEnemyState mamaTurtleEnemyState, MamaTurtleCue cue)
     {
         switch (cue)
         {
@@ -125,7 +125,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// the last of them completes the family, which is checked once then.
     /// </summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static BabyTurtleEnemyState InitializeBabyTurtle(RoomEnemyOccupant occupant, BabyTurtleSpawnSettings babyTurtleSpawnSettings, RoomEnemyPlace place,
+    internal static BabyTurtleEnemyState InitializeBabyTurtle(BabyTurtleSpawnSettings babyTurtleSpawnSettings, RoomEnemyPlace place,
         MamaTurtleFamily family)
     {
         var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus, family)
@@ -759,7 +759,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         AnimationPlayback<MamaTurtleSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, MamaTurtleAnimations.Segments, ref playback,
-            cue => ApplyMamaTurtleCue(place, state, cue) is { } target
+            cue => ApplyMamaTurtleCue(state, cue) is { } target
                 ? new AnimationContinuation<MamaTurtleSegment>(MamaTurtleAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;

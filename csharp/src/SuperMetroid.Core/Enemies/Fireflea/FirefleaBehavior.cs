@@ -31,7 +31,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemySpawnFactory<Firef
 
     /// <summary>Initializes the Fireflea from its flight and radius.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static FirefleaEnemyState InitializeFireflea(RoomEnemyOccupant occupant, FirefleaSpawnSettings settings, RoomEnemyPlace place)
+    internal static FirefleaEnemyState InitializeFireflea(FirefleaSpawnSettings settings, RoomEnemyPlace place)
     {
         FirefleaFlightState flight = settings.Flight switch
         {
@@ -71,7 +71,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemySpawnFactory<Firef
     }
 
     /// <summary>Runs the Fireflea's main AI, advancing circular angle or vertical travel.</summary>
-    private static void RunFirefleaMain(RoomEnemyOccupant occupant, FirefleaSpawnSettings firefleaSpawnSettings, RoomEnemyPlace place, FirefleaEnemyState state)
+    private static void RunFirefleaMain(FirefleaSpawnSettings firefleaSpawnSettings, RoomEnemyPlace place, FirefleaEnemyState state)
     {
         switch (state.Flight)
         {
@@ -147,7 +147,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemySpawnFactory<Firef
     /// <summary>Runs Fireflea's main AI.</summary>
     internal static void RunFirefleaMainAi(RoomEnemyOccupant occupant, FirefleaSpawnSettings firefleaSpawnSettings, RoomEnemyPlace place, FirefleaEnemyState firefleaEnemyState)
     {
-        RunFirefleaMain(occupant, firefleaSpawnSettings, place, firefleaEnemyState);
+        RunFirefleaMain(firefleaSpawnSettings, place, firefleaEnemyState);
     }
 
     /// <summary>Advances darkness before a lethal common power-bomb death is finalized.</summary>

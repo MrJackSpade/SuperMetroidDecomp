@@ -70,7 +70,7 @@ internal static class CacatacBehaviorVerification
         place.Bind(EnemyDefinitionId.Cacatac, place.KeptDefinition);
         place.Position = FixedPosition<RoomPixels>.FromWhole(new(40, 112));
         place.SetSpawnWords(EnemyDefinitionId.Cacatac, words => words);
-        CacatacBehavior.InitializeCacatac(place.HeldOccupant(), place);
+        CacatacBehavior.InitializeCacatac(place);
         CacatacEnemyState state = enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state.");
         AssertEqual(24, state.LeftPatrolX, "Cacatac left limit is one block left of spawn");
         AssertEqual(56, state.RightPatrolX, "Cacatac right limit is one block right of spawn");
@@ -111,7 +111,7 @@ internal static class CacatacBehaviorVerification
         place.Bind(EnemyDefinitionId.Cacatac, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnParameter1(EnemyDefinitionId.Cacatac, onFloor ? CacatacNativeValues.OnFloorParameter : (ushort)0);
-        CacatacBehavior.InitializeCacatac(place.HeldOccupant(), place);
+        CacatacBehavior.InitializeCacatac(place);
         return new CacatacBehaviorCreateResult(enemies, place, enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state."));
     }
 

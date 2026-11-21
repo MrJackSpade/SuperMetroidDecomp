@@ -13,7 +13,7 @@ internal sealed class CacatacEntity(CacatacBehavior species, RoomEnemyOccupant o
     internal CacatacSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal CacatacEnemyState State { get; } = CacatacBehavior.InitializeCacatac(occupant, settings, place);
+    internal CacatacEnemyState State { get; } = CacatacBehavior.InitializeCacatac(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunCacatacMainAi(Occupant, Settings, Place, State);

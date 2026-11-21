@@ -51,7 +51,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemySpawnFactory<Cacata
 
     /// <summary>Initializes the Cacatac.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static CacatacEnemyState InitializeCacatac(RoomEnemyOccupant occupant, CacatacSpawnSettings settings, RoomEnemyPlace place)
+    internal static CacatacEnemyState InitializeCacatac(CacatacSpawnSettings settings, RoomEnemyPlace place)
     {
         bool onFloor = settings.Mounting == CacatacMounting.Floor;
         place.Frame = EnemyFrameId.PointAtOrigin;
@@ -81,8 +81,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemySpawnFactory<Cacata
         switch (state.Action)
         {
             case CacatacAction.Patrolling:
-                MoveCacatac(occupant, cacatacSpawnSettings, place, state);
-                MaybeStartCacatacAttack(occupant, cacatacSpawnSettings, place, state);
+                MoveCacatac(cacatacSpawnSettings, place, state);
+                MaybeStartCacatacAttack(cacatacSpawnSettings, place, state);
                 return;
             case CacatacAction.Stopped:
                 return;
@@ -96,7 +96,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemySpawnFactory<Cacata
     /// Moves the Cacatac along its patrol by its speed, then turns it once it passes the left limit or reaches or passes
     /// the right one.
     /// </summary>
-    private static void MoveCacatac(RoomEnemyOccupant occupant, CacatacSpawnSettings cacatacSpawnSettings, RoomEnemyPlace place, CacatacEnemyState state)
+    private static void MoveCacatac(CacatacSpawnSettings cacatacSpawnSettings, RoomEnemyPlace place, CacatacEnemyState state)
     {
         bool right = state.PatrolDirection == HorizontalDirection.Right;
         SignedSixteenSixteen speed = cacatacSpawnSettings.Speed;
@@ -114,7 +114,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemySpawnFactory<Cacata
     }
 
     /// <summary>The random attack gate (<see cref="CacatacAttackDefinitions.Attacks"/>).</summary>
-    private void MaybeStartCacatacAttack(RoomEnemyOccupant occupant, CacatacSpawnSettings cacatacSpawnSettings, RoomEnemyPlace place, CacatacEnemyState state)
+    private void MaybeStartCacatacAttack(CacatacSpawnSettings cacatacSpawnSettings, RoomEnemyPlace place, CacatacEnemyState state)
     {
         if (!CacatacAttackDefinitions.Attacks.IsTakenBy(_room.Random.Generate(), advancedBy: place.FrameCounter))
             return;

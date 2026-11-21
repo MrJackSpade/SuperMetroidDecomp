@@ -75,7 +75,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyFo
 
     /// <summary>Initializes a Geruta parent, idle and waiting for its chance to attack.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static GerutaEnemyState InitializeGeruta(RoomEnemyPlace place)
+    internal static GerutaEnemyState InitializeGeruta()
     {
         var state = new GerutaEnemyState(GerutaAction.WaitForAttackOpportunity)
         {

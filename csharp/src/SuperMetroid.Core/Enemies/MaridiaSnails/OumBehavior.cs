@@ -34,7 +34,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
 
     /// <summary>Initializes the Oum.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static OumEnemyState InitializeOum(RoomEnemyPlace place)
+    internal static OumEnemyState InitializeOum()
     {
         var state = new OumEnemyState(OumAction.Idle, OumBouncePhase.Falling)
         {

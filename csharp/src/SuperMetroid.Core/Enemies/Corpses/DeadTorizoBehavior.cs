@@ -167,7 +167,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
     }
 
     /// <summary>The body rows the dead Torizo in <paramref name="place"/> shows: its own, as its rot has left them (#1539).</summary>
-    internal static CorpseRotRows ShownDeadTorizoRows(RoomEnemyPlace place, DeadTorizoEnemyState deadTorizoEnemyState) => deadTorizoEnemyState.Rows.Shown;
+    internal static CorpseRotRows ShownDeadTorizoRows(DeadTorizoEnemyState deadTorizoEnemyState) => deadTorizoEnemyState.Rows.Shown;
 
     /// <summary>
     /// The sand rows <paramref name="state"/>'s sand heap shows (#1539): only the rows its heap has formed into, as the corpse's
@@ -222,14 +222,14 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
 
     /// <summary>Starts corpse rotting on a power bomb without common damage handling.</summary>
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal EnemyPowerBombReaction DeadTorizoPowerBombReaction(DeadTorizoEnemyState state) => new()
+    internal static EnemyPowerBombReaction DeadTorizoPowerBombReaction(DeadTorizoEnemyState state) => new()
     {
         ReplacesCommon = c => TriggerDeadTorizoPowerBomb(c.Enemy, state),
     };
 
     /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal EnemyShotReaction DeadTorizoShotReaction(DeadTorizoEnemyState state) => new()
+    internal static EnemyShotReaction DeadTorizoShotReaction(DeadTorizoEnemyState state) => new()
     {
         // A shot is marked as having hit the corpse, deals no damage and makes no explosion, and starts the rot.
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>

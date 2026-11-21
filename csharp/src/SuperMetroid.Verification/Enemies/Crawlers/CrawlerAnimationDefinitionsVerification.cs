@@ -74,11 +74,11 @@ internal static class CrawlerAnimationDefinitionsVerification
             place.SetSpawnParameter1(family == CrawlerAnimationFamily.Viola ? EnemyDefinitionId.Viola : EnemyDefinitionId.Zoomer, 0);
             if (orangeZoomer)
             {
-                new Action<RoomEnemyPlace>(fixturePlace => CrawlersBehavior.InitializeOrangeZoomer(fixturePlace.HeldOccupant(), fixturePlace))(place);
+                new Action<RoomEnemyPlace>(fixturePlace => CrawlersBehavior.InitializeOrangeZoomer(fixturePlace))(place);
             }
             else
             {
-                new Action<RoomEnemyPlace, CrawlerAnimationFamily>((fixturePlace, fixtureArg1) => CrawlersBehavior.InitializeCrawler(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1))(place, family);
+                new Action<RoomEnemyPlace, CrawlerAnimationFamily>((fixturePlace, fixtureArg1) => CrawlersBehavior.InitializeCrawler(fixturePlace, fixtureArg1))(place, family);
             }
 
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(

@@ -44,7 +44,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemySpawnFactory<Etecoo
 
     /// <summary>Initializes the Etecoon.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static EtecoonEnemyState InitializeEtecoon(RoomEnemyOccupant occupant, EtecoonSpawnSettings etecoonSpawnSettings, RoomEnemyPlace place)
+    internal static EtecoonEnemyState InitializeEtecoon(EtecoonSpawnSettings etecoonSpawnSettings, RoomEnemyPlace place)
     {
         // The placement names the route, which the Etecoon keeps for when it takes it (#2531).
         var state = new EtecoonEnemyState(EtecoonAction.Dormant, etecoonSpawnSettings.Route);

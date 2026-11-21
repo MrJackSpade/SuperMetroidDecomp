@@ -12,7 +12,7 @@ internal sealed class GerutaEntity(GerutaBehavior species, RoomEnemyOccupant occ
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal GerutaEnemyState State { get; } = GerutaBehavior.InitializeGeruta(place);
+    internal GerutaEnemyState State { get; } = GerutaBehavior.InitializeGeruta();
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunGerutaMainAi(Place, State, frame);

@@ -15,7 +15,7 @@ internal sealed class MetareeEntity(MetareeBehavior species, RoomEnemyOccupant o
     private readonly EnemyBombReaction ownBomb = species.MetareeBombReaction(occupant);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal MetareeEnemyState State { get; } = MetareeBehavior.InitializeMetaree(place);
+    internal MetareeEnemyState State { get; } = MetareeBehavior.InitializeMetaree();
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunMetareeMainAi(Occupant, Place, State, frame);

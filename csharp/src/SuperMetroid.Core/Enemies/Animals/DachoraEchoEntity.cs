@@ -15,7 +15,7 @@ internal sealed class DachoraEchoEntity(RoomEnemyOccupant occupant, RoomEnemyPla
     internal DachoraSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal DachoraEchoState State { get; } = DachoraBehavior.InitializeDachoraEcho(occupant, settings, place);
+    internal DachoraEchoState State { get; } = DachoraBehavior.InitializeDachoraEcho(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => DachoraBehavior.RunDachoraEchoMainAi(Place, State, frame);

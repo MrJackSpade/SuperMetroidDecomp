@@ -17,7 +17,7 @@ internal sealed class EvirBodyEntity(EvirBehavior species, RoomEnemyOccupant occ
     internal EvirSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal EvirBodyState State { get; } = species.InitializeEvirBody(occupant, settings, place, surroundings.Samus);
+    internal EvirBodyState State { get; } = species.InitializeEvirBody(settings, place, surroundings.Samus);
 
     /// <summary>The two enemies the part's follow-up to a hit reaches, the ones its room lists after it, found as it is built.</summary>
     private IReadOnlyList<RoomEnemyPlace> FollowUpRecipients { get; } = species.FollowUpRecipientsOf(place);

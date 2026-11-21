@@ -36,7 +36,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySpawnFactory<PuyoSpawn
 
     /// <summary>Initializes the Puyo.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static PuyoEnemyState InitializePuyo(RoomEnemyOccupant occupant, PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place)
+    internal static PuyoEnemyState InitializePuyo(PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place)
     {
         // The setup shows the common empty frame before starting the fast grounded animation.
         place.Frame = EnemyFrameId.PointAtOrigin;
@@ -87,11 +87,11 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySpawnFactory<PuyoSpawn
         // Every hop starts rising.
         state.Action = PuyoAction.Rising;
         state.HopCooldownTimer = UpdateCountdown.For(puyoSpawnSettings.HopCooldown + EnemyWaitDefinitions.RunOutUpdate);
-        InitiatePuyoHop(occupant, puyoSpawnSettings, place, state, samus);
+        InitiatePuyoHop(puyoSpawnSettings, place, state, samus);
     }
 
     /// <summary>Starts a hop: chooses the hop type and its random selection.</summary>
-    private void InitiatePuyoHop(RoomEnemyOccupant occupant, PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
+    private void InitiatePuyoHop(PuyoSpawnSettings puyoSpawnSettings, RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
     {
         // Normal follow-up hops are promoted from the small hop to the big one when Samus is
         // strictly inside its horizontal hop distance. Giant/dropping/dropped types

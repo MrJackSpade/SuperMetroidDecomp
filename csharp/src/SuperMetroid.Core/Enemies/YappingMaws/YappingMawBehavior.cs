@@ -111,13 +111,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
         switch (state.Action)
         {
             case YappingMawAction.WaitingForSamus:
-                WaitForSamusWithYappingMaw(occupant, yappingMawSpawnSettings, state, samus);
+                WaitForSamusWithYappingMaw(yappingMawSpawnSettings, state, samus);
                 break;
             case YappingMawAction.BeginExtension:
                 BeginYappingMawExtension(place, state);
                 break;
             case YappingMawAction.ExtendingOrRetracting:
-                AdvanceYappingMawExtension(occupant, yappingMawSpawnSettings, place, state, samus);
+                AdvanceYappingMawExtension(yappingMawSpawnSettings, place, state, samus);
                 break;
             case YappingMawAction.RetractedDelay:
                 WaitAfterYappingMawRetraction(place, state, samus);
@@ -137,7 +137,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
 
     /// <summary>Waits for Samus, including the deliberately approximate distance check.</summary>
     private static void WaitForSamusWithYappingMaw(
-        RoomEnemyOccupant occupant, YappingMawSpawnSettings yappingMawSpawnSettings,
+        YappingMawSpawnSettings yappingMawSpawnSettings,
         YappingMawEnemyState state,
         SamusState samus)
     {
@@ -195,7 +195,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
 
     /// <summary>Runs the curved four-link solver and state transition.</summary>
     private void AdvanceYappingMawExtension(
-        RoomEnemyOccupant occupant, YappingMawSpawnSettings yappingMawSpawnSettings, RoomEnemyPlace place,
+        YappingMawSpawnSettings yappingMawSpawnSettings, RoomEnemyPlace place,
         YappingMawEnemyState state,
         SamusState samus)
     {

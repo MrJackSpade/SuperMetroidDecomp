@@ -79,7 +79,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case KiHunterCueKind.ReturnToFlying:
                 // The cue returns the body's flying animation while separately restarting the attached wings.
-                return ReturnKiHunterToSteadyAnimation(place, kiHunterBodyState);
+                return ReturnKiHunterToSteadyAnimation(kiHunterBodyState);
             case KiHunterCueKind.StartHop:
                 StartKiHunterGroundJumpFromCue(kiHunterBodyState);
                 return null;
@@ -93,7 +93,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Initializes the Ki-Hunter body.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal KiHunterBodyState InitializeKiHunter(RoomEnemyOccupant occupant, KiHunterSpawnSettings kiHunterSpawnSettings, RoomEnemyPlace body)
+    internal KiHunterBodyState InitializeKiHunter(KiHunterSpawnSettings kiHunterSpawnSettings, RoomEnemyPlace body)
     {
         var state = new KiHunterBodyState(KiHunterAction.FlyingPatrol,
             wings: _places.Member(body, KiHunterPartListingDefinitions.Listing, KiHunterMember.Body, KiHunterMember.Wings));
@@ -544,7 +544,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs the Ki-Hunter's own response after the common shot and Power Bomb reactions. A surviving body freezes and
     /// flashes its wings with it until its health falls to the health at which the wings detach, which starts their fall.
     /// </summary>
-    private void ResolveKiHunterShotAfterCommon(RoomEnemyPlace body, KiHunterBodyState bodyState)
+    private static void ResolveKiHunterShotAfterCommon(RoomEnemyPlace body, KiHunterBodyState bodyState)
     {
         RoomEnemyPlace wings = bodyState.Wings;
         // Wings that are gone have nothing to lose or keep in step with: a wingless Ki-Hunter's are deleted as they are set
@@ -640,7 +640,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         angle + RotationAngle.QuarterTurn >= RotationAngle.HalfTurn;
 
     /// <summary>Animation cue: return to steady art and sync attached wings.</summary>
-    private KiHunterSegment ReturnKiHunterToSteadyAnimation(RoomEnemyPlace body, KiHunterBodyState state)
+    private static KiHunterSegment ReturnKiHunterToSteadyAnimation(KiHunterBodyState state)
     {
         bool movingRight = state.Heading == HorizontalDirection.Right;
         KiHunterSegment wingSegment = movingRight
@@ -671,7 +671,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restarts matching body and still-attached wing animations for the selected flight direction.</summary>
-    private void SetKiHunterPairFacing(RoomEnemyPlace body, KiHunterBodyState kiHunterBodyState, HorizontalDirection facing)
+    private static void SetKiHunterPairFacing(RoomEnemyPlace body, KiHunterBodyState kiHunterBodyState, HorizontalDirection facing)
     {
         bool movingRight = facing == HorizontalDirection.Right;
         StartKiHunterAnimation(

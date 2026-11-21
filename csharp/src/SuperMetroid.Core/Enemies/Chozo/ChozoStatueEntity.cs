@@ -13,7 +13,7 @@ internal sealed class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemyOc
     internal ChozoStatueSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal ChozoStatueState State { get; } = species.InitializeChozoStatue(occupant, settings, place);
+    internal ChozoStatueState State { get; } = species.InitializeChozoStatue(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => ChozoStatueBehavior.RunChozoStatueMainAi(Occupant, Settings, Place, State);

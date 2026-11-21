@@ -163,7 +163,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySpawnFactory<Hopper
         RoomLevelData level)
     {
         // A floor hopper rises away from the floor; a ceiling hopper drops away from the ceiling.
-        VerticalDirection away = HopperSurfaces.AwayFrom(SurfaceOf(occupant, hopperSpawnSettings));
+        VerticalDirection away = HopperSurfaces.AwayFrom(SurfaceOf(hopperSpawnSettings));
         // A collision with the room beyond reverses X and turns the hop back without horizontal motion that update.
         if (_terrain.MoveEnemyVertically(level, place, state.YSpeedCurvePlace.Speed.Toward(away)))
         {
@@ -202,7 +202,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySpawnFactory<Hopper
         RoomLevelData level)
     {
         // A floor hopper drops back to the floor; a ceiling hopper rises back to the ceiling.
-        VerticalDirection back = HopperSurfaces.AwayFrom(SurfaceOf(occupant, hopperSpawnSettings)).Reversed();
+        VerticalDirection back = HopperSurfaces.AwayFrom(SurfaceOf(hopperSpawnSettings)).Reversed();
         if (_terrain.MoveEnemyVertically(level, place, state.YSpeedCurvePlace.Speed.Toward(back)))
         {
             state.Action = HopperAction.Landed;
@@ -229,11 +229,11 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemySpawnFactory<Hopper
     }
 
     /// <summary>The surface the hopper's placement mounts it on (#2474), which decides which way is up for its hops.</summary>
-    private static HopperSurface SurfaceOf(RoomEnemyOccupant occupant, HopperSpawnSettings hopperSpawnSettings) => hopperSpawnSettings.Surface;
+    private static HopperSurface SurfaceOf(HopperSpawnSettings hopperSpawnSettings) => hopperSpawnSettings.Surface;
 
     /// <summary>Selects the animation for this kind on its surface in its jumping or landing half.</summary>
     private static HopperSegment ReadHopperAnimation(RoomEnemyOccupant occupant, HopperSpawnSettings hopperSpawnSettings, HopperEnemyState state, HopperPhase phase) =>
-        HopperAnimationChoices.Animation(state.Kind, SurfaceOf(occupant, hopperSpawnSettings), phase);
+        HopperAnimationChoices.Animation(state.Kind, SurfaceOf(hopperSpawnSettings), phase);
 
     /// <summary>Starts a new animation, its first step playing on the next update.</summary>
     private static void SetHopperAnimation(

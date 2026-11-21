@@ -9,7 +9,7 @@ internal sealed class OumEntity(OumBehavior species, RoomEnemyOccupant occupant,
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal OumEnemyState State { get; } = OumBehavior.InitializeOum(place);
+    internal OumEnemyState State { get; } = OumBehavior.InitializeOum();
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunOumMainAi(Place, State, frame);

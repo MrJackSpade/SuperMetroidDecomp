@@ -15,7 +15,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemySpawnFactory<ChootSpa
 
     /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static ChootEnemyState InitializeChoot(RoomEnemyOccupant occupant, ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place)
+    internal static ChootEnemyState InitializeChoot(ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place)
     {
         ChootFallingPath fallingPath = chootSpawnSettings.FallingPath;
         var state = new ChootEnemyState(ChootAction.WaitingForSamus);
@@ -41,16 +41,16 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemySpawnFactory<ChootSpa
         switch (state.Action)
         {
             case ChootAction.WaitingForSamus:
-                WaitForChootActivation(occupant, chootSpawnSettings, place, state, samus);
+                WaitForChootActivation(chootSpawnSettings, place, state, samus);
                 return;
             case ChootAction.PreparingJump:
                 PrepareChootJump(place, state);
                 return;
             case ChootAction.Jumping:
-                RunChootJump(occupant, chootSpawnSettings, place, state);
+                RunChootJump(chootSpawnSettings, place, state);
                 return;
             case ChootAction.Falling:
-                RunChootFall(occupant, chootSpawnSettings, place, state);
+                RunChootFall(chootSpawnSettings, place, state);
                 return;
             default:
                 throw new InvalidDataException(
@@ -60,7 +60,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemySpawnFactory<ChootSpa
 
     /// <summary>Arms the jump delay when Samus comes within the activation distance horizontally.</summary>
     private static void WaitForChootActivation(
-        RoomEnemyOccupant occupant, ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place,
+        ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place,
         ChootEnemyState state,
         SamusState samus)
     {
@@ -82,7 +82,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemySpawnFactory<ChootSpa
     }
 
     /// <summary>Applies quadratic ascent without room collision and snaps whole coordinates to the calculated falling origin at the apex.</summary>
-    private static void RunChootJump(RoomEnemyOccupant occupant, ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place, ChootEnemyState state)
+    private static void RunChootJump(ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place, ChootEnemyState state)
     {
         // The Choot rises at its place's speed on the curve, passing through the room's blocks during this leap.
         SignedSixteenSixteen upwardDisplacement = state.YSpeedCurvePlace.Speed.Negative;
@@ -104,7 +104,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemySpawnFactory<ChootSpa
     }
 
     /// <summary>Follows authored path offsets, advancing its origin at each loop's end and restoring the exact spawn state after the final loop.</summary>
-    private static void RunChootFall(RoomEnemyOccupant occupant, ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place, ChootEnemyState state)
+    private static void RunChootFall(ChootSpawnSettings chootSpawnSettings, RoomEnemyPlace place, ChootEnemyState state)
     {
         if (state.FallingLoop is ChootFallLoop.AtSample at)
         {

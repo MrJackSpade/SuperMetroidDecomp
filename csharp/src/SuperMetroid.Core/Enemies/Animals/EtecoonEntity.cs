@@ -13,7 +13,7 @@ internal sealed class EtecoonEntity(EtecoonBehavior species, RoomEnemyOccupant o
     internal EtecoonSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal EtecoonEnemyState State { get; } = EtecoonBehavior.InitializeEtecoon(occupant, settings, place);
+    internal EtecoonEnemyState State { get; } = EtecoonBehavior.InitializeEtecoon(settings, place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunEtecoonMainAi(Place, State, frame);

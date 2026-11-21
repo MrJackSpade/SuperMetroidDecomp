@@ -72,7 +72,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyLoade
 
     /// <summary>Runs the Blue Brinstar face block's main AI.</summary>
     private void RunBlueBrinstarFaceBlockMain(
-        RoomEnemyOccupant occupant, FaceBlockSpawnSettings faceBlockSpawnSettings, RoomEnemyPlace place,
+        FaceBlockSpawnSettings faceBlockSpawnSettings, RoomEnemyPlace place,
         BlueBrinstarFaceBlockEnemyState state,
         SamusState samus)
     {
@@ -154,7 +154,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyLoade
     internal void RunBlueBrinstarFaceBlockMainAi(RoomEnemyOccupant occupant, FaceBlockSpawnSettings faceBlockSpawnSettings, RoomEnemyPlace place, BlueBrinstarFaceBlockEnemyState blueBrinstarFaceBlockEnemyState, IEnemyAiFrame frame)
     {
         RunBlueBrinstarFaceBlockMain(
-            occupant, faceBlockSpawnSettings, place,
+            faceBlockSpawnSettings, place,
             blueBrinstarFaceBlockEnemyState,
             frame.Samus);
     }

@@ -26,7 +26,7 @@ internal static class BullBehaviorVerification
         place.Bind(EnemyDefinitionId.Bull, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        enemies.BullBehavior.InitializeBull(place.HeldOccupant(), place);
+        enemies.BullBehavior.InitializeBull(place);
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException("Bull initializer did not publish typed state.");
         AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.StartingWith(BullSegment.Idle), AnimationPlace.StartOfAnimation), state.Playback, "Bull initializer animation");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BullAnimations.Segments, BullSegment.Idle, BullFrameToolingDefinitions.Spritemap),
@@ -45,7 +45,7 @@ internal static class BullBehaviorVerification
         RoomEnemyPlace bombed = enemies.Places.InUpdateOrder[1];
         bombed.Bind(EnemyDefinitionId.Bull, bombed.KeptDefinition);
         bombed.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        enemies.BullBehavior.InitializeBull(bombed.HeldOccupant(), bombed);
+        enemies.BullBehavior.InitializeBull(bombed);
         var bomb = new SamusBomb(0);
         bomb.OccupyAsPlaced(SamusProjectileType.Of(SamusProjectileFamily.Bomb));
         var context = new EnemyBombContext(bombed.HeldOccupant(), bomb.HeldBomb(), InstalledFixtures.CreateProjectileSystem(), RoomEnemyFrameFixtures.StandaloneSamus(),
@@ -74,7 +74,7 @@ internal static class BullBehaviorVerification
         RoomEnemyPlace slot = enemies.Places.InUpdateOrder[0];
         slot.Bind(EnemyDefinitionId.Bull, slot.KeptDefinition);
         slot.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        enemies.BullBehavior.InitializeBull(slot.HeldOccupant(), slot);
+        enemies.BullBehavior.InitializeBull(slot);
         BullEnemyState state = slot.RequireSpeciesState<BullEnemyState>();
         SignedEightEight brakingStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
 

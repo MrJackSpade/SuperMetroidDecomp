@@ -538,7 +538,7 @@ internal sealed class FrontendSession
     /// </summary>
     /// <param name="slot">The save the game loads.</param>
     /// <param name="selected">The runtime of the selected game.</param>
-    internal void InitializeSelectedGameHud(SuperMetroidSaveSlot slot, SuperMetroidRuntime selected) =>
+    internal static void InitializeSelectedGameHud(SuperMetroidSaveSlot slot, SuperMetroidRuntime selected) =>
         Ensure.NotNull(selected).HudSetup.InitializeHud(new HudSnapshot(
             slot.Health,
             slot.MaxHealth,

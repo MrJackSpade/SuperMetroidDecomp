@@ -17,7 +17,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemySpawnFactory<AtomicS
 
     /// <summary>Initializes the Atomic.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static AtomicEnemyState InitializeAtomic(RoomEnemyOccupant occupant, AtomicSpawnSettings settings, RoomEnemyPlace place)
+    internal static AtomicEnemyState InitializeAtomic(AtomicSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new AtomicEnemyState();
 
@@ -31,7 +31,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemySpawnFactory<AtomicS
     /// directions again every update.
     /// </summary>
     internal static void MoveAtomicTowardSamus(
-        RoomEnemyOccupant occupant, AtomicSpawnSettings atomicSpawnSettings, RoomEnemyPlace place,
+        AtomicSpawnSettings atomicSpawnSettings, RoomEnemyPlace place,
         SamusState samus)
     {
         // The Atomic moves towards Samus on each axis; being level with her counts as her being below or to the right, so

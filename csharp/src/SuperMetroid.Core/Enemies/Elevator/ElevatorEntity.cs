@@ -14,7 +14,7 @@ internal sealed class ElevatorEntity(ElevatorBehavior species, RoomEnemyOccupant
     internal ElevatorSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal ElevatorEnemyState State { get; } = species.InitializeElevator(occupant, settings, place, surroundings.Samus);
+    internal ElevatorEnemyState State { get; } = species.InitializeElevator(settings, place, surroundings.Samus);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunElevatorMainAi(Occupant, Settings, Place, State, frame);

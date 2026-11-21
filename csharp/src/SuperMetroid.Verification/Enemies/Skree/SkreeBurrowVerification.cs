@@ -25,7 +25,7 @@ internal static class SkreeBurrowVerification
         place.Bind(EnemyDefinitionId.Skree, place.KeptDefinition);
         place.Radius = new(8, 8);
         place.Position = place.Position.WithWhole(new(64, 100));
-        SkreeBehavior.InitializeSkree(place);
+        SkreeBehavior.InitializeSkree();
         SkreeEnemyState state = enemies.SkreeStates[0] ?? throw new InvalidOperationException("The Skree has no state.");
         state.Action = SkreeAction.Diving;
         SamusState samus = VerificationHelpersVerification.CreateSamus(SamusPoseId.FacingRightNormalPose, new(64, 140));

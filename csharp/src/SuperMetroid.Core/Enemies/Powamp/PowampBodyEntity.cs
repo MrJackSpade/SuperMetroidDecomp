@@ -19,7 +19,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant
     internal PowampBalloonEntity Balloon { get; } = species.PlacedBalloon(place);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal PowampBodyState State { get; } = species.InitializePowampBody(place);
+    internal PowampBodyState State { get; } = PowampBehavior.InitializePowampBody(place);
 
     /// <summary>The body's own shot reaction, built for this occupant with its state and balloon.</summary>
     private EnemyShotReaction OwnShot => field ??= PowampBehavior.PowampBodyShotReaction(Occupant, Settings, State, Balloon.Place);

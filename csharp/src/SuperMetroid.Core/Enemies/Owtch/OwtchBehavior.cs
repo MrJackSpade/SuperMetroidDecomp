@@ -27,7 +27,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<OwtchSpa
 
     /// <summary>Initializes the Owtch.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static OwtchEnemyState InitializeOwtch(RoomEnemyOccupant occupant, OwtchSpawnSettings settings, RoomEnemyPlace place)
+    internal static OwtchEnemyState InitializeOwtch(OwtchSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new OwtchEnemyState
         {
@@ -51,12 +51,12 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<OwtchSpa
         switch (state.Behavior)
         {
             case OwtchBehaviorState.MovingLeft:
-                MoveOwtch(occupant, owtchSpawnSettings, place, state, direction: HorizontalDirection.Left);
+                MoveOwtch(owtchSpawnSettings, place, state, direction: HorizontalDirection.Left);
                 MaybeMakeOwtchSink(place, state);
                 return;
 
             case OwtchBehaviorState.MovingRight:
-                MoveOwtch(occupant, owtchSpawnSettings, place, state, direction: HorizontalDirection.Right);
+                MoveOwtch(owtchSpawnSettings, place, state, direction: HorizontalDirection.Right);
                 MaybeMakeOwtchSink(place, state);
                 return;
 
@@ -121,7 +121,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<OwtchSpa
     /// the patrol turns it.
     /// </summary>
     private static void MoveOwtch(
-        RoomEnemyOccupant occupant, OwtchSpawnSettings owtchSpawnSettings, RoomEnemyPlace place,
+        OwtchSpawnSettings owtchSpawnSettings, RoomEnemyPlace place,
         OwtchEnemyState state,
         HorizontalDirection direction)
     {

@@ -21,8 +21,8 @@ internal sealed class PoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnem
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceWorkRobotTypedAnimation(Place, State, context);
 
     /// <summary>The robot takes a bomb's damage and recoils (#2164).</summary>
-    protected override EnemyBombReaction OwnBombReaction => field ??= Species.PoweredWorkRobotBombReaction(State);
+    protected override EnemyBombReaction OwnBombReaction => field ??= WorkRobotBehavior.PoweredWorkRobotBombReaction(State);
 
     /// <summary>The robot's own shot reaction, which recoils it after the common shot reaction.</summary>
-    protected override EnemyShotReaction OwnShotReaction => field ??= Species.WorkRobotShotReaction(State);
+    protected override EnemyShotReaction OwnShotReaction => field ??= WorkRobotBehavior.WorkRobotShotReaction(State);
 }

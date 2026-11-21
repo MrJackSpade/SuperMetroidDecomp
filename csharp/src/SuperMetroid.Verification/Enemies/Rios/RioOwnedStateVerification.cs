@@ -17,7 +17,7 @@ internal static class RioOwnedStateVerification
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         parent.Bind(EnemyDefinitionId.Geruta, parent.KeptDefinition);
-        GerutaBehavior.InitializeGeruta(parent);
+        GerutaBehavior.InitializeGeruta();
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
         follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, EnemyParameterMasks.FollowerBit);
         follower.Bind(EnemyDefinitionId.Geruta, follower.KeptDefinition);

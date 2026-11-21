@@ -309,8 +309,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (top.Position.Y.Whole < GunshipMotionDefinitions.LandedTopY)
             return;
 
-        RoomEnemyPlace bottom = Pieces(top, gunshipPieces).Bottom;
-        RoomEnemyPlace pad = Pieces(top, gunshipPieces).EntrancePad;
+        RoomEnemyPlace bottom = Pieces(gunshipPieces).Bottom;
+        RoomEnemyPlace pad = Pieces(gunshipPieces).EntrancePad;
         top.Position = top.Position.WithWholeY(GunshipMotionDefinitions.LandedTopY);
         bottom.Position = bottom.Position.WithWholeY(GunshipMotionDefinitions.LandedBottomY);
         pad.Position = pad.Position.WithWholeY(GunshipMotionDefinitions.LandedPadY);
@@ -324,7 +324,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         GunshipLandingBrake brake = State(top, gunshipState).LandingBrake;
         int yDelta = brake.YDelta;
         samus.Position += new Offset16<RoomPixels>(0, yDelta);
-        foreach (RoomEnemyPlace place in Pieces(top, gunshipPieces).All)
+        foreach (RoomEnemyPlace place in Pieces(gunshipPieces).All)
         {
             place.Position = place.Position.WithWholeY(place.Position.Y.Whole + yDelta);
         }
@@ -335,7 +335,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             return;
         }
 
-        RoomEnemyPlace pad = Pieces(top, gunshipPieces).EntrancePad;
+        RoomEnemyPlace pad = Pieces(gunshipPieces).EntrancePad;
         State(top, gunshipState).Phase = GunshipPhase.WaitForLandingEntranceToOpen;
         State(top, gunshipState).BaseY = top.Position.Y.Whole;
         State(top, gunshipState).BobTimer = UpdateCountdown.LastingOneUpdate();
@@ -356,7 +356,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus.Position.Y.Whole >= State(top, gunshipState).BaseY - GunshipBoardingDefinitions.ExitHeight)
             return;
 
-        RoomEnemyPlace pad = Pieces(top, gunshipPieces).EntrancePad;
+        RoomEnemyPlace pad = Pieces(gunshipPieces).EntrancePad;
         State(top, gunshipState).Phase = GunshipPhase.FinishLanding;
         StartGunshipAnimation(pad, gunshipPieces.EntrancePadPiece, GunshipSegment.EntrancePadClosing);
         State(top, gunshipState).PhaseTimer = UpdateCountdown.For(GunshipBoardingDefinitions.PadMovementDuration);
@@ -368,7 +368,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     {
         samus.Position = samus.Position.WithY(samus.Position.Y.MovedBy(delta));
 
-        foreach (RoomEnemyPlace place in Pieces(top, gunshipPieces).All)
+        foreach (RoomEnemyPlace place in Pieces(gunshipPieces).All)
         {
             place.Position = place.Position.WithY(place.Position.Y.MovedBy(delta));
         }
@@ -394,7 +394,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         GunshipIdleBob bob = State(top, gunshipState).Bob;
         State(top, gunshipState).BobTimer = UpdateCountdown.For(bob.Timer);
         int yDelta = bob.YDelta;
-        foreach (RoomEnemyPlace place in Pieces(top, gunshipPieces).All)
+        foreach (RoomEnemyPlace place in Pieces(gunshipPieces).All)
         {
             place.Position = place.Position.WithWholeY(place.Position.Y.Whole + yDelta);
         }
@@ -421,7 +421,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             samusFromShipY > -GunshipBoardingDefinitions.EntranceHeight && samusFromShipY <= 0;
         if (insideEntrance && SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Standing)
         {
-            RoomEnemyPlace pad = Pieces(top, gunshipPieces).EntrancePad;
+            RoomEnemyPlace pad = Pieces(gunshipPieces).EntrancePad;
             State(top, gunshipState).Phase = GunshipPhase.WaitForEntranceToOpen;
             // Samus is set at the ship's X, her previous X with her, so the camera follows no horizontal motion
             // from this alignment.
@@ -451,7 +451,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus.Position.Y.Whole < State(top, gunshipState).BaseY + GunshipBoardingDefinitions.BoardedDepth)
             return;
 
-        RoomEnemyPlace pad = Pieces(top, gunshipPieces).EntrancePad;
+        RoomEnemyPlace pad = Pieces(gunshipPieces).EntrancePad;
         State(top, gunshipState).Phase = GunshipPhase.WaitForEntranceToClose;
         StartGunshipAnimation(pad, gunshipPieces.EntrancePadPiece, GunshipSegment.EntrancePadClosing);
         State(top, gunshipState).PhaseTimer = UpdateCountdown.For(GunshipBoardingDefinitions.PadMovementDuration);
@@ -494,7 +494,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus.Position.Y.Whole >= State(top, gunshipState).BaseY - GunshipBoardingDefinitions.ExitHeight)
             return;
 
-        RoomEnemyPlace pad = Pieces(top, gunshipPieces).EntrancePad;
+        RoomEnemyPlace pad = Pieces(gunshipPieces).EntrancePad;
         State(top, gunshipState).Phase = GunshipPhase.FinishSamusExit;
         StartGunshipAnimation(pad, gunshipPieces.EntrancePadPiece, GunshipSegment.EntrancePadClosing);
         State(top, gunshipState).PhaseTimer = UpdateCountdown.For(GunshipBoardingDefinitions.PadMovementDuration);
@@ -593,8 +593,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// </summary>
     private static void PlaceGunshipAroundSamus(RoomEnemyPlace top, GunshipPieces gunshipPieces, int samusY)
     {
-        RoomEnemyPlace bottom = Pieces(top, gunshipPieces).Bottom;
-        RoomEnemyPlace pad = Pieces(top, gunshipPieces).EntrancePad;
+        RoomEnemyPlace bottom = Pieces(gunshipPieces).Bottom;
+        RoomEnemyPlace pad = Pieces(gunshipPieces).EntrancePad;
         top.Position = OffRoomPlaces.WithWholeY(top.Position, samusY - GunshipMotionDefinitions.TopHullAboveSamus);
         pad.Position = OffRoomPlaces.WithWholeY(pad.Position, top.Position.Y.Whole - GunshipMotionDefinitions.PadAboveTopHull);
         bottom.Position = OffRoomPlaces.WithWholeY(bottom.Position, samusY + GunshipMotionDefinitions.BottomHullBelowSamus);
@@ -618,8 +618,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>The state of the ship <paramref name="top"/> runs.</summary>
-    private static GunshipState State(RoomEnemyPlace top, GunshipState gunshipState) => GunshipState.Of(top, gunshipState);
+    private static GunshipState State(RoomEnemyPlace top, GunshipState gunshipState) => GunshipState.Of(gunshipState);
 
     /// <summary>The gunship's pieces, which <paramref name="top"/> found when it was placed.</summary>
-    private static GunshipPieces Pieces(RoomEnemyPlace top, GunshipPieces gunshipPieces) => gunshipPieces;
+    private static GunshipPieces Pieces(GunshipPieces gunshipPieces) => gunshipPieces;
 }

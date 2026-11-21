@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="encounter">The encounter his body began, which the part joins as it is built.</param>
 internal sealed class KraidNailEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KraidNailPart nail,
     KraidEnemyState encounter)
-    : KraidEntity(species, occupant, place, common, () => species.Projectiles.InitializeKraidNail(place, nail, encounter)), IEnemyTypedAnimation
+    : KraidEntity(species, occupant, place, common, () => KraidProjectiles.InitializeKraidNail(place, nail, encounter)), IEnemyTypedAnimation
 {
 
     /// <inheritdoc/>

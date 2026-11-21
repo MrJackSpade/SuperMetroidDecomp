@@ -16,7 +16,7 @@ internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyOccu
     internal CeresSteamSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal CeresSteamEnemyState State { get; } = species.InitializeCeresSteam(occupant, settings, place, motions);
+    internal CeresSteamEnemyState State { get; } = species.InitializeCeresSteam(settings, place, motions);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => CeresSteamBehavior.RunCeresSteamMainAi(Place, State);

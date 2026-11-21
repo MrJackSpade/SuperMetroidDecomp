@@ -60,7 +60,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         DeadSidehopperAction startingAction)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-        Action<RoomEnemyPlace> initialize = fixturePlace => enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(fixturePlace.HeldOccupant(), fixturePlace);
+        Action<RoomEnemyPlace> initialize = fixturePlace => enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(fixturePlace);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.CorpseSidehopper, place.KeptDefinition);
         place.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, parameter1);

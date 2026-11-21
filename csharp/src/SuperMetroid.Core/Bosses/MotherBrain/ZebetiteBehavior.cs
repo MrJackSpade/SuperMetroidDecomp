@@ -160,7 +160,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
     private void RunZebetiteActive(RoomEnemyOccupant zebetite, ZebetiteEnemyState state)
     {
         RoomEnemyPlace place = zebetite.Place;
-        CycleZebetiteColours(place, state);
+        CycleZebetiteColours(state);
         // Every Zebetite shows the shared pulse; each primary half steps it as it runs (#1512).
         place.Shading = PulseShading;
         ChooseZebetiteHealthPicture(place, state);
@@ -189,7 +189,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
     /// Steps the shared pulse, which holds while the shared fade count is past a fade's start: the room's enemies run
     /// between a door fade's steps, and the pulse waits for the fade.
     /// </summary>
-    private void CycleZebetiteColours(RoomEnemyPlace place, ZebetiteEnemyState zebetiteEnemyState)
+    private void CycleZebetiteColours(ZebetiteEnemyState zebetiteEnemyState)
     {
         if (_fadeStepCount.IsPastStart || zebetiteEnemyState.Half == ZebetiteHalf.Linked)
             return;

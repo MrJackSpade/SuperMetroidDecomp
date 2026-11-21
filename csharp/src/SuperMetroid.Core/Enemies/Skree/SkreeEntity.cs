@@ -15,7 +15,7 @@ internal sealed class SkreeEntity(SkreeBehavior species, RoomEnemyOccupant occup
     private readonly EnemyBombReaction ownBomb = species.SkreeBombReaction(occupant);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal SkreeEnemyState State { get; } = SkreeBehavior.InitializeSkree(place);
+    internal SkreeEnemyState State { get; } = SkreeBehavior.InitializeSkree();
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunSkreeMainAi(Occupant, Place, State, frame);

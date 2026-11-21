@@ -260,7 +260,7 @@ internal sealed class KraidCombat
     }
 
     /// <summary>Switches the body from combat to its scripted death phases.</summary>
-    private void BeginKraidDeath(KraidEnemyState state)
+    private static void BeginKraidDeath(KraidEnemyState state)
     {
         state.BodyState.DeathPhase = KraidDeathPhase.Initialize;
         state.ClearMouthReactions();

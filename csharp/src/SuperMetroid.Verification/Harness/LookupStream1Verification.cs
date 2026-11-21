@@ -216,7 +216,7 @@ internal static class LookupStream1Verification
             var body = enemies.Places.InUpdateOrder[1];
             body.BindPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts));
             body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-            enemies.PowampBehavior.InitializePowampBody(body);
+            PowampBehavior.InitializePowampBody(body);
             body.Position = body.Position.WithWholeY(100);
             var place = isBody ? body : balloon;
             PowampSegment program = root switch

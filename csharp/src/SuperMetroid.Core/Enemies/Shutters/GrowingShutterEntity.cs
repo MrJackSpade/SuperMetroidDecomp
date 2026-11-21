@@ -17,7 +17,7 @@ internal sealed class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyOc
     internal GrowingShutterSpawnSettings Settings { get; } = settings;
 
     /// <summary>The shutter's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal GrowingShutterEnemyState State { get; } = ShuttersBehavior.InitializeGrowingShutter(occupant, settings, place);
+    internal GrowingShutterEnemyState State { get; } = ShuttersBehavior.InitializeGrowingShutter(settings, place);
 
 
     /// <inheritdoc/>

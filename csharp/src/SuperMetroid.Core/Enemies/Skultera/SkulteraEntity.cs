@@ -13,7 +13,7 @@ internal sealed class SkulteraEntity(SkulteraBehavior species, RoomEnemyOccupant
     internal SkulteraSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal SkulteraEnemyState State { get; } = SkulteraBehavior.InitializeSkultera(occupant, settings, place);
+    internal SkulteraEnemyState State { get; } = SkulteraBehavior.InitializeSkultera(settings);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunSkulteraMainAi(Occupant, Settings, Place, State, frame);

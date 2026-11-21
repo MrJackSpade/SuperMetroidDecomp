@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -49,7 +50,7 @@ internal static class CinematicColourEffectTests
     private static int Flight(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var audio = AudioQueues.Standalone();
-        var flight = new IntroCeresFlightState(audio, InstalledFixtures.IntroArtwork.BoundCatalog.CeresFlight, sheets: InstalledFixtures.SpriteSheets, japaneseText: false);
+        var flight = new IntroCeresFlightState(audio, InstalledFixtures.IntroArtwork.BoundCatalog.CeresFlight, sheets: InstalledFixtures.SpriteSheets, language: TextLanguage.English);
         PictureShade station = CeresShades.Drawn(CeresSpriteColouring.Station);
         int? start = null;
         int checks = 0, showing = 0;

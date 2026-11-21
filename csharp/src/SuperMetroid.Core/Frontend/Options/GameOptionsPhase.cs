@@ -5,16 +5,12 @@ public enum GameOptionsPhase
 {
     /// <summary>Increase screen brightness to the menu maximum.</summary>
     FadeIn,
-    /// <summary>Handle the primary options-page selection.</summary>
-    Main,
+    /// <summary>The page the menu shows takes input: the primary page's selection, the controller page's bindings or the special page's settings (#2560).</summary>
+    Browsing,
     /// <summary>Fade the current page to black before changing pages.</summary>
     DissolveOut,
     /// <summary>Fade the newly loaded page in from black.</summary>
     DissolveIn,
-    /// <summary>Handle controller-binding rows and commands.</summary>
-    ControllerSettings,
-    /// <summary>Handle icon-cancel and moonwalk settings.</summary>
-    SpecialSettings,
     /// <summary>Scroll the controller page toward its lower rows.</summary>
     ScrollControllerDown,
     /// <summary>Scroll the controller page toward its upper rows.</summary>

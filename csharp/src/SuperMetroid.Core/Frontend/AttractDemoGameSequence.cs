@@ -109,13 +109,13 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IGamePh
     /// <summary>Loads the next demo, or returns to the title: from its beginning, or at its title screen after a cancelled demo.</summary>
     private void Route()
     {
-        if (session.Demo.HasNextScene)
+        if (session.Demo.RouteAfterScene == AttractDemoRoute.NextScene)
         {
             session.Demo.LoadNextScene();
             session.Enter(AttractDemoStep.Loading);
             return;
         }
-        if (session.Demo.Cancelled)
+        if (session.Demo.RouteAfterScene == AttractDemoRoute.TitleAtItsScreen)
             session.Show(TitleSequenceState.ReturnFromDemo(
                 session.audio,
                 session.Artwork.ScreenContent.TitleGradient,
@@ -137,7 +137,7 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IGamePh
     /// <summary>Starts the transition out of a completed or cancelled demo scene.</summary>
     private void FinishAttractPlayback(AttractPlaybackEnd end)
     {
-        session.Demo.Finish(cancelled: end == AttractPlaybackEnd.Cancelled);
+        session.Demo.Finish(end);
         session.Enter(AttractDemoStep.Unloading);
         session.display.PublishBlack();
     }

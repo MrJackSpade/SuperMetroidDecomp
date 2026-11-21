@@ -51,11 +51,9 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
             int lastPixel = Math.Min(RoomGridConversions.BlockEnd(blockStart), perpendicularPosition + perpendicularRadius - 1);
             for (int half = RoomGridConversions.HalfBlockOf(firstPixel); half <= RoomGridConversions.HalfBlockOf(lastPixel); half++)
             {
-                bool edgeInSecondHalf = RoomGridConversions.InSecondHalfOfBlock(targetEdge);
-                bool halfIsSecond = RoomGridConversions.IsBlockSecondHalf(half);
                 SquareSlopeQuadrant quadrant = axis == Axis.Horizontal
-                    ? SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnFor(edgeInSecondHalf), SquareSlopeQuadrant.RowFor(halfIsSecond))
-                    : SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnFor(halfIsSecond), SquareSlopeQuadrant.RowFor(edgeInSecondHalf));
+                    ? SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnFor(targetEdge), SquareSlopeQuadrant.RowOfHalf(half))
+                    : SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnOfHalf(half), SquareSlopeQuadrant.RowFor(targetEdge));
                 if (!SquareSlopes.IsSolid(collisionBlock.Behavior, quadrant))
                     continue;
 

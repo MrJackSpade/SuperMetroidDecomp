@@ -44,10 +44,10 @@ internal static class GoldNinjaDeathDropsVerification
         MotherBrainRinkaDoorSpawnExpected target = new MotherBrainRinkaDoorSpawnExpected(pirate.Position.X.Whole, (ushort)(pirate.Position.Y.Whole + 15));
 
         var shot = runtime.Projectiles.Shots[0];
-        shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300); shot.Direction = SamusProjectileDirection.Right;
-        shot.Position = shot.Position.WithWhole(new(target.X, target.Y));
-        shot.Radius = new(4, 4);
-        shot.Animation = ProjectileFixturePlaybacks.Active();
+        shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300); shot.HeldShot().Direction = SamusProjectileDirection.Right;
+        shot.HeldShot().Position = shot.Position.WithWhole(new(target.X, target.Y));
+        shot.HeldShot().Radius = new(4, 4);
+        shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHit(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
             pirate.HeldOccupant(), Position16<RoomPixels>.Zero);
         AssertEqual(0, pirate.Health, "the shot kills the Gold Ninja Pirate");

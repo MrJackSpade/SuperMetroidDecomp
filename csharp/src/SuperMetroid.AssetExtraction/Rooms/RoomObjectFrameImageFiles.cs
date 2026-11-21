@@ -79,7 +79,7 @@ internal static class RoomObjectFrameImageFiles
         {
             RoomObjectFrameImage image = Picture(bus, family.Name, layout);
             frames.Add(new FrameEntry(Id(family, frame), image.Cells
-                .Select(cell => new FrameCell(cell.Key.X, cell.Key.Y, cell.Value.ShowsNothing ? null : cell.Value.Block,
+                .Select(cell => new FrameCell(cell.Key.X, cell.Key.Y, cell.Value.Shows == RoomBlockShown.Nothing ? null : cell.Value.Block,
                     cell.Value.Mirroring)).ToArray()));
         }
         Directory.CreateDirectory(directory);

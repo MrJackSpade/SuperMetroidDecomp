@@ -106,7 +106,7 @@ internal static class BossSpriteEntriesVerification
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         var ridley = new SuperMetroid.Core.Bosses.Ridley.CeresRidleyState(Position16<RoomPixels>.Zero)
         {
-            MovementAnimationEnabled = true,
+            Motion = SuperMetroid.Core.Bosses.Ridley.RidleyMotion.Running,
             Flight = { FacingDirection = SuperMetroid.Core.Bosses.Ridley.RidleyFacing.Left },
         };
         SuperMetroid.Verification.Bosses.Ridley.RidleyTailFixtures.BlankLinks(ridley.Tail);

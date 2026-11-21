@@ -173,7 +173,7 @@ internal static class RetailKraidCaptureTests
         var gameplay = (GameplaySceneLayer)scene.Layers[0];
         if (gameplay.BossBody is null)
             throw new InvalidOperationException($"{context}: BG2 shows the room's own background where Kraid's tilemap was expected.");
-        var shown = new SortedSet<ushort>(BossBodyWords.Of(runtime.Display.LatchedOrdinaryRoom.Bosses.Body
+        var shown = new SortedSet<ushort>(BossBodyWords.Of(runtime.Display.LatchedOrdinaryRoom.Bosses?.Body
             ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."), BossBodyOwner.Kraid,
             InstalledFixtures.BossArtwork));
         if (shown.Any(word => word != KraidWorkingMapDefinitions.BlankTile.PackedWord))
@@ -208,11 +208,11 @@ internal static class RetailKraidCaptureTests
         var shots = InstalledFixtures.CreateProjectileSystem();
         var shot = shots.Shots[0];
         shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);
-        shot.Direction = SamusProjectileDirection.Right;
-        shot.Position = shot.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + left + 2)), unchecked((ushort)(body.Position.Y.Whole + (top + bottom) / 2))));
-        shot.Radius = new(2, 2);
+        shot.HeldShot().Direction = SamusProjectileDirection.Right;
+        shot.HeldShot().Position = shot.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + left + 2)), unchecked((ushort)(body.Position.Y.Whole + (top + bottom) / 2))));
+        shot.HeldShot().Radius = new(2, 2);
         // Any live missile program marks the slot active; this staged shot only enters collision, not animation.
-        shot.Animation = SamusProjectilePlayback.Start(SamusProjectileSegment.MissileRight);
+        shot.HeldShot().Animation = SamusProjectilePlayback.Start(SamusProjectileSegment.MissileRight);
         // Kraid's collision walk starts at the native projectile count; one staged shot is count one.
         shots.Pool.ShotCount.Restore(1);
         // The native walk counts one missile in both its mouth and body passes (#1192, #1247).

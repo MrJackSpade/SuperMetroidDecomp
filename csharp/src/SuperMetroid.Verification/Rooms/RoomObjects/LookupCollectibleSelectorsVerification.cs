@@ -47,8 +47,9 @@ internal static class LookupCollectibleSelectorsVerification
     /// <summary>The draws of <paramref name="sequence"/>'s images, in order.</summary>
     private static IReadOnlyList<RoomObjectDraw> SequenceDraws(CollectibleSequence sequence) =>
         [.. CollectibleSequenceAnimations.Segments.Beats(sequence).Select((beat, index) =>
-            AssertIs<AnimationBeat<CollectibleImage, CollectiblePhase>.Frame>(beat, $"{sequence} image {index}").Shown.Draw
-                ?? throw new InvalidOperationException($"{sequence} image {index} is a look, not a draw."))];
+            AssertIs<CollectibleImage.DrawnImage>(
+                AssertIs<AnimationBeat<CollectibleImage, CollectiblePhase>.Frame>(beat, $"{sequence} image {index}").Shown.What,
+                $"{sequence} image {index} is a draw").Draw)];
 
     /// <summary>Checks four tank kinds against native frames drawn in their own blocks.</summary>
     internal static void VerifyCollectibleTankSelector(CartridgeImportAddressSpace rom)

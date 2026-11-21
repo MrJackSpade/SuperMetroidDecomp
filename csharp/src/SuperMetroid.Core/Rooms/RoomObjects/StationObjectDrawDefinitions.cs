@@ -21,7 +21,7 @@ internal static class StationObjectDrawDefinitions
 
     /// <summary>The idle save pod: its floor's left block its trigger and its right block solid, under the shaft and cap.</summary>
     private static readonly RoomBlockShape SavePodIdle = RoomBlockShapes.Joined(
-        RoomBlockShapes.Line(down: false, [RoomCollisionType.SpecialBlock, RoomCollisionType.SolidBlock]), SavePodShaft, SavePodCap);
+        RoomBlockShapes.Line(Axis.Horizontal, [RoomCollisionType.SpecialBlock, RoomCollisionType.SolidBlock]), SavePodShaft, SavePodCap);
 
     /// <summary>The active save pod: its floor solid, under the shaft and cap.</summary>
     private static readonly RoomBlockShape SavePodActive = RoomBlockShapes.Joined(

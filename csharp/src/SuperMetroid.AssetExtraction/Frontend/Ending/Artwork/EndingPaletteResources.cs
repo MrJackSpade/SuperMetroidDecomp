@@ -1,6 +1,4 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Ending;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
@@ -12,11 +10,11 @@ public static class EndingPaletteResources
 {
     /// <summary>Keeps a whole ending screen's selected colours, which the import pipeline decoded (#1512).</summary>
     /// <param name="colours">The screen's background colours, then its sprite colours.</param>
-    public static EndingPalette FromScreen(ReadOnlySpan<RgbColor> colours) => new([.. colours], screen: true);
+    public static EndingPalette FromScreen(ReadOnlySpan<RgbColor> colours) => new([.. colours], EndingPalette.Kind.Screen);
 
     /// <summary>Keeps one ending colour run's selected colours, which the import pipeline decoded (#1512).</summary>
     /// <param name="colours">The selected colours.</param>
-    public static EndingPalette FromRun(ReadOnlySpan<RgbColor> colours) => new([.. colours], screen: false);
+    public static EndingPalette FromRun(ReadOnlySpan<RgbColor> colours) => new([.. colours], EndingPalette.Kind.Run);
 
     /// <summary>
     /// Keeps the logo crossfade's selected colours, which the import pipeline decoded by step and layer (#1512): its steps in

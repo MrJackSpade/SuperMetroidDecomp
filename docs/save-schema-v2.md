@@ -13,7 +13,7 @@ The previously omitted meanings are:
 | JSON field | Native meaning | Runtime owner |
 | --- | --- | --- |
 | `slots[].japaneseText` | `$09E2`, alternate text option | Options and runtime language setting |
-| `gameCompleted` | Exact twelve-byte `supermetroid` signature at `$70:1FE0` | Ending final-message transition; fourth attract-demo set requires this and a valid slot |
+| `history` (`gameCompleted` through schema fifteen) | Exact twelve-byte `supermetroid` signature at `$70:1FE0`, or its power-on marker | Ending final-message transition; fourth attract-demo set requires `gameCompleted` and a valid slot |
 
 Schemas two through seven also carried `slots[].loadedItemCount`, the cartridge's cumulative item-PLM setup count at
 `$7E:D91A`. Nothing in the game reads it, so schema eight drops it (#1691): the upgrade discards it, `SaveRamCodec`
@@ -21,6 +21,9 @@ does not decode the SRAM word and writes zero there, the word a new file saved f
 Schemas two through twelve also carried `slots[].resources.reserveMissiles`, the excess missile accumulator at `$09D8`
 that the cartridge's missile drop spills into. Nothing in the game reads it, so schema thirteen drops it (#2364): the
 upgrade discards it, and `SaveRamCodec` does not decode the SRAM word and writes zero there, the word a new file stores.
+Schemas one through fifteen kept the save file's history as two marks, `gameCompleted` and `powerOnFoundNoValidSave`,
+which never held together; schema sixteen names it once as `history` (`none`, `gameCompleted` or
+`powerOnFoundNoValidSave`), and the upgrade turns the two marks into it (#2560).
 The signature has no NUL terminator: selected-slot metadata starts immediately after it.
 
 ## Complete native storage inventory

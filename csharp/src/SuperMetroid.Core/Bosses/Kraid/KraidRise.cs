@@ -72,7 +72,7 @@ internal sealed class KraidRise
             // and untouchable. Showing those colours and the room's backdrop restores the defeated arena on every room
             // load, so the broken ceiling and removed floor spikes stay gone when Samus leaves and comes back.
             _access.Backdrop.ShowKraidColours();
-            state.BodyAppearance = KraidBodyAppearance.Hidden;
+            state.HideBody();
             ShowKraidRoomBackdrop();
             foreach (RoomObjectSpawnRequest<KraidRoomMutation> change in KraidObjectDefinitions.DefeatedRoom)
                 _passEvents.Publish(new KraidRoomChange(change));
@@ -124,10 +124,7 @@ internal sealed class KraidRise
     /// body grows; a defeated room's hidden body never reaches growth.
     /// </summary>
     /// <exception cref="InvalidOperationException">His body is not behind the sprites.</exception>
-    private static void BringKraidBodyInFront(KraidEnemyState state) =>
-        state.BodyAppearance = state.BodyAppearance == KraidBodyAppearance.BehindSprites
-            ? KraidBodyAppearance.InFrontOfSprites
-            : throw new InvalidOperationException($"Kraid's growth reached a body that appears {state.BodyAppearance}.");
+    private static void BringKraidBodyInFront(KraidEnemyState state) => state.BringBodyInFront();
 
     /// <summary>Restores the grown-body thinking state after an attack.</summary>
     private void SetupKraidSecondPhaseThinking(RoomEnemyPlace body, KraidEnemyState state)

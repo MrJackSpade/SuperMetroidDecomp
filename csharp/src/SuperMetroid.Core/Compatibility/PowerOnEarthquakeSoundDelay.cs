@@ -28,12 +28,13 @@ public sealed class PowerOnEarthquakeSoundDelay
 
     /// <summary>The delay a session gets from what its power-on found in the save file.</summary>
     /// <param name="validSaveFound">Whether any slot held a valid save.</param>
-    /// <param name="gameCompleted">Whether the save file's history holds a completed game.</param>
-    /// <param name="powerOnFoundNoValidSave">Whether the save file's history holds an earlier power-on that found no valid save.</param>
+    /// <param name="historyKept">
+    /// Whether the save file's history holds anything: a completed game or an earlier power-on that found no valid save.
+    /// </param>
     /// <returns><see cref="OneFrame"/> when no slot is valid or the history holds either; otherwise <see cref="None"/>.</returns>
-    [IndependentFlag("Power-on reads three facts from the save file: whether a slot is valid, and which of the two its history holds, if either.")]
-    public static PowerOnEarthquakeSoundDelay FoundAtPowerOn(bool validSaveFound, bool gameCompleted, bool powerOnFoundNoValidSave) =>
-        !validSaveFound || gameCompleted || powerOnFoundNoValidSave ? OneFrame : None;
+    [IndependentFlag("Power-on reads two independent facts from the save file: whether a slot is valid, and whether its history holds anything.")]
+    public static PowerOnEarthquakeSoundDelay FoundAtPowerOn(bool validSaveFound, bool historyKept) =>
+        !validSaveFound || historyKept ? OneFrame : None;
 
     /// <summary>Creates the delay of one power-on outcome.</summary>
     private PowerOnEarthquakeSoundDelay(int extraFrames) => ExtraFrames = extraFrames;

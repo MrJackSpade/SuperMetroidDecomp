@@ -19,10 +19,9 @@ public static class SamusInsideBlockReactions
         ISamusRoomObjects roomObjects)
     {
         var body = samus.Kinematics;
-        SamusInsideBlockSamplePoints.Visit(body.Position.Y.Whole, body.Radius.Y, (y, point) =>
-            Visit(y, point == SamusInsideBlockPoint.Bottom, point == SamusInsideBlockPoint.Center));
+        SamusInsideBlockSamplePoints.Visit(body.Position.Y.Whole, body.Radius.Y, Visit);
 
-        void Visit(int y, bool bottomPoint, bool centerPoint)
+        void Visit(int y, SamusInsideBlockPoint point)
         {
             var block = level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
             if (block.Position is null || !level.TryReachBlockStoodFor(ref block) ||
@@ -32,7 +31,7 @@ public static class SamusInsideBlockReactions
             // Feet/head contacts belong to the separate movement scans. Keeping
             // this center wake-up lets a lower trigger win after the torso clears
             // an upper trigger, without changing the room-object update order.
-            if (centerPoint && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
+            if (point == SamusInsideBlockPoint.Center && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
                 !roomObjects.Scrolls.TryNotifyScrollTouch(block.At))
                 throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");
             // The conveyors carry Samus the same in every area; the reactions the area gives meaning
@@ -61,7 +60,7 @@ public static class SamusInsideBlockReactions
                 speed.EchoSoundPlaying = false;
                 speed.ExtraRunSpeed = default;
                 speed.BaseSpeed = QuicksandSurfaceSpeedLeftover.Leftover(speed.BaseSpeed);
-                if (!bottomPoint) return;
+                if (point != SamusInsideBlockPoint.Bottom) return;
                 QuicksandSurfacePhysics physics =
                     QuicksandReactions.SurfacePhysics(
                         samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit));
@@ -114,14 +113,13 @@ public static class SamusInsideBlockReactions
     /// blocked: downward movement grounds on the quicksand surface without discarding its accepted sinking displacement,
     /// and pose-clearance probes read only whether the block stops them.
     /// </summary>
-    /// <returns>Whether the block lets Samus's movement pass or stops it.</returns>
+    /// <returns>Whether the block lets Samus's movement pass, lets it pass landing on the sand's surface, or stops it.</returns>
     /// <param name="contact">Samus's body and contact damage.</param>
     /// <param name="terrain">The room's level, which places the sand block a reaction sits on, and its objects, where a sand
     /// reaction takes a place.</param>
     /// <param name="block">The special-air block the collision scan reached.</param>
     /// <param name="axis">The axis the scan moves along.</param>
     /// <param name="displacement">The scan's accepted displacement, which sand can limit.</param>
-    /// <param name="surfaceContact">Whether Samus touched the sand's surface.</param>
     /// <param name="observes">Whether the scan only observes, so the surface sees no direction of travel.</param>
     internal static SpecialAirCollisionOutcome ReactCollision(
         SamusCollisionContact contact,
@@ -129,13 +127,11 @@ public static class SamusInsideBlockReactions
         RoomCollisionBlock block,
         Axis axis,
         ref SignedSixteenSixteen displacement,
-        out bool surfaceContact,
         bool observes = false)
     {
         RoomLevelData level = terrain.Level;
         ISamusRoomObjects roomObjects = terrain.RoomObjects;
         SamusKinematicsState body = contact.Body;
-        surfaceContact = false;
         SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(block.Behavior.SpecialAir);
         // A sand reaction takes a room-object place before it acts; with every place taken Samus passes as through air.
         if (QuicksandReactions.PlacesObject(reaction) &&
@@ -179,8 +175,7 @@ public static class SamusInsideBlockReactions
         // pose-observation probe passed through above) and by far less than 256 pixels.
         if (body.VerticalVelocity.HasNoDirection)
             displacement = HeldAtQuicksandSurface(displacement);
-        surfaceContact = true;
-        return SpecialAirCollisionOutcome.PassesThrough;
+        return SpecialAirCollisionOutcome.LandsOnSurface;
     }
 
     /// <summary>

@@ -31,29 +31,29 @@ internal sealed class ManagedSpcSoundChannel
     internal int Pointer;
     /// <summary>Remaining repetitions after an SFX repeat-start instruction.</summary>
     internal int RepeatCounter;
-    /// <summary>Marks that each SFX tick must advance toward the target note.</summary>
-    internal int EnablePitchSlide;
-    /// <summary>Tracks whether the release key-off delay has begun for this note.</summary>
-    internal int ReleaseFlag;
-    /// <summary>Retains the slide opcode's legato form until the next pitch update.</summary>
-    internal int EnablePitchSlideLegato;
+    /// <summary>How far the channel's pitch slide has gone: off, sliding, or sliding legato (#2560).</summary>
+    internal SoundEffectSlide Slide;
+    /// <summary>Whether the release key-off delay has begun for this note.</summary>
+    internal bool Releasing;
+    /// <summary>The form the last slide instruction took, retained until the next one (#2560).</summary>
+    internal SoundEffectSlideForm SlideForm;
     /// <summary>Two ADSR bytes supplied by an inline SFX envelope override.</summary>
     internal int AdsrSettings;
     /// <summary>Inverse borrowed-voice bit mask used to clear that voice from shared DSP masks.</summary>
     internal int ChannelMask;
-    /// <summary>Lets a sliding note continue without retriggering its hardware voice.</summary>
-    internal int Legato;
-    /// <summary>Marks an unallocated or finished SFX channel so its stream does not run.</summary>
-    internal int Disabled;
+    /// <summary>Whether the channel is unallocated or finished, so its stream does not run.</summary>
+    internal bool Disabled;
     /// <summary>Fractional pitch step added or subtracted during each slide tick.</summary>
     internal int SubnoteDelta;
-    /// <summary>Requests writing the inline ADSR override to the borrowed voice.</summary>
-    internal int UpdateAdsr;
+    /// <summary>Whether each note writes the inline ADSR override to the borrowed voice.</summary>
+    internal bool UpdateAdsr;
 
     /// <summary>Appends every field of this sound-effect channel, in declaration order, to a driver-state snapshot (#1305).</summary>
     internal void WriteState(List<byte> state)
     {
-        SpcDriverSnapshot.AddBytes(state, [VoiceBitset, FrameHold, Subnote, RepeatPoint, Note, PointerIndex, VoiceIndex, VoiceIndexTimesEight, ReleaseTimer, Volume, TargetNote, PhaseInvert, RepeatCounter, EnablePitchSlide, ReleaseFlag, EnablePitchSlideLegato, ChannelMask, Legato, Disabled, SubnoteDelta, UpdateAdsr]);
+        SpcDriverSnapshot.AddBytes(state, [VoiceBitset, FrameHold, Subnote, RepeatPoint, Note, PointerIndex, VoiceIndex, VoiceIndexTimesEight, ReleaseTimer, Volume, TargetNote, PhaseInvert, RepeatCounter,
+            SpcDriverSnapshot.Mark(Slide != SoundEffectSlide.Off), SpcDriverSnapshot.Mark(Releasing), SpcDriverSnapshot.Byte(SlideForm), ChannelMask,
+            SpcDriverSnapshot.Mark(Slide == SoundEffectSlide.SlidingLegato), SpcDriverSnapshot.Mark(Disabled), SubnoteDelta, SpcDriverSnapshot.Mark(UpdateAdsr)]);
         SpcDriverSnapshot.AddWords(state, [Pointer, AdsrSettings]);
     }
 }

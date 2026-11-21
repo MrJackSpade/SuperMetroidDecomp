@@ -222,7 +222,7 @@ internal static class CeresRidleyArenaBlocksVerification
         void Add(int word)
         {
             RoomBlockAppearance shown = RoomLevelWordCodec.DecodeAppearance((ushort)(level[word] | level[word + 1] << 8));
-            if (shown.ShowsBlock)
+            if (shown.Shows == RoomBlockShown.Block)
                 blocks.Add(shown.Block);
         }
         for (int word = foreground; word < foreground + foregroundBytes; word += sizeof(ushort))

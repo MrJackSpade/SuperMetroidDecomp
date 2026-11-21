@@ -168,11 +168,11 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     internal void ComposeSkyBands() => _setupSpawnedSkyBands = true;
 
     /// <summary>Composes the Ceres haze the room's setup spawns (#2485).</summary>
-    /// <param name="ridleyIsDead">Whether Ceres Ridley is dead, which turns the haze red.</param>
+    /// <param name="tint">The haze's tint: red once Ceres Ridley is dead, blue before.</param>
     /// <param name="immediateViewport">Whether the room shows its first view at once, which shows the haze at once.</param>
     [IndependentFlag("independent load facts: whether the area's boss is dead and whether the room shows its first view at once")]
-    internal void ComposeCeresHaze(bool ridleyIsDead, bool immediateViewport) =>
-        CeresHaze = new CeresHazeState(ridleyIsDead, immediateViewport);
+    internal void ComposeCeresHaze(CeresHazeTint tint, bool immediateViewport) =>
+        CeresHaze = new CeresHazeState(tint, immediateViewport);
 
     /// <summary>Composes the Tourian statues' room the statue room's setup builds over the room's effect (#2485).</summary>
     /// <param name="fxOverlay">The room's effect, whose water the statues' particles splash through.</param>

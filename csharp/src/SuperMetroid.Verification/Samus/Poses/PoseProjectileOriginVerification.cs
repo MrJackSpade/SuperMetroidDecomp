@@ -20,7 +20,7 @@ internal static class PoseProjectileOriginVerification
     internal static void VerifyPoseProjectileOrigin(CartridgeImportAddressSpace rom)
     {
         short Word(int a) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(a));
-        var initialize = new Action<SamusState, SamusProjectile>(BeamFiring.InitializePosition);
+        var initialize = new Action<SamusState, SamusProjectileOccupant>(BeamFiring.InitializePosition);
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringOrigins);
         SamusPoseId guardedPose = default;
         var bus = new CartridgeReadGuard(rom)
@@ -30,6 +30,7 @@ internal static class PoseProjectileOriginVerification
                 _ => "Installed graphics offset read ROM.");
         var samus = (new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
         var slot = new SamusProjectile(0);
+        _ = slot.OccupyAsFired(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
         // The graphics-Y byte only enters as a signed offset, so one artwork fixture per signed
         // byte class covers it.
         var artwork = SignedByteClasses.Select(art => new SamusBodySources(CreateSamusIdentityParts(unchecked((sbyte)art)))).ToArray();
@@ -56,8 +57,8 @@ internal static class PoseProjectileOriginVerification
                 int physicalY = PhysicalOrigin(rom, pose);
                 bool running = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 1) == 1;
                 bool beamRunning = running || pose is 0x75 or 0x76;
-                slot.Direction = SamusProjectileDirectionCodec.FromAimIndex(direction);
-                initialize(samus, slot);
+                slot.HeldShot().Direction = SamusProjectileDirectionCodec.FromAimIndex(direction);
+                initialize(samus, slot.HeldShot());
                 AssertEqual(samus.Position.X.Whole + Word((beamRunning ? SamusSourceDefinitionsConstants.RunningXOrigins : SamusSourceDefinitionsConstants.DefaultXOrigins) + direction * 2), slot.Position.X.Whole, "Pose art leaves projectile X unchanged");
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word((beamRunning ? SamusSourceDefinitionsConstants.RunningYOrigins : SamusSourceDefinitionsConstants.DefaultYOrigins) + direction * 2) - physicalY)), slot.Position.Y.Whole, "Pose art leaves projectile collision Y unchanged");
 

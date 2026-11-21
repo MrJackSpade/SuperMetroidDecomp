@@ -267,15 +267,15 @@ internal static void VerifySamusHorizontalSpeed()
         bus, SamusPaletteNative.NormalSuitPalettePointer(0), 0x0321);
 
     var boostColours = new SamusColours();
-    booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
+    booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
     AssertEqual(0x1234, boostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0], "first Speed Booster palette comes from bank $9B");
     AssertEqual(1, booster.CycleShadeStep, "Speed Booster palette advances to its second step");
     AssertEqual(4, booster.CycleShadeTimer, "Speed Booster palette reloads four-frame timer");
     for (int paletteTick = 0; paletteTick < 3; paletteTick++)
     {
-        booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
+        booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
     }
-    booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
+    booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
     AssertEqual(0x4567, boostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0], "second Speed Booster palette pointer");
 
     // `$91:D9B2-$D9D8` performs its bottom-boundary liquid gate before either the Screw
@@ -289,8 +289,8 @@ internal static void VerifySamusHorizontalSpeed()
     var submergedBoostColours = new SamusColours();
     // A sentinel shade shows whether the handler changed the suit's (#1512).
     submergedBoostColours.ShowSuit(SamusShades.ChargedShotGlow);
-    submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = SamusEquipmentFlags.SpeedBooster, BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
-    submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
+    submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = SamusEquipmentFlags.SpeedBooster, BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
+    submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
     AssertEqual(SamusShades.ChargedShotGlow, submergedBoostColours.Suit,
         "submerged Speed Booster leaves live Samus palette untouched");
     // A glow not yet started holds one update: its next boosted update moves it on (#2447).
@@ -298,7 +298,7 @@ internal static void VerifySamusHorizontalSpeed()
         "submerged Speed Booster freezes common palette timer");
     AssertEqual(0, submergedBoost.CycleShadeStep,
         "submerged Speed Booster freezes palette-list offset");
-    submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
+    submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
     AssertEqual(0x6a5a, submergedBoostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0],
         "submerged Gravity Suit Speed Booster palette remains ROM-authored");
 
@@ -310,18 +310,18 @@ internal static void VerifySamusHorizontalSpeed()
     var submergedScrew = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
     var submergedScrewColours = new SamusColours();
     submergedScrewColours.ShowSuit(SamusShades.ChargedShotGlow);
-    submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (26) == 0, AnimationPastScrewAttackSpin = (26) >= 27, AnimationBeforeWallJumpSpin = (26) < 3, EquippedItems = SamusEquipmentFlags.ScrewAttack, BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
+    submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, SpinPlace = SpinGlowPlace.Glowing, EquippedItems = SamusEquipmentFlags.ScrewAttack, BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
     AssertEqual(SamusShades.ChargedShotGlow, submergedScrewColours.Suit,
         "submerged Screw Attack retains the current suit colors");
     AssertEqual(0, submergedScrew.CycleShadeStep,
         "submerged Screw Attack freezes palette-list offset");
-    submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (26) == 0, AnimationPastScrewAttackSpin = (26) >= 27, AnimationBeforeWallJumpSpin = (26) < 3, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
+    submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, SpinPlace = SpinGlowPlace.Glowing, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
     AssertEqual(0x5b4b, submergedScrewColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0],
         "submerged Gravity Screw palette remains ROM-authored");
 
     SyntheticSamusCartridge.WriteSamusPaletteColors(
         bus, SamusPaletteNative.NormalSuitPalettePointer(4), 0x3a2a);
-    submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (27) == 0, AnimationPastScrewAttackSpin = (27) >= 27, AnimationBeforeWallJumpSpin = (27) < 3, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
+    submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, SpinPlace = SpinGlowPlace.ShowsNormalColours, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
     AssertEqual(0x3a2a, submergedScrewColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0],
         "late Gravity Screw uses the fixture's normal suit palette");
     // `$90:EEE7` samples post-movement positions only on game-time multiples of four and
@@ -421,7 +421,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(SpeedEchoPhase.CapturingFirst, leftDeparture.SpeedEchoPhase,
         "left departure clears shared index after both slots cross");
 
-    booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Standing, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
+    booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Standing, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
     AssertEqual(0x0321, boostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0], "cancel restores ROM-authored Power Suit palette");
     AssertTrue(!booster.SuitShade.IsDue, "normal-suit palette request is one-shot");
 
@@ -566,8 +566,8 @@ internal static void VerifySamusExtraDisplacement()
     {
         Pose = SamusPoseId.MorphBallFallingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
-        MorphBallBounceState = SamusBallBounceState.FirstRebound,
-        KnockbackDirection = SamusKnockbackDirection.None,
+        MorphBallBounceState = SamusBallBounce.MorphBallFirst,
+        Knockback = SamusKnockback.None,
     };
     bouncingBall.Kinematics.Radius = new(5, 7);
     bouncingBall.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0x4000), SamusVerticalDirection.Up);

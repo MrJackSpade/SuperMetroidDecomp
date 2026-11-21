@@ -38,7 +38,7 @@ internal static class KraidMouthHitboxesVerification
         // The tested shot holds its place as an uncharged Power beam, the type the cleared slot word reads as.
         shot.OccupyAsFired(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
         body.Position = body.Position.WithWhole(new(256, 256));
-        shot.Radius = new(4, 4);
+        shot.HeldShot().Radius = new(4, 4);
         for (int entry = 0; entry < 8; entry++)
         {
             // The fifth record, an all-zero rectangle no head pose selects, is no mouth shape (#1889).
@@ -51,7 +51,7 @@ internal static class KraidMouthHitboxesVerification
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             for (int edge = -1; edge <= 1; edge++)
             {
-                shot.Position = shot.Position.WithWhole(new((ushort)(body.Position.X.Whole + left - shot.Radius.X + edge), (ushort)raw));
+                shot.HeldShot().Position = shot.Position.WithWhole(new((ushort)(body.Position.X.Whole + left - shot.Radius.X + edge), (ushort)raw));
                 bool expected = unchecked((short)(raw - shot.Radius.Y - 1 - body.Position.Y.Whole - bottom)) < 0 &&
                     unchecked((short)(raw + shot.Radius.Y - body.Position.Y.Whole - top)) >= 0 && edge >= 0;
                 AssertEqual(expected, overlaps(body, pointer, shot), "Actual mouth collision preserves vertical bounds and inclusive left edge");

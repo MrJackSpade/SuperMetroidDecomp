@@ -229,7 +229,7 @@ internal static class GameplayDisplayFrameTestsVerification
 
         // The station's escape owns the getaway's floor (#2228).
         CeresTurningFloor getaway = runtime.Enemies.CeresEscape.Floor;
-        getaway.Active = true;
+        global::SuperMetroid.Core.PrivateState.Set(runtime.Enemies.CeresEscape, "Stage", CeresEscapeStage.Getaway);
         getaway.Angle = RotationAngle.FromSteps(5);
         getaway.Zoom = FloorZoomConstants.FromTwoHundredFiftySixths(240);
         getaway.Center = new Offset16<FloorPixels>(128, 120);
@@ -241,7 +241,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertEqual(RotationAngle.FromSteps(5).Radians, mode7.Transform.Angle, "the accepted NMI publishes Ridley's floor angle");
         AssertEqual(240 / 256.0, mode7.Transform.Scale, "the accepted NMI publishes Ridley's floor zoom");
         AssertTrue(mode7.LowerBand is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
-        getaway.Active = false;
+        global::SuperMetroid.Core.PrivateState.Set(runtime.Enemies.CeresEscape, "Stage", CeresEscapeStage.SelfDestruct);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 

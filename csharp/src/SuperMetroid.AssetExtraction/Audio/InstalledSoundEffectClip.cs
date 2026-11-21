@@ -8,15 +8,12 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// </summary>
 /// <param name="Sound">The sound effect, whose library plays it.</param>
 /// <param name="Policy">How the library accepts and starts the request.</param>
-/// <param name="ActiveFrames">Frames until the library's logical end, when its priority resets; null for a never-ending effect.</param>
-/// <param name="Layers">One layer for an audible one-shot effect, none for a silent one, or one looping layer per channel.</param>
+/// <param name="Shape">Whether the effect is a one-shot that ends or a never-ending loop, with the clips each plays (#2560).</param>
 public sealed record InstalledSoundEffectClip(
     SoundEffectId Sound,
     SoundEffectClipPolicy Policy,
-    long? ActiveFrames,
-    IReadOnlyList<InstalledSoundEffectLayer> Layers)
+    InstalledSoundEffectShape Shape)
 {
     /// <summary>The entry the game plays; a method, so the manifest does not store it.</summary>
-    public SoundEffectClipEntry PlayedEntry() =>
-        new(Sound, Policy, ActiveFrames, [.. Layers.Select(layer => layer.PlayedLayer())]);
+    public SoundEffectClipEntry PlayedEntry() => new(Sound, Policy, Shape.PlayedShape());
 }

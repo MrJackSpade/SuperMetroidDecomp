@@ -11,28 +11,36 @@ internal static class CrocomireColoursPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireColours self)
     {
+        /// <summary>The private property <c>Body</c>, reached by name: the colouring his body shows.</summary>
+        private global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyColours Body =>
+            PrivateState.Get<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireColours, global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyColours>(self, "Body");
+
+        /// <summary>The private property <c>DeathColours</c>, reached by name: the colours his death has shown on his sprites.</summary>
+        private global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathColours Death =>
+            PrivateState.Get<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireColours, global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathColours>(self, "DeathColours");
+
         /// <summary>The private property <c>HurtFlash</c>, reached by name.</summary>
         internal bool HurtFlash
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireColours, bool>(self, "HurtFlash");
+            get => self.Body == global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyColours.HurtFlash;
         }
 
         /// <summary>The private property <c>ShowsFightBody</c>, reached by name.</summary>
         internal bool ShowsFightBody
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireColours, bool>(self, "ShowsFightBody");
+            get => self.Body != global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyColours.Room;
         }
 
         /// <summary>The private property <c>ShowsSkeletonArm</c>, reached by name.</summary>
         internal bool ShowsSkeletonArm
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireColours, bool>(self, "ShowsSkeletonArm");
+            get => self.Death == global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathColours.WallSpikesAndSkeletonArm;
         }
 
         /// <summary>The private property <c>ShowsWallSpikes</c>, reached by name.</summary>
         internal bool ShowsWallSpikes
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireColours, bool>(self, "ShowsWallSpikes");
+            get => self.Death != global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathColours.None;
         }
     }
 }

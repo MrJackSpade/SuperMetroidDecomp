@@ -9,10 +9,16 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// item-percentage text moves down below it.
 /// </summary>
 /// <param name="logo">The logo's actor.</param>
-internal sealed class EndingLogoScene(EndingLogo logo) : EndingScene
+/// <param name="phase">The phase the scene runs: the logo's own, or the item percentage's move down below it.</param>
+internal sealed class EndingLogoScene(EndingLogo logo, EndingCreditsPhase phase) : EndingScene
 {
     /// <summary>The logo's actor.</summary>
     internal EndingLogo Logo { get; } = Ensure.NotNull(logo);
+
+    /// <inheritdoc/>
+    internal override EndingCreditsPhase Phase { get; } =
+        phase == EndingCreditsPhase.PostCreditsLogo || phase == EndingCreditsPhase.ItemPercentageScrollDown ? phase
+            : throw new ArgumentException($"The final logo runs no {phase} phase.", nameof(phase));
 
     /// <inheritdoc/>
     internal override bool Step(EndingCreditsState ending)

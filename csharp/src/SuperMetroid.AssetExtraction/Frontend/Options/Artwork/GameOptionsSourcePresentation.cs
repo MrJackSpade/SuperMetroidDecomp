@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Menus;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -78,10 +79,10 @@ public sealed class GameOptionsSourcePresentation
     private BackgroundTile[] CreatePage(GameOptionsScreen tilemap) => (BackgroundTile[])pages[tilemap].Clone();
 
     /// <summary>Recolors English and Japanese text regions according to the selected language.</summary>
-    private void ApplyLanguage(Span<BackgroundTile> primaryPage, bool japanese)
+    private void ApplyLanguage(Span<BackgroundTile> primaryPage, TextLanguage language)
     {
         foreach (GameOptionsLanguageRegionDocument region in languageRegions)
-            ApplyPalette(primaryPage, region.Cells, japanese == region.HighlightWhenJapanese ? SelectedPalette : UnselectedPalette);
+            ApplyPalette(primaryPage, region.Cells, language == region.Language ? SelectedPalette : UnselectedPalette);
     }
 
     /// <summary>The primary-page cells of both language labels, every row the cartridge recolours to show the language.</summary>
@@ -137,24 +138,24 @@ public sealed class GameOptionsSourcePresentation
         yield return ScreenPictureSubject.Page(GameOptionsNames.BackgroundFrame, background, width);
         foreach (GameOptionsScreen tilemap in GameOptionsPresentationFormat.Tilemaps)
             yield return ScreenPictureSubject.Page(GameOptionsNames.PageFrame(tilemap), pages[tilemap], width, DynamicCells(tilemap));
-        foreach (bool japanese in new[] { false, true })
+        foreach (TextLanguage language in TextLanguageKeys.InListedOrder)
         {
             BackgroundTile[] primary = CreatePage(GameOptionsScreen.Primary);
-            ApplyLanguage(primary, japanese);
-            yield return ScreenPictureSubject.Cells(GameOptionsNames.LanguageFrame(japanese), primary, width, LanguageCells());
+            ApplyLanguage(primary, language);
+            yield return ScreenPictureSubject.Cells(GameOptionsNames.LanguageFrame(language), primary, width, LanguageCells());
         }
         foreach (ControllerAction action in GameOptionsPageRows.ControllerActions)
         {
             int[] cells = [.. ControllerLabelCells(action).Select(cell => cell.PageCell)];
             foreach (ControllerButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
             {
-                BackgroundTile[] controller = CreatePage(GameOptionsScreen.ControllerEnglish);
+                BackgroundTile[] controller = CreatePage(GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.English));
                 ApplyControllerLabel(controller, action, button);
                 yield return ScreenPictureSubject.Cells(GameOptionsNames.ControllerLabelFrame(action, button),
                     controller, width, cells);
             }
         }
-        foreach (GameOptionsScreen special in new[] { GameOptionsScreen.SpecialEnglish, GameOptionsScreen.SpecialJapanese })
+        foreach (GameOptionsScreen special in TextLanguageKeys.InListedOrder.Select(language => GameOptionsScreen.Settings(GameOptionsPage.Special, language)))
         foreach (GameOptionsToggle toggle in GameOptionsPresentationFormat.Toggles)
         foreach (bool enabled in new[] { false, true })
         {
@@ -174,24 +175,24 @@ public sealed class GameOptionsSourcePresentation
         yield return GameOptionsNames.BackgroundFrame;
         foreach (GameOptionsScreen tilemap in GameOptionsPresentationFormat.Tilemaps)
             yield return GameOptionsNames.PageFrame(tilemap);
-        foreach (bool japanese in new[] { false, true })
-            yield return GameOptionsNames.LanguageFrame(japanese);
+        foreach (TextLanguage language in TextLanguageKeys.InListedOrder)
+            yield return GameOptionsNames.LanguageFrame(language);
         for (int action = 0; action < GameOptionsPageRows.ControllerActions.Count; action++)
             foreach (ControllerButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
                 yield return GameOptionsNames.ControllerLabelFrame(GameOptionsPageRows.ControllerActions[action], button);
-        foreach (GameOptionsScreen special in new[] { GameOptionsScreen.SpecialEnglish, GameOptionsScreen.SpecialJapanese })
+        foreach (GameOptionsScreen special in TextLanguageKeys.InListedOrder.Select(language => GameOptionsScreen.Settings(GameOptionsPage.Special, language)))
         foreach (GameOptionsToggle toggle in GameOptionsPresentationFormat.Toggles)
         foreach (bool enabled in new[] { false, true })
             yield return GameOptionsNames.ToggleFrame(special, toggle, enabled);
     }
 
     /// <summary>The cells of <paramref name="tilemap"/> its pictures over it show instead of the page's own picture.</summary>
-    private IEnumerable<int> DynamicCells(GameOptionsScreen tilemap) => tilemap switch
+    private IEnumerable<int> DynamicCells(GameOptionsScreen tilemap) => tilemap.Page switch
     {
-        GameOptionsScreen.Primary => LanguageCells(),
-        GameOptionsScreen.ControllerEnglish or GameOptionsScreen.ControllerJapanese =>
+        GameOptionsPage.Primary => LanguageCells(),
+        GameOptionsPage.Controller =>
             GameOptionsPageRows.ControllerActions.SelectMany(action => ControllerLabelCells(action).Select(cell => cell.PageCell)),
-        GameOptionsScreen.SpecialEnglish or GameOptionsScreen.SpecialJapanese => GameOptionsPresentationFormat.Toggles.SelectMany(toggle =>
+        GameOptionsPage.Special => GameOptionsPresentationFormat.Toggles.SelectMany(toggle =>
             ToggleChoiceCells(toggle, GameOptionsToggleState.Enabled).Concat(ToggleChoiceCells(toggle, GameOptionsToggleState.Disabled))),
         _ => throw new ArgumentOutOfRangeException(nameof(tilemap), tilemap, "Undefined options page."),
     };

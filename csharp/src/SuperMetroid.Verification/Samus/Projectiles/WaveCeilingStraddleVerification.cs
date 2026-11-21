@@ -90,9 +90,9 @@ internal static class WaveCeilingStraddleVerification
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
         var shot = new SamusProjectile(0);
         SamusProjectileOccupant held = shot.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombination.SpazerIceWave, charged: false));
-        shot.Position = new(new((ushort)((column * 16) + ShotXRadius), 0), new(ShotY, 0));
-        shot.Radius = new(ShotXRadius, ShotYRadius);
-        shot.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
+        shot.HeldShot().Position = new(new((ushort)((column * 16) + ShotXRadius), 0), new(ShotY, 0));
+        shot.HeldShot().Radius = new(ShotXRadius, ShotYRadius);
+        shot.HeldShot().Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
         ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, held, roomObjects, straddled);
         return new Scan(level, roomObjects);
     }

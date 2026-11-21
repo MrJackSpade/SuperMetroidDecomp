@@ -24,9 +24,9 @@ internal sealed class SamusEaterObjects
         Ensure.NotNull(definition);
         // A misaligned Samus spawns no plant and leaves the trigger unchanged. Alignment is tested against Samus, not the
         // sampled block row.
-        int edge = definition.Ceiling ? samus.Position.Y.Whole - samus.Radius.Y
+        int edge = definition.Side == VerticalDirection.Up ? samus.Position.Y.Whole - samus.Radius.Y
             : samus.Position.Y.Whole + samus.Radius.Y - 1;
-        int fromAlignedFace = definition.Ceiling ? RoomGridConversions.OffsetWithinBlock(edge) : RoomGridConversions.OffsetFromBlockEnd(edge);
+        int fromAlignedFace = definition.Side == VerticalDirection.Up ? RoomGridConversions.OffsetWithinBlock(edge) : RoomGridConversions.OffsetFromBlockEnd(edge);
         if (fromAlignedFace != 0) return;
         // The spawn simply returns when every place is held.
         if (_places.Spawn() is not { } place)
@@ -34,7 +34,7 @@ internal sealed class SamusEaterObjects
 
         place.Block = block.At;
         place.Become(new SamusEaterObject(this, definition,
-            samus.Position.Whole + new Offset16<RoomPixels>(0, 1.Toward(definition.Ceiling ? VerticalDirection.Down : VerticalDirection.Up))));
+            samus.Position.Whole + new Offset16<RoomPixels>(0, 1.Toward(definition.Side == VerticalDirection.Up ? VerticalDirection.Down : VerticalDirection.Up))));
         // The deactivating setup changes how the block collides, and the block keeps its picture and what it shows
         // (#2502).
         level.SetCollision(block.At, block.Terrain.Deactivated().Collision);

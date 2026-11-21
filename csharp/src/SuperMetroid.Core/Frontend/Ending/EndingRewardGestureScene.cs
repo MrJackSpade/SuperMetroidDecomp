@@ -12,6 +12,9 @@ internal sealed class EndingRewardGestureScene(EndingRewardGesture gesture) : En
     internal EndingRewardGesture Gesture { get; } = Ensure.NotNull(gesture);
 
     /// <inheritdoc/>
+    internal override EndingCreditsPhase Phase => EndingCreditsPhase.PostCreditsGesture;
+
+    /// <inheritdoc/>
     internal override bool Step(EndingCreditsState ending)
     {
         ending.StepGesture(this);

@@ -58,8 +58,17 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         place.Position = place.Position.WithWholeY(state.RestingY - initialYOffset);
 
-        state.Playback = new(BoulderAnimations.StartingWith(Ensure.Listed(BoulderRollDefinitions.Rolls, settings.Roll).Segment),
-            AnimationPlace.StartOfAnimation);
+        switch (settings.Roll)
+        {
+            case HorizontalDirection.Right:
+                state.Playback = new(BoulderAnimations.StartingWith(BoulderSegment.Right), AnimationPlace.StartOfAnimation);
+                break;
+            case HorizontalDirection.Left:
+                state.Playback = new(BoulderAnimations.StartingWith(BoulderSegment.Left), AnimationPlace.StartOfAnimation);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(HorizontalDirection)} {settings.Roll}.");
+        }
         state.VerticalCompensation = BoulderMotionDefinitions.RollingGroundReach;
     }
 
@@ -105,7 +114,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         int deltaX = samus.Position.X.Whole - place.Position.X.Whole;
-        bool enteredHorizontalWindow = BoulderRollDefinitions.Rolls[settings.Roll].Direction == HorizontalDirection.Left
+        bool enteredHorizontalWindow = settings.Roll == HorizontalDirection.Left
             ? deltaX < 0 && -deltaX <= settings.TriggerReach
             : deltaX >= 0 && deltaX < settings.TriggerReach;
         if (!enteredHorizontalWindow)
@@ -163,7 +172,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))
         {
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.BoulderImpactSound, priority: SoundRequestPriority.Normal);
-            if (BoulderRollDefinitions.Rolls[occupant.SpawnSettings<BoulderSpawnSettings>().Roll].BreaksOnImpact)
+            if (occupant.SpawnSettings<BoulderSpawnSettings>().FirstImpact == BoulderImpact.Breaks)
             {
                 place.Presence = place.Presence.With(EnemyPresence.Deleted);
                 _projectiles.SpawnDustOrExplosion(
@@ -235,7 +244,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Reads the quadratic speed sample and signs it toward the roll its spawn settings name.</summary>
     private static SignedSixteenSixteen ReadBoulderHorizontalDisplacement(RoomEnemyOccupant occupant, BoulderEnemyState state) =>
-        state.TravelCurvePlace.Speed.Toward(BoulderRollDefinitions.Rolls[occupant.SpawnSettings<BoulderSpawnSettings>().Roll].Direction);
+        state.TravelCurvePlace.Speed.Toward(occupant.SpawnSettings<BoulderSpawnSettings>().Roll);
 
     /// <summary>Moves the boulder vertically by its place's speed on the quadratic speed curve, toward <paramref name="direction"/>.</summary>
     private static void AddBoulderVerticalVelocity(RoomEnemyPlace place, QuadraticSpeedCurvePlace accumulator, VerticalDirection direction)

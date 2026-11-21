@@ -141,7 +141,9 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
 
     /// <summary>
     /// Whether Phantoon's body shows translucent; <see cref="PhantoonBodyVisibilityEffect"/> shows him so whatever
-    /// <see cref="BodyVisibilityRequest"/> asks.
+    /// <see cref="BodyVisibilityRequest"/> asks. It is a setting of its own, not a member of the request's choice (#2560): his
+    /// patterns turn it on and off while the request stands beneath it, and the request governs his body again from the
+    /// update it ends, so folding the two into one value would lose the request the translucency covers.
     /// </summary>
     public bool Translucent { get; internal set; }
 

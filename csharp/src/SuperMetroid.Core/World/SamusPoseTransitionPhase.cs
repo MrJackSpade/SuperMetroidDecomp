@@ -323,7 +323,8 @@ internal sealed class SamusPoseTransitionPhase
                 SamusMomentumResponse response = SamusMomentumResponses.ForNoTransition(
                     SamusPoseMetadata.ReadMovementType(frame.PoseAtFrameStart));
                 samus.HorizontalSpeed.DecelerateForNoTransition(
-                    response == SamusMomentumResponse.Decelerate && frame.DeceleratingFallbackHasMomentum,
+                    response == SamusMomentumResponse.Decelerate && frame.DeceleratingFallbackHasMomentum
+                        ? SamusMomentumResponse.Decelerate : SamusMomentumResponse.Stop,
                     SamusPoseMetadata.ReadFacingDirection(samus));
             }
         }

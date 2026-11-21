@@ -135,14 +135,13 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     /// The room's own block pairs its collectibles that show their own picture take in turn, created with the system by
     /// its builder so each room starts at the first pair.
     /// </param>
-    /// <param name="places">The room's own room-object places, created with the system by its builder so each room starts with every place free.</param>
     /// <param name="shotCapClosing">Whether a blue cap a shot opened closes behind Samus, composed by the system's builder.</param>
     /// <param name="outputs">
     /// Where the room objects' step sends what it makes: the update's audio requests, which their sounds and music join
     /// (#2057), and the room's enemy projectiles, among which the projectiles they throw spawn.
     /// </param>
     internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectVisuals visuals,
-        CollectibleBlockPairs collectibleBlockPairs, RoomObjectPlaces places, ShotOpenedCapClosing<LockedDoor> shotCapClosing,
+        CollectibleBlockPairs collectibleBlockPairs, ShotOpenedCapClosing<LockedDoor> shotCapClosing,
         RoomObjectOutputs outputs)
     {
         Ensure.NotNull(room);
@@ -150,7 +149,7 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
         Ensure.NotNull(outputs);
         RoomObjectThrownProjectileSpawners thrown = outputs.Thrown;
         Events = services.Events;
-        Places = new RoomObjectPlaceList(places);
+        Places = new RoomObjectPlaceList();
         Sounds = new RoomObjectSoundQueue(outputs.AudioRequests);
         Drawing = new RoomObjectBlockDrawing(visuals);
         ProjectileTriggers = new ProjectileTriggerObjects(Places);
@@ -198,11 +197,11 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
         Ensure.NotNull(level);
         var outcome = new RoomObjectStepOutcome();
         var context = new RoomObjectStepContext(this, level, frame, outcome);
-        // Each typed room object advances by its own steps, at its place in the update order; a place that holds no
-        // typed object (one whose setup did all its work) stays idle until it is freed.
+        // Each typed room object advances by its own steps, at its place in the update order; a free place has none
+        // to advance.
         foreach (RoomObjectPlace place in Places.InUpdateOrder)
         {
-            if (place.Active && place.Behaviour is { } behaviour)
+            if (place.Behaviour is { } behaviour)
                 behaviour.Update(place, context);
         }
         return outcome;

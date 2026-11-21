@@ -20,7 +20,7 @@ public static class SamusGrappleBeamDrawing
         GrapplePhase.Inactive => SamusGrappleDrawing.Ordinary,
         GrapplePhase.Firing or GrapplePhase.ConnectedSwinging or GrapplePhase.ConnectedLocked or GrapplePhase.WallGrab or
             GrapplePhase.WallGrabRelease => SamusGrappleDrawing.Beam,
-        GrapplePhase.CancelPending or GrapplePhase.ReleaseFromSwing or GrapplePhase.WallJumping or GrapplePhase.Dropped =>
+        GrapplePhase.CancelPending or GrapplePhase.CancelPendingFromConnectedPose or GrapplePhase.ReleaseFromSwing or GrapplePhase.WallJumping or GrapplePhase.Dropped =>
             SamusGrappleDrawing.Teardown,
         _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, $"Undefined {nameof(GrapplePhase)}."),
     };

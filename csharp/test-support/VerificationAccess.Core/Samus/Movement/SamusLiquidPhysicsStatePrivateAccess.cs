@@ -23,11 +23,15 @@ internal static class SamusLiquidPhysicsStatePrivateAccess
         internal void ConfigureWater(int? surfaceY, bool ignoresSurface, global::SuperMetroid.Core.Fx.RoomFxType type) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Samus.Movement.SamusLiquidPhysicsState>(self, "ConfigureWater", [typeof(int?), typeof(bool), typeof(global::SuperMetroid.Core.Fx.RoomFxType)], new object?[] { surfaceY, ignoresSurface, type });
 
-        /// <summary>The private property <c>IgnoresWaterSurface</c>, reached by name.</summary>
-        internal bool IgnoresWaterSurface
+        /// <summary>The private property <c>Surface</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface Surface
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Movement.SamusLiquidPhysicsState, bool>(self, "IgnoresWaterSurface");
+            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Movement.SamusLiquidPhysicsState, global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface>(self, "Surface");
         }
+
+        /// <summary>Whether Samus's movement ignores the room's water surface until a room object enables it.</summary>
+        internal bool IgnoresWaterSurface =>
+            self.Surface is global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.Water { IgnoredUntilEnabled: true };
 
         /// <summary>The private method <c>SpawnWaterSplash</c>, invoked by name.</summary>
         internal void SpawnWaterSplash(global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Samus.Movement.SamusMovementType movementType, int bottom) =>

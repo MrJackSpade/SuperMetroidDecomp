@@ -19,12 +19,14 @@ internal sealed class EndingLogo
     private readonly CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> upperCircle;
     /// <summary>The lower circle.</summary>
     private readonly CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> lowerCircle;
-    /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
-    public bool CrossfadeStarted { get; private set; }
-    /// <summary>The crossfade step the logo showed last, or null before its crossfade shows a step.</summary>
-    private EndingLogoCrossfadeStep? ShownCrossfade { get; set; }
+    /// <summary>Where the logo stands (#2560): assembling, its crossfade requested or showing a step, or handed off.</summary>
+    private Progress progress = new Progress.Assembling();
+
+    /// <summary>Whether the grey-out cue has begun the paired background and sprite changes.</summary>
+    public bool CrossfadeStarted => progress is not Progress.Assembling;
+
     /// <summary>Whether the logo has shown its crossfade's last step and hands off to the percentage text.</summary>
-    public bool Completed { get; private set; }
+    public bool Completed => progress is Progress.HandedOff;
 
     /// <summary>Creates the four logo actors, blacks out the logo's background colours and shows the assembling logo's first colours (#1512).</summary>
     /// <param name="stage">The stage whose colours the logo shows.</param>
@@ -47,20 +49,25 @@ internal sealed class EndingLogo
     /// <param name="colours">The ending's colours, which show the crossfade's step.</param>
     public void Step(EndingColours colours)
     {
-        if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
         // The crossfade's first step shows on the update after the grey-out cue, not on the update that requests it.
-        if (CrossfadeStarted)
+        EndingLogoCrossfadeStep? step = progress switch
         {
-            EndingLogoCrossfadeStep step = ShownCrossfade is { } shown
-                ? shown.Following ?? throw new InvalidOperationException("The logo's crossfade showed its last step.")
-                : EndingLogoCrossfadeStep.First;
-            Ensure.NotNull(colours).LogoCrossfade(step);
-            ShownCrossfade = step;
-            if (step.Following is null)
+            Progress.Assembling => null,
+            Progress.CrossfadeRequested => EndingLogoCrossfadeStep.First,
+            Progress.Crossfading crossfading => crossfading.Shown.Following
+                ?? throw new InvalidOperationException("The logo's crossfade showed its last step."),
+            Progress.HandedOff => throw new InvalidOperationException("Completed logo must hand off to percentage text."),
+            _ => throw new InvalidOperationException($"Undefined logo progress {progress}."),
+        };
+        if (step is { } shown)
+        {
+            Ensure.NotNull(colours).LogoCrossfade(shown);
+            if (shown.Following is null)
             {
-                Completed = true;
+                progress = new Progress.HandedOff();
                 return;
             }
+            progress = new Progress.Crossfading(shown);
         }
         // Each S half moves just before its own animation steps.
         upperS.Move();
@@ -77,7 +84,7 @@ internal sealed class EndingLogo
         switch (cue)
         {
             case EndingLogoCue.GreyOut:
-                CrossfadeStarted = true;
+                progress = new Progress.CrossfadeRequested();
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EndingLogoCue)} {cue}.");
@@ -96,6 +103,23 @@ internal sealed class EndingLogo
     /// <summary>Creates the actor <paramref name="definition"/> describes, in the logo's colouring.</summary>
     private static CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> Create(EndingLogoActorDefinition definition) =>
         new(definition.Origin, EndingShades.Drawn(EndingLogoDefinitions.Colouring), EndingLogoAnimations.Logo, definition.Animation);
+
+    /// <summary>Where the logo stands (#2560), one value: each case carries only its own data.</summary>
+    private abstract record Progress
+    {
+        /// <summary>The halves move and the circles draw in; the grey-out cue has not run.</summary>
+        internal sealed record Assembling : Progress;
+
+        /// <summary>The grey-out cue has run; the crossfade shows its first step on the next update.</summary>
+        internal sealed record CrossfadeRequested : Progress;
+
+        /// <summary>The crossfade shows its steps in turn.</summary>
+        /// <param name="Shown">The step the logo showed last.</param>
+        internal sealed record Crossfading(EndingLogoCrossfadeStep Shown) : Progress;
+
+        /// <summary>The logo has shown its crossfade's last step and hands off to the percentage text.</summary>
+        internal sealed record HandedOff : Progress;
+    }
 
     /// <summary>
     /// An S half accelerating diagonally toward its landing point: the upper half down and left, the lower half up and

@@ -47,14 +47,10 @@ internal sealed class EnemyShotReaction
     /// <summary>The <see cref="ShowsHitBurst"/> of a reaction that runs the common damage without the burst.</summary>
     internal static Func<EnemyShotHitContext, bool> NeverShowsHitBurst { get; } = static _ => false;
 
-    /// <summary>Whether a lethal hit leaves the death to the species instead of the generic death animation.</summary>
-    internal bool ExemptFromGenericDeath { get; init; }
+    /// <summary>What a lethal hit does: the generic death, after a stage, replaced, or the species' own (#2560).</summary>
+    internal EnemyShotLethal Lethal { get; init; } = EnemyShotLethal.Generic;
 
-    /// <summary>Runs on a lethal hit immediately before the generic death.</summary>
-    internal Action<EnemyShotHitContext>? BeforeGenericDeath { get; init; }
 
-    /// <summary>Replaces the generic death when it returns true.</summary>
-    internal Func<EnemyShotHitContext, bool>? ReplacesGenericDeath { get; init; }
 
     /// <summary>What the species does after the common shot reaction; <see cref="EnemyShotContext.Froze"/> reports the immediate-freeze path.</summary>
     internal Action<EnemyShotHitContext>? AfterCommon { get; init; }

@@ -46,12 +46,11 @@ public sealed class CeresHazeState
     public CeresHazeStrength Strength => new(_strength);
 
     /// <summary>Samples Ridley's defeat once, as the room's haze starts; only a room whose setup spawns the haze builds one.</summary>
-    /// <param name="ridleyIsDead">Whether the loaded area's boss is defeated, selecting red rather than blue for this owner's lifetime.</param>
+    /// <param name="tint">The haze's tint for this owner's lifetime: red once the loaded area's boss is defeated, blue before.</param>
     /// <param name="immediateViewport">True for immediate viewport installation: starts holding at the end of its fade, showing full strength; false starts waiting at zero for the door fade-in phase.</param>
-    [IndependentFlag("independent facts of the loaded room: whether Ridley is defeated, and immediate viewport installation")]
-    public CeresHazeState(bool ridleyIsDead, bool immediateViewport)
+    public CeresHazeState(CeresHazeTint tint, bool immediateViewport)
     {
-        Tint = ridleyIsDead ? CeresHazeTint.AfterRidleyDies : CeresHazeTint.WhileRidleyLives;
+        Tint = tint;
         _phase = immediateViewport ? Phase.Holding : Phase.Waiting;
         _strength = immediateViewport ? CeresHazeDefinitions.FadeSteps - 1 : 0;
     }

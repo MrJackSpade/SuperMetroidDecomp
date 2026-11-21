@@ -68,7 +68,7 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
             context.RoomObjects.EyeDoors.QueueRejectedShotSound();
             return false;
         }
-        Hit(place, context, destroysAtOnce: hit == EyeDoorHit.DestroysAtOnce);
+        Hit(place, context, hit);
         return true;
     }
 
@@ -173,13 +173,18 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     /// A missile hit: it sounds and smokes, then counts; short of the threshold the eye flinches, and at it the eye is
     /// destroyed.
     /// </summary>
-    private void Hit(RoomObjectPlace place, RoomObjectStepContext context, bool destroysAtOnce)
+    private void Hit(RoomObjectPlace place, RoomObjectStepContext context, EyeDoorHit hit)
     {
         EyeDoorObjects eyes = context.RoomObjects.EyeDoors;
         context.QueueSound(EyeDoorSequenceDefinitions.HitSound, EyeDoorSequenceDefinitions.HitSoundPriority);
         eyes.SpawnTwoSmoke(place, Orientation);
         eyes.SpawnTwoSmoke(place, Orientation);
-        HitCounter = destroysAtOnce ? EyeDoorSequenceDefinitions.HitThreshold : HitCounter + 1;
+        HitCounter = hit switch
+        {
+            EyeDoorHit.DestroysAtOnce => EyeDoorSequenceDefinitions.HitThreshold,
+            EyeDoorHit.Counts => HitCounter + 1,
+            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorHit)} {hit}."),
+        };
         if (HitCounter < EyeDoorSequenceDefinitions.HitThreshold)
         {
             Phase = EyeDoorEyePhase.Flinching;

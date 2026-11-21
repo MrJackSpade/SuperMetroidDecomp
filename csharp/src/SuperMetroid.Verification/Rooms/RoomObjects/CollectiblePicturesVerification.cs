@@ -82,7 +82,7 @@ internal static class CollectiblePicturesVerification
         {
             int blockIndex = size.RowMajorIndex(new Position16<RoomBlocks>((ushort)(item + 1), 1));
             RoomBlockAppearance written = level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance;
-            AssertTrue(written.IsCollectiblePairBlock && written.PairBlock.Pair == taken[item],
+            AssertTrue(written.Shows == RoomBlockShown.CollectiblePairBlock && written.PairBlock.Pair == taken[item],
                 $"{Items[item].Kind} writes a block of the block pair it took into the terrain, not {written}");
             AssertEqual(RoomCellPicture.Of(new CollectiblePicture(Items[item].Kind, written.PairBlock.Look)),
                 level.ForegroundPlane.Cells.Cells[blockIndex].Picture,

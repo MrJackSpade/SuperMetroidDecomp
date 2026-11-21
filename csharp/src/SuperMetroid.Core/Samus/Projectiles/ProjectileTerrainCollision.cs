@@ -38,7 +38,7 @@ internal sealed class ProjectileTerrainCollision
         ISamusRoomObjects roomObjects)
     {
         SamusProjectile shot = held.Projectile;
-        shot.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
+        held.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
         return ScanHorizontalShotReactions(level, held, roomObjects);
     }
 
@@ -52,7 +52,7 @@ internal sealed class ProjectileTerrainCollision
         ISamusRoomObjects roomObjects)
     {
         SamusProjectile shot = held.Projectile;
-        shot.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
+        held.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
         ScanHorizontalWaveShotReactions(level, held, roomObjects, _straddledTerrain);
     }
 
@@ -69,7 +69,7 @@ internal sealed class ProjectileTerrainCollision
         // A new beam's first scan starts with no speed, so it tests the edge a rightward shot leads with. A shot fired
         // straight left starts with the smallest leftward speed instead, so its first scan tests its left edge; a shot
         // fired diagonally left still tests its right edge first.
-        shot.Velocity = new(shot.Direction == SamusProjectileDirection.Left ? LeftScanVelocity : default, default);
+        held.Velocity = new(shot.Direction == SamusProjectileDirection.Left ? LeftScanVelocity : default, default);
 
         SamusProjectileDirectionAxes axes = SamusProjectileDirectionDefinitions.Axes(shot.Direction);
         bool collided = false;
@@ -114,7 +114,7 @@ internal sealed class ProjectileTerrainCollision
         bool waveBeam = false)
     {
         SamusProjectile shot = held.Projectile;
-        shot.Position = shot.Position.AdvanceY(shot.Velocity.Y.ToSixteenSixteenDelta());
+        held.Position = shot.Position.AdvanceY(shot.Velocity.Y.ToSixteenSixteenDelta());
 
         if (waveBeam)
         {
@@ -228,7 +228,7 @@ internal sealed class ProjectileTerrainCollision
     /// solid block; unlike a non-square slope it does not end the span.
     /// </summary>
     private static bool SquareSlopeShotReaction(SamusProjectileOccupant held, RoomCollisionBlock block,
-        ShotSpan span, bool horizontalMovement)
+        ShotSpan span, Axis axis)
     {
         SamusProjectile shot = held.Projectile;
         if (held.Type.IsFamily(SamusProjectileFamily.Missile) ||
@@ -243,10 +243,10 @@ internal sealed class ProjectileTerrainCollision
         SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
         bool Solid(SquareSlopeQuadrant quadrant) => SquareSlopes.IsSolid(shape, quadrant);
 
-        if (horizontalMovement)
+        if ((axis == Axis.Horizontal))
         {
             // The leading edge picks the column half; the scan then tests top/bottom rows.
-            SquareSlopeQuadrant cell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(span.TargetBoundary)), SquareSlopeRowHalf.Top);
+            SquareSlopeQuadrant cell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor(span.TargetBoundary), SquareSlopeRowHalf.Top);
             bool topEdgeInBottomHalf = RoomGridConversions.InSecondHalfOfBlock(shot.Position.Y.Whole - shot.Radius.Y);
             bool bottomEdgeInBottomHalf = RoomGridConversions.InSecondHalfOfBlock(shot.Position.Y.Whole + shot.Radius.Y - 1);
             return span.Place switch
@@ -260,7 +260,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // The leading edge picks the row half; the scan then tests left/right columns.
-        SquareSlopeQuadrant rowCell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(span.TargetBoundary)));
+        SquareSlopeQuadrant rowCell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(span.TargetBoundary));
         bool leftEdgeInRightHalf = RoomGridConversions.InSecondHalfOfBlock(shot.Position.X.Whole - shot.Radius.X);
         bool rightEdgeInRightHalf = RoomGridConversions.InSecondHalfOfBlock(shot.Position.X.Whole + shot.Radius.X - 1);
         return span.Place switch
@@ -291,7 +291,7 @@ internal sealed class ProjectileTerrainCollision
         if (!level.TryReachBlockStoodFor(ref block))
             return false;
         if (block.CollisionType == RoomCollisionType.Slope && !block.Behavior.Slope.IsNonSquare)
-            return SquareSlopeShotReaction(held, block, span, axis == Axis.Horizontal);
+            return SquareSlopeShotReaction(held, block, span, axis);
         if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.Slope.IsNonSquare)
         {
             // Non-square slopes react through the projectile's
@@ -445,19 +445,19 @@ internal sealed class ProjectileTerrainCollision
         // replaces the animation. Diagonals adjust both axes in their respective signs.
         SamusProjectileDirectionAxes axes = SamusProjectileDirectionDefinitions.Axes(shot.Direction);
         if (axes.Horizontal == HorizontalDirection.Right)
-            shot.Position += new Offset16<RoomPixels>(shot.Radius.X, 0);
+            held.Position += new Offset16<RoomPixels>(shot.Radius.X, 0);
         else if (axes.Horizontal == HorizontalDirection.Left)
-            shot.Position -= new Offset16<RoomPixels>(shot.Radius.X, 0);
+            held.Position -= new Offset16<RoomPixels>(shot.Radius.X, 0);
 
         if (axes.Vertical == VerticalDirection.Up)
-            shot.Position -= new Offset16<RoomPixels>(0, shot.Radius.Y);
+            held.Position -= new Offset16<RoomPixels>(0, shot.Radius.Y);
         else if (axes.Vertical == VerticalDirection.Down)
-            shot.Position += new Offset16<RoomPixels>(0, shot.Radius.Y);
+            held.Position += new Offset16<RoomPixels>(0, shot.Radius.Y);
 
         held.Type = held.Type.AsFamily(SamusProjectileFamily.BeamExplosion);
-        shot.Animation = SamusProjectilePlayback.Start(SamusProjectileSegment.BeamExplosion);
+        held.Animation = SamusProjectilePlayback.Start(SamusProjectileSegment.BeamExplosion);
         held.Damage = SamusProjectileDamageDefinitions.ExplosionDamage;
-        shot.Behavior = null;
+        held.Behavior = null;
     }
 
     /// <summary>Converts a missile impact to its family-specific explosion and requests Super Missile quake and impact audio.</summary>
@@ -482,10 +482,10 @@ internal sealed class ProjectileTerrainCollision
         _impactAudio.RequestMissileImpactSound();
         bool wasSuperMissile = held.Type.IsFamily(SamusProjectileFamily.SuperMissile);
         held.Type = held.Type.AsFamily(SamusProjectileFamily.MissileExplosion);
-        shot.Animation = SamusProjectilePlayback.Start(
+        held.Animation = SamusProjectilePlayback.Start(
             wasSuperMissile ? SamusProjectileSegment.SuperMissileExplosion : SamusProjectileSegment.MissileExplosion);
         held.Damage = SamusProjectileDamageDefinitions.ExplosionDamage;
-        shot.Behavior = null;
+        held.Behavior = null;
 
         if (wasSuperMissile)
         {

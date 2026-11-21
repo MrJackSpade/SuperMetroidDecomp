@@ -64,7 +64,7 @@ internal static class RoomObjectFixtures
         var visuals = new RoomObjectVisuals(artwork);
         var room = (RoomObjectRoom)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectRoom));
         var services = (RoomObjectServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectServices));
-        var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces(), ShotCapClosing(),
+        var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), ShotCapClosing(),
             new RoomObjectOutputs(GameplayAudioRequests.Standalone(), UnspawnedThrows));
         VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;
@@ -97,7 +97,7 @@ internal static class RoomObjectFixtures
     internal static RoomObjectSystem Bound(RoomObjectRoom room, RoomObjectServices services, RoomObjectSystem fixture)
     {
         RoomObjectVisuals visuals = VisualsOf(fixture);
-        var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces(), ShotCapClosing(),
+        var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), ShotCapClosing(),
             new RoomObjectOutputs(GameplayAudioRequests.Standalone(), UnspawnedThrows));
         VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;

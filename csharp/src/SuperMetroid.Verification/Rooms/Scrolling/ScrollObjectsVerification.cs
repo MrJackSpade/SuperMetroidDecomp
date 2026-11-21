@@ -161,7 +161,7 @@ internal static class ScrollObjectsVerification
             bombJump,
             frameCounter: 0,
             roomObjects);
-        AssertTrue(bombJump.BombJumpActive,
+        AssertTrue(bombJump.BombJumpPhase == SamusBombJumpPhase.Rising,
             "unobstructed scroll extension does not terminate bomb-jump ascent");
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
             "bomb-jump wrapper forwards live PLM owner to block collision");

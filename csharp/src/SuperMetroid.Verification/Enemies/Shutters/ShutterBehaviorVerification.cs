@@ -29,7 +29,7 @@ internal static class ShutterBehaviorVerification
             (enemies, place) =>
             {
                 place.SetSpawnSettings(new GrowingShutterSpawnSettings(
-                    Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 144, ActivationWait: 0,
+                    Wait: new GrowingShutterWait.SamusNear(144), Growth: VerticalDirection.Down,
                     GrowthSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(17)));
                 ShuttersBehavior.InitializeGrowingShutter(place.HeldOccupant(), place);
             },

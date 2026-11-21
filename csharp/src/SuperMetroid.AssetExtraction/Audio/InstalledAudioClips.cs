@@ -65,8 +65,8 @@ public static class InstalledAudioClips
         }
         foreach (MusicClipEntry entry in manifest.Music)
             InstalledClipFiles.ValidateFileSize(root, entry.Clip);
-        foreach (InstalledSoundEffectLayer layer in manifest.SoundEffects.SelectMany(entry => entry.Layers))
-            InstalledClipFiles.ValidateFileSize(root, layer.Clip);
+        foreach (AudioClipFile clip in manifest.SoundEffects.SelectMany(entry => entry.Shape.Clips()))
+            InstalledClipFiles.ValidateFileSize(root, clip);
         return new InstalledClipAudioLibrary(
             manifest,
             Convert.ToHexString(SHA256.HashData(manifestBytes)),

@@ -31,7 +31,7 @@ internal static class SamusEaterObjectDefinitionsVerification
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(levelWords, new RoomBlockBehavior[blockCount], new RoomBlockAppearance[blockCount]), RoomLevelData.NothingBeyondGrid(), []);
             var roomObjects = RoomObjectFixtures.Unbound();
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-            samus.Position = samus.Position.WithWhole(new(24, definition.Ceiling ? (ushort)16 : (ushort)0));
+            samus.Position = samus.Position.WithWhole(new(24, (definition.Side == VerticalDirection.Up) ? (ushort)16 : (ushort)0));
             samus.Kinematics.Radius = new(8, 16);
 
             RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
@@ -70,7 +70,7 @@ internal static class SamusEaterObjectDefinitionsVerification
                 RoomLevelData.NothingBeyondGrid(), []);
             level.SetTerrain(plantBlock, RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SpecialBlock));
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-            samus.Position = samus.Position.WithWhole(new(56, definition.Ceiling ? (ushort)16 : (ushort)0));
+            samus.Position = samus.Position.WithWhole(new(56, (definition.Side == VerticalDirection.Up) ? (ushort)16 : (ushort)0));
             samus.Kinematics.Radius = new(8, 16);
             RoomObjectSystem roomObjects = RoomObjectFixtures.Bound(
                 new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar),
@@ -88,14 +88,14 @@ internal static class SamusEaterObjectDefinitionsVerification
             for (int update = 0; update < expected.Count; update++)
             {
                 roomObjects.Step(level);
-                string at = $"{(definition.Ceiling ? "ceiling" : "floor")} plant update {update + 1}";
+                string at = $"{((definition.Side == VerticalDirection.Up) ? "ceiling" : "floor")} plant update {update + 1}";
                 AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is SamusEaterObject { } eater && eater.Holding == expected[update].Holding,
                     $"{at} holds Samus while it chews");
                 AssertEqual(pictures.Image(SamusEaterObjectDraws.Family.Of(expected[update].Image)).At(Offset16<RoomBlocks>.Zero),
                     level.GetCollisionBlock(plantBlock).Terrain.Appearance, $"{at} shows {expected[update].Image}");
             }
             roomObjects.Step(level);
-            AssertEqual(0, roomObjects.PopulationPlaces.Count, $"{(definition.Ceiling ? "ceiling" : "floor")} plant leaves after its idle image");
+            AssertEqual(0, roomObjects.PopulationPlaces.Count, $"{((definition.Side == VerticalDirection.Up) ? "ceiling" : "floor")} plant leaves after its idle image");
         }
     }
 
@@ -127,13 +127,13 @@ internal static class SamusEaterObjectDefinitionsVerification
             {
                 ushort setup = ReadSamusEaterObjectWord(rom, 0x840000 | header);
                 AssertTrue(setup is 0xb0dc or 0xb113, "plant native setup belongs to floor/ceiling pair");
-                AssertEqual(setup == 0xb113, actual.Ceiling, "plant mounting follows native setup");
+                AssertEqual(setup == 0xb113, (actual.Side == VerticalDirection.Up), "plant mounting follows native setup");
                 // The native ceiling subtracts radius and increments held Y; floor adds
                 // radius, decrements the edge and decrements held Y.
-                AssertEqual((byte)(actual.Ceiling ? 0xed : 0x6d),
+                AssertEqual((byte)((actual.Side == VerticalDirection.Up) ? 0xed : 0x6d),
                     rom.ReadCartridgeByte(0x840000 | (setup + 4)), "plant native edge add/subtract opcode");
-                AssertEqual((byte)(actual.Ceiling ? 0x1a : 0x3a),
-                    rom.ReadCartridgeByte(actual.Ceiling ? 0x84b13f : 0x84b10c), "plant native held-Y direction");
+                AssertEqual((byte)((actual.Side == VerticalDirection.Up) ? 0x1a : 0x3a),
+                    rom.ReadCartridgeByte((actual.Side == VerticalDirection.Up) ? 0x84b13f : 0x84b10c), "plant native held-Y direction");
             }
             else
             {

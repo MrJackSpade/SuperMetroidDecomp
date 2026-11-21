@@ -105,7 +105,7 @@ internal sealed class NorfairRidleyDeath
         NorfairRidleyState state)
     {
         SpawnSmallExplosionNearNorfairRidley(body, state);
-        state.MovementAnimationEnabled = false;
+        state.Motion = RidleyMotion.Still;
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
         state.Phase = NorfairRidleyPhase.DeathWait;
         state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.BreakupWaitUpdates);

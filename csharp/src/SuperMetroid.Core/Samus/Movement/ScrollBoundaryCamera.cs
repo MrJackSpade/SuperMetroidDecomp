@@ -74,12 +74,15 @@ public sealed class ScrollBoundaryCamera
     /// The door-transition scroll writes only the travel axis's whole previous position, retaining the
     /// other axis and both fractions.
     /// </summary>
-    internal void PublishDoorSamusTravelAxis(bool vertical, Position16<RoomPixels> samus)
+    internal void PublishDoorSamusTravelAxis(Axis travel, Position16<RoomPixels> samus)
     {
         FixedPosition<RoomPixels> previous = PointBeforeDoorWrite;
-        PreviousSamusPoint = SamusScrollCheckpoint.At(vertical
-            ? previous.WithY(previous.Y.WithWhole(samus.Y))
-            : previous.WithX(previous.X.WithWhole(samus.X)));
+        PreviousSamusPoint = SamusScrollCheckpoint.At(travel switch
+        {
+            Axis.Vertical => previous.WithY(previous.Y.WithWhole(samus.Y)),
+            Axis.Horizontal => previous.WithX(previous.X.WithWhole(samus.X)),
+            _ => throw new ArgumentOutOfRangeException(nameof(travel), travel, "Undefined door travel axis."),
+        });
     }
 
     /// <summary>The room's scroll grid this camera consults.</summary>

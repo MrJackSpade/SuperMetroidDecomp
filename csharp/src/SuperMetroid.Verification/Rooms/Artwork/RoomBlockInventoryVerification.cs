@@ -150,7 +150,7 @@ internal static class RoomBlockInventoryVerification
         IReadOnlyList<RoomBlockWriter> writers = RoomBlockWriters.Of(catalogs,
             XrayRevealVisualFiles.Load(Path.Combine(content, GameInstallationLayout.XrayRevealVisualDirectoryName)));
         var family = new HashSet<int>(catalogs.ShotBlock.Images.All.Values.SelectMany(image => image.Cells.Values)
-            .Where(shown => shown.ShowsBlock).Select(shown => shown.Block))
+            .Where(shown => shown.Shows == RoomBlockShown.Block).Select(shown => shown.Block))
         {
             catalogs.SetupBlocks.Shown(RoomObjectSetupBlock.ShotBlockParent).Block,
         };

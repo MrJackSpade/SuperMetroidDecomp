@@ -16,10 +16,12 @@ internal sealed class EndingPostShot
     public FloorZoom Zoom { get; private set; } = EndingPostShotDefinitions.InitialZoom;
     /// <summary>Rotation of the shot graphic, turned backward on each active rotation step and wrapping around the full turn.</summary>
     public RotationAngle Angle { get; private set; } = RotationAngle.Zero;
+    /// <summary>Where the shot stands (#2560): rotating down to its minimum zoom, holding there, or handed to the white flash.</summary>
+    private Stage stage;
     /// <summary>Indicates that the shot graphic has reached its minimum zoom.</summary>
-    private bool RotationFinished { get; set; }
+    private bool RotationFinished => stage != Stage.Rotating;
     /// <summary>Signals that the ending hands over to the white-flash phase now that the hold has expired.</summary>
-    public bool ReadyForWhiteFlash { get; private set; }
+    public bool ReadyForWhiteFlash => stage == Stage.ReadyForWhiteFlash;
 
     /// <summary>Advances the rotation, both colour fades and the white-flash handoff by one update.</summary>
     public void Step(EndingScreen screen)
@@ -37,12 +39,13 @@ internal sealed class EndingPostShot
             if (Zoom < EndingPostShotDefinitions.MinimumZoom)
             {
                 Zoom = EndingPostShotDefinitions.MinimumZoom;
-                RotationFinished = true;
+                stage = Stage.Holding;
             }
         }
         else
         {
-            ReadyForWhiteFlash = hold.Count();
+            if (hold.Count())
+                stage = Stage.ReadyForWhiteFlash;
         }
     }
 
@@ -58,4 +61,14 @@ internal sealed class EndingPostShot
         colours.Fade(group, fade.Left);
     }
 
+    /// <summary>Where the post-shot stands (#2560).</summary>
+    private enum Stage
+    {
+        /// <summary>The shot turns and narrows toward its minimum zoom.</summary>
+        Rotating,
+        /// <summary>The shot holds at its minimum zoom until the hold runs out.</summary>
+        Holding,
+        /// <summary>The hold has run out: the ending hands over to the white flash.</summary>
+        ReadyForWhiteFlash,
+    }
 }

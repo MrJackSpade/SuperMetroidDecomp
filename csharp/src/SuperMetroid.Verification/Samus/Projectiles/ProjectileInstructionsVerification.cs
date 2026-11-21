@@ -100,7 +100,7 @@ internal static class ProjectileInstructionsVerification
             else if (value < 0x8000) words.Add(a + 6);
         }
         AssertEqual(1792, words.Count, "All authored duration/trail/control words inventoried");
-        var trailSlot = new SamusProjectile(0);
+        var trailSlot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
         // A trail reads the frame of the record the shot last installed, the record just before the shot's next list
         // position; a shot whose list has installed none yet shows no frame, and leaves no trail (#1625). The frame is the
         // one the shot's animation shows, whatever updates it has left (#2458).
@@ -113,7 +113,7 @@ internal static class ProjectileInstructionsVerification
                 : SamusProjectileProgramsVerification.RecordAt(unchecked((ushort)(entry - SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount)));
             foreach (int updates in new[] { 1, 2, ushort.MaxValue })
             {
-                trailSlot.Animation = expected is null
+                trailSlot.HeldShot().Animation = expected is null
                     ? SamusProjectileProgramAddresses.PlayerAt(entry, updates)
                     : SamusProjectileProgramAddresses.ShowingBeatBefore(playback, updates);
                 AssertEqual(expected, ProjectileTrails.GetTrailFrame(trailSlot), "Trail owner reads the last installed record's frame whatever updates it has left");
@@ -125,10 +125,11 @@ internal static class ProjectileInstructionsVerification
         int frames = 0;
         foreach (ushort entry in entries)
         {
-            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(entry) };
+            var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+            slot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(entry);
             var bomb = new SamusBomb(0);
             bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
-            bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(entry);
+            bomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(entry);
             // No bomb shows a still picture, which a shot holds (#2347): the bomb owner plays only the lists that hold none.
             bool bombPlays = !SamusProjectileProgramAddresses.HoldsStillPicture(bomb.Playback?.Animation
                 ?? throw new InvalidOperationException($"Projectile list position ${entry:X4} names no playback."));
@@ -151,11 +152,11 @@ internal static class ProjectileInstructionsVerification
                         trail = pointer; pointer = unchecked((ushort)(pointer + 8)); break;
                     }
                 }
-                system.Animation.AdvanceProjectileAnimation(slot);
+                system.Animation.AdvanceProjectileAnimation(slot.HeldShot());
                 AssertEqual(deleted, !slot.IsActive, "Native delete/timed outcome");
                 if (bombPlays)
                 {
-                    bombs.AdvanceProjectileAnimation(bomb);
+                    bombs.AdvanceProjectileAnimation(bomb.HeldBomb());
                     AssertEqual(deleted, !bomb.IsActive, "Bomb native delete/timed outcome");
                 }
                 frames++;

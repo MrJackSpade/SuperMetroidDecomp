@@ -28,8 +28,7 @@ public static class SamusBombJumpMovement
         // the input phase, so this launch replaces only the launch speed/direction.
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(
             SamusVerticalMotion.BombJump(samus.LiquidPhysics.DetermineMovementMedium(samus)));
-        samus.BombJumpStarting = false;
-        samus.BombJumpActive = true;
+        samus.BombJumpPhase = SamusBombJumpPhase.Rising;
         return new BombJumpMovementResult(null);
     }
 
@@ -43,7 +42,7 @@ public static class SamusBombJumpMovement
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         Ensure.NotNull(roomObjects);
-        if (!samus.BombJumpActive)
+        if (samus.BombJumpPhase != SamusBombJumpPhase.Rising)
             throw new InvalidOperationException("Bomb-jump movement requires an active jump.");
 
         if (samus.BombJump is not { } request)
@@ -128,8 +127,7 @@ public static class SamusBombJumpMovement
         BlockMoveResult? vertical)
     {
         samus.BombJump = null;
-        samus.BombJumpStarting = false;
-        samus.BombJumpActive = false;
+        samus.BombJumpPhase = SamusBombJumpPhase.None;
         samus.BombJumpPoseInputLocked = false;
         return new BombJumpMovementResult(vertical);
     }

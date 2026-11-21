@@ -129,13 +129,10 @@ internal sealed class BossBodyParts : IBossBodyDisplay
     private BossBodyLayer Publish() => published ??= new BossBodyLayer([.. frames.OfType<BossBodyFrame>()], shownAbove);
 
     /// <inheritdoc />
-    BossBodyLayer? IBossBodyDisplay.Layer => IsShown ? Publish() : null;
+    BossBodyShowing? IBossBodyDisplay.Showing => IsShown ? new BossBodyShowing(Publish(), showing?.BodyPlacement) : null;
 
     /// <inheritdoc />
-    Position16<RoomPixels>? IBossBodyDisplay.Placement => showing?.BodyPlacement;
-
-    /// <inheritdoc />
-    bool IBossBodyDisplay.Hidden => showing?.BodyHidden == true;
+    bool IBossBodyDisplay.HidesBodyLayer => showing is { BodyHidden: true };
 
     /// <inheritdoc/>
     bool IBossBodyDisplay.HidesBackgroundLayer => showing?.HidesBackgroundLayer == true;

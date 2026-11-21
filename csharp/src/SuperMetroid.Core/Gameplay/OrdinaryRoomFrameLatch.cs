@@ -22,7 +22,8 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="ShownLayers">The room's layers and the actors gameplay shows.</param>
 /// <param name="Rooms">The room backgrounds this frame boundary displays, resolved from level data, the boss's body among them.</param>
 /// <param name="Scene">The room effect's blending, the scrolling sky, and the room and boss the X-ray's blending reads.</param>
-/// <param name="Bosses">The body a boss shows as the background, where it is placed and whether it shows (#2031).</param>
+/// <param name="Bosses">The body a boss shows as the background and where it is placed (#2031), or null where none shows.</param>
+/// <param name="BossBodyHidden">Whether the boss hides its body's layer this frame (#2560): Draygon is deleted, or Mother Brain's death flicker hides hers.</param>
 /// <param name="Phantoon">Phantoon's body wave, visibility and pixelation as the frame shows them, when Phantoon exists.</param>
 /// <param name="Fireflea">The room's Fireflea darkness with the shade it subtracts, or null in a room without it.</param>
 /// <param name="TourianStatueVerticalOffset">
@@ -42,7 +43,8 @@ public sealed record OrdinaryRoomFrameLatch(
     ScreenLayers ShownLayers,
     RoomBackgrounds Rooms,
     GameplayLatchedScene Scene,
-    GameplayLatchedBossBody Bosses,
+    GameplayLatchedBossBody? Bosses,
+    bool BossBodyHidden,
     PhantoonDisplaySnapshot? Phantoon,
     LatchedFirefleaDarkness? Fireflea,
     int? TourianStatueVerticalOffset,

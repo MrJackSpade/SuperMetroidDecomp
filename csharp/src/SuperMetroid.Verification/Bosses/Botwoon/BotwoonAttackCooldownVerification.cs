@@ -84,7 +84,7 @@ internal static class BotwoonAttackCooldownVerification
     {
         (RoomEnemySystem enemies, RoomEnemyPlace head, BotwoonEnemyState state) = NewBotwoon();
         state.Phase = BotwoonPhase.FollowAuthoredPath;
-        state.FatallyHit = true;
+        state.Death = BotwoonDeathProgress.AwaitingTailExit;
         state.ExitTransitionComplete = true;
         for (int update = 1; update <= 15; update++)
         {
@@ -104,7 +104,7 @@ internal static class BotwoonAttackCooldownVerification
     internal static void VerifyBotwoonSegmentFallWait()
     {
         (RoomEnemySystem enemies, _, BotwoonEnemyState state) = NewBotwoon();
-        state.BodyDeathStarted = true;
+        state.Death = BotwoonDeathProgress.Dying;
         static int GameWait(BotwoonSegmentState segment) => 256 - (96 + 8 * segment.Projectile.Place);
         int longest = state.Body.Max(GameWait);
         for (int update = 1; update <= longest; update++)

@@ -21,8 +21,6 @@ using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 
-using SuperMetroid.Core.Compatibility;
-
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks installed Kraid RGB5 rows through the palette consumers that write CGRAM.</summary>

@@ -136,7 +136,7 @@ public static class SaveRamCodec
             // NewFileMarkerSavedWord, LoadedItemCountSavedWord, ReserveMissilesSavedWord).
             MoonwalkEnabled = ReadWord(payload, SaveRamLayout.MoonwalkOffset) != 0,
             IconCancelEnabled = ReadWord(payload, SaveRamLayout.IconCancelOffset) != 0,
-            JapaneseText = ReadWord(payload, SaveRamLayout.JapaneseTextOffset) != 0,
+            Language = ReadWord(payload, SaveRamLayout.JapaneseTextOffset) != 0 ? TextLanguage.Japanese : TextLanguage.English,
         };
     }
 
@@ -175,7 +175,7 @@ public static class SaveRamCodec
         WriteWord(payload, SaveRamLayout.MaxReserveEnergyOffset, SamusCountWords.Encode(snapshot.Inventory.MaxReserveEnergy));
         WriteWord(payload, SaveRamLayout.ReserveEnergyOffset, SamusCountWords.Encode(snapshot.Inventory.ReserveEnergy));
         WriteWord(payload, SaveRamLayout.ReserveMissilesOffset, SaveRamLayout.ReserveMissilesSavedWord);
-        WriteWord(payload, SaveRamLayout.JapaneseTextOffset, snapshot.JapaneseText ? (ushort)1 : (ushort)0);
+        WriteWord(payload, SaveRamLayout.JapaneseTextOffset, snapshot.Language == TextLanguage.Japanese ? (ushort)1 : (ushort)0);
         WriteWord(payload, SaveRamLayout.LoadedItemCountOffset, SaveRamLayout.LoadedItemCountSavedWord);
         WriteWord(payload, SaveRamLayout.GameTimeFramesOffset,
             FieldWord(snapshot.GameTime.Frames, nameof(snapshot.GameTime)));
@@ -208,7 +208,7 @@ public static class SaveRamCodec
         ControllerBindings = slot.ControllerBindings,
         MoonwalkEnabled = slot.MoonwalkEnabled,
         IconCancelEnabled = slot.IconCancelEnabled,
-        JapaneseText = slot.JapaneseText,
+        Language = slot.Language,
         Inventory = slot.Inventory,
         HudItem = slot.HudItem,
         GameTime = slot.GameTime,

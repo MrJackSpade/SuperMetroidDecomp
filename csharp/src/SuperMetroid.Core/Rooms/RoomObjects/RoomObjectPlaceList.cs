@@ -3,23 +3,16 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>
 /// The room's room objects, each at the place it holds in the room's update order, and the spawn, the only way a place
 /// is taken. Which place a spawn takes, the order the places update in and the loss of a spawn into a full room are the
-/// room's <see cref="RoomObjectPlaces"/> (#1622); this list holds what each place holds.
+/// room's <see cref="RoomObjectPlaces"/> (#1622); this list holds the places, each of which holds its object.
 /// </summary>
 internal sealed class RoomObjectPlaceList
 {
-    /// <summary>The room's places, which say which hold an object and which a spawn takes.</summary>
-    private readonly RoomObjectPlaces occupancy;
-
-    /// <summary>What each place holds, in update order; each keeps its identity for the room's lifetime.</summary>
+    /// <summary>The room's places, in update order; each keeps its identity for the room's lifetime.</summary>
     private readonly RoomObjectPlace[] _places;
 
-    /// <summary>Creates the room's empty room-object list over the room's places.</summary>
-    /// <param name="places">The room's places, created with the room.</param>
-    internal RoomObjectPlaceList(RoomObjectPlaces places)
-    {
-        occupancy = Ensure.NotNull(places);
-        _places = [.. Enumerable.Range(0, RoomObjectPlaces.PlaceCount).Select(place => new RoomObjectPlace(places, place))];
-    }
+    /// <summary>Creates the room's room-object list, every place free.</summary>
+    internal RoomObjectPlaceList() =>
+        _places = [.. Enumerable.Range(0, RoomObjectPlaces.PlaceCount).Select(_ => new RoomObjectPlace())];
 
     /// <summary>
     /// Every place in update order, the place the room-object update reaches first leading, free ones included: the order
@@ -42,7 +35,7 @@ internal sealed class RoomObjectPlaceList
     }
 
     /// <summary>Whether every place holds an object, so every spawn is lost.</summary>
-    internal bool IsFull => occupancy.IsFull;
+    internal bool IsFull => RoomObjectPlaces.FirstFree(IsHeld) is null;
 
     /// <summary>
     /// Spawns a room object: takes the first free place in update order, emptied for the object's setup, or returns null
@@ -50,10 +43,13 @@ internal sealed class RoomObjectPlaceList
     /// </summary>
     internal RoomObjectPlace? Spawn()
     {
-        if (occupancy.Take() is not { } taken)
+        if (RoomObjectPlaces.FirstFree(IsHeld) is not { } free)
             return null;
-        RoomObjectPlace place = _places[taken];
+        RoomObjectPlace place = _places[free];
         place.Claim();
         return place;
     }
+
+    /// <summary>Whether <paramref name="place"/>, numbered in update order, holds a room object.</summary>
+    private bool IsHeld(int place) => _places[place].Active;
 }

@@ -47,7 +47,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         {
             Effects = [], DeathExplosions = [],
             EscapeColourEffectRequests = [], EscapeDoorParticleSpawns = [],
-            CorpseDustRequests = [new MotherBrainCorpseDustRequest(new Position16<RoomPixels>(0x0080, 0x0080), DustExplosionAnimation.CorpseDustCloud, SoundEffectQueued: true, SoundEffect: EnemySound.LiquidDamage)],
+            CorpseDustRequests = [new MotherBrainCorpseDustRequest(new Position16<RoomPixels>(0x0080, 0x0080), DustExplosionAnimation.CorpseDustCloud, Sound: EnemySound.LiquidDamage)],
             EscapeDoorExplosion = new DustExplosionRequest(new(0x0080, 0x0080), DustExplosionAnimation.SmallExplosion, EnemySound.SmallExplosion),
         };
         runtime.Enemies.Audio.BeginFrame();

@@ -40,14 +40,14 @@ internal static class KraidBodyContourVerification
         {
             short expected = NativeKraidBodyLeftEdge(rom, (short)y);
             body.Position = body.Position.WithWholeY(roomHeightLimit);
-            shot.Position = shot.Position.WithWholeY((ushort)(roomHeightLimit + y));
+            shot.HeldShot().Position = shot.Position.WithWholeY((ushort)(roomHeightLimit + y));
             foreach (ushort bodyX in new ushort[] { 256, 32768, 65520 })
             foreach (ushort radius in new ushort[] { 0, 4, 16 })
             for (int delta = -1; delta <= 1; delta++)
             {
                 body.Position = body.Position.WithWholeX(bodyX);
-                shot.Radius = shot.Radius.WithX(radius);
-                shot.Position = shot.Position.WithWholeX(unchecked((ushort)(bodyX + expected - radius + delta)));
+                shot.HeldShot().Radius = shot.Radius.WithX(radius);
+                shot.HeldShot().Position = shot.Position.WithWholeX(unchecked((ushort)(bodyX + expected - radius + delta)));
                 bool reference = unchecked((short)(bodyX + expected -
                     unchecked((ushort)(shot.Position.X.Whole + radius)))) < 0;
                 AssertEqual(reference, overlaps(body, shot), "Actual contour collision edge, translation and strict inequality");

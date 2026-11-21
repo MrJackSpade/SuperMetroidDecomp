@@ -216,10 +216,10 @@ internal sealed class KraidLimbs
             case KraidFootPhase.SecondPhaseThinking:
                 RunKraidSecondPhaseThinking(body, part);
                 return;
-            case KraidFootPhase.SecondPhaseWalking when part.WalkDirection == HorizontalDirection.Right:
+            case KraidFootPhase.SecondPhaseWalkingRight:
                 RunKraidSecondPhaseWalkingRight(body, part);
                 return;
-            case KraidFootPhase.SecondPhaseWalking:
+            case KraidFootPhase.SecondPhaseWalkingLeft:
                 RunKraidSecondPhaseWalkingLeft(body, part);
                 return;
             default:
@@ -334,9 +334,19 @@ internal sealed class KraidLimbs
     {
         part.Kraid.WalkTargetX = targetX;
         part.ThinkWait.LastFor(thinkUpdates);
-        part.Phase = KraidFootPhase.SecondPhaseWalking;
-        part.WalkDirection = direction;
-        part.StartAnimation(direction == HorizontalDirection.Right ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward);
+        switch (direction)
+        {
+            case HorizontalDirection.Right:
+                part.Phase = KraidFootPhase.SecondPhaseWalkingRight;
+                part.StartAnimation(KraidPartSegment.FootWalkingBackward);
+                break;
+            case HorizontalDirection.Left:
+                part.Phase = KraidFootPhase.SecondPhaseWalkingLeft;
+                part.StartAnimation(KraidPartSegment.FootWalkingForward);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined walk direction.");
+        }
     }
 
     /// <summary>Moves the body and foot toward the selected rightward target.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
@@ -42,7 +43,7 @@ internal static class EnemyTileArtworkKraidVerification
             "installed Kraid BG2 construction preserves all native working words");
         KraidEnemyState initialized = InitializeKraidBackground();
         AssertTrue(initialized.ShowsBodyLayer, "Kraid's body initialization shows his body layer");
-        AssertTrue(initialized.BodyAppearance == KraidBodyAppearance.BehindSprites && !initialized.BodyShown,
+        AssertTrue(initialized.Body == new KraidBodyShowing.Readied(BossBodyDepth.BehindSprites),
             "Kraid's body initialization readies his body behind the sprites, shown once he rises");
         ushort[] nativeShown = KraidBodyFixtures.Tilemap(native.AsSpan(0, KraidWorkingMapDefinitions.PageCells), [],
             native.AsSpan(KraidWorkingMapDefinitions.LowerPageFirstCell, KraidWorkingMapDefinitions.PageCells));
@@ -111,7 +112,8 @@ internal static class EnemyTileArtworkKraidVerification
     private static RunKraidHeadFrameResult RunKraidHeadFrame(ImportEnemyArtwork artwork, ushort pointer)
     {
         KraidHeadFrame frame = KraidHeadTilemapFormat.HeadsByMouthStage.Single(candidate => KraidHeadFrameDefinitions.PresentationKey(candidate) == pointer);
-        var state = global::SuperMetroid.Core.PrivateState.With<KraidEnemyState>(new KraidEnemyState(new KraidParts()) { BodyAppearance = KraidBodyAppearance.BehindSprites }, "DisplayedHeadFrame", (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(frame));
+        var state = global::SuperMetroid.Core.PrivateState.With<KraidEnemyState>(new KraidEnemyState(new KraidParts()), "DisplayedHeadFrame", (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(frame));
+        state.InitializeBodyLayer();
         state.ShowBody();
         return new RunKraidHeadFrameResult(state, KraidBodyFixtures.Shown(artwork.Bosses, state));
     }

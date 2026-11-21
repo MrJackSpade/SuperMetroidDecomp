@@ -23,12 +23,8 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     /// <exception cref="InvalidOperationException">He has not lifted off.</exception>
     public NorfairRidleyPhase Phase
     {
-        get => LiftedOff ? field : throw NotLiftedOff();
-        internal set
-        {
-            field = value;
-            LiftOff();
-        }
+        get => FightPhase<NorfairRidleyPhase>();
+        internal set => SetFightPhase(value);
     }
 
     /// <summary>

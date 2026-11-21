@@ -30,7 +30,11 @@ internal sealed class SamusControlFrame
     /// <summary>The movement type of the pose at frame start.</summary>
     internal SamusMovementType MovementTypeAtFrameStart { get; private set; }
 
-    /// <summary>Whether the death sequence owns Samus this frame.</summary>
+    /// <summary>
+    /// Whether the death sequence owns Samus this frame, sampled as her control is published before her input. It is not a
+    /// member of <see cref="MovementOwner"/> (#2560): it gates her input, landing and hurt handling before the movement phase
+    /// resolves its owner, and the fatal movement mode it installs resolves that owner as none.
+    /// </summary>
     internal bool DeathOwnsSamus { get; private set; }
 
     /// <summary>
@@ -93,7 +97,11 @@ internal sealed class SamusControlFrame
     /// <summary>Whether the ordinary input phase's HUD, bomb and projectile owners run.</summary>
     internal bool InputHandlingRuns { get; private set; }
 
-    /// <summary>Whether grapple owns movement.</summary>
+    /// <summary>
+    /// Whether the grapple beam's step, run in the input phase, took Samus's movement. It is no copy of
+    /// <see cref="MovementOwner"/> (#2560): it is sampled before the movement phase and is what that phase resolves the
+    /// grapple owner from, after the locked movement modes, which outrank it.
+    /// </summary>
     internal bool GrappleOwnsMovement { get; private set; }
 
     /// <summary>Whether the grapple-release mover keeps the input phase's pending aim or turn transition.</summary>

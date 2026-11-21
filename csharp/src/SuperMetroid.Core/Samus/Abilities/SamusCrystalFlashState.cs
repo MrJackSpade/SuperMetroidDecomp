@@ -160,7 +160,7 @@ public sealed class SamusCrystalFlashState
         Colouring = SpecialColouringStage.Showing;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
         EndHitImmunityAndKnockback(samus);
-        samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
+        samus.Knockback = Movement.SamusKnockback.None;
         Phase = CrystalFlashPhase.Raising;
         return true;
     }
@@ -344,6 +344,6 @@ public sealed class SamusCrystalFlashState
     private static void EndHitImmunityAndKnockback(SamusState samus)
     {
         EndHitImmunity(samus);
-        samus.KnockbackActive = false;
+        samus.Knockback = samus.Knockback.Released();
     }
 }

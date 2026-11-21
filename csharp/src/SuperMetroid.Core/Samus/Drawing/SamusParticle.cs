@@ -28,21 +28,23 @@ public sealed class SamusParticle
         Position16<RoomPixels> position,
         Offset16<RoomPixels> drift)
     {
-        if ((start.StepUpdates > 0) == (start.HiddenUpdates > 0))
-            throw new ArgumentOutOfRangeException(nameof(start), start, "A particle either shows at once or starts hidden.");
+        Ensure.NotNull(start);
         Kind = kind;
         Animation<SamusParticleKind> animation = SamusParticleAnimations.Animations[kind];
         Animation = AnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue>.Starting(SamusParticleAnimations.Segments, animation);
-        if (start.StepUpdates > 0)
+        switch (start)
         {
-            Animation.ShowAt(animation, from, start.StepUpdates);
-        }
-        else
-        {
-            // Every producer starts a hidden particle on its first picture, which shows for its own updates once the wait ends.
-            if (from != AnimationPlace.StartOfAnimation)
-                throw new ArgumentOutOfRangeException(nameof(from), from, "A hidden particle starts on its first picture.");
-            Hidden = UpdateCountdown.For(start.HiddenUpdates);
+            case SamusParticleStart.ShownAtOnce shown:
+                Animation.ShowAt(animation, from, shown.StepUpdates);
+                break;
+            case SamusParticleStart.HiddenFirst hidden:
+                // Every producer starts a hidden particle on its first picture, which shows for its own updates once the wait ends.
+                if (from != AnimationPlace.StartOfAnimation)
+                    throw new ArgumentOutOfRangeException(nameof(from), from, "A hidden particle starts on its first picture.");
+                Hidden = UpdateCountdown.For(hidden.Updates);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(start), start, "A particle either shows at once or starts hidden.");
         }
         Position = position;
         Drift = drift;

@@ -53,10 +53,8 @@ internal static class GameplayHudPresentationVerification
             PowerBombs: 6, MaxPowerBombs: 10,
             EquippedItems: SamusEquipmentWordCodec.FromEquipmentWord(equipment), SelectedItem: HudItem.SuperMissile,
             ReserveHealth: 50, ReserveMode: ReserveTankMode.Auto);
-        var native = new HudState();
-        var installed = new HudState();
-        native.BindPresentation(presentation.Presentation);
-        installed.BindPresentation(presentation.Presentation);
+        var native = new HudState(presentation.Presentation);
+        var installed = new HudState(presentation.Presentation);
         native.Initialize(snapshot);
         installed.Initialize(snapshot);
         AssertTrue(native.Tiles(presentation).SequenceEqual(installed.Tiles(presentation)),

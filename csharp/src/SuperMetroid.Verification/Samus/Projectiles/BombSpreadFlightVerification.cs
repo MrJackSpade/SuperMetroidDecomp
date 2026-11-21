@@ -45,7 +45,7 @@ internal static class BombSpreadFlightVerification
         {
             for (int place = 0; place < MorphBallBombDefinitions.PlaceCount; place++)
             {
-                BombSpreadFlight flight = SamusBombSpreadLaunches.Launch(place, held);
+                BombSpreadFlight flight = SamusBombSpreadLaunches.Launch(SamusBombSpreadLaunchDefinitions.LeftToRight[place], held);
                 SignedSixteenSixteen expectedVertical = SignedSixteenSixteen.FromSixteenthsOfPixel(VerticalSixteenths[place] - 16 * bonusPixels);
                 AssertEqual(SignedSixteenSixteen.FromSixteenthsOfPixel(HorizontalSixteenths[place]), flight.HorizontalVelocity,
                     $"bomb {place} after {held} updates of Down launches sideways at its authored velocity");
@@ -53,14 +53,14 @@ internal static class BombSpreadFlightVerification
                 AssertEqual(expectedVertical, flight.VerticalVelocity, $"bomb {place} after {held} updates of Down starts at its launch velocity");
             }
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => SamusBombSpreadLaunches.Launch(2, MorphBallBombDefinitions.DownChargeTimeoutUpdates + 1),
+        AssertThrows<ArgumentOutOfRangeException>(() => SamusBombSpreadLaunches.Launch(SamusBombSpreadLaunchDefinitions.LeftToRight[2], MorphBallBombDefinitions.DownChargeTimeoutUpdates + 1),
             "Down is never held past the spread's timeout");
     }
 
     /// <summary>A floor bounce restores the launch velocity; a ceiling keeps only the velocity's fraction above its whole pixels.</summary>
     private static void VerifyFlightRules()
     {
-        BombSpreadFlight centre = SamusBombSpreadLaunches.Launch(2, 128);
+        BombSpreadFlight centre = SamusBombSpreadLaunches.Launch(SamusBombSpreadLaunchDefinitions.LeftToRight[2], 128);
         centre.Accelerate(SignedSixteenSixteen.FromSixteenthsOfPixel(40));
         centre.BounceOffFloor();
         AssertEqual(SignedSixteenSixteen.FromSixteenthsOfPixel(-56), centre.VerticalVelocity, "a floor bounce restores the held launch's 3.5-pixel rise");
@@ -70,7 +70,7 @@ internal static class BombSpreadFlightVerification
         centre.StopRiseAtCeiling();
         AssertEqual(SignedSixteenSixteen.FromSixteenthsOfPixel(12), centre.VerticalVelocity, "a ceiling turns a 1.25-pixel rise into a 0.75-pixel fall");
 
-        BombSpreadFlight near = SamusBombSpreadLaunches.Launch(1, 0);
+        BombSpreadFlight near = SamusBombSpreadLaunches.Launch(SamusBombSpreadLaunchDefinitions.LeftToRight[1], 0);
         near.StopRiseAtCeiling();
         AssertEqual(SignedSixteenSixteen.Zero, near.VerticalVelocity, "a ceiling stops a whole-pixel rise dead");
 
@@ -97,7 +97,7 @@ internal static class BombSpreadFlightVerification
         {
             SamusBomb bomb = bombs.Bombs[place];
             BombSpreadFlight flight = bomb.SpreadFlight ?? throw new InvalidOperationException($"Spread bomb {place} has no flight.");
-            SignedSixteenSixteen risen = SamusBombSpreadLaunches.ForPlace(place).VerticalVelocity + gravity;
+            SignedSixteenSixteen risen = SamusBombSpreadLaunchDefinitions.LeftToRight[place].VerticalVelocity + gravity;
             AssertEqual(48, bomb.Position.Y.Whole, $"bomb {place} goes back below the ceiling it rose into");
             AssertEqual(0, (int)bomb.Position.Y.Fraction, $"bomb {place} goes back to the very place it rose from");
             AssertEqual(64, bomb.Position.X.Whole, $"bomb {place} moves no further on the update it meets the ceiling");
@@ -133,7 +133,7 @@ internal static class BombSpreadFlightVerification
         FixedPosition<RoomPixels> inBlock = FixedPosition<RoomPixels>.FromWhole(new(88, 56));
         bomb.Position = inBlock;
         bomb.Fuse = UpdateCountdown.For(1);
-        BombSpreadLaunchDefinition launch = SamusBombSpreadLaunches.ForPlace(rightmost);
+        BombSpreadLaunchDefinition launch = SamusBombSpreadLaunchDefinitions.LeftToRight[rightmost];
 
         foreach (string update in new[] { "on the update its fuse runs out", "on the update after" })
         {

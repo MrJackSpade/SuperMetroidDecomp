@@ -24,19 +24,29 @@ namespace SuperMetroid.Core.Compatibility;
 internal static class SpecialAttackReplacesFirstShots
 {
     /// <summary>
-    /// Takes Samus's first <paramref name="particleCount"/> shot places for a starting attack's particles, the last first,
-    /// each ending whatever shot holds it.
+    /// Takes Samus's first shot places for a starting attack's <paramref name="parts"/>, one place a part in the parts'
+    /// order, the last place first, each ending whatever shot holds it.
     /// </summary>
+    /// <typeparam name="TPart">A particle's part.</typeparam>
     /// <typeparam name="TShot">The shot type.</typeparam>
-    /// <param name="particleCount">How many particles the attack sets off, one or more.</param>
+    /// <param name="parts">The attack's particles' parts, one or more, in the order of the shot places they take.</param>
     /// <param name="replaceShotInPlace">Creates the new shot of a shot place, ending the one there.</param>
-    /// <returns>The particles' shots, the first part's first.</returns>
-    internal static TShot[] ParticleShots<TShot>(int particleCount, Func<int, TShot> replaceShotInPlace)
+    /// <returns>Each part with the shot that plays it, the first part's first.</returns>
+    internal static IReadOnlyList<ParticleShot<TPart, TShot>> ParticleShots<TPart, TShot>(IReadOnlyList<TPart> parts, Func<int, TShot> replaceShotInPlace)
     {
+        Ensure.NotNull(parts);
         Ensure.NotNull(replaceShotInPlace);
-        var shots = new TShot[Ensure.BetweenInclusive(1, int.MaxValue, particleCount)];
+        Ensure.BetweenInclusive(1, int.MaxValue, parts.Count);
+        var shots = new ParticleShot<TPart, TShot>[parts.Count];
         for (int place = shots.Length - 1; place >= 0; place--)
-            shots[place] = replaceShotInPlace(place);
+            shots[place] = new(parts[place], replaceShotInPlace(place));
         return shots;
     }
+
+    /// <summary>One particle of a starting attack: its part and the shot that plays it.</summary>
+    /// <typeparam name="TPart">A particle's part.</typeparam>
+    /// <typeparam name="TShot">The shot type.</typeparam>
+    /// <param name="Part">The particle's part.</param>
+    /// <param name="Shot">The shot that plays it.</param>
+    internal readonly record struct ParticleShot<TPart, TShot>(TPart Part, TShot Shot);
 }

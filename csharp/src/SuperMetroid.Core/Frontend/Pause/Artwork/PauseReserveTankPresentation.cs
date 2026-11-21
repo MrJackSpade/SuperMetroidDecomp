@@ -41,13 +41,11 @@ public sealed class PauseReserveTankPresentation
     /// <param name="sheet">The pause sheet.</param>
     /// <param name="visual">The one of the ten reserve visuals to draw.</param>
     /// <param name="index">The place's place in the strip: a tank's, counted from the first, or the one after her last tank for the trailing cap.</param>
-    /// <exception cref="InvalidOperationException">The visual identity is unknown.</exception>
     public void Draw(ScreenSprites entries, SpriteSheet sheet, PauseReserveTankVisual visual, int index)
     {
         // The strip position is checked before the visual.
         Offset16<ScreenPixels> anchor = Anchor(index);
-        string name = PauseReserveTankParts.Frames().Where(frame => frame.Id == visual).Select(frame => frame.Name)
-            .SingleOrDefault() ?? throw new InvalidOperationException($"Undefined PauseReserveTankVisual {visual}.");
+        string name = PauseReserveTankDefinitions.InstalledNames.Of(visual);
         Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseReserveTankParts.SheetFrameName(name)), anchor, PictureShading.Standard);
     }
 }

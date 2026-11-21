@@ -25,6 +25,6 @@ internal static class TitleSpriteColourings
     /// <summary>The colouring the title draws <paramref name="typed"/>, a card's text typed so far, in: its card's.</summary>
     /// <exception cref="InvalidDataException">No title card shows the typing.</exception>
     internal static TitleSpriteColouring Of(TitleCardTyping typed) =>
-        Cards.Where(card => card.Phase == typed.Card).Select(card => (TitleSpriteColouring?)card.Colouring).SingleOrDefault()
+        Cards.Where(card => card.Card.Card == typed.Card).Select(card => (TitleSpriteColouring?)card.Colouring).SingleOrDefault()
             ?? throw new InvalidDataException($"No title card types {typed}.");
 }

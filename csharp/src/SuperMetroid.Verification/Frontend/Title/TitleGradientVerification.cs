@@ -120,7 +120,7 @@ internal static class TitleGradientVerification
             "title extraction covers every card typing step");
         SuperMetroid.AssetExtraction.Frontend.Title.TitleSpritemaps spritemaps =
             SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus);
-        AssertEqual(yearPointer, spritemaps.Cards[new(TitleSequencePhase.YearText, 1)], "the year's first letter is the year card's first listed spritemap");
+        AssertEqual(yearPointer, spritemaps.Cards[new(TitleCard.Year, 1)], "the year's first letter is the year card's first listed spritemap");
         // Independent native OBJ records are the cartridge reference for each extracted composition's draw.
         // Both draws show the title cards' text colours: the native records take their sprite set as palette bits.
         ushort textPaletteBits = SnesObjAttributeWord.Create(0, SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(TitleSpriteColouring.Text), 0).PaletteBits;
@@ -160,7 +160,7 @@ internal static class TitleGradientVerification
             Array.Sort(records, StringComparer.Ordinal);
             return records;
         }
-        TitleCardFrame year = spriteDocument.Cards.Single(frame => frame.Typed == new TitleCardTyping(TitleSequencePhase.YearText, 1));
+        TitleCardFrame year = spriteDocument.Cards.Single(frame => frame.Typed == new TitleCardTyping(TitleCard.YearText, 1));
         SpriteVisualPart originalPart = year.Parts[0];
         year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };
         byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);

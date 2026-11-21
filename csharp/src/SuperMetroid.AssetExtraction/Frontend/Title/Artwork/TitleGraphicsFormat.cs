@@ -54,5 +54,5 @@ public static class TitleGraphicsFormat
     /// provide each as the whole of what it shows.
     /// </summary>
     public static readonly IReadOnlyList<TitleCardTyping> Typings =
-        [.. TitleCards.All.SelectMany(card => TitleCards.Typings(card.Card))];
+        [.. TitleCards.All.SelectMany(TitleCards.Typings)];
 }

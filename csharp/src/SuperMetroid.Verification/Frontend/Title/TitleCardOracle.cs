@@ -31,7 +31,7 @@ internal static class TitleCardOracle
         foreach (TitleTextSequenceDefinition card in Cards)
         {
             int address = TitleSourceDefinitions.TextLists[card.Phase];
-            foreach (NativeEntry step in Entries(card.Phase))
+            foreach (NativeEntry step in Entries(card.Card.Card))
             {
                 ushort word = cartridge.ReadCartridgeWord(address);
                 string at = $"{card.Phase} at ${address:X6}";
@@ -65,7 +65,7 @@ internal static class TitleCardOracle
     /// The native list entries the card <paramref name="phase"/> shows types as: each beat of its typing, a frame or the
     /// blank opening as a timed entry and each cue as a command.
     /// </summary>
-    internal static IEnumerable<NativeEntry> Entries(TitleSequencePhase phase) => TitleCards.Segments.Beats(phase).Select(beat => beat switch
+    internal static IEnumerable<NativeEntry> Entries(TitleCard card) => TitleCards.Segments.Beats(card).Select(beat => beat switch
     {
         AnimationBeat<TitleCardTyping, TitleCardCue>.Frame frame => new NativeEntry(frame.Duration, frame.Shown, null),
         AnimationBeat<TitleCardTyping, TitleCardCue>.Pause pause => new NativeEntry(pause.Duration, null, null),

@@ -25,6 +25,9 @@ public static class PauseReserveTankDefinitions
         new("Fill7", PauseReserveTankVisual.Fill7),
     ];
 
+    /// <summary>Each reserve visual's installed frame name, one for every visual.</summary>
+    internal static InstalledKeys<PauseReserveTankVisual> InstalledNames { get; } = new(Frames.ToDictionary(frame => frame.Id, frame => frame.Name));
+
     /// <summary>The partial-tank picture identity for each fill-step count, empty (zero steps) through seven steps.</summary>
     internal static readonly PauseReserveTankVisual[] FillLevels =
     [

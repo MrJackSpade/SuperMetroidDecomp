@@ -21,18 +21,19 @@ public static class CeresCinematicPictures
     public const string ZebesPlanet = "zebes";
 
     /// <summary>
-    /// The caption plane with its first <paramref name="letters"/> letters shown, and the katakana caption when
-    /// <paramref name="japanese"/>, in the standard colours the import pre-coloured them in: the flight shows no colour
-    /// effect on its caption, which fades out with the display's brightness (#1512).
+    /// The caption plane as <paramref name="shown"/> types it: its letters typed so far, and the katakana caption when it
+    /// shows it; none while the caption is not typing. Each shows in the standard colours the import pre-coloured them in:
+    /// the flight shows no colour effect on its caption, which fades out with the display's brightness (#1512).
     /// </summary>
-    internal static PicturedPlane Caption(InstalledSpriteSheets sheets, int letters, bool japanese)
+    internal static PicturedPlane Caption(InstalledSpriteSheets sheets, SpaceColonyCaptionTyping? shown)
     {
+        int letters = shown?.Letters ?? 0;
         SpriteSheet sheet = Ensure.NotNull(sheets).Get(SpriteSheetId.CeresCinematicPictures);
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
         for (int letter = 0; letter < letters; letter++)
             placed.Add(new(sheet.Frame(CaptionLetter(letter)), new Offset16<PlanePixels>(SpaceColonyCaption.Left(letter), SpaceColonyCaptionDefinitions.Top),
                 PictureShading.Standard));
-        if (japanese)
+        if (shown?.Shows == SpaceColonyCaptionText.WithKatakana)
             placed.Add(new(sheet.Frame(JapaneseCaption), new Offset16<PlanePixels>(SpaceColonyCaptionDefinitions.JapaneseLeft, SpaceColonyCaptionDefinitions.JapaneseTop),
                 PictureShading.Standard));
         return new PicturedPlane(placed.ToImmutable());

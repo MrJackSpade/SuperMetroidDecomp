@@ -14,6 +14,9 @@ internal sealed class MorphBallEyeBeamCast(RoomEnemyPlace body, MorphBallEyeEnem
     /// <summary>The state the eye body holds.</summary>
     internal MorphBallEyeEnemyState Eye { get; } = Ensure.NotNull(eye);
 
-    /// <summary>The beam's lifetime: pending its initialization from its request until the next beam step starts it.</summary>
-    internal MorphBallEyeBeamPhase Phase { get; set; } = MorphBallEyeBeamPhase.PendingInitialization;
+    /// <summary>Where the beam stands in its lifetime: pending its initialization from its request until the next beam step starts it.</summary>
+    internal MorphBallEyeBeamStage Stage { get; set; } = MorphBallEyeBeamStage.PendingInitialization;
+
+    /// <summary>The lifetime phase the beam's stage shows as.</summary>
+    internal MorphBallEyeBeamPhase Phase => Stage.Phase;
 }

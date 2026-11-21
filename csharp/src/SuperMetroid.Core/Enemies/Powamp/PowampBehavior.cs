@@ -68,7 +68,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
         var balloon = new PowampBalloonState
         {
             Spawn = place.Position.Whole,
-            RefusesContact = Ensure.NotNull(settings).Contact == PowampContact.Refuses,
+            Contact = Ensure.NotNull(settings).Contact,
         };
         StartPowampBalloonAnimation(place, balloon, PowampSegment.BalloonDeflated);
         return balloon;
@@ -495,7 +495,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
             before.AiStates = before.AiStates | EnemyAiStates.Hurt;
         }
         if (balloon.Health == 0)
-            balloonState.RefusesContact = true;
+            balloonState.Contact = PowampContact.Refuses;
     }
 
     /// <summary>
@@ -553,7 +553,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
     /// <summary>The Powamp's shot reaction as the balloon takes it, skipped while the balloon refuses contact.</summary>
     /// <param name="balloonState">The state of the balloon that was shot.</param>
     internal EnemyShotReaction PowampBalloonShotReaction(PowampBalloonState balloonState) =>
-        ShotReactionSkipping(_ => balloonState.RefusesContact, c => ResolvePowampBalloonShotAfterCommon(c.Enemy, balloonState));
+        ShotReactionSkipping(_ => balloonState.Contact == PowampContact.Refuses, c => ResolvePowampBalloonShotAfterCommon(c.Enemy, balloonState));
 
     /// <summary>Whether a half's placement refuses Samus's touch and shots (#2474), as a grappled balloon's does.</summary>
     private static bool PlacementRefusesContact(PowampSpawnSettings powampSpawnSettings) =>
@@ -591,7 +591,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemySpawnFactory<PowampS
     {
         // A balloon that refuses contact ignores Samus's touch.
         // A touch that kills it deletes the enemy listed before it, as the Powamp's touch does for either half.
-        if (!balloonState.RefusesContact)
+        if (balloonState.Contact != PowampContact.Refuses)
             ResolvePowampTouch(occupant, context.Place, _places.PlacesBefore(context.Place)(1), context.Samus, context.PseudoScrew);
     }
     /// <summary>

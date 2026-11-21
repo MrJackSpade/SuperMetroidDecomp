@@ -79,10 +79,10 @@ public sealed class ManagedSpcAudioBackend
                         step.ChecksRequests ? new SoundRequestChecks<SoundEffectLibrary, byte>(SoundEffectLibraries.InQueueOrder, _ => default) : null);
                     break;
                 case AudioEvent.StartSoundEffect startSoundEffect:
-                    if (ticks == 0 || !schedule[ticks - 1].ChecksRequests ||
+                    if (ticks == 0 || schedule[ticks - 1].Checks is not { } polled ||
                         schedule[ticks - 1].SampleOffset != startSoundEffect.SampleOffset)
                         throw new InvalidDataException($"{audioEvent} does not follow its polling driver tick.");
-                    schedule[ticks - 1] = StartAt(schedule[ticks - 1], startSoundEffect.SoundEffect);
+                    schedule[ticks - 1] = StartAt(schedule[ticks - 1], polled, startSoundEffect.SoundEffect);
                     break;
                 default:
                     throw new InvalidDataException($"Unknown audio event {audioEvent}.");
@@ -109,7 +109,8 @@ public sealed class ManagedSpcAudioBackend
     }
 
     /// <summary>Marks <paramref name="soundEffect"/>'s library as acting on a changed request at <paramref name="tick"/>'s poll.</summary>
-    private static SoundClockStep<SoundEffectLibrary, byte> StartAt(SoundClockStep<SoundEffectLibrary, byte> tick, SoundEffectId soundEffect)
+    private static SoundClockStep<SoundEffectLibrary, byte> StartAt(SoundClockStep<SoundEffectLibrary, byte> tick,
+        SoundRequestChecks<SoundEffectLibrary, byte> polled, SoundEffectId soundEffect)
     {
         // The emulated driver reads the request number the sound has in its library.
         SoundRequestCheck<byte> start = new SoundRequestCheck<byte>(new RequestedSound<byte>(checked((byte)SoundEffectCommands.Command(soundEffect))), Changed: true);
@@ -119,7 +120,7 @@ public sealed class ManagedSpcAudioBackend
         return tick with
         {
             Checks = new SoundRequestChecks<SoundEffectLibrary, byte>(SoundEffectLibraries.InQueueOrder,
-                library => library == started ? start : tick.RanChecks[library]),
+                library => library == started ? start : polled[library]),
         };
     }
 }

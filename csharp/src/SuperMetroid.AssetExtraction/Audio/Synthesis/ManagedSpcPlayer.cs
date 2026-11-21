@@ -211,10 +211,10 @@ public sealed class ManagedSpcPlayer
     private void LoopPartTwo(SoundClockStep<SoundEffectLibrary, byte> tick)
     {
         int ticks = tick.Steps;
-        if (tick.ChecksRequests)
+        if (tick.Checks is { } checks)
         {
             foreach (SoundEffectLibrary library in SoundLibraryNumbers.InNumberOrder)
-                SoundLibraries.HandleSoundLibraryCommand(library, tick.RanChecks[library]);
+                SoundLibraries.HandleSoundLibraryCommand(library, checks[library]);
             if (Music.echoStoredTime != Music.echoDelay)
                 Music.echoStoredTime = SpcDriverWrap.Byte(Music.echoStoredTime + 1);
         }

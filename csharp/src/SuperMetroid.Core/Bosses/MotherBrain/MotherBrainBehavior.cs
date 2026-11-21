@@ -146,14 +146,16 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyJoiningFactory<
             case MotherBrainBodyStage.Phase2Fight:
                 RunMotherBrainPhase2Fight(state, samus);
                 return;
-            // The stages from the rainbow beam on are her late fight's, which runs them from the update it begins (#2560).
+            // The stages from the rainbow beam on are her late fight's, which runs them from the update it begins (#2560): only
+            // the late fight's beginning enters them.
             case MotherBrainBodyStage.RainbowBeam:
             case MotherBrainBodyStage.FinishingSamusOff:
             case MotherBrainBodyStage.DrainedByBaby:
             case MotherBrainBodyStage.Reviving:
             case MotherBrainBodyStage.Phase3Fight:
             case MotherBrainBodyStage.Dying:
-                RainbowAndDeath.RunLiveMotherBrainRainbowBeam(state.LateFight, samus, state.Body.FrameCounter, samusBombs);
+                if (state.RainbowBeamSequence is { } lateFight)
+                    RainbowAndDeath.RunLiveMotherBrainRainbowBeam(lateFight, samus, state.Body.FrameCounter, samusBombs);
                 return;
             default:
                 throw new InvalidDataException($"Mother Brain's body has no behaviour for its {state.Stage} stage.");

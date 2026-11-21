@@ -178,17 +178,17 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                 RadiusPixels = _nextRadiusPixels;
                 if (RadiusPixels == GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels)
                 {
-                    if (ConfirmationOf(message) != GameplayMessageConfirmation.None)
+                    // A message that asks for a confirmation has no minimum display: it takes input as soon as its window opens.
+                    if (GameplayMessageBoxDefinitions.Message(message).MinimumDisplayFrames is { } minimumFrames)
+                    {
+                        MinimumDisplay = UpdateCountdown.Lasting(minimumFrames);
+                        Phase = GameplayMessageBoxPhase.MinimumDisplay;
+                    }
+                    else
                     {
                         MinimumDisplay = UpdateCountdown.Ended();
                         _saveChoiceInput.Begin();
                         Phase = GameplayMessageBoxPhase.AwaitingInput;
-                    }
-                    else
-                    {
-                        MinimumDisplay = UpdateCountdown.Lasting(GameplayMessageBoxDefinitions.Message(message).MinimumDisplayFrames
-                            ?? throw new InvalidOperationException($"Message {message} takes input as soon as its window opens; it has no minimum display."));
-                        Phase = GameplayMessageBoxPhase.MinimumDisplay;
                     }
                 }
                 else

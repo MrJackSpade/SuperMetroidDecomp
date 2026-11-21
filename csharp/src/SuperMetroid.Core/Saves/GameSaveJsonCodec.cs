@@ -234,13 +234,10 @@ public static class GameSaveJsonCodec
                 $"{GameSaveJsonFormat.SchemaVersion}");
         }
         _ = GameSaveJsonFormat.SlotNamed(document.SelectedSlot);
-        if (document.Slots is null)
-            throw new InvalidDataException("slots is required");
-
-        foreach ((string key, GameSaveSlotJsonDocument? slot) in document.Slots)
+        foreach ((string key, GameSaveSlotJsonDocument slot) in document.Slots)
         {
             _ = GameSaveJsonFormat.SlotNamed(key);
-            ValidateSlot(slot ?? throw new InvalidDataException($"slots.{key} is null; an empty slot has no entry"), key);
+            ValidateSlot(slot, key);
         }
     }
 

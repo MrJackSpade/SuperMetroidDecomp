@@ -22,9 +22,4 @@ public readonly record struct SoundClockStep<TLibrary, TSound>(
 {
     /// <summary>Whether the step checked the libraries' requests, a fact of the step's timing.</summary>
     public bool ChecksRequests => Checks is not null;
-
-    /// <summary>The request checks the step ran.</summary>
-    /// <exception cref="InvalidOperationException">The step checked no requests.</exception>
-    public SoundRequestChecks<TLibrary, TSound> RanChecks =>
-        Checks ?? throw new InvalidOperationException("The sound clock step checked no requests.");
 }

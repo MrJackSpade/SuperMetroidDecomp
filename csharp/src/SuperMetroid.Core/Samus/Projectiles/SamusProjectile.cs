@@ -131,16 +131,6 @@ public sealed class SamusProjectile
         { } held => new BeamFiredOverLastShot.ReplacedShot.Beam(held.BeamFuse.UpdatesLeft),
     };
 
-    /// <summary>The state the kind of the projectile holding the place keeps, which must be a <typeparamref name="TState"/>.</summary>
-    /// <exception cref="InvalidOperationException">No projectile holds the place, or the one holding it keeps no such state.</exception>
-    internal TState KindStateAs<TState>() where TState : SamusShotKindState => Occupant switch
-    {
-        { KindState: TState state } => state,
-        { } held => throw new InvalidOperationException(
-            $"The projectile in place {Place} keeps no {typeof(TState).Name}; it keeps {held.KindState?.GetType().Name ?? "nothing"}."),
-        null => throw new InvalidOperationException($"No projectile holds place {Place}, so none keeps a {typeof(TState).Name}."),
-    };
-
     /// <summary>Whether a projectile holds the place with an animation to play, which marks it drawn and updated.</summary>
     public bool IsActive => Occupant is { IsAnimated: true };
 

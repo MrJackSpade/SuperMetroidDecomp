@@ -67,7 +67,7 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
                 CrumbleStep = nextStep;
                 BombTorizoHandCrumbleStep step = nextStep.Entry;
                 if (step.FragmentBefore is { } fragment)
-                    _owner.ThrowFragment(place, fragment, context.Outcome);
+                    BombTorizoHandObjects.ThrowFragment(place, fragment, context.Outcome);
                 context.Draw(place, BombTorizoHandDraws.Family, step.Image);
                 _holdBeforeNextStep.LastFor(step.Updates);
                 return;

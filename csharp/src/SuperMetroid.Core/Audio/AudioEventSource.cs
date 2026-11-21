@@ -62,11 +62,11 @@ internal sealed class AudioEventSource
         foreach (SoundClockStep<SoundEffectLibrary, SoundEffectId> step in schedule.AsSpan(0, stepCount))
         {
             events.Add(new AudioEvent.ClockStep(step.SampleOffset, step.Steps, step.ChecksRequests));
-            if (!step.ChecksRequests)
+            if (step.Checks is not { } checks)
                 continue;
             // The clock checks the libraries in queue order, so the starts follow it.
             foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
-                AddStart(events, step, step.RanChecks[library]);
+                AddStart(events, step, checks[library]);
         }
         Acknowledgements = clock.Acknowledgements;
         return [.. events];

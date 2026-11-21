@@ -54,20 +54,19 @@ internal sealed class EndingLogo
         {
             Progress.Assembling => null,
             Progress.CrossfadeRequested => EndingLogoCrossfadeStep.First,
-            Progress.Crossfading crossfading => crossfading.Shown.Following
-                ?? throw new InvalidOperationException("The logo's crossfade showed its last step."),
+            Progress.Crossfading crossfading => crossfading.Next,
             Progress.HandedOff => throw new InvalidOperationException("Completed logo must hand off to percentage text."),
             _ => throw new InvalidOperationException($"Undefined logo progress {progress}."),
         };
         if (step is { } shown)
         {
             Ensure.NotNull(colours).LogoCrossfade(shown);
-            if (shown.Following is null)
+            if (shown.Following is not { } next)
             {
                 progress = new Progress.HandedOff();
                 return;
             }
-            progress = new Progress.Crossfading(shown);
+            progress = new Progress.Crossfading(next);
         }
         // Each S half moves just before its own animation steps.
         upperS.Move();
@@ -113,9 +112,9 @@ internal sealed class EndingLogo
         /// <summary>The grey-out cue has run; the crossfade shows its first step on the next update.</summary>
         internal sealed record CrossfadeRequested : Progress;
 
-        /// <summary>The crossfade shows its steps in turn.</summary>
-        /// <param name="Shown">The step the logo showed last.</param>
-        internal sealed record Crossfading(EndingLogoCrossfadeStep Shown) : Progress;
+        /// <summary>The crossfade under way, with the step it shows next: every step but its last has one after it.</summary>
+        /// <param name="Next">The step the crossfade shows on its next update.</param>
+        internal sealed record Crossfading(EndingLogoCrossfadeStep Next) : Progress;
 
         /// <summary>The logo has shown its crossfade's last step and hands off to the percentage text.</summary>
         internal sealed record HandedOff : Progress;

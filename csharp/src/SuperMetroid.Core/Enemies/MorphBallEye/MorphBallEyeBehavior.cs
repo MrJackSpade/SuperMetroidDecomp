@@ -202,41 +202,26 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
     internal void StepMorphBallEyeBeam()
     {
         // No beam exists until an eye requests one.
-        if (MorphBallEyeBeam.Cast is not { } cast)
-            return;
-        switch (cast.Phase)
-        {
-            case MorphBallEyeBeamPhase.PendingInitialization:
-                StartMorphBallEyeBeam(cast);
-                return;
-            case MorphBallEyeBeamPhase.Widening:
-                WidenMorphBallEyeBeam(cast);
-                return;
-            case MorphBallEyeBeamPhase.Full:
-                StepFullMorphBallEyeBeam(cast);
-                return;
-            case MorphBallEyeBeamPhase.Deactivating:
-                FadeMorphBallEyeBeam();
-                return;
-        }
+        if (MorphBallEyeBeam.Cast is { } cast)
+            cast.Stage.Step(this, cast);
     }
 
     /// <summary>
     /// Seeds the beam's colour, then marks its body activated. The request a step earlier reset the beam to no width, no
     /// widening and its first colour (#2474), which nothing changes before this step.
     /// </summary>
-    private void StartMorphBallEyeBeam(MorphBallEyeBeamCast cast)
+    internal void StartMorphBallEyeBeam(MorphBallEyeBeamCast cast)
     {
         MorphBallEyeBeam.Color = MorphBallEyeBeamDefinitions.InitialColor;
         cast.Eye.IsActivated = true;
-        cast.Phase = MorphBallEyeBeamPhase.Widening;
+        cast.Stage = MorphBallEyeBeamStage.Widening;
     }
 
     /// <summary>
     /// Accelerates the beam's angular half-width by <see cref="MorphBallEyeBeamDefinitions.WidthGrowthStep"/> each update until its whole steps reach
     /// <see cref="MorphBallEyeBeamDefinitions.FullHalfWidth"/>; that update sets the whole steps to it, keeping the fraction, and the beam is full.
     /// </summary>
-    private void WidenMorphBallEyeBeam(MorphBallEyeBeamCast cast)
+    internal void WidenMorphBallEyeBeam(MorphBallEyeBeamCast cast)
     {
         MorphBallEyeBeam.AngularHalfWidthGrowth += MorphBallEyeBeamDefinitions.WidthGrowthStep;
         MorphBallEyeBeam.AngularHalfWidth += MorphBallEyeBeam.AngularHalfWidthGrowth;
@@ -244,16 +229,16 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
         if (width >= MorphBallEyeBeamDefinitions.FullHalfWidth)
         {
             MorphBallEyeBeam.AngularHalfWidth = width.WithWholeStepsOf(MorphBallEyeBeamDefinitions.FullHalfWidth);
-            cast.Phase = MorphBallEyeBeamPhase.Full;
+            cast.Stage = MorphBallEyeBeamStage.Full;
         }
     }
 
     /// <summary>Cycles the sixteen beam colors while the body stays activated, otherwise begins fading.</summary>
-    private void StepFullMorphBallEyeBeam(MorphBallEyeBeamCast cast)
+    internal void StepFullMorphBallEyeBeam(MorphBallEyeBeamCast cast)
     {
         if (!cast.Eye.IsActivated)
         {
-            cast.Phase = MorphBallEyeBeamPhase.Deactivating;
+            cast.Stage = MorphBallEyeBeamStage.Deactivating;
             return;
         }
 
@@ -262,7 +247,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
     }
 
     /// <summary>Darkens the beam's colour one step and removes the beam once green has faded to black.</summary>
-    private void FadeMorphBallEyeBeam()
+    internal void FadeMorphBallEyeBeam()
     {
         // The beam fade tests green before updating the cone or darkening any channel. Once green
         // has reached zero intensity, the beam is removed on this pass, its colour black.

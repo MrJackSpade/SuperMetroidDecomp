@@ -17,8 +17,8 @@ public sealed class PowampBalloonState
     public Position16<RoomPixels> Spawn { get; internal set; }
 
     /// <summary>
-    /// Whether the balloon refuses Samus's touch and shots (#2474): as its placement says from its setup, and for good once
-    /// a hit it accepted leaves it no health, as the Powamp's reaction to a shot marks the half it struck.
+    /// How the balloon meets Samus's touch and shots (#2474): as its placement says from its setup, and refusing them for
+    /// good once a hit it accepted leaves it no health, as the Powamp's reaction to a shot marks the half it struck.
     /// </summary>
-    internal bool RefusesContact { get; set; }
+    internal PowampContact Contact { get; set; }
 }

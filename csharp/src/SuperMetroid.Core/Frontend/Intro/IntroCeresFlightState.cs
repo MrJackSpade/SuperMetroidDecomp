@@ -148,9 +148,7 @@ internal sealed class IntroCeresFlightState
             // The caption shows the pictures of the letters typed so far and, once drawn, the katakana caption (#1467),
             // over the station it names.
             SpaceColonyCaptionTyping? shown = captioned.Caption.Shown;
-            layers.Add(new PicturedPlaneLayer(CeresCinematicPictures.Caption(
-                floorSheets,
-                shown?.Letters ?? 0, shown?.Shows == SpaceColonyCaptionText.WithKatakana), Offset16<PlanePixels>.Zero));
+            layers.Add(new PicturedPlaneLayer(CeresCinematicPictures.Caption(floorSheets, shown), Offset16<PlanePixels>.Zero));
         }
         else
         {

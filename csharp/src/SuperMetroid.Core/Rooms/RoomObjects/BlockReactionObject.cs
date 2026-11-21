@@ -13,26 +13,11 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal class BlockReactionObject : RoomObjectBehaviour
 {
-    /// <summary>A reaction of <paramref name="change"/>'s timing whose setup saved no terrain, so none of its images restores a block.</summary>
-    /// <exception cref="ArgumentException">An image of <paramref name="change"/> restores a saved block.</exception>
-    internal BlockReactionObject(BlockReactionChange change)
-        : this(change, savedTerrain: null)
-    {
-        if (change.Frames.Any(frame => frame.Image is BlockReactionImage.RestoresSavedTerrain))
-            throw new ArgumentException("A block reaction whose setup saved no terrain restores none.", nameof(change));
-    }
-
     /// <summary>
     /// A reaction of <paramref name="change"/>'s timing whose setup saved <paramref name="savedTerrain"/>, which its images
-    /// restore where they ask for it (#2484).
+    /// restore where they ask for it (#2484). A reaction whose setup saves none is a <see cref="LastingBlockReactionObject"/>.
     /// </summary>
     internal BlockReactionObject(BlockReactionChange change, RoomTerrainBlock savedTerrain)
-        : this(change, (RoomTerrainBlock?)savedTerrain)
-    {
-    }
-
-    /// <summary>A reaction of <paramref name="change"/>'s timing whose setup saved <paramref name="savedTerrain"/>, or none.</summary>
-    private BlockReactionObject(BlockReactionChange change, RoomTerrainBlock? savedTerrain)
     {
         Change = Ensure.NotNull(change);
         SavedTerrain = savedTerrain;
@@ -43,10 +28,10 @@ internal class BlockReactionObject : RoomObjectBehaviour
     internal BlockReactionChange Change { get; }
 
     /// <summary>
-    /// The terrain the reaction's setup saved at its block, which it restores as the block grows back; null when its setup
-    /// saved none. Grapple setup saves the earlier block; collision-bomb setup saves the bomb block's parent instead.
+    /// The terrain the reaction's setup saved at its block, which it restores as the block grows back. Grapple setup saves
+    /// the earlier block; collision-bomb setup saves the bomb block's parent instead.
     /// </summary>
-    private RoomTerrainBlock? SavedTerrain { get; }
+    private RoomTerrainBlock SavedTerrain { get; }
 
     /// <summary>
     /// The reaction's images playing, each for its own updates: its first shows on the update its first delay runs out
@@ -71,12 +56,9 @@ internal class BlockReactionObject : RoomObjectBehaviour
             case BlockReactionImage.Drawn drawn:
                 context.Draw(place, drawn.Draw);
                 break;
-            // Only a reaction whose setup saved terrain shows an image that restores it, as its constructor checked.
-            case BlockReactionImage.RestoresSavedTerrain when SavedTerrain is { } saved:
-                RestoreBlock(place, context, saved);
+            case BlockReactionImage.RestoresSavedTerrain:
+                RestoreBlock(place, context, SavedTerrain);
                 break;
-            default:
-                throw new InvalidOperationException($"Block reaction image {frame.Image} is not one this reaction shows.");
         }
         // The owner of the room's block reactions learns as each image shows whether the block now stands broken open,
         // which a room object waiting on a block's breakup observes.

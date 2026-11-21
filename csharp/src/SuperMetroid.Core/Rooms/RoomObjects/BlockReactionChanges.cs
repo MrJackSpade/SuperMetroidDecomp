@@ -42,13 +42,14 @@ internal static class BlockReactionChanges
 
     /// <summary>The permanent shot block a permanent break sets off, by its size.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a permanent break.</exception>
-    internal static BlockReactionChange PermanentShot(ShootableReaction? reaction) => From(BlockReactionChangeDefinitions.PermanentShot, reaction);
+    internal static LastingBlockReactionChange PermanentShot(ShootableReaction? reaction) => From(BlockReactionChangeDefinitions.PermanentShot, reaction);
 
     /// <summary>The change <paramref name="changes"/> gives <paramref name="reaction"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is none, or not among the selection.</exception>
-    private static BlockReactionChange From<TReaction>(IReadOnlyDictionary<TReaction, BlockReactionChange> changes, TReaction? reaction)
-        where TReaction : struct, Enum =>
-        reaction is { } read && changes.TryGetValue(read, out BlockReactionChange? change)
+    private static TChange From<TReaction, TChange>(IReadOnlyDictionary<TReaction, TChange> changes, TReaction? reaction)
+        where TReaction : struct, Enum
+        where TChange : class =>
+        reaction is { } read && changes.TryGetValue(read, out TChange? change)
             ? change
             : throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "The reaction sets off none of these changes.");
 }

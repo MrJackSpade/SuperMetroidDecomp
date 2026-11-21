@@ -38,13 +38,13 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A normal bomb's one-update reveal of a Power Bomb block, which it does not break.</summary>
-    internal static BlockReactionChange BombedPowerBombBlockReveal { get; } = new(1,
+    internal static LastingBlockReactionChange BombedPowerBombBlockReveal { get; } = new(1,
     [
         new(BombedRevealObjectDraws.Family.Of(RoomObjectBombedRevealDraw.PowerBomb), 1),
     ]);
 
     /// <summary>A normal bomb's one-update reveal of a Super Missile block, which it does not break.</summary>
-    internal static BlockReactionChange BombedSuperMissileBlockReveal { get; } = new(1,
+    internal static LastingBlockReactionChange BombedSuperMissileBlockReveal { get; } = new(1,
     [
         new(BombedRevealObjectDraws.Family.Of(RoomObjectBombedRevealDraw.SuperMissile), 1),
     ]);
@@ -216,7 +216,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A shot block breaking up for good, 1x1.</summary>
-    private static BlockReactionChange PermanentShotBlock1x1 { get; } = new(1,
+    private static LastingBlockReactionChange PermanentShotBlock1x1 { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Single, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(Breakup(BlockArrangement.Single, Stage.Pieces), 4),
@@ -225,7 +225,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A shot block breaking up for good, 2x1.</summary>
-    private static BlockReactionChange PermanentShotBlock2x1 { get; } = new(1,
+    private static LastingBlockReactionChange PermanentShotBlock2x1 { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Horizontal, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(Breakup(BlockArrangement.Horizontal, Stage.Pieces), 4),
@@ -234,7 +234,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A shot block breaking up for good, 1x2.</summary>
-    private static BlockReactionChange PermanentShotBlock1x2 { get; } = new(1,
+    private static LastingBlockReactionChange PermanentShotBlock1x2 { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Vertical, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(Breakup(BlockArrangement.Vertical, Stage.Pieces), 4),
@@ -243,7 +243,7 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A shot block breaking up for good, 2x2.</summary>
-    private static BlockReactionChange PermanentShotBlock2x2 { get; } = new(1,
+    private static LastingBlockReactionChange PermanentShotBlock2x2 { get; } = new(1,
     [
         new(Breakup(BlockArrangement.Square, Stage.Rock), 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(Breakup(BlockArrangement.Square, Stage.Pieces), 4),
@@ -624,8 +624,8 @@ internal static class BlockReactionChangeDefinitions
         };
 
     /// <summary>The permanent shot block each permanent break sets off, by its size.</summary>
-    internal static IReadOnlyDictionary<ShootableReaction, BlockReactionChange> PermanentShot { get; } =
-        new Dictionary<ShootableReaction, BlockReactionChange>
+    internal static IReadOnlyDictionary<ShootableReaction, LastingBlockReactionChange> PermanentShot { get; } =
+        new Dictionary<ShootableReaction, LastingBlockReactionChange>
         {
             [ShootableReaction.PermanentBreak1x1] = PermanentShotBlock1x1,
             [ShootableReaction.PermanentBreak2x1] = PermanentShotBlock2x1,

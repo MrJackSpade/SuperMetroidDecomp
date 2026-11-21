@@ -201,7 +201,7 @@ internal sealed class BlockReactionObjects
         if (bombable == BombableReaction.Nothing)
         {
             // The empty reaction's setup does nothing, and it leaves on its first update.
-            place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
+            place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
             return;
         }
 
@@ -264,7 +264,7 @@ internal sealed class BlockReactionObjects
             case ShotBlockReaction.CollisionProbe:
                 // Setting it up ends the shot's span of blocks, which a shot's collision does only once the room
                 // object has taken a place. This object does not change terrain and leaves on its first update.
-                place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
+                place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
                 return true;
 
             case ShotBlockReaction.RespawningBreak:
@@ -278,7 +278,7 @@ internal sealed class BlockReactionObjects
                 // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses
                 // its shootable collision before the first animated breaking frame runs later in this pass, keeping
                 // what it shows until then (#2502).
-                place.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(behavior.Shootable)));
+                place.Become(new LastingBlockReactionObject(BlockReactionChanges.PermanentShot(behavior.Shootable)));
                 level.SetCollision(position, block.Terrain.Deactivated().Collision);
                 return true;
 
@@ -288,7 +288,7 @@ internal sealed class BlockReactionObjects
                 {
                     // A normal bomb does not break this block. The setup redirects to the one-frame visible power-bomb
                     // reveal without touching collision.
-                    place.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedPowerBombBlockReveal));
+                    place.Become(new LastingBlockReactionObject(BlockReactionChangeDefinitions.BombedPowerBombBlockReveal));
                     return true;
                 }
 
@@ -307,7 +307,7 @@ internal sealed class BlockReactionObjects
                 {
                     // Ordinary bombs get the analogous one-frame Super Missile reveal. It deliberately leaves the live
                     // block untouched.
-                    place.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedSuperMissileBlockReveal));
+                    place.Become(new LastingBlockReactionObject(BlockReactionChangeDefinitions.BombedSuperMissileBlockReveal));
                     return true;
                 }
 
@@ -321,7 +321,7 @@ internal sealed class BlockReactionObjects
 
             case ShotBlockReaction.Nothing:
                 // The empty reactions leave the block alone, and the object still holds a place until its first update.
-                place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
+                place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
                 return true;
 
             default:

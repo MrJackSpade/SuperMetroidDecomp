@@ -1122,8 +1122,7 @@ internal static class LookupStream5Verification
         }
         var owner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var body = owner.Places.InUpdateOrder[1];
-        body.SetSpawnSettings(new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
-        body.Bind(EnemyDefinitionId.MorphBallEye, body.KeptDefinition);
+        body.BindPlaced(EnemyDefinitionId.MorphBallEye, new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
         new Action<RoomEnemyPlace>(fixturePlace => MorphBallEyeBehavior.InitializeMorphBallEyeBody(fixturePlace.HeldOccupant(), fixturePlace))(body);
         (body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.")).IsActivated = true;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Body = body;
@@ -1138,7 +1137,10 @@ internal static class LookupStream5Verification
                 rom.ReadCartridgeByte(0x88ea8d + phase * 4) & FadeLevelColour.FullLevel).ToColour();
             AssertEqual(expected, MorphBallEyeBeamDefinitions.CycleColors[phase], "Native two-channel triangle intensities");
             step();
-            AssertEqual(expected, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeBeamState, global::SuperMetroid.Core.Assets.RgbColor>(owner.MorphBallEyeBehavior.MorphBallEyeBeam, "Color"), "Actual beam colour, zero blue intensity included");
+            // The colour is read as the frame shows it: the cone the frame boundary latches from the beam.
+            ((IDisplayLatch)owner.MorphBallEyeBehavior.MorphBallEyeBeam).LatchDisplay();
+            AssertEqual(expected, (owner.MorphBallEyeBehavior.MorphBallEyeBeam.Latched ?? throw new InvalidOperationException("The full beam latched no cone.")).Color,
+                "Actual beam colour, zero blue intensity included");
             AssertEqual(MorphBallEyeBeamColour.All[(phase + 1) & 15], owner.MorphBallEyeBehavior.MorphBallEyeBeam.NextColour, "Actual cycling and wrap after the sixteenth colour");
         }
         AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.MorphBallEye, PopulationWords.Parameters(0, 0x8004)),

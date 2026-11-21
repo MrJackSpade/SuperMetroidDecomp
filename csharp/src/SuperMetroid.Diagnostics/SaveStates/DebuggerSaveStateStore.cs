@@ -213,8 +213,8 @@ internal sealed class DebuggerSaveStateStore : IDisposable
             {
                 writer.Write(DebuggerStateFormat.Magic);
                 writer.Write((int)DebuggerStateVersion.Current);
-                writer.Write(typeof(SuperMetroidGame).Module.ModuleVersionId.ToByteArray());
-                writer.Write(typeof(DebuggerSaveStateStore).Module.ModuleVersionId.ToByteArray());
+                writer.Write(SuperMetroid.Core.BuildIdentity.Version.ToByteArray());
+                writer.Write(SuperMetroid.Diagnostics.BuildIdentity.Version.ToByteArray());
                 writer.Write(romDigest);
                 WriteContentIdentity(writer, contentIdentity.ToSnapshot());
                 writer.Write(metadata.SavedUtc.UtcTicks);
@@ -269,8 +269,8 @@ internal sealed class DebuggerSaveStateStore : IDisposable
                 $"this build reads only schema {(int)DebuggerStateVersion.Current}.");
         }
         var warnings = new List<string>();
-        ReadBuildIdentity(reader, typeof(SuperMetroidGame).Module.ModuleVersionId, "core build", warnings);
-        ReadBuildIdentity(reader, typeof(DebuggerSaveStateStore).Module.ModuleVersionId, "desktop build", warnings);
+        ReadBuildIdentity(reader, SuperMetroid.Core.BuildIdentity.Version, "core build", warnings);
+        ReadBuildIdentity(reader, SuperMetroid.Diagnostics.BuildIdentity.Version, "desktop build", warnings);
         byte[] storedDigest = reader.ReadBytes(SHA256.HashSizeInBytes);
         if (storedDigest.Length != SHA256.HashSizeInBytes ||
             !CryptographicOperations.FixedTimeEquals(storedDigest, romDigest))

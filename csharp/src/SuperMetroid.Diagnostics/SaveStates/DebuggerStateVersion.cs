@@ -18,7 +18,7 @@ internal enum DebuggerStateVersion
     /// work-memory image beside it (#1688); every array of values with no identity (enums, structs of values, nullable
     /// values) written as one packed run of a schema, member tables and back-to-back values instead of a framed object per
     /// element (#1696); a type value, such as a key of the room-object visuals' catalog store, written as the identity of
-    /// the type it names instead of refused (#2060).
+    /// the type it names instead of refused (#2060); every object written and restored through the members the compiler gave its type, each level of its fields after their count and each field after its name, a primary-constructor type's arguments first, delegates by the name of the method each call makes (#2602).
     /// </summary>
-    Current = 17,
+    Current = 18,
 }

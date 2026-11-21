@@ -92,6 +92,6 @@ internal sealed class KraidColours : IGameplayShadingSource
         // His body's shades show his eyes in one set of colours; the glow's colours are shown in their place.
         ImmutableArray<RgbColor> eyes = EyeGlow.Shown;
         if (!eyes.SequenceEqual(shadedEyes))
-            frame.Affect(GameplayPictures.BossBody, new ColourSubstitution([.. shadedEyes], [.. eyes]));
+            frame.Affect(GameplayPictures.BossBody, new ColourSubstitution(EyeGlow.ShownInPlaceOf(shadedEyes)));
     }
 }

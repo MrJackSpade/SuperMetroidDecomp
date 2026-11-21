@@ -15,14 +15,10 @@ internal sealed record GameplayHudPresentationParts
     /// <summary>The screen pixel the energy count's first digit's upper-left corner shows at.</summary>
     public required Position16<ScreenPixels> HealthAnchor { get; init; }
 
-    /// <summary>The screen pixel the missile count's first digit's upper-left corner shows at.</summary>
-    public required Position16<ScreenPixels> MissileAmmoAnchor { get; init; }
-
-    /// <summary>The screen pixel the Super Missile count's first digit's upper-left corner shows at.</summary>
-    public required Position16<ScreenPixels> SuperMissileAmmoAnchor { get; init; }
-
-    /// <summary>The screen pixel the Power Bomb count's first digit's upper-left corner shows at.</summary>
-    public required Position16<ScreenPixels> PowerBombAmmoAnchor { get; init; }
+    /// <summary>
+    /// Each ammunition counter's field: the screen pixel its count's first digit's upper-left corner shows at, and its digits.
+    /// </summary>
+    public required ImmutableDictionary<HudAmmoCounter, HudAmmoField> AmmoFields { get; init; }
 
     /// <summary>The screen pixel the AUTO indicator's upper-left corner shows at.</summary>
     public required Position16<ScreenPixels> AutoReserveCorner { get; init; }

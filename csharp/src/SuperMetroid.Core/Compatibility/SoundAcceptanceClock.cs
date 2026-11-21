@@ -27,18 +27,12 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
     where TLibrary : struct, Enum
     where TSound : struct, IEquatable<TSound>
 {
-    /// <summary>The libraries, distinct, in the order each request check serves them; every array below follows it.</summary>
+    /// <summary>The libraries, distinct, in the order each request check serves them.</summary>
     private readonly ImmutableArray<TLibrary> libraries;
     /// <summary>The library that reports a music load in progress instead of an acknowledgement.</summary>
     private readonly TLibrary musicLoadReporter;
-    /// <summary>The game's most recent request to each library; none requests nothing.</summary>
-    private readonly TSound?[] requested;
-    /// <summary>What each library reports back as acknowledged.</summary>
-    private readonly SoundAcknowledgement<TSound>[] acknowledged;
-    /// <summary>The request each library took at its most recent check, which the next check acts on.</summary>
-    private readonly TSound?[] taken;
-    /// <summary>The request each library acted on at its most recent check, for detecting a change.</summary>
-    private readonly TSound?[] actedOn;
+    /// <summary>Each library's requests: the game's latest, the one taken, the one acted on, and what it acknowledges.</summary>
+    private readonly Dictionary<TLibrary, LibraryRequests> requests;
     /// <summary>
     /// Samples elapsed since the last step, 0 through <see cref="SoundClockTiming.SamplesPerStep"/>; a step that falls
     /// exactly on an update boundary runs at the start of the next update.
@@ -62,19 +56,16 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
             throw new ArgumentOutOfRangeException(nameof(musicLoadReporter), musicLoadReporter, "The music-load reporter must be one of the libraries.");
         this.libraries = libraries;
         this.musicLoadReporter = musicLoadReporter;
-        requested = new TSound?[libraries.Length];
-        acknowledged = new SoundAcknowledgement<TSound>[libraries.Length];
-        taken = new TSound?[libraries.Length];
-        actedOn = new TSound?[libraries.Length];
+        requests = libraries.ToDictionary(library => library, _ => new LibraryRequests());
     }
 
     /// <summary>What each library reports back as acknowledged.</summary>
     public SoundAcknowledgements<TLibrary, TSound> Acknowledgements =>
-        new(libraries, library => acknowledged[PositionOf(library)]);
+        new(libraries, library => RequestsOf(library).Acknowledged);
 
     /// <summary>Records the game's current request to <paramref name="library"/>; none withdraws it.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The clock was not given <paramref name="library"/>.</exception>
-    public void Request(TLibrary library, TSound? request) => requested[PositionOf(library)] = request;
+    public void Request(TLibrary library, TSound? request) => RequestsOf(library).Requested = request;
 
     /// <summary>
     /// Loading new music stops the music player: the music-load reporter reports the load in progress instead of an
@@ -82,8 +73,9 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
     /// </summary>
     public void PauseForMusicLoad()
     {
-        acknowledged[PositionOf(musicLoadReporter)] = SoundAcknowledgement<TSound>.MusicLoading;
-        Array.Clear(requested);
+        RequestsOf(musicLoadReporter).Acknowledged = SoundAcknowledgement<TSound>.MusicLoading;
+        foreach (LibraryRequests library in requests.Values)
+            library.Requested = null;
     }
 
     /// <summary>Runs one update's <see cref="SoundClockTiming.SamplesPerUpdate"/> samples, recording every step and request check in order.</summary>
@@ -129,25 +121,36 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
     /// <summary>One library's check: it acts on the request taken at the previous check, acknowledges it and takes the current one.</summary>
     private SoundRequestCheck<TSound> Check(TLibrary library)
     {
-        int position = PositionOf(library);
-        TSound? previous = actedOn[position];
-        TSound? request = taken[position];
-        actedOn[position] = request;
-        acknowledged[position] = SoundAcknowledgement<TSound>.Of(request);
-        taken[position] = requested[position];
+        LibraryRequests state = RequestsOf(library);
+        TSound? previous = state.ActedOn;
+        TSound? request = state.Taken;
+        state.ActedOn = request;
+        state.Acknowledged = SoundAcknowledgement<TSound>.Of(request);
+        state.Taken = state.Requested;
         return new SoundRequestCheck<TSound>(request, Changed: !Nullable.Equals(request, previous));
     }
 
-    /// <summary>Where the clock keeps <paramref name="library"/>'s state.</summary>
+    /// <summary>The requests the clock keeps for <paramref name="library"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The clock was not given <paramref name="library"/>.</exception>
-    private int PositionOf(TLibrary library)
+    private LibraryRequests RequestsOf(TLibrary library) =>
+        requests.TryGetValue(library, out LibraryRequests? state)
+            ? state
+            : throw new ArgumentOutOfRangeException(nameof(library), library, "The sound clock was not given this library.");
+
+    /// <summary>One library's requests, as the clock keeps them between checks.</summary>
+    private sealed class LibraryRequests
     {
-        for (int position = 0; position < libraries.Length; position++)
-        {
-            if (EqualityComparer<TLibrary>.Default.Equals(libraries[position], library))
-                return position;
-        }
-        throw new ArgumentOutOfRangeException(nameof(library), library, "The sound clock was not given this library.");
+        /// <summary>The game's most recent request to the library; none requests nothing.</summary>
+        internal TSound? Requested { get; set; }
+
+        /// <summary>What the library reports back as acknowledged.</summary>
+        internal SoundAcknowledgement<TSound> Acknowledged { get; set; }
+
+        /// <summary>The request the library took at its most recent check, which the next check acts on.</summary>
+        internal TSound? Taken { get; set; }
+
+        /// <summary>The request the library acted on at its most recent check, for detecting a change.</summary>
+        internal TSound? ActedOn { get; set; }
     }
 
     /// <summary>
@@ -160,11 +163,11 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
     internal readonly struct ByLibrary<TValue> : IEquatable<ByLibrary<TValue>>
         where TValue : struct, IEquatable<TValue>
     {
-        /// <summary>The libraries the set holds, distinct; default for the default value, which holds none.</summary>
+        /// <summary>The libraries the set holds, distinct, in order; default for the default value, which holds none.</summary>
         private readonly ImmutableArray<TLibrary> held;
 
-        /// <summary>Each held library's value, in the order of <see cref="held"/>; default exactly when the libraries are.</summary>
-        private readonly ImmutableArray<TValue> values;
+        /// <summary>Each held library's value, by library; null exactly when the libraries are default.</summary>
+        private readonly ImmutableDictionary<TLibrary, TValue>? values;
 
         /// <summary>Holds <paramref name="valueOf"/> of each of <paramref name="libraries"/>.</summary>
         /// <param name="libraries">The libraries, distinct.</param>
@@ -174,11 +177,12 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
         public ByLibrary(ImmutableArray<TLibrary> libraries, Func<TLibrary, TValue> valueOf)
         {
             held = RequireDistinct(libraries);
-            values = [.. libraries.Select(Ensure.NotNull(valueOf))];
+            Ensure.NotNull(valueOf);
+            values = libraries.ToImmutableDictionary(library => library, valueOf);
         }
 
         /// <summary>The value of <paramref name="library"/>; the default value for a library the set does not hold.</summary>
-        public TValue this[TLibrary library] => PositionIn(library) is int position ? values[position] : default;
+        public TValue this[TLibrary library] => values is not null && values.TryGetValue(library, out TValue value) ? value : default;
 
         /// <summary>Two sets are equal when every library either holds reads the same in both.</summary>
         public bool Equals(ByLibrary<TValue> other) => ReadsSameIn(other) && other.ReadsSameIn(this);
@@ -197,12 +201,9 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
         public override string ToString() => $"[{string.Join(", ", Held().Select(entry => $"{entry.Key}: {entry.Value}"))}]";
 
         /// <summary>Each library the set holds with its value, in order; none for the default value.</summary>
-        private IEnumerable<KeyValuePair<TLibrary, TValue>> Held() => held.IsDefault
+        private IEnumerable<KeyValuePair<TLibrary, TValue>> Held() => values is null
             ? []
-            : held.Zip(values, (library, value) => new KeyValuePair<TLibrary, TValue>(library, value));
-
-        /// <summary>Where the set holds <paramref name="library"/>'s value, or null when it holds none.</summary>
-        private int? PositionIn(TLibrary library) => !held.IsDefault && held.IndexOf(library) is var position and >= 0 ? position : null;
+            : held.Select(library => new KeyValuePair<TLibrary, TValue>(library, values[library]));
 
         /// <summary>Whether every library this set holds reads the same in <paramref name="other"/>.</summary>
         private bool ReadsSameIn(ByLibrary<TValue> other) =>

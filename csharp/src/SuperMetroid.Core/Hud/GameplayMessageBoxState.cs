@@ -183,8 +183,9 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
                     }
                     else
                     {
-                        MinimumDisplay = UpdateCountdown.Lasting(Ensure.Listed(GameplayMessageBoxDefinitions.Timing.MinimumDisplayFrames,
-                            MessageId ?? throw new InvalidOperationException("An opening message box shows a message.")));
+                        GameplayMessageId shown = MessageId ?? throw new InvalidOperationException("An opening message box shows a message.");
+                        MinimumDisplay = UpdateCountdown.Lasting(GameplayMessageBoxDefinitions.Message(shown).MinimumDisplayFrames
+                            ?? throw new InvalidOperationException($"Message {shown} takes input as soon as its window opens; it has no minimum display."));
                         Phase = GameplayMessageBoxPhase.MinimumDisplay;
                     }
                 }
@@ -309,7 +310,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
 
     /// <summary>What <paramref name="messageId"/> asks the player to confirm.</summary>
     private static GameplayMessageConfirmation ConfirmationOf(GameplayMessageId messageId) =>
-        Ensure.Listed(GameplayMessageBoxDefinitions.Confirmations, messageId);
+        GameplayMessageBoxDefinitions.Message(messageId).Confirmation;
 
     /// <summary>
     /// The button <paramref name="messageId"/>'s panel names: the configured Shoot or Run binding's, as the glyph shows it;

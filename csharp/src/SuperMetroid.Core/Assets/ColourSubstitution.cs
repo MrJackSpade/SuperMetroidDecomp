@@ -10,30 +10,13 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed record ColourSubstitution : ColourEffect
 {
-    /// <summary>Keeps each colour replaced and the colour shown in its place.</summary>
-    /// <param name="replaced">The colours replaced, each once.</param>
-    /// <param name="shown">The colour shown in place of each, in the same order.</param>
-    /// <exception cref="ArgumentException">The lists differ in length, or a colour is replaced twice.</exception>
-    public ColourSubstitution(ImmutableArray<RgbColor> replaced, ImmutableArray<RgbColor> shown)
-    {
-        if (replaced.IsDefault || shown.IsDefault || replaced.Length != shown.Length)
-            throw new ArgumentException("A colour substitution shows one colour in place of each colour it replaces.", nameof(shown));
-        if (replaced.Distinct().Count() != replaced.Length)
-            throw new ArgumentException("A colour substitution replaces each colour once; two of its colours are the same.", nameof(replaced));
-        Replaced = replaced;
-        Shown = shown;
-    }
+    /// <summary>Keeps the colour shown in place of each colour replaced.</summary>
+    /// <param name="shownInPlaceOf">The colour shown in place of each colour replaced, by the colour it replaces.</param>
+    public ColourSubstitution(ImmutableDictionary<RgbColor, RgbColor> shownInPlaceOf) => ShownInPlaceOf = Ensure.NotNull(shownInPlaceOf);
 
-    /// <summary>The colours replaced.</summary>
-    public ImmutableArray<RgbColor> Replaced { get; }
-
-    /// <summary>The colour shown in place of each replaced colour.</summary>
-    public ImmutableArray<RgbColor> Shown { get; }
+    /// <summary>The colour shown in place of each colour replaced, by the colour it replaces.</summary>
+    public ImmutableDictionary<RgbColor, RgbColor> ShownInPlaceOf { get; }
 
     /// <inheritdoc />
-    public override RgbColor Apply(RgbColor shown)
-    {
-        int index = Replaced.IndexOf(shown);
-        return index < 0 ? shown : Shown[index];
-    }
+    public override RgbColor Apply(RgbColor shown) => ShownInPlaceOf.TryGetValue(shown, out RgbColor substitute) ? substitute : shown;
 }

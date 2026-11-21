@@ -15,24 +15,12 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// </summary>
 internal static class ColourEffectAnimations
 {
-    /// <summary>
-    /// The frame of a heat pulse that shows each heat phase's look (#2421): a pulse's frames are the heat phases' looks, in
-    /// phase order.
-    /// </summary>
-    private static readonly FrozenDictionary<HeatPhase, int> HeatLooks =
-        HeatPhase.InOrder.Select((phase, look) => KeyValuePair.Create(phase, look)).ToFrozenDictionary();
-
-    /// <summary>
-    /// The updates the heat pulse shows each heat phase's look for, in phase order (<see cref="HeatPhase.InOrder"/>):
-    /// longest at the coolest and quickest between.
-    /// </summary>
-    private static readonly int[] HeatLookUpdates = [16, 4, 4, 5, 6, 7, 8, 8, 8, 8, 7, 6, 5, 4, 4, 16];
 
     /// <summary>The updates the Power Suit's heat pulse shows its last heat phase's look for, cut short from the pulse's.</summary>
     private const int PowerSuitLastHeatLookUpdates = 3;
 
     /// <summary>Each heat phase's look shown for its updates, in phase order: the heat pulse.</summary>
-    private static readonly AnimationBeat<int, ColourEffectCue>[] HeatPulseLooks = [.. HeatPhase.InOrder.Zip(HeatLookUpdates, Heat)];
+    private static readonly AnimationBeat<int, ColourEffectCue>[] HeatPulseLooks = [.. HeatPhase.InOrder.Select(phase => Heat(phase, phase.LookUpdates))];
 
     /// <summary>
     /// The runs of frames the effects play; each suit's heat pulse plays its own (#2054), and Samus in heat, which plays her
@@ -145,8 +133,7 @@ internal static class ColourEffectAnimations
             E(new ColourEffectCue.QueueSound(Sound: EnemySound.Beacon)),
             .. Run(6, 4, 10),
         ],
-        [S.NorfairHeatPhases] = [.. HeatPhase.InOrder.Zip(HeatLookUpdates, (phase, updates) => new[] { E(new ColourEffectCue.PublishHeatPhase(phase)), Heat(phase, updates) })
-            .SelectMany(look => look)],
+        [S.NorfairHeatPhases] = [.. HeatPhase.InOrder.SelectMany(phase => new[] { E(new ColourEffectCue.PublishHeatPhase(phase)), Heat(phase, phase.LookUpdates) })],
         [S.MaridiaSand] = Run(0, 4, 10),
         [S.MaridiaBackgroundWaterfalls] = Run(0, 8, 2),
         [S.TourianArkanoidBlocksGlow] = Run(0, 11, 10),
@@ -306,11 +293,8 @@ internal static class ColourEffectAnimations
     /// <summary>How <paramref name="effect"/> starts, the colours it shows its frames in, what it watches and how it plays.</summary>
     internal static ColourEffectDefinition Definition(ColourEffectId effect) => Definitions[effect];
 
-    /// <summary>
-    /// The frame of a heat pulse that shows <paramref name="phase"/>'s look (<see cref="HeatLooks"/>).
-    /// </summary>
-    /// <exception cref="KeyNotFoundException">The pulse has no such phase.</exception>
-    internal static int HeatLook(HeatPhase phase) => HeatLooks[phase];
+    /// <summary>The frame of a heat pulse that shows <paramref name="phase"/>'s look.</summary>
+    internal static int HeatLook(HeatPhase phase) => phase.Look;
 
     /// <summary>Shows frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<int, ColourEffectCue> F(int frame, int duration) => new AnimationBeat<int, ColourEffectCue>.Frame(frame, duration);

@@ -10,9 +10,9 @@ public static class GameplayMessageNotices
 {
     /// <summary>Determines whether a message is one of the two editable save prompts requiring independent YES/NO selection rows.</summary>
     /// <param name="messageId">Gameplay message identity to classify; other messages return false without being validated as editable notices.</param>
-    /// <returns>True for a message that asks whether to save (<see cref="GameplayMessageBoxDefinitions.Confirmations"/>); false otherwise.</returns>
+    /// <returns>True for a message that asks whether to save (<see cref="GameplayMessageDefinition.Confirmation"/>); false otherwise.</returns>
     public static bool IsSaveConfirmation(GameplayMessageId messageId) =>
-        Ensure.Listed(GameplayMessageBoxDefinitions.Confirmations, messageId) != GameplayMessageConfirmation.None;
+        GameplayMessageBoxDefinitions.Message(messageId).Confirmation != GameplayMessageConfirmation.None;
 
     /// <summary>Gets the fixed native content height of an editable notice, excluding the top and bottom border rows; rejects unsupported message identities.</summary>
     /// <param name="messageId">One of the five identities in <see cref="GameplayMessageNoticeDefinitions.MessageIds"/>.</param>

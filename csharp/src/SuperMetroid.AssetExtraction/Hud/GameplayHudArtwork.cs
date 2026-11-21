@@ -194,9 +194,12 @@ public sealed class GameplayHudArtwork
         {
             EnergyTankCorners = [.. parts.EnergyTankCells.Select(Shown)],
             HealthAnchor = Shown(parts.HealthAnchor),
-            MissileAmmoAnchor = Shown(parts.MissileAmmoAnchor),
-            SuperMissileAmmoAnchor = Shown(parts.SuperMissileAmmoAnchor),
-            PowerBombAmmoAnchor = Shown(parts.PowerBombAmmoAnchor),
+            AmmoFields = new Dictionary<HudAmmoCounter, HudAmmoField>
+            {
+                [HudAmmoCounter.Missiles] = new(Shown(parts.MissileAmmoAnchor), GameplayHudDefinitions.MissileDigits),
+                [HudAmmoCounter.SuperMissiles] = new(Shown(parts.SuperMissileAmmoAnchor), GameplayHudDefinitions.SuperMissileDigits),
+                [HudAmmoCounter.PowerBombs] = new(Shown(parts.PowerBombAmmoAnchor), GameplayHudDefinitions.PowerBombDigits),
+            }.ToImmutableDictionary(),
             // The indicator's cells form its block, so it is placed by its first, upper-left cell.
             AutoReserveCorner = Shown(parts.AutoReserveCells[0]),
             // The cartridge draws an icon only over a blank anchor, and nothing but the template ever sits under an icon.

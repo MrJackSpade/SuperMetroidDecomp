@@ -12,11 +12,11 @@ internal sealed class YellowPipeBugEntity(RoomEnemyOccupant occupant, RoomEnemyP
     internal YellowPipeBugSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal YellowPipeBugState State { get; } = PipeBugsBehavior.InitializeYellowPipeBug(settings, place);
+    private readonly YellowPipeBugState state = PipeBugsBehavior.InitializeYellowPipeBug(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunYellowPipeBugMainAi(Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => PipeBugsBehavior.RunYellowPipeBugMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PipeBugsBehavior.AdvanceYellowPipeBugTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PipeBugsBehavior.AdvanceYellowPipeBugTypedAnimation(Place, state);
 }

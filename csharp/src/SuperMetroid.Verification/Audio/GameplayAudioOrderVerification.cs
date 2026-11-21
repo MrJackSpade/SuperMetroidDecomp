@@ -169,17 +169,31 @@ internal static class GameplayAudioOrderVerification
         return (runtime, game.AudioForVerification);
     }
 
-    /// <summary>The room's green Ki Hunter, its AI idle and its script one update from the spit.</summary>
+    /// <summary>
+    /// The room's green Ki Hunter one update from its spit: the room runs, nothing pressed, for the updates a run of the same
+    /// room takes before the update its Ki Hunter spits on, so the next update is that one.
+    /// </summary>
     private static RoomEnemyPlace KiHunterAtItsSpit(SuperMetroidRuntime runtime)
     {
-        RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KihunterGreen));
-        KiHunterBodyState state = runtime.Enemies.KiHunterBodyStates[body.Ordinal]
-            ?? throw new InvalidOperationException("The Ki Hunter has no state.");
-        body.Position = body.Position.WithWhole(new(128, 128));
-        state.Action = KiHunterAction.AnimatingOnGround;
-        // The spit cue, four poses into the right spit animation, which queues the acid spit (library two).
-        state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));
-        body.AnimationClock.StepOnNextUpdate();
-        return body;
+        int before = UpdatesBeforeTheSpit();
+        for (int update = 0; update < before; update++)
+            runtime.StepFrame(0, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay });
+        return runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KihunterGreen));
+    }
+
+    /// <summary>
+    /// How many updates the Crateria Ki Hunter room runs, nothing pressed, before the update on which its Ki Hunter spits
+    /// acid: a run of its own, which the room's start decides as it decides every run of it.
+    /// </summary>
+    private static int UpdatesBeforeTheSpit()
+    {
+        (SuperMetroidRuntime runtime, _) = KiHunterRoomWithSessionAudio();
+        for (int update = 0; ; update++)
+        {
+            runtime.AudioRequests.BeginRecordedUpdate();
+            runtime.StepFrame(0, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay });
+            if (runtime.AudioRequests.SoundRequests.Any(request => request.SoundEffect == EnemySound.AcidSpit))
+                return update;
+        }
     }
 }

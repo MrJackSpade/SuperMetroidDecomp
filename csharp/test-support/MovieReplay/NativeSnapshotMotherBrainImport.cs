@@ -89,12 +89,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.BodyPlayback = MotherBrainNativeListAddresses.InitialListWords.Contains(AnimationScript(state.Body))
             ? null
             : BodyPlaybackAt(state.Body);
-        Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
-        foreach (RoomEnemyPlace tube in runtime.Enemies.Places.InUpdateOrder.Where(place => place.Holds(EnemyDefinitionId.MotherBrainTubes)))
-        {
-            tube.RequireSpeciesState<MotherBrainFallingTubeState>().Playback = NativeEnemyAnimationOracle.PlaybackAt(
-                tubes, MotherBrainNativeListAddresses.TubeEntries, MotherBrainTubeAnimations.StartingAt, AnimationScript(tube));
-        }
+        // A falling tube keeps its state to itself (#2554): the family import refuses a snapshot taken while one falls.
         state.BrainShake.ShakeFor(W(MotherBrainMemory.BrainMainShakeTimer));
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
         state.NextRainbowImage = ListStep<MotherBrainRainbowImage>.At(MotherBrainRainbowImage.All,

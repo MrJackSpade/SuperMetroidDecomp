@@ -20,11 +20,11 @@ internal sealed class MotherBrainTubesEntity(MotherBrainBehavior species, RoomEn
     internal override MotherBrainEnemyState Encounter { get; } = Ensure.NotNull(encounter);
 
     /// <summary>The tube's fall, which its setup builds.</summary>
-    internal MotherBrainFallingTubeState Tube { get; } = MotherBrainFakeDeath.InitializeMotherBrainFallingTube(settings, place);
+    private readonly MotherBrainFallingTubeState tube = MotherBrainFakeDeath.InitializeMotherBrainFallingTube(settings, place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.FakeDeath.RunMotherBrainFallingTubeMain(Place, Encounter, Tube);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.FakeDeath.RunMotherBrainFallingTubeMain(Place, Encounter, tube);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MotherBrainBody.AdvanceMotherBrainTubeAnimation(Place, Tube);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MotherBrainBody.AdvanceMotherBrainTubeAnimation(Place, tube);
 }

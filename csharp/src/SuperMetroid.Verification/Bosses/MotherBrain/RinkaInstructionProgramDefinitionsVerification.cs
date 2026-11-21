@@ -64,12 +64,10 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, program, spawning);
         enemies.Places.InUpdateOrder[0].SetSpeciesState(state);
 
-        object?[] arguments = [rinka, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
-
         // One complete list is 127 timer frames plus zero-time callback/goto dispatch. The
         // margin proves that the native terminal goto loops rather than merely reaching it.
         for (int frame = 0; frame < 180; frame++)
-            EnemyInstructionRunner.Process(arguments);
+            RinkaBehavior.AdvanceRinkaTypedAnimation(rinka, state);
 
         return new RunRinkaProgramResult(enemies, rinka);
     }

@@ -16,25 +16,25 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant
     internal PowampBodySpawnSettings Settings { get; } = settings;
 
     /// <summary>The balloon the room lists right before the body, which the body receives as it is built (#2554).</summary>
-    internal PowampBalloonEntity Balloon { get; } = species.PlacedBalloon(place);
+    private readonly PowampBalloonEntity balloon = species.PlacedBalloon(place);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal PowampBodyState State { get; } = PowampBehavior.InitializePowampBody(place);
+    private readonly PowampBodyState state = PowampBehavior.InitializePowampBody(place);
 
     /// <summary>The body's own shot reaction, built for this occupant with its state and balloon.</summary>
-    private EnemyShotReaction OwnShot => field ??= PowampBehavior.PowampBodyShotReaction(Settings, State, Balloon.Place);
+    private EnemyShotReaction OwnShot => field ??= PowampBehavior.PowampBodyShotReaction(Settings, state, balloon.Place);
 
     /// <summary>The body's own bomb reaction, built for this occupant with its state and balloon.</summary>
-    private EnemyBombReaction OwnBomb => field ??= PowampBehavior.PowampBodyBombReaction(State, Balloon.Place);
+    private EnemyBombReaction OwnBomb => field ??= PowampBehavior.PowampBodyBombReaction(state, balloon.Place);
 
     /// <summary>The body's own Power Bomb reaction, built for this occupant with its balloon.</summary>
-    private EnemyPowerBombReaction OwnPowerBomb => field ??= PowampBehavior.PowampBodyPowerBombReaction(Balloon.Place);
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= PowampBehavior.PowampBodyPowerBombReaction(balloon.Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Occupant, Place, State, Balloon, frame.Level, frame.Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Occupant, Place, state, balloon, frame.Level, frame.Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBodyTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBodyTypedAnimation(Place, state);
 
     /// <summary>Whether the body's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == PowampReactions.Touch || base.ReactsToTouch;
@@ -44,7 +44,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == PowampReactions.Touch)
-            species.ReactToPowampBodyTouch(Occupant, Settings, context, State, Balloon.Place);
+            species.ReactToPowampBodyTouch(Occupant, Settings, context, state, balloon.Place);
         else
             base.ReactToTouch(context);
     }

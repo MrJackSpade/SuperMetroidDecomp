@@ -136,11 +136,13 @@ internal static class BotwoonAttackCooldownVerification
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.KeptDefinition);
         head.Position = head.Position.WithWhole(new(1000, 1000));
-        var state = new BotwoonEnemyState
-        {
-            HealthBand = BotwoonHealthBandDefinitions.BelowEighth,
-        };
-        state.HoldBody(enemies.BotwoonBehavior.SpawnBotwoonBody(head.HeldOccupant(), head, state));
+        // His setup builds the state his main AI runs on and spawns his body; the check then stands him clear of his holes,
+        // past his first action.
+        BotwoonEnemyState state = enemies.BotwoonBehavior.InitializeBotwoon(head.HeldOccupant(), head);
+        state.HealthBand = BotwoonHealthBandDefinitions.BelowEighth;
+        state.InsideHole = false;
+        state.PreviousInsideHole = false;
+        state.InitialAction = false;
         head.SetSpeciesState(state);
         return new NewBotwoonHeadResult(enemies, head, state);
     }

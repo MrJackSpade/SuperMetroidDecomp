@@ -58,13 +58,11 @@ internal static class EscapeEtecoonDefinitionsVerification
             place.SetSpawnParameter1(EnemyDefinitionId.EtecoonEscape, parameter);
             place.Position = place.Position.WithWhole(new(0xaaaa, 0xbbbb));
             place.Bind(EnemyDefinitionId.EtecoonEscape, place.KeptDefinition);
-            enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(place.HeldOccupant().SpawnSettings<EscapeEtecoonSpawnSettings>(), place);
+            EscapeEtecoonEnemyState state = enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(place.HeldOccupant().SpawnSettings<EscapeEtecoonSpawnSettings>(), place);
 
             int role = parameter >> 1;
             EscapeEtecoonInitialization expected =
                 EscapeEtecoons.Initialization(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(parameter));
-            EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
-                throw new InvalidDataException("Escape Etecoon initializer omitted typed state.");
             AssertEqual(expected.Position.X, place.Position.X.Whole,
                 $"production escape Etecoon selector {parameter} X");
             AssertEqual(expected.Position.Y, place.Position.Y.Whole,
@@ -99,10 +97,8 @@ internal static class EscapeEtecoonDefinitionsVerification
     internal static void VerifyEscapeEtecoonProgramBehavior(CartridgeImportAddressSpace rom)
     {
         CartridgeReadGuard guard = NewEscapeEtecoonDefinitionGuard(rom);
-        RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem();
+        (RoomEnemySystem enemies, EscapeEtecoonEnemyState state) = CreateEscapeEtecoonProgramSystem();
         RoomEnemyPlace etecoon = enemies.Places.InUpdateOrder[0];
-        EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
-            throw new InvalidDataException("Escape Etecoon test lost typed state.");
         var shown = new HashSet<ushort>();
         EscapeEtecoonSegment[] programs =
         [
@@ -116,12 +112,12 @@ internal static class EscapeEtecoonDefinitionsVerification
         foreach (EscapeEtecoonSegment program in programs)
         {
             state.Playback = new(EscapeEtecoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            RunForcedEscapeEtecoonUpdates(etecoon, 7, shown);
+            RunForcedEscapeEtecoonUpdates(etecoon, state, 7, shown);
         }
 
         ushort xBeforeGratitude = etecoon.Position.X.Whole;
         state.Playback = new(EscapeEtecoonAnimations.StartingWith(EscapeEtecoonSegment.ExpressGratitudeThenEscape), AnimationPlace.StartOfAnimation);
-        RunForcedEscapeEtecoonUpdates(etecoon, 40, shown);
+        RunForcedEscapeEtecoonUpdates(etecoon, state, 40, shown);
         AssertTrue(unchecked((short)(etecoon.Position.X.Whole - xBeforeGratitude)) < 0,
             "escape Etecoon gratitude program applies its repeated left displacement");
         AssertEqual(EscapeEtecoonAction.Escaping, state.Action,
@@ -142,8 +138,7 @@ internal static class EscapeEtecoonDefinitionsVerification
                 address => $"Escape Etecoon attempted migrated definition read ${address:X6}.");
 
     /// <summary>Initializes an Etecoon in a guarded bank-$B3 enemy system.</summary>
-    private static RoomEnemySystem CreateEscapeEtecoonProgramSystem(
-)
+    private static EscapeEtecoonProgramSystem CreateEscapeEtecoonProgramSystem()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().HasEvent = _ => false;
@@ -151,21 +146,28 @@ internal static class EscapeEtecoonDefinitionsVerification
         etecoon.Bind(EnemyDefinitionId.EtecoonEscape, etecoon.KeptDefinition);
         etecoon.Bind(etecoon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         etecoon.SetSpawnParameter1(EnemyDefinitionId.EtecoonEscape, 0);
-        enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(etecoon.HeldOccupant().SpawnSettings<EscapeEtecoonSpawnSettings>(), etecoon);
-        return enemies;
+        // The Etecoon's setup builds the state its animation, which the check plays, runs on.
+        return new EscapeEtecoonProgramSystem(enemies,
+            enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(etecoon.HeldOccupant().SpawnSettings<EscapeEtecoonSpawnSettings>(), etecoon));
     }
 
     /// <summary>Forces <paramref name="steps"/> program updates, recording each pose shown.</summary>
     private static void RunForcedEscapeEtecoonUpdates(RoomEnemyPlace etecoon,
+        EscapeEtecoonEnemyState state,
         int steps,
         HashSet<ushort> shown)
     {
-        object?[] arguments =
-            [etecoon, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+        var context = new EnemyAnimationCueContext
+        {
+            Samus = RoomEnemyFrameFixtures.StandaloneSamus(),
+            Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)),
+            Camera = Position16<RoomPixels>.Zero,
+            ControllerInput = default,
+        };
         for (int step = 0; step < steps; step++)
         {
             etecoon.AnimationClock.StepOnNextUpdate();
-            EnemyInstructionRunner.Process(arguments);
+            EscapeAnimalsBehavior.AdvanceEscapeEtecoonTypedAnimation(etecoon, state, context);
             shown.Add(etecoon.SpritemapPointer);
         }
     }
@@ -190,9 +192,9 @@ internal static class EscapeEtecoonDefinitionsVerification
     /// <summary>Confirms an initialized escape Etecoon owns a pre-instruction.</summary>
     internal static void VerifyEscapeEtecoonOwnedState()
     {
-        RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem();
-        _ = enemies.EscapeEtecoonStates[0] ??
-            throw new InvalidDataException("Escape Etecoon test lost typed state.");
+        EscapeEtecoonEnemyState state = CreateEscapeEtecoonProgramSystem().State;
+        AssertEqual(EscapeEtecoons.Initialization(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(0)).Action, state.Action,
+            "the escape Etecoon's setup leaves it its role's pre-instruction");
         Console.WriteLine("  Escape Etecoon owned state: an initialized escape Etecoon has a pre-instruction.");
     }
 

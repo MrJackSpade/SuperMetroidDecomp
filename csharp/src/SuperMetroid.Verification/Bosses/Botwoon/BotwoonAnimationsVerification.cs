@@ -201,9 +201,9 @@ internal static class BotwoonAnimationsVerification
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.
-        // His body is spawned as his setup spawns it, from the segment behind his head down to his tail.
+        // His setup spawns his body, from the segment behind his head down to his tail.
         Action<EnemyProjectile, int> runBody = enemies.BotwoonBehavior.MoveBotwoonBodySegment;
-        BotwoonSegmentState spawned = enemies.BotwoonBehavior.SpawnBotwoonBody(head.HeldOccupant(), head, state)[1];
+        BotwoonSegmentState spawned = enemies.BotwoonBehavior.InitializeBotwoon(head.HeldOccupant(), head).Body[1];
         EnemyProjectile body = spawned.Projectile;
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Contains(body) && body.Kind == RoomEnemyProjectileKind.BotwoonBody,
             "the real body producer returns the segment it spawned among the room's projectiles");

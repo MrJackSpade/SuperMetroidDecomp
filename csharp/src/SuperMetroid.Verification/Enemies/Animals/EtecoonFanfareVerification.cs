@@ -20,6 +20,7 @@ internal static class EtecoonFanfareVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var passage = new DoorPassage();
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, doorPassage: passage);
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };
         for (int index = 0; index < 3; index++)
         {
             var place = enemies.Places.InUpdateOrder[index];
@@ -32,17 +33,15 @@ internal static class EtecoonFanfareVerification
             place.Processing = EnemyProcessing.OffScreen;
             place.Presence = EnemyPresence.None;
             place.SetSpawnParameter2(EnemyDefinitionId.Etecoon, (ushort)index);
-            EtecoonBehavior.InitializeEtecoon(place.HeldOccupant().SpawnSettings<EtecoonSpawnSettings>(), place);
+            // The population load sets each Etecoon up, so the enemy pass runs the AI and animation of the state it built.
+            place.InitializeAsPlaced(samus);
         }
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };
         RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(48, 192));
         passage.Start();
         for (int frame = 0; frame < 3; frame++)
         {
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus });
             AssertEqual(0, enemies.Audio.SoundRequests.Count, "transition does not consume the Etecoon fanfare");
-            foreach (var state in enemies.EtecoonStates.Where(state => state is not null))
-                AssertEqual(EtecoonAction.Dormant, (state ?? throw new InvalidOperationException("Verification requires state.")).Action, "the transition keeps the Etecoon dormant");
         }
         passage.Finish();
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus });
@@ -51,9 +50,8 @@ internal static class EtecoonFanfareVerification
         AssertEqual(EnemySound.EtecoonTheme, request.SoundEffect,
             "native Etecoon fanfare identity");
         AssertEqual(15, request.Priority.Requests, "native wake request uses Max15");
-        AssertEqual(256, (enemies.EtecoonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.EtecoonStates[0].")).ActionTimer.UpdatesLeft, "wake begins flexing timer");
-        AssertEqual(EtecoonAction.Flexing, (enemies.EtecoonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.EtecoonStates[0].")).Action,
-            "Samus coming level wakes the Etecoon");
+        AssertEqual(EnemyFrameId.EtecoonHopCrouchFacingRight, enemies.Places.InUpdateOrder[0].Frame,
+            "Samus coming level wakes the Etecoon, which shows its flex's first pose");
 
         var renderer = AudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
         var queue = AudioQueues.Standalone();

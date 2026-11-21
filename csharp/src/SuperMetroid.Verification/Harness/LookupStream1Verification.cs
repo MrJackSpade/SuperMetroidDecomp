@@ -216,7 +216,8 @@ internal static class LookupStream1Verification
             var body = enemies.Places.InUpdateOrder[1];
             body.BindPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts));
             body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-            PowampBehavior.InitializePowampBody(body);
+            // The body's setup builds the state its animation, which the check plays, runs on.
+            PowampBodyState bodyState = PowampBehavior.InitializePowampBody(body);
             body.Position = body.Position.WithWholeY(100);
             var place = isBody ? body : balloon;
             PowampSegment program = root switch
@@ -227,12 +228,13 @@ internal static class LookupStream1Verification
                 _ => PowampSegment.BalloonStartSinking,
             };
             if (isBody)
-                body.RequireSpeciesState<PowampBodyState>().Playback = new(PowampAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+                bodyState.Playback = new(PowampAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             else
                 PowampBehavior.StartPowampBalloonAnimation(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), program);
             var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), balloon.HeldOccupant());
             place.AnimationClock.StepOnNextUpdate();
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
+            Action animate = isBody ? () => PowampBehavior.AdvancePowampBodyTypedAnimation(body, bodyState) : () => EnemyInstructionRunner.Process(arguments);
             int calls = 0;
             for (int pose = 0; pose < 3; pose++)
             {
@@ -240,7 +242,7 @@ internal static class LookupStream1Verification
                 ushort sprite = Word(0xa80000 | (address + 2));
                 for (int held = 0; held < duration; held++)
                 {
-                    EnemyInstructionRunner.Process(arguments); calls++;
+                    animate(); calls++;
                     // A balloon's last pose is shown for good, its clock stopped while the native timer counts it down (#2454).
                     SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertClockHold((ushort)(duration - held), place.AnimationClock,
                         $"Every uninterrupted Powamp hold tick (program {root:X4}, pose {pose}, tick {held})");
@@ -254,7 +256,7 @@ internal static class LookupStream1Verification
                 }
             }
             AssertEqual(root == 0xc163 ? 15 : root == 0xc173 ? 27 : 167, calls, "Native Powamp sequence duration");
-            EnemyInstructionRunner.Process(arguments);
+            animate();
             if (isBody)
             {
                 AssertEqual(Word(0xa80000 | (root + 2)), place.SpritemapPointer, "Actual Powamp loop repeats first pose");
@@ -266,7 +268,7 @@ internal static class LookupStream1Verification
                 ushort terminalY = balloon.Position.Y.Whole;
                 PowampBehavior.AlignPowampBalloonY(body, pair);
                 AssertEqual(terminalY, balloon.Position.Y.Whole, "Sleep preserves terminal balloon collision center");
-                EnemyInstructionRunner.Process(arguments);
+                animate();
                 AssertTrue(place.AnimationClock.IsStopped, "Sleeping Powamp keeps its clock stopped");
             }
         }
@@ -290,22 +292,21 @@ internal static class LookupStream1Verification
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // The Metroid is set up as its room's population sets it up, then plays the pulse its chase or drain starts.
             place.SetSpawnSettings(new MetroidSpawnSettings(IceDamageToFreeze: 0));
-            place.SetUpAsPlaced();
-            place.RequireSpeciesState<MetroidEnemyState>().Playback =
+            MetroidEnemyState metroid = enemies.MetroidBehavior.InitializeMetroid(place.HeldOccupant(), place.HeldOccupant().SpawnSettings<MetroidSpawnSettings>(), place);
+            metroid.Playback =
                 new(MetroidAnimations.StartingWith(chasing ? MetroidSegment.ChasingSamus : MetroidSegment.DrainingSamus), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
             randomCalls = 0;
-            object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             for (int record = 0; record < records; record++)
             {
                 ushort address = (ushort)(root + record * 4);
                 ushort duration = Word(0xa30000 | address), visual = Word(0xa30000 | (address + 2));
-                EnemyInstructionRunner.Process(arguments); calls++;
+                enemies.MetroidBehavior.AdvanceMetroidTypedAnimation(place, metroid); calls++;
                 AssertEqual(duration, place.AnimationClock.Hold, "Actual Metroid duration reload");
                 AssertEqual(visual, place.SpritemapPointer, "Actual native inside-pose identity");
                 for (int held = 1; held < duration; held++)
                 {
-                    EnemyInstructionRunner.Process(arguments); calls++;
+                    enemies.MetroidBehavior.AdvanceMetroidTypedAnimation(place, metroid); calls++;
                     AssertEqual((ushort)(duration - held), place.AnimationClock.Hold, "Every actual Metroid exposure tick");
                     AssertEqual(visual, place.SpritemapPointer, "Held Metroid inside pose stays selected");
                 }
@@ -313,7 +314,7 @@ internal static class LookupStream1Verification
                 AssertTrue(enemies.Audio.LatestSound is null, "No Metroid callback before loop boundary");
             }
             AssertEqual(chasing ? 256 : 64, calls, "Exact native pulse-loop length");
-            EnemyInstructionRunner.Process(arguments);
+            enemies.MetroidBehavior.AdvanceMetroidTypedAnimation(place, metroid);
             AssertEqual(chasing ? 1 : 0, randomCalls, "Exact Metroid callback RNG ownership");
             ushort expectedSound = chasing ? Word(0xa3ead6 + 5 * 2) : Word(0xa3eaa8);
             AssertEqual(SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Enemies, expectedSound),

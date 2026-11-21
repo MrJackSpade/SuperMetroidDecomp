@@ -29,7 +29,7 @@ internal static class RoomEnemySlotSpawnWords
             place.PopulateFor(species, EnemySpawnSettingsCodec.Decode(species, change(blank), Position16<RoomPixels>.Zero));
             return;
         }
-        RoomEnemyPlacement current = populated.LastSpawn;
+        RoomEnemyPlacement current = populated.Occupancy.LastSpawn;
         Position16<RoomPixels> position = RoomEnemyPopulationRecordCodec.PositionWordsOf(current.Placing);
         Type kind = KindOf(EnemySpawnSettingsCodec.Decode(species, blank, position).GetType());
         PopulationWords words = KindOf(current.SpawnSettings.GetType()) == kind

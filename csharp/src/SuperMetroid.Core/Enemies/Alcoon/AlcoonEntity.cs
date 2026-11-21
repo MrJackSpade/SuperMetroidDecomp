@@ -10,11 +10,11 @@ internal sealed class AlcoonEntity(AlcoonBehavior species, RoomEnemyOccupant occ
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal AlcoonEnemyState State { get; } = species.InitializeAlcoon(place, surroundings.Level);
+    private readonly AlcoonEnemyState state = species.InitializeAlcoon(place, surroundings.Level);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunAlcoonMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunAlcoonMainAi(Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceAlcoonTypedAnimation(Occupant, Place, State, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceAlcoonTypedAnimation(Occupant, Place, state, context);
 }

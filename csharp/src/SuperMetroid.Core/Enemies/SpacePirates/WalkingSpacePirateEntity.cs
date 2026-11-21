@@ -13,13 +13,13 @@ internal sealed class WalkingSpacePirateEntity(WalkingSpacePirateBehavior specie
     internal WalkingSpacePirateSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal WalkingSpacePirateEnemyState State { get; } = WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(settings, place);
+    private readonly WalkingSpacePirateEnemyState state = WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunWalkingSpacePirateMainAi(Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunWalkingSpacePirateMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWalkingSpacePirateTypedAnimation(Occupant, Settings, Place, State, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWalkingSpacePirateTypedAnimation(Occupant, Settings, Place, state, context);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => SpacePirateHitboxes.Find(Place, probe);

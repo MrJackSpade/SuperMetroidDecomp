@@ -18,10 +18,10 @@ public abstract class ChozoStatuePhase
     public static ChozoStatuePhase Placed { get; } = new PlacedPhase();
 
     /// <summary>Placed, with Samus already at its hand: its idle animation's first beat moves it on to <see cref="HandTriggered"/>.</summary>
-    public static ChozoStatuePhase HandTriggeredBeforeWaiting { get; } = new TriggeredBeforeWaitingPhase();
+    private static ChozoStatuePhase HandTriggeredBeforeWaiting { get; } = new TriggeredBeforeWaitingPhase();
 
     /// <summary>Waits for Samus at its hand, holding its cupped hands.</summary>
-    public static ChozoStatuePhase AwaitingHand { get; } = new AwaitingHandPhase();
+    private static ChozoStatuePhase AwaitingHand { get; } = new AwaitingHandPhase();
 
     /// <summary>Samus has triggered its hand: its next update starts its activation.</summary>
     public static ChozoStatuePhase HandTriggered { get; } = new HandTriggeredPhase();

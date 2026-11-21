@@ -68,8 +68,9 @@ internal static class HopperAnimationDefinitionsVerification
             place.Bind(definitions[variant], place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter1(EnemyDefinitionId.Sidehopper, onCeiling ? (ushort)1 : (ushort)0);
-            enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant(), place.HeldOccupant().SpawnSettings<HopperSpawnSettings>());
-            HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
+            // The hopper's setup builds the state its steps and its animation, which the check plays, run on.
+            HopperEnemyState state = enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant(), place.HeldOccupant().SpawnSettings<HopperSpawnSettings>());
+            Action animate = () => enemies.HoppersBehavior.AdvanceHoppersTypedAnimation(place, state);
             AssertEqual(kind, state.Kind, $"hopper kind {context}");
             HopperSegment landed = HopperAnimationChoices.Animation(kind, onCeiling ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Landed);
             HopperSegment jumping = HopperAnimationChoices.Animation(kind, onCeiling ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Jumping);
@@ -81,7 +82,7 @@ internal static class HopperAnimationDefinitionsVerification
             ushort airborne = HopperAnimationsConstants.Spritemaps(jumping).Single();
             // The airborne pose is a still picture (#2337): it shows once and rests there.
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([airborne], [1]),
-                EnemyInstructionRunner.ShownFrames(place, 2), $"hopper airborne pose {context}");
+                EnemyInstructionRunner.ShownFrames(place, 2, animate), $"hopper airborne pose {context}");
             AssertTrue(place.Processing.HasAny(EnemyProcessing.OffScreen),
                 $"hopper jumping program {context} enables off-screen processing");
             AssertEqual(variant is 0 or 1 ? EnemySound.SidehopperJump : null, enemies.Audio.LatestSound,
@@ -91,9 +92,9 @@ internal static class HopperAnimationDefinitionsVerification
             AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper landed handoff {context}");
             int[] holds = [2, 5, 2, 3];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(HopperAnimationsConstants.Spritemaps(landed), holds),
-                EnemyInstructionRunner.ShownFrames(place, holds.Sum()), $"hopper landing poses {context}");
+                EnemyInstructionRunner.ShownFrames(place, holds.Sum(), animate), $"hopper landing poses {context}");
             AssertTrue(!state.ReadyToHop, $"hopper landed program {context} holds its last pose before readiness");
-            EnemyInstructionRunner.ShownFrames(place, 1);
+            EnemyInstructionRunner.ShownFrames(place, 1, animate);
             AssertTrue(!place.Processing.HasAny(EnemyProcessing.OffScreen),
                 $"hopper landed program {context} disables off-screen processing");
             AssertTrue(state.ReadyToHop, $"hopper landed program {context} publishes ready-to-hop");
@@ -123,8 +124,8 @@ internal static class HopperAnimationDefinitionsVerification
         place.Bind(EnemyDefinitionId.SidehopperTourian, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
-        enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant(), place.HeldOccupant().SpawnSettings<HopperSpawnSettings>());
-        EnemyInstructionRunner.ShownFrames(place, 1);
+        HopperEnemyState state = enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant(), place.HeldOccupant().SpawnSettings<HopperSpawnSettings>());
+        EnemyInstructionRunner.ShownFrames(place, 1, () => enemies.HoppersBehavior.AdvanceHoppersTypedAnimation(place, state));
         AssertEqual((SoundEffectId?)EnemySound.LowThud, enemies.Audio.LatestSound,
             "Tourian Sidehopper shares the large-Sidehopper landed program");
     }

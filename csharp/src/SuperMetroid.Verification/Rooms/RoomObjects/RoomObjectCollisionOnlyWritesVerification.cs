@@ -119,7 +119,8 @@ internal static class RoomObjectCollisionOnlyWritesVerification
             ChozoStatueHandTrigger statueHand = SuperMetroid.Verification.Enemies.Chozo.ChozoStatueHandFixtures.Placed(ChozoStatueSite.WreckedShip, out ChozoStatueState statue);
             roomObjects.ChozoStatue.SpawnChozoStatueHand(level, new(hand, ChozoStatueHandObject.WreckedShip), statueHand);
             roomObjects.ChozoStatue.NotifyChozoStatueHandCollision(level, hand, samus, SamusPoseId.MorphBallGroundRightPose, movingDown: true);
-            AssertEqual(ChozoStatuePhase.HandTriggeredBeforeWaiting, statue.Phase, "the morphed Samus landing on the hand wakes the statue");
+            AssertEqual(ChozoStatuePhase.HandTriggered, statue.Phase.AfterWaitStarts,
+                "the morphed Samus landing on the hand wakes the statue: the start of its wait starts its activation");
         });
         kept.Check("the Wrecked Ship hand's setup", Solid, [hand], level =>
             RoomObjectFixtures.Unbound().ChozoStatue.SpawnChozoStatueHand(level, new(hand, ChozoStatueHandObject.WreckedShip),

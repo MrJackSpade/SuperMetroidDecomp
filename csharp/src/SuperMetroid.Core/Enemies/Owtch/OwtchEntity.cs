@@ -10,22 +10,22 @@ internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemyOccupant occup
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' OwtchShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnOwtchShotReaction => field ??= OwtchBehavior.OwtchShotReaction(State);
+    private EnemyShotReaction OwnOwtchShotReaction => field ??= OwtchBehavior.OwtchShotReaction(state);
 
     /// <summary>The species' OwtchBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyBombReaction OwnOwtchBombReaction => field ??= OwtchBehavior.OwtchBombReaction(State);
+    private EnemyBombReaction OwnOwtchBombReaction => field ??= OwtchBehavior.OwtchBombReaction(state);
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal OwtchSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal OwtchEnemyState State { get; } = OwtchBehavior.InitializeOwtch(settings, place);
+    private readonly OwtchEnemyState state = OwtchBehavior.InitializeOwtch(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Settings, Place, State);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Settings, Place, state);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => OwtchBehavior.AdvanceOwtchTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => OwtchBehavior.AdvanceOwtchTypedAnimation(Place, state);
 
     /// <summary>The Owtch's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == OwtchReactions.Shot ? OwnOwtchShotReaction : base.ShotReaction;

@@ -24,7 +24,8 @@ internal static class BotwoonPositionHistoryVerification
 
         RoomEnemyPlace head = runtime.Enemies.Places.InUpdateOrder.Single(place =>
             place.Holds(EnemyDefinitionId.Botwoon));
-        BotwoonEnemyState state = head.RequireSpeciesState<BotwoonEnemyState>();
+        // His setup, run on the head the room placed, builds the state his main AI runs on.
+        BotwoonEnemyState state = runtime.Enemies.BotwoonBehavior.InitializeBotwoon(head.HeldOccupant(), head);
         AssertTrue(state.History.All(position => position == Position16<RoomPixels>.Zero),
             "Botwoon's position history starts as Initialise_Enemies' zeroed RAM");
         AssertTrue(state.HeadHistory.All(position => position == head.Position.Whole),

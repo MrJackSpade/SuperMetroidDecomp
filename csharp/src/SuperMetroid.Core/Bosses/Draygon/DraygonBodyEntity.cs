@@ -16,13 +16,13 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
     : DraygonEntity(species, occupant, place, common, bossArtwork), IEnemyPrivateShotReaction
 {
     /// <summary>The encounter his body began as it was built (#2554).</summary>
-    internal DraygonEnemyState Draygon { get; } = species.BeginDraygon(occupant);
+    private readonly DraygonEnemyState draygon = species.BeginDraygon(occupant);
 
     /// <summary>The body's part of the encounter it set up.</summary>
-    internal override DraygonPart Part => Draygon.BodyPart;
+    internal override DraygonPart Part => draygon.BodyPart;
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, Draygon, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, draygon, frame);
 
     /// <summary>
     /// The body's hurt behaviour: it flashes body, eye and tail together, while a connected grapple's electrocution may

@@ -8,11 +8,11 @@ internal sealed class WreckedShipGhostEntity(RoomEnemyOccupant occupant, RoomEne
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal WreckedShipGhostEnemyState State { get; } = WreckedShipGhostBehavior.InitializeWreckedShipGhost(place);
+    private readonly WreckedShipGhostEnemyState state = WreckedShipGhostBehavior.InitializeWreckedShipGhost(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WreckedShipGhostBehavior.AdvanceWreckedShipGhostTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WreckedShipGhostBehavior.AdvanceWreckedShipGhostTypedAnimation(Place, state);
 }

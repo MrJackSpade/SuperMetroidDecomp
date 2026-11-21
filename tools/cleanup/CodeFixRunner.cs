@@ -959,7 +959,7 @@ internal sealed class SolutionFixer
         var changedSinceAnalysis = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var broken = new SortedSet<string>(StringComparer.Ordinal);
         var compiledAtStart = new HashSet<ProjectId>();
-        var origins = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var origins = new Dictionary<string, string>(StringComparer.Ordinal);
         var brokenByFixes = new HashSet<ProjectId>();
         int pass = 0;
         while (true)
@@ -1433,7 +1433,7 @@ internal sealed class SolutionFixer
         // in their place when the pass ends.
         Solution checkedSolution = result;
         _passProblems!.Add(Task.Run(() => CompilerErrorProblemsAsync(checkedSolution, affected, fix)));
-        return new FixDecision(new FileFix(result, paths, added.Keys.ToDictionary(path => path, _ => source, StringComparer.OrdinalIgnoreCase)), false);
+        return new FixDecision(new FileFix(result, paths, added.Keys.ToDictionary(path => path, _ => source, StringComparer.Ordinal)), false);
     }
 
     /// <summary>A fix the runner cannot apply: a defect of its fixer, which fails the run (#2599).</summary>
@@ -1613,11 +1613,12 @@ internal sealed class SolutionFixer
     private static string OriginOf(string path, Dictionary<string, string> origins)
     {
         string origin = path;
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var seen = new HashSet<string>(StringComparer.Ordinal);
         while (origins.TryGetValue(origin, out string? from))
         {
             if (!seen.Add(origin))
-                throw new InvalidOperationException($"The added files' origins form a cycle at {origin}.");
+                throw new InvalidOperationException($"The added files' origins form a cycle at {origin}, reached from {path}: " +
+                    string.Join("; ", origins.Select(entry => $"{entry.Key} from {entry.Value}")));
             origin = from;
         }
         if (origin == path)

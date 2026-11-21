@@ -35,7 +35,8 @@ internal static class InitializerEvaluation
                 var constructors = (group.Key ? type.StaticConstructors : type.InstanceConstructors).Where(c => !c.IsImplicitlyDeclared).ToList();
                 if (constructors.Count == 0)
                 {
-                    AddConstructor(await edits.ForAsync(holder.SyntaxTree, cancellationToken).ConfigureAwait(false), holder, type, group.Key, statements);
+                    bool others = holder.Members.Any(member => !ordered.Any(initializer => member.Span.Contains(initializer.Value.Span)));
+                    AddConstructor(await edits.ForAsync(holder.SyntaxTree, cancellationToken).ConfigureAwait(false), holder, type, group.Key, statements, others);
                     continue;
                 }
                 foreach (IMethodSymbol constructor in constructors)
@@ -115,8 +116,10 @@ internal static class InitializerEvaluation
         edits.Replace(TextSpan.FromBounds(arrow.ArrowToken.GetPreviousToken().Span.End, constructor.SemicolonToken.Span.End), body);
     }
 
-    /// <summary>Adds a constructor holding the statements at the start of the type's body.</summary>
-    private static void AddConstructor(SourceEdits edits, TypeDeclarationSyntax holder, INamedTypeSymbol type, bool isStatic, List<string> statements)
+    /// <summary>Adds a constructor holding the statements at the start of the type's body, documented when it is
+    /// visible, since the build requires it (CS1591); <paramref name="others"/> says whether other members follow.</summary>
+    private static void AddConstructor(SourceEdits edits, TypeDeclarationSyntax holder, INamedTypeSymbol type, bool isStatic, List<string> statements,
+        bool others)
     {
         SourceText text = edits.Text;
         TextLine braceLine = text.Lines.GetLineFromPosition(holder.OpenBraceToken.SpanStart);
@@ -125,9 +128,10 @@ internal static class InitializerEvaluation
             ? Indentation(text.Lines.GetLineFromPosition(holder.Members[0].SpanStart).ToString())
             : Indentation(braceLine.ToString()) + "    ";
         string modifiers = isStatic ? "static" : type.IsAbstract ? "protected" : "public";
-        string constructor = indent + modifiers + " " + holder.Identifier.ValueText + "()" + newline + indent + "{" + newline +
+        string documentation = isStatic ? "" : indent + "/// <summary>Creates the value, evaluating what its removed members' initializers did.</summary>" + newline;
+        string constructor = documentation + indent + modifiers + " " + holder.Identifier.ValueText + "()" + newline + indent + "{" + newline +
             string.Concat(statements.Select(statement => indent + "    " + statement + newline)) + indent + "}" + newline;
-        edits.Insert(braceLine.EndIncludingLineBreak, constructor + (holder.Members.Count > 0 ? newline : ""));
+        edits.Insert(braceLine.EndIncludingLineBreak, constructor + (others ? newline : ""));
     }
 
     /// <summary>Inserts the statements at the start of a type's body, which cannot hold them.</summary>

@@ -64,7 +64,7 @@ public sealed class OneTypePerFileCodeFixProvider : DocumentFixProvider
             {
                 // Both types belong in this file, so neither can leave it: the build fails here until one is renamed.
                 own.Insert(text.Lines.GetLineFromPosition(own.AttachedStart(reported)).Start,
-                    $"#error {OneTypePerFileAnalyzer.Id}: '{OneTypePerFileAnalyzer.NameOf(reported)}' and '{name}' both belong in " +
+                    $"#error {OneTypePerFileAnalyzer.Id}: '{Shown(reported)}' and '{Shown(declaration)}' both belong in " +
                     $"{Path.GetFileName(path)}; one of them needs another name{newline}");
                 continue;
             }
@@ -90,4 +90,12 @@ public sealed class OneTypePerFileCodeFixProvider : DocumentFixProvider
         }
         return solution;
     }
+
+    /// <summary>A type's name with its type parameters, as the <c>#error</c> names it.</summary>
+    private static string Shown(MemberDeclarationSyntax declaration) => declaration switch
+    {
+        TypeDeclarationSyntax type => type.Identifier.ValueText + type.TypeParameterList,
+        DelegateDeclarationSyntax @delegate => @delegate.Identifier.ValueText + @delegate.TypeParameterList,
+        _ => OneTypePerFileAnalyzer.NameOf(declaration),
+    };
 }

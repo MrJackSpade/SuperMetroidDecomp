@@ -308,8 +308,7 @@ after its third, `RoomPaletteFxPrograms.cs`, on which the fixer threw); `SME6401
 (`objectcharacterplacement.cs`); `SME6401.taken-name` a file whose name another file has, whose type joins that file;
 `SME6400.directives` a type moved with its directives, a raw string in a namespace block, a type that joins an existing
 file and a file of top-level statements; `SME6400.breaking` a file-local type and two types that both belong in one file;
-`SME6360.refusals` the merges that needed a choice; `IDE0051.breaking` a member a cref still names; `IDE0052.breaking`
-initializers kept in an added constructor, in a block body given to an expression-bodied one and in a primary
+`SME6360.refusals` the merges that needed a choice; `IDE0052.breaking` initializers kept in an added constructor, in a block body given to an expression-bodied one and in a primary
 constructor's type body, a write through a receiver with effects left as written, an assignment used with the field's
 type, and a virtual method's parameter left unread; `IDE0052.unread-parameter` (above) a member left reading no
 instance data.

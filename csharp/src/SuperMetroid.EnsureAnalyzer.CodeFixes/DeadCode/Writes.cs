@@ -56,7 +56,9 @@ internal static class Writes
                         edits.Replace(expression.Span, "_");
                     return;
                 }
-                edits.Replace(assignment.Syntax.Span, assignment.Type is null || SymbolEqualityComparer.Default.Equals(assignment.Value.Type, assignment.Type)
+                // The value's own type, before the implicit conversion to the variable's that the assignment makes.
+                ITypeSymbol? valueType = (assignment.Value is IConversionOperation { IsImplicit: true } conversion ? conversion.Operand : assignment.Value).Type;
+                edits.Replace(assignment.Syntax.Span, assignment.Type is null || SymbolEqualityComparer.Default.Equals(valueType, assignment.Type)
                     ? assignment.Value.Syntax.ToString()
                     : $"({assignment.Type.ToMinimalDisplayString(model, assignment.Syntax.SpanStart)})({assignment.Value.Syntax})");
                 return;

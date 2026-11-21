@@ -123,7 +123,7 @@ internal static class YardAirborneVerification
             TimeIsFrozen = false,
             Samus = samus,
         });
-        state.Movement = YardMovement.Airborne;
+        state.Motion = new YardMotion.Airborne(YardDirections.ForAirborneFacing(state.AirborneFacingDirection).HidingAnimation);
         state.Behavior = YardBehavior.NormalCrawling;
         samus.Position = samus.Position.WithWhole(actor.Position.Whole);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
@@ -153,7 +153,8 @@ internal static class YardAirborneVerification
             var state = enemies.YardStates[0];
             actor.Position = new(new(512, 0xF000), new(512, 0xF000));
             actor.AnimationClock.HoldFor(ushort.MaxValue);
-            (state ?? throw new InvalidOperationException("Verification requires state.")).Movement = YardMovement.Airborne;
+            state = state ?? throw new InvalidOperationException("Verification requires state.");
+            state.Motion = new YardMotion.Airborne(YardDirections.ForAirborneFacing(state.AirborneFacingDirection).HidingAnimation);
             state.Behavior = behavior;
             state.AirborneVelocity = new FixedVector<RoomPixels>(
                 SixteenSixteenWords.ToDisplacement(unchecked((int)initialX)),

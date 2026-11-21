@@ -530,15 +530,29 @@ internal static class InstalledFixtures
     /// <param name="random">The session's random-number word, or <see langword="null"/> for a game that owns its own.</param>
     internal static SuperMetroidGame CreateGame(SuperMetroid.Core.Saves.SaveSlotStore saves,
         SuperMetroid.Core.Gameplay.GameplayAssists? assists = null, bool renderGameplayFrames = true,
+        SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null) =>
+        CreateGameWithAudio(saves, SuperMetroid.Core.Audio.GameAudioOutput.Silent, assists, renderGameplayFrames, hostServices, random);
+
+    /// <summary>
+    /// A frontend game over <paramref name="saves"/> whose audio produces <paramref name="audioOutput"/>, built with the
+    /// installation's presentation catalogs, as a host builds its game with both (#2554).
+    /// </summary>
+    /// <param name="saves">The saves the game owns.</param>
+    /// <param name="audioOutput">What the game's audio produces.</param>
+    /// <param name="assists">The assists the game plays under, or <see langword="null"/> for the unassisted game.</param>
+    /// <param name="renderGameplayFrames">Whether gameplay frames are composited.</param>
+    /// <param name="hostServices">The hardware-timing policies, or <see langword="null"/> for the lag-free defaults.</param>
+    /// <param name="random">The session's random-number word, or <see langword="null"/> for a game that owns its own.</param>
+    internal static SuperMetroidGame CreateGameWithAudio(SuperMetroid.Core.Saves.SaveSlotStore saves,
+        SuperMetroid.Core.Audio.GameAudioOutput audioOutput,
+        SuperMetroid.Core.Gameplay.GameplayAssists? assists = null, bool renderGameplayFrames = true,
         SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null)
     {
         // A fixture game without a supplied word is a session of its own.
         SuperMetroidGameHostServices services = hostServices ?? SuperMetroidGameHostServices.Default;
         if (!renderGameplayFrames)
             services = SuperMetroidGameHostServicesFixtures.With(services.DoorMusicLoadFrames, services.RoomLoadProgress, services.SoundAcceptance, RetainedGameplayFrames.Instance);
-        var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { saves, assists, services, random ?? new SharedRandom() });
-        gameBindings.Value(game);
-        return game;
+        return new SuperMetroidGame(saves, assists, services, random ?? new SharedRandom(), audioOutput, fixtureGameArtwork.Value);
     }
 
     /// <summary>

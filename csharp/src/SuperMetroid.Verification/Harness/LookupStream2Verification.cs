@@ -675,7 +675,7 @@ internal static class LookupStream2Verification
     {
         Func<CrawlerSurfaceOrientation, SignedEightEight?, PixelVelocity<RoomPixels>, PixelVelocity<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocities;
         Action<YardEnemyState, YardDirection> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
-        var yard = new YardEnemyState(YardMovement.HoldingStill);
+        var yard = new YardEnemyState();
         SignedEightEight? crawlSpeed;
         for (ushort parameter = 0; parameter < 32; parameter++)
         {

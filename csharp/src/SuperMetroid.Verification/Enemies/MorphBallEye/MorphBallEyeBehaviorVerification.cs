@@ -85,9 +85,12 @@ internal static class MorphBallEyeBehaviorVerification
     /// </summary>
     internal static void VerifyMorphBallEyeBeamWideningAndFade()
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        (RoomEnemySystem enemies, RoomEnemyPlace eye, MorphBallEyeEnemyState eyeState) = Create(parameter1: 0);
         MorphBallEyeBeamState beam = enemies.MorphBallEyeBehavior.MorphBallEyeBeam;
-        beam.Phase = MorphBallEyeBeamPhase.Widening;
+        // The eye's request casts the beam, whose first step seeds its colour, activates the eye and starts it widening.
+        beam.Request(eye, eyeState);
+        enemies.MorphBallEyeBehavior.StepMorphBallEyeBeam();
+        AssertEqual(MorphBallEyeBeamPhase.Widening, beam.Phase, "a cast beam's first step starts it widening");
         int[] widths = [0, 0, 1, 2, 3, 4];
         // #1684: every update against the 16.16 arithmetic the typed angles replace: the growth gains 16384/65536 of a
         // step, the width the growth, and the update whose whole width reaches four sets it to four, keeping its fraction.
@@ -110,7 +113,10 @@ internal static class MorphBallEyeBehaviorVerification
         }
         AssertEqual(RotationAngle.FromSteps(4, 64), beam.AngularHalfWidth, "a full beam keeps the fraction it overshot with");
 
-        beam.Phase = MorphBallEyeBeamPhase.Deactivating;
+        // The full beam begins fading on the step after its eye is no longer activated.
+        eyeState.IsActivated = false;
+        enemies.MorphBallEyeBehavior.StepMorphBallEyeBeam();
+        AssertEqual(MorphBallEyeBeamPhase.Deactivating, beam.Phase, "a full beam whose eye is deactivated begins fading");
         beam.Color = MorphBallEyeBeamDefinitions.InitialColor;
         int fadeUpdates = MorphBallEyeBeamDefinitions.InitialColor.FadeLevels.Green;
         for (int update = 1; update <= fadeUpdates; update++)

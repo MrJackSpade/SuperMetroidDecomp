@@ -38,7 +38,8 @@ internal static class YardKickVerification
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new((ushort)(actor.Position.X.Whole - 128), (ushort)(actor.Position.Y.Whole - 112)), TimeIsFrozen = false, Samus = samus });
             // Seed the airborne touch-admission case. The real contact dispatcher
             // must install the kick and consume the camera measure it was handed.
-            (state ?? throw new InvalidOperationException("Verification requires state.")).Movement = YardMovement.Airborne;
+            state = state ?? throw new InvalidOperationException("Verification requires state.");
+            state.Motion = new YardMotion.Airborne(YardDirections.ForAirborneFacing(state.AirborneFacingDirection).HidingAnimation);
             state.Behavior = YardBehavior.NormalCrawling;
             samus.Position = samus.Position.WithWhole(actor.Position.Whole);
             samus.InvincibilityTimer = WrappingCountdown.Start(0);

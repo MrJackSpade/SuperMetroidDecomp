@@ -272,7 +272,12 @@ internal static class DraygonAnimationsVerification
         foreach (HorizontalDirection direction in new[] { HorizontalDirection.Left, HorizontalDirection.Right })
         {
             (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
-            enemies.DraygonBehavior.Goop.SetupDraygonGoopPass(state, direction, RoomEnemyFrameFixtures.StandaloneSamus(), frameCounter: 0);
+            // A leftward pass leads into the rightward setup, a rightward one into the leftward swoop (DraygonSwoops); the
+            // check ends before the pass reaches it, so the leftward swoop flies a one-height path.
+            DraygonPhaseStep exit = direction == HorizontalDirection.Left
+                ? DraygonPhaseSteps.RightSwoopSetup()
+                : DraygonPhaseSteps.LeftSwoopSetup(new DraygonSwoopPath([0], startHeight: 0));
+            enemies.DraygonBehavior.Goop.SetupDraygonGoopPass(state, direction, RoomEnemyFrameFixtures.StandaloneSamus(), frameCounter: 0, exit);
             AssertEqual(Started(DraygonSegment.Rest), state.ArmsPart.Playback, $"a {direction} goop pass's setup leaves the arms' animation");
             Pass(state.Body);
             AssertEqual(Started(direction == HorizontalDirection.Right ? DraygonSegment.ArmsFacingRightIdle : DraygonSegment.ArmsFacingLeftIdle),

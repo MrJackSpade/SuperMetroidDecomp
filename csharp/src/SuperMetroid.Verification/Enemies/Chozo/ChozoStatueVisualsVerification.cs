@@ -76,8 +76,9 @@ internal static class ChozoStatueVisualsVerification
 
             var wreckedHandLevel = CreateEmptyRoom(new(width, 16));
             var wreckedHandObjects = RoomObjectFixtures.Unbound();
-            wreckedHandObjects.ChozoStatue.SpawnChozoStatueObject(wreckedHandLevel,
-                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.WreckedShipHand));
+            wreckedHandObjects.ChozoStatue.SpawnChozoStatueHand(wreckedHandLevel,
+                new RoomObjectSpawnRequest<ChozoStatueHandObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueHandObject.WreckedShip),
+                ChozoStatueHandFixtures.Placed(ChozoStatueSite.WreckedShip));
             wreckedHandObjects.Step(wreckedHandLevel);
             AssertTrue(wreckedHandObjects.PopulationPlaces.Count == 0,
                 "Wrecked Ship hand executes the shared compiled delete list");

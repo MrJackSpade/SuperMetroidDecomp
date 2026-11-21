@@ -74,19 +74,14 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.KeptDefinition);
-        enemies.DraygonBehavior.Parts.InitializeDraygonBody(body.HeldOccupant());
-        // His hurt update shades every part he draws (#1512), so his eye, tail and arms attach after the body as in his room.
-        (EnemyDefinitionId Definition, Action<RoomEnemyPlace> Initialize)[] parts =
-        [
-            (EnemyDefinitionId.DraygonEye, enemies.DraygonBehavior.Parts.InitializeDraygonEye),
-            (EnemyDefinitionId.DraygonTail, enemies.DraygonBehavior.Parts.InitializeDraygonTail),
-            (EnemyDefinitionId.DraygonArms, enemies.DraygonBehavior.Parts.InitializeDraygonArms),
-        ];
+        body.SetUpAsPlaced();
+        // His hurt update shades every part he draws (#1512), so his eye, tail and arms set up after the body as in his room.
+        EnemyDefinitionId[] parts = [EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail, EnemyDefinitionId.DraygonArms];
         for (int index = 0; index < parts.Length; index++)
         {
             RoomEnemyPlace part = enemies.Places.InUpdateOrder[index + 1];
-            part.Bind(parts[index].Definition, part.KeptDefinition);
-            parts[index].Initialize(part);
+            part.Bind(parts[index], part.KeptDefinition);
+            part.SetUpAsPlaced();
         }
         DraygonEnemyState state = enemies.Draygon ??
             throw new InvalidOperationException("Draygon body initialization lost its owner.");

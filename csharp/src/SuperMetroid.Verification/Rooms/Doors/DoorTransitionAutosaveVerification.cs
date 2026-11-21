@@ -44,7 +44,8 @@ internal static class DoorTransitionAutosaveVerification
         try
         {
             var random = new SharedRandom();
-            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
+            var assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
+            var game = CreateAudibleRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), assets, renderGameplayFrames: false, random: random);
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -53,8 +54,6 @@ internal static class DoorTransitionAutosaveVerification
             // A host persists save RAM through an object that owns native handles, as the desktop window does (#1424).
             using var saveRamHost = new NativeHandleSaveRamHost();
             game.SavesChanged += saveRamHost.Persist;
-            var assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
-            game.BindAudio(assets);
             var identity = GameContentIdentity.Create(new string('A', 64), new string('B', 64), new string('C', 64),
                 typeof(SuperMetroidGame).Module.ModuleVersionId);
             var store = DebuggerSaveStateStore.ForInstalledGame(directory, null, identity,
@@ -80,7 +79,6 @@ internal static class DoorTransitionAutosaveVerification
             AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "auto captures completed transition frame");
             InstalledFixtures.BindGame(loaded.Game);
             // The player is restored inside the game graph; the host rebinds only the catalog.
-            loaded.Game.BindAudio(assets);
             var expectedPcm = new short[AudioSession.PcmSamplesPerFrame];
             var actualPcm = new short[AudioSession.PcmSamplesPerFrame];
             for (int frame = 0; frame < 6; frame++)

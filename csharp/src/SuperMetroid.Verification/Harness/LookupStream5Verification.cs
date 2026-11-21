@@ -1118,12 +1118,15 @@ internal static class LookupStream5Verification
         var body = owner.Places.InUpdateOrder[1];
         body.SetSpawnSettings(new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
         body.Bind(EnemyDefinitionId.MorphBallEye, body.KeptDefinition);
-        new Action<RoomEnemyPlace>(fixturePlace => MorphBallEyeBehavior.InitializeMorphBallEyeBody(fixturePlace.HeldOccupant().SpawnSettings<MorphBallEyeBodySpawnSettings>(), fixturePlace))(body);
-        (body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.")).IsActivated = true;
-        owner.MorphBallEyeBehavior.MorphBallEyeBeam.Body = body;
-        owner.MorphBallEyeBehavior.MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
-        owner.MorphBallEyeBehavior.MorphBallEyeBeam.NextColour = MorphBallEyeBeamColour.First;
-        Action step = owner.MorphBallEyeBehavior.StepFullMorphBallEyeBeam;
+        body.SetUpAsPlaced();
+        MorphBallEyeEnemyState eye = body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.");
+        // The eye's request casts the beam: its first step activates the eye and starts it widening, six more make it full.
+        owner.MorphBallEyeBehavior.MorphBallEyeBeam.Request(body, eye);
+        Action step = owner.MorphBallEyeBehavior.StepMorphBallEyeBeam;
+        for (int update = 0; update < 7; update++)
+            step();
+        AssertEqual(MorphBallEyeBeamPhase.Full, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Phase, "the cast beam is full after its start and six widening steps");
+        AssertEqual(MorphBallEyeBeamColour.First, owner.MorphBallEyeBehavior.MorphBallEyeBeam.NextColour, "a full beam cycles from its first colour");
         for (int phase = 0; phase < 16; phase++)
         {
             // The cartridge's colour bytes carry each channel's intensity in their low five bits.

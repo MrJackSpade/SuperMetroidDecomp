@@ -89,7 +89,7 @@ internal static class DraygonTurretCadenceVerification
         // #1269: DraygonReaction_Common's dead branch ($A5:9618) has no "already dying"
         // test. A later hit on the zero-health body reinstalls the drift function.
         boss.Body.Health = 0;
-        boss.Phase = DraygonPhase.DyingWaitForEvirs;
+        boss.Step = DraygonPhaseSteps.DyingWaitForEvirs();
         runtime.Enemies.DraygonBehavior.Combat.ResolveDraygonReaction(boss.Body, runtime.Player.Samus);
         AssertEqual(DraygonPhase.Dying, boss.Phase,
             "a hit on the dead body restarts the drift to the death spot");

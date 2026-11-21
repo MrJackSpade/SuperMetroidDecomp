@@ -105,12 +105,12 @@ internal static class ChootPatternDefinitionsVerification
                     fallPlace.Position.Y.Whole,
                     $"Choot production fall Y {patternIndex}/{frameIndex}");
                 AssertEqual(frameIndex + 1,
-                    ChootFallLoopAccess.AgeOf(fallState.FallingLoop, fallingPath),
+                    ChootFallLoopAccess.AgeOf(fallState.FallingLoop),
                     $"Choot production fall cursor {patternIndex}/{frameIndex}");
             }
 
             runFall(fallPlace, fallState);
-            AssertEqual(0, ChootFallLoopAccess.AgeOf(fallState.FallingLoop, fallingPath),
+            AssertEqual(0, ChootFallLoopAccess.AgeOf(fallState.FallingLoop),
                 $"Choot production loop cursor reset {patternIndex}");
             AssertEqual(1, fallState.FallingPatternLoopCounter,
                 $"Choot production loop counter {patternIndex}");

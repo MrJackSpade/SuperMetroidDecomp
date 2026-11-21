@@ -101,10 +101,10 @@ internal static class DraygonNativeListAddresses
         [0x9f7c] = 0, [0x9fae] = 0,
     };
 
-    /// <summary>The body phases callbacks name, by native routine address.</summary>
-    private static readonly Dictionary<ushort, DraygonPhase> BodyPhases = new()
+    /// <summary>The cue each body phase a callback names becomes, by native routine address: only releasing Samus.</summary>
+    private static readonly Dictionary<ushort, DraygonCue> BodyPhaseCues = new()
     {
-        [0x9128] = DraygonPhase.ReleaseSamus,
+        [0x9128] = DraygonCue.ReleaseSamus.Instance,
     };
 
     /// <summary>The operand words a native callback takes.</summary>
@@ -146,7 +146,7 @@ internal static class DraygonNativeListAddresses
         0x9778 => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DraygonBreathBubbles),
         0x98d3 => DraygonCue.ParalyseTailAndArms.Instance,
         0x98ef => DraygonCue.SetBodyIntangible.Instance,
-        0x9f57 => new DraygonCue.SetBodyPhase(BodyPhases[operands[0]]),
+        0x9f57 => BodyPhaseCues[operands[0]],
         0x9b9a => DraygonCue.TailWhipHit.Instance,
         0x9f7c => new DraygonCue.SpawnGoop(HorizontalDirection.Left),
         0x9fae => new DraygonCue.SpawnGoop(HorizontalDirection.Right),

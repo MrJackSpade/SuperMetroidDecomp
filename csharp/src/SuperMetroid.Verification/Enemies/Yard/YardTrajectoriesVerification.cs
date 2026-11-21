@@ -76,7 +76,7 @@ internal static class YardTrajectoriesVerification
             actor.Position = FixedPosition<RoomPixels>.FromWhole(new(256, unchecked((ushort)(256 - actor.Radius.Y))));
             (state ?? throw new InvalidOperationException("Verification requires state.")).Direction = SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction);
             state.AirborneFacingDirection = facing;
-            state.Movement = YardMovement.Airborne;
+            state.Motion = new YardMotion.Airborne(YardDirections.ForAirborneFacing(state.AirborneFacingDirection).HidingAnimation);
             state.Behavior = YardBehavior.Dropped;
             state.AirborneVelocity = state.AirborneVelocity.WithWholeY(1);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 999, MaxHealth = 999,

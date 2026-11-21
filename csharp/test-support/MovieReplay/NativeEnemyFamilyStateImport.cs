@@ -480,7 +480,16 @@ internal static class NativeEnemyFamilyStateImport
                 _ => throw new InvalidDataException($"Native Yard airborne facing {words.C:X4} is neither left nor right."),
             };
             yardRecord.ConsecutiveTurnCounter = words.E;
-            yardRecord.Movement = YardNativeWords.YardMovements.Decode(words.F, "recorded YardMovement");
+            // A recorded flight lands with the hiding animation its airborne facing names, as every flight production
+            // begins does.
+            yardRecord.Motion = YardNativeWords.YardMovements.Decode(words.F, "recorded YardMovement") switch
+            {
+                YardMovement.HoldingStill => YardMotion.HoldingStill,
+                YardMovement.Hiding => YardMotion.Hiding,
+                YardMovement.Crawling => YardMotion.Crawling,
+                YardMovement.Airborne => new YardMotion.Airborne(YardDirections.ForAirborneFacing(yardRecord.AirborneFacingDirection).HidingAnimation),
+                YardMovement recorded => throw new InvalidDataException($"Recorded Yard movement {recorded} is not one the Yard moves by."),
+            };
             // A crawl's routine names its way (#2278).
             if (yardRecord.Movement == YardMovement.Crawling)
                 yardRecord.Crawl = YardNativeWords.Crawls.Decode(words.F, "recorded Yard crawl");

@@ -26,13 +26,22 @@ internal static class RetailGameFixtureVerification
         InstalledFixtures.CreateGame(saves, assists, renderGameplayFrames, hostServices, random);
 
     /// <summary>
+    /// Creates a game host from a single retail import over <paramref name="saves"/> whose audio mixes
+    /// <paramref name="clips"/>, as a host builds an audible game.
+    /// </summary>
+    internal static SuperMetroidGame CreateAudibleRetailGameFixture(SuperMetroid.Core.Saves.SaveSlotStore saves,
+        SuperMetroid.Core.Audio.ClipAudioLibrary clips, bool renderGameplayFrames = true, SharedRandom? random = null) =>
+        InstalledFixtures.CreateGameWithAudio(saves, SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(clips),
+            renderGameplayFrames: renderGameplayFrames, random: random);
+
+    /// <summary>
     /// A game in main gameplay in a Brinstar room, its Samus standing under her normal movement mode with the new game's
     /// health and no reserves.
     /// </summary>
     internal static (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) CreateMainGameplayFixture()
     {
         var random = new SharedRandom();
-        var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps), null, SuperMetroidGameHostServices.Default, random });
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps), hostServices: SuperMetroidGameHostServices.Default, random: random);
         SuperMetroidRuntime runtime = RetailRuntimeFixtureVerification.CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();

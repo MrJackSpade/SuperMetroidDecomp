@@ -16,4 +16,25 @@ internal static class ChootFallLoopAccess
             loop = at.Counted();
         return loop;
     }
+
+    /// <summary>
+    /// The offset the loop along <paramref name="fallingPath"/> moves the Choot by <paramref name="frameIndex"/> updates
+    /// after it started, or null on the update its path has run out.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The path ran out before <paramref name="frameIndex"/>.</exception>
+    internal static Offset16<RoomPixels>? OffsetAt(ChootFallingPath fallingPath, int frameIndex)
+    {
+        ChootFallLoop loop = ChootFallLoop.Starting(fallingPath);
+        for (int counted = 0; counted < Ensure.AtLeastZero(frameIndex); counted++)
+            loop = loop is ChootFallLoop.AtSample at
+                ? at.Counted()
+                : throw new InvalidOperationException($"Choot falling path {fallingPath} ran out before update {frameIndex}.");
+        return loop is ChootFallLoop.AtSample sample ? sample.Offset : null;
+    }
+
+    /// <summary>The updates since <paramref name="loop"/> started.</summary>
+    /// <exception cref="InvalidOperationException">The loop is over.</exception>
+    internal static int AgeOf(ChootFallLoop loop) => loop is ChootFallLoop.AtSample at
+        ? at.Age
+        : throw new InvalidOperationException("A Choot's falling loop that is over counts no age.");
 }

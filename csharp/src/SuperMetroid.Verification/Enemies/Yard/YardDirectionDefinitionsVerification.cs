@@ -90,7 +90,7 @@ internal static class YardDirectionDefinitionsVerification
             // animation bytecode normally publishes it before a turn. Seed each of the
             // eight legal bytecode values to exercise the production turn dispatcher.
             state.Direction = SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction);
-            state.Movement = YardMovement.Crawling;
+            state.Motion = YardMotion.Crawling;
             state.Crawl = initial.Crawl;
             YardEnemyBehavior.TurnYardAround(state);
             YardDirectionDefinition opposite =
@@ -119,7 +119,7 @@ internal static class YardDirectionDefinitionsVerification
                 $"Yard detach facing {facing}");
 
             state.Behavior = YardBehavior.NormalCrawling;
-            state.Movement = YardMovement.Crawling;
+            state.Motion = YardMotion.Crawling;
             state.Crawl = YardDirection.OnFloorMovingLeft;
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {

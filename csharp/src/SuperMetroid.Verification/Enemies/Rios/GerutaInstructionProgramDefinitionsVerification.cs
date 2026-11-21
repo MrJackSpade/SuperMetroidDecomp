@@ -101,9 +101,11 @@ internal static class GerutaInstructionProgramDefinitionsVerification
         place.BindPlaced(EnemyDefinitionId.Geruta, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         place.Bind(EnemyDefinitionId.Geruta, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        // The Rio is set up as its room's population sets it up, then plays the animation the check starts it at.
+        place.SetUpAsPlaced();
+        GerutaEnemyState state = place.RequireSpeciesState<GerutaEnemyState>();
+        state.Playback = new(GerutaAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
-        var state = new GerutaEnemyState(GerutaAction.WaitForAttackOpportunity) { Playback = new(GerutaAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
-        place.SetSpeciesState(state);
         return new NewGerutaInstructionSystemResult(enemies, place, state);
     }
 

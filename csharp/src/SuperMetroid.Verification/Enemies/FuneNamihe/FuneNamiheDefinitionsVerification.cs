@@ -21,7 +21,8 @@ internal static class FuneNamiheDefinitionsVerification
             bool namihe = (variant & 2) != 0;
             bool right = (variant & 1) != 0;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace> initialize = namihe ? fixturePlace => fixturePlace.SetSpeciesState(FuneNamiheBehavior.InitializeNamihe(fixturePlace.HeldOccupant().SpawnSettings<FuneNamiheSpawnSettings>(), fixturePlace)) : fixturePlace => FuneNamiheBehavior.InitializeFune(fixturePlace.HeldOccupant().SpawnSettings<FuneNamiheSpawnSettings>(), fixturePlace.HeldOccupant().SpawnSettings<FuneSpawnSettings>(), fixturePlace);
+            // The Fune or Namihe is set up as its room's population sets it up: its species builds its entity and its state.
+            Action<RoomEnemyPlace> initialize = static fixturePlace => fixturePlace.SetUpAsPlaced();
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, place.KeptDefinition);
             place.SetSpawnParameter1(place.HeldOccupant().DefinitionId, (ushort)((namihe ? 1 : 0) | (right ? 0x10 : 0)));

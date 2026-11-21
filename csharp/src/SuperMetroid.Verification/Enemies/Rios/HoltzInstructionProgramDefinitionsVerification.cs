@@ -85,9 +85,11 @@ internal static class HoltzInstructionProgramDefinitionsVerification
         place.BindPlaced(EnemyDefinitionId.Holtz, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         place.Bind(EnemyDefinitionId.Holtz, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        // The Rio is set up as its room's population sets it up, then plays the animation the check starts it at.
+        place.SetUpAsPlaced();
+        HoltzEnemyState state = place.RequireSpeciesState<HoltzEnemyState>();
+        state.Playback = new(HoltzAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
-        var state = new HoltzEnemyState(HoltzAction.WaitForAttackOpportunity) { Playback = new(HoltzAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
-        place.SetSpeciesState(state);
         return new NewHoltzInstructionSystemResult(enemies, place, state);
     }
 

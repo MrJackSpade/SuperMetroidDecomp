@@ -106,7 +106,9 @@ internal static class BossMapMarkersVerification
                 PauseMenuState CenteredPause(SharedGameState state)
                 {
                     var reopened = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = state, Area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), RoomMapPosition = new(0, 1), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
-                    _ = reopened.ScrollMapTo(scrolled);
+                    // The same arrow presses, update for update, so the reopened page's animations stand where the first's do.
+                    _ = reopened.ScrollMapToward(new Offset16<MapPixels>(x - 128, y - 112));
+                    AssertEqual(scrolled, reopened.MapScroll, "the reopened page's arrows reach the first page's scroll");
                     return reopened;
                 }
                 markers++;

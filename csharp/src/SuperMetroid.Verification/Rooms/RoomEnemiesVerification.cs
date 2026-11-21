@@ -829,7 +829,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             }, Spritemaps = EnemySpritemapDocuments.Load(fixtureSpriteJson), ExtendedFrames = InstalledFixtures.EnemyTiles.ExtendedFrames,
             ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps,
             // Every character-zero spawned-object sheet takes the n00b tube's crack shade (#1512).
-            ChozoAndTubeColors = InstalledFixtures.EnemyTiles.ChozoAndTubeColors })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true } }, floor: ceresFloor);
+            ChozoAndTubeColors = InstalledFixtures.EnemyTiles.ChozoAndTubeColors })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true } }, floor: ceresFloor, warnings: RoomWarningFixtures.CeresRoom());
     // The synthetic cartridge seeds no floor update lists; the getaway's boost delays are the installed ones (#1492).
     enemies.BossArtworkBinding.CeresRidleyGetawayBoostDelays = InstalledFixtures.Maps.CeresRidleyGetawayBoostDelays;
     using (var escapeText = new MemoryStream(

@@ -73,8 +73,9 @@ internal static class PauseMapAreaLabelsVerification
                 $"; object {differs / 4} emitted {Convert.ToHexString(emitted, differs / 4 * 4, 4)}, native {Convert.ToHexString(native.LowTable.Slice(differs / 4 * 4, 4))}"));
             AssertLabels(start, "stable map");
             pause.AdvanceAnimations(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero, PauseAnimationPhase.FadingOut); _ = pause.ComposeScene();
-            // The labels keep the stable map's layering through every fade (#2573).
-            AssertLabels(start, "outer unpause fade-out");
+            // The labels keep the stable map's layering through every fade (#2573), still drawn last, after the arrows the
+            // fade hides once the scroll has shown them (#2554).
+            AssertLabels(pause.screen.Sprites.LastFinalizedSpriteCount * 4 - labelBytes, "outer unpause fade-out");
             LayeredScene beforeRestore = pause.ComposeScene();
             // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
             pause = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause);

@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using System.Reflection;
 using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Installation;
@@ -8,20 +7,18 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Harness;
 
-/// <summary>Reflection dispatcher for a named verifier whose inputs can be
-/// supplied directly from the retail cartridge or installation.</summary>
+/// <summary>Dispatcher for a named verifier whose inputs can be supplied directly from the retail cartridge or installation.</summary>
 internal static class SuiteRunnerVerification
 {
     /// <summary>
     /// Resolves one verifier for <c>--suite</c>: a suite the full run registers under <paramref name="name"/>, or else
-    /// the one <c>internal static</c> method of that name among this assembly's verification types. A method may take
-    /// no parameters, or one required parameter that is the retail cartridge address space, the shared retail
-    /// <see cref="GameInstallation"/>, or a shared installed fixture of that type from <see cref="InstalledFixtures"/>
-    /// (optional parameters take their defaults). Verifiers that need other prepared inputs keep running through their
-    /// parent flag.
+    /// the one <c>internal static</c> method of that name among this assembly's verification types, as the compiler lists
+    /// them (<see cref="GeneratedVerificationRegistry"/>, #2602). A method may take no parameters, or one required
+    /// parameter that is the retail cartridge address space, the shared retail <see cref="GameInstallation"/>, or a shared
+    /// installed fixture of that type from <see cref="InstalledFixtures"/> (optional parameters take their defaults).
+    /// Verifiers that need other prepared inputs keep running through their parent flag.
     /// </summary>
     /// <returns>Runs the verifier as a timed suite and returns its exit code.</returns>
-    [ReflectionAudit("verifier discovery: a suite is selected by its method name from the command line")]
     private static Func<int> ResolveNamedSuite(string name, RegisteredSuite[] registered)
     {
         if (registered.FirstOrDefault(suite => suite.Name == name) is { } registeredSuite)
@@ -32,56 +29,40 @@ internal static class SuiteRunnerVerification
                 return 0;
             };
         }
-        MethodInfo[] candidates = typeof(SuiteRunnerVerification).Assembly.GetTypes()
-            .SelectMany(type => type.GetMethods(BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly))
-            .Where(method => method.Name == name && method.IsAssembly)
-            .ToArray();
-        MethodInfo method = candidates switch
+        NamedVerifier[] candidates = [.. GeneratedVerificationRegistry.Verifiers().Where(verifier => verifier.Name == name)];
+        NamedVerifier verifier = candidates switch
         {
             [var single] => single,
             [] => throw new ArgumentException($"No verifier method named {name}.", nameof(name)),
             _ => throw new ArgumentException(
                 $"{name} names {candidates.Length} verifier methods: " +
-                string.Join(", ", candidates.Select(candidate => $"{candidate.DeclaringType?.Name}.{candidate.Name}")) + ".", nameof(name)),
+                string.Join(", ", candidates.Select(candidate => $"{candidate.OwnerName}.{candidate.Name}")) + ".", nameof(name)),
         };
-        ParameterInfo[] parameters = method.GetParameters();
-        var required = parameters.Where(parameter => !parameter.IsOptional).ToArray();
-        object?[] arguments = parameters.Select(parameter => parameter.IsOptional ? parameter.DefaultValue : null).ToArray();
-        // Installation verifiers edit, corrupt and repair what they are given, so a named run gets a private copy and the
-        // shared repository installation stays as extracted.
-        int installationArgument = required.Length == 1 && required[0].ParameterType == typeof(GameInstallation)
-            ? Array.IndexOf(parameters, required[0])
-            : -1;
-        PropertyInfo? installedFixture = installationArgument < 0 && required.Length == 1
-            ? typeof(InstalledFixtures).GetProperties(BindingFlags.NonPublic | BindingFlags.Static)
-                .SingleOrDefault(property => property.PropertyType == required[0].ParameterType)
-            : null;
-        if (installedFixture is not null)
+        object? input = null;
+        switch (verifier.Input)
         {
-            arguments[Array.IndexOf(parameters, required[0])] = installedFixture.GetValue(null);
-        }
-        else if (installationArgument < 0 && required.Length == 1)
-        {
-            var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            if (!required[0].ParameterType.IsInstanceOfType(rom))
-                throw new ArgumentException($"{name} needs a {required[0].ParameterType.Name}, not the retail cartridge; run its parent flag.");
-            arguments[Array.IndexOf(parameters, required[0])] = rom;
-        }
-        else if (required.Length > 1)
-        {
-            throw new ArgumentException($"{name} needs {required.Length} prepared inputs; run its parent flag.");
+            case NamedVerifierInput.InstalledFixture:
+                input = (verifier.Fixture ?? throw new InvalidOperationException($"{name} names no installed fixture."))();
+                break;
+            case NamedVerifierInput.Cartridge:
+                var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+                if (!(verifier.Accepts ?? throw new InvalidOperationException($"{name} names no cartridge test."))(rom))
+                    throw new ArgumentException($"{name} needs a {verifier.InputName}, not the retail cartridge; run its parent flag.");
+                input = rom;
+                break;
+            case NamedVerifierInput.Prepared:
+                throw new ArgumentException($"{name} needs {verifier.RequiredInputs} prepared inputs; run its parent flag.");
         }
         return () =>
         {
-            using PrivateInstallationCopy? copy = installationArgument >= 0 ? InstalledFixtures.CreatePrivateCopy() : null;
-            if (copy is not null)
-                arguments[installationArgument] = copy.Installation;
-            object? result = null;
-            Suite(name, () => result = method.Invoke(null, BindingFlags.DoNotWrapExceptions, binder: null, arguments, culture: null));
-            return result is int code ? code : 0;
+            // Installation verifiers edit, corrupt and repair what they are given, so a named run gets a private copy and
+            // the shared repository installation stays as extracted.
+            using PrivateInstallationCopy? copy = verifier.Input == NamedVerifierInput.Installation ? InstalledFixtures.CreatePrivateCopy() : null;
+            int result = 0;
+            Suite(name, () => result = verifier.Invoke(copy?.Installation ?? input));
+            return result;
         };
     }
-
     /// <summary>
     /// Runs the named verifiers passed to the suite CLI flag, comma-separated, in one process. Every name resolves
     /// before any runs, so a misspelt name fails without running the rest.

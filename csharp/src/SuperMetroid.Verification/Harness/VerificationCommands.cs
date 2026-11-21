@@ -1,25 +1,33 @@
 using SuperMetroid.Core;
-using System.Reflection;
 using System.Text;
 
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>
-/// The verification command registry: every <see cref="VerificationCommandAttribute"/> handler in this assembly,
-/// validated before any dispatch. A handler is <c>static int</c> and takes either one <see cref="string"/> per
+/// The verification command registry: every <see cref="VerificationCommandAttribute"/> handler in this assembly, as the
+/// compiler lists them (<see cref="GeneratedVerificationRegistry"/>, #2602), validated before any dispatch. A handler is <c>static int</c> and takes either one <see cref="string"/> per
 /// placeholder, or the complete argument array (<c>string[] args</c>, command name first) when one handler
 /// serves several names.
 /// </summary>
 internal static class VerificationCommands
 {
     /// <summary>One registered command: its name, argument shape, description and handler.</summary>
-    internal sealed record Command(string Name, IReadOnlyList<string> Arguments, string Description, Type Owner, MethodInfo Handler)
+    /// <param name="Name">The command's name, which starts with two dashes.</param>
+    /// <param name="Arguments">Its literal keywords and placeholders, in order.</param>
+    /// <param name="Description">What it does, for the help listing.</param>
+    /// <param name="OwnerName">The name of the type declaring the handler.</param>
+    /// <param name="MethodName">The handler's name.</param>
+    /// <param name="ReturnsExitCode">Whether the handler returns its int exit code.</param>
+    /// <param name="ParameterTypes">The handler's parameter types, as C# names them.</param>
+    /// <param name="Invoke">Calls the handler with the bound values, or null when its signature takes neither shape.</param>
+    internal sealed record Command(string Name, IReadOnlyList<string> Arguments, string Description, string OwnerName, string MethodName,
+        bool ReturnsExitCode, IReadOnlyList<string> ParameterTypes, Func<string[], int>? Invoke)
     {
         /// <summary>The handler as <c>Owner.Method</c>, for diagnostics.</summary>
-        public string HandlerName => $"{Owner.Name}.{Handler.Name}";
+        public string HandlerName => $"{OwnerName}.{MethodName}";
 
         /// <summary>Whether the handler receives the whole argument array.</summary>
-        public bool TakesArgumentArray => Handler.GetParameters() is [{ ParameterType: var type }] && type == typeof(string[]);
+        public bool TakesArgumentArray => ParameterTypes is ["string[]"];
 
         /// <summary>The placeholders that bind handler parameters, in order (literal keywords excluded).</summary>
         public IReadOnlyList<string> Placeholders => Arguments.Where(argument => !IsLiteral(argument)).ToList();
@@ -36,9 +44,9 @@ internal static class VerificationCommands
             Arguments.Select((argument, index) => !IsLiteral(argument) || args[index + 1] == argument).All(match => match);
 
         /// <summary>The handler's arguments: the whole array, or the values at the placeholder positions.</summary>
-        public object?[] Bind(string[] args) => TakesArgumentArray ? [args]
+        public string[] Bind(string[] args) => TakesArgumentArray ? args
             : Arguments.Select((argument, index) => new BindCase(argument, Value:args[index + 1])).Where(pair => !IsLiteral(pair.Argument))
-                .Select(pair => (object?)pair.Value).ToArray();
+                .Select(pair => pair.Value).ToArray();
 
         /// <summary>Distinguishes a required command keyword from a handler-bound placeholder.</summary>
         private static bool IsLiteral(string argument) => argument.StartsWith("--", StringComparison.Ordinal);
@@ -62,8 +70,8 @@ internal static class VerificationCommands
         Command? command = All.SingleOrDefault(candidate => candidate.Matches(args));
         if (command is null)
             return false;
-        object? result = command.Handler.Invoke(null, BindingFlags.DoNotWrapExceptions, binder: null, command.Bind(args), culture: null);
-        exitCode = result is int code ? code : throw new InvalidOperationException($"{command.HandlerName} returned no exit code.");
+        Func<string[], int> invoke = command.Invoke ?? throw new InvalidOperationException($"{command.HandlerName} returned no exit code.");
+        exitCode = invoke(command.Bind(args));
         return true;
     }
 
@@ -103,19 +111,10 @@ internal static class VerificationCommands
         }
     }
 
-    /// <summary>Finds attributed static handlers and rejects duplicate command name and shape pairs.</summary>
-    [ReflectionAudit("verifier discovery: commands are the methods carrying [VerificationCommand]")]
+    /// <summary>Validates the compiler's list of attributed handlers and rejects duplicate command name and shape pairs.</summary>
     private static List<Command> Discover()
     {
-        var commands = new List<Command>();
-        foreach (Type type in typeof(VerificationCommands).Assembly.GetTypes())
-        {
-            foreach (MethodInfo method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
-            {
-                foreach (VerificationCommandAttribute attribute in method.GetCustomAttributes<VerificationCommandAttribute>())
-                    commands.Add(Validate(new Command(attribute.Name, attribute.Arguments, attribute.Description, type, method)));
-            }
-        }
+        var commands = GeneratedVerificationRegistry.Commands().Select(Validate).ToList();
         var duplicate = commands.GroupBy(command => new Duplicate(command.Name, command.Shape)).FirstOrDefault(group => group.Count() > 1);
         if (duplicate is not null)
         {
@@ -131,14 +130,14 @@ internal static class VerificationCommands
     {
         if (!command.Name.StartsWith("--", StringComparison.Ordinal))
             throw new InvalidOperationException($"{command.HandlerName}: command name {command.Name} must start with --.");
-        if (command.Handler.ReturnType != typeof(int))
+        if (!command.ReturnsExitCode)
             throw new InvalidOperationException($"{command.HandlerName}: a verification command returns its int exit code.");
-        ParameterInfo[] parameters = command.Handler.GetParameters();
-        bool positional = parameters.Length == command.Placeholders.Count && parameters.All(parameter => parameter.ParameterType == typeof(string));
+        IReadOnlyList<string> parameters = command.ParameterTypes;
+        bool positional = parameters.Count == command.Placeholders.Count && parameters.All(parameter => parameter == "string");
         if (!positional && !command.TakesArgumentArray)
         {
             throw new InvalidOperationException(
-                $"{command.HandlerName}: takes {parameters.Length} parameter(s) but {command.Usage} declares {command.Placeholders.Count} placeholder(s); " +
+                $"{command.HandlerName}: takes {parameters.Count} parameter(s) but {command.Usage} declares {command.Placeholders.Count} placeholder(s); " +
                 "use one string per placeholder or a single string[] args.");
         }
         return command;

@@ -174,14 +174,12 @@ public static class SamusMorphBallMovement
         bool hitCeiling;
         if (samus.MorphBallBounceState != SamusBallBounceState.None &&
             samus.KnockbackDirection == Movement.SamusKnockbackDirection.None &&
-            samus.Kinematics.ExtraDisplacement.Y != SignedSixteenSixteen.Zero)
+            SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(samus.Kinematics) is { } displacement)
         {
             // The bounce gives an external producer priority over the rebound arc.
             // It cancels the stored bounce velocity, forces direction down, and executes
             // the downward move; an upward external displacement can still make the actual scan upward.
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
-            SignedSixteenSixteen displacement = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(samus.Kinematics) ??
-                throw new InvalidOperationException("A nonzero external Y displacement always yields a scan distance.");
             vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
             landed = !displacement.IsNegative && vertical.Collided;
             hitCeiling = displacement.IsNegative && vertical.Collided;

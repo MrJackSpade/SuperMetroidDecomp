@@ -36,6 +36,10 @@ internal sealed class EndingRewardJump
     private EndingRewardJumpMotion headMotion = EndingRewardJumpMotion.Standing;
     /// <summary>How Samus's body moves (#2541): standing until her jump, rising, falling back once above the screen, then landed.</summary>
     private EndingRewardJumpMotion bodyMotion = EndingRewardJumpMotion.Standing;
+    /// <summary>
+    /// Handles the cues the body's animation raises: a suited jump's body also places its head as it prepares and launches.
+    /// </summary>
+    private readonly Func<EndingRewardJumpCue, bool> bodyCues;
     /// <summary>Shared vertical velocity; each active actor movement applies gravity to it.</summary>
     private SignedSixteenSixteen Velocity { get; set; }
     /// <summary>Whether Samus has passed above the screen and shows as the falling Samus, falling back or landed.</summary>
@@ -48,7 +52,13 @@ internal sealed class EndingRewardJump
     {
         helmeted = reward == EndingReward.Armored;
         if (EndingRewardCast.JumpHead(reward) is { } headActor)
-            head = Spawn(headActor);
+        {
+            CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> spawned = Spawn(headActor);
+            head = spawned;
+            bodyCues = cue => HandleSuitedBodyCue(cue, spawned);
+        }
+        else
+            bodyCues = HandleCue;
         body = Spawn(EndingRewardCast.JumpBody(reward));
     }
 
@@ -88,7 +98,7 @@ internal sealed class EndingRewardJump
                 bodyMotion = EndingRewardJumpMotion.Landed;
             }
         }
-        body.Step(cue => shoots |= HandleCue(cue));
+        body.Step(cue => shoots |= bodyCues(cue));
         return shoots;
     }
 
@@ -121,12 +131,6 @@ internal sealed class EndingRewardJump
             case EndingRewardJumpCue.Launch:
                 Velocity = EndingRewardJumpDefinitions.LaunchVelocity;
                 return false;
-            case EndingRewardJumpCue.PrepareHead:
-                RequireHead().ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadReadied : EndingRewardJumpDefinitions.HelmetlessHeadReadied;
-                return false;
-            case EndingRewardJumpCue.LaunchHead:
-                RequireHead().ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadLaunched : EndingRewardJumpDefinitions.HelmetlessHeadLaunched;
-                return false;
             case ShootCue:
                 body.SetColouring(EndingShades.Drawn(ShootingColouring));
                 return true;
@@ -142,8 +146,24 @@ internal sealed class EndingRewardJump
     }
 
 
-    /// <summary>Requires a suited jump's head actor when a head-specific cue runs.</summary>
-    private CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
+    /// <summary>
+    /// Handles a cue a suited jump's body raises: its preparing and launching place <paramref name="jumpHead"/>, and every
+    /// other cue is one any jump raises.
+    /// </summary>
+    private bool HandleSuitedBodyCue(EndingRewardJumpCue cue, CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> jumpHead)
+    {
+        switch (cue)
+        {
+            case EndingRewardJumpCue.PrepareHead:
+                jumpHead.ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadReadied : EndingRewardJumpDefinitions.HelmetlessHeadReadied;
+                return false;
+            case EndingRewardJumpCue.LaunchHead:
+                jumpHead.ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadLaunched : EndingRewardJumpDefinitions.HelmetlessHeadLaunched;
+                return false;
+            default:
+                return HandleCue(cue);
+        }
+    }
     /// <summary>Creates a jump actor from its catalogued initial position, colouring, and animations.</summary>
     private static CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> Spawn(EndingRewardActor definition)
     {

@@ -58,18 +58,18 @@ internal sealed class IntroCeresFlightState
     internal IReadOnlyList<CeresRearViewActor> RearViewActors { get; private set; } = [];
     /// <summary>
     /// The rear-view flash's white wash (<see cref="WhiteWash"/>): full white when the rear view starts, one step fewer each
-    /// update, stopping at none; none before the rear view.
+    /// update, stopping at none; the rear view alone shows and fades it, starting it afresh as it sets up.
     /// </summary>
-    private WhiteWash? rearViewFlash;
+    private WhiteWash rearViewFlash = RearViewFlash();
     /// <summary>
-    /// The SPACE COLONY caption's typing (#2488), played by the shared player from the title's setup: its letters, with
-    /// Japanese text its katakana caption, its hold and the fade-out cue; none before the title.
+    /// The SPACE COLONY caption's typing (#2488), played by the shared player: its letters, with Japanese text its katakana
+    /// caption, its hold and the fade-out cue. It shows nothing until the title's setup starts it showing its first glyph.
     /// </summary>
-    private AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>? caption;
+    private AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption;
     /// <summary>How many of the caption's letters are shown, in order; none before the title.</summary>
-    private int CaptionLettersShown => caption?.Shown?.Letters ?? 0;
+    private int CaptionLettersShown => caption.Shown?.Letters ?? 0;
     /// <summary>Whether the Japanese text's katakana caption has shown, from the update it shows until the flight ends.</summary>
-    private bool JapaneseCaptionShown => caption?.Shown?.Shows == SpaceColonyCaptionText.WithKatakana;
+    private bool JapaneseCaptionShown => caption.Shown?.Shows == SpaceColonyCaptionText.WithKatakana;
     /// <summary>Whether the Japanese text is selected, which shows the katakana caption.</summary>
     private readonly bool japaneseText;
 
@@ -82,6 +82,8 @@ internal sealed class IntroCeresFlightState
         bool japaneseText)
     {
         this.japaneseText = japaneseText;
+        caption = AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>.Starting(
+            SpaceColonyCaptionAnimations.Segments, CaptionTyping());
         this.audio = Ensure.NotNull(audio);
         BindSheets(sheets);
         CeresFlightArtwork content = Ensure.NotNull(artwork);
@@ -224,7 +226,7 @@ internal sealed class IntroCeresFlightState
         }
         if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
         {
-            layers.Add((rearViewFlash ?? throw new InvalidOperationException("The rear view shows no flash before its setup.")).Layer);
+            layers.Add(rearViewFlash.Layer);
         }
         return new(new FramePaint(Backdrop), layers.ToArray(), fade.Level);
     }
@@ -285,7 +287,7 @@ internal sealed class IntroCeresFlightState
 
         // The flash washes the rear view, sprites and backdrop toward white. It begins fully white and takes one step
         // off the wash per frame, from the next, until none is left.
-        rearViewFlash = WhiteWash.FullWhite(CeresFlightSceneDefinitions.RearViewFlashUpdatesPerStep, CeresFlightSceneDefinitions.RearViewFlashFirstStepUpdate);
+        rearViewFlash = RearViewFlash();
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
         // The rear view's setup starts the gunship engine's flicker, then the station's blinking navigation lights (#1733).
         ColourEffects.StartScreen(CeresFlightSceneDefinitions.GunshipEngineFlicker);
@@ -310,7 +312,7 @@ internal sealed class IntroCeresFlightState
     private void StepFlyingTowardCeres()
     {
         // The white flash fades by one step per frame, stopping at none.
-        (rearViewFlash ?? throw new InvalidOperationException("The rear view flies with no flash set up.")).Fade();
+        rearViewFlash.Fade();
 
         // The rear view drifts left by its drift and grows the rear-of-gunship turning
         // image in two bands: the slow step and then the fast step, to the rear view's widest zoom.
@@ -330,17 +332,23 @@ internal sealed class IntroCeresFlightState
         // both asteroid layers remain behind the title text. English text shows no katakana caption; Japanese text
         // shows it for one frame before the hold.
         caption = AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>.StartShowing(
-            SpaceColonyCaptionAnimations.Segments,
-            SpaceColonyCaptionAnimations.Typing(japaneseText ? SpaceColonyCaptionText.WithKatakana : SpaceColonyCaptionText.English));
+            SpaceColonyCaptionAnimations.Segments, CaptionTyping());
         Phase = IntroCeresFlightPhase.SpaceColonyTitle;
     }
+
+    /// <summary>The caption's typing for the selected text: English text shows no katakana caption.</summary>
+    private Animation<SpaceColonyCaptionText> CaptionTyping() =>
+        SpaceColonyCaptionAnimations.Typing(japaneseText ? SpaceColonyCaptionText.WithKatakana : SpaceColonyCaptionText.English);
+
+    /// <summary>The rear view's flash as it starts: full white, one step fewer each update at the flash's pace.</summary>
+    private static WhiteWash RearViewFlash() =>
+        WhiteWash.FullWhite(CeresFlightSceneDefinitions.RearViewFlashUpdatesPerStep, CeresFlightSceneDefinitions.RearViewFlashFirstStepUpdate);
 
     /// <summary>
     /// Types the title's letters at the title's typing pace, optionally adds katakana, then holds the completed caption
     /// before the fade step hands over to the ordinary fade owner.
     /// </summary>
-    private void StepSpaceColonyTitle() =>
-        (caption ?? throw new InvalidOperationException("The SPACE COLONY title runs with no caption set up.")).Step(CarryOut);
+    private void StepSpaceColonyTitle() => caption.Step(CarryOut);
 
     /// <summary>Carries out <paramref name="cue"/> of the caption's typing.</summary>
     /// <exception cref="InvalidOperationException">The cue is not one the caption's typing raises.</exception>

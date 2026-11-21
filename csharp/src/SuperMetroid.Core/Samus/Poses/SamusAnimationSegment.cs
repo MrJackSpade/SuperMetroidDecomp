@@ -18,4 +18,7 @@ internal sealed record SamusAnimationSegment(SamusAnimationSegmentName Name, IRe
 
     /// <summary>The frame of the segment its end cue is on, after its delays; a lead's next segment starts there instead.</summary>
     internal int CueFrame => Delays.Count;
+
+    /// <summary>Whether the segment is a lead, which ends in no cue of its own and plays on into the next segment.</summary>
+    internal bool IsLead => End is null;
 }

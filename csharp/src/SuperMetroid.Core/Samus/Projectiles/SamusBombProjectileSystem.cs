@@ -592,8 +592,8 @@ public sealed class SamusBombProjectileSystem
         {
             PowerBombFuseStep fuse = SamusPowerBombFuse.Step(bomb.Fuse, PowerBombExplosion.IsArmed);
             powerBombBoundaryReacts = fuse.BoundaryReacts;
-            if (fuse.FastAnimation)
-                SamusPowerBombFuse.SwitchToFastAnimation(bomb.Animation);
+            if (fuse.FastAnimation && bomb.Animation is { } live)
+                    SamusPowerBombFuse.SwitchToFastAnimation(live);
             if (fuse.DeleteProjectile)
             {
                 ClearProjectile(bomb);
@@ -612,7 +612,8 @@ public sealed class SamusBombProjectileSystem
             {
                 // The fuse switches the bomb to the same frame of its fast animation, so its
                 // four-frame cycle keeps its place.
-                SamusPowerBombFuse.SwitchToFastAnimation(bomb.Animation);
+                if (bomb.Animation is { } live)
+                    SamusPowerBombFuse.SwitchToFastAnimation(live);
             }
             else if (burnedOut)
             {
@@ -976,13 +977,13 @@ public sealed class SamusBombProjectileSystem
     /// Plays the bomb's animation one update on: each frame it shows anew publishes its picture and radius, and an animation
     /// that ends deletes the bomb.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The bomb has ended and has no animation to play.</exception>
     /// <exception cref="InvalidDataException">The animation shows a still picture, which no bomb animation does.</exception>
     private void AdvanceProjectileAnimation(
         SamusBomb bomb)
     {
-        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation = bomb.Animation
-            ?? throw new InvalidOperationException("An inactive bomb has no animation to play.");
+        // A bomb that has ended has no animation, and plays nothing.
+        if (bomb.Animation is not { } animation)
+            return;
         if (SamusProjectilePlayback.StepToNewFrame(animation) is { } frame)
         {
             // A bomb's animations show no still picture: every frame lasts its updates.

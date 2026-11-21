@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Abilities;
@@ -63,9 +63,10 @@ internal sealed class ShinesparkEchoProjectile
             replaced.IsOccupied ? replaced.Position.Whole : null);
         SamusProjectile echo = _pool.Occupy(place);
         echo.Position = echo.Position.WithWhole(start);
-        SamusProjectileOccupant released = BeamCombos.OccupyComboShot(echo, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho), BeamComboShotKind.Echo);
+        var shotKind = new BeamComboShotKind.EchoShot(SamusBeamEcho.ShinesparkEcho);
+        SamusProjectileOccupant released = BeamCombos.OccupyComboShot(echo, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho), shotKind);
         echo.PicturedBeams = picturedBeams;
-        BeamCombos.StartComboShot(released, BeamComboShotKind.Echo);
+        BeamCombos.StartComboShot(released, shotKind);
         released.Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(angle.ToTrigonometryAngle()));
         return echo;
     }

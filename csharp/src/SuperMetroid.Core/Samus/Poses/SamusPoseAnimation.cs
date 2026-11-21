@@ -28,9 +28,9 @@ internal sealed class SamusPoseAnimation
             throw new ArgumentException("An animation holds at least one segment.", nameof(segments));
         if (segments.Select(segment => segment.Name).Distinct().Count() != segments.Count)
             throw new ArgumentException("Two segments of an animation share a name.", nameof(segments));
-        if (segments.Any(segment => segment.End is null && segment.Delays.Count == 0))
+        if (segments.Any(segment => segment.IsLead && segment.Delays.Count == 0))
             throw new ArgumentException("A lead of an animation holds no frame.", nameof(segments));
-        if (segments[^1].End is null)
+        if (segments[^1].IsLead)
             throw new ArgumentException("An animation's last segment is a lead, with no segment to play on into.", nameof(segments));
         this.segments = [.. segments];
         FrameOrder = Comparer<SamusAnimationFrame>.Create(Compare);
@@ -92,10 +92,9 @@ internal sealed class SamusPoseAnimation
 
     /// <summary>The frame of this animation the installation names <paramref name="name"/> (<see cref="NameOf"/>).</summary>
     /// <exception cref="InvalidDataException">The name names no frame of this animation.</exception>
-    internal SamusAnimationFrame FrameNamed(string? name)
+    internal SamusAnimationFrame FrameNamed(string name)
     {
-        if (name is null)
-            throw new InvalidDataException("No name names an animation frame.");
+        Ensure.NotNull(name);
         int separator = name.LastIndexOf('.');
         if (separator <= 0 || !SamusAnimationSegmentNameKeys.Installed.TryParse(name[..separator], out SamusAnimationSegmentName segment) ||
             !int.TryParse(name.AsSpan(separator + 1), NumberStyles.None, CultureInfo.InvariantCulture, out int frame))

@@ -1,14 +1,24 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Which shot a special attack's particle takes its damage and animation from.</summary>
-internal enum BeamComboShotKind
+internal abstract record BeamComboShotKind
 {
-    /// <summary>The special attack's own particle, whose animation ignores the shot's direction.</summary>
-    Combo,
+    /// <summary>Allows only the shots below.</summary>
+    private BeamComboShotKind()
+    {
+    }
 
     /// <summary>The charged beam's shot, whose animation and radius follow the shot's direction.</summary>
-    Charged,
+    internal static BeamComboShotKind Charged { get; } = new ChargedShot();
 
-    /// <summary>The Spazer echo, whose animation follows the shot's direction.</summary>
-    Echo,
+    /// <summary>The charged beam's shot.</summary>
+    internal sealed record ChargedShot : BeamComboShotKind;
+
+    /// <summary>An echo's shot, whose animation follows the shot's direction.</summary>
+    /// <param name="Echo">The echo whose damage and animation the particle takes.</param>
+    internal sealed record EchoShot(SamusBeamEcho Echo) : BeamComboShotKind;
+
+    /// <summary>The special attack's own particle, whose animation ignores the shot's direction.</summary>
+    /// <param name="Particles">The kind of the special attack's particles.</param>
+    internal sealed record ComboShot(SamusProjectileKind Particles) : BeamComboShotKind;
 }

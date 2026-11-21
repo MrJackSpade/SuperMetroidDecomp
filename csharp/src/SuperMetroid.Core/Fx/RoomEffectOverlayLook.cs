@@ -38,9 +38,9 @@ public abstract record RoomEffectOverlayLook
                 : throw new ArgumentException($"Room effect {type} shows nothing on the effect overlay but describes a blend.", nameof(blend));
         }
         // The import installs a blend for every effect that shows on the overlay; the room's load checks it once, here.
-        RoomEffectBlend described = blend
-            ?? throw new ArgumentException($"Room effect {type} shows on the effect overlay but describes no blend.", nameof(blend));
-        return RoomFxTypes.ShowsLiquid(type) ? Liquid(described) : Atmosphere(described);
+        if (blend is { } described)
+            return RoomFxTypes.ShowsLiquid(type) ? Liquid(described) : Atmosphere(described);
+        throw new ArgumentException($"Room effect {type} shows on the effect overlay but describes no blend.", nameof(blend));
     }
 
     /// <summary>

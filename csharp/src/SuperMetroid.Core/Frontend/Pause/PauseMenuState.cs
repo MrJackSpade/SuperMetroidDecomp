@@ -162,9 +162,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             MapArrows.StepArrows(ActiveMapScroll.CanScroll);
         ControllerButton delayedPressed = delayedHeldInput;
         ControllerButton newlyPressed = newlyPressedInput;
-        if (Transition is not null)
+        if (Transition is { } transition)
         {
-            StepPageTransition();
+            StepPageTransition(transition);
             return false;
         }
 
@@ -287,9 +287,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Advances map/equipment fade, page load, and brightness phases.</summary>
-    private void StepPageTransition()
+    private void StepPageTransition(PauseMenuTransition transition)
     {
-        switch (Transition)
+        switch (transition)
         {
             case PauseMenuTransition.MapToEquipmentFadeOut:
             case PauseMenuTransition.EquipmentToMapFadeOut:
@@ -297,13 +297,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     return;
 
                 // The fade-out returns at black before the separate load update.
-                Transition = Transition == PauseMenuTransition.MapToEquipmentFadeOut
+                Transition = transition == PauseMenuTransition.MapToEquipmentFadeOut
                     ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad;
                 return;
 
             case PauseMenuTransition.MapToEquipmentLoad:
             case PauseMenuTransition.EquipmentToMapLoad:
-                if (Transition == PauseMenuTransition.MapToEquipmentLoad)
+                if (transition == PauseMenuTransition.MapToEquipmentLoad)
                 {
                     ScreenMode = PauseScreenMode.Equipment;
                     // The selector resets on each equipment-page entry.
@@ -327,9 +327,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     Transition = null;
                 return;
 
-            case null:
             default:
-                throw new InvalidDataException($"Invalid pause-page transition {Transition}.");
+                throw new InvalidDataException($"Invalid pause-page transition {transition}.");
         }
     }
 

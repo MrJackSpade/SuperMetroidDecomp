@@ -14,10 +14,12 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal class BlockReactionObject : RoomObjectBehaviour
 {
     /// <summary>A reaction of <paramref name="change"/>'s timing whose setup saved no terrain, so none of its images restores a block.</summary>
+    /// <exception cref="ArgumentException">An image of <paramref name="change"/> restores a saved block.</exception>
     internal BlockReactionObject(BlockReactionChange change)
+        : this(change, savedTerrain: null)
     {
-        Change = Ensure.NotNull(change);
-        _images = Playing(change);
+        if (change.Frames.Any(frame => frame.Image is BlockReactionImage.RestoresSavedTerrain))
+            throw new ArgumentException("A block reaction whose setup saved no terrain restores none.", nameof(change));
     }
 
     /// <summary>
@@ -25,7 +27,17 @@ internal class BlockReactionObject : RoomObjectBehaviour
     /// restore where they ask for it (#2484).
     /// </summary>
     internal BlockReactionObject(BlockReactionChange change, RoomTerrainBlock savedTerrain)
-        : this(change) => SavedTerrain = savedTerrain;
+        : this(change, (RoomTerrainBlock?)savedTerrain)
+    {
+    }
+
+    /// <summary>A reaction of <paramref name="change"/>'s timing whose setup saved <paramref name="savedTerrain"/>, or none.</summary>
+    private BlockReactionObject(BlockReactionChange change, RoomTerrainBlock? savedTerrain)
+    {
+        Change = Ensure.NotNull(change);
+        SavedTerrain = savedTerrain;
+        _images = Playing(change);
+    }
 
     /// <summary>The reaction's authored timing.</summary>
     internal BlockReactionChange Change { get; }
@@ -59,11 +71,12 @@ internal class BlockReactionObject : RoomObjectBehaviour
             case BlockReactionImage.Drawn drawn:
                 context.Draw(place, drawn.Draw);
                 break;
-            case BlockReactionImage.RestoresSavedTerrain:
-                RestoreBlock(place, context);
+            // Only a reaction whose setup saved terrain shows an image that restores it, as its constructor checked.
+            case BlockReactionImage.RestoresSavedTerrain when SavedTerrain is { } saved:
+                RestoreBlock(place, context, saved);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined block reaction image {frame.Image}.");
+                throw new InvalidOperationException($"Block reaction image {frame.Image} is not one this reaction shows.");
         }
         // The owner of the room's block reactions learns as each image shows whether the block now stands broken open,
         // which a room object waiting on a block's breakup observes.
@@ -73,10 +86,9 @@ internal class BlockReactionObject : RoomObjectBehaviour
     /// <summary>Restores the terrain the reaction's setup saved where an image asks for it.</summary>
     /// <param name="place">The reaction's place.</param>
     /// <param name="context">The update.</param>
-    /// <exception cref="InvalidOperationException">The reaction's setup saved no terrain.</exception>
-    private protected virtual void RestoreBlock(RoomObjectPlace place, RoomObjectStepContext context) =>
-        context.DrawSavedTerrain(place, SavedTerrain
-            ?? throw new InvalidOperationException($"The block reaction at block {place.Block} restores a block its setup never saved."));
+    /// <param name="saved">The terrain the reaction's setup saved.</param>
+    private protected virtual void RestoreBlock(RoomObjectPlace place, RoomObjectStepContext context, RoomTerrainBlock saved) =>
+        context.DrawSavedTerrain(place, saved);
 
     /// <summary><paramref name="change"/>'s images, played from its first delay.</summary>
     private static AnimationPlayer<RoomObjectFrameRun, BlockReactionFrame, NoAnimationCue> Playing(BlockReactionChange change)

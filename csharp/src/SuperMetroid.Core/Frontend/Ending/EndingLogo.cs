@@ -23,6 +23,9 @@ internal sealed class EndingLogo
     public bool CrossfadeStarted { get; private set; }
     /// <summary>The crossfade step the logo showed last, or null before its crossfade shows a step.</summary>
     private EndingLogoCrossfadeStep? ShownCrossfade { get; set; }
+
+    /// <summary>The crossfade step the logo shows next once its crossfade has started: its first, then each after it.</summary>
+    private EndingLogoCrossfadeStep NextCrossfade { get; set; } = EndingLogoCrossfadeStep.First;
     /// <summary>Whether the logo has shown its crossfade's last step and hands off to the percentage text.</summary>
     public bool Completed { get; private set; }
 
@@ -51,16 +54,15 @@ internal sealed class EndingLogo
         // The crossfade's first step shows on the update after the grey-out cue, not on the update that requests it.
         if (CrossfadeStarted)
         {
-            EndingLogoCrossfadeStep step = ShownCrossfade is { } shown
-                ? shown.Following ?? throw new InvalidOperationException("The logo's crossfade showed its last step.")
-                : EndingLogoCrossfadeStep.First;
+            EndingLogoCrossfadeStep step = NextCrossfade;
             Ensure.NotNull(colours).LogoCrossfade(step);
             ShownCrossfade = step;
-            if (step.Following is null)
+            if (step.Following is not { } following)
             {
                 Completed = true;
                 return;
             }
+            NextCrossfade = following;
         }
         // Each S half moves just before its own animation steps.
         upperS.Move();

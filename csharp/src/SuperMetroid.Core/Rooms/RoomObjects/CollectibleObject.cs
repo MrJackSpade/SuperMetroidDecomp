@@ -246,13 +246,17 @@ internal sealed class CollectibleObject(
     /// </summary>
     private void Draw(CollectibleImage image, IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
     {
-        if (image.Look is not { } look)
+        // An image is a draw or a look, which its two constructors build.
+        switch (image)
         {
-            (image.Draw ?? throw new InvalidOperationException("A collectible image draws nothing.")).Draw(level, place.Block, drawing);
-            return;
+            case { Look: { } look }:
+                Terrain.VisibleFrame(Kind, look).Draw(level, place.Block, drawing);
+                if (Terrain.ShowsOwnPicture)
+                    level.ShowCollectible(place.Block, new CollectiblePicture(Kind, look));
+                return;
+            case { Draw: { } draw }:
+                draw.Draw(level, place.Block, drawing);
+                return;
         }
-        Terrain.VisibleFrame(Kind, look).Draw(level, place.Block, drawing);
-        if (Terrain.ShowsOwnPicture)
-            level.ShowCollectible(place.Block, new CollectiblePicture(Kind, look));
     }
 }

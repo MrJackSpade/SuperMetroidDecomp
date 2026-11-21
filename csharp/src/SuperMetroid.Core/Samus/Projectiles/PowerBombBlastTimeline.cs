@@ -224,16 +224,15 @@ public sealed class PowerBombBlastTimeline
     }
 
     /// <summary>
-    /// Runs one update of an oval stage: returns the authored oval radius this update shows.
+    /// Runs one update of an oval stage, which shows its next authored oval radius each update, the display showing the
+    /// one shown last.
     /// </summary>
-    /// <param name="stageEnds">Whether this update showed the stage's last oval, which ends it.</param>
-    /// <exception cref="InvalidOperationException">The stage has already shown its last oval.</exception>
-    private int ShowNextOval(out bool stageEnds)
+    /// <returns>Whether this update showed the stage's last oval, which ends it.</returns>
+    private bool ShowNextOval()
     {
-        int radius = _ovals.StepToNewFrame()
-            ?? throw new InvalidOperationException($"Power Bomb phase {Phase} ran past its last oval.");
-        stageEnds = _ovals.IsResting;
-        return radius;
+        if (_ovals.StepToNewFrame() is { } radius)
+            RenderedOvalRadius = radius;
+        return _ovals.IsResting;
     }
 
     /// <summary>
@@ -265,7 +264,7 @@ public sealed class PowerBombBlastTimeline
 
         // The yellow pre-explosion chooses this frame's oval before the stage counts the update, and the display shows
         // the chosen one after the logic frame has completed.
-        RenderedOvalRadius = ShowNextOval(out bool stageEnds);
+        bool stageEnds = ShowNextOval();
 
         // The hold is tested on the growth before either value changes: a growth that would pass the radius's range leaves
         // both the radius and its speed as they were for this frame.
@@ -316,7 +315,7 @@ public sealed class PowerBombBlastTimeline
             PowerBombGlowSequence.Explosion,
             ExplosionRadius.GlowColorBand);
 
-        RenderedOvalRadius = ShowNextOval(out bool stageEnds);
+        bool stageEnds = ShowNextOval();
 
         if (TryGrowRadius(ExplosionRadius, out PowerBombRadius nextRadius))
         {

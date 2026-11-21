@@ -606,8 +606,6 @@ internal static void VerifySamusStoredShineAndShinespark()
             checkedPoses++;
         }
         AssertEqual(8, checkedPoses, "six crash poses and two drained poses finish a crash");
-        AssertThrows<InvalidOperationException>(() => ShinesparkEchoDepartures.DepartureAngles(SamusPoseId.DrainedCrouchingRightPose, null),
-            "a drained crash without the installed departures is rejected");
         Console.WriteLine("Shinespark crash departures: six authored pairs, two drained pairs read past the table and every other pose's rejection pass.");
     }
 

@@ -63,39 +63,68 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
                 .Concat(also.Where(shown => !shown.ShowsNothing)).Distinct()];
             values = [.. used.Select(shown => new string[InputsOf(shown).Length])];
         }
-        LayeredPicture?[]? blocks = fresh ? new LayeredPicture?[Sheet.Inputs.Count] : null;
-        Dictionary<CollectiblePicture, LayeredPicture>? collectibles = fresh ? [] : null;
+        RoomBlockPictureTable resolved = !fresh && previous is { } unchanged ? Update(unchanged, appearance) : Build(appearance);
+        table = resolved;
+        return resolved;
+    }
+
+    /// <summary>Resolves every used picture afresh for the values <paramref name="appearance"/> reads.</summary>
+    private RoomBlockPictureTable Build(RoomAppearanceView appearance)
+    {
+        var blocks = new LayeredPicture?[Sheet.Inputs.Count];
+        var collectibles = new Dictionary<CollectiblePicture, LayeredPicture>();
         for (int index = 0; index < used.Length; index++)
         {
             RoomCellPicture shown = used[index];
             ImmutableArray<AppearanceInput> inputs = InputsOf(shown);
-            string[] shownValues = values[index];
-            bool changed = fresh;
-            for (int input = 0; input < inputs.Length; input++)
-            {
-                string now = appearance.ValueOf(inputs[input]);
-                changed |= now != shownValues[input];
-                shownValues[input] = now;
-            }
-            if (!changed)
-                continue;
-            if (blocks is null || collectibles is null)
-            {
-                RoomBlockPictureTable changing = previous ?? throw new InvalidOperationException("A changed block was resolved with no table to change.");
-                blocks = Copy(changing);
-                collectibles = new Dictionary<CollectiblePicture, LayeredPicture>(changing.Collectibles);
-            }
-            LayeredPicture picture = PictureOf(shown, inputs, shownValues);
-            if (shown.ShowsCollectible)
-                collectibles[shown.Collectible] = picture;
-            else
-                blocks[shown.Block] = picture;
+            TakeValues(appearance, inputs, values[index]);
+            Place(blocks, collectibles, shown, PictureOf(shown, inputs, values[index]));
         }
-        RoomBlockPictureTable resolved = blocks is null || collectibles is null
-            ? previous ?? throw new InvalidOperationException("An unchanged resolution has no table.")
-            : new RoomBlockPictureTable(blocks, collectibles);
-        table = resolved;
-        return resolved;
+        return new RoomBlockPictureTable(blocks, collectibles);
+    }
+
+    /// <summary>
+    /// Resolves again only the used pictures whose inputs <paramref name="appearance"/> reads have changed since
+    /// <paramref name="previous"/> was resolved; with none changed, <paramref name="previous"/> stands.
+    /// </summary>
+    private RoomBlockPictureTable Update(RoomBlockPictureTable previous, RoomAppearanceView appearance)
+    {
+        LayeredPicture?[]? blocks = null;
+        Dictionary<CollectiblePicture, LayeredPicture>? collectibles = null;
+        for (int index = 0; index < used.Length; index++)
+        {
+            RoomCellPicture shown = used[index];
+            ImmutableArray<AppearanceInput> inputs = InputsOf(shown);
+            if (!TakeValues(appearance, inputs, values[index]))
+                continue;
+            blocks ??= Copy(previous);
+            collectibles ??= new Dictionary<CollectiblePicture, LayeredPicture>(previous.Collectibles);
+            Place(blocks, collectibles, shown, PictureOf(shown, inputs, values[index]));
+        }
+        return blocks is null || collectibles is null ? previous : new RoomBlockPictureTable(blocks, collectibles);
+    }
+
+    /// <summary>Takes the values <paramref name="appearance"/> reads for <paramref name="inputs"/>, and whether any changed.</summary>
+    private static bool TakeValues(RoomAppearanceView appearance, ImmutableArray<AppearanceInput> inputs, string[] shownValues)
+    {
+        bool changed = false;
+        for (int input = 0; input < inputs.Length; input++)
+        {
+            string now = appearance.ValueOf(inputs[input]);
+            changed |= now != shownValues[input];
+            shownValues[input] = now;
+        }
+        return changed;
+    }
+
+    /// <summary>Places <paramref name="picture"/> as the picture <paramref name="shown"/> shows.</summary>
+    private static void Place(LayeredPicture?[] blocks, Dictionary<CollectiblePicture, LayeredPicture> collectibles,
+        RoomCellPicture shown, LayeredPicture picture)
+    {
+        if (shown.ShowsCollectible)
+            collectibles[shown.Collectible] = picture;
+        else
+            blocks[shown.Block] = picture;
     }
 
     /// <summary>The blocks and collectible pictures a plane's cells show; a cell that shows nothing uses neither.</summary>

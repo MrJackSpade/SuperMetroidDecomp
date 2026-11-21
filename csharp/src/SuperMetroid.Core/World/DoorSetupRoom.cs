@@ -42,13 +42,8 @@ internal sealed class DoorSetupRoom : IDoorEventRoom
     internal required SharedGameState System { get; init; }
 
     /// <inheritdoc/>
-    /// <exception cref="InvalidDataException">The room's main composed no elevatube ride.</exception>
-    public void StartElevatubeRide(ElevatubeEntry entry)
-    {
-        MaridiaElevatubeRoomMainState ride = Scope.MaridiaElevatube ?? throw new InvalidDataException(
-            $"A door's setup starts the elevatube ride {entry} in room {Scope.Room.Definition.Name}, whose main composes no elevatube.");
-        ride.StartRide(entry, Samus);
-    }
+    /// <remarks>The ride is the room main's: a room whose main composes no elevatube has none to start.</remarks>
+    public void StartElevatubeRide(ElevatubeEntry entry) => Scope.MaridiaElevatube?.StartRide(entry, Samus);
 
     /// <inheritdoc/>
     public void ShowOrdinaryDisplay() => Display.ActiveTurningFloor = null;

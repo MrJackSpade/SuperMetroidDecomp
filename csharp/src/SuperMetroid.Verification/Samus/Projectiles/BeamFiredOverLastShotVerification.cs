@@ -194,7 +194,7 @@ internal static class BeamFiredOverLastShotVerification
             {
                 SamusProjectile echo = projectiles.Pool.Occupy(LastPlace);
                 echo.OccupyAsFired(SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho));
-                BeamCombos.InitializeComboShot(echo.HeldShot(), BeamComboShotKind.Echo);
+                BeamCombos.InitializeComboShot(echo.HeldShot(), new BeamComboShotKind.EchoShot(SamusBeamEcho.ShinesparkEcho));
                 echo.HeldShot().Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(new TrigonometryAngle(echoAngle)));
             }, echoAngle),
             ("a beam carrying a fuse", projectiles => FlyingBeam(projectiles, LastPlace).BeamFuse = UpdateCountdown.For(carriedFuse), carriedFuse),

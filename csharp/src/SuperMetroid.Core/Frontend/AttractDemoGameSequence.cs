@@ -21,23 +21,7 @@ internal abstract class AttractDemoGameSequence
     private protected FrontendSession Session { get; }
 
     /// <summary>The step's name.</summary>
-    internal abstract AttractDemoStep StepName { get; }
-
-    /// <summary>The sequence this phase runs.</summary>
-    public SuperMetroidGameState State => SuperMetroidGameState.AttractDemo;
-
-    /// <summary>The random generator's step before the step runs.</summary>
-    /// <remarks>The demo's own gameplay advances the generator; its other steps do not.</remarks>
-    public PhaseRandomStep RandomStep => PhaseRandomStep.RuntimeOwned;
-
-    /// <summary>The step's audio facts.</summary>
-    public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
-
-    /// <summary>The step's status for hosts and diagnostics.</summary>
-    public string Name => $"Attract demo: {StepName}";
-
-    /// <summary>No step of the demo waits out a frame of the display.</summary>
-    public bool IsWaitingOutDisplayFrame => false;
+    public abstract AttractDemoStep StepName { get; }
 
     /// <summary>Starts the transition out of a completed or cancelled demo scene.</summary>
     private protected void FinishAttractPlayback(AttractPlaybackEnd end)
@@ -47,12 +31,39 @@ internal abstract class AttractDemoGameSequence
         Session.display.PublishBlack();
     }
 
+    /// <summary>
+    /// The facts every step of the demo answers alike, which each step's phase takes beside what it runs on: the sequence
+    /// is the attract demo, its gameplay alone advances the random generator, its audio is ordinary, no step waits out a
+    /// frame of the display, and each step is named by its <see cref="StepName"/>.
+    /// </summary>
+    internal interface IStepPhase : IGamePhase
+    {
+        /// <summary>The step's name.</summary>
+        AttractDemoStep StepName { get; }
+
+        /// <inheritdoc/>
+        SuperMetroidGameState IGamePhase.State => SuperMetroidGameState.AttractDemo;
+
+        /// <inheritdoc/>
+        /// <remarks>The demo's own gameplay advances the generator; its other steps do not.</remarks>
+        PhaseRandomStep IGamePhase.RandomStep => PhaseRandomStep.RuntimeOwned;
+
+        /// <inheritdoc/>
+        GamePhaseAudio IGamePhase.Audio => GamePhaseAudio.Ordinary;
+
+        /// <inheritdoc/>
+        string IGamePhase.Name => $"Attract demo: {StepName}";
+
+        /// <inheritdoc/>
+        bool IGamePhase.IsWaitingOutDisplayFrame => false;
+    }
+
     /// <summary>The next demo's scene, whose runtime has yet to be created.</summary>
     /// <param name="session">The frontend session the demo runs against.</param>
-    internal sealed class AwaitingScene(FrontendSession session) : AttractDemoGameSequence(session), IFrontendPhase
+    internal sealed class AwaitingScene(FrontendSession session) : AttractDemoGameSequence(session), IStepPhase, IFrontendPhase
     {
         /// <inheritdoc/>
-        internal override AttractDemoStep StepName => AttractDemoStep.Loading;
+        public override AttractDemoStep StepName => AttractDemoStep.Loading;
 
         /// <summary>Creates the demo's runtime and loads the scene it awaits, then holds the black screen for its load frames.</summary>
         public void Step(ControllerButton controllerInput)
@@ -74,10 +85,10 @@ internal abstract class AttractDemoGameSequence
     /// <param name="waits">The blank enemy-setup waits (<see cref="GameLoadingDefinitions.EnemySetupWaits"/>) left before the scene shows.</param>
     /// <param name="duration">How long the scene's scripted input lasts once it plays.</param>
     internal sealed class LoadingScene(FrontendSession session, UpdateCountdown waits, int duration)
-        : AttractDemoGameSequence(session), IRuntimePhase
+        : AttractDemoGameSequence(session), IStepPhase, IRuntimePhase
     {
         /// <inheritdoc/>
-        internal override AttractDemoStep StepName => AttractDemoStep.Loading;
+        public override AttractDemoStep StepName => AttractDemoStep.Loading;
 
         /// <summary>Counts one enemy-setup wait in the runtime the demo created; after the last, the scene starts.</summary>
         public void Step(ControllerButton controllerInput, SuperMetroidRuntime runtime)
@@ -93,10 +104,10 @@ internal abstract class AttractDemoGameSequence
     /// <summary>The demo's first gameplay pass, after which the room is shown fully bright and playback begins.</summary>
     /// <param name="session">The frontend session the demo runs against.</param>
     /// <param name="duration">How long the scene's scripted input lasts once it plays.</param>
-    internal sealed class Starting(FrontendSession session, int duration) : AttractDemoGameSequence(session), IGameplayPhase
+    internal sealed class Starting(FrontendSession session, int duration) : AttractDemoGameSequence(session), IStepPhase, IGameplayPhase
     {
         /// <inheritdoc/>
-        internal override AttractDemoStep StepName => AttractDemoStep.Starting;
+        public override AttractDemoStep StepName => AttractDemoStep.Starting;
 
         /// <summary>
         /// Runs the demo's first gameplay pass one gameplay frame before revealing the room. Its extra frame does not count
@@ -113,10 +124,10 @@ internal abstract class AttractDemoGameSequence
     /// <summary>The recording plays until its timer or a newly pressed real button ends it.</summary>
     /// <param name="session">The frontend session the demo runs against.</param>
     /// <param name="playback">The scripted input left, counted once each scripted update.</param>
-    internal sealed class Playing(FrontendSession session, UpdateCountdown playback) : AttractDemoGameSequence(session), IGameplayPhase
+    internal sealed class Playing(FrontendSession session, UpdateCountdown playback) : AttractDemoGameSequence(session), IStepPhase, IGameplayPhase
     {
         /// <inheritdoc/>
-        internal override AttractDemoStep StepName => AttractDemoStep.Playing;
+        public override AttractDemoStep StepName => AttractDemoStep.Playing;
 
         /// <summary>One update of the recording, which a newly pressed button cancels; once it runs out, its final image holds.</summary>
         public void Step(ControllerButton controllerInput, LoadedGameplay live)
@@ -134,10 +145,10 @@ internal abstract class AttractDemoGameSequence
     /// <summary>The recording has run out and its final image holds.</summary>
     /// <param name="session">The frontend session the demo runs against.</param>
     /// <param name="hold">The still-frame hold left.</param>
-    internal sealed class Holding(FrontendSession session, UpdateCountdown hold) : AttractDemoGameSequence(session), IGameplayPhase
+    internal sealed class Holding(FrontendSession session, UpdateCountdown hold) : AttractDemoGameSequence(session), IStepPhase, IGameplayPhase
     {
         /// <inheritdoc/>
-        internal override AttractDemoStep StepName => AttractDemoStep.Holding;
+        public override AttractDemoStep StepName => AttractDemoStep.Holding;
 
         /// <summary>One update of the final image's hold, which a newly pressed button cancels.</summary>
         public void Step(ControllerButton controllerInput, LoadedGameplay live)
@@ -154,10 +165,10 @@ internal abstract class AttractDemoGameSequence
 
     /// <summary>The demo's gameplay is released while the schedule decides whether another demo plays.</summary>
     /// <param name="session">The frontend session the demo runs against.</param>
-    internal sealed class Unloading(FrontendSession session) : AttractDemoGameSequence(session), IFrontendPhase
+    internal sealed class Unloading(FrontendSession session) : AttractDemoGameSequence(session), IStepPhase, IFrontendPhase
     {
         /// <inheritdoc/>
-        internal override AttractDemoStep StepName => AttractDemoStep.Unloading;
+        public override AttractDemoStep StepName => AttractDemoStep.Unloading;
 
         /// <summary>Releases the demo's gameplay and decides where the attract mode goes.</summary>
         public void Step(ControllerButton controllerInput)
@@ -171,10 +182,10 @@ internal abstract class AttractDemoGameSequence
 
     /// <summary>The next demo loads, or the title returns: from its beginning, or at its title screen when a button ended the demo.</summary>
     /// <param name="session">The frontend session the demo runs against.</param>
-    internal sealed class Routing(FrontendSession session) : AttractDemoGameSequence(session), IFrontendPhase
+    internal sealed class Routing(FrontendSession session) : AttractDemoGameSequence(session), IStepPhase, IFrontendPhase
     {
         /// <inheritdoc/>
-        internal override AttractDemoStep StepName => AttractDemoStep.Routing;
+        public override AttractDemoStep StepName => AttractDemoStep.Routing;
 
         /// <summary>Loads the next demo, or returns to the title: from its beginning, or at its title screen after a cancelled demo.</summary>
         public void Step(ControllerButton controllerInput)

@@ -203,11 +203,10 @@ public static class SamusBlockCollision
         public bool Slope()
         {
             bool collided = false;
-            if (block.Behavior.Slope.Shape.SquareQuarters is { } square)
+            if (SquareSlopeBlock.Of(block.Behavior) is { } square)
             {
                 bool squareCollision = ReactHorizontalSquareSlope(
                     scan.State,
-                    block,
                     square,
                     acceptedDisplacement,
                     scan.LeadingBoundary,
@@ -612,11 +611,10 @@ public static class SamusBlockCollision
         public bool Slope()
         {
             bool collided = false;
-            if (block.Behavior.Slope.Shape.SquareQuarters is { } square)
+            if (SquareSlopeBlock.Of(block.Behavior) is { } square)
             {
                 bool squareCollision = ReactVerticalSquareSlope(
                     scan.State,
-                    block,
                     square,
                     acceptedDisplacement,
                     scan.LeadingBoundary,
@@ -1021,12 +1019,11 @@ public static class SamusBlockCollision
     }
 
     /// <summary>
-    /// Reacts to a square slope of <paramref name="shape"/> during horizontal block collision.
+    /// Reacts to the square slope <paramref name="square"/> during horizontal block collision.
     /// </summary>
     private static bool ReactHorizontalSquareSlope(
         SamusKinematicsState state,
-        RoomCollisionBlock block,
-        SquareSlopeShape shape,
+        SquareSlopeBlock square,
         SignedSixteenSixteen displacement,
         int leadingBoundary,
         int remainingRows,
@@ -1035,8 +1032,8 @@ public static class SamusBlockCollision
     {
         // The leading X boundary's eight-pixel half selects the column; the scan starts in the top row and then
         // tests the row below it.
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor(leadingBoundary), SquareSlopeRowHalf.Top);
-        bool selectedSolid = SquareSlopes.IsSolid(shape, quadrant);
+        SquareSlopeQuadrant quadrant = square.Showing(SquareSlopeQuadrant.ColumnFor(leadingBoundary), SquareSlopeRowHalf.Top);
+        bool selectedSolid = square.IsSolid(quadrant);
         bool collide;
 
         if (remainingRows == 0)
@@ -1050,7 +1047,7 @@ public static class SamusBlockCollision
                 return false;
             }
 
-            collide = selectedSolid || SquareSlopes.IsSolid(shape, quadrant.OtherRow);
+            collide = selectedSolid || square.IsSolid(quadrant.OtherRow);
         }
         else
         {
@@ -1059,7 +1056,7 @@ public static class SamusBlockCollision
             // leaves the opposite vertical quadrant to decide.
             bool selectedTested = remainingRows != totalRows ||
                 !RoomGridConversions.InSecondHalfOfBlock(state.Position.Y.Whole - state.Radius.Y);
-            collide = (selectedTested && selectedSolid) || SquareSlopes.IsSolid(shape, quadrant.OtherRow);
+            collide = (selectedTested && selectedSolid) || square.IsSolid(quadrant.OtherRow);
         }
 
         if (!collide)
@@ -1076,12 +1073,11 @@ public static class SamusBlockCollision
     }
 
     /// <summary>
-    /// Reacts to a square slope of <paramref name="shape"/> during vertical block collision.
+    /// Reacts to the square slope <paramref name="square"/> during vertical block collision.
     /// </summary>
     private static bool ReactVerticalSquareSlope(
         SamusKinematicsState state,
-        RoomCollisionBlock block,
-        SquareSlopeShape shape,
+        SquareSlopeBlock square,
         SignedSixteenSixteen displacement,
         int leadingBoundary,
         int blocksLeftToCheck,
@@ -1090,8 +1086,8 @@ public static class SamusBlockCollision
     {
         // Vertical collision takes the row from the leading Y boundary's eight-pixel half. The horizontal counter is
         // the number of physical blocks left: left-to-right counts span..0 while right-to-left counts 0..span.
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(leadingBoundary));
-        bool selectedSolid = SquareSlopes.IsSolid(shape, quadrant);
+        SquareSlopeQuadrant quadrant = square.Showing(SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(leadingBoundary));
+        bool selectedSolid = square.IsSolid(quadrant);
         bool collide;
 
         // A blocks-left count of zero always denotes the physical rightmost block, independent of
@@ -1105,7 +1101,7 @@ public static class SamusBlockCollision
                 return false;
             }
 
-            collide = selectedSolid || SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
+            collide = selectedSolid || square.IsSolid(quadrant.OtherColumn);
         }
         else
         {
@@ -1113,7 +1109,7 @@ public static class SamusBlockCollision
             // selected quadrant that is not tested or not solid leaves the opposite horizontal quadrant to decide.
             bool selectedTested = blocksLeftToCheck != totalColumns ||
                 !RoomGridConversions.InSecondHalfOfBlock(state.Position.X.Whole - state.Radius.X);
-            collide = (selectedTested && selectedSolid) || SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
+            collide = (selectedTested && selectedSolid) || square.IsSolid(quadrant.OtherColumn);
         }
 
         if (!collide)

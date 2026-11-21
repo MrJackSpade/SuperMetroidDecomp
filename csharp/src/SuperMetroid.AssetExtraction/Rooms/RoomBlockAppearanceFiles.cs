@@ -70,12 +70,12 @@ public static class RoomBlockAppearanceFiles
             // Each block's inputs, as the record spells them; none for a block no room shows, which the record does not list.
             ImmutableArray<AppearanceInput>[] inputs = [.. Enumerable.Repeat(ImmutableArray<AppearanceInput>.Empty, document.Count)];
             var shown = new List<int>();
-            foreach ((string name, string?[]? tokens) in blocks.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            // The serializer refuses a null input list or input when it reads the record (InstalledDocumentElements).
+            foreach ((string name, string[] tokens) in blocks.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
                 if (!blockNamed.TryGetValue(name, out int block))
                     throw new InvalidDataException($"A block appearance record of {document.Count} blocks lists {name}, not among them.");
-                inputs[block] = ImmutableArray.CreateRange((tokens ?? throw new InvalidDataException($"{name} lists null inputs.")).Select(token =>
-                    AppearanceInputSpellings.Parse(token ?? throw new InvalidDataException($"{name} lists a null input."))));
+                inputs[block] = ImmutableArray.CreateRange(tokens.Select(AppearanceInputSpellings.Parse));
                 shown.Add(block);
             }
             return new RoomBlockAppearances(inputs, shown);

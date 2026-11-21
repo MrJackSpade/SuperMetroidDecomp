@@ -54,9 +54,8 @@ internal sealed record RoomEnemyGraphicsSetMember
     internal string Name => Source.Name;
 
     /// <summary>The bytes of the tile set the record uploads.</summary>
-    /// <exception cref="InvalidDataException">The import does not catalogue the record's tile set.</exception>
-    internal int TileByteCount => Source.TileByteCount ??
-        throw new InvalidDataException($"Graphics-set record {Name} names a tile set the import does not catalogue.");
+    /// <exception cref="ArgumentOutOfRangeException">The import does not catalogue the record's tile set.</exception>
+    internal int TileByteCount => Source.TileByteCount;
 
     /// <summary>The fixed staging block, 0 through 3, the record uploads its tiles to; null when they follow the previous record's.</summary>
     internal int? FixedBlock => Source.FixedBlock;

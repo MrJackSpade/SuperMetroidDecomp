@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -116,6 +116,8 @@ internal static class ShaktoolOwnedStateVerification
         states[6].AngularVelocity = RotationAngle.FromSteps(1);
         states[6].OrbitAngle = target - RotationAngle.FromSteps(2);
         RoomEnemyPlace tail = enemies.Places.InUpdateOrder[6];
+        // The fixture's blank definition gives the saw no body; its move through the open room tests the rows a body spans.
+        tail.Radius = new(8, 8);
         tail.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
         AssertTrue(states.Take(6).All(state => state.OrbitAngle != target), "a turn short of the target leaves the chain where it was");
         tail.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());

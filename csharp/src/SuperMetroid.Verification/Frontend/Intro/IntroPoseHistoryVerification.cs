@@ -65,7 +65,7 @@ internal static class IntroPoseHistoryVerification
         var intro = CreateRetailIntroFixture(audio);
         _ = intro.StepToMotherBrainFlashback(audio);
         LayeredScene scene = intro.ComposeScene();
-        AssertEqual((int)IntroCinematicDefinitions.Flashback.SamusPosition.X, scene.DrawnSamusOrigin?.X,
+        AssertEqual<int?>(IntroCinematicDefinitions.Flashback.SamusPosition.X, scene.DrawnSamusOrigin?.X,
             "the flashback draws Samus at her starting place from its setup update");
         SpriteSheetFrame? shown = scene.DrawnSamusBody?.Image;
         int bodyChanges = 0;

@@ -19,16 +19,17 @@ internal static class IntroProjectileArtworkVerification
     /// </summary>
     internal static void VerifyIntroProjectileArtwork(ushort sprite)
     {
-        var intro = CreateRetailIntroFixture();
-        intro.SetupFirstIllustratedPage();
-        intro.SetupMotherBrainFlashback();
+        var audio = AudioQueues.Standalone();
+        var intro = CreateRetailIntroFixture(audio);
+        // The intro runs as the game runs it to the Mother Brain flashback's setup, whose scene draws the shots (#2554).
+        _ = intro.StepToMotherBrainFlashback(audio);
         var projectiles = intro.flashbackProjectiles;
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         game.Session.Show(intro);
         game.Session.Enter(SuperMetroidGameState.IntroCinematic);
         game.BindArtwork(game.Artwork with { SpriteSheets = InstalledFixtures.SpriteSheets });
-        SamusColouredDraw Shown(IntroCinematicState scene, SpriteSourceKind kind) =>
-            scene.PrepareMotherBrainSprites().Draws.OfType<SamusColouredDraw>().Single(draw => draw.Source.Kind == kind);
+        ImageSpriteDraw Shown(IntroCinematicState scene, SpriteSourceKind kind) =>
+            scene.ComposeScene().SpriteDraws.Single(draw => draw.Source.Kind == kind);
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.IntroProjectiles);
         foreach (ushort family in new ushort[] { 0x10, 0x700 })
         {

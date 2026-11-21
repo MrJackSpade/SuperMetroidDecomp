@@ -71,9 +71,9 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             place.SetSpawnParameter2(EnemyDefinitionId.PirateSilverNinja, 0x0080);
-            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place.HeldOccupant().SpawnSettings<NinjaSpacePirateSpawnSettings>(), place);
-            return new InitializeResult(place, (enemies.NinjaSpacePirateStates[0]
-                ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback);
+            // The Pirate's setup builds the state its animation runs on.
+            return new InitializeResult(place,
+                NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place.HeldOccupant().SpawnSettings<NinjaSpacePirateSpawnSettings>(), place).Playback);
         }
     }
 }

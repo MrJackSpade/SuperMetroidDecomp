@@ -24,26 +24,25 @@ internal static class YardInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyYardInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
-        RoomEnemySystem enemies = CreateYardInstructionSystem(out RoomEnemyPlace yard);
-        YardEnemyState state = enemies.Places.InUpdateOrder[0].EntityState<YardEntity, YardEnemyState>() ?? throw new InvalidOperationException("The Yard has no state.");
+        RoomEnemySystem enemies = CreateYardInstructionSystem(out RoomEnemyPlace yard, out YardEnemyState state);
         foreach (YardSegment program in YardAnimations.StartingAt.Keys)
         {
             state.Playback = new(YardAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            RunYard(yard, 80);
+            RunYard(enemies, yard, state, 80);
         }
 
         // Hiding: the closed shell shows again however often its update ends (#2180).
         ushort repeatedPose = YardAnimationsConstants.Spritemaps(YardSegment.ShellClosedOnFloorMovingLeft).First();
         state.Behavior = YardBehavior.Hiding;
         state.Playback = new(YardAnimations.StartingWith(YardSegment.HidingOnFloorMovingLeft), AnimationPlace.StartOfAnimation);
-        RunYard(yard, 20);
+        RunYard(enemies, yard, state, 20);
         AssertEqual(YardSegment.ShellClosedOnFloorMovingLeft, StandsIn(state.Playback), "a hiding Yard stays in its closed shell");
         AssertEqual(repeatedPose, yard.SpritemapPointer, "a hiding Yard keeps showing its closed shell");
 
         // Visible, with the fixture's even random draw: the hide runs on into the hidden animation.
         state.Behavior = YardBehavior.NormalCrawling;
         state.Playback = new(YardAnimations.StartingWith(YardSegment.HidingOnFloorMovingLeft), AnimationPlace.StartOfAnimation);
-        RunYard(yard, 3);
+        RunYard(enemies, yard, state, 3);
         AssertEqual(YardSegment.HiddenOnFloorMovingLeft, StandsIn(state.Playback), "a visible Yard's even draw runs on into the hidden animation");
 
         Suite(nameof(YardAnimationsVerification.VerifyYardAnimations), () => YardAnimationsVerification.VerifyYardAnimations(rom));
@@ -54,18 +53,18 @@ internal static class YardInstructionProgramDefinitionsVerification
     private static YardSegment StandsIn(AnimationPlayback<YardSegment> playback) => playback.Animation.Phases[playback.Place.Phase].Segment;
 
     /// <summary>Forces the requested number of animation updates.</summary>
-    private static void RunYard(RoomEnemyPlace yard, int updates)
+    private static void RunYard(RoomEnemySystem enemies, RoomEnemyPlace yard, YardEnemyState state, int updates)
     {
         for (int update = 0; update < updates; update++)
         {
             yard.AnimationClock.StepOnNextUpdate();
-            EnemyAnimationPlayer.AdvanceAnimation(yard, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
+            enemies.YardBehavior.AdvanceYardTypedAnimation(yard, state);
         }
     }
 
     /// <summary>Creates a bank A3 Yard slot with deterministic random input and its behavior state installed.</summary>
     internal static RoomEnemySystem CreateYardInstructionSystem(
-        out RoomEnemyPlace yard)
+        out RoomEnemyPlace yard, out YardEnemyState state)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
@@ -73,8 +72,7 @@ internal static class YardInstructionProgramDefinitionsVerification
         yard = enemies.Places.InUpdateOrder[0];
         yard.Bind(EnemyDefinitionId.Yard, yard.KeptDefinition);
         yard.Bind(yard.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        var state = new YardEnemyState { Playback = new(YardAnimations.StartingWith(YardSegment.CrawlingOnFloorMovingLeft), AnimationPlace.StartOfAnimation) };
-        yard.SetSpeciesState(state);
+        state = new YardEnemyState { Playback = new(YardAnimations.StartingWith(YardSegment.CrawlingOnFloorMovingLeft), AnimationPlace.StartOfAnimation) };
         return enemies;
     }
 

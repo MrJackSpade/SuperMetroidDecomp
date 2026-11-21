@@ -47,42 +47,42 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(room.State.EnemyPopulation, BgArtworkFixtures.For(vram), assets.LevelData, RoomEnemyFrameFixtures.StandaloneSamus()));
 
         RoomEnemyPlace actor = enemies.Places.InUpdateOrder[0];
-        AlcoonEnemyState state = enemies.AlcoonStates[0] ??
-            throw new InvalidDataException("Real Alcoon initializer omitted slot-zero state.");
+        // The floor the slot-zero Alcoon lands on, which its setup finds; Samus stands on it.
+        int landingY = enemies.AlcoonBehavior.InitializeAlcoon(actor, assets.LevelData).LandingY;
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Health = 999,
             MaxHealth = 999,
             Pose = SamusPoseId.FacingRightNormalPose,
-            Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole + 1)), state.LandingY)),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole + 1)), checked((ushort)landingY))),
         };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
 
         bool sawLeftFireball = false;
         bool sawRightFireball = false;
-        var reachedPoses = new HashSet<ReachedPose>();
+        var shownPictures = new HashSet<EnemyFrameId>();
+        // The way the slot-zero Alcoon walks, as its steps show it; Samus waits ahead of it.
+        int walking = -1;
         for (int frame = 0; frame < 4_096 &&
-             (installedArt is not null || reachedPoses.Count < 42 ||
+             (installedArt is not null || shownPictures.Count < AuthoredPictures().Count ||
               !sawLeftFireball || !sawRightFireball); frame++)
         {
             int maximumX = Math.Max(0, room.Size.X * 256 - 256);
             ushort cameraX = unchecked((ushort)Math.Clamp(actor.Position.X.Whole - 128, 0, maximumX));
+            ushort before = actor.Position.X.Whole;
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(cameraX, 0), TimeIsFrozen = false, Samus = samus });
+            // Each Alcoon's shown picture is the pose its animation reached.
             foreach (RoomEnemyPlace place in enemies.Places.InUpdateOrder)
             {
-                // A playback that has just passed a frame beat is showing that pose; one resting on a held frame stands past
-                // its phase's last beat, the held frame.
-                if (place.Holds(EnemyDefinitionId.Alcoon) &&
-                    enemies.AlcoonStates[place.Ordinal] is { Playback: { Place.Beat: > 0 } playback } &&
-                    playback.Animation.Phases[playback.Place.Phase] is var phase &&
-                    phase.FirstBeat + Math.Min(playback.Place.Beat, phase.BeatCount) - 1 is var shownBeat &&
-                    AlcoonAnimations.Segments.Beats(phase.Segment)[shownBeat].ShownFrame is not null)
-                    reachedPoses.Add(new ReachedPose(phase.Segment, shownBeat));
+                if (place.Holds(EnemyDefinitionId.Alcoon) && place.Frame is { } picture)
+                    shownPictures.Add(picture);
             }
+            int moved = unchecked((short)(actor.Position.X.Whole - before));
+            if (moved != 0)
+                walking = Math.Sign(moved);
 
-            samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(actor.Position.X.Whole +
-                (state.WalkingDirection == AlcoonWalk.Left ? -32 : 32))), state.LandingY));
+            samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(actor.Position.X.Whole + 32 * walking)), checked((ushort)landingY)));
             foreach (EnemyProjectile projectile in enemies.Projectiles.EnemyProjectiles.Where(
                          projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball))
             {
@@ -94,16 +94,11 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
 
         AssertTrue(sawLeftFireball && sawRightFireball,
             "real Alcoon programs execute fire callbacks in both facings");
-        var poses = Enum.GetValues<AlcoonSegment>()
-            .SelectMany(program => AlcoonAnimations.Segments.Beats(program)
-                .Select((beat, index) => new AlcoonInstructionProgramDefinitionsPose(Program:program, Step:index, Shows:beat.ShownFrame is not null)))
-            .Where(step => step.Shows)
-            .Select(step => new ReachedPose(step.Program, step.Step))
-            .ToHashSet();
-        string missed = string.Join(", ", poses.Where(pose => !reachedPoses.Contains(pose)).Select(pose => $"{pose.Program}[{pose.Step}]"));
-        // The fire animations end at their start-walking cue (#2061): every authored pose is reachable.
-        AssertEqual(42, poses.Count, "the Alcoon's programs author 42 poses");
-        AssertTrue(poses.SetEquals(reachedPoses), $"real Alcoon reaches every authored pose; missing={missed}");
+        HashSet<EnemyFrameId> pictures = AuthoredPictures();
+        string missed = string.Join(", ", pictures.Where(picture => !shownPictures.Contains(picture)));
+        // The fire animations end at their start-walking cue (#2061): every authored pose is reachable, so the room shows
+        // every picture the programs author.
+        AssertTrue(pictures.SetEquals(shownPictures), $"real Alcoon shows every authored picture; missing={missed}");
         Suite(nameof(AlcoonAnimationsVerification.VerifyAlcoonAnimations), () => AlcoonAnimationsVerification.VerifyAlcoonAnimations(rom));
 
         Console.WriteLine(installedArt is null
@@ -111,6 +106,13 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
               "off to walking as the native callbacks do."
             : "Installed Alcoon: real-room movement and both fire directions pass with the installed artwork.");
     }
+
+    /// <summary>Every picture the Alcoon's programs show.</summary>
+    private static HashSet<EnemyFrameId> AuthoredPictures() =>
+        [.. Enum.GetValues<AlcoonSegment>()
+            .SelectMany(program => AlcoonAnimations.Segments.Beats(program))
+            .Where(beat => beat.ShownFrame is not null)
+            .Select(beat => (EnemyFrameId)beat.ShownFrame!)];
 
     /// <summary>Runs the standalone Alcoon instruction mechanics verification command.</summary>
     [VerificationCommand("--alcoon-instruction-mechanics")]

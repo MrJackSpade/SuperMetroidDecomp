@@ -109,25 +109,20 @@ internal static class YardAirborneVerification
         AssertEqual(measured, runtime.YardKickDistance.HorizontalDistancePlusOne, "the door load keeps the camera's measure");
 
         RoomEnemySystem enemies = runtime.Room.LoadedScope.Enemies;
-        int yard = Enumerable.Range(0, enemies.YardStates.Count).First(place => enemies.YardStates[place] is not null);
-        RoomEnemyPlace actor = enemies.Places.InUpdateOrder[yard];
-        YardEnemyState state = enemies.YardStates[yard] ?? throw new InvalidOperationException("The Aqueduct's Yard has no state.");
+        RoomEnemyPlace actor = enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Yard));
+        // The Yard's setup, run on the Yard the room placed, builds the state its touch reaction kicks.
+        YardEnemyState state = YardEnemyBehavior.InitializeYard(actor.HeldOccupant().SpawnSettings<YardSpawnSettings>(), actor);
         SamusState samus = runtime.Player.Samus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        // One enemy pass over the Yard, with the camera on it, makes it an enemy the touch pass reaches, as the room's
-        // contact check does; the scrolling, which would record a new measure, does not run.
-        enemies.StepStandaloneFrame(enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with
-        {
-            Camera = new(unchecked((ushort)(actor.Position.X.Whole - 128)), unchecked((ushort)(actor.Position.Y.Whole - 112))),
-            TimeIsFrozen = false,
-            Samus = samus,
-        });
         state.Motion = new YardMotion.Airborne(YardDirections.ForAirborneFacing(state.AirborneFacingDirection).HidingAnimation);
         state.Behavior = YardBehavior.NormalCrawling;
         samus.Position = samus.Position.WithWhole(actor.Position.Whole);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, actor.HeldOccupant(), Position16<RoomPixels>.Zero);
+        // The Yard's own touch reaction kicks it, at the camera's measure the scrolling recorded.
+        enemies.YardBehavior.ReactToYardTouch(actor.HeldOccupant(), actor.HeldOccupant().SpawnSettings<YardSpawnSettings>(),
+            new EnemyTouchContext(actor.HeldOccupant(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), default, runtime.Room.LoadedLevelData,
+                UsesFrameHitboxes: false, HitboxTouch: actor.Definition.Touch, Position16<RoomPixels>.Zero), state);
         AssertEqual(YardBehavior.Kicked, state.Behavior, "the touch kicks the Yard");
         AssertEqual(measured, state.AirborneVelocity.X, "the kicked Yard flies right at the camera's measure, fraction and all");
         AssertEqual(YardKicks.ForHorizontalSpeed(measured.UnsignedWholePixels), state.AirborneVelocity.Y,
@@ -150,10 +145,10 @@ internal static class YardAirborneVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0));
             enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
             var actor = enemies.Places.InUpdateOrder[0];
-            var state = enemies.YardStates[0];
+            // The Yard's setup builds the state its main AI, which the check drives, runs on.
+            YardEnemyState state = YardEnemyBehavior.InitializeYard(actor.HeldOccupant().SpawnSettings<YardSpawnSettings>(), actor);
             actor.Position = new(new(512, 0xF000), new(512, 0xF000));
             actor.AnimationClock.HoldFor(ushort.MaxValue);
-            state = state ?? throw new InvalidOperationException("Verification requires state.");
             state.Motion = new YardMotion.Airborne(YardDirections.ForAirborneFacing(state.AirborneFacingDirection).HidingAnimation);
             state.Behavior = behavior;
             state.AirborneVelocity = new FixedVector<RoomPixels>(
@@ -178,7 +173,7 @@ internal static class YardAirborneVerification
                 uint accelerated = unchecked(vy + 0x2000);
                 vy = unchecked((short)(SixteenSixteenWords.WholeOf(accelerated) - 4)) < 0
                     ? accelerated : SixteenSixteenWords.Compose((ushort)SixteenSixteenWords.WholeOf(vy), (ushort)SixteenSixteenWords.FractionOf(accelerated));
-                enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(384, 384), TimeIsFrozen = false, Samus = samus });
+                enemies.YardBehavior.RunYardMainAi(actor, state, PlacedEnemyAccess.AiFrame(samus, level: level, camera: new(384, 384)));
                 AssertEqual(SixteenSixteenWords.ToCoordinate(x), actor.Position.X, "Yard airborne X trajectory");
                 AssertEqual(SixteenSixteenWords.ToCoordinate(y), actor.Position.Y, "Yard airborne Y trajectory");
                 AssertEqual(vx, unchecked((uint)state.AirborneVelocity.X.RawValue), "Yard native friction words");

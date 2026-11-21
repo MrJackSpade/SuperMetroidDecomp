@@ -74,10 +74,8 @@ internal static class YardDirectionDefinitionsVerification
             place.Processing = EnemyProcessing.None;
             place.Presence = EnemyPresence.RespawnsIfKilled;
             place.Bind(EnemyDefinitionId.Yard, place.KeptDefinition);
-            YardEnemyBehavior.InitializeYard(place.HeldOccupant().SpawnSettings<YardSpawnSettings>(), place);
-
-            YardEnemyState state = enemies.YardStates[0] ??
-                throw new InvalidDataException("Yard initializer produced no typed state.");
+            // The Yard's setup builds its state.
+            YardEnemyState state = YardEnemyBehavior.InitializeYard(place.HeldOccupant().SpawnSettings<YardSpawnSettings>(), place);
             YardDirectionDefinition initial =
                 YardDirections.ForDirection(SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction));
             AssertYardDirectionState(state, initial,
@@ -108,8 +106,7 @@ internal static class YardDirectionDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.SetSpawnWords(EnemyDefinitionId.Yard, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(direction, 0, 0, 0, 0));
             place.Bind(EnemyDefinitionId.Yard, place.KeptDefinition);
-            YardEnemyBehavior.InitializeYard(place.HeldOccupant().SpawnSettings<YardSpawnSettings>(), place);
-            YardEnemyState state = (enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0]."));
+            YardEnemyState state = YardEnemyBehavior.InitializeYard(place.HeldOccupant().SpawnSettings<YardSpawnSettings>(), place);
             HorizontalDirection facing = state.AirborneFacingDirection;
             YardAirborneAnimationDefinition expected =
                 YardDirections.ForAirborneFacing(facing);

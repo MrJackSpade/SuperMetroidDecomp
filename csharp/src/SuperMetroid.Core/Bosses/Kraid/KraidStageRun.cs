@@ -16,6 +16,10 @@ public abstract class KraidStageRun
     /// <summary>The stage's name.</summary>
     public abstract KraidBodyStage Stage { get; }
 
+    /// <summary>Hands the stage to the method <paramref name="runner"/> has for its case.</summary>
+    /// <param name="runner">What runs one update of the stage.</param>
+    internal abstract void RunWith(IKraidStageRunner runner);
+
     /// <summary>His rise through the floor at the start of the encounter, outside the fight.</summary>
     /// <param name="phase">The phase of the rise he starts at.</param>
     public sealed class Rising(KraidRisePhase phase) : KraidStageRun
@@ -25,6 +29,9 @@ public abstract class KraidStageRun
 
         /// <inheritdoc/>
         public override KraidBodyStage Stage => KraidBodyStage.Rising;
+
+        /// <inheritdoc/>
+        internal override void RunWith(IKraidStageRunner runner) => runner.Run(this);
     }
 
     /// <summary>A stage after his rise, which holds his head's animation.</summary>
@@ -56,6 +63,9 @@ public abstract class KraidStageRun
         public override KraidBodyStage Stage => KraidBodyStage.Fighting;
 
         /// <inheritdoc/>
+        internal override void RunWith(IKraidStageRunner runner) => runner.Run(this);
+
+        /// <inheritdoc/>
         internal override bool ShotsCollide => true;
     }
 
@@ -69,6 +79,9 @@ public abstract class KraidStageRun
 
         /// <inheritdoc/>
         public override KraidBodyStage Stage => KraidBodyStage.Growing;
+
+        /// <inheritdoc/>
+        internal override void RunWith(IKraidStageRunner runner) => runner.Run(this);
 
         /// <inheritdoc/>
         internal override bool ShotsCollide => true;
@@ -86,6 +99,9 @@ public abstract class KraidStageRun
         public override KraidBodyStage Stage => KraidBodyStage.Dying;
 
         /// <inheritdoc/>
+        internal override void RunWith(IKraidStageRunner runner) => runner.Run(this);
+
+        /// <inheritdoc/>
         internal override bool ShotsCollide => Phase != KraidDeathPhase.Sink;
     }
 
@@ -101,5 +117,8 @@ public abstract class KraidStageRun
 
         /// <inheritdoc/>
         public override KraidBodyStage Stage => KraidBodyStage.Dying;
+
+        /// <inheritdoc/>
+        internal override void RunWith(IKraidStageRunner runner) => runner.Run(this);
     }
 }

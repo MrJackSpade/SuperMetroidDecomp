@@ -8,11 +8,7 @@ internal class MissileShotState : SamusShotKindState
 {
     /// <summary>Starts a missile's ignition pending.</summary>
     /// <param name="ignition">Where the missile starts in its ignition: pending when fired, pending after a reflection when reflected.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The missile would start ignited.</exception>
-    internal MissileShotState(SamusMissileIgnition ignition) =>
-        Ignition = Ensure.NotNull(ignition) is SamusMissileIgnition.Pending or SamusMissileIgnition.PendingAfterReflection
-            ? ignition
-            : throw new ArgumentOutOfRangeException(nameof(ignition), ignition, "A missile starts its ignition pending; it ignites on its update.");
+    internal MissileShotState(SamusMissileIgnition.Unignited ignition) => Ignition = Ensure.NotNull(ignition);
 
     /// <summary>Where the missile is in its ignition, with the speed it ignited at once it has.</summary>
     internal SamusMissileIgnition Ignition { get; private set; }

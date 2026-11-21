@@ -112,7 +112,8 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
             (SpeedBoosterBlocks.TryResolve(block.Behavior, out _) ||
                 (block.Behavior.Special is { } special &&
                     BombSpecialBlockReactions.ChangeFor(special) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
-        (KindOf(block) is RoomBlockKind.SpecialAir { Reaction: var air } && SpecialAirReactions.CollisionOf(air).IsSpeedBlock));
+        (RoomBlockKind.TryOf(block.Collision, block.Behavior, out RoomBlockKind? kind) &&
+            kind is RoomBlockKind.SpecialAir { Reaction: var air } && SpecialAirReactions.CollisionOf(air).IsSpeedBlock));
 
     /// <summary>Whether the state's terrain holds a Grapple block that breaks under the beam.</summary>
     internal bool HoldsBreakableGrappleBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.GrappleBlock &&
@@ -140,18 +141,13 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
 
     /// <summary>Whether the state's terrain holds a special-air block whose inside reaction is a Brinstar plant that bites Samus.</summary>
     internal bool HoldsSamusEaterPlants => Terrain.Any(block =>
-        KindOf(block) is RoomBlockKind.SpecialAir { Reaction: var air } && SpecialAirReactions.InsideOf(air).Plant is not null);
-
-    /// <summary>
-    /// The kind <paramref name="block"/> collides as with the reaction it carries, or none for a block of a reacting kind
-    /// whose behaviour gives it no reaction, which reacts to nothing.
-    /// </summary>
-    private static RoomBlockKind? KindOf(RoomTerrainReaction block) =>
-        RoomBlockKind.TryOf(block.Collision, block.Behavior, out RoomBlockKind? kind) ? kind : null;
+        RoomBlockKind.TryOf(block.Collision, block.Behavior, out RoomBlockKind? kind) &&
+        kind is RoomBlockKind.SpecialAir { Reaction: var air } && SpecialAirReactions.InsideOf(air).Plant is not null);
 
     /// <summary>Whether the state's terrain holds a spike block an enemy breaks.</summary>
     internal bool HoldsEnemyBreakableBlocks => Terrain.Any(block =>
-        KindOf(block) is RoomBlockKind.SpikeBlock { Reaction: var spike } && EnemyBreakableTerrain.IsEnemyBreakable(spike));
+        RoomBlockKind.TryOf(block.Collision, block.Behavior, out RoomBlockKind? kind) &&
+        kind is RoomBlockKind.SpikeBlock { Reaction: var spike } && EnemyBreakableTerrain.IsEnemyBreakable(spike));
 
     /// <summary>
     /// Whether the state's terrain holds a block whose reaction breaks it up, or a Wave shot's straddled read sets one off:

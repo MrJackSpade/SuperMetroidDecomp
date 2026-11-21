@@ -9,8 +9,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// <see cref="ReplacedShot"/> describes). An ignited missile leaves the speed it ignited at in 256ths of a pixel; a
 /// reflected one waiting to re-ignite, the head start its reflection gave it; one not yet ignited, nothing; an ignited
 /// Super Missile with a link, its whole ignition speed with twice its link's place for the fraction; its link, nothing; a
-/// crash echo, its angle in steps; and a beam, the fuse it carries. Only the Chainsaw shot burns that fuse; every other
-/// beam carries it for a beam fired over it in turn. A missile and a Super Missile's link take only a free place.
+/// crash echo, its angle in steps; a special attack's particle the word it keeps for itself, an orbiting particle's angle
+/// round its circle and a Wave particle's zero; and a beam, the fuse it carries. Only the Chainsaw shot burns that fuse;
+/// every other beam carries it for a beam fired over it in turn. A missile and a Super Missile's link take only a free
+/// place. Each holding answers its own count (<see cref="ReplacedShot.FuseLeft"/>).
 /// </summary>
 /// <remarks>
 /// Consulted when a beam takes its place, after the shot count admits it and before Samus's pose gives its aim, and when
@@ -27,8 +29,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// it runs after the fuse reacts only from a fuse that had already burned out: it returns while the fuse counts above
 /// zero (<c>$94:A06A</c>), and the step that burns a fuse out leaves the count with its top bit set (<c>$90:C195</c>),
 /// which the boundary step clears instead of reacting. Nothing beyond the place is touched: a
-/// Super Missile naming the place as its link moves and deletes whatever shot holds it (<see cref="UnlinkedSuperMissileLink"/>),
-/// and a special attack's particles, which keep their own words, hold only the first four places.
+/// Super Missile naming the place as its link moves and deletes whatever shot holds it (<see cref="UnlinkedSuperMissileLink"/>).
+/// A special attack's particles keep their own angle in the word (<c>$90:CDCB</c>, <c>$90:CEBD</c>, <c>$90:DBA6</c>; the
+/// Wave attack's zero, <c>$90:CD41</c>) and hold only the first four places, which a beam takes only while free.
 /// </remarks>
 [CompatibilityService("a beam fired with every shot place held takes the last place over the shot holding it and starts its Power Bomb fuse from the count that shot leaves")]
 public static class BeamFiredOverLastShot
@@ -60,23 +63,7 @@ public static class BeamFiredOverLastShot
     /// them; a crash echo leaves its departure angle in steps, and a beam or an explosion the fuse it carries.
     /// </summary>
     /// <param name="replaced">What the beam finds in the place it takes.</param>
-    /// <exception cref="InvalidOperationException">
-    /// The place holds a special attack's particle: a beam takes a held place only when every place is held, and then the
-    /// last, which no particle holds.
-    /// </exception>
-    public static int FuseLeftBy(ReplacedShot replaced) => Ensure.NotNull(replaced) switch
-    {
-        ReplacedShot.FreePlace or ReplacedShot.UnignitedMissile => 0,
-        ReplacedShot.ReflectedMissile reflected => reflected.HeadStart.InTwoHundredFiftySixthsOfPixel,
-        ReplacedShot.IgnitedMissile { LinkChainPosition: { } linkPlace } superMissile =>
-            LinkedSuperMissileCount(superMissile.IgnitionSpeed, linkPlace).InTwoHundredFiftySixthsOfPixel,
-        ReplacedShot.IgnitedMissile missile => missile.IgnitionSpeed.InTwoHundredFiftySixthsOfPixel,
-        ReplacedShot.CrashEcho echo => echo.DepartureAngle.RawValue,
-        ReplacedShot.Beam beam => beam.CarriedFuse,
-        ReplacedShot.SpecialAttackParticle => throw new InvalidOperationException(
-            "A beam fired with every place held takes the last place, which no special attack particle holds, yet a particle was replaced."),
-        _ => throw new ArgumentOutOfRangeException(nameof(replaced), replaced, $"Undefined {nameof(ReplacedShot)}."),
-    };
+    public static int FuseLeftBy(ReplacedShot replaced) => Ensure.NotNull(replaced).FuseLeft;
 
     /// <summary>
     /// What a beam fired into one of Samus's shot places finds there (#2524), which <see cref="FuseLeftBy"/> turns
@@ -90,17 +77,32 @@ public static class BeamFiredOverLastShot
         {
         }
 
+        /// <summary>The Power Bomb fuse, in updates, a beam fired over the holding starts with: the count it leaves.</summary>
+        public abstract int FuseLeft { get; }
+
         /// <summary>A place no shot holds.</summary>
-        public sealed record FreePlace : ReplacedShot;
+        public sealed record FreePlace : ReplacedShot
+        {
+            /// <inheritdoc/>
+            public override int FuseLeft => 0;
+        }
 
         /// <summary>
         /// A missile or Super Missile fired and not yet ignited, or a Super Missile's invisible link, which never ignites.
         /// </summary>
-        public sealed record UnignitedMissile : ReplacedShot;
+        public sealed record UnignitedMissile : ReplacedShot
+        {
+            /// <inheritdoc/>
+            public override int FuseLeft => 0;
+        }
 
         /// <summary>A missile or Super Missile an enemy reflected, waiting to re-ignite.</summary>
         /// <param name="HeadStart">The head start its reflection gave it toward the speed it re-ignites at.</param>
-        public sealed record ReflectedMissile(SignedEightEight HeadStart) : ReplacedShot;
+        public sealed record ReflectedMissile(SignedEightEight HeadStart) : ReplacedShot
+        {
+            /// <inheritdoc/>
+            public override int FuseLeft => HeadStart.InTwoHundredFiftySixthsOfPixel;
+        }
 
         /// <summary>An ignited missile or Super Missile, or the explosion of one.</summary>
         public sealed record IgnitedMissile : ReplacedShot
@@ -120,11 +122,20 @@ public static class BeamFiredOverLastShot
 
             /// <summary>The place an ignited Super Missile names as its link, or null for a missile or a Super Missile naming none.</summary>
             public int? LinkChainPosition { get; }
+
+            /// <inheritdoc/>
+            public override int FuseLeft => LinkChainPosition is { } linkPlace
+                ? LinkedSuperMissileCount(IgnitionSpeed, linkPlace).InTwoHundredFiftySixthsOfPixel
+                : IgnitionSpeed.InTwoHundredFiftySixthsOfPixel;
         }
 
         /// <summary>A shinespark crash echo flying out from Samus.</summary>
         /// <param name="DepartureAngle">The angle it was released at.</param>
-        public sealed record CrashEcho(TrigonometryAngle DepartureAngle) : ReplacedShot;
+        public sealed record CrashEcho(TrigonometryAngle DepartureAngle) : ReplacedShot
+        {
+            /// <inheritdoc/>
+            public override int FuseLeft => DepartureAngle.RawValue;
+        }
 
         /// <summary>A beam or the Hyper Beam's shot, or the explosion of either.</summary>
         public sealed record Beam : ReplacedShot
@@ -136,9 +147,20 @@ public static class BeamFiredOverLastShot
 
             /// <summary>The Power Bomb fuse it carries, in updates.</summary>
             public int CarriedFuse { get; }
+
+            /// <inheritdoc/>
+            public override int FuseLeft => CarriedFuse;
         }
 
-        /// <summary>One of a special attack's particles.</summary>
-        public sealed record SpecialAttackParticle : ReplacedShot;
+        /// <summary>
+        /// One of a special attack's particles, which keeps its own angle where a beam's fuse is counted: an orbiting
+        /// particle its angle round its circle, a Wave particle none.
+        /// </summary>
+        /// <param name="KeptAngle">The angle the particle keeps.</param>
+        public sealed record SpecialAttackParticle(TrigonometryAngle KeptAngle) : ReplacedShot
+        {
+            /// <inheritdoc/>
+            public override int FuseLeft => KeptAngle.RawValue;
+        }
     }
 }

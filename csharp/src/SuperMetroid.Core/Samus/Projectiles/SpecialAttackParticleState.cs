@@ -20,7 +20,4 @@ internal abstract class SpecialAttackParticleState(SpecialAttackParticle part) :
 
     /// <inheritdoc/>
     internal sealed override bool DeletesItselfAfterEnemyHit => true;
-
-    /// <inheritdoc/>
-    internal sealed override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam => new BeamFiredOverLastShot.ReplacedShot.SpecialAttackParticle();
 }

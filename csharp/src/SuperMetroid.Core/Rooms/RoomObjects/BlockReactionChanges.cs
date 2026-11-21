@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
@@ -5,9 +6,15 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>Selects a block reaction by the block's reaction or crumble block from <see cref="BlockReactionChangeDefinitions"/>.</summary>
 internal static class BlockReactionChanges
 {
-    /// <summary>The collision bomb block a bomb block's break sets off when Samus's contact breaks it.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a break.</exception>
-    internal static BlockReactionChange CollisionBomb(BombableReaction? reaction) => From(BlockReactionChangeDefinitions.CollisionBomb, reaction);
+    /// <summary>
+    /// The collision bomb block a bomb block's break sets off when Samus's contact breaks it (#2554), or none for a reaction
+    /// that breaks nothing: its room object does nothing, and an inert block's contact never reaches it.
+    /// </summary>
+    /// <param name="reaction">The bombable block's reaction.</param>
+    /// <param name="change">The collision bomb block the break sets off, when it is one.</param>
+    /// <returns>Whether <paramref name="reaction"/> is one of the eight bomb-block breaks.</returns>
+    internal static bool TryCollisionBomb(BombableReaction reaction, [NotNullWhen(true)] out BlockReactionChange? change) =>
+        BlockReactionChangeDefinitions.CollisionBomb.TryGetValue(reaction, out change);
 
     /// <summary>The bomb reaction a Power Bomb sets off for a bomb block's break.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a break.</exception>

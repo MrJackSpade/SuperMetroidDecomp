@@ -58,18 +58,17 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>Starts a timed collision bomb block and substitutes its parent appearance before the first room-object pass.</summary>
-    public bool TrySpawnCollisionBombBlock(
+    /// <param name="level">The room's level data.</param>
+    /// <param name="position">The bomb block Samus's contact breaks.</param>
+    /// <param name="change">The collision bomb block its break sets off (<see cref="BlockReactionChanges.TryCollisionBomb"/>).</param>
+    /// <returns>Whether the reaction took a place; a full room loses it.</returns>
+    internal bool TrySpawnCollisionBombBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
-        RoomBlockBehavior behavior)
+        BlockReactionChange change)
     {
         Ensure.NotNull(level);
-        if (!BombableReactions.IsBreak(behavior.Bombable))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(behavior),
-                "Collision bomb-block behaviour must be one of the eight bomb-block breaks.");
-        }
+        Ensure.NotNull(change);
 
         // The reaction takes the first free place in update order, as every room object spawned in play does, and a full
         // room loses the spawn. One movement can set off several neighbouring blocks, each timed on its own.
@@ -82,8 +81,7 @@ internal sealed class BlockReactionObjects
         // This is not the block's earlier appearance: the setup shows the bomb-block parent in place of the block and
         // its mirroring, and multi-block restorations then add extension blocks around this parent.
         RoomBlockAppearance parent = _drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent);
-        place.Become(new BlockReactionObject(BlockReactionChanges.CollisionBomb(behavior.Bombable),
-            new RoomTerrainBlock(parent, block.CollisionType)));
+        place.Become(new BlockReactionObject(change, new RoomTerrainBlock(parent, block.CollisionType)));
         level.SetTerrain(position, new RoomTerrainBlock(parent, RoomCollisionType.Air));
         return true;
     }

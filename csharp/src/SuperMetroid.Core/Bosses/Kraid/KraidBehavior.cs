@@ -234,28 +234,32 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
         RoomEnemyPlace body,
         KraidEnemyState state,
         int cameraX,
-        SamusState samus)
+        SamusState samus) =>
+        Ensure.NotNull(state).BodyState.Run.RunWith(new StageRunner(this, body, state, cameraX, samus));
+
+    /// <summary>Runs one update of the stage Kraid's body is in, with what each stage's phase reads.</summary>
+    /// <param name="behavior">Kraid's behaviour, whose parts run the phases.</param>
+    /// <param name="body">The place holding his body.</param>
+    /// <param name="state">His encounter's state.</param>
+    /// <param name="cameraX">The camera's horizontal room position, which the sunk body's repair reads.</param>
+    /// <param name="samus">Samus, whom his rise and death restrict.</param>
+    private sealed class StageRunner(KraidBehavior behavior, RoomEnemyPlace body, KraidEnemyState state, int cameraX, SamusState samus)
+        : IKraidStageRunner
     {
-        switch (state.BodyState.Run)
-        {
-            case KraidStageRun.Rising rising:
-                Rise.RunKraidRisePhase(body, state, rising, samus);
-                return;
-            case KraidStageRun.Fighting fight:
-                RunKraidFightPhase(body, state, fight);
-                return;
-            case KraidStageRun.Growing growth:
-                Rise.RunKraidGrowthPhase(body, state, growth);
-                return;
-            case KraidStageRun.Dying dying:
-                Death.RunKraidDeathPhase(body, state, dying, samus);
-                return;
-            case KraidStageRun.Sunk sunk:
-                Death.RunKraidSunkPhase(body, state, sunk, cameraX);
-                return;
-            default:
-                throw new InvalidDataException($"Undefined Kraid stage {state.BodyState.Run}.");
-        }
+        /// <inheritdoc/>
+        public void Run(KraidStageRun.Rising rising) => behavior.Rise.RunKraidRisePhase(body, state, rising, samus);
+
+        /// <inheritdoc/>
+        public void Run(KraidStageRun.Fighting fight) => behavior.RunKraidFightPhase(body, state, fight);
+
+        /// <inheritdoc/>
+        public void Run(KraidStageRun.Growing growth) => behavior.Rise.RunKraidGrowthPhase(body, state, growth);
+
+        /// <inheritdoc/>
+        public void Run(KraidStageRun.Dying dying) => behavior.Death.RunKraidDeathPhase(body, state, dying, samus);
+
+        /// <inheritdoc/>
+        public void Run(KraidStageRun.Sunk sunk) => behavior.Death.RunKraidSunkPhase(body, state, sunk, cameraX);
     }
 
     /// <summary>Runs the body's first- or second-phase fight phase.</summary>

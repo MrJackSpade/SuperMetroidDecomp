@@ -395,7 +395,7 @@ public static class SamusBlockCollision
             // reports no collision, so this scan continues through the new air.
             if (scan.Terrain.RoomObjects.EveryPlaceHeld)
                 return false;
-            if (reaction == BombableReaction.Inert || !CanBreakCollisionBombBlock(scan.Owner, scan.Move.CanBreakBombBlocks))
+            if (reaction == BombableReaction.Inert)
             {
                 acceptedDisplacement = ClipHorizontalToSolid(
                     scan.State,
@@ -403,15 +403,22 @@ public static class SamusBlockCollision
                     scan.LeadingBoundary);
                 return true;
             }
-            if (!BombableReactions.IsBreak(reaction))
+            // A reaction that breaks nothing sets off a room object with no setup, which reports no collision whatever
+            // Samus's pose (#2554), so the scan continues through the block.
+            if (!BlockReactionChanges.TryCollisionBomb(reaction, out BlockReactionChange? change))
+                return false;
+            if (!CanBreakCollisionBombBlock(scan.Owner, scan.Move.CanBreakBombBlocks))
             {
-                throw new InvalidDataException(
-                    $"Collision bomb block {block.Position} has invalid behaviour ({block.Behavior}).");
+                acceptedDisplacement = ClipHorizontalToSolid(
+                    scan.State,
+                    acceptedDisplacement,
+                    scan.LeadingBoundary);
+                return true;
             }
             // Every contact that breaks a bomb block starts its block reaction, which runs the breakup
             // and grows the block back (#1582).
             bool spawned = scan.Terrain.RoomObjects.BlockReactions
-                .TrySpawnCollisionBombBlock(scan.Terrain.Level, block.At, block.Behavior);
+                .TrySpawnCollisionBombBlock(scan.Terrain.Level, block.At, change);
             if (spawned)
                 brokenBombBlock ??= block;
             return false;
@@ -826,7 +833,7 @@ public static class SamusBlockCollision
                 // treats an untouched bomb block as air.
                 return false;
             }
-            if (reaction == BombableReaction.Inert || !CanBreakCollisionBombBlock(scan.Owner, scan.Move.CanBreakBombBlocks))
+            if (reaction == BombableReaction.Inert)
             {
                 acceptedDisplacement = ClipVerticalToSolid(
                     scan.State,
@@ -834,13 +841,19 @@ public static class SamusBlockCollision
                     scan.LeadingBoundary);
                 return true;
             }
-            if (!BombableReactions.IsBreak(reaction))
+            // A reaction that breaks nothing reports no collision whatever Samus's pose, as in the horizontal branch.
+            if (!BlockReactionChanges.TryCollisionBomb(reaction, out BlockReactionChange? change))
+                return false;
+            if (!CanBreakCollisionBombBlock(scan.Owner, scan.Move.CanBreakBombBlocks))
             {
-                throw new InvalidDataException(
-                    $"Collision bomb block {block.Position} has invalid behaviour ({block.Behavior}).");
+                acceptedDisplacement = ClipVerticalToSolid(
+                    scan.State,
+                    acceptedDisplacement,
+                    scan.LeadingBoundary);
+                return true;
             }
             scan.Terrain.RoomObjects.BlockReactions
-                .TrySpawnCollisionBombBlock(scan.Terrain.Level, block.At, block.Behavior);
+                .TrySpawnCollisionBombBlock(scan.Terrain.Level, block.At, change);
             return false;
         }
 
@@ -929,9 +942,10 @@ public static class SamusBlockCollision
         // The game's horizontal and vertical air reactions invoke the same setup as solid
         // bomb blocks, but ignores its collision result. A refused break, or one with no room left for its
         // effect, must never turn this non-solid cell into a movement obstruction.
-        if (reaction == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, explicitAdmission))
+        if (!BlockReactionChanges.TryCollisionBomb(reaction, out BlockReactionChange? change)
+            || !CanBreakCollisionBombBlock(owner, explicitAdmission))
             return;
-        terrain.RoomObjects.BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.At, block.Behavior);
+        terrain.RoomObjects.BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.At, change);
     }
 
     /// <summary>

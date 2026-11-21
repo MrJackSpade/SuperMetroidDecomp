@@ -22,8 +22,20 @@ public abstract record SamusMissileIgnition
     /// <param name="linkPlace">The place an ignited Super Missile names as its link, or null for a missile or a Super Missile naming none.</param>
     internal abstract BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(int? linkPlace);
 
+    /// <summary>
+    /// A stage before the missile's ignition, which a missile starts in when it is fired or reflected (#2554): it ignites
+    /// on its update, never before.
+    /// </summary>
+    public abstract record Unignited : SamusMissileIgnition
+    {
+        /// <summary>Only the two stages before ignition derive from it.</summary>
+        private protected Unignited()
+        {
+        }
+    }
+
     /// <summary>Fired and not yet ignited; it ignites at <see cref="SamusProjectileMotionDefinitions.MissileIgnitionSpeed"/>.</summary>
-    public sealed record Pending : SamusMissileIgnition
+    public sealed record Pending : Unignited
     {
         /// <inheritdoc/>
         internal override bool AwaitsIgnitionAsFired => true;
@@ -34,7 +46,7 @@ public abstract record SamusMissileIgnition
     }
 
     /// <summary>Reflected by an enemy and not yet re-ignited; it re-ignites with the reflection's head start.</summary>
-    public sealed record PendingAfterReflection : SamusMissileIgnition
+    public sealed record PendingAfterReflection : Unignited
     {
         /// <summary>
         /// The head start a reflection gives a missile toward the speed it re-ignites at: what that speed exceeds a fired

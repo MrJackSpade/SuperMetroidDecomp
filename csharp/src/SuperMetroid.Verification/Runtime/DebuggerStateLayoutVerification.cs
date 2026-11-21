@@ -272,9 +272,9 @@ internal static partial class DebuggerStateLayoutVerification
         // their field is named once in the run's schema, and each object they hold is written once and restored shared.
         var shared = new HashedOwner("shared");
         HoldingElement[] holding = [new(shared, 1), new(shared, 2), new(null, 3), new(new HashedOwner("own"), 4)];
-        byte[] held = SerializeDebuggerGraph(holding);
+        byte[] held = SerializeDebuggerGraph(new HoldingRun(holding));
         AssertEqual(1, Occurrences(held, "Owner:"), "a run of struct elements holding references names their field once");
-        HoldingElement[] restoredHolding = DeserializeDebuggerGraph<HoldingElement[]>(held);
+        HoldingElement[] restoredHolding = DeserializeDebuggerGraph<HoldingRun>(held).Elements;
         AssertTrue(restoredHolding.Select(element => element.Count).SequenceEqual(holding.Select(element => element.Count)) &&
             restoredHolding[0].Owner is { Name: "shared" } && ReferenceEquals(restoredHolding[0].Owner, restoredHolding[1].Owner) &&
             restoredHolding[2].Owner is null && restoredHolding[3].Owner is { Name: "own" } && !ReferenceEquals(restoredHolding[3].Owner, restoredHolding[0].Owner),
@@ -300,6 +300,14 @@ internal static partial class DebuggerStateLayoutVerification
     /// <param name="Owner">The object it holds, or none.</param>
     /// <param name="Count">Its count.</param>
     private readonly partial record struct HoldingElement(HashedOwner? Owner, int Count);
+
+    /// <summary>A run of <see cref="HoldingElement"/>s, held by a field declared with their array type, as a game object holds one.</summary>
+    /// <param name="elements">The run.</param>
+    private sealed partial class HoldingRun(HoldingElement[] elements)
+    {
+        /// <summary>The run.</summary>
+        internal HoldingElement[] Elements { get; } = elements;
+    }
 
     /// <summary>A key compared by reference identity, whose hash is its object's.</summary>
     /// <param name="name">The name the fixture gives it.</param>

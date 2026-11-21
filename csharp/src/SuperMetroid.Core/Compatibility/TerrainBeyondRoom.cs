@@ -35,8 +35,11 @@ public sealed partial class TerrainBeyondRoom<TTerrain, TBehavior>
     where TTerrain : struct
     where TBehavior : struct
 {
-    /// <summary>Each block past the room's grid, in order: its terrain and its behaviour.</summary>
-    private readonly BlockBeyondRoom[] blocks;
+    /// <summary>Each block past the room's grid, in order: its terrain.</summary>
+    private readonly TTerrain[] terrain;
+
+    /// <summary>Each block past the room's grid, in order: its behaviour.</summary>
+    private readonly TBehavior[] behaviors;
 
     /// <summary>Builds the terrain past one room's grid.</summary>
     /// <param name="following">The level data that followed the room's grid, read as blocks; no more than <paramref name="count"/>.</param>
@@ -48,11 +51,13 @@ public sealed partial class TerrainBeyondRoom<TTerrain, TBehavior>
     {
         Ensure.NotNull(following);
         Ensure.BetweenInclusive(following.Count, int.MaxValue, count);
-        blocks = new BlockBeyondRoom[count];
-        Array.Fill(blocks, new BlockBeyondRoom(edgeSolid, noBehavior));
+        terrain = new TTerrain[count];
+        behaviors = new TBehavior[count];
+        Array.Fill(terrain, edgeSolid);
+        Array.Fill(behaviors, noBehavior);
         int place = 0;
         foreach (TTerrain followingBlock in following)
-            blocks[place++] = new BlockBeyondRoom(followingBlock, noBehavior);
+            terrain[place++] = followingBlock;
         EdgeSolid = edgeSolid;
         NoBehavior = noBehavior;
     }
@@ -64,39 +69,34 @@ public sealed partial class TerrainBeyondRoom<TTerrain, TBehavior>
     public TBehavior NoBehavior { get; }
 
     /// <summary>How many blocks lie past the room's grid.</summary>
-    public int Count => blocks.Length;
+    public int Count => terrain.Length;
 
     /// <summary>The terrain of a block past the grid.</summary>
     /// <param name="index">The block, counted from the first block past the room's last block.</param>
     /// <exception cref="ArgumentOutOfRangeException">The block is past the room's level space.</exception>
-    public TTerrain TerrainAt(int index) => blocks[Checked(index)].Terrain;
+    public TTerrain TerrainAt(int index) => terrain[Checked(index)];
 
     /// <summary>The behaviour of a block past the grid.</summary>
     /// <param name="index">The block, counted from the first block past the room's last block.</param>
     /// <exception cref="ArgumentOutOfRangeException">The block is past the room's level space.</exception>
-    public TBehavior BehaviorAt(int index) => blocks[Checked(index)].Behavior;
+    public TBehavior BehaviorAt(int index) => behaviors[Checked(index)];
 
     /// <summary>Replaces the terrain of a block past the grid, for the rest of the room's lifetime.</summary>
     /// <param name="index">The block, counted from the first block past the room's last block.</param>
     /// <param name="block">The terrain written.</param>
     /// <exception cref="ArgumentOutOfRangeException">The block is past the room's level space.</exception>
-    public void SetTerrain(int index, TTerrain block) => blocks[Checked(index)] = blocks[index] with { Terrain = block };
+    public void SetTerrain(int index, TTerrain block) => terrain[Checked(index)] = block;
 
     /// <summary>Replaces the behaviour of a block past the grid, for the rest of the room's lifetime.</summary>
     /// <param name="index">The block, counted from the first block past the room's last block.</param>
     /// <param name="behavior">The behaviour written.</param>
     /// <exception cref="ArgumentOutOfRangeException">The block is past the room's level space.</exception>
-    public void SetBehavior(int index, TBehavior behavior) => blocks[Checked(index)] = blocks[index] with { Behavior = behavior };
+    public void SetBehavior(int index, TBehavior behavior) => behaviors[Checked(index)] = behavior;
 
     /// <summary>Rejects a block outside the room's level space.</summary>
     private int Checked(int index) =>
-        (uint)index < (uint)blocks.Length
+        (uint)index < (uint)terrain.Length
             ? index
             : throw new ArgumentOutOfRangeException(nameof(index), index,
-                $"The room's level space holds {blocks.Length} blocks past its grid.");
-
-    /// <summary>One block past the room's grid.</summary>
-    /// <param name="Terrain">The block's terrain.</param>
-    /// <param name="Behavior">The block's behaviour.</param>
-    private readonly partial record struct BlockBeyondRoom(TTerrain Terrain, TBehavior Behavior);
+                $"The room's level space holds {terrain.Length} blocks past its grid.");
 }

@@ -103,11 +103,15 @@ internal sealed class DefinitionExposure
 
     /// <summary>
     /// The catalogs that may hold an object of <paramref name="value"/>'s type where a game can reach it, in catalog order:
-    /// those reaching a declared type the object is of, and those reaching a location that can hold anything.
+    /// those reaching a declared type the object is of, and those reaching a location that can hold anything. A bare
+    /// <see cref="object"/> holds nothing a state could name it by, only its identity as a lock, so no catalog is searched
+    /// for one: a state holds it as a new object.
     /// </summary>
     internal IReadOnlyList<DefinitionCatalog> Candidates(object value)
     {
         Type type = value.GetType();
+        if (type == typeof(object))
+            return [];
         if (found.TryGetValue(type, out DefinitionCatalog[]? known))
             return known;
         ulong[] set = [.. universal];

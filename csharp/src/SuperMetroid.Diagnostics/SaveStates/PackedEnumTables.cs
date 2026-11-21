@@ -22,6 +22,15 @@ internal sealed class PackedEnumTables(StateGraphTypes types)
         ? ((PackedEnumTable<TEnum>)table).Member(index)
         : throw new InvalidDataException($"A packed run holds a {typeof(TEnum).FullName} but stores no members of it.");
 
+    /// <summary>
+    /// The member at <paramref name="index"/> of the table of <typeparamref name="T"/>, an enum named only as a type
+    /// argument, as a primary-constructor argument's is.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The run holds no such member.</exception>
+    internal T MemberOf<T>(int index) => byEnum.TryGetValue(typeof(T), out IPackedEnumTable? table)
+        ? (T)table.MemberAt(index)
+        : throw new InvalidDataException($"A packed run holds a {typeof(T).FullName} but stores no members of it.");
+
     private PackedEnumTable<TEnum> Table<TEnum>() where TEnum : struct, Enum
     {
         if (byEnum.TryGetValue(typeof(TEnum), out IPackedEnumTable? known))

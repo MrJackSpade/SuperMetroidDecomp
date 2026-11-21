@@ -22,6 +22,9 @@ internal sealed class PackedEnumTable<TEnum>(EnumStateType<TEnum> type) : IPacke
         return place;
     }
 
+    /// <inheritdoc/>
+    public object MemberAt(int index) => Member(index);
+
     /// <summary>The member at <paramref name="index"/>.</summary>
     /// <exception cref="InvalidDataException">The table holds no such member.</exception>
     internal TEnum Member(int index) => (uint)index < (uint)members.Count

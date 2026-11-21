@@ -40,25 +40,9 @@ internal sealed class ArrayStateType<T>(StateGraphTypes types) : StateGraphType(
             writer.Output.Write(bytes);
             return;
         }
-        if (Packed() is { } node)
+        if (PackedNode(Types) is not null)
         {
-            writer.Kind(PayloadKind.PackedArray);
-            writer.Output.Write(array.Length);
-            writer.Output.Write(node.PackedSchema!);
-            var tables = new PackedEnumTables(Types);
-            var objects = new PackedObjects();
-            // Each run has its own buffer: an object in its table can hold runs of its own, written while this one is.
-            using var values = new MemoryStream();
-            using (var packed = new BinaryWriter(values, System.Text.Encoding.UTF8, leaveOpen: true))
-            {
-                var packedWriter = new PackedWriter(packed, Types, tables, objects);
-                foreach (T element in array)
-                    node.WriteTyped(packedWriter, element);
-            }
-            tables.Write(writer.Output);
-            objects.Write(writer);
-            writer.Output.Write(checked((int)values.Length));
-            writer.Output.Write(values.GetBuffer(), 0, (int)values.Length);
+            WritePacked(writer, array);
             return;
         }
         writer.Kind(PayloadKind.Array);
@@ -68,7 +52,62 @@ internal sealed class ArrayStateType<T>(StateGraphTypes types) : StateGraphType(
     }
 
     /// <summary>The element type's packed handling, or none when its arrays are written element by element.</summary>
-    private NodeStateType<T>? Packed() => typeof(T).IsValueType && Types.NodeOf<T>() is { PackedSchema: not null } node ? node : null;
+    /// <param name="types">The registry naming the element type.</param>
+    internal static NodeStateType<T>? PackedNode(StateGraphTypes types) =>
+        typeof(T).IsValueType && types.NodeOf<T>() is { PackedSchema: not null } node ? node : null;
+
+    /// <summary>
+    /// Writes <paramref name="elements"/> as one packed run (<see cref="PayloadKind.PackedArray"/>): their count, the run's
+    /// schema, its enum and object tables and its bytes. The element type packs (<see cref="PackedNode"/>).
+    /// </summary>
+    internal static void WritePacked(GraphWriter writer, ReadOnlySpan<T> elements)
+    {
+        NodeStateType<T> node = PackedNode(writer.Types) ?? throw new InvalidOperationException($"{typeof(T)} elements do not pack.");
+        writer.Kind(PayloadKind.PackedArray);
+        writer.Output.Write(elements.Length);
+        writer.Output.Write(node.PackedSchema!);
+        var tables = new PackedEnumTables(writer.Types);
+        var objects = new PackedObjects();
+        // Each run has its own buffer: an object in its table can hold runs of its own, written while this one is.
+        using var values = new MemoryStream();
+        using (var packed = new BinaryWriter(values, System.Text.Encoding.UTF8, leaveOpen: true))
+        {
+            var packedWriter = new PackedWriter(packed, writer.Types, tables, objects);
+            foreach (T element in elements)
+                node.WriteTyped(packedWriter, element);
+        }
+        tables.Write(writer.Output);
+        objects.Write(writer);
+        writer.Output.Write(checked((int)values.Length));
+        writer.Output.Write(values.GetBuffer(), 0, (int)values.Length);
+    }
+
+    /// <summary>Reads a packed run's elements, after its count, into <paramref name="elements"/>, which holds that many.</summary>
+    /// <param name="reader">The state being read.</param>
+    /// <param name="node">The element type's packed handling.</param>
+    /// <param name="name">The collection's name in failures.</param>
+    /// <param name="elements">The elements read.</param>
+    internal static void ReadPacked(GraphReader reader, NodeStateType<T> node, string name, Span<T> elements)
+    {
+        string schema = reader.Input.ReadString();
+        if (schema != node.PackedSchema)
+        {
+            throw new InvalidDataException(
+                $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: the state packs {name} as {schema}; this build packs it as {node.PackedSchema}.");
+        }
+        PackedEnumTables tables = PackedEnumTables.Read(reader);
+        PackedObjects objects = PackedObjects.Read(reader);
+        int byteCount = reader.ReadLength("packed element byte");
+        byte[] bytes = reader.Input.ReadBytes(byteCount);
+        if (bytes.Length != byteCount)
+            throw new EndOfStreamException($"Debugger state ended inside the packed elements of {name}.");
+        using var values = new BinaryReader(new MemoryStream(bytes, writable: false), System.Text.Encoding.UTF8);
+        var packedReader = new PackedReader(values, reader.Types, tables, objects);
+        for (int index = 0; index < elements.Length; index++)
+            elements[index] = node.Create(packedReader);
+        if (values.BaseStream.Position != byteCount)
+            throw new InvalidDataException($"The packed elements of the saved {name} hold {byteCount} bytes; its {elements.Length} elements read {values.BaseStream.Position}.");
+    }
 
     /// <inheritdoc/>
     internal override object Read(GraphReader reader, int referenceId, PayloadKind kind)
@@ -86,29 +125,10 @@ internal sealed class ArrayStateType<T>(StateGraphTypes types) : StateGraphType(
                 return array;
             }
         }
-        if (kind == PayloadKind.PackedArray && Packed() is { } node)
+        if (kind == PayloadKind.PackedArray && PackedNode(Types) is { } node)
         {
-            {
-                string schema = reader.Input.ReadString();
-                if (schema != node.PackedSchema)
-                {
-                    throw new InvalidDataException(
-                        $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: the state packs {Name} as {schema}; this build packs it as {node.PackedSchema}.");
-                }
-                PackedEnumTables tables = PackedEnumTables.Read(reader);
-                PackedObjects objects = PackedObjects.Read(reader);
-                int byteCount = reader.ReadLength("packed element byte");
-                byte[] bytes = reader.Input.ReadBytes(byteCount);
-                if (bytes.Length != byteCount)
-                    throw new EndOfStreamException($"Debugger state ended inside the packed elements of {Name}.");
-                using var values = new BinaryReader(new MemoryStream(bytes, writable: false), System.Text.Encoding.UTF8);
-                var packedReader = new PackedReader(values, Types, tables, objects);
-                for (int index = 0; index < array.Length; index++)
-                    array[index] = node.Create(packedReader);
-                if (values.BaseStream.Position != byteCount)
-                    throw new InvalidDataException($"The packed elements of the saved {Name} hold {byteCount} bytes; its {array.Length} elements read {values.BaseStream.Position}.");
-                return array;
-            }
+            ReadPacked(reader, node, Name, array);
+            return array;
         }
         if (kind != PayloadKind.Array)
             throw UnexpectedKind(kind);

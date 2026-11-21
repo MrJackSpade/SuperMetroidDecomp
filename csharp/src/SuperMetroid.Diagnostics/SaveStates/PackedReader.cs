@@ -50,9 +50,19 @@ internal sealed class PackedReader(BinaryReader input, StateGraphTypes types, Pa
     }
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// An argument is read as the generated writer wrote it: a scalar as its raw value and an enum as its place in the run's
+    /// table of its members, as <see cref="ReadScalar{T}"/> and <see cref="ReadEnum{TEnum}"/> read a field's; any other
+    /// value as <see cref="Read{T}"/> does.
+    /// </remarks>
     public T Argument<T>(int ordinal, int count, StateGraphField field, out T value)
     {
-        value = Read<T>();
+        if (types.Registered(typeof(T)) is PrimitiveStateType<T> scalar)
+            value = scalar.ReadValue(Input);
+        else if (typeof(T).IsEnum)
+            value = tables.MemberOf<T>(Input.Read7BitEncodedInt());
+        else
+            value = Read<T>();
         return value;
     }
 

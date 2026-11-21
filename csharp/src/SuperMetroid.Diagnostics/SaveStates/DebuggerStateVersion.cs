@@ -22,7 +22,7 @@ internal enum DebuggerStateVersion
     /// the run's table of the objects held, each object written once, instead of every such element framed (#2609); every
     /// object written and restored through the members generated for its type, each level of its fields after their count and
     /// each field after its name, a primary-constructor type's arguments first, delegates by the name of the method each call
-    /// makes (#2602).
+    /// makes, and an immutable array of values that pack written as one packed run, as an array of them is (#2602).
     /// </summary>
-    Current = 19,
+    Current = 20,
 }

@@ -8,4 +8,8 @@ internal interface IPackedEnumTable
 
     /// <summary>Writes the enum's name and its members' names.</summary>
     void Write(BinaryWriter writer);
+
+    /// <summary>The member at <paramref name="index"/> of the table, boxed.</summary>
+    /// <exception cref="InvalidDataException">The run holds no such member.</exception>
+    object MemberAt(int index);
 }

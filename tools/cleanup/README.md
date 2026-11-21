@@ -441,6 +441,16 @@ stand behind the compared one. Each fixture keeps every file as written, and eac
   interface, both of which dispatch to the record's synthesized equality.
 - `record-concatenation`: a record concatenated with text, which formats it.
 
+`positional-base-argument` holds the shape of the failure at 0ea41f339b (#2599): the prune retired the dead property of
+`KraidColours.BandShade(PictureShade Shade) : BodyShown(Shade)` by deleting its positional parameter, which the base call
+reads as a constructor parameter, and the tree no longer built (CS0103). A positional parameter its record reads (in the
+base call, an initializer or a member) is a used parameter; only its generated property is retired. When every
+positional property of the record is dead and only the base call reads parameters, the record loses its parameter list
+and gets a constructor taking the parameters read, under constructor-parameter names, with their documentation, and
+passing them to its base: `BandShade` becomes `record BandShade : BodyShown` with `BandShade(Tint shade) : base(shade)`.
+Otherwise the parameter and its property stay, with a `MANUAL` line naming where it is read: the fixture's `Glow(Tint
+Level)`, whose property initializer reads `Level`, keeps it.
+
 A value typed `object` names no type, so what is compared through it is not followed. A `with` expression copies a
 record without comparing it, and a pattern names each value it tests (a property pattern by name, a positional one
 through the synthesized `Deconstruct`), so neither needs a rule of its own.

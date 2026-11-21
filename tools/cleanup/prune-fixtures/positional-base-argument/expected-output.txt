@@ -1,0 +1,1 @@
+MANUAL Property SuperMetroid.Core.Bosses.Colours.Glow.Level (kept: its positional parameter is read at csharp/src/SuperMetroid.Core/Bosses/Colours.cs:

@@ -91,33 +91,6 @@ internal static class DustExplosionProjectileDefinitionsVerification
             var enemies = CreateDustExplosionEnemySystem();
             enemies.VerificationServices().ReadRandom = () => random;
             enemies.VerificationServices().NextRandom = () => { advances++; return 0xbeef; };
-<<<<<<< ours
-            Action<EnemyProjectile, DustExplosionAnimation, DustExplosionPlacement, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
-            EnemyProjectile smoke = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.EyeDoorSmoke, SpriteGraphics.SharedStandard);
-            initialize(smoke, DustExplosionAnimation.CorpseDustCloud, definition, new(7, 9));
-            AssertTrue(smoke.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.CorpseDustCloud },
-                $"eye-door smoke production instruction {index}");
-            AssertEqual(unchecked((ushort)(7 * 16 + 8 + definition.Base.X +
-                (random & nativeXMask))), smoke.Position.X.Whole,
-                $"eye-door smoke production X {index}");
-            AssertEqual(unchecked((ushort)(9 * 16 + 8 + definition.Base.Y +
-                ((random >> 8) & nativeYMask))), smoke.Position.Y.Whole,
-                $"eye-door smoke production Y {index}");
-            AssertEqual(1, advances, $"eye-door smoke RNG advance {index}");
-||||||| base
-            Action<EnemyProjectile, DustExplosionAnimation, DustExplosionPlacement, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
-            EnemyProjectile smoke = enemies.Projectiles.Occupy(0, RoomEnemyProjectileKind.EyeDoorSmoke);
-            initialize(smoke, DustExplosionAnimation.CorpseDustCloud, definition, new(7, 9));
-            AssertTrue(smoke.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.CorpseDustCloud },
-                $"eye-door smoke production instruction {index}");
-            AssertEqual(unchecked((ushort)(7 * 16 + 8 + definition.Base.X +
-                (random & nativeXMask))), smoke.Position.X.Whole,
-                $"eye-door smoke production X {index}");
-            AssertEqual(unchecked((ushort)(9 * 16 + 8 + definition.Base.Y +
-                ((random >> 8) & nativeYMask))), smoke.Position.Y.Whole,
-                $"eye-door smoke production Y {index}");
-            AssertEqual(1, advances, $"eye-door smoke RNG advance {index}");
-=======
             enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(smoke, EyeDoorOrientation.Left, new(7, 9)));
             EnemyProjectile spawned = enemies.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive);
             AssertTrue(spawned.Animation is DustExplosionProjectileAnimation started && started.PlayingSegment == animation,
@@ -127,7 +100,6 @@ internal static class DustExplosionProjectileDefinitionsVerification
             AssertEqual(unchecked((ushort)(9 * 16 + 8 + nativeYBase + ((random >> 8) & nativeYMask))), spawned.Position.Y.Whole,
                 $"eye-door {smoke} production Y");
             AssertEqual(1, advances, $"eye-door {smoke} RNG advance");
->>>>>>> theirs
         }
 
         var ridley = CreateDustExplosionEnemySystem();

@@ -73,31 +73,7 @@ internal static class IntroPoseHistoryVerification
         bool pageTwoText = false;
         for (int tick = 0; intro.Phase != IntroCinematicPhase.BabyDiscoveryCrossfade; tick++)
         {
-<<<<<<< ours
             AssertTrue(tick < 20_000, $"the intro reaches the discovery; it stands in {intro.Phase}");
-||||||| base
-            SamusState? before = intro.CurrentFlashbackSamus;
-            SamusPoseId? oldPose = before?.Pose;
-            SamusPoseId priorPose = before?.PoseHistory.PreviousPose ?? 0;
-            SamusMovementType priorMetadata = before?.PoseHistory.PreviousMovement ?? SamusMovementType.Standing;
-            SamusMovementType olderMetadata = before?.PoseHistory.MovementBeforePrevious ?? SamusMovementType.Standing;
-            bool demoEnabled = intro.CurrentFlashbackDemoInput?.Enabled == true;
-            bool hurtExpiry = before is { KnockbackHold.UpdatesLeft: 0, KnockbackDirection: not 0 };
-            // Publishing the display runs the draw passes whose side effects the scene keeps (projectile trails), as the
-            // frontend publishes every frame; rasterising it is the host's work, and nothing here reads pixels.
-            _ = intro.ComposeScene();
-=======
-            SamusState? before = intro.CurrentFlashbackSamus;
-            SamusPoseId? oldPose = before?.Pose;
-            SamusPoseId priorPose = before?.PoseHistory.PreviousPose ?? 0;
-            SamusMovementType priorMetadata = before?.PoseHistory.PreviousMovement ?? SamusMovementType.Standing;
-            SamusMovementType olderMetadata = before?.PoseHistory.MovementBeforePrevious ?? SamusMovementType.Standing;
-            bool demoEnabled = intro.CurrentFlashbackDemoInput?.Enabled == true;
-            bool hurtExpiry = before is { KnockbackHold.UpdatesLeft: 0, KnockbackDirection: not null };
-            // Publishing the display runs the draw passes whose side effects the scene keeps (projectile trails), as the
-            // frontend publishes every frame; rasterising it is the host's work, and nothing here reads pixels.
-            _ = intro.ComposeScene();
->>>>>>> theirs
             intro.Step(tick % 47 == 0 ? ControllerButton.A : 0);
             audio.AdvanceFrame(default);
             // Publishing the display runs the draw passes whose side effects the scene keeps (projectile trails), as the

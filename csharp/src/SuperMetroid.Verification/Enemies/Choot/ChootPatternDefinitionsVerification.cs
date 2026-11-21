@@ -35,20 +35,10 @@ internal static class ChootPatternDefinitionsVerification
             AssertEqual(frameCounts[patternIndex] - 1, loop.Length, $"Choot path {patternIndex} loop updates");
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
-<<<<<<< ours
                 Offset16<RoomPixels> point = ChootFallLoopAccess.OffsetAt(
                     fallingPath,
                     frameIndex) ?? throw new InvalidDataException($"Choot path {patternIndex} ends early at {frameIndex}.");
                 AssertEqual(rom.ReadCartridgeWord((pathAddress + frameIndex * 4)),
-||||||| base
-                Offset16<RoomPixels> point = ChootFalls.At(
-                    fallingPath,
-                    frameIndex) ?? throw new InvalidDataException($"Choot path {patternIndex} ends early at {frameIndex}.");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + frameIndex * 4)),
-=======
-                Offset16<RoomPixels> point = loop.Span[frameIndex];
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + frameIndex * 4)),
->>>>>>> theirs
                     unchecked((ushort)point.X),
                     $"Choot path X {patternIndex}/{frameIndex}");
                 AssertEqual(rom.ReadCartridgeWord((pathAddress + frameIndex * 4 + 2)),
@@ -62,7 +52,6 @@ internal static class ChootPatternDefinitionsVerification
                 $"Choot path {patternIndex} native loop end X");
             AssertEqual((ushort)0x8000, rom.ReadCartridgeWord((pathAddress + endFrame * 4 + 2)),
                 $"Choot path {patternIndex} native loop end Y");
-<<<<<<< ours
             AssertTrue(ChootFallLoopAccess.AtAge(fallingPath, endFrame) is ChootFallLoop.Over, $"Choot path {patternIndex} ends its loop at the native end frame");
 
             AssertThrows<InvalidOperationException>(
@@ -70,16 +59,6 @@ internal static class ChootPatternDefinitionsVerification
                     fallingPath,
                     frameCounts[patternIndex]),
                 $"Choot path {patternIndex} rejects the frame after its loop's end");
-||||||| base
-            AssertTrue(ChootFalls.At(fallingPath, endFrame) is null, $"Choot path {patternIndex} ends its loop at the native end frame");
-
-            AssertThrows<InvalidDataException>(
-                () => ChootFalls.At(
-                    fallingPath,
-                    frameCounts[patternIndex]),
-                $"Choot path {patternIndex} rejects the frame after its loop's end");
-=======
->>>>>>> theirs
 
             foreach (byte loopCount in new byte[] { 0, 1, 2, 3 })
             {
@@ -112,28 +91,14 @@ internal static class ChootPatternDefinitionsVerification
             initializeFall(fallPlace);
             ChootEnemyState fallState = (fallEnemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires fallEnemies.ChootStates[0]."));
             fallState.FallingOrigin = new(0x4000, 0x5000);
-<<<<<<< ours
             fallState.FallingLoop = ChootFallLoop.Starting(fallingPath);
-||||||| base
-            fallState.FallingLoop = UpdateCountdown.Lasting(ChootFalls.LoopUpdates(fallingPath));
-=======
-            fallState.FallingLoop = ChootFallLoop.Of(fallingPath);
->>>>>>> theirs
             fallState.FallingPatternLoopCounter = 2;
 
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
-<<<<<<< ours
                 Offset16<RoomPixels> point = ChootFallLoopAccess.OffsetAt(
                     fallingPath,
                     frameIndex) ?? throw new InvalidDataException($"Choot path {patternIndex} ends early at {frameIndex}.");
-||||||| base
-                Offset16<RoomPixels> point = ChootFalls.At(
-                    fallingPath,
-                    frameIndex) ?? throw new InvalidDataException($"Choot path {patternIndex} ends early at {frameIndex}.");
-=======
-                Offset16<RoomPixels> point = loop.Span[frameIndex];
->>>>>>> theirs
                 runFall(fallPlace, fallState);
                 AssertEqual(unchecked((ushort)(0x4000 + point.X)),
                     fallPlace.Position.X.Whole,
@@ -155,15 +120,7 @@ internal static class ChootPatternDefinitionsVerification
                 fallState.FallingOrigin.Y,
                 $"Choot production loop Y advance {patternIndex}");
 
-<<<<<<< ours
             fallState.FallingLoop = ChootFallLoopAccess.AtAge(fallingPath, frameCounts[patternIndex] - 1);
-||||||| base
-            fallState.FallingLoop = UpdateCountdownAccess.AtAge(ChootFalls.LoopUpdates(fallingPath), frameCounts[patternIndex] - 1);
-=======
-            fallState.FallingLoop = ChootFallLoop.Of(fallingPath);
-            for (int shown = 0; shown < loop.Length; shown++)
-                AssertTrue(fallState.FallingLoop.TryShowNext(out _), $"Choot production loop {patternIndex} shows offset {shown}");
->>>>>>> theirs
             runFall(fallPlace, fallState);
             AssertEqual((ushort)0x3456, fallPlace.Position.X.Whole,
                 $"Choot production final spawn X {patternIndex}");

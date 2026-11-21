@@ -24,52 +24,8 @@ internal static class XrayNoFxDarkeningVerification
     /// <summary>Confirms the fixed colour adds without halving where no effect lies behind, and Fireflea subtraction.</summary>
     internal static void VerifyXrayNoFxDarkening()
     {
-<<<<<<< ours
-        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
-        InstalledFixtures.BindGame(game);
-        game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
-        var runtime = game.Session.GameplayRuntime;
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
-        runtime.System.SetEvent(StoryEvent.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
-||||||| base
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
-        InstalledFixtures.BindGame(game);
-        game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
-        var runtime = game.Session.GameplayRuntime;
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.System.SetEvent(StoryEvent.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
-=======
         SuperMetroidRuntime runtime = XrayWarmingUpIn(RoomDefinitions.Parlor);
->>>>>>> theirs
         AssertTrue(runtime.RoomFxOverlay.CaptureForDisplay() is null, "fixture has no visible room FX");
-<<<<<<< ours
-        var samus = runtime.Player.Samus;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
-        AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }), "fixture enters X-ray");
-        // The warm-up's third update shows the blended room with the beam's window still closed, so the selected pixels are
-        // unambiguously outside.
-        PrivateState.Set(samus.Xray, nameof(SamusXrayState.WarmUp), XrayWarmUp.Started.Spend().Spend());
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-||||||| base
-        var samus = runtime.Player.IntroducedSamus;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
-        AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }), "fixture enters X-ray");
-        // The warm-up's third update shows the blended room with the beam's window still closed, so the selected pixels are
-        // unambiguously outside.
-        PrivateState.Set(samus.Xray, nameof(SamusXrayState.WarmUp), XrayWarmUp.Started.Spend().Spend());
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-=======
->>>>>>> theirs
         // The room's own foreground is the main screen colour math works on (#1433): it draws from the room's block
         // pictures, so each expectation is derived from the colour the frame shows before blending.
         LayeredScene snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
@@ -113,16 +69,16 @@ internal static class XrayNoFxDarkeningVerification
     /// </summary>
     private static SuperMetroidRuntime XrayWarmingUpIn(RoomDefinition room)
     {
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps));
+        var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(room);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
         SamusPoseMetadata.RefreshCollisionRadii(samus);

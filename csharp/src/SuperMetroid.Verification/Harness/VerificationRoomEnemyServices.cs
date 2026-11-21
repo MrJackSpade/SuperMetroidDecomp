@@ -27,12 +27,7 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public Func<StoryEvent, bool>? HasEvent { get; set; }
     /// <summary>Optional case-owned query for how many Zebetites have been destroyed.</summary>
     public Func<int>? ReadZebetitesDestroyed { get; set; }
-<<<<<<< ours
     /// <summary>Optional case-owned record of the Zebetites destroyed, which a Zebetite's death advances.</summary>
-||||||| base
-=======
-    /// <summary>Optional case-owned record of a destroyed Zebetite's count, which a case reading its own count keeps.</summary>
->>>>>>> theirs
     public Action<int>? WriteZebetitesDestroyed { get; set; }
     /// <summary>Optional case-owned query for the area's major boss flag.</summary>
     public Func<bool>? IsAreaBossDefeated { get; set; }
@@ -94,13 +89,7 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     /// <summary>Forwards event writes to loaded room services.</summary>
     public void Set(StoryEvent storyEvent) => Loaded("mark a story event").Events.Set(storyEvent);
 
-<<<<<<< ours
     /// <summary>Reads and writes the Zebetite count through the case overrides or loaded services.</summary>
-||||||| base
-    /// <summary>Reads the Zebetite count through the case override or loaded services; writes go to loaded services.</summary>
-=======
-    /// <summary>Reads and writes the Zebetite count through the case's own count or loaded services.</summary>
->>>>>>> theirs
     int IZebetiteProgress.ZebetitesDestroyed
     {
         get => ReadZebetitesDestroyed is { } read

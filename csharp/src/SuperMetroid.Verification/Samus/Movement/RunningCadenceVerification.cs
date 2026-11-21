@@ -23,22 +23,10 @@ internal static class RunningCadenceVerification
         AssertSequenceEqual(SamusRunningCadenceCodec.OrdinaryDelays(cartridge), SamusRunningCadenceDefinitions.Timings[SamusRunningCadence.Ordinary].Delays, "ordinary running delays");
         for (int stage = 0; stage < SamusSpeedBoostCounter.AuthoredStages; stage++)
             AssertSequenceEqual(SamusRunningCadenceCodec.BoostDelays(cartridge, stage),
-<<<<<<< ours
-                SamusRunningCadenceDefinitions.Timings[SamusRunningCadences.SpeedBoostCadence(stage).Cadence].Delays, $"boost stage {stage} delays");
-||||||| base
-                SamusRunningCadenceDefinitions.Timings[SamusRunningCadences.SpeedBoostCadence(stage)].Delays, $"boost stage {stage} delays");
-=======
                 [.. Enumerable.Range(0, SamusRunningCadenceCodec.FrameCount).Select(frame => SamusRunningCadences.StageCadence(stage).Delay(new UnauthoredBoostCadence(), frame))],
                 $"boost stage {stage} delays");
->>>>>>> theirs
         for (int selection = 0; selection <= SamusRunningCadenceCodec.UnauthoredSelection; selection++)
-<<<<<<< ours
-            AssertEqual(SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection), CountdownOfSelection(selection),
-||||||| base
-            AssertEqual(SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection), SamusRunningCadences.CountdownAfterAdvance(CadenceOfSelection(selection)),
-=======
             AssertEqual(SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection), CadenceOfSelection(selection).CountdownAfterAdvance,
->>>>>>> theirs
                 $"restart countdown after selection {selection}");
 
         // The unauthored cadence times each running frame by the delays the getaway's wings last left behind.
@@ -172,25 +160,9 @@ internal static class RunningCadenceVerification
         Console.WriteLine("Running cadence: six typed cadences and six restarts match the cartridge, the unauthored cadence reads the residue, and 10240 command/gate cases, 1536 queue reports and 256 turned-away echoes pass.");
     }
 
-<<<<<<< ours
-    /// <summary>The countdown the cadence the cartridge's restart and cadence tables number <paramref name="selection"/> restarts with.</summary>
-    private static int CountdownOfSelection(int selection) =>
-||||||| base
-    /// <summary>The cadence the cartridge's restart and cadence tables number <paramref name="selection"/>.</summary>
-    private static SamusRunningCadence CadenceOfSelection(int selection) =>
-=======
     /// <summary>The cadence the cartridge's restart and cadence tables number <paramref name="selection"/>.</summary>
     private static SpeedBoostCadence CadenceOfSelection(int selection) =>
->>>>>>> theirs
         selection == SamusRunningCadenceCodec.UnauthoredSelection
-<<<<<<< ours
-            ? SuperMetroid.Core.Compatibility.UnauthoredBoostCadence.CountdownAfterAdvance
-            : SamusRunningCadences.SpeedBoostCadence(selection).CountdownAfterAdvance;
-||||||| base
-            ? SamusRunningCadence.UnauthoredBoost
-            : SamusRunningCadences.SpeedBoostCadence(selection);
-=======
             ? SpeedBoostCadence.Unauthored
             : SamusRunningCadences.StageCadence(selection);
->>>>>>> theirs
 }

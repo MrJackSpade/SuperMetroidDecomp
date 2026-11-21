@@ -205,16 +205,8 @@ internal static class SpecialAttackParticlesVerification
             case PlaceHolding.CrashEcho:
                 SamusProjectile echo = projectiles.Pool.OccupyAsFired(place, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho));
                 Fly(echo, place, fraction);
-<<<<<<< ours
                 BeamCombos.InitializeComboShot(echo.HeldShot(), new BeamComboShotKind.EchoShot(SamusBeamEcho.ShinesparkEcho));
-                echo.HeldShot().Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(new TrigonometryAngle(32)) { Radius = 24 });
-||||||| base
-                BeamCombos.InitializeComboShot(echo.HeldShot(), BeamComboShotKind.Echo);
-                echo.HeldShot().Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(new TrigonometryAngle(32)) { Radius = 24 });
-=======
-                BeamCombos.InitializeComboShot(echo.HeldShot(), BeamComboShotKind.Echo);
                 echo.HeldShot().Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(new TrigonometryAngle(32), new ShinesparkCrashEcho(ShinesparkCrashEchoRelease.Second)) { Radius = 24 });
->>>>>>> theirs
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(holding), holding, $"Undefined {nameof(PlaceHolding)}.");

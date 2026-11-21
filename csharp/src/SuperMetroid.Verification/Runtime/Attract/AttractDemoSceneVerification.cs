@@ -76,41 +76,17 @@ internal static class AttractDemoSceneVerification
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");
         // Boot decides once whether the completion set plays, so each eligibility case boots a session.
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
-<<<<<<< ours
-        if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
-||||||| base
-        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
-=======
-        if (!new SuperMetroidGame(saveRam).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)))
->>>>>>> theirs
+        if (!SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)))
             throw new InvalidDataException("An empty save must expose only the three ordinary demo sets.");
         saveRam.CompleteGame();
-<<<<<<< ours
-        if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
-||||||| base
-        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
-=======
-        if (!new SuperMetroidGame(saveRam).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)))
->>>>>>> theirs
+        if (!SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)))
             throw new InvalidDataException("Completion marker without any valid save incorrectly unlocked the completion set.");
         saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame);
         saveRam.CompleteGame();
-<<<<<<< ours
-        if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.CompletedGamePlaylist)
-||||||| base
-        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.CompletedGamePlaylist)
-=======
-        if (!new SuperMetroidGame(saveRam).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: true)))
->>>>>>> theirs
+        if (!SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: true)))
             throw new InvalidDataException("Valid completed-game save did not unlock the completion demo set.");
         saveRam.RestoreHistory(SaveFileHistory.None);
-<<<<<<< ours
-        if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
-||||||| base
-        if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
-=======
-        if (!new SuperMetroidGame(saveRam).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)))
->>>>>>> theirs
+        if (!SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saveRam).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)))
             throw new InvalidDataException("Incomplete-game save incorrectly unlocked the completion set.");
     }
 

@@ -861,7 +861,6 @@ internal sealed class CoreModel
         return false;
     }
 
-<<<<<<< ours
     /// <summary>Registrar calls that name the definitions a species creates (<c>EnemySpeciesRegistrar</c>).</summary>
     private static readonly string[] RegistrarCreations = ["Spawns", "Loads", "Joins"];
 
@@ -920,62 +919,14 @@ internal sealed class CoreModel
     }
 
     /// <summary>Reads the definitions <paramref name="type"/> declares, directly or through a parts table's keys.</summary>
-||||||| base
-    /// <summary>Reads the definitions <paramref name="type"/> declares, directly or through a parts table's keys.</summary>
-=======
-    /// <summary>
-    /// Reads the definitions <paramref name="type"/> declares in its creations (#2553): the keys of a map naming each
-    /// definition's own creation, or the definitions, directly or through a parts table's keys, that one creation serves alike.
-    /// </summary>
->>>>>>> theirs
     private Behaviour ReadBehaviour(INamedTypeSymbol type)
     {
-<<<<<<< ours
         List<CollectionExpressionSyntax> collections = DefinitionCollections(type);
-||||||| base
-        var declared = type.GetMembers("Definitions").OfType<IPropertySymbol>().Where(p => !p.IsStatic).ToList();
-        if (declared is not [{ DeclaringSyntaxReferences: [var reference] }])
-            throw new InvalidDataException($"{type.ToDisplayString()} creates enemies but does not declare one Definitions property.");
-        if (reference.GetSyntax() is not PropertyDeclarationSyntax { Initializer.Value: CollectionExpressionSyntax collection })
-            throw new InvalidDataException($"{type.ToDisplayString()}.Definitions is not initialized with a collection expression.");
-        SemanticModel model = ModelOf(collection.SyntaxTree);
-=======
-        var declared = type.GetMembers("Creations").OfType<IPropertySymbol>().Where(p => !p.IsStatic).ToList();
-        if (declared is not [{ DeclaringSyntaxReferences: [var reference] }])
-            throw new InvalidDataException($"{type.ToDisplayString()} creates enemies but does not declare one Creations property.");
-        if (reference.GetSyntax() is not PropertyDeclarationSyntax { ExpressionBody.Expression: AssignmentExpressionSyntax { Right: var built } } property)
-            throw new InvalidDataException($"{type.ToDisplayString()}.Creations is not built once by its expression body.");
-        SemanticModel model = ModelOf(property.SyntaxTree);
->>>>>>> theirs
         var names = new List<string>();
         var parts = new Dictionary<string, IFieldSymbol>(StringComparer.Ordinal);
         var entries = new Dictionary<string, ExpressionSyntax>(StringComparer.Ordinal);
         ISymbol? partsTable = null;
-<<<<<<< ours
         foreach (CollectionElementSyntax element in collections.SelectMany(collection => collection.Elements))
-||||||| base
-        foreach (CollectionElementSyntax element in collection.Elements)
-=======
-        IEnumerable<CollectionElementSyntax> elements;
-        switch (built)
-        {
-            case BaseObjectCreationExpressionSyntax { Initializer.Expressions: var initializers }:
-                foreach (ExpressionSyntax entry in initializers)
-                {
-                    if (entry is not AssignmentExpressionSyntax { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [var key] } })
-                        throw new InvalidDataException($"{type.ToDisplayString()}.Creations has an entry this generator cannot read: {entry}");
-                    names.Add(DefinitionName(model, key.Expression, type));
-                }
-                elements = [];
-                break;
-            case InvocationExpressionSyntax { ArgumentList.Arguments: [{ Expression: CollectionExpressionSyntax each }, _] }:
-                elements = each.Elements;
-                break;
-            default:
-                throw new InvalidDataException($"{type.ToDisplayString()}.Creations is built in a way this generator cannot read: {built}");
-        }
-        foreach (CollectionElementSyntax element in elements)
->>>>>>> theirs
         {
             SemanticModel model = ModelOf(element.SyntaxTree);
             switch (element)
@@ -1003,13 +954,7 @@ internal sealed class CoreModel
         if (names.Count == 0)
             throw new InvalidDataException($"{type.ToDisplayString()} declares no definitions.");
         string family = Regex.Replace(type.Name, "(Behavior|Factory)$", "");
-<<<<<<< ours
         return new Behaviour(type, family, RelativePath(collections[0].SyntaxTree), names, partsTable, parts, entries);
-||||||| base
-        return new Behaviour(type, family, RelativePath(collection.SyntaxTree), names, partsTable, parts, entries);
-=======
-        return new Behaviour(type, family, RelativePath(property.SyntaxTree), names, partsTable, parts, entries);
->>>>>>> theirs
     }
 
     /// <summary>The EnemyDefinitionId member <paramref name="expression"/> names.</summary>

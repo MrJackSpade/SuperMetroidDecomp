@@ -89,9 +89,9 @@ internal static class FrontendSessionEntryAccess
         /// </exception>
         internal void Enter(AttractDemoStep step) => self.Enter(step switch
         {
-            AttractDemoStep.Loading => new AttractDemoGameSequence.AwaitingScene(self),
-            AttractDemoStep.Unloading => new AttractDemoGameSequence.Unloading(self),
-            AttractDemoStep.Routing => new AttractDemoGameSequence.Routing(self),
+            AttractDemoStep.Loading => new AttractDemoGameSequence.AwaitingScene(self, self.Demo.RequestFromTitle()),
+            AttractDemoStep.Unloading => new AttractDemoGameSequence.Unloading(self, AttractPlaybackEnd.Completed),
+            AttractDemoStep.Routing => new AttractDemoGameSequence.Routing(self, self.Demo.RouteAfterScene(AttractPlaybackEnd.Completed)),
             AttractDemoStep.Starting or AttractDemoStep.Playing or AttractDemoStep.Holding => throw new InvalidOperationException(
                 $"The attract demo's {step} step holds its scene's countdown, which entering it by name cannot supply."),
             _ => throw new InvalidOperationException($"Undefined {nameof(AttractDemoStep)} {step}."),

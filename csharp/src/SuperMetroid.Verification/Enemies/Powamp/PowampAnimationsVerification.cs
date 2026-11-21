@@ -19,21 +19,6 @@ internal static class PowampAnimationsVerification
     /// </summary>
     internal static void VerifyPowampAnimations(CartridgeImportAddressSpace rom)
     {
-<<<<<<< ours
-        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
-            PowampAnimations.Segments, PowampAnimations.StartingAt, PowampFrameToolingDefinitions.Spritemap,
-            new NativeEnemyCueRules<NoAnimationCue>(
-                word => null,
-                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
-        Console.WriteLine($"  Powamp animations: {Entries.Length} segments ({beats} beats) and {PowampAnimations.StartingAt.Count} animations match bank $A8.");
-||||||| base
-        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
-            PowampAnimations.Segments, PowampAnimations.StartingAt, PowampFrameToolingDefinitions.Spritemap,
-            new NativeEnemyCueRules<NoAnimationCue>(
-                word => null,
-                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
-        Console.WriteLine($"  Powamp animations: {Entries.Length} segments ({beats} beats) and {PowampAnimations.StartingAt.Count} animations match bank $A8.");
-=======
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int beats = NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, BodyEntries,
             PowampAnimations.BodySegments, PowampAnimations.BodyStartingAt.ToDictionary(), PowampFrameToolingDefinitions.Spritemap, NoOwnerInstructions)
@@ -41,7 +26,6 @@ internal static class PowampAnimationsVerification
             PowampAnimations.BalloonSegments, PowampAnimations.BalloonStartingAt.ToDictionary(), PowampFrameToolingDefinitions.BalloonSpritemap, NoOwnerInstructions);
         Console.WriteLine($"  Powamp animations: {BodyEntries.Length + BalloonEntries.Length} segments ({beats} beats) and "
             + $"{PowampAnimations.BodyStartingAt.Count + PowampAnimations.BalloonStartingAt.Count} animations match bank $A8.");
->>>>>>> theirs
     }
 
     /// <summary>The cue rules of lists that use no owner instructions.</summary>

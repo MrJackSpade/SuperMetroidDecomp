@@ -314,23 +314,11 @@ internal static class ProjectileDamageVerification
         ringState.Radius = 254;
         // The camera centres the particle's place at radius 254, so the final expansion's screen test keeps it.
         Offset16<RoomPixels> outer = SamusComboMechanics.GetSineOffset(ringState.Angle, 254);
-<<<<<<< ours
-        projectiles.Combos.StepPlasmaCombo(samus, ring.HeldShot(), ring.KindStateAs<PlasmaParticleState>(), shared, new Position16<RoomPixels>(1024 + outer.X - 128, 1024 + outer.Y - 112));
-||||||| base
-        projectiles.Combos.StepPlasmaCombo(samus, ring.HeldShot(), shared, new Position16<RoomPixels>(1024 + outer.X - 128, 1024 + outer.Y - 112));
-=======
         projectiles.Combos.StepPlasmaCombo(samus, ring.HeldShot(), ringState, shared, new Position16<RoomPixels>(1024 + outer.X - 128, 1024 + outer.Y - 112));
->>>>>>> theirs
         AssertEqual(2, ringState.Radius, "an on-screen ring grown from 254 past 255 collapses onto Samus at radius 2");
         TrigonometryAngle angle = ringState.Angle;
         var centredOnSamus = new Position16<RoomPixels>(1024 - 128, 1024 - 112);
-<<<<<<< ours
-        projectiles.Combos.StepPlasmaCombo(samus, ring.HeldShot(), ring.KindStateAs<PlasmaParticleState>(), shared, centredOnSamus);
-||||||| base
-        projectiles.Combos.StepPlasmaCombo(samus, ring.HeldShot(), shared, centredOnSamus);
-=======
         projectiles.Combos.StepPlasmaCombo(samus, ring.HeldShot(), ringState, shared, centredOnSamus);
->>>>>>> theirs
         AssertEqual(new Position16<RoomPixels>(1024, 1024) + SamusComboMechanics.GetSineOffset(angle, 2), ring.Position.Whole,
             "the collapsed ring orbits Samus two pixels away");
         AssertEqual(2 + BeamComboDefinitions.PlasmaRadiusStep, ringState.Radius, "the collapsed ring grows outward again");

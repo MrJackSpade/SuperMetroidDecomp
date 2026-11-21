@@ -38,9 +38,9 @@ internal static class RetailAttractTests
                 if (expected.GameState != actual.Frame.GameState ||
                     expected.Phase != actual.Frame.Phase || !expected.Audio.Events.SequenceEqual(actual.Frame.Audio.Events))
                     throw new InvalidOperationException($"Attract state/audio/capture divergence at {tick}.");
-                sawStart |= legacy.IsAtAttractStep<AttractDemoStep.Starting>();
-                sawUnload |= legacy.IsAtAttractStep<AttractDemoStep.Unloading>();
-                sawRouting |= legacy.IsAtAttractStep<AttractDemoStep.Routing>();
+                sawStart |= legacy.IsAt(AttractDemoStep.Starting);
+                sawUnload |= legacy.IsAt(AttractDemoStep.Unloading);
+                sawRouting |= legacy.IsAt(AttractDemoStep.Routing);
                 bool demo = expected.GameState == SuperMetroidGameState.AttractDemo;
                 if (demo || tick % 31 == 0)
                 {

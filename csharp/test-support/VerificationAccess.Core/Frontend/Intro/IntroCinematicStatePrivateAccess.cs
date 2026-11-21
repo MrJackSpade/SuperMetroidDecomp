@@ -37,58 +37,6 @@ internal static class IntroCinematicStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Frontend.Intro.IntroCeresFlightState?>(self, "CurrentCeresFlight");
         }
 
-<<<<<<< ours
-||||||| base
-        /// <summary>The private property <c>CurrentFlashbackDemoInput</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Input.DemoInputState? CurrentFlashbackDemoInput
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Input.DemoInputState?>(self, "CurrentFlashbackDemoInput");
-        }
-
-        /// <summary>The private property <c>CurrentFlashbackLevel</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData? CurrentFlashbackLevel
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData?>(self, "CurrentFlashbackLevel");
-        }
-
-        /// <summary>The private property <c>CurrentFlashbackMotherBrain</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Frontend.Intro.IntroMotherBrainSpriteState? CurrentFlashbackMotherBrain
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Frontend.Intro.IntroMotherBrainSpriteState?>(self, "CurrentFlashbackMotherBrain");
-        }
-
-        /// <summary>The private property <c>CurrentFlashbackSamus</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Samus.SamusState? CurrentFlashbackSamus
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Samus.SamusState?>(self, "CurrentFlashbackSamus");
-        }
-
-=======
-        /// <summary>The private property <c>CurrentFlashbackDemoInput</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Input.DemoInputState? CurrentFlashbackDemoInput
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Input.DemoInputState?>(self, "CurrentFlashbackDemoInput");
-        }
-
-        /// <summary>The private property <c>CurrentFlashbackTerrain</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Samus.Movement.PlainTerrain? CurrentFlashbackTerrain
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Samus.Movement.PlainTerrain?>(self, "CurrentFlashbackTerrain");
-        }
-
-        /// <summary>The private property <c>CurrentFlashbackMotherBrain</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Frontend.Intro.IntroMotherBrainSpriteState? CurrentFlashbackMotherBrain
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Frontend.Intro.IntroMotherBrainSpriteState?>(self, "CurrentFlashbackMotherBrain");
-        }
-
-        /// <summary>The private property <c>CurrentFlashbackSamus</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Samus.SamusState? CurrentFlashbackSamus
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Samus.SamusState?>(self, "CurrentFlashbackSamus");
-        }
-
->>>>>>> theirs
         /// <summary>The private property <c>CurrentNarration</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Frontend.Intro.IntroNarrationActors? CurrentNarration
         {

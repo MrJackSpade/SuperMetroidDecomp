@@ -127,52 +127,10 @@ internal static class ZebetiteDefinitionsVerification
             }
         }
 
-<<<<<<< ours
-||||||| base
-        foreach (bool linkedHalf in new[] { false, true })
-=======
         // Both respawns as the game makes them: the second generation's primary, a split pair's, spawns its linked half on
         // its first update, and once its health runs out its death spawns the next standing generation's primary in the
         // place it vacates.
->>>>>>> theirs
         {
-<<<<<<< ours
-            // A split pair's primary half spawns its linked half on its first update, in the room's first free place.
-            int split = Enumerable.Range(0, PersistentProgress.ZebetiteCount).First(destroyed => Zebetites.Generation(destroyed).Form == ZebetiteBarrierForm.SplitPair);
-            var enemies = NewZebetiteDefinitionSystem((ushort)split);
-            SuperMetroid.Core.Samus.SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
-            RoomEnemyPlace primary = enemies.Places.InUpdateOrder[0];
-            primary.PlaceAs<ZebetiteEntity>(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Primary), samus);
-            primary.Health = ZebetiteDefinitions.MaximumHealth;
-            primary.RunMainAi(samus);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[1];
-            AssertEqual(Zebetites.SpawnPopulation(ZebetiteHalf.Linked, destroyed: split), place.HeldOccupant().Spawn, "production Zebetite linked population");
-            AssertEqual(ZebetiteHalf.Linked, place.HeldOccupant().SpawnSettings<ZebetiteSpawnSettings>().Half, "production Zebetite linked role");
-        }
-        {
-            // A primary half whose health runs out dies, and the next generation's primary half spawns in its place.
-            var enemies = NewZebetiteDefinitionSystem(0);
-            int destroyed = 0;
-            enemies.VerificationServices().ReadZebetitesDestroyed = () => destroyed;
-            enemies.VerificationServices().WriteZebetitesDestroyed = value => destroyed = value;
-            SuperMetroid.Core.Samus.SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
-            RoomEnemyPlace primary = enemies.Places.InUpdateOrder[0];
-            ZebetiteEnemyState dying = primary.PlaceAs<ZebetiteEntity>(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Primary), samus).State;
-            dying.Action = ZebetiteAction.Active;
-            primary.Health = 0;
-            primary.RunMainAi(samus);
-            AssertEqual(1, destroyed, "the primary half's death advances the Zebetites destroyed");
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder.Single(candidate => candidate.Occupant is { } occupant && occupant.DefinitionId == EnemyDefinitionId.Zebetite);
-            AssertEqual(Zebetites.SpawnPopulation(ZebetiteHalf.Primary, destroyed: 1), place.HeldOccupant().Spawn, "production Zebetite primary population");
-            AssertEqual(ZebetiteHalf.Primary, place.HeldOccupant().SpawnSettings<ZebetiteSpawnSettings>().Half, "production Zebetite primary role");
-||||||| base
-            var enemies = NewZebetiteDefinitionSystem(0);
-            RoomEnemyPlace place = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
-            AssertEqual(Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, destroyed: 0), place.HeldOccupant().Spawn,
-                $"production Zebetite {(linkedHalf ? "linked" : "primary")} population");
-            AssertEqual(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, place.HeldOccupant().SpawnSettings<ZebetiteSpawnSettings>().Half,
-                $"production Zebetite {(linkedHalf ? "linked" : "primary")} role");
-=======
             var enemies = NewZebetiteDefinitionSystem(1);
             int destroyed = 1;
             enemies.VerificationServices().ReadZebetitesDestroyed = () => destroyed;
@@ -199,7 +157,6 @@ internal static class ZebetiteDefinitionsVerification
                 "production Zebetite primary population, spawned by the dying primary into its place");
             AssertEqual(ZebetiteHalf.Primary, primary.HeldOccupant().SpawnSettings<ZebetiteSpawnSettings>().Half,
                 "production Zebetite primary role");
->>>>>>> theirs
         }
 
         Console.WriteLine(

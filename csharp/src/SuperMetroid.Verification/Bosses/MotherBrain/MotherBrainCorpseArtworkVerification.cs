@@ -83,10 +83,10 @@ internal static class MotherBrainCorpseArtworkVerification
     {
         ComposedLook corpse = EncounterLookUploads.MotherBrainCorpseLook;
         AssertEqual(SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainCorpseSheet.RowCount,
-            EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, new EnemyTileTransfers(artwork)).CopiesOf(corpse).Count,
+            EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, new EnemyTileTransfers(artwork, timer: InstalledFixtures.ImportMaps.EscapeTimerTiles)).CopiesOf(corpse).Count,
             "her corpse's look copies one page a corpse row");
-        return new ObjCharacterTablePage().Page(EncounterArtworkPlacements.Of(ComposedEncounter.MotherBrain, [corpse], new EnemyTileTransfers(artwork)),
-                new EnemyTileTransfers(artwork))
+        return new ObjCharacterTablePage().Page(EncounterArtworkPlacements.Of(ComposedEncounter.MotherBrain, [corpse], new EnemyTileTransfers(artwork, timer: InstalledFixtures.ImportMaps.EscapeTimerTiles)),
+                new EnemyTileTransfers(artwork, timer: InstalledFixtures.ImportMaps.EscapeTimerTiles))
             .Characters[..SpriteArtworkPlacements.TableByteCount].ToArray();
     }
 

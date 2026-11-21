@@ -73,7 +73,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             AssertEqual(ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(baby, page)),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5) * 2,
                 $"Baby page {page} shows where the cartridge's record places it");
-            EncounterArtworkUpload shown = EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, new EnemyTileTransfers(stock))
+            EncounterArtworkUpload shown = EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, new EnemyTileTransfers(stock, timer: InstalledFixtures.ImportMaps.EscapeTimerTiles))
                 .CopiesOf(EncounterLookUploads.MotherBrainBabyLook)[page];
             AssertEqual(ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(baby, page)) - ObjectCharactersByte, shown.FirstByte,
                 $"the Baby's look copies page {page} at its record's characters");
@@ -95,7 +95,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         ImportEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
-        var resolver = new EnemyTileTransfers(new ImportEnemyArtwork(stock.Enemies, stock.Bosses, InstalledFixtures.AreaArtwork));
+        var resolver = new EnemyTileTransfers(new ImportEnemyArtwork(stock.Enemies, stock.Bosses, InstalledFixtures.AreaArtwork), timer: InstalledFixtures.ImportMaps.EscapeTimerTiles);
         EncounterArtworkUpload[] standing = [.. new[] { EncounterLookUploads.MotherBrainLegsLook, EncounterLookUploads.MotherBrainAttackLook }
             .SelectMany(EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, resolver).CopiesOf)];
         AssertEqual(MotherBrainLegLoadListConstants.RecordCount, standing.Length, "her standing body's looks copy one page a leg-loading record");
@@ -199,7 +199,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     private static SnesVram ShowMotherBrainSpecialPages(
         ImportEnemyArtwork artwork, MotherBrainSpecialSpriteSheetDefinition sheet)
     {
-        var resolver = new EnemyTileTransfers(new ImportEnemyArtwork(artwork.Enemies, artwork.Bosses, InstalledFixtures.AreaArtwork));
+        var resolver = new EnemyTileTransfers(new ImportEnemyArtwork(artwork.Enemies, artwork.Bosses, InstalledFixtures.AreaArtwork), timer: InstalledFixtures.ImportMaps.EscapeTimerTiles);
         ComposedLook look = sheet.Sheet switch
         {
             MotherBrainSpriteSheet.Legs => EncounterLookUploads.MotherBrainLegsLook,

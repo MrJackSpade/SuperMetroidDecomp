@@ -50,7 +50,9 @@ internal static class OptionsGeometryLookupsVerification
     /// <summary>Checks seven source words used by controller-label transfers.</summary>
     internal static void VerifyOptionsLabelSources(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f647, 2, 7,
-            index => GameOptionsSourceDefinitions.ControllerLabelSources[GameOptionsPresentationDefinitions.ControllerLabelButtons[index]], "controller label source"));
+            index => GameOptionsSourceDefinitions.ControllerLabelSources[(uint)index < (uint)GameOptionsPresentationDefinitions.ControllerLabelButtons.Count
+                ? GameOptionsPresentationDefinitions.ControllerLabelButtons[index]
+                : throw new ArgumentOutOfRangeException(nameof(index), index, "The controller page shows no label at that selector.")], "controller label source"));
 
     /// <summary>Compares an indexed native geometry sequence and rejects indexes beyond its declared count.</summary>
     private static void VerifyOptionsGeometryWords(ISnesAddressSpace rom, int address,

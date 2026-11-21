@@ -14,8 +14,12 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed record PictureShading
 {
-    /// <summary>Each colour key's colour under this shading, by picture, worked out once for each picture it colours.</summary>
-    private readonly ConditionalWeakTable<SpriteImage, FrozenDictionary<ColourKey, RgbColor>> coloured = new();
+    /// <summary>
+    /// Each colour key's colour under this shading, by picture, worked out once for each picture it colours: derived from the
+    /// shading and the picture, not game state, and made again when absent.
+    /// </summary>
+    [NonSerialized]
+    private ConditionalWeakTable<SpriteImage, FrozenDictionary<ColourKey, RgbColor>>? coloured;
 
     /// <summary>Keeps a draw's shades and effects.</summary>
     /// <param name="shades">The installed shades laid over the standard colours, in order; a later one wins where they overlap.</param>
@@ -111,7 +115,7 @@ public sealed record PictureShading
 
     /// <summary>Each of <paramref name="picture"/>'s colour keys' colour under this shading, by key, worked out once per picture.</summary>
     /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade this shading names.</exception>
-    public FrozenDictionary<ColourKey, RgbColor> ColoursOf(SpriteImage picture) => coloured.GetValue(Ensure.NotNull(picture), Colour);
+    public FrozenDictionary<ColourKey, RgbColor> ColoursOf(SpriteImage picture) => (coloured ??= new()).GetValue(Ensure.NotNull(picture), Colour);
 
     /// <summary>Works out each of <paramref name="picture"/>'s colour keys' colour under this shading, from the key's own.</summary>
     private FrozenDictionary<ColourKey, RgbColor> Colour(SpriteImage picture)

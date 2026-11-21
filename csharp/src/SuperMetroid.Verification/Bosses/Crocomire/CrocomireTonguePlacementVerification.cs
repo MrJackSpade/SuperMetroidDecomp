@@ -25,7 +25,6 @@ internal static class CrocomireTonguePlacementVerification
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         CrocomireEnemyState state = CrocomirePlacement.PlaceCrocomire(enemies, new(576, 144));
         RoomEnemyPlace body = state.Body;
-        body.Radius = new(body.Definition.Radius.X, body.Definition.Radius.Y);
         RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
         // He steps forward, as his fight's approach has him do.
         state.Phase = CrocomirePhase.SteppingForward;

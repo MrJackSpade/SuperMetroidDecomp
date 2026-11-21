@@ -21,8 +21,13 @@ internal static class CrocomirePlacement
         enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
-        body.Bind(EnemyDefinitionId.Crocomire, body.KeptDefinition);
-        tongue.Bind(EnemyDefinitionId.CrocomireTongue, tongue.KeptDefinition);
+        // Each is bound with its species' definition and takes its hitbox from it, as the population load copies it.
+        foreach ((RoomEnemyPlace place, EnemyDefinitionId species) in new[] { (body, EnemyDefinitionId.Crocomire), (tongue, EnemyDefinitionId.CrocomireTongue) })
+        {
+            RoomEnemyDefinition definition = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(species);
+            place.Bind(species, definition);
+            place.Radius = new(definition.Radius.X, definition.Radius.Y);
+        }
         body.Position = body.Position.WithWhole(at);
         body.SetUpAsPlaced();
         tongue.SetUpAsPlaced();

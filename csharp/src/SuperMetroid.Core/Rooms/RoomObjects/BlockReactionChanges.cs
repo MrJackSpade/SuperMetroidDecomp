@@ -19,7 +19,7 @@ internal static class BlockReactionChanges
 
     /// <summary>The crumble reveal a normal bomb sets off for a crumble block, by the crumble's size.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a crumble block.</exception>
-    internal static BlockReactionChange CrumbleReveal(SpecialBlockReaction? reaction) => From(BlockReactionChangeDefinitions.CrumbleReveal, reaction);
+    internal static LastingBlockReactionChange CrumbleReveal(SpecialBlockReaction? reaction) => From(BlockReactionChangeDefinitions.CrumbleReveal, reaction);
 
     /// <summary>How <paramref name="crumble"/> breaks up once Samus lands on it.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="crumble"/> names no crumble block.</exception>

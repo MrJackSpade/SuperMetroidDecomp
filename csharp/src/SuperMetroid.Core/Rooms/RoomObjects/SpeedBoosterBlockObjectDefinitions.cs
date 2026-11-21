@@ -71,7 +71,7 @@ internal static class SpeedBoosterBlockObjectDefinitions
     ]);
 
     /// <summary>A bombed Speed Booster block's reveal: its block image for one update.</summary>
-    internal static BlockReactionChange BombReveal { get; } = new(1,
+    internal static LastingBlockReactionChange BombReveal { get; } = new(1,
     [
         new(SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw, 1),
     ]);

@@ -349,13 +349,13 @@ internal sealed class BlockReactionObjects
         // A special block whose behaviour names no special-block reaction sets nothing up.
         if (behavior.Special is not { } special)
             return;
-        BlockReactionChange change = BombSpecialBlockReactions.ChangeFor(special);
+        LastingBlockReactionChange change = BombSpecialBlockReactions.ChangeFor(special);
 
         if (_places.Spawn() is not { } place)
             return;
 
         place.Block = position;
-        place.Become(new BlockReactionObject(change));
+        place.Become(new LastingBlockReactionObject(change));
     }
 
     /// <summary>

@@ -78,7 +78,7 @@ internal sealed class DraygonGoop
             _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         if (samus.SlowdownLevel != 0)
         {
-            state.Step = DraygonPhaseSteps.TryGrabSamus;
+            state.Step = DraygonPhaseSteps.TryGrabSamus();
             return;
         }
 
@@ -123,7 +123,7 @@ internal sealed class DraygonGoop
         // Only the leftward recovery rechecks whether Samus became gooped after firing.
         if (direction != HorizontalDirection.Right && samus.SlowdownLevel != 0)
         {
-            state.Step = DraygonPhaseSteps.TryGrabSamus;
+            state.Step = DraygonPhaseSteps.TryGrabSamus();
             return;
         }
 

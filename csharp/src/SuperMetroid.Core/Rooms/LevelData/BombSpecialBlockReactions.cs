@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public static class BombSpecialBlockReactions
 {
     /// <summary>The plain solid special blocks a normal bomb shows as Speed Booster blocks in every area.</summary>
-    private static readonly BombRevealedSpeedBlockLookalikes<SpecialBlockReaction, BlockReactionChange> SpeedBlockLookalikes =
+    private static readonly BombRevealedSpeedBlockLookalikes<SpecialBlockReaction, LastingBlockReactionChange> SpeedBlockLookalikes =
         new([SpecialBlockReaction.BombRevealsSpeedBlock], SpeedBoosterBlockObjectDefinitions.BombReveal);
 
     /// <summary>
@@ -15,10 +15,10 @@ public static class BombSpecialBlockReactions
     /// Booster blocks; in the other areas those blocks stay plain solid blocks (#1805).
     /// </summary>
     /// <param name="reaction">The block's reaction.</param>
-    internal static BlockReactionChange ChangeFor(SpecialBlockReaction reaction)
+    internal static LastingBlockReactionChange ChangeFor(SpecialBlockReaction reaction)
     {
         SpecialBlockReaction read = reaction;
-        if (SpeedBlockLookalikes.TryShowAsSpeedBlock(read, out BlockReactionChange? shown))
+        if (SpeedBlockLookalikes.TryShowAsSpeedBlock(read, out LastingBlockReactionChange? shown))
             return shown;
         return read switch
         {
@@ -37,7 +37,7 @@ public static class BombSpecialBlockReactions
                 SpecialBlockReaction.MissileStationRight or SpecialBlockReaction.MissileStationLeft or
                 SpecialBlockReaction.SaveStationFloor or SpecialBlockReaction.Solid or
                 SpecialBlockReaction.WreckedShipChozoHand or SpecialBlockReaction.LowerNorfairChozoHand =>
-                BlockReactionChange.MadeAtSpawn,
+                LastingBlockReactionChange.MadeAtSpawn,
             SpecialBlockReaction.BombRevealsSpeedBlock => throw new InvalidOperationException(
                 $"{nameof(SpecialBlockReaction.BombRevealsSpeedBlock)} is shown as a Speed Booster block by the run-on."),
             _ => throw new InvalidOperationException($"Undefined {nameof(SpecialBlockReaction)} {read}."),

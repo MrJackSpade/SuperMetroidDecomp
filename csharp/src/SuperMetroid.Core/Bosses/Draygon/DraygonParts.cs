@@ -220,8 +220,8 @@ internal sealed class DraygonParts
             case DraygonCue.SetBodyIntangible:
                 state.Body.Contact = state.Body.Contact.With(EnemyContact.IgnoresSamus);
                 return;
-            case DraygonCue.SetBodyPhase bodyPhase:
-                state.Step = bodyPhase.Step;
+            case DraygonCue.ReleaseSamus:
+                state.Step = DraygonPhaseSteps.ReleaseSamus();
                 return;
             case DraygonCue.TailWhipHit:
                 ApplyDraygonTailWhipHit(state, samus);

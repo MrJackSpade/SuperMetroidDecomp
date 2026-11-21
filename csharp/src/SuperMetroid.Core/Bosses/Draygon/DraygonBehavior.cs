@@ -116,7 +116,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
     /// <summary>Runs Draygon's body for one update.</summary>
     private void RunDraygonBodyMain(RoomEnemyPlace body, DraygonEnemyState state, SamusState samus, int frameCounter)
     {
-        state.Step.Run(this, state, samus, frameCounter);
+        state.Step.Run(new DraygonPhaseUpdate(this, state, samus, frameCounter));
 
         // His arms, tail and eye are placed at his body once his phase has moved it, before the eye and each part's
         // animation run this update.

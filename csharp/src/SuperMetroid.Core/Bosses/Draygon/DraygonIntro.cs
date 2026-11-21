@@ -47,7 +47,7 @@ internal sealed class DraygonIntro
             return;
         }
 
-        state.Step = DraygonPhaseSteps.IntroDance;
+        state.Step = DraygonPhaseSteps.IntroDance();
         state.IntroStage = UpdateCountdown.Lasting(DraygonIntroDanceDefinitions.DurationFrames);
         state.LeftSideReset = state.Body.Position.Whole;
         // The left-side place is where the room places Draygon, left of and above the arena, so the right-side place
@@ -66,7 +66,7 @@ internal sealed class DraygonIntro
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         if (state.IntroStage.IsOver)
         {
-            state.Step = DraygonPhaseSteps.RightSwoopSetup;
+            state.Step = DraygonPhaseSteps.RightSwoopSetup();
             state.PassDirection = HorizontalDirection.Right;
             return;
         }

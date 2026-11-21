@@ -38,8 +38,12 @@ internal abstract record DraygonCue
         internal static SetBodyIntangible Instance { get; } = new();
     }
 
-    /// <summary>Gives the body a new phase.</summary>
-    internal sealed record SetBodyPhase(DraygonPhaseStep Step) : DraygonCue;
+    /// <summary>Gives the body its phase of releasing Samus.</summary>
+    internal sealed record ReleaseSamus : DraygonCue
+    {
+        /// <summary>The cue's only value.</summary>
+        internal static ReleaseSamus Instance { get; } = new();
+    }
 
     /// <summary>Applies a tail whip's hit to a grabbed Samus.</summary>
     internal sealed record TailWhipHit : DraygonCue

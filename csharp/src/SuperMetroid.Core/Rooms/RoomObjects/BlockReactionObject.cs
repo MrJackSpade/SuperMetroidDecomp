@@ -51,15 +51,11 @@ internal class BlockReactionObject : RoomObjectBehaviour
         }
         if (frame.SoundBefore is { } sound)
             context.QueueSound(sound, frame.SoundPriority);
-        switch (frame.Image)
-        {
-            case BlockReactionImage.Drawn drawn:
-                context.Draw(place, drawn.Draw);
-                break;
-            case BlockReactionImage.RestoresSavedTerrain:
-                RestoreBlock(place, context, SavedTerrain);
-                break;
-        }
+        // An image is a draw at the block or the block's saved terrain restored.
+        if (frame.Image is BlockReactionImage.Drawn drawn)
+            context.Draw(place, drawn.Draw);
+        else
+            RestoreBlock(place, context, SavedTerrain);
         // The owner of the room's block reactions learns as each image shows whether the block now stands broken open,
         // which a room object waiting on a block's breakup observes.
         context.RoomObjects.BlockReactions.RecordImageShown(place.Block, frame.Image);

@@ -160,7 +160,7 @@ internal sealed class DraygonSwoops
             int random = _room.Random.Read();
             state.Step = DraygonRandomDefinitions.SwoopsRatherThanSpitsGoop.IsTakenBy(random)
                 ? DraygonPhaseSteps.LeftSwoopSetup(path)
-                : DraygonPhaseSteps.GoopSetup(DraygonPhaseSteps.RightSwoopSetup);
+                : DraygonPhaseSteps.GoopSetup(DraygonPhaseSteps.RightSwoopSetup());
             state.PassDirection = HorizontalDirection.Left;
             return;
         }
@@ -170,7 +170,7 @@ internal sealed class DraygonSwoops
         if (DraygonRandomDefinitions.SwoopsRatherThanSpitsGoop.IsTakenBy(choice))
         {
             body.Position = body.Position.WithWholeY(state.LeftSideReset.Y);
-            state.Step = DraygonPhaseSteps.RightSwoopSetup;
+            state.Step = DraygonPhaseSteps.RightSwoopSetup();
         }
         else
         {
@@ -240,7 +240,7 @@ internal sealed class DraygonSwoops
             return;
 
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
-        state.Step = DraygonPhaseSteps.RightSwoopSetup;
+        state.Step = DraygonPhaseSteps.RightSwoopSetup();
         state.PassDirection = HorizontalDirection.Right;
         body.Position = body.Position.WithWhole(state.LeftSideReset);
     }

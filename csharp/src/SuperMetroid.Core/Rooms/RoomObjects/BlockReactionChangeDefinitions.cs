@@ -14,25 +14,25 @@ internal static class BlockReactionChangeDefinitions
     internal const int ContactCrumbleDelay = 4;
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 1x1.</summary>
-    private static BlockReactionChange CrumbleReveal1x1 { get; } = new(1,
+    private static LastingBlockReactionChange CrumbleReveal1x1 { get; } = new(1,
     [
         new(BombedRevealObjectDraws.Family.Of(RoomObjectBombedRevealDraw.CrumbleSingle), 1),
     ]);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 2x1.</summary>
-    private static BlockReactionChange CrumbleReveal2x1 { get; } = new(1,
+    private static LastingBlockReactionChange CrumbleReveal2x1 { get; } = new(1,
     [
         new(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(BlockArrangement.Horizontal)), 1),
     ]);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 1x2.</summary>
-    private static BlockReactionChange CrumbleReveal1x2 { get; } = new(1,
+    private static LastingBlockReactionChange CrumbleReveal1x2 { get; } = new(1,
     [
         new(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(BlockArrangement.Vertical)), 1),
     ]);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 2x2.</summary>
-    private static BlockReactionChange CrumbleReveal2x2 { get; } = new(1,
+    private static LastingBlockReactionChange CrumbleReveal2x2 { get; } = new(1,
     [
         new(LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(BlockArrangement.Square)), 1),
     ]);
@@ -600,8 +600,8 @@ internal static class BlockReactionChangeDefinitions
         };
 
     /// <summary>The crumble reveal a normal bomb sets off for each crumble block, by its size.</summary>
-    internal static IReadOnlyDictionary<SpecialBlockReaction, BlockReactionChange> CrumbleReveal { get; } =
-        new Dictionary<SpecialBlockReaction, BlockReactionChange>
+    internal static IReadOnlyDictionary<SpecialBlockReaction, LastingBlockReactionChange> CrumbleReveal { get; } =
+        new Dictionary<SpecialBlockReaction, LastingBlockReactionChange>
         {
             [SpecialBlockReaction.RespawningCrumble1x1] = CrumbleReveal1x1,
             [SpecialBlockReaction.RespawningCrumble2x1] = CrumbleReveal2x1,

@@ -182,7 +182,7 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// The step the body runs each update before its three parts take the body's position, holding what its phase needs
     /// (<see cref="DraygonPhaseStep"/>). The fight starts in its opening delay.
     /// </summary>
-    internal DraygonPhaseStep Step { get; set => field = Ensure.NotNull(value); } = DraygonPhaseSteps.IntroInitialDelay;
+    internal DraygonPhaseStep Step { get; set => field = Ensure.NotNull(value); } = DraygonPhaseSteps.IntroInitialDelay();
 
     /// <summary>The body's phase, the one its step runs.</summary>
     public DraygonPhase Phase => Step.Phase;

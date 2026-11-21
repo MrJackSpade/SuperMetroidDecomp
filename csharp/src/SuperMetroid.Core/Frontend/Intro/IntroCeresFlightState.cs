@@ -113,59 +113,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Advances the music gate, camera, rear-view actors, title cadence, or final fade for one update.</summary>
     public void Step()
     {
-        switch (stage)
-        {
-            case InitialStage:
-                // The flight's music data, then its track, on the shared queue.
-                audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
-                audio.ScheduleMusic(
-                    MusicRequest.SelectTrack(CeresFlightSceneDefinitions.FlightSong),
-                    CeresFlightSceneDefinitions.MusicDelay);
-                stage = WaitingForMusicStage.Instance;
-                break;
-
-            case WaitingForMusicStage:
-                // The approach enables the display once the music queue is empty.
-                if (!audio.HasQueuedMusic)
-                {
-                    fade.Show(DisplayBrightness.Full);
-                    stage = FlyingIntoCameraStage.Instance;
-                }
-                break;
-
-            case FlyingIntoCameraStage:
-                if (zoom >= CeresFlightRenderDefinitions.FrontNarrowingFloor)
-                {
-                    zoom = zoom.Narrowed(CeresFlightRenderDefinitions.SlowZoomStep);
-                }
-                else
-                {
-                    SetupRearView();
-                }
-                break;
-
-            case RearViewStage rearView:
-                StepFlyingTowardCeres(rearView.Flash);
-                break;
-
-            case TitleStage title:
-                StepSpaceColonyTitle(title.Caption);
-                break;
-
-            case FadeOutStage fadeOut:
-                StepFadeOut(fadeOut.Caption);
-                break;
-
-            case StartGameStage starting:
-                // The handoff runs as the update after the screen goes black; it hands control to
-                // the new-game setup state, whose owner also performs this phase's Ceres checkpoint save.
-                stage = new FinishedStage(starting.Caption);
-                break;
-
-            case FinishedStage:
-                // The flight has ended; its owner moves to the new-game setup state.
-                break;
-        }
+        stage.Step(this);
 
         if (Phase == IntroCeresFlightPhase.FlyingIntoCamera)
             StepStarsAndBackground();
@@ -383,6 +331,10 @@ internal sealed class IntroCeresFlightState
     {
         /// <summary>The phase the stage is.</summary>
         internal abstract IntroCeresFlightPhase Phase { get; }
+
+        /// <summary>Runs one update of the stage.</summary>
+        /// <param name="flight">The flight the stage is of.</param>
+        internal abstract void Step(IntroCeresFlightState flight);
     }
 
     /// <summary>The flight's first update, which queues its music.</summary>
@@ -393,6 +345,17 @@ internal sealed class IntroCeresFlightState
 
         /// <inheritdoc/>
         internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.Initial;
+
+        /// <inheritdoc/>
+        internal override void Step(IntroCeresFlightState flight)
+        {
+            // The flight's music data, then its track, on the shared queue.
+            flight.audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
+            flight.audio.ScheduleMusic(
+                MusicRequest.SelectTrack(CeresFlightSceneDefinitions.FlightSong),
+                CeresFlightSceneDefinitions.MusicDelay);
+            flight.stage = WaitingForMusicStage.Instance;
+        }
     }
 
     /// <summary>The wait for the music queue to empty, before the display shows.</summary>
@@ -403,6 +366,16 @@ internal sealed class IntroCeresFlightState
 
         /// <inheritdoc/>
         internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.WaitForMusicQueue;
+
+        /// <inheritdoc/>
+        internal override void Step(IntroCeresFlightState flight)
+        {
+            // The approach enables the display once the music queue is empty.
+            if (flight.audio.HasQueuedMusic)
+                return;
+            flight.fade.Show(DisplayBrightness.Full);
+            flight.stage = FlyingIntoCameraStage.Instance;
+        }
     }
 
     /// <summary>The gunship's rush into the camera, the front stars streaming past.</summary>
@@ -413,6 +386,15 @@ internal sealed class IntroCeresFlightState
 
         /// <inheritdoc/>
         internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.FlyingIntoCamera;
+
+        /// <inheritdoc/>
+        internal override void Step(IntroCeresFlightState flight)
+        {
+            if (flight.zoom >= CeresFlightRenderDefinitions.FrontNarrowingFloor)
+                flight.zoom = flight.zoom.Narrowed(CeresFlightRenderDefinitions.SlowZoomStep);
+            else
+                flight.SetupRearView();
+        }
     }
 
     /// <summary>
@@ -429,6 +411,9 @@ internal sealed class IntroCeresFlightState
 
         /// <inheritdoc/>
         internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.FlyingTowardCeres;
+
+        /// <inheritdoc/>
+        internal override void Step(IntroCeresFlightState flight) => flight.StepFlyingTowardCeres(Flash);
     }
 
     /// <summary>
@@ -450,6 +435,9 @@ internal sealed class IntroCeresFlightState
     {
         /// <inheritdoc/>
         internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.SpaceColonyTitle;
+
+        /// <inheritdoc/>
+        internal override void Step(IntroCeresFlightState flight) => flight.StepSpaceColonyTitle(Caption);
     }
 
     /// <summary>The fade to black under the caption.</summary>
@@ -458,6 +446,9 @@ internal sealed class IntroCeresFlightState
     {
         /// <inheritdoc/>
         internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.FadeOut;
+
+        /// <inheritdoc/>
+        internal override void Step(IntroCeresFlightState flight) => flight.StepFadeOut(Caption);
     }
 
     /// <summary>The update after the screen goes black, which hands over to Ceres.</summary>
@@ -466,6 +457,13 @@ internal sealed class IntroCeresFlightState
     {
         /// <inheritdoc/>
         internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.StartGameAtCeres;
+
+        /// <inheritdoc/>
+        /// <remarks>
+        /// The handoff runs as the update after the screen goes black; it hands control to the new-game setup state, whose
+        /// owner also performs this phase's Ceres checkpoint save.
+        /// </remarks>
+        internal override void Step(IntroCeresFlightState flight) => flight.stage = new FinishedStage(Caption);
     }
 
     /// <summary>The flight has ended.</summary>
@@ -474,5 +472,11 @@ internal sealed class IntroCeresFlightState
     {
         /// <inheritdoc/>
         internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.Finished;
+
+        /// <inheritdoc/>
+        /// <remarks>The flight has ended; its owner moves to the new-game setup state.</remarks>
+        internal override void Step(IntroCeresFlightState flight)
+        {
+        }
     }
 }

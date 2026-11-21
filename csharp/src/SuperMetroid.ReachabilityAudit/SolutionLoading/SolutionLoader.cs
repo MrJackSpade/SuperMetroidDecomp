@@ -95,4 +95,9 @@ internal static class SolutionLoader
                 $"{compileErrors.Count} compile errors:\n" + string.Join('\n', compileErrors.Distinct(StringComparer.Ordinal)));
         return new LoadedSolution(repositoryRoot, [.. compiled.Select(result => result.Compilation)]);
     }
+
+    /// <summary>The names of the projects of <paramref name="solution"/>, as <see cref="CompileAsync"/> compiled it, that have compile errors.</summary>
+    public static IReadOnlyList<string> ProjectsWithErrors(LoadedSolution solution) =>
+        [.. solution.Projects.Where(project => Errors.TryGetValue(project.Compilation, out var errors) && errors.Count > 0)
+            .Select(project => project.Project.Name)];
 }

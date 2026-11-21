@@ -18,11 +18,6 @@ using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
-/// <summary>A frontend floor sheet and how it composes from the stock artwork (#2563).</summary>
-/// <param name="Sheet">The installed sheet.</param>
-/// <param name="Compose">How the sheet composes from the stock artwork.</param>
-internal sealed record FrontendFloor(SpriteSheetId Sheet, Func<ScreenTileSources, ComposedSpriteSheet> Compose);
-
 /// <summary>
 /// Composes the frontend's turning floors once (#1467): the title's floor and the Baby Metroid's poses drawn over it, the Ceres
 /// cinematics' floor in each of their shots, and each ending shot's floor. Each is the whole floor the cartridge's map and

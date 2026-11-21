@@ -117,7 +117,7 @@ internal sealed class BlueDoorCapObject : DoorCapObject
     /// How a blue cap came to be (#2560): a closed choice of a cap a shot opened, which carries the room's shot-cap rule, a cap
     /// closing behind Samus, and a cap another door turned into, which carries the door it stands in.
     /// </summary>
-    private abstract record CapOrigin
+    internal abstract record CapOrigin
     {
         /// <summary>Closes the hierarchy to the origins declared here.</summary>
         private CapOrigin()

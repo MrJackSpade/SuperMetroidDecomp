@@ -16,8 +16,8 @@ internal abstract record SamusArmCannonCover
     /// <summary>The closed cover.</summary>
     internal static SamusArmCannonCover Closed { get; } = new ClosedCover();
 
-    /// <summary>The open cover.</summary>
-    internal static SamusArmCannonCover Open { get; } = new OpenCover();
+    /// <summary>The open cover, which an opening reaches.</summary>
+    private static SamusArmCannonCover Open { get; } = new OpenCover();
 
     /// <summary>The picture the cover shows, or null while it is closed.</summary>
     internal abstract SamusArmCannonCoverFrame? Shown { get; }

@@ -479,7 +479,8 @@ internal static class NativeSnapshotImport
         (openOrOpening, transitioning, frame) switch
         {
             (false, false, null) => SamusArmCannonCover.Closed,
-            (true, false, SamusArmCannonCoverFrame.FullyOpen) => SamusArmCannonCover.Open,
+            // An open cover is where an opening's fully open picture moves on to.
+            (true, false, SamusArmCannonCoverFrame.FullyOpen) => new SamusArmCannonCover.Opening(SamusArmCannonCoverFrame.FullyOpen).Advanced(),
             (true, true, { } opening) => new SamusArmCannonCover.Opening(opening),
             (false, true, { } closing) => new SamusArmCannonCover.Closing(closing),
             _ => throw new InvalidDataException(

@@ -221,7 +221,7 @@ while it binds. The runner reads it from the compilation's own diagnostics, with
 options like any other, and applies the repository's fixer for it. Such a rule is also absent from `WarningsAsErrors`
 in `csharp/Directory.Build.props`; since the compiler computes it during binding anyway, `none` saves the build its
 reporting, not its analysis. A project that compiled when the run started and has compiler errors after a pass is
-recorded as a problem, naming them; its files are left alone from then on and the run goes on.
+recorded as a problem, naming them; its findings are fixed all the same and the run goes on.
 
 Roslyn skips an analyzer only when every rule it reports is off. A repository analyzer that reported a moved rule
 beside one that stays an error would still run in every build, so a moved rule gets an analyzer of its own: SME6391 is
@@ -249,11 +249,18 @@ one configuration (Debug), so a suppression whose range or member holds code ano
 inactive `#if` branch) is kept.
 
 It is a runner rather than `dotnet format` because of shared files. A file compiled into several projects
-(`csharp/test-support` through `.projitems`, or a `<Compile Link>`) is edited only where every project compiling it
-reports the same finding at the same place, and not at all while one of them has a compiler error. Where the projects
-disagree about a file's unused usings, only the usings all of them report are removed. `dotnet format` judges a shared
-file from one project and would remove usings another project needs. Disagreeing findings are left and counted in the
-commit body.
+(`csharp/test-support` through `.projitems`, or a `<Compile Link>`) is decided from every project that compiles it and
+reports the rule there (one without the rule's analyzer, or outside the rule's scope, has no say): a finding is code
+none of them needs, so a rule's findings in the file are those every one of them reports at the same place. A finding
+only some of them report is code another of them needs, and no finding. Where their unused usings differ, as where
+DesktopVerification, IntegrationVerification and RenderVerification have global usings of `SuperMetroid.Core.Audio`,
+`.Compatibility` and `.Spatial` that Verification lacks, the usings all of them report are removed and the others are
+usings a project needs. `dotnet format` judges a shared file from one project and would remove usings another project
+needs. A project with compiler errors decides like any other, and its fix is applied all the same (#2607): the build
+then fails there, and the cleanup commits it as `Cleanup (does not build)`. No finding is held back and no commit says
+that any was left: until #2607, findings in a shared file that not every project reported, and every finding in a file
+of a project that did not compile, were left in place and counted in the commit body ("Left in files compiled by several
+projects that do not all report them, or by a project that does not compile: IDE0005 240").
 
 The runner repeats its analysis until a pass finds nothing (one rule per file per pass, since other spans go stale
 once a file changes). A file that returns to an earlier text, or more than 20 passes, stops the loop: the run keeps
@@ -272,11 +279,10 @@ made each fixer bind a new compilation of its project, file after file. The comp
 several files runs while the pass goes on, and its problems are recorded in their place when the pass ends.
 
 A fix may change several files, such as IDE0032 deleting a field in one part of a partial type and rewriting its
-property in another. The runner accepts it when every file it changes is compiled by analyzed projects that have no
-compiler errors (otherwise its findings are kept and counted), and when no other fix in the same pass touched one of
-those files (otherwise it waits for the next pass, since its spans would be stale). Every project compiling one of
-its files that no longer compiles afterwards is recorded as a problem naming the fix, and the fix is kept. The cycle and pass checks cover every
-changed file, and the summary lists them all.
+property in another. The runner applies it unless another fix in the same pass touched one of those files, when it
+waits for the next pass, since its spans would be stale; whether the projects compiling its files compile does not
+matter. Every project compiling one of its files that does not compile afterwards is recorded as a problem naming the
+fix, and the fix stays applied. The cycle and pass checks cover every changed file, and the summary lists them all.
 
 A fix may also add, rename or delete files: SME6400 moves a type into a new file, SME6401 renames a file after its type,
 and SME6360 merges a type's hand-written parts into one and deletes the files it empties. The runner adds a new file to
@@ -319,6 +325,13 @@ file and a file of top-level statements; `SME6400.breaking` a file-local type an
 constructor's type body, a write through a receiver with effects left as written, an assignment used with the field's
 type, and a virtual method's parameter taken out with its signature; `IDE0052.unread-parameter` (above) a member left reading no
 instance data.
+
+The fixtures of #2607 hold the two kinds of finding the runner used to leave and count: `IDE0005.shared` a file two
+projects compile, one of which imports a namespace globally (`Fixture.csproj` and `Other/Other.csproj`, as
+DesktopVerification and Verification share test-support): the using neither needs goes, and the using only the other
+needs stays, as no finding; `IDE0005.does-not-compile` a project with a compiler error whose unnecessary using goes all
+the same, its build failing on the error (CS0029). A fixture may hold several projects; every project's `bin/` and
+`obj/` are left out of the comparison.
 
 `tools/cleanup/prune-fixtures/<name>/` confirms the dead-code prune the same way: `input/` is a small repository whose
 `csharp/Fixture.slnx` lists projects named like the shipped, host and verification projects (the reachability audit

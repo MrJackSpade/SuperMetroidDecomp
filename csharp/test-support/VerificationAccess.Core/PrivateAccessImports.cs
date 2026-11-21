@@ -263,7 +263,6 @@ global using static SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueBehavio
 global using static SuperMetroid.Core.Areas.Tourian.TourianStatueActorsPrivateAccess;
 global using static SuperMetroid.Core.Areas.Tourian.TourianUnlockBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Assets.GameplayShadingPrivateAccess;
-global using static SuperMetroid.Core.Assets.PictureShadeFadePrivateAccess;
 global using static SuperMetroid.Core.Assets.PictureShadingPrivateAccess;
 global using static SuperMetroid.Core.Audio.AudioQueuesPrivateAccess;
 global using static SuperMetroid.Core.Audio.ClipAudioBackendPrivateAccess;

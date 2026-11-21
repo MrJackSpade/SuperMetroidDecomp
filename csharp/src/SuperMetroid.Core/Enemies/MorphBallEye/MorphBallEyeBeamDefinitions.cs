@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Compatibility;
-namespace SuperMetroid.Core.Enemies.MorphBallEye;
+using SuperMetroid.Core.Assets;namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>The Morph Ball eye's beam's colour and width, as its behaviour writes them.</summary>
 internal static class MorphBallEyeBeamDefinitions

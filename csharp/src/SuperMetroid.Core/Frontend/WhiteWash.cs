@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Compatibility;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>

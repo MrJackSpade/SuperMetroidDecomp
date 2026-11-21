@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Spatial;
-using SuperMetroid.AssetExtraction.Artwork;
-
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>The extents of the installed opening artwork the import composes the opening's pictures from.</summary>

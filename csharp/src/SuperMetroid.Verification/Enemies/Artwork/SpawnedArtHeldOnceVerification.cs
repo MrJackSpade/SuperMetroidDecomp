@@ -5,8 +5,6 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Compatibility;
-
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>

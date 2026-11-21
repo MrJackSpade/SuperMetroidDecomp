@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Compatibility;
-
 namespace SuperMetroid.Core.Samus.Colours;
 
 /// <summary>Immutable game data shared by Samus shades.</summary>

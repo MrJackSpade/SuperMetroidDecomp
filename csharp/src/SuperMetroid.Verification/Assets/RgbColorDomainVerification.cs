@@ -4,7 +4,6 @@ using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Frontend;
 
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>

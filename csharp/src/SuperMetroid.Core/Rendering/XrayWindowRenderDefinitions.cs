@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Compatibility;
-
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Where the X-ray beam starts relative to Samus, its tint and the backdrop it shows.</summary>

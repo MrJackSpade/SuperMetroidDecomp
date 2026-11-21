@@ -2,7 +2,6 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

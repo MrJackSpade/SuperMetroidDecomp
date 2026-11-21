@@ -339,9 +339,13 @@ public sealed class SamusSuitPickupState
         _lightBeamRight = edges.Right;
     }
 
-    /// <summary>Screen column <paramref name="column"/>, which must lie across the screen's width.</summary>
+    /// <summary>
+    /// The screen column an edge at <paramref name="column"/> stands at: the game keeps each edge as one byte of its
+    /// window, so an edge lies across the screen's 256-pixel row, and a column past either side would wrap round it as
+    /// that byte does. The stages' arithmetic keeps every edge inside the row (#2553).
+    /// </summary>
     private static int ScreenColumn(int column) =>
-        Ensure.BetweenInclusive(0, SuitPickupBeamDefinitions.RightmostColumn, column);
+        ((column % ScreenGeometry.ScreenWidthPixels) + ScreenGeometry.ScreenWidthPixels) % ScreenGeometry.ScreenWidthPixels;
 
     /// <summary>Raises each channel toward the white reveal colour, stopping at white's level.</summary>
     private void AdvanceColorTowardWhite()

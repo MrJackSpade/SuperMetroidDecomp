@@ -470,11 +470,11 @@ public sealed class SamusState
     /// </summary>
     public SamusBombJump? BombJump { get; set; }
 
-    /// <summary>True for the bomb jump's one-frame start, which sets her velocity (<see cref="SamusMovementOwner.BombJump"/>).</summary>
-    public bool BombJumpStarting { get; set; }
-
-    /// <summary>True while the bomb jump moves Samus along its rising arc (<see cref="SamusMovementOwner.BombJump"/>).</summary>
-    public bool BombJumpActive { get; set; }
+    /// <summary>
+    /// The phase of the bomb jump that holds her movement (<see cref="SamusMovementOwner.BombJump"/>): its one-update start
+    /// or its rise, or none while no bomb jump moves her.
+    /// </summary>
+    public SamusBombJumpPhase? BombJumpPhase { get; set; }
 
     /// <summary>The bomb jump locked her pose input; independent of who moves her now.</summary>
     public bool BombJumpPoseInputLocked { get; set; }

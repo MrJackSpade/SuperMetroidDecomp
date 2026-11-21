@@ -467,7 +467,7 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>Runs Samus's movement while <see cref="SamusMovementOwner.BombJump"/> holds it.</summary>
-    private void RunBombJump(SamusControlFrame frame, SamusState samus, RoomScope room)
+    private void RunBombJump(SamusControlFrame frame, SamusState samus, RoomScope room, SamusBombJumpPhase bombJump)
     {
         // The retained pose stays while input is locked; the late rise can restore input
         // before the bomb jump lets go of her movement, allowing a matched cancellation.
@@ -479,12 +479,7 @@ internal sealed class SamusFramePhases
         // The bomb jump's movement chooses its gravity from the medium Samus is in, water, lava or air, as
         // knockback and the shinespark do, from her pose and place as the input phase leaves them.
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-        frame.Record(samus.BombJumpStarting
-            ? SamusBombJumpMovement.Start(samus)
-            : SamusBombJumpMovement.Step(
-                room.SamusTerrain,
-                samus,
-                _clock.Counter));
+        frame.Record(bombJump.Run(room.SamusTerrain, samus, _clock.Counter));
     }
 
     /// <summary>Runs Samus's movement while <see cref="SamusMovementOwner.CrystalFlash"/> holds it.</summary>
@@ -600,10 +595,10 @@ internal sealed class SamusFramePhases
             return;
         }
         // Arming the bomb jump takes both her pose input and her movement.
-        if (samus.BombJumpStarting || samus.BombJumpActive)
+        if (samus.BombJumpPhase is { } bombJump)
         {
             frame.SampleMovementOwner(SamusMovementOwner.BombJump);
-            RunBombJump(frame, samus, room);
+            RunBombJump(frame, samus, room, bombJump);
             return;
         }
         // Crystal Flash moves her through its three phases and locks her pose input. Mother

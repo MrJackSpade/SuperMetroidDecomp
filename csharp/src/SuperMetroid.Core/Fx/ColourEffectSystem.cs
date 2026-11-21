@@ -48,29 +48,28 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
 
     /// <summary>
     /// The sound requests the colour effects' sounds join as they make them (#2057, #2544): the update's of the runtime
-    /// running them, given as the room's effects are built. A frontend screen's effects make no sound
-    /// (<see cref="ForScreen"/>).
+    /// running them, given as the room's effects are built. A frontend screen's effects have none: a screen starts only
+    /// effects that make no sound (<see cref="ForScreen"/>, <see cref="StartScreen"/>).
     /// </summary>
-    private readonly GameplaySoundRequests sounds;
+    private readonly GameplaySoundRequests? sounds;
 
     /// <summary>
     /// Creates one room's colour effects, none running yet, over the session's lasting state, their sounds joining
     /// <paramref name="sounds"/>.
     /// </summary>
     /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
-    /// <param name="sounds">The update's sound requests of the runtime running the effects.</param>
-    private ColourEffectSystem(ColourEffectSessionState session, GameplaySoundRequests sounds)
+    /// <param name="sounds">The update's sound requests of the runtime running the effects, or none for a frontend screen's.</param>
+    private ColourEffectSystem(ColourEffectSessionState session, GameplaySoundRequests? sounds)
     {
         _session = Ensure.NotNull(session);
-        this.sounds = Ensure.NotNull(sounds);
+        this.sounds = sounds;
     }
 
     /// <summary>
     /// A frontend screen's colour effects, none running yet (#2223, #2544): a screen shares no session with gameplay, and
     /// its effects make no sound, which <see cref="StartScreen"/> checks of each, so the effects have no sounds to join.
     /// </summary>
-    internal static ColourEffectSystem ForScreen() =>
-        new(new ColourEffectSessionState(), new GameplaySoundRequests(new ScreenWithoutSounds()));
+    internal static ColourEffectSystem ForScreen() => new(new ColourEffectSessionState(), sounds: null);
 
     /// <summary>Whether the colour effects run at all, checked first each update; it lives on the session.</summary>
     public bool ColourEffectsRun => _session.ColourEffectsRun;
@@ -364,7 +363,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
             if (ColourEffectHeatData.HeatDamageSound.IsDue(frameCounter) &&
                 burned.Health > ColourEffectHeatData.DamageSoundEnergyThreshold)
             {
-                sounds.QueueSound(RoomSound.IncrementalEnergy, ColourEffectHeatData.DamageSoundPriority);
+                sounds?.QueueSound(RoomSound.IncrementalEnergy, ColourEffectHeatData.DamageSoundPriority);
             }
         }
 
@@ -385,7 +384,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
 
     /// <summary>What <c>CarryOut</c> does on each <see cref="ColourEffectCue"/>, built once (#2553).</summary>
     private static ColourEffectCueReactions<ColourEffectSystem> CarryOutReactions { get; } = new(
-        QueueSound: static (queueSound, owner) => owner.sounds.QueueSound(queueSound.Sound, ColourEffectSoundPriorities.CueSound),
+        QueueSound: static (queueSound, owner) => owner.sounds?.QueueSound(queueSound.Sound, ColourEffectSoundPriorities.CueSound),
         PublishHeatPhase: static (publishHeatPhase, owner) => owner._session.PublishedHeatPhase = publishHeatPhase.Phase);
 
     /// <summary>
@@ -476,17 +475,5 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <param name="Effect">The effect.</param>
     /// <param name="Frame">The frame it shows.</param>
     private readonly record struct ShowingEffect(RoomColourEffect Effect, ColourEffectFrame Frame);
-
-    /// <summary>
-    /// The sound queues of a frontend screen's colour effects, which make no sound (#2544): <see cref="StartScreen"/> starts
-    /// no effect that raises one, so no request ever reaches these.
-    /// </summary>
-    private sealed class ScreenWithoutSounds : IGameplaySoundQueue
-    {
-        /// <inheritdoc/>
-        /// <exception cref="InvalidOperationException">Always: a frontend screen's colour effect made a sound, which none makes.</exception>
-        public SoundQueueAdmission QueueSound(SoundRequest request) =>
-            throw new InvalidOperationException($"A frontend screen's colour effect requested {request}, which no screen's effect makes.");
-    }
 
 }

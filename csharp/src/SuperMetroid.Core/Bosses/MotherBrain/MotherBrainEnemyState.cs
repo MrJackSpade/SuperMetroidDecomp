@@ -298,21 +298,21 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public BossCountdown AttackCooldown { get; } = new();
 
     /// <summary>
-    /// Number of live Mother Brain bombs. Phase two refuses another bomb when this is at
-    /// least one; <see cref="RecordBombSpawned"/> and <see cref="RecordBombRemoved"/> keep it.
+    /// Number of Mother Brain bombs counted at their spawn and not yet deleted by their own update. Phase two refuses
+    /// another bomb when this is at least one; <see cref="RecordBombSpawned"/> and <see cref="RecordBombRemoved"/> keep it.
     /// </summary>
-    public int BombCounter { get; private set; }
+    public int BombCounter => _countedBombs.Count;
+
+    /// <summary>The bombs counted at their spawn that their own update has not deleted yet.</summary>
+    private readonly HashSet<MotherBrainBombState> _countedBombs = [];
 
     /// <summary>Counts a bomb the shared bomb setup has just spawned.</summary>
-    internal void RecordBombSpawned() => BombCounter++;
+    /// <param name="bomb">The spawned bomb's own state.</param>
+    internal void RecordBombSpawned(MotherBrainBombState bomb) => _countedBombs.Add(bomb);
 
-    /// <summary>
-    /// Uncounts a bomb that has just been deleted. Every deleted bomb was counted when it
-    /// spawned, so the count is positive here; a zero count means a bomb was deleted twice.
-    /// </summary>
-    internal void RecordBombRemoved() => BombCounter = BombCounter > 0
-        ? BombCounter - 1
-        : throw new InvalidOperationException("A Mother Brain bomb was deleted while none was counted.");
+    /// <summary>Uncounts a bomb its own update has just deleted, which its spawn counted.</summary>
+    /// <param name="bomb">The deleted bomb's own state.</param>
+    internal void RecordBombRemoved(MotherBrainBombState bomb) => _countedBombs.Remove(bomb);
 
     /// <summary>
     /// The body's target X, used while the bomb decision walks the body toward

@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public static class SamusBombJumpMovement
 {
     /// <summary>Runs the bomb jump's setup, which initializes velocity but deliberately moves zero pixels.</summary>
-    public static BombJumpMovementResult Start(SamusState samus)
+    internal static BombJumpMovementResult Start(SamusState samus)
     {
         Ensure.NotNull(samus);
         if (samus.BombJump is not { IsArmed: true })
@@ -28,12 +28,11 @@ public static class SamusBombJumpMovement
         // the input phase, so this launch replaces only the launch speed/direction.
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(
             SamusVerticalMotion.BombJump(samus.LiquidPhysics.DetermineMovementMedium(samus)));
-        samus.BombJumpStarting = false;
-        samus.BombJumpActive = true;
+        samus.BombJumpPhase = SamusBombJumpPhase.Rising;
         return new BombJumpMovementResult(null);
     }
 
-    /// <summary>Runs one bomb-jump frame.</summary>
+    /// <summary>Runs one update of the bomb jump's rise, which only its rising phase runs.</summary>
     internal static BombJumpMovementResult Step(
         SamusTerrain terrain,
         SamusState samus,
@@ -41,8 +40,6 @@ public static class SamusBombJumpMovement
     {
         Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
-        if (!samus.BombJumpActive)
-            throw new InvalidOperationException("Bomb-jump movement requires an active jump.");
 
         if (samus.BombJump is not { } request)
             return End(samus, null);
@@ -124,8 +121,7 @@ public static class SamusBombJumpMovement
         BlockMoveResult? vertical)
     {
         samus.BombJump = null;
-        samus.BombJumpStarting = false;
-        samus.BombJumpActive = false;
+        samus.BombJumpPhase = null;
         samus.BombJumpPoseInputLocked = false;
         return new BombJumpMovementResult(vertical);
     }

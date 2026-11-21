@@ -679,8 +679,7 @@ internal static class SamusPoseMetadata
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         samus.BombJump = (samus.BombJump ?? throw new InvalidOperationException("Only a published bomb jump can be armed.")).Arm();
-        samus.BombJumpStarting = true;
-        samus.BombJumpActive = false;
+        samus.BombJumpPhase = SamusBombJumpPhase.Starting;
         samus.BombJumpPoseInputLocked = true;
     }
 

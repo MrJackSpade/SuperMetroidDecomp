@@ -120,14 +120,11 @@ internal sealed class KraidRise
     private void ShowKraidRoomBackdrop() => _presentation.Appearance.ShowKraidBackdrop();
 
     /// <summary>
-    /// Brings Kraid's grown body in front of the room's sprites before his second phase. Only a risen
-    /// body grows; a defeated room's hidden body never reaches growth.
+    /// Brings Kraid's grown body in front of the room's sprites before his second phase, whatever it showed before, as the
+    /// game's growth sets the layer outright.
     /// </summary>
-    /// <exception cref="InvalidOperationException">His body is not behind the sprites.</exception>
     private static void BringKraidBodyInFront(KraidEnemyState state) =>
-        state.BodyAppearance = state.BodyAppearance == KraidBodyAppearance.BehindSprites
-            ? KraidBodyAppearance.InFrontOfSprites
-            : throw new InvalidOperationException($"Kraid's growth reached a body that appears {state.BodyAppearance}.");
+        state.BodyAppearance = KraidBodyAppearance.InFrontOfSprites;
 
     /// <summary>Restores the grown-body thinking state after an attack.</summary>
     private void SetupKraidSecondPhaseThinking(RoomEnemyPlace body, KraidEnemyState state)

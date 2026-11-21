@@ -36,7 +36,7 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Body.AdvanceMotherBrainBodyAnimation(Encounter, context.Samus);
 
     /// <summary>The body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.BodyShot ? Species.Combat.BodyShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.BodyShot ? (field ??= Species.Combat.BodyShotReactionOf(this)) : base.ShotReaction;
 
     /// <summary>
     /// Makes a dud of a bomb that selects the body's shot reaction, before the ignoring check: the bomb's explosion is

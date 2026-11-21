@@ -96,9 +96,11 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// </summary>
     public FileSelectMenuOutcome? Outcome { get; private set; }
 
-    /// <summary>The selected save slot, which a requested game always names (#1976).</summary>
-    /// <exception cref="InvalidDataException">A command row is selected, which names no save slot.</exception>
-    public SaveSlot SelectedSaveSlot => FileSelectItemRows.SaveSlotOf(SelectedItem);
+    /// <summary>
+    /// The save slot whose row was confirmed, which a requested game names (#1976): the slot row's own slot, kept as the
+    /// menu moves on to the helmet turn.
+    /// </summary>
+    public SaveSlot SelectedSaveSlot { get; private set; }
 
     /// <summary>Whether the selected A-C slot holds a valid save.</summary>
     public bool SelectedSlotContainsSave =>
@@ -325,8 +327,9 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
             return;
 
-        if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out _))
+        if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out SaveSlot chosen))
         {
+            SelectedSaveSlot = chosen;
             audio.QueueSound(SamusSound.FileSelected, priority: SoundRequestPriority.Normal);
             // The menu moves on to the helmet turn, which turns only the selected helmet.
             selectedHelmet.Restart();
@@ -439,18 +442,20 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         MoveSubmenuSelection(FileSelectDataNavigation.MoveSourceOrClear(
             submenuSelection, SaveSlots.All.Where(slot => saveSlots[slot] is not null).ToHashSet(), pressed));
 
-        if ((pressed & ControllerButton.B) != ControllerButton.None ||
-            ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None && submenuSelection == FileSelectItem.Exit))
+        // The page's rows are its slots and Exit: confirming the row that names no slot leaves the page.
+        bool confirmed = (pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None;
+        bool selectsSlot = FileSelectItemRows.TryGetSaveSlot(submenuSelection, out SaveSlot source);
+        if ((pressed & ControllerButton.B) != ControllerButton.None || (confirmed && !selectsSlot))
         {
             QueueCursorSound();
             Phase = new FileSelectPhase.FadeOutToMain();
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
+        if (!confirmed)
             return;
 
         QueueCursorSound();
-        operationSourceSlot = FileSelectItemRows.SaveSlotOf(submenuSelection);
+        operationSourceSlot = source;
         if (mode == FileSelectDataMode.Copy)
         {
             copyDestination = FileCopyDestinationRow.FirstFrom(operationSourceSlot);

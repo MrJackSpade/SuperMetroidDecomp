@@ -47,21 +47,24 @@ internal sealed class MotherBrainCombat
     }
 
     /// <summary>Runs the head's reaction to a bomb that selects its shot reaction.</summary>
-    internal void ReactToMotherBrainHeadBomb(EnemyBombContext c) =>
-        ResolveMotherBrainHeadNormalBomb(c.Occupant, c.PlacedBomb);
+    /// <param name="state">The encounter the head is part of.</param>
+    /// <param name="c">The bomb's hit.</param>
+    internal void ReactToMotherBrainHeadBomb(MotherBrainEnemyState state, EnemyBombContext c) =>
+        ResolveMotherBrainHeadNormalBomb(state, c.Occupant, c.PlacedBomb);
 
     /// <summary>
     /// The body's shot response for each combat phase: the struck rectangle's own reaction, as the cartridge runs the
     /// rectangle's shot routine for the body. Her brain's rectangle, which the body shows before its first animation
     /// (#2220), runs the head's reaction on the body; every body rectangle's is the dud shot.
     /// </summary>
-    internal EnemyShotReaction BodyShotReaction => field ??= new()
+    /// <param name="body">Her body, whose encounter the brain's reaction runs in.</param>
+    internal EnemyShotReaction BodyShotReactionOf(MotherBrainEntity body) => new()
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
             if (c.HitboxShot == MotherBrainReactions.HeadShot)
             {
-                ResolveMotherBrainHeadShot(c.Occupant, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
+                ResolveMotherBrainHeadShot(body.Encounter, c.Occupant, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
                 return true;
             }
             // A Super Missile still shakes the room first.
@@ -72,11 +75,12 @@ internal sealed class MotherBrainCombat
     };
 
     /// <summary>The head's shot response for each combat phase.</summary>
-    internal EnemyShotReaction HeadShotReaction => field ??= new()
+    /// <param name="head">Her head, whose encounter the reaction runs in.</param>
+    internal EnemyShotReaction HeadShotReactionOf(MotherBrainEntity head) => new()
     {
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            ResolveMotherBrainHeadShot(c.Occupant, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
+            ResolveMotherBrainHeadShot(head.Encounter, c.Occupant, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
             return true;
         },
     };
@@ -89,6 +93,7 @@ internal sealed class MotherBrainCombat
     /// which never deletes it.
     /// </summary>
     private void ResolveMotherBrainHeadShot(
+        MotherBrainEnemyState state,
         RoomEnemyOccupant struck,
         SamusProjectileOccupant held,
         SamusProjectileSystem projectiles,
@@ -97,7 +102,6 @@ internal sealed class MotherBrainCombat
     {
         RoomEnemyPlace head = struck.Place;
         SamusProjectile projectile = held.Projectile;
-        MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head);
         SamusProjectileFamily family = projectileType.Family;
         if (state.Form != MotherBrainForm.Glass)
         {
@@ -189,11 +193,10 @@ internal sealed class MotherBrainCombat
     /// her later forms take the common no-death bomb damage. The frame-hitbox collision has already marked the bomb.
     /// </summary>
     private void ResolveMotherBrainHeadNormalBomb(
+        MotherBrainEnemyState state,
         RoomEnemyOccupant head,
         SamusBombOccupant bomb)
     {
-        MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head.Place);
-
         if (state.Form == MotherBrainForm.Glass)
             return;
 

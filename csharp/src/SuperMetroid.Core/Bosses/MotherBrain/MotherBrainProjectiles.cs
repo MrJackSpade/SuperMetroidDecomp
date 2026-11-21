@@ -317,7 +317,7 @@ internal sealed class MotherBrainProjectiles
                 }
 
                 Position16<RoomPixels> position = bomb.Position.Whole;
-                DeleteMotherBrainBomb(bomb, state);
+                DeleteMotherBrainBomb(bomb, state, Bombs.Of(bomb));
                 dependencies.Projectiles.SpawnDustOrExplosion(position, DustExplosionAnimation.SmallDustCloud);
                 dependencies.DeathsAndDrops.SpawnEnemyDropFromDefinition(
                     position,
@@ -336,7 +336,7 @@ internal sealed class MotherBrainProjectiles
         {
             Position16<RoomPixels> impact = bomb.Position.Whole;
             int afterburnCount = Bombs.Of(bomb).Afterburns;
-            DeleteMotherBrainBomb(bomb, state);
+            DeleteMotherBrainBomb(bomb, state, Bombs.Of(bomb));
 
             // The bomb is gone before its afterburns and explosion appear, so they can take its place among the room's
             // projectiles this update. Its afterburn pair flies left and right.
@@ -678,9 +678,10 @@ internal sealed class MotherBrainProjectiles
     /// <summary>Deletes a bomb when its lifetime or collision ends.</summary>
     private static void DeleteMotherBrainBomb(
         EnemyProjectile bomb,
-        MotherBrainEnemyState state)
+        MotherBrainEnemyState state,
+        MotherBrainBombState bombState)
     {
-        state.RecordBombRemoved();
+        state.RecordBombRemoved(bombState);
         bomb.Velocity = PixelVelocity<RoomPixels>.Zero;
         bomb.Delete();
     }

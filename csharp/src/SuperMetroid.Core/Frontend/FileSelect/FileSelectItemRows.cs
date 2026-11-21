@@ -49,9 +49,4 @@ internal static class FileSelectItemRows
         [FileSelectItem.SlotB] = SaveSlot.B,
         [FileSelectItem.SlotC] = SaveSlot.C,
     }.ToFrozenDictionary();
-
-    /// <summary>The save slot an item selects.</summary>
-    /// <exception cref="InvalidDataException">The item is not a save slot.</exception>
-    internal static SaveSlot SaveSlotOf(FileSelectItem item) =>
-        TryGetSaveSlot(item, out SaveSlot slot) ? slot : throw new InvalidDataException($"File-select item {item} is not a save slot.");
 }

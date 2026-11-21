@@ -84,11 +84,12 @@ public sealed class FileSelectMapNavigation
         }
     }
 
-    /// <summary>Called after the frontend finishes the return-to-area sequence.</summary>
+    /// <summary>
+    /// Shows the area view again, with no room window: the frontend runs it once it finishes the return-to-area sequence a
+    /// cancel in the room view requests.
+    /// </summary>
     public void CompleteAreaReturn()
     {
-        if (Phase != FileSelectMapNavigationPhase.AreaReturnRequested)
-            throw new InvalidOperationException("No return-to-area transition is pending.");
         Window = null;
         Phase = FileSelectMapNavigationPhase.Area;
     }

@@ -85,16 +85,12 @@ public sealed class KraidEnemyState
     /// </summary>
     public int EjectionLimitY { get; internal set; }
     /// <summary>
-    /// Whether his mouth's reopens are armed (#2400): a charged body hit that started his eye glow arms them, and only a
-    /// clear of his mouth disarms them.
+    /// Whether his mouth reopens as it closes (#2400): a mouth hit while reopens are pending marks it, and a closing mouth
+    /// that finds it spends one pending reopen. A charged body hit that started his eye glow arms the reopens, and only a
+    /// clear of his mouth, which forgets the mark too, disarms them, so his reopens are armed exactly while any is pending
+    /// and a marked mouth always has one to spend.
     /// </summary>
-    internal bool MouthReopenArmed { get; set; }
-
-    /// <summary>
-    /// Whether his mouth reopens as it closes (#2400): a mouth hit while the reopens are armed marks it, and a closing mouth
-    /// that finds it removes one pending reopen.
-    /// </summary>
-    internal bool MouthReopenMarked { get; set; }
+    internal bool MouthReopenMarked { get; private set; }
 
     /// <summary>
     /// Gets the number of mouth reopens still pending, from zero to <see cref="ArmedMouthReopens"/>. A charged body hit arms them all; each reopen
@@ -192,20 +188,34 @@ public sealed class KraidEnemyState
     /// <summary>Arms <see cref="ArmedMouthReopens"/> mouth reopens, whatever number of them was still pending (#1890).</summary>
     internal void ArmMouthReopens() => PendingMouthReopens = ArmedMouthReopens;
 
+    /// <summary>A hit on his mouth marks it to reopen as it closes, while his reopens are armed (#2400).</summary>
+    internal void MarkMouthReopen()
+    {
+        if (PendingMouthReopens != 0)
+            MouthReopenMarked = true;
+    }
+
     /// <summary>
-    /// Removes one pending mouth reopen (#1627). Kraid removes one only while the mouth's reopen is pending, which a
-    /// mouth hit marks only after arming them, and the removal that leaves none clears the mouth, so a reopen is
-    /// always pending when one is removed.
+    /// His mouth closes (#1627): a marked mouth spends one pending reopen, and while any remain he waits to glow his eye
+    /// again; otherwise every hit that would reopen it is forgotten.
     /// </summary>
-    /// <exception cref="InvalidOperationException">No reopen is pending.</exception>
-    internal void RemoveOneMouthReopen() => PendingMouthReopens = PendingMouthReopens > 0
-        ? PendingMouthReopens - 1
-        : throw new InvalidOperationException("Removing a mouth reopen from none breaks Kraid's mouth-reopen order.");
+    /// <returns>Whether a reopen is still pending, so he waits to glow his eye again.</returns>
+    internal bool SpendMouthReopenAsMouthCloses()
+    {
+        if (MouthReopenMarked)
+        {
+            PendingMouthReopens--;
+            if (PendingMouthReopens != 0)
+                return true;
+        }
+
+        ClearMouthReactions();
+        return false;
+    }
 
     /// <summary>Forgets every hit on his mouth and body that would reopen it, and the reopens still pending.</summary>
     internal void ClearMouthReactions()
     {
-        MouthReopenArmed = false;
         MouthReopenMarked = false;
         PendingMouthReopens = 0;
     }

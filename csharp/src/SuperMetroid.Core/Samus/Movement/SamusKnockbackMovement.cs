@@ -140,8 +140,7 @@ public static class SamusKnockbackMovement
         samus.BombJump = null;
         // Taking her movement ends the bomb jump's movement immediately, but
         // does not yet release its independent lock on her pose input.
-        samus.BombJumpStarting = false;
-        samus.BombJumpActive = false;
+        samus.BombJumpPhase = null;
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
 
         // The hurt flash starts after bomb-jump/contact damage is cancelled. This is an independent

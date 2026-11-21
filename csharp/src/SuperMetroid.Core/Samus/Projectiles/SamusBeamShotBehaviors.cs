@@ -6,11 +6,12 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusBeamShotBehaviors
 {
     /// <summary>
-    /// The behaviour a shot of <paramref name="combination"/> runs, charged when <paramref name="charged"/>. A Spazer and
-    /// Plasma combination runs what follows the authored behaviours (<see cref="SamusBeamShotBehaviorDefinitions.Unauthored"/>).
+    /// What firing a shot of <paramref name="combination"/> does, charged when <paramref name="charged"/>: the behaviour it
+    /// runs, or, for a Spazer and Plasma combination, what follows the authored behaviours
+    /// (<see cref="SamusBeamShotBehaviorDefinitions.Unauthored"/>).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination is not one Samus's beams can make.</exception>
-    public static SamusShotBehavior Resolve(bool charged, SamusBeamCombination combination) => combination switch
+    public static SamusShotFiring Resolve(bool charged, SamusBeamCombination combination) => combination switch
     {
         SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.Spazer or
             SamusBeamCombination.SpazerIce or SamusBeamCombination.Plasma or SamusBeamCombination.PlasmaIce =>

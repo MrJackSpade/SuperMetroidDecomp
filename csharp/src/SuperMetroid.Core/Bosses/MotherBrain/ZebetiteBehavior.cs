@@ -88,13 +88,12 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int generation = _room.Services.ZebetiteProgress.ZebetitesDestroyed;
         state.Generation = generation;
-        if (generation == PersistentProgress.ZebetiteCount)
+        if (Zebetites.StandingGeneration(generation) is not { } definition)
         {
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
             return;
         }
 
-        ZebetiteGenerationDefinition definition = Zebetites.Generation(generation);
         state.Form = definition.Form;
         place.Radius = place.Radius.WithY(definition.HalfHeight);
         // A new barrier shows its form's unhurt picture.
@@ -125,9 +124,10 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunZebetiteSpawnLinkedHalf(RoomEnemyOccupant zebetite, ZebetiteEnemyState state)
     {
         RoomEnemyPlace place = zebetite.Place;
-        if (state.Form == ZebetiteBarrierForm.SplitPair)
+        // A standing primary's generation is the one its setup found standing.
+        if (state.Form == ZebetiteBarrierForm.SplitPair && Zebetites.StandingGeneration(state.Generation) is { } standing)
         {
-            RoomEnemyPlace secondary = SpawnZebetite(ZebetiteHalf.Linked);
+            RoomEnemyPlace secondary = SpawnZebetite(ZebetiteHalf.Linked, standing);
             secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedHalf = place;
             state.LinkedHalf = secondary;
         }
@@ -173,8 +173,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Generation = nextGeneration;
         _room.Services.ZebetiteProgress.ZebetitesDestroyed = nextGeneration;
         FinishZebetiteDeath(zebetite);
-        if (nextGeneration < PersistentProgress.ZebetiteCount)
-            SpawnZebetite(ZebetiteHalf.Primary);
+        if (Zebetites.StandingGeneration(nextGeneration) is { } next)
+            SpawnZebetite(ZebetiteHalf.Primary, next);
     }
 
     /// <summary>
@@ -218,7 +218,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Finds a free place in the room's enemies and initializes a primary or linked half from its population entry.</summary>
-    private RoomEnemyPlace SpawnZebetite(ZebetiteHalf half)
+    private RoomEnemyPlace SpawnZebetite(ZebetiteHalf half, ZebetiteGenerationDefinition generation)
     {
         // The spawn takes the first free place. In particular, a primary's death vacates
         // its place before spawning the next generation; surviving linked halves keep
@@ -226,7 +226,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace spawned = _places.FindFreePlace() ??
             throw new InvalidOperationException("Zebetite progression filled every enemy place.");
 
-        RoomEnemyPlacement population = Zebetites.SpawnPopulation(half, _room.Services.ZebetiteProgress.ZebetitesDestroyed);
+        RoomEnemyPlacement population = Zebetites.SpawnPopulation(half, generation);
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
         _lifecycle.InitializePlaceFromDefinition(spawned, population, definition);

@@ -456,8 +456,9 @@ internal sealed class MotherBrainHead
         bomb.Position = bomb.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BombOffset);
         bomb.Position = bomb.Position.WithoutFractions();
         bomb.Velocity = new(MotherBrainBombBounceDefinitions.LaunchSpeedX, MotherBrainBombBounceDefinitions.LaunchSpeedY);
-        _projectileAttacks.Projectile.Bombs.Start(bomb, new MotherBrainBombState(state, MotherBrainBombBounceDefinitions.BounceSpeed, afterburnCount));
-        state.RecordBombSpawned();
+        var bombState = new MotherBrainBombState(state, MotherBrainBombBounceDefinitions.BounceSpeed, afterburnCount);
+        _projectileAttacks.Projectile.Bombs.Start(bomb, bombState);
+        state.RecordBombSpawned(bombState);
     }
 
     /// <summary>

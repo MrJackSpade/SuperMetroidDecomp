@@ -43,7 +43,7 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     }
 
     /// <summary>The head's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.HeadShot ? Species.Combat.HeadShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.HeadShot ? (field ??= Species.Combat.HeadShotReactionOf(this)) : base.ShotReaction;
 
     /// <summary>Runs the head's own reaction to a bomb that selects its shot reaction, before the ignoring check.</summary>
     /// <param name="context">The bomb contact.</param>
@@ -51,7 +51,7 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     {
         if (context.SelectedShot != MotherBrainReactions.HeadShot)
             return base.TryReactToBomb(context);
-        Species.Combat.ReactToMotherBrainHeadBomb(context);
+        Species.Combat.ReactToMotherBrainHeadBomb(Encounter, context);
         return true;
     }
 

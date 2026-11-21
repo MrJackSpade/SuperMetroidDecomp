@@ -243,7 +243,7 @@ internal sealed class KraidProjectiles
         int relativeY = nail.Position.Y.Whole - body.Position.Y.Whole;
         // A nail above every ledge is pushed back where KraidNailPastLedges places it.
         int leftOffset = KraidNailContour.LedgeLeftOffset(relativeY) ??
-            _room.Session.BossOverreads.KraidNailPastLedges.LeftOffset(relativeY);
+            _room.Session.BossOverreads.KraidNailPastLedges.LeftOffset;
         int contourX = body.Position.X.Whole + leftOffset;
         return nail.Position.X.Whole + nail.Radius.X >= contourX &&
             part.NailVelocity.X.WholePixels >= 0;

@@ -290,9 +290,7 @@ internal sealed class BeamFiring
             // The shot's behaviour starts only after muzzle collision, and each combination names its own, the Spazer
             // and Plasma ones included, apart from the Wave component. A Spazer and Plasma combination whose shots'
             // effect lies outside the emulation scope limit (UnauthoredBeamShotBehaviors) is refused here (#1500).
-            SamusShotBehavior behavior = SamusBeamShotBehaviors.Resolve(charged, beamType);
-            behavior.AdmitFiring();
-            held.Install(behavior, kindState: null);
+            SamusBeamShotBehaviors.Resolve(charged, beamType).Fire(held);
             InitializePowerBeamVelocity(samus.ProjectileInheritance, held, _unauthoredFiring);
         }
         return new BeamShot(sound);

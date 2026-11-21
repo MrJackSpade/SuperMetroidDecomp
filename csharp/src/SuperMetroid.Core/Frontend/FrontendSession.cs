@@ -44,8 +44,7 @@ internal sealed class FrontendSession
         SelectedSaveSlot = saves.ReadSelectedSlot();
         // Construction is power-on: boot evaluates the saves once before entering the main game loop.
         earthquakeSoundDelay = saves.EarthquakeSoundDelayAtPowerOn();
-        DemoPlaylist = StockAttractDemoScenes.Playlist(saves.DetermineCompletionDemoSetUnlocked());
-        Demo = new AttractDemoSchedule(DemoPlaylist);
+        Demo = new AttractDemoSchedule(StockAttractDemoScenes.Playlist(saves.DetermineCompletionDemoSetUnlocked()));
         // The game starts at the title.
         Phases = new GamePhases(this);
         running = new SequenceStep.Of<TitleStep>(Phases.Title, default);
@@ -708,8 +707,6 @@ internal sealed class FrontendSession
     }
     /// <summary>Where the attract demos are.</summary>
     internal AttractDemoSchedule Demo { get; }
-    /// <summary>The demo sets the title cycles through, fixed at boot: the completion set plays only after a valid completed-game save exists.</summary>
-    internal IReadOnlyList<AttractDemoSet> DemoPlaylist { get; }
     /// <summary>The waiting updates the current game load still owes.</summary>
     internal GameLoadingWait GameLoading { get; } = new();
     /// <summary>

@@ -48,8 +48,13 @@ internal static class GameplayAudioRequestsAccess
     /// <summary>Counts the recorded sounds.</summary>
     extension(GameplaySoundRequests self)
     {
-        /// <summary>How many times the update requested <paramref name="sound"/>.</summary>
-        internal int CountOf(SoundEffectId sound) => self.SoundRequests.Count(request => request.SoundEffect == sound);
+        /// <summary>
+        /// How many times the update requested <paramref name="sound"/>: the recorded requests of a fixture's requests, or the
+        /// sounds the session's queues admitted of a runtime's, whose requests go on into those queues.
+        /// </summary>
+        internal int CountOf(SoundEffectId sound) => self.sounds is RecordingSoundQueue
+            ? self.SoundRequests.Count(request => request.SoundEffect == sound)
+            : self.SoundsQueued.Count(queued => queued == sound);
     }
 
     /// <summary>Reads the requests the enemies have queued.</summary>

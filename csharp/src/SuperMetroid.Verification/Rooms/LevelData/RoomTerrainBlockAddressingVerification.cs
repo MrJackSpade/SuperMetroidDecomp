@@ -194,15 +194,11 @@ internal static class RoomTerrainBlockAddressingVerification
     /// <summary>Runs a one-block shot's horizontal or vertical scan over <paramref name="block"/> and reports whether it stopped.</summary>
     private static bool ScanShot(RoomLevelData level, Position16<RoomBlocks> block, bool vertical)
     {
-        var shot = new SamusProjectile(0)
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(block.X * 16 + 8, block.Y * 16 + 8)),
-            Radius = new(1, 1),
-            Velocity = vertical
-                ? new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1))
-                : new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0)),
-        };
-        SamusProjectileOccupant held = shot.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
+        var shot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
+        shot.Position = FixedPosition<RoomPixels>.FromWhole(new(block.X * 16 + 8, block.Y * 16 + 8));
+        shot.Radius = new(1, 1);
+        shot.Velocity = vertical ? new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1)) : new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
+        SamusProjectileOccupant held = shot.Held;
         return vertical
             ? ProjectileTerrainCollision.ScanVerticalShotReactions(level, held, roomObjects: SamusRoomObjectFixtures.Uninstalled)
             : ProjectileTerrainCollision.ScanHorizontalShotReactions(level, held, roomObjects: SamusRoomObjectFixtures.Uninstalled);

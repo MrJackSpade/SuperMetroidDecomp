@@ -41,6 +41,7 @@ internal static class SharedSlopeHeightsVerification
         var projectile = new SamusProjectile(0);
         SamusProjectileOccupant held = projectile.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), SamusProjectileDamage.Read(SamusProjectileKind.Missile));
         var spread = new SamusBomb(0);
+        _ = spread.OccupyAsPlaced(SamusProjectileType.Of(SamusProjectileFamily.Bomb));
         int collisionCases = 0;
         for (int raw = 0; raw < 256; raw++)
         {

@@ -73,11 +73,13 @@ internal static class GateBeamCollisionVerification
             if (full)
                 for (int i = 0; i < 40; i++)
                     AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, level.BlockAt(first), 0x10, BlockStrike.GrappleTouch.Instance, true), "Fill gate probe pool");
-            var shot = new SamusProjectile(0) { Position = new(new(33, 0), new(33, 0)),
-                Radius = new(17, 17), Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1)) };
+            var shot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
+            shot.Position = new(new(33, 0), new(33, 0));
+            shot.Radius = new(17, 17);
+            shot.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1));
             // The scans take the shot holding its place (#2558): an uncharged Power beam, which strikes the gate probes
             // as the unfired place the check used before did.
-            SamusProjectileOccupant held = shot.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
+            SamusProjectileOccupant held = shot.Held;
             bool result = false;
             if (wave && horizontal) ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, held, roomObjects, InstalledFixtures.SamusOverreads.StraddledTerrain);
             else if (wave) ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, held, roomObjects);

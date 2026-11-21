@@ -109,7 +109,7 @@ internal static class KraidReportedCollisionsVerification
             runtime.Enemies.KraidBehavior.Rise.RunKraidRisePhase(body, state, samus);
             AssertEqual((AnimationPlayback<KraidHeadSegment>?)KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Playback, state.HeadPlayback, "Rise selects native next head cursor");
             var shot = runtime.Projectiles.Shots[0];
-            shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false), 40);
+            shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false), 40, FixedPosition<RoomPixels>.Zero);
             shot.Position = shot.Position.WithWhole(new(200, (ushort)(body.Position.Y.Whole - 106)));
             shot.Radius = new(8, 8);
             runtime.Projectiles.Pool.ShotCount.Restore(1);

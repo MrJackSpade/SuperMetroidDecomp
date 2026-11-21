@@ -107,7 +107,8 @@ internal static class ProjectileRadiiVerification
             int activeRecord = 0x930000 | pointer;
             // A record storing a composition again, byte for byte, shows that composition (#2295).
             ushort expectedSprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(CartridgeImportSource.Require(rom).ReadCartridgeWord((activeRecord + 2)));
-            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
+            var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+            slot.Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             projectiles.Animation.AdvanceProjectileAnimation(slot);
             AssertEqual(false, !slot.IsActive, "Timed projectile record survives");
             // A list repeating one still picture is held: the shot keeps the picture, standing at the list's end (#2347).

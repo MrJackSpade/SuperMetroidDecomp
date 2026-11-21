@@ -202,9 +202,8 @@ internal static class SpecialAttackParticlesVerification
                     .KindStateAs<SuperMissileShotState>().LinkChainPosition = place;
                 return fraction;
             case PlaceHolding.CrashEcho:
-                SamusProjectile echo = projectiles.Pool.Occupy(place);
+                SamusProjectile echo = projectiles.Pool.OccupyAsFired(place, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho));
                 Fly(echo, place, fraction);
-                echo.OccupyAsFired(SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho));
                 BeamCombos.InitializeComboShot(echo.HeldShot(), BeamComboShotKind.Echo);
                 echo.HeldShot().Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(new TrigonometryAngle(32)) { Radius = 24 });
                 break;
@@ -218,9 +217,8 @@ internal static class SpecialAttackParticlesVerification
     /// <summary>Puts a flying uncharged or charged Power Beam shot in <paramref name="place"/>.</summary>
     private static SamusProjectile FlyingBeam(SamusProjectileSystem projectiles, int place, int fraction, bool charged)
     {
-        SamusProjectile shot = projectiles.Pool.Occupy(place);
+        SamusProjectile shot = projectiles.Pool.Occupy(place, SamusProjectileType.Beam(SamusBeamCombination.Power, charged), SamusProjectileDamage.Read(SamusProjectileSelection.BeamShot(SamusBeamCombination.Power, charged))).Projectile;
         Fly(shot, place, fraction);
-        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged), SamusProjectileDamage.Read(SamusProjectileSelection.BeamShot(SamusBeamCombination.Power, charged)));
         SamusProjectileSegment? segment = SamusProjectileSelection.BeamShotAnimation(SamusBeamCombination.Power, charged, shot.Direction);
         shot.Animation = ProjectileFixturePlaybacks.StartingAfter(
             segment ?? throw new InvalidOperationException("A Power Beam shot has an animation."), MidPictureUpdates);
@@ -233,10 +231,9 @@ internal static class SpecialAttackParticlesVerification
     private static SamusProjectile IgnitedMissile(SamusProjectileSystem projectiles, int place, int fraction,
         SamusProjectileFamily family, SamusShotBehavior behavior)
     {
-        SamusProjectile missile = projectiles.Pool.Occupy(place);
-        Fly(missile, place, fraction);
         SamusProjectileKind kind = SamusProjectileSelection.NonBeam(family);
-        missile.Occupy(SamusProjectileType.Of(family), SamusProjectileDamage.Read(kind));
+        SamusProjectile missile = projectiles.Pool.Occupy(place, SamusProjectileType.Of(family), SamusProjectileDamage.Read(kind)).Projectile;
+        Fly(missile, place, fraction);
         SamusProjectileSegment segment = SamusProjectileKinds.Animation(kind, missile.Direction);
         missile.Animation = ProjectileFixturePlaybacks.StartingAfter(segment, MidPictureUpdates);
         missile.Radius = SamusProjectilePlayback.InitialRadius(segment);
@@ -251,9 +248,8 @@ internal static class SpecialAttackParticlesVerification
     /// <summary>Puts a Super Missile's link in <paramref name="place"/>.</summary>
     private static SamusProjectile SuperMissileLink(SamusProjectileSystem projectiles, int place, int fraction)
     {
-        SamusProjectile link = projectiles.Pool.OccupyAtRest(place);
+        SamusProjectile link = projectiles.Pool.OccupyAtRest(place, SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), SamusProjectileDamage.Read(SamusProjectileKind.SuperMissileLink)).Projectile;
         Fly(link, place, fraction);
-        link.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), SamusProjectileDamage.Read(SamusProjectileKind.SuperMissileLink));
         link.Animation = ProjectileFixturePlaybacks.StartingAfter(SamusProjectileKinds.SoleAnimation(SamusProjectileKind.SuperMissileLink), MidPictureUpdates);
         link.HeldShot().Install(SamusShotBehaviors.SuperMissileLink,
             new SuperMissileShotState(new SamusMissileIgnition.Pending(), UnlinkedSuperMissileLink.Place));
@@ -271,7 +267,7 @@ internal static class SpecialAttackParticlesVerification
         shot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(200 + place, 90 + place))
             .WithFractionX(fraction).WithFractionY(0x4321);
         shot.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1200), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-300));
-        shot.Trail = UpdateCountdown.Lasting(2);
+        shot.Held.Trail = UpdateCountdown.Lasting(2);
     }
 
     /// <summary>The four beams that start a special attack.</summary>
@@ -406,8 +402,7 @@ internal static class SpecialAttackParticlesVerification
         (SamusProjectileSystem echoProjectiles, SamusBombProjectileSystem echoShared, SamusState echoSamus) =
             StartAttack(SamusBeamFlags.Spazer, SpazerSamus);
         SamusProjectile replaced = echoProjectiles.Shots[3];
-        SamusProjectile echo = echoProjectiles.Pool.Occupy(3);
-        echo.Occupy(SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho), 1);
+        SamusProjectile echo = echoProjectiles.Pool.Occupy(3, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho), 1).Projectile;
         echo.HeldShot().Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(TrigonometryAngle.Zero));
         AssertTrue(!replaced.IsOccupied, "the crash echo's release ends the trailing particle it replaces");
         SamusProjectile spentBeam = echoProjectiles.Shots[1];

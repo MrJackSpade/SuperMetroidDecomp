@@ -111,8 +111,9 @@ internal sealed class BeamCombos
             // Each Spazer beam particle pairs with the trailing particle that turns its way.
             if (kind == SamusComboKind.Spazer)
             {
-                foreach (SamusProjectile particle in particles)
-                    particle.KindStateAs<SpazerParticleState>().Partner = particles.Single(other => !ReferenceEquals(other, particle) &&
+                SamusProjectile[] shots = [.. particles.Select(static particle => particle.Projectile)];
+                foreach (SamusProjectile particle in shots)
+                    particle.KindStateAs<SpazerParticleState>().Partner = shots.Single(other => !ReferenceEquals(other, particle) &&
                         PartOf(other).SpazerTurn == PartOf(particle).SpazerTurn);
             }
             _pool.ShotCount.CountSpecialAttack(parts.Count);

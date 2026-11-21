@@ -415,7 +415,6 @@ global using static SuperMetroid.Core.Compatibility.ProjectileLaunchInheritanceP
 global using static SuperMetroid.Core.Compatibility.RandomChancePrivateAccess;
 global using static SuperMetroid.Core.Compatibility.RidleyTailWhipOrderPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.RioAnimationFinishPrivateAccess;
-global using static SuperMetroid.Core.Compatibility.RoomObjectPlacesPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SaveChoiceInputCadencePrivateAccess;
 global using static SuperMetroid.Core.Compatibility.SharedEscapeAndDrainCountPrivateAccess;
 global using static SuperMetroid.Core.Compatibility.ShortCircleProductPrivateAccess;

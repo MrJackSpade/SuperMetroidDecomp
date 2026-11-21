@@ -100,7 +100,7 @@ internal static class ProjectileInstructionsVerification
             else if (value < 0x8000) words.Add(a + 6);
         }
         AssertEqual(1792, words.Count, "All authored duration/trail/control words inventoried");
-        var trailSlot = new SamusProjectile(0);
+        var trailSlot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
         // A trail reads the frame of the record the shot last installed, the record just before the shot's next list
         // position; a shot whose list has installed none yet shows no frame, and leaves no trail (#1625). The frame is the
         // one the shot's animation shows, whatever updates it has left (#2458).
@@ -125,7 +125,8 @@ internal static class ProjectileInstructionsVerification
         int frames = 0;
         foreach (ushort entry in entries)
         {
-            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(entry) };
+            var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+            slot.Animation = SamusProjectileProgramAddresses.PlayerAt(entry);
             var bomb = new SamusBomb(0);
             bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
             bomb.Animation = SamusProjectileProgramAddresses.PlayerAt(entry);

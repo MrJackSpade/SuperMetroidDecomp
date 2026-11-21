@@ -34,19 +34,17 @@ internal static class ProjectileFrameBindingsVerification
         {
             int record = SamusSourceDefinitions.ProjectileDataBank.Value | pointer;
             ushort Word(int offset) => LittleEndianBytes.Word(CpuBusRegionRead.Read(rom, record + offset), CpuBusRegionRead.Read(rom, record + offset + 1));
-            var nativeShot = new SamusProjectile(0)
-            {
-                Animation = SamusProjectileProgramAddresses.PlayerAt(unchecked((ushort)(pointer + 8)), updates: Word(0)),
-                SpritemapPointer = Word(2),
-                Radius = new(CpuBusRegionRead.Read(rom, record + 4), CpuBusRegionRead.Read(rom, record + 5)),
-            };
+            var nativeShot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+            nativeShot.Animation = SamusProjectileProgramAddresses.PlayerAt(unchecked((ushort)(pointer + 8)), updates: Word(0));
+            nativeShot.SpritemapPointer = Word(2);
+            nativeShot.Radius = new(CpuBusRegionRead.Read(rom, record + 4), CpuBusRegionRead.Read(rom, record + 5));
             var nativeBomb = new SamusBomb(0);
             nativeBomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
             nativeBomb.Animation = SamusProjectileProgramAddresses.PlayerAt(unchecked((ushort)(pointer + 8)), updates: Word(0));
             nativeBomb.SpritemapPointer = nativeShot.SpritemapPointer;
             nativeBomb.Radius = new(nativeShot.Radius.X, nativeShot.Radius.Y);
-            var installedShot = new SamusProjectile(0)
-                { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
+            var installedShot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+            installedShot.Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             var installedBomb = new SamusBomb(0);
             installedBomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
             installedBomb.Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);

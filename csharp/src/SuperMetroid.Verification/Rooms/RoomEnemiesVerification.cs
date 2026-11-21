@@ -576,8 +576,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ushort type,
         ushort damage)
     {
-        SamusProjectile projectile = pool.Pool.Occupy(0);
-        projectile.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), damage);
+        SamusProjectile projectile = pool.Pool.Occupy(0, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), damage).Projectile;
         projectile.Direction = SamusProjectileDirection.Right;
         projectile.Position = projectile.Position.WithWhole(target.Position.Whole);
         projectile.Radius = new(4, 4);

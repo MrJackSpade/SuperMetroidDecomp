@@ -1041,6 +1041,17 @@ playing another role through the one owner of the population's listing (`EnemyCo
 in listed order in the species' `EnemyComposite`) and keeps the place it finds; a rule the game makes depend on placement
 itself is a compatibility service (`FollowUpAfterStruckPart`, `BabyMetroidVictim`); a place is handed on as itself.
 
+SME6487 (#2565) pairs state and data by identity, never by list position. In Core and the import pipeline, outside an
+`[EncodingOwner]` type and a `[CompatibilityService]`, no `Zip` joins two collections that are not one
+(`frames.Zip(durations)`), no element is read at a position found in another collection
+(`colours[names.IndexOf(name)]`), no projection's index reads another collection
+(`looks.Select((look, place) => uploads[place])`), and no loop reads a static definition table and another collection at
+its own index. Each pairing is one record holding both (`KraidHealthSequenceBand`, `IntroEggShellPiece`), a keyed lookup by
+the identity it belongs to (a sheet shade's ink-to-colour map, Phantoon's health colours by band), or a reference (a packed
+picture carries its corner). Positions within one authored sequence are not pairings: a run's colours from its first ink,
+a cycle's steps (`ListStep<T>`), neighbouring entries of one list (`list.Zip(list.Skip(1))`) and a list written at the
+index it is read from.
+
 SME6483 (#2557) states repeated literal structure once, in Core's and AssetExtraction's hand-written catalog files. A
 list of two or more entries is not written out again, entry for entry, in another list of the same file, and a list
 writes no entry out three or more times in a row; entries compare by their text with its spacing removed. The shared

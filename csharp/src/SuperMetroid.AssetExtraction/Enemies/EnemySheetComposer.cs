@@ -111,9 +111,9 @@ internal static class EnemySheetComposer
                 // colouring (#1513).
                 string? own = share.Own is { } ownSheet ? names.Of(ownSheet, $"Spawned-{SpawnedObjectOwnerNames.Name(plan.Owner)}") : null;
                 var commonPictures = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-                foreach ((string picture, int commonSheet) in share.Common.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+                foreach ((string picture, InstalledSheet commonSheet) in share.Common.OrderBy(entry => entry.Key, StringComparer.Ordinal))
                 {
-                    string commonName = names.Of(shared.Common[commonSheet], "Spawned-Common");
+                    string commonName = names.Of(commonSheet, "Spawned-Common");
                     if (!commonPictures.TryGetValue(commonName, out List<string>? held))
                         commonPictures.Add(commonName, held = []);
                     held.Add(picture);

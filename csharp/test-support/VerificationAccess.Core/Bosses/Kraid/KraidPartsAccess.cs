@@ -27,20 +27,18 @@ internal static class KraidPartsAccess
                 partPlace.Bind(PartsInRoomOrder[place], partPlace.KeptDefinition);
             }
         }
-    }
 
-    /// <summary>Fixture set-up of Kraid's encounter.</summary>
-    extension(KraidBehavior kraid)
-    {
         /// <summary>
-        /// Begins Kraid's encounter as his body's setup does, in the first place of <paramref name="enemies"/>, and sets up
-        /// the enemies holding the next seven, which the fixture has bound to his parts in the order his room lists them,
-        /// through the creations his body offers them (#2218, #2554), each joining the encounter as it is set up.
+        /// Sets up the eight places the fixture has bound to Kraid's parts in the order his room lists them, as his room's
+        /// population load sets them up (#2218, #2554): his body's entity begins his encounter, and each part joins it
+        /// through the creation his body offers it, so his body's main AI runs as the enemy pass runs it.
         /// </summary>
-        /// <returns>The encounter begun.</returns>
-        internal KraidEnemyState BeginEncounterInRoomOrder(EnemyPlaces enemies)
+        /// <returns>The encounter his body began.</returns>
+        internal KraidEnemyState SetUpKraidInRoomOrder()
         {
-            KraidEnemyState state = kraid.BeginKraid(enemies.InUpdateOrder[0]);
+            RoomEnemyPlace body = enemies.InUpdateOrder[0];
+            body.SetUpAsPlaced();
+            KraidEnemyState state = body.EntityOf<KraidBodyEntity>().Encounter;
             for (int place = 1; place < PartsInRoomOrder.Length; place++)
                 enemies.InUpdateOrder[place].SetUpAsPlaced();
             return state;

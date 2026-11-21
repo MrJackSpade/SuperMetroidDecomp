@@ -114,7 +114,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             AssertTrue(++growthSteps <= FadeCounterValues, "Kraid's growth fade completes once the counter passes its last moving value");
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's growth fade ends on his colours");
         // Kraid's body initializer replaces his encounter state; the room's backdrop colours outlive it.
-        _ = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        _ = enemies.Places.SetUpKraidInRoomOrder();
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows,
             "re-initializing Kraid keeps the backdrop his growth fade showed");
         int deathSteps = 0;
@@ -312,7 +312,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         // The room binds Kraid's parts once; a later initialization joins the same parts again.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         enemies.Places.BindKraidPartsInRoomOrder();
-        _ = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        _ = enemies.Places.SetUpKraidInRoomOrder();
         return enemies;
     }
 
@@ -445,7 +445,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Health = 1000;
         // The death setup restarts the arm's typed program (#641), which lives in the room's Kraid state.
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
         KraidColorCatalog kraid = artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The installed artwork has no Kraid colours.");
         switch (consumer)
         {

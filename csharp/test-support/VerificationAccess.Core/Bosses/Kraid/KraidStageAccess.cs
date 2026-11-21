@@ -109,7 +109,12 @@ internal static class KraidStageAccess
                 if (state.BodyState.Run is KraidStageRun.Risen risen)
                     risen.Head.Playback = value ?? throw new InvalidOperationException("A risen Kraid's head always plays an animation.");
                 else if (value is { } playback)
-                    namedHeads.AddOrUpdate(state.BodyState, new KraidRisenHead(playback));
+                {
+                    // His rise's last update makes his head selecting the roar; the named animation stands in its place.
+                    KraidRisenHead named = KraidRisenHead.SelectingRoar();
+                    named.Playback = playback;
+                    namedHeads.AddOrUpdate(state.BodyState, named);
+                }
                 else
                     namedHeads.Remove(state.BodyState);
             }
@@ -131,16 +136,4 @@ internal static class KraidStageAccess
     private static InvalidOperationException NotIn(KraidBodyState body, KraidBodyStage stage) =>
         new($"Kraid's body is {body.Run.GetType().Name}, not {stage}.");
 
-    /// <summary>The stages' phase runs a check drives with the stage the body is in.</summary>
-    /// <param name="rise">His rise.</param>
-    extension(KraidRise rise)
-    {
-        /// <summary>Runs his growth's phase in the growth he is in.</summary>
-        internal void RunKraidGrowthPhase(Enemies.RoomEnemyPlace body, KraidEnemyState state) =>
-            rise.RunKraidGrowthPhase(body, state, (KraidStageRun.Growing)state.BodyState.Run);
-
-        /// <summary>Runs his rise's phase in the rise he is in.</summary>
-        internal void RunKraidRisePhase(Enemies.RoomEnemyPlace body, KraidEnemyState state, Samus.SamusState samus) =>
-            rise.RunKraidRisePhase(body, state, (KraidStageRun.Rising)state.BodyState.Run, samus);
-    }
 }

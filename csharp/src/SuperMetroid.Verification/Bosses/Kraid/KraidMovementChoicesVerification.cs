@@ -78,7 +78,7 @@ internal static class KraidMovementChoicesVerification
         var body = enemies.Places.InUpdateOrder[0];
         enemies.Places.BindKraidPartsInRoomOrder();
         var foot = enemies.Places.InUpdateOrder[5];
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
         KraidFootState part = state.FootState;
         ushort rng = 0;
         int reads = 0;

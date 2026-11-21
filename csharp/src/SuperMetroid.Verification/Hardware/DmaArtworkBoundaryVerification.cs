@@ -35,9 +35,13 @@ internal static class DmaArtworkBoundaryVerification
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         ImportEnemyArtwork art = InstalledFixtures.EnemyArtwork;
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art.Bosses);
+        // His growth shows the room's backdrop on the update its phase comes to, his body's main AI as the enemy pass runs it.
+        enemies.Places.BindKraidPartsInRoomOrder();
+        KraidEnemyState kraid = enemies.Places.SetUpKraidInRoomOrder();
         var background = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(background));
-        enemies.KraidBehavior.Rise.ShowKraidRoomBackdrop();
+        kraid.BodyState.GrowthPhase = KraidGrowthPhase.ShowRoomBackdrop;
+        enemies.Places.InUpdateOrder[0].RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
         var expected = new SnesVram();
         ImportedVramOracle.ExecuteQueued(expected, reference,
             KraidSourceDefinitions.RoomBackgroundTiles,

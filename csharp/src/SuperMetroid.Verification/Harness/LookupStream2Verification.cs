@@ -829,16 +829,21 @@ internal static class LookupStream2Verification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         // The parts hold Kraid's encounter, which the body's setup begins; this fixture begins it directly.
         enemies.Places.BindKraidPartsInRoomOrder();
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
         enemies.VerificationServices().ReadRandom = () => 1;
-        Action<RoomEnemyPlace, KraidEnemyState> finish = enemies.KraidBehavior.Rise.FinishKraidGrowth;
         Action<RoomEnemyPlace, KraidLintState> align = enemies.KraidBehavior.Projectiles.AlignKraidLint;
         var body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(200, 300));
         KraidLintPart[] lintParts = [KraidLintPart.Top, KraidLintPart.Middle, KraidLintPart.Bottom];
         foreach (KraidLintPart lintPart in lintParts)
             state.Lint(lintPart).LintTravel = 17;
-        finish(body, state);
+        // His growth finishes on the update its backdrop's fade completes, his body's main AI as the enemy pass runs it.
+        state.BodyState.GrowthPhase = KraidGrowthPhase.FadeInRoomBackground;
+        for (int update = 0; state.BodyState.Run is KraidStageRun.Growing; update++)
+        {
+            AssertTrue(update < 1024, "Kraid's backdrop fade finishes his growth");
+            body.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
+        }
         for (int native = 0; native < lintParts.Length; native++)
         {
             var lint = state.Parts.Lint(lintParts[native]);

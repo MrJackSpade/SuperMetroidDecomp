@@ -167,7 +167,7 @@ internal static class KraidAnimationsVerification
         RoomEnemyPlace arm = enemies.Places.InUpdateOrder[1];
         // The parts bind before the encounter begins, so each holds it as its setup would.
         enemies.Places.BindKraidPartsInRoomOrder();
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
         state.InitialHealth = 104;
         return new NewKraidResult(enemies, state, body, arm);
     }
@@ -466,11 +466,20 @@ internal static class KraidAnimationsVerification
         enemies.KraidBehavior.Background.SpawnKraidCeilingRock(96);
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidCeilingRock),
             "the real ceiling producer allocates its rock in the enemy projectile pool");
-        var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
-        random = 0;
-        enemies.KraidBehavior.Rise.RequestKraidRisingRock(source);
-        random = 16;
-        enemies.KraidBehavior.Rise.RequestKraidRisingRock(source);
+        // His growth breaks the ceiling with a rising rock every eighth update of his body, which his main AI runs as the
+        // enemy pass runs it; no ceiling rock is left to fall.
+        (RoomEnemySystem growing, KraidEnemyState growth, RoomEnemyPlace growingBody, _) = NewKraid();
+        ushort growingRandom = 0;
+        growing.VerificationServices().ReadRandom = () => growingRandom;
+        growth.BodyState.GrowthPhase = KraidGrowthPhase.BreakCeilingPlatforms;
+        growth.BodyState.NextCeilingRock = null;
+        growingBody.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 600));
+        foreach (ushort sample in new ushort[] { 0, 16 })
+        {
+            growingRandom = sample;
+            growingBody.FrameCounter = 0;
+            growingBody.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
+        }
         random = 2;
         enemies.KagoBehavior.SpawnKagoBug(source.BoundFor(EnemyDefinitionId.Kago), source);
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KagoBug),
@@ -485,7 +494,7 @@ internal static class KraidAnimationsVerification
             AssertTrue(projectile.Animation is KraidRockAnimation started && started.Program == program, $"{kind} starts the {program} program");
         }
         // Both rising rocks are one kind, the random sample's side choosing each one's pose (#2278).
-        EnemyProjectile[] rising = [.. enemies.Projectiles.EnemyProjectiles.Where(item => item.Kind == RoomEnemyProjectileKind.KraidRisingRock)];
+        EnemyProjectile[] rising = [.. growing.Projectiles.EnemyProjectiles.Where(item => item.Kind == RoomEnemyProjectileKind.KraidRisingRock)];
         AssertEqual(2, rising.Length, "both rising rocks spawn as one kind");
         foreach (KraidRockSegment pose in new[] { KraidRockSegment.SharedPose, KraidRockSegment.RisingRightPose })
             AssertEqual(1, rising.Count(rock => rock.Animation is KraidRockAnimation started && started.Program == pose),

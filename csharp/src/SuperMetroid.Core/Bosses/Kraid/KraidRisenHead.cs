@@ -12,7 +12,7 @@ public sealed class KraidRisenHead
 {
     /// <summary>A head standing at <paramref name="playback"/>.</summary>
     /// <param name="playback">The head animation and where it stands.</param>
-    internal KraidRisenHead(AnimationPlayback<KraidHeadSegment> playback) => Playback = playback;
+    private KraidRisenHead(AnimationPlayback<KraidHeadSegment> playback) => Playback = playback;
 
     /// <summary>
     /// The head his rise's last update leaves: the roar selected for his first attack, standing past its opening pose,

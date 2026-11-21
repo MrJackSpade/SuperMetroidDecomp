@@ -32,7 +32,7 @@ internal static class KraidGrowthCommandCursorVerification
                     new Dictionary<KraidHeadFrame, KraidHeadTilemapAtlas> { [KraidHeadTilemapFormat.HeadsByMouthStage[2]] = head }, referenceArt.RoomBackgroundTiles) });
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         enemies.Places.BindKraidPartsInRoomOrder();
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
         Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.RunKraidHeadAnimationStep;
         Action<RoomEnemyPlace, ushort> footMain = (foot, cameraY) => enemies.KraidBehavior.Limbs.RunKraidFootMain(foot, state.FootState, cameraY);
         var body = enemies.Places.InUpdateOrder[0];

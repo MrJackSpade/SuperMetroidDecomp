@@ -51,7 +51,8 @@ internal static class KraidCameraMappingsVerification
             ?? throw new InvalidOperationException("Kraid's room loads Kraid.");
         RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Kraid));
         state.BodyState.GrowthPhase = KraidGrowthPhase.ReleaseCamera;
-        runtime.Enemies.KraidBehavior.Rise.RunKraidGrowthPhase(body, state);
+        // His body's next update, as the enemy pass runs it, releases the camera.
+        body.RunMainAi(runtime.Player.Samus);
         ExpectCells(rom, GrownOperands, scrolls, "Kraid's growth");
     }
 

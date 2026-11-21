@@ -65,7 +65,7 @@ internal static class KraidNailSiblingVerification
         // Kraid's room has not seen him beaten, so his rise begins.
         enemies.VerificationServices().IsAreaBossDefeated = () => false;
         enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
         enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.Kraid, enemies.Places.InUpdateOrder[0].KeptDefinition);
         ushort random = 0;
         enemies.VerificationServices().ReadRandom = () => random;

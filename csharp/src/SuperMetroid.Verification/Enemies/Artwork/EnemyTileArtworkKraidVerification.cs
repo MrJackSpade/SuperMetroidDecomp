@@ -100,10 +100,13 @@ internal static class EnemyTileArtworkKraidVerification
     private static SnesVram UploadKraidRoomBackground(ImportEnemyArtwork artwork)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
+        // His growth shows the room's backdrop on the update its phase comes to, his body's main AI as the enemy pass runs it.
+        enemies.Places.BindKraidPartsInRoomOrder();
+        KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        Action upload = enemies.KraidBehavior.Rise.ShowKraidRoomBackdrop;
-        upload();
+        state.BodyState.GrowthPhase = KraidGrowthPhase.ShowRoomBackdrop;
+        enemies.Places.InUpdateOrder[0].RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
         return BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes().WithKraidBackground(artwork.Bosses.KraidBackground
             ?? throw new InvalidOperationException("Verification requires installed Kraid background characters.")));
     }

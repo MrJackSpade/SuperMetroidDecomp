@@ -106,7 +106,8 @@ internal static class KraidReportedCollisionsVerification
             body.Position = body.Position.WithWhole(new(176, 457));
             state.BodyState.RisePhase = KraidRisePhase.RaiseBody;
             global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", null);
-            runtime.Enemies.KraidBehavior.Rise.RunKraidRisePhase(body, state, samus);
+            // The rise's last update, his body's main AI as the enemy pass runs it.
+            body.RunMainAi(samus);
             AssertEqual((AnimationPlayback<KraidHeadSegment>?)KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Playback, state.HeadPlayback, "Rise selects native next head cursor");
             var shot = runtime.Projectiles.Shots[0];
             var held = shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false), 40, FixedPosition<RoomPixels>.Zero);

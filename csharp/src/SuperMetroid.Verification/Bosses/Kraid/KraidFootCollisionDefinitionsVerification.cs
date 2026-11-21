@@ -25,7 +25,7 @@ internal static class KraidFootCollisionDefinitionsVerification
         installed.VerificationServices().IsAreaBossDefeated = () => false;
         installed.VerificationServices().SetRoomScrollState = (_, _) => { };
         installed.Places.BindKraidPartsInRoomOrder();
-        _ = installed.KraidBehavior.BeginEncounterInRoomOrder(installed.Places);
+        _ = installed.Places.SetUpKraidInRoomOrder();
         RoomEnemyPlace installedFoot = installed.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KraidFoot));
         ushort[] frames =
         [

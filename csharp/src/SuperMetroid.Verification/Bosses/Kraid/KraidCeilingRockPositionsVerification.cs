@@ -34,9 +34,10 @@ internal static class KraidCeilingRockPositionsVerification
         ushort Word(int a) => LittleEndianBytes.Word(KraidCeilingRockPositionsRomByte(rom, a), KraidCeilingRockPositionsRomByte(rom, a + 1));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.Places.BindKraidPartsInRoomOrder();
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
         enemies.VerificationServices().ReadRandom = () => 63;
-        Action<RoomEnemyPlace, KraidEnemyState> step = (growthBody, growthState) => enemies.KraidBehavior.Rise.RunKraidGrowthPhase(growthBody, growthState);
+        // Each growth update is his body's main AI, as the enemy pass runs it.
+        SuperMetroid.Core.Samus.SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         var body = enemies.Places.InUpdateOrder[0];
         body.FrameCounter = 1; // Isolate the ceiling placement from the independent rising-rock cadence.
         // Every height his rising body passes through as it breaks the ceiling, and on past his room's two screens (#2299).
@@ -48,7 +49,7 @@ internal static class KraidCeilingRockPositionsVerification
             body.Position = body.Position.WithWhole(new(128, (ushort)raw));
             state.BodyState.NextCeilingRock = ListStep<KraidCeilingRock>.At(KraidCeilingRockDefinitions.Rocks, index);
             state.BodyState.GrowthPhase = KraidGrowthPhase.BreakCeilingPlatforms;
-            step(body, state);
+            body.RunMainAi(samus);
             int y = raw - 1;
             bool spawn = (y & 3) == 0;
             AssertEqual(y, body.Position.Y.Whole, "Ceiling break moves before cadence test");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
 

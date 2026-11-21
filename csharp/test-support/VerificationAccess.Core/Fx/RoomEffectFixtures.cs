@@ -1,7 +1,9 @@
+using SuperMetroid.Core.Fx.Artwork;
+
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Room effects loaded through the room's own load (<see cref="RoomFxOverlayState.ForSource"/>), for checks that put Samus in
+/// Room effects loaded through the room's own load of its effect, for checks that put Samus in
 /// a room's liquid or weather as a room's load does: still liquid whose surface starts at a given line and never moves,
 /// with no colour effects, block animations or tint.
 /// </summary>

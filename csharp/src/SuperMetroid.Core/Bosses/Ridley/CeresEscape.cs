@@ -202,7 +202,8 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// nothing while the room main flies the getaway, then the self-destruct warning's step, then only its alarm.
     /// </summary>
     /// <param name="ridleyFrameCounter">Ridley's body's update count, which paces the alarm.</param>
-    internal void RunRidleysStep(int ridleyFrameCounter)
+    /// <param name="warning">The room's foreground warning, which the self-destruct writes.</param>
+    internal void RunRidleysStep(int ridleyFrameCounter, RoomWarning warning)
     {
         switch (Stage)
         {
@@ -210,7 +211,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
                 // The room main owns the getaway; his step is empty.
                 return;
             case CeresEscapeStage.SelfDestruct:
-                TickSelfDestruct(ridleyFrameCounter);
+                TickSelfDestruct(ridleyFrameCounter, warning);
                 return;
             case CeresEscapeStage.AlarmOnly:
                 StepAlarm(ridleyFrameCounter);
@@ -227,12 +228,12 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// only the Japanese subtitle phase and types the game's three-line English warning. Japanese runs the subtitle phase
     /// first, shows its subtitle, and then uses the same typewriter.
     /// </summary>
-    private void TickSelfDestruct(int ridleyFrameCounter)
+    private void TickSelfDestruct(int ridleyFrameCounter, RoomWarning warning)
     {
         // A phase that ends by entering the next phase in the same update runs that phase too.
         bool entersNext;
         do
-            entersNext = Warning.Phase.Run(this, ridleyFrameCounter);
+            entersNext = Warning.Phase.Run(this, ridleyFrameCounter, warning);
         while (entersNext);
     }
 
@@ -261,12 +262,13 @@ internal sealed class CeresEscape : IGameplayShadingSource
 
     /// <summary>Runs one update of the warning's <see cref="CeresSelfDestructPhase.WaitingForTitle"/> phase.</summary>
     /// <returns>Whether the warning goes on to the phase it entered in this same update.</returns>
-    internal bool RunWaitingForTitle()
+    /// <param name="warning">The room's foreground warning, which the title is written on.</param>
+    internal bool RunWaitingForTitle(RoomWarning warning)
     {
         if (Warning.PhaseWait.StepKeepsRunning())
             return false;
 
-        ShowWarningPicture(CeresEscapeWarningPictures.Emergency);
+        ShowWarningPicture(CeresEscapeWarningPictures.Emergency, warning);
         // The escape music is requested after the title shows.
         _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.Escape));
         Warning.Phase = CeresSelfDestructPhase.HoldingTitle;
@@ -298,7 +300,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
 
     /// <summary>Runs one update of the warning's <see cref="CeresSelfDestructPhase.JapaneseSubtitle"/> phase.</summary>
     /// <returns>Whether the warning goes on to the phase it entered in this same update.</returns>
-    internal bool RunJapaneseSubtitle(int ridleyFrameCounter, EscapeTypewriterState typewriter)
+    internal bool RunJapaneseSubtitle(int ridleyFrameCounter, EscapeTypewriterState typewriter, RoomWarning warning)
     {
         StepAlarm(ridleyFrameCounter);
         bool subtitleShown = Warning.PhaseWait.StepRunsOut();
@@ -306,11 +308,11 @@ internal sealed class CeresEscape : IGameplayShadingSource
         {
             Warning.Phase = CeresSelfDestructPhase.TypingWarning(typewriter);
             foreach (CeresEscapeWarningPicture line in CeresEscapeWarningPictures.JapaneseSubtitle)
-                ShowWarningPicture(line);
+                ShowWarningPicture(line, warning);
         }
         // The typewriter finishing moves the warning one phase on from wherever the wait left it: the
         // subtitle phase to typing, or typing to finishing.
-        if (StepTypewriter(typewriter))
+        if (StepTypewriter(typewriter, warning))
         {
             Warning.Phase = subtitleShown
                 ? CeresSelfDestructPhase.Finishing
@@ -321,10 +323,10 @@ internal sealed class CeresEscape : IGameplayShadingSource
 
     /// <summary>Runs one update of the warning's <see cref="CeresSelfDestructPhase.TypingWarning"/> phase.</summary>
     /// <returns>Whether the warning goes on to the phase it entered in this same update.</returns>
-    internal bool RunTypingWarning(int ridleyFrameCounter, EscapeTypewriterState typewriter)
+    internal bool RunTypingWarning(int ridleyFrameCounter, EscapeTypewriterState typewriter, RoomWarning warning)
     {
         StepAlarm(ridleyFrameCounter);
-        if (StepTypewriter(typewriter))
+        if (StepTypewriter(typewriter, warning))
             Warning.Phase = CeresSelfDestructPhase.Finishing;
         return false;
     }
@@ -347,16 +349,16 @@ internal sealed class CeresEscape : IGameplayShadingSource
     /// Shows one warning picture as a placed image of the warning, its top-left corner at its pixel of the screen
     /// (#1466, #1555, #1601).
     /// </summary>
-    private void ShowWarningPicture(CeresEscapeWarningPicture page) =>
-        Warning.Show(new WrittenPicture(page.Picture, page.Corner));
+    private static void ShowWarningPicture(CeresEscapeWarningPicture page, RoomWarning warning) =>
+        warning.Write(new WrittenPicture(page.Picture, page.Corner));
 
-    /// <summary>Types the next step of the escape text.</summary>
-    private bool StepTypewriter(EscapeTypewriterState typewriter)
+    /// <summary>Types the next step of the escape text on <paramref name="warning"/>.</summary>
+    private bool StepTypewriter(EscapeTypewriterState typewriter, RoomWarning warning)
     {
         EscapeTypewriterStep typing = typewriter.Step();
         // The Ceres message types as part of the warning (#1348, #1555).
         if (typing is EscapeTypewriterStep.Typed typed)
-            Warning.Show(new WrittenPicture(typed.Glyph.Picture, typed.Glyph.Corner));
+            warning.Write(new WrittenPicture(typed.Glyph.Picture, typed.Glyph.Corner));
         if (typing is EscapeTypewriterStep.TypedWithClick)
             _audio.QueueEnemySound(EscapeTypewriterDefinitions.CeresClick, priority: SoundRequestPriority.Low);
         return typing is EscapeTypewriterStep.Complete;

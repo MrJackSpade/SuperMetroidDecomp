@@ -150,9 +150,9 @@ internal sealed class MotherBrainRainbowAndDeath
         _projectileAttacks.Projectile.DoorFragments.Start(fragment, new MotherBrainDoorFragmentState());
     }
 
-    /// <summary>Shows a glyph the Zebes escape typewriter typed over Mother Brain's room background (#1348, #1555).</summary>
-    private void WriteZebesTypewriterGlyph(EscapeTypewriterGlyph glyph) =>
-        _motherBrainEncounter.ShowZebesWarning(new WrittenPicture(glyph.Picture, glyph.Corner));
+    /// <summary>Shows a glyph the Zebes escape typewriter typed over Mother Brain's room background (#1348, #1555, #2554).</summary>
+    private static void WriteZebesTypewriterGlyph(MotherBrainEnemyState state, EscapeTypewriterGlyph glyph) =>
+        state.ZebesWarning.Write(new WrittenPicture(glyph.Picture, glyph.Corner));
 
     /// <summary>Runs one body-phase update of her late fight, <paramref name="sequence"/>.</summary>
     internal void RunLiveMotherBrainRainbowBeam(
@@ -171,7 +171,7 @@ internal sealed class MotherBrainRainbowAndDeath
             EscapeTypewriterStep typing = text.Step();
             typewriterFinished = typing is EscapeTypewriterStep.Complete;
             if (typing is EscapeTypewriterStep.Typed typed)
-                WriteZebesTypewriterGlyph(typed.Glyph);
+                WriteZebesTypewriterGlyph(state, typed.Glyph);
             if (typing is EscapeTypewriterStep.TypedWithClick) _motherBrainEncounter.RequestCueSound(EscapeTypewriterDefinitions.ZebesClick);
         }
         MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, EnemyPassCount = _frameContext.EnemyPassCount, PowerBombActive = samusBombs.PowerBombExplosion.IsActive, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, RoomEarthquakeStopped = !_earthquake.IsShaking });

@@ -46,6 +46,12 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The load station whose load establishes this room; null for a room entered otherwise.</summary>
     public LoadStation? LoadStation { get; } = loadStation;
 
+    /// <summary>
+    /// The warnings the room's escapes can write over it, or none in a room whose tileset has no warning picture sheet (#2554).
+    /// </summary>
+    public RoomWarnings? Warnings { get; } =
+        assets.Pictures.Written.TryGetValue(assets.Tileset, out WrittenPictureSheet? written) ? new RoomWarnings(written) : null;
+
     /// <summary>The frame each of the room's animations shows (#1406), which the animations the load builds select into.</summary>
     public ArtworkFrameSelections ArtworkFrames { get; } = new();
 
@@ -193,7 +199,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         // Only a library background the player sees as its own picture has one installed (#1649).
         BackgroundImage = RoomLibraryBackgroundPicture.Of(Room.State.Background, background => new RoomBackgroundImageResolver(
             Assets.Pictures.Background(background, background.PictureFor(Door), Assets.Tileset), Assets.BlockSheet)),
-        WrittenPictures = Assets.Pictures.Written.TryGetValue(Assets.Tileset, out WrittenPictureSheet? written) ? new WrittenPictureResolver(written) : null,
+        Warnings = Warnings,
         FxOverlayPictures = new WrittenPictureResolver(Assets.Pictures.FxOverlay(Assets.Tileset)),
         HudPictures = Assets.Pictures.Hud(Assets.Tileset),
         MessageBoxes = Assets.Pictures.MessageBox(Assets.Tileset),

@@ -230,22 +230,13 @@ internal sealed class AcceptedFrameBoundary
         // The warning an escape shows in the room, as its sequence describes it (#1555, #2573): one at the background's depth,
         // one at the foreground's, each drawn from the warning picture sheet's frames for the inputs they depend on (#1466).
         // A room shows one escape's warning at most.
-        ShownRoomWarning? backgroundWarning = WarningOf(scope, scope.Enemies.DisplaySources.BackgroundWarning, appearance, RoomWarningDepth.WithBackground);
-        ShownRoomWarning? foregroundWarning = WarningOf(scope, scope.Enemies.DisplaySources.ForegroundWarning, appearance, RoomWarningDepth.WithForeground);
+        ShownRoomWarning? backgroundWarning = scope.Warnings?.WithBackground.Shown(appearance);
+        ShownRoomWarning? foregroundWarning = scope.Warnings?.WithForeground.Shown(appearance);
         if (backgroundWarning is not null && foregroundWarning is not null)
             throw new InvalidOperationException($"{scope.Room.Definition.Name} shows warnings at both the background's and the foreground's depths.");
         // The planes are shared until gameplay changes level data.
         return new RoomBackgrounds(foreground, shown, room.DoorSourceBackground, backgroundWarning ?? foregroundWarning, scope.Floor?.Publish());
     }
-
-    /// <summary>
-    /// The warning <paramref name="text"/> shows at <paramref name="depth"/>, drawn from the room's warning picture sheet's
-    /// frames for the inputs they depend on (#1466), or null while it shows nothing: a room whose tileset has no warning
-    /// picture sheet pictures no warning.
-    /// </summary>
-    private static ShownRoomWarning? WarningOf(RoomScope scope, RoomWarningText text, RoomAppearanceView appearance, RoomWarningDepth depth) =>
-        text.Pictures.IsEmpty || scope.WrittenPictures is not { } written ? null
-            : new ShownRoomWarning(written.Resolve(text, appearance), depth);
 
     /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's HUD picture sheet.</summary>
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>

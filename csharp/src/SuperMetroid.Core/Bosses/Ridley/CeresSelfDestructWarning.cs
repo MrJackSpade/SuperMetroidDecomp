@@ -1,12 +1,11 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Escape;
-using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// The warning Ceres's self-destruct shows and types once the getaway ends (#2228): its phase, its phase's wait, its
-/// typewriter, its alarm's step and what it has written on its layer.
+/// typewriter and its alarm's step. What it writes goes to the room's foreground warning (#2554), which Ceres Ridley holds.
 /// </summary>
 public sealed class CeresSelfDestructWarning
 {
@@ -26,12 +25,4 @@ public sealed class CeresSelfDestructWarning
     /// cadence, plays it on to its next colouring, the first after the last.
     /// </summary>
     internal AnimationPlayer<RidleyFadeSegment, RidleyFadeImage, NoAnimationCue> Alarm { get; } = RidleyFadeAnimations.AlarmCycling();
-    /// <summary>
-    /// What the warning shows on its own layer (#1555): its EMERGENCY title, the Japanese subtitle and the glyphs its
-    /// typewriter has typed, in the order shown, each at its place on the screen; nothing before it shows any.
-    /// </summary>
-    public RoomWarningText Overlay { get; private set; } = RoomWarningText.Empty;
-
-    /// <summary>Shows <paramref name="picture"/> as the next part of <see cref="Overlay"/>.</summary>
-    internal void Show(WrittenPicture picture) => Overlay = Overlay.With(picture);
 }

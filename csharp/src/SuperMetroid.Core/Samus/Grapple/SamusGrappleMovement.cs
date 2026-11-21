@@ -317,7 +317,10 @@ public static class SamusGrappleMovement
             TryHandleSpecialAngle(samus,
                 grapple,
                 previousPosition,
-                out GrappleMovementResult special)) => special;
+                out GrappleMovementResult special))
+        {
+            return special;
+        }
 
         bool enemyAnchorHeld = TryRetainEnemyAnchor(grapple, enemyCollision);
         bool anchorDisconnected = !enemyAnchorHeld && !IsValidatedAnchorHeld(terrain, samus, grapple);
@@ -682,7 +685,9 @@ public static class SamusGrappleMovement
 
     /// <summary>
     /// What the whole block at the grapple beam's endpoint does to the beam (#2554), with the room-object reactions it sets
-    /// off: each kind answers whether the beam passes, stops or connects.
+    /// off: each kind answers whether the beam passes, stops or connects. Air, spike air, special air and unrevealed air let
+    /// the beam pass: it remains live. Slopes and the solid, door and special blocks stop the beam without connecting, which
+    /// makes the firing step queue cancellation rather than establish a rope.
     /// </summary>
     /// <param name="level">The room's terrain.</param>
     /// <param name="samus">Samus, whom a grappled turret spike damages.</param>
@@ -691,8 +696,6 @@ public static class SamusGrappleMovement
     private sealed class EndpointReader(RoomLevelData level, SamusState samus, ISamusRoomObjects roomObjects, RoomCollisionBlock block)
         : IWholeBlockReader<GrappleBlockReaction>
     {
-        // Air, spike air, special air and unrevealed air let the beam pass: it remains live.
-
         /// <inheritdoc/>
         public GrappleBlockReaction Air() => GrappleBlockReaction.Passes;
 
@@ -704,9 +707,6 @@ public static class SamusGrappleMovement
 
         /// <inheritdoc/>
         public GrappleBlockReaction UnrevealedAir() => GrappleBlockReaction.Passes;
-
-        // Slopes and the solid, door and special blocks stop the beam without connecting, which makes the firing step
-        // queue cancellation rather than establish a rope.
 
         /// <inheritdoc/>
         public GrappleBlockReaction Slope() => GrappleBlockReaction.Solid;
@@ -769,10 +769,10 @@ public static class SamusGrappleMovement
         }
 
         /// <inheritdoc/>
-        public GrappleBlockReaction ShootableAir(ShootableReaction reaction) => Shot(solidBlock: false);
+        public GrappleBlockReaction ShootableAir(ShootableReaction reaction) => Shot(GrappleBlockReaction.Passes);
 
         /// <inheritdoc/>
-        public GrappleBlockReaction ShootableBlock(ShootableReaction reaction) => Shot(solidBlock: true);
+        public GrappleBlockReaction ShootableBlock(ShootableReaction reaction) => Shot(GrappleBlockReaction.Solid);
 
         /// <inheritdoc/>
         public GrappleBlockReaction BombableAir(BombableReaction reaction)
@@ -794,8 +794,10 @@ public static class SamusGrappleMovement
         /// What shootable air or a shootable block at the endpoint does to the beam, after the room-object reaction the
         /// grapple's touch sets off.
         /// </summary>
-        /// <param name="solidBlock">Whether the block is a shootable block rather than shootable air.</param>
-        private GrappleBlockReaction Shot(bool solidBlock)
+        /// <param name="leavesBeam">
+        /// What the block's collision kind does to the beam: shootable air lets it pass and a shootable block stops it.
+        /// </param>
+        private GrappleBlockReaction Shot(GrappleBlockReaction leavesBeam)
         {
             // The shootable block reactions are the same as ordinary
             // projectiles'. Grapple owns no projectile family, so weapon-gated
@@ -829,7 +831,7 @@ public static class SamusGrappleMovement
                         block.At,
                         block.Behavior,
                         BlockStrike.GrappleTouch.Instance,
-                        solidBlock: solidBlock);
+                        solidBlock: leavesBeam == GrappleBlockReaction.Solid);
                 }
                 catch (UnsupportedShotBlockReactionException error)
                 {
@@ -840,9 +842,7 @@ public static class SamusGrappleMovement
                         error);
                 }
             }
-            return solidBlock
-                ? GrappleBlockReaction.Solid
-                : GrappleBlockReaction.Passes;
+            return leavesBeam;
         }
     }
 

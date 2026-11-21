@@ -856,7 +856,7 @@ internal sealed class RoomLoader
             RoomFx = roomFxOverlay,
             DoorPassage = _doorTransition.Passage,
             Earthquake = earthquake,
-            Scenery = new RoomEnemyScenery(scope.Floor, scope.CeresElevatorShaft, scope.TourianStatueRoom),
+            Scenery = new RoomEnemyScenery(scope.Floor, scope.CeresElevatorShaft, scope.TourianStatueRoom, scope.Warnings),
         });
         var roomObjectServices = new RoomObjectRuntimeServices(enemies, _system);
         var roomObjectRoom = new RoomObjectRoom(assets.LevelData, _system, room.Area);

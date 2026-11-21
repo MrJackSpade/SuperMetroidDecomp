@@ -4,40 +4,29 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Mother Brain species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>,
-    IEnemyJoiningFactory<MotherBrainEnemyState, MotherBrainTubeSpawnSettings>
+internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyJoiningFactory<MotherBrainEnemyState, MotherBrainTubeSpawnSettings>
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
-
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MotherBrainBody];
-
-    /// <summary>
-    /// Mother Brain's body, built the same way wherever it is set up; her head joins the encounter her body offers it
-    /// (<see cref="BeginEncounter"/>), and the tubes of her fake death are only spawned joining her encounter
-    /// (<see cref="CreateJoining"/>).
-    /// </summary>
-    /// <param name="registrar">The room's registry being composed.</param>
-    public void OfferCreations(EnemySpeciesRegistrar registrar)
-    {
-        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>(Definitions, Create);
-        registrar.Joins([EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes]);
-    }
 
     /// <summary>A tube of her fake death, which joins the encounter whose fake death drops it (#2146, #2218).</summary>
     public EnemyOccupant CreateJoining(RoomEnemyOccupant occupant, MotherBrainTubeSpawnSettings settings, RoomEnemyPlace place,
         EnemyCommonParticipation common, MotherBrainEnemyState encounter) =>
         EnemyOccupant.Running(new MotherBrainTubesEntity(this, occupant, place, common, settings, encounter));
 
-    /// <summary>Mother Brain's body (#2146), the one definition her species builds wherever it is set up.</summary>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        EnemyOccupant.Running(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork));
+    /// <summary>
+    /// Mother Brain's body (#2146), placed in a room whose tileset has the warning picture sheet: her death types Zebes's
+    /// warning on <paramref name="zebesWarning"/>, the room's background warning (#2554).
+    /// </summary>
+    internal EnemyOccupant CreateBody(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        RoomWarning zebesWarning) =>
+        EnemyOccupant.Running(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork, zebesWarning));
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Draws encounter artwork and applies installed colours.</summary>
@@ -53,10 +42,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemySpawnFactory<En
     /// Sets her body up, beginning the encounter, and offers her head, which the room lists after her body, the creation
     /// that builds it joining that encounter (#2218, #2554).
     /// </summary>
+    /// <param name="body">Her body.</param>
+    /// <param name="zebesWarning">The room's background warning, which her death types Zebes's warning on.</param>
     /// <returns>The encounter, which the body holds from its setup.</returns>
-    internal MotherBrainEnemyState BeginEncounter(RoomEnemyOccupant body)
+    internal MotherBrainEnemyState BeginEncounter(RoomEnemyOccupant body, RoomWarning zebesWarning)
     {
-        MotherBrainEnemyState state = Body.InitializeMotherBrainBody(body);
+        MotherBrainEnemyState state = Body.InitializeMotherBrainBody(body, zebesWarning);
         _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.MotherBrainHead, (occupant, _, place, common) =>
             EnemyOccupant.Running(new MotherBrainHeadEntity(this, occupant, place, common, state)));
         return state;

@@ -47,14 +47,14 @@ internal sealed class GameOverMenuGamePhase(FrontendSession session) : IFrontend
             // The game-over menu's continue enters the area map after the fully black
             // frame. Keep that boundary separate from save reload.
             session.Close<GameOverMenuState>();
-            session.Enter(FileSelectStep.AreaMap);
+            session.EnterFileSelect(FileSelectGameSequence.Stage.PreparingMap.Instance);
             session.display.PublishBlack();
         }
         else if (gameOver.Outcome == GameOverMenuOutcome.Title)
         {
             // The game-over menu's exit step soft-resets only after its fade reaches black.
             session.Close<GameOverMenuState>();
-            session.Enter(TitleStep.Starting);
+            session.EnterTitle(TitleGameSequence.Stage.Starting.Instance);
             session.display.PublishBlack();
         }
     }

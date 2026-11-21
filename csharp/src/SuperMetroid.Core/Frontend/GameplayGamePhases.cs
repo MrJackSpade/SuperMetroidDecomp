@@ -125,14 +125,14 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                 // The message box's close explicitly starts the pause for map acquisition, independently of Start or the
                 // station's input lock. Keep this separate from admission of a manual pause request.
                 session.Close<PauseMenuState>();
-                session.Enter(PauseStep.DarkeningGameplay);
+                session.EnterPause(PauseGameSequence.Stage.Stateless.DarkeningGameplay);
                 break;
             case GameplayUpdateTransition.Pause:
                 // Samus's pause check runs during the main-gameplay update just completed. It sets the pause fade's wait
                 // before each step and starts the pause; the following update spends the first wait.
                 session.screenFade.SetCadence(PauseFadeTiming.WaitBeforeEachStep, PauseFadeTiming.WaitBeforeEachStep);
                 session.Close<PauseMenuState>();
-                session.Enter(PauseStep.DarkeningGameplay);
+                session.EnterPause(PauseGameSequence.Stage.Stateless.DarkeningGameplay);
                 break;
             case GameplayUpdateTransition.CeresDeparture:
                 // The elevator has already selected standing pose and locked Samus. The following update owns the
@@ -176,7 +176,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                 // Locking the player out is the shared representation;
                 // the death sequence's steps own colour and animation side effects.
                 samus.Control.LockOutPlayer();
-                session.Enter(DeathSequenceStep.FinalGameplayPass);
+                session.EnterDeath(DeathGameSequence.Stage.Stateless.FinalGameplayPass);
                 return true;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SamusOutOfHealthRoute)} {route}.");

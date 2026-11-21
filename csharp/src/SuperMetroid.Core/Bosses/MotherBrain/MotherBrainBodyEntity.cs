@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -15,11 +16,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+/// <param name="zebesWarning">The room's background warning, which her death types Zebes's warning on.</param>
+internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    BossArtworkBinding bossArtwork, RoomWarning zebesWarning)
     : MotherBrainEntity(species, occupant, place, common), IBossBodyFrames, IEnemyPrivateShotReaction
 {
     /// <summary>The encounter the body begins as it is set up, which her head joins (#2218, #2554).</summary>
-    internal override MotherBrainEnemyState Encounter { get; } = species.BeginEncounter(occupant);
+    internal override MotherBrainEnemyState Encounter { get; } = species.BeginEncounter(occupant, zebesWarning);
 
     /// <summary>The body's hitboxes: her brain's rectangle until its first animation shows a body frame, then its frame's.</summary>
     public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>

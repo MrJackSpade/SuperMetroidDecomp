@@ -2,6 +2,7 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -27,9 +28,11 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <param name="walk">The walk credit the encounter's setup creates for it.</param>
     /// <param name="bursts">The burst cycle the encounter's setup creates for it (#1872).</param>
     /// <param name="brain">The brain animation the encounter's setup creates for it (#2317).</param>
+    /// <param name="zebesWarning">The room's background warning, which her death types Zebes's warning on.</param>
     internal MotherBrainEnemyState(RoomEnemyOccupant body, RoomEnemyPlace head, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts,
-        MotherBrainBrainAnimation brain)
+        MotherBrainBrainAnimation brain, RoomWarning zebesWarning)
     {
+        ZebesWarning = Ensure.NotNull(zebesWarning);
         BodyOccupant = Ensure.NotNull(body);
         Head = Ensure.NotNull(head);
         Walk = Ensure.NotNull(walk);
@@ -37,6 +40,12 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
         Brain = Ensure.NotNull(brain);
         BodyParts = SuperMetroid.Core.Enemies.BossBodies.BossBodyParts.Hidden(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.MotherBrain, this);
     }
+
+    /// <summary>
+    /// The room's background warning, which her death types Zebes's warning on (#1555, #2554): the glyphs typed, in the order
+    /// typed, each at its background cell. It lasts the room, as the encounter does.
+    /// </summary>
+    internal RoomWarning ZebesWarning { get; }
 
     /// <summary>
     /// The parts her body layer shows (#1466, #1515), which her setup attaches to the room's display and her body's frames

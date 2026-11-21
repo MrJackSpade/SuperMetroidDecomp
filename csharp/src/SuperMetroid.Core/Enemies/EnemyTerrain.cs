@@ -355,10 +355,10 @@ internal sealed class EnemyTerrain
         /// <inheritdoc/>
         public bool GrappleBlock(GrappleReaction reaction) => true;
 
-        /// <inheritdoc/>
-        public bool HorizontalExtension() => false; // A zero-offset extension resolves to air.
+        /// <summary>A zero-offset extension resolves to air.</summary>
+        public bool HorizontalExtension() => false;
 
-        /// <inheritdoc/>
+        /// <summary>A zero-offset extension resolves to air.</summary>
         public bool VerticalExtension() => false;
     }
 

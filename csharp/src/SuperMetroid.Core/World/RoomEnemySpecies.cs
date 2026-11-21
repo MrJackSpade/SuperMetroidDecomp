@@ -159,6 +159,11 @@ internal sealed class RoomEnemySpecies
         var ceresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = enemies.Room, Earthquake = enemies.Earthquake, Audio = enemies.Audio, Presentation = enemies.Presentation, Projectiles = enemies.Projectiles, CeresEscape = RidleyEncounter });
         var ceresDoors = new CeresDoorFactory(ceresDoorBehavior);
         var ceresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { GetawayWalls = ceresDoors, Lifecycle = enemies.Lifecycle, Room = enemies.Room, Earthquake = enemies.Earthquake, Audio = enemies.Audio, Places = enemies.Places, Presentation = enemies.Presentation, RidleyEncounter = RidleyEncounter, RidleyBody = RidleyBody, Escape = CeresEscape });
+        // Only a room whose tileset has the warning picture sheet places Ceres Ridley and Mother Brain, whose escapes write
+        // the room's warnings (#2554).
+        CeresRidleyEntityFactory? ceresRidleyFactory = enemies.Scenery.Warnings is { } ceresWarnings
+            ? new CeresRidleyEntityFactory(ceresRidleyBehavior, RidleyEncounter, ceresWarnings.WithForeground)
+            : null;
         var norfairRidleyBehavior = new NorfairRidleyBehavior(new NorfairRidleyBehaviorDependencies { Lifecycle = enemies.Lifecycle, Room = enemies.Room, Earthquake = enemies.Earthquake, Audio = enemies.Audio, DeathsAndDrops = enemies.DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyBody = RidleyBody, RidleyProjectiles = RidleyProjectiles, RoomFx = enemies.RoomFx, Presentation = enemies.Presentation });
         var puyoBehavior = new PuyoBehavior(enemies.Room, enemies.Terrain, enemies.PuyoCeilingTurn);
         var prePhantoonRoomBehavior = new PrePhantoonRoomBehavior(enemies.Projectiles);
@@ -177,6 +182,9 @@ internal sealed class RoomEnemySpecies
         var multiviolaBehavior = new MultiviolaBehavior(enemies.Terrain);
         var babyMetroidCutsceneBehavior = new BabyMetroidCutsceneBehavior(new BabyMetroidCutsceneBehaviorDependencies { Lifecycle = enemies.Lifecycle, Room = enemies.Room, Audio = enemies.Audio, Places = enemies.Places, FrameContext = enemies.FrameContext, Projectiles = enemies.Projectiles, MotherBrainEncounter = MotherBrainEncounter });
         var motherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { PartOffers = partOffers, PassEvents = enemies.PassEvents, Lifecycle = enemies.Lifecycle, Places = enemies.Places, Room = enemies.Room, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, Presentation = enemies.BossPresentation, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, RoomActors = new MotherBrainRoomActors(babyMetroidCutsceneBehavior, rinkaBehavior, walkingSpacePirateBehavior, RidleyProjectiles)  });
+        MotherBrainBodyFactory? motherBrainBodies = enemies.Scenery.Warnings is { } zebesWarnings
+            ? new MotherBrainBodyFactory(motherBrainBehavior, zebesWarnings.WithBackground)
+            : null;
         var mochtroidBehavior = new MochtroidBehavior(enemies.Terrain, enemies.Audio, enemies.FrameContext, enemies.Collision);
         var metroidBehavior = new MetroidBehavior(enemies.Room, enemies.Terrain, enemies.Audio, enemies.EffectActors, enemies.FrameContext, enemies.DeathsAndDrops);
         var metareeBehavior = new MetareeBehavior(enemies.Projectiles, enemies.Audio);
@@ -311,14 +319,17 @@ internal sealed class RoomEnemySpecies
             wallSpacePirateBehavior,
             ninjaSpacePirateBehavior,
         ];
-        Registry = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(() => enemies.Collision), [boyonBehavior, bullBehavior, zoaBehavior, waverBehavior, chootBehavior, atomicBehavior, skulteraBehavior, puyoBehavior, rioBehavior, fliesBehavior, sparkBehavior, sbugBehavior, multiviolaBehavior, cacatacBehavior, alcoonBehavior, boulderBehavior, nuclearWaffleBehavior, hibashiBehavior, wreckedShipGhostBehavior, kzanBehavior, ripperBehavior, mochtroidBehavior, skreeBehavior, owtchBehavior, beetomBehavior, kagoBehavior, firefleaBehavior, metareeBehavior, polypBehavior, hoppersBehavior, crawlersBehavior, platformsBehavior, yardBehavior, yappingMawBehavior, etecoonBehavior, dachoraBehavior, oumBehavior, workRobotBehavior, blueBrinstarFaceBlockBehavior, dragonBehavior, funeNamiheBehavior, powampBehavior, gerutaBehavior, holtzBehavior, squeeptBehavior, shaktoolBehavior, metroidBehavior, walkingSpacePirateBehavior, wallSpacePirateBehavior, ninjaSpacePirateBehavior, chozoStatueBehavior, deadSidehopperBehavior, deadTorizoBehavior, deadTourianBehavior, babyMetroidBehavior, fakeKraidBehavior, elevatorBehavior, magdolliteBehavior, escapeAnimalsBehavior, rinkaBehavior, zebetiteBehavior, shuttersBehavior, evirBehavior, kiHunterBehavior, pipeBugsBehavior, mamaTurtleBehavior, morphBallEyeBehavior, ceresDoors, steamVents, gunshipBehavior, botwoonBehavior, sporeSpawnBehavior, torizoBehavior, kraidBehavior, crocomireBehavior, draygonBehavior, phantoonBehavior, motherBrainBehavior, babyMetroidCutsceneBehavior, noobTubeBehavior,
-            new RidleyEntityFactory(norfairRidleyBehavior, ceresRidleyBehavior, RidleyEncounter),
-            .. Present<IEnemyEntityFactory>(tourianEntranceStatueBehavior), .. Present<IEnemyEntityFactory>(elevatorDoors)],
+        Registry = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(() => enemies.Collision), [boyonBehavior, bullBehavior, zoaBehavior, waverBehavior, chootBehavior, atomicBehavior, skulteraBehavior, puyoBehavior, rioBehavior, fliesBehavior, sparkBehavior, sbugBehavior, multiviolaBehavior, cacatacBehavior, alcoonBehavior, boulderBehavior, nuclearWaffleBehavior, hibashiBehavior, wreckedShipGhostBehavior, kzanBehavior, ripperBehavior, mochtroidBehavior, skreeBehavior, owtchBehavior, beetomBehavior, kagoBehavior, firefleaBehavior, metareeBehavior, polypBehavior, hoppersBehavior, crawlersBehavior, platformsBehavior, yardBehavior, yappingMawBehavior, etecoonBehavior, dachoraBehavior, oumBehavior, workRobotBehavior, blueBrinstarFaceBlockBehavior, dragonBehavior, funeNamiheBehavior, powampBehavior, gerutaBehavior, holtzBehavior, squeeptBehavior, shaktoolBehavior, metroidBehavior, walkingSpacePirateBehavior, wallSpacePirateBehavior, ninjaSpacePirateBehavior, chozoStatueBehavior, deadSidehopperBehavior, deadTorizoBehavior, deadTourianBehavior, babyMetroidBehavior, fakeKraidBehavior, elevatorBehavior, magdolliteBehavior, escapeAnimalsBehavior, rinkaBehavior, zebetiteBehavior, shuttersBehavior, evirBehavior, kiHunterBehavior, pipeBugsBehavior, mamaTurtleBehavior, morphBallEyeBehavior, ceresDoors, steamVents, gunshipBehavior, botwoonBehavior, sporeSpawnBehavior, torizoBehavior, kraidBehavior, crocomireBehavior, draygonBehavior, phantoonBehavior, babyMetroidCutsceneBehavior, noobTubeBehavior,
+            new RidleyEntityFactory(norfairRidleyBehavior),
+            .. Present<IEnemyEntityFactory>(tourianEntranceStatueBehavior), .. Present<IEnemyEntityFactory>(elevatorDoors),
+            .. Present<IEnemyEntityFactory>(ceresRidleyFactory), .. Present<IEnemyEntityFactory>(motherBrainBodies)],
             // What the owners the room's scenery did not let it build would have placed; the registry refuses a room that
             // builds an owner of one, or lacks an owner of any other.
             [
                 .. tourianEntranceStatueBehavior is null ? [EnemyDefinitionId.TourianStatue] : Array.Empty<EnemyDefinitionId>(),
                 .. elevatorDoors is null ? [EnemyDefinitionId.CeresElevatorDoor] : Array.Empty<EnemyDefinitionId>(),
+                .. ceresRidleyFactory is null ? [EnemyDefinitionId.RidleyCeres] : Array.Empty<EnemyDefinitionId>(),
+                .. motherBrainBodies is null ? MotherBrainBodyFactory.Placed : Array.Empty<EnemyDefinitionId>(),
             ], partOffers);
         BeforeSelection = [new MorphBallEyeBeamStep(morphBallEyeBehavior)];
         // The room-wide glows step in the game's order: the work robots', the Magdollites', the face blocks'.
@@ -340,7 +351,7 @@ internal sealed class RoomEnemySpecies
             motherBrainBehavior, torizoBehavior, escapeExplosionsBehavior);
         RoomObjectRequests = new ObjectRequests(downwardGateBehavior);
         EscapeShutterFlash = shuttersBehavior;
-        Displays = new DisplayContributions(CeresEscape, MotherBrainEncounter, morphBallEyeBehavior.MorphBallEyeBeam);
+        Displays = new DisplayContributions(CeresEscape, morphBallEyeBehavior.MorphBallEyeBeam);
     }
 
     /// <summary><paramref name="owner"/>, an owner the room's scenery may not let it build, when the room built it; else none.</summary>
@@ -634,11 +645,10 @@ internal sealed class RoomEnemySpecies
             DownwardGate.ApplyDownwardGateProjectileRequest(request);
     }
 
-    /// <summary>The written overlays, the flown turning floor and the beam cone the encounters show.</summary>
+    /// <summary>The Ceres warning's typewriter, the flown turning floor and the beam cone the encounters show.</summary>
     /// <param name="CeresEscape">The station's escape from Ceres Ridley's room.</param>
-    /// <param name="motherBrain">Mother Brain's room encounter.</param>
     /// <param name="beam">The Morph Ball eye's beam.</param>
-    private sealed class DisplayContributions(CeresEscape CeresEscape, MotherBrainEncounter motherBrain, MorphBallEyeBeamState beam)
+    private sealed class DisplayContributions(CeresEscape CeresEscape, MorphBallEyeBeamState beam)
         : IEnemyDisplayContributions
     {
         /// <inheritdoc/>
@@ -648,13 +658,7 @@ internal sealed class RoomEnemySpecies
         public ImmutableArray<PerspectiveFloorScenery> FlownFloorWalls => CeresEscape.ChamberWalls();
 
         /// <inheritdoc/>
-        public RoomWarningText ForegroundWarning => CeresEscape.Warning.Overlay;
-
-        /// <inheritdoc/>
         public EscapeTypewriterState? ForegroundTypewriter => CeresEscape.Warning.Typewriter;
-
-        /// <inheritdoc/>
-        public RoomWarningText BackgroundWarning => motherBrain.ZebesWarning;
 
         /// <inheritdoc/>
         public MorphBallEyeBeamCone? LatchedBeamCone => beam.Latched;

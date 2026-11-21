@@ -11,8 +11,15 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Choosing a game: the save slots, the selected game's options and a saved game's area map.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class FileSelectGameSequence(FrontendSession session) : IFrontendPhase
+/// <param name="stage">The step choosing a game enters at.</param>
+internal sealed class FileSelectGameSequence(FrontendSession session, FileSelectGameSequence.Stage stage) : IFrontendPhase
 {
+    /// <summary>The step that runs, with the screen it shows (#2554).</summary>
+    internal Stage Current { get; private set; } = Ensure.NotNull(stage);
+
+    /// <summary>The name of the step that runs.</summary>
+    internal FileSelectStep CurrentStep => Current.Step;
+
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.FileSelect;
 
@@ -23,50 +30,22 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IFronten
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
     /// <inheritdoc/>
-    public string Name => session.FileSelectStep switch
-    {
-        FileSelectStep.SaveSlots => session.ActiveFileSelect.Phase.ToString(),
-        FileSelectStep.Options => session.ActiveOptions.Phase.ToString(),
-        FileSelectStep.AreaMap => session.ScreenAs<FileSelectMapMenuState>()?.Phase.ToString() ?? "Preparing saved-game map",
-        _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectStep)} {session.FileSelectStep}."),
-    };
+    public string Name => Current.Name;
 
     /// <inheritdoc/>
     /// <remarks>
     /// The save slots wait out a frame of the display on some of their steps. The area map's final update latched its
     /// load request, blanked the display and waits out one frame; the next update continues that step.
     /// </remarks>
-    public bool IsWaitingOutDisplayFrame => session.FileSelectStep switch
-    {
-        FileSelectStep.SaveSlots => session.ScreenAs<FileSelectMenuState>()?.IsWaitingOutDisplayFrame == true,
-        FileSelectStep.Options => false,
-        FileSelectStep.AreaMap => session.ScreenAs<FileSelectMapMenuState>()?.Outcome == FileSelectMapOutcome.Load,
-        _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectStep)} {session.FileSelectStep}."),
-    };
+    public bool IsWaitingOutDisplayFrame => Current.IsWaitingOutDisplayFrame;
 
     /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput)
-    {
-        switch (session.FileSelectStep)
-        {
-            case FileSelectStep.SaveSlots:
-                RunSaveSlots(controllerInput);
-                break;
-            case FileSelectStep.Options:
-                RunOptions(controllerInput);
-                break;
-            case FileSelectStep.AreaMap:
-                RunAreaMap(controllerInput);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(FileSelectStep)} {session.FileSelectStep}.");
-        }
-    }
+    public void Step(ControllerButton controllerInput) => Current.Run(this, controllerInput);
 
     /// <summary>One update of the save slots.</summary>
-    private void RunSaveSlots(ControllerButton controllerInput)
+    private void RunSaveSlots(FileSelectMenuState slots, ControllerButton controllerInput)
     {
-        FileSelectSaveChange saveChange = session.ActiveFileSelect.Step(controllerInput);
+        FileSelectSaveChange saveChange = slots.Step(controllerInput);
         if (saveChange != FileSelectSaveChange.None)
             session.RaiseSavesChanged();
         if (saveChange == FileSelectSaveChange.Cleared)
@@ -75,16 +54,16 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IFronten
             // stored map that is now empty.
             StoredExploredMapLoads.ClearAll(session.storedExploredMaps);
         }
-        session.display.PublishMenu(session.ActiveFileSelect);
-        if (session.ActiveFileSelect.Outcome == FileSelectMenuOutcome.Title)
+        session.display.PublishMenu(slots);
+        if (slots.Outcome == FileSelectMenuOutcome.Title)
         {
             // The game soft-resets when the menu returns to the title. Starting the title again
             // makes all frontend-owned state disposable and deterministic.
-            session.Enter(TitleStep.Starting);
+            session.EnterTitle(TitleGameSequence.Stage.Starting.Instance);
         }
-        else if (session.ActiveFileSelect.Outcome == FileSelectMenuOutcome.NewGame)
+        else if (slots.Outcome == FileSelectMenuOutcome.NewGame)
         {
-            session.SelectSaveSlot(session.ActiveFileSelect.SelectedSaveSlot, session.ActiveFileSelect.SelectedSlotContainsSave);
+            session.SelectSaveSlot(slots.SelectedSaveSlot, slots.SelectedSlotContainsSave);
             session.RaiseSavesChanged();
             // Existing saves restore the same seven controller bindings and two
             // special settings that saving copied from live state. A new
@@ -92,7 +71,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IFronten
             SuperMetroidSaveSlot? optionSlot = session.LoadingExistingSave
                 ? session.saves.ReadSlot(session.SelectedSaveSlot)
                 : null;
-            session.Show(new GameOptionsMenuState(
+            GameOptionsMenuState options = session.Show(new GameOptionsMenuState(
                 session.audio,
                 session.Artwork.ScreenContent,
                 session.Artwork.SpriteSheets,
@@ -103,27 +82,27 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IFronten
             {
                 StartupRoute = optionSlot?.StartupRoute ?? SaveStartupRoute.OpeningCinematic,
             });
-            session.Enter(FileSelectStep.Options);
-            session.display.PublishMenu(session.ActiveOptions);
+            Current = new Stage.Options(options);
+            session.display.PublishMenu(options);
         }
     }
 
     /// <summary>One update of the selected game's options.</summary>
-    private void RunOptions(ControllerButton controllerInput)
+    private void RunOptions(GameOptionsMenuState options, ControllerButton controllerInput)
     {
-        session.ActiveOptions.Step(controllerInput);
-        session.display.PublishMenu(session.ActiveOptions);
-        if (session.ActiveOptions.Outcome == GameOptionsMenuOutcome.FileSelect)
+        options.Step(controllerInput);
+        session.display.PublishMenu(options);
+        if (options.Outcome == GameOptionsMenuOutcome.FileSelect)
         {
-            session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.ScreenContent,
+            FileSelectMenuState slots = session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.ScreenContent,
                 session.Artwork.SpriteSheets));
-            session.Enter(FileSelectStep.SaveSlots);
-            session.display.PublishMenu(session.ActiveFileSelect);
+            Current = new Stage.SaveSlots(slots);
+            session.display.PublishMenu(slots);
         }
-        else if (session.ActiveOptions.Outcome == GameOptionsMenuOutcome.Intro)
+        else if (options.Outcome == GameOptionsMenuOutcome.Intro)
         {
             // Every selected game starts with the choices the menu closed with.
-            session.ChooseOptions(session.ActiveOptions);
+            session.ChooseOptions(options);
             if (session.LoadingExistingSave)
             {
                 SuperMetroidSaveSlot selectedSlot = session.saves.ReadSavedSlot(session.SelectedSaveSlot);
@@ -142,11 +121,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IFronten
                         session.display.PublishBlack();
                     }
                     else
-                    {
-                        session.Show(CreateIntroCinematic(session.ActiveOptions.JapaneseText));
-                        session.Enter(session.Phases.IntroCinematic);
-                        session.display.PublishIntro(session.ActiveIntro);
-                    }
+                        StartIntro(options);
                 }
                 else if (selectedSlot.StartupRoute == SaveStartupRoute.CeresDestruction)
                 {
@@ -161,7 +136,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IFronten
                 else
                 {
                     session.Close<GameOptionsMenuState>();
-                    session.Enter(FileSelectStep.AreaMap);
+                    Current = Stage.PreparingMap.Instance;
                     session.display.PublishBlack();
                 }
             }
@@ -174,58 +149,83 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IFronten
                 session.display.PublishBlack();
             }
             else
-            {
-                session.Show(CreateIntroCinematic(session.ActiveOptions.JapaneseText));
-                session.Enter(session.Phases.IntroCinematic);
-                session.display.PublishIntro(session.ActiveIntro);
-            }
+                StartIntro(options);
         }
     }
 
+    /// <summary>Starts the opening cinematic in the text language <paramref name="options"/> selected.</summary>
+    private void StartIntro(GameOptionsMenuState options)
+    {
+        IntroCinematicState intro = session.Show(CreateIntroCinematic(options.JapaneseText));
+        session.EnterIntro(intro);
+        session.display.PublishIntro(intro);
+    }
+
     /// <summary>One update of a saved game's area map, or of its Ceres checkpoint, which has no map.</summary>
-    private void RunAreaMap(ControllerButton controllerInput)
+    private void PrepareAreaMap(ControllerButton controllerInput)
+    {
+        if (!MapSlotShowsMap(out SuperMetroidSaveSlot mapSlot))
+            return;
+        // Menu construction consumes only save/map data. A dead runtime
+        // must not keep publishing gameplay audio during map selection.
+        session.ReleaseRuntime();
+        FileSelectMapMenuState map = session.Show(new FileSelectMapMenuState(session.audio, session.Random, mapSlot, controllerInput,
+            session.Artwork.ScreenContent, session.Artwork.SpriteSheets));
+        Current = new Stage.Map(map);
+        ShowAreaMap(map, mapSlot);
+    }
+
+    /// <summary>One update of a saved game's area map once it shows.</summary>
+    private void RunAreaMap(FileSelectMapMenuState map, ControllerButton controllerInput)
+    {
+        if (!MapSlotShowsMap(out SuperMetroidSaveSlot mapSlot))
+            return;
+        if (map.Outcome == FileSelectMapOutcome.Load)
+        {
+            // The previous map update blanked the display and waited out this frame;
+            // continuing, it enters the game load. The map runs no more.
+            session.Close<FileSelectMapMenuState>();
+            session.Enter(GameDataLoadRoute.SavedCheckpoint);
+            session.display.PublishBlack();
+            return;
+        }
+        map.Step(controllerInput);
+        ShowAreaMap(map, mapSlot);
+    }
+
+    /// <summary>Publishes the area map, and opens the options once it asks for them.</summary>
+    private void ShowAreaMap(FileSelectMapMenuState map, SuperMetroidSaveSlot mapSlot)
+    {
+        session.display.PublishFileMap(map);
+        if (map.Outcome == FileSelectMapOutcome.Options)
+        {
+            GameOptionsMenuState options = session.Show(new GameOptionsMenuState(session.audio, session.Artwork.ScreenContent,
+                session.Artwork.SpriteSheets, mapSlot.ControllerBindings,
+                mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled,
+                japaneseText: mapSlot.JapaneseText));
+            Current = new Stage.Options(options);
+            session.display.PublishMenu(options);
+        }
+        // A latched load request waits out the next frame before the game load.
+    }
+
+    /// <summary>
+    /// Continues the selected slot's saved game, whose checkpoint the map shows unless the save resumes at Ceres's
+    /// destruction, which starts, or its checkpoint is on Ceres, which has no map and starts its arrival.
+    /// </summary>
+    /// <param name="mapSlot">The selected slot's save.</param>
+    /// <returns>Whether the map shows the save's checkpoint.</returns>
+    private bool MapSlotShowsMap(out SuperMetroidSaveSlot mapSlot)
     {
         session.ContinueSavedGame();
-        SuperMetroidSaveSlot mapSlot = session.saves.ReadSavedSlot(session.SelectedSaveSlot);
+        mapSlot = session.saves.ReadSavedSlot(session.SelectedSaveSlot);
         if (mapSlot.StartupRoute == SaveStartupRoute.CeresDestruction)
         {
             StartSavedCeresDestruction(mapSlot);
-            return;
+            return false;
         }
         if (mapSlot.Checkpoint.Area != AreaId.Ceres)
-        {
-            if (session.ScreenAs<FileSelectMapMenuState>() is { Outcome: FileSelectMapOutcome.Load })
-            {
-                // The previous map update blanked the display and waited out this frame;
-                // continuing, it enters the game load. The map runs no more.
-                session.Close<FileSelectMapMenuState>();
-                session.Enter(GameDataLoadRoute.SavedCheckpoint);
-                session.display.PublishBlack();
-                return;
-            }
-            if (session.ScreenAs<FileSelectMapMenuState>() is null)
-            {
-                // Menu construction consumes only save/map data. A dead runtime
-                // must not keep publishing gameplay audio during map selection.
-                session.ReleaseRuntime();
-                session.Show(new FileSelectMapMenuState(session.audio, session.Random, mapSlot, controllerInput,
-                    session.Artwork.ScreenContent, session.Artwork.SpriteSheets));
-            }
-            else session.ActiveFileSelectMap.Step(controllerInput);
-            session.display.PublishFileMap(session.ActiveFileSelectMap);
-            if (session.ActiveFileSelectMap.Outcome == FileSelectMapOutcome.Options)
-            {
-                session.Show(new GameOptionsMenuState(session.audio, session.Artwork.ScreenContent,
-                    session.Artwork.SpriteSheets, mapSlot.ControllerBindings,
-                    mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled,
-                    japaneseText: mapSlot.JapaneseText));
-                session.Enter(FileSelectStep.Options);
-                session.display.PublishMenu(session.ActiveOptions);
-                return;
-            }
-            // A latched load request waits out the next frame before the game load (see above).
-            return;
-        }
+            return true;
         // Ceres has no world-map entry; preserve its checkpoint arrival path.
         bool continueUsesCeresArrival = session.SetupSelectedGame();
         if (continueUsesCeresArrival)
@@ -238,6 +238,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IFronten
             session.BeginGameplayFadeIn(target: GameplayFadeTarget.Gameplay);
             session.display.PublishBlack();
         }
+        return false;
     }
 
     /// <summary>
@@ -272,5 +273,117 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IFronten
             NarrationPresentation = session.Artwork.ScreenContent.IntroNarration,
         };
         return cinematic;
+    }
+
+    /// <summary>A step of choosing a game (#2554): its name, the screen it shows and what it runs.</summary>
+    internal abstract class Stage
+    {
+        /// <summary>Only the steps below derive from it.</summary>
+        private protected Stage()
+        {
+        }
+
+        /// <summary>The step's name.</summary>
+        internal abstract FileSelectStep Step { get; }
+
+        /// <summary>The step's name, for diagnostics.</summary>
+        internal abstract string Name { get; }
+
+        /// <summary>Whether the step waits out a frame of the display.</summary>
+        internal abstract bool IsWaitingOutDisplayFrame { get; }
+
+        /// <summary>Runs one update of the step.</summary>
+        /// <param name="fileSelect">Choosing a game.</param>
+        /// <param name="controllerInput">The update's controller input.</param>
+        internal abstract void Run(FileSelectGameSequence fileSelect, ControllerButton controllerInput);
+
+        /// <summary>The save slots, showing <paramref name="screen"/>.</summary>
+        /// <param name="screen">The save slots' screen.</param>
+        internal sealed class SaveSlots(FileSelectMenuState screen) : Stage
+        {
+            /// <summary>The save slots' screen.</summary>
+            internal FileSelectMenuState Screen { get; } = Ensure.NotNull(screen);
+
+            /// <inheritdoc/>
+            internal override FileSelectStep Step => FileSelectStep.SaveSlots;
+
+            /// <inheritdoc/>
+            internal override string Name => Screen.Phase.ToString();
+
+            /// <inheritdoc/>
+            internal override bool IsWaitingOutDisplayFrame => Screen.IsWaitingOutDisplayFrame;
+
+            /// <inheritdoc/>
+            internal override void Run(FileSelectGameSequence fileSelect, ControllerButton controllerInput) =>
+                fileSelect.RunSaveSlots(Screen, controllerInput);
+        }
+
+        /// <summary>The selected game's options, showing <paramref name="screen"/>.</summary>
+        /// <param name="screen">The options' screen.</param>
+        internal sealed class Options(GameOptionsMenuState screen) : Stage
+        {
+            /// <summary>The options' screen.</summary>
+            internal GameOptionsMenuState Screen { get; } = Ensure.NotNull(screen);
+
+            /// <inheritdoc/>
+            internal override FileSelectStep Step => FileSelectStep.Options;
+
+            /// <inheritdoc/>
+            internal override string Name => Screen.Phase.ToString();
+
+            /// <inheritdoc/>
+            internal override bool IsWaitingOutDisplayFrame => false;
+
+            /// <inheritdoc/>
+            internal override void Run(FileSelectGameSequence fileSelect, ControllerButton controllerInput) =>
+                fileSelect.RunOptions(Screen, controllerInput);
+        }
+
+        /// <summary>A saved game's area map, before its first update builds it.</summary>
+        internal sealed class PreparingMap : Stage
+        {
+            /// <summary>Only <see cref="Instance"/> is made.</summary>
+            private PreparingMap()
+            {
+            }
+
+            /// <summary>The one preparation.</summary>
+            internal static PreparingMap Instance { get; } = new();
+
+            /// <inheritdoc/>
+            internal override FileSelectStep Step => FileSelectStep.AreaMap;
+
+            /// <inheritdoc/>
+            internal override string Name => "Preparing saved-game map";
+
+            /// <inheritdoc/>
+            internal override bool IsWaitingOutDisplayFrame => false;
+
+            /// <inheritdoc/>
+            internal override void Run(FileSelectGameSequence fileSelect, ControllerButton controllerInput) =>
+                fileSelect.PrepareAreaMap(controllerInput);
+        }
+
+        /// <summary>A saved game's area map, showing <paramref name="screen"/>.</summary>
+        /// <param name="screen">The map's screen.</param>
+        internal sealed class Map(FileSelectMapMenuState screen) : Stage
+        {
+            /// <summary>The map's screen.</summary>
+            internal FileSelectMapMenuState Screen { get; } = Ensure.NotNull(screen);
+
+            /// <inheritdoc/>
+            internal override FileSelectStep Step => FileSelectStep.AreaMap;
+
+            /// <inheritdoc/>
+            internal override string Name => Screen.Phase.ToString();
+
+            /// <inheritdoc/>
+            /// <remarks>The map's final update latched its load request, blanked the display and waits out one frame.</remarks>
+            internal override bool IsWaitingOutDisplayFrame => Screen.Outcome == FileSelectMapOutcome.Load;
+
+            /// <inheritdoc/>
+            internal override void Run(FileSelectGameSequence fileSelect, ControllerButton controllerInput) =>
+                fileSelect.RunAreaMap(Screen, controllerInput);
+        }
     }
 }

@@ -224,12 +224,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     FloorView? IEnemyDisplaySources.FlownFloor => SpeciesComposition.Displays.FlownFloor;
 
     /// <inheritdoc/>
-    RoomWarningText IEnemyDisplaySources.ForegroundWarning => SpeciesComposition.Displays.ForegroundWarning;
-
-    /// <inheritdoc/>
-    RoomWarningText IEnemyDisplaySources.BackgroundWarning => SpeciesComposition.Displays.BackgroundWarning;
-
-    /// <inheritdoc/>
     ImmutableArray<PerspectiveFloorScenery> IEnemyDisplaySources.FlownFloorWalls => SpeciesComposition.Displays.FlownFloorWalls;
 
     /// <inheritdoc/>

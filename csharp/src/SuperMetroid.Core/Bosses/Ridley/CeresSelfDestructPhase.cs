@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -34,7 +35,7 @@ internal sealed class CeresSelfDestructPhase
     internal static CeresSelfDestructPhase WaitingForWarning { get; } = new(nameof(WaitingForWarning), turn => turn.Escape.RunWaitingForWarning());
 
     /// <summary>The EMERGENCY title waits to show, its wait's first update the warning's showing; the last draws it and starts the music.</summary>
-    internal static CeresSelfDestructPhase WaitingForTitle { get; } = new(nameof(WaitingForTitle), turn => turn.Escape.RunWaitingForTitle());
+    internal static CeresSelfDestructPhase WaitingForTitle { get; } = new(nameof(WaitingForTitle), turn => turn.Escape.RunWaitingForTitle(turn.Warning));
 
     /// <summary>The EMERGENCY title holds, the alarm colours cycling, until its hold runs out.</summary>
     internal static CeresSelfDestructPhase HoldingTitle { get; } = new(nameof(HoldingTitle), turn => turn.Escape.RunHoldingTitle(turn.RidleyFrameCounter));
@@ -45,12 +46,12 @@ internal sealed class CeresSelfDestructPhase
     /// </summary>
     /// <param name="typewriter">The typewriter the title's hold started.</param>
     internal static CeresSelfDestructPhase JapaneseSubtitle(EscapeTypewriterState typewriter) =>
-        new(nameof(JapaneseSubtitle), turn => turn.Escape.RunJapaneseSubtitle(turn.RidleyFrameCounter, typewriter));
+        new(nameof(JapaneseSubtitle), turn => turn.Escape.RunJapaneseSubtitle(turn.RidleyFrameCounter, typewriter, turn.Warning));
 
     /// <summary><paramref name="typewriter"/> types the warning, one step per update, until its message ends.</summary>
     /// <param name="typewriter">The typewriter the title's hold started.</param>
     internal static CeresSelfDestructPhase TypingWarning(EscapeTypewriterState typewriter) =>
-        new(nameof(TypingWarning), turn => turn.Escape.RunTypingWarning(turn.RidleyFrameCounter, typewriter));
+        new(nameof(TypingWarning), turn => turn.Escape.RunTypingWarning(turn.RidleyFrameCounter, typewriter, turn.Warning));
 
     /// <summary>The warning is complete: Ridley stops, the station's countdown starts and the area boss counts as beaten.</summary>
     internal static CeresSelfDestructPhase Finishing { get; } = new(nameof(Finishing), turn => turn.Escape.RunFinishing(turn.RidleyFrameCounter));
@@ -58,8 +59,9 @@ internal sealed class CeresSelfDestructPhase
     /// <summary>Runs the phase one update.</summary>
     /// <param name="escape">The station's escape, whose warning the phase runs.</param>
     /// <param name="ridleyFrameCounter">Ridley's body's update count, which paces the alarm.</param>
+    /// <param name="warning">The room's foreground warning, which the warning's phases write.</param>
     /// <returns>Whether the phase entered the next phase, which runs in this same update.</returns>
-    internal bool Run(CeresEscape escape, int ridleyFrameCounter) => _run(new(escape, ridleyFrameCounter));
+    internal bool Run(CeresEscape escape, int ridleyFrameCounter, RoomWarning warning) => _run(new(escape, ridleyFrameCounter, warning));
 
     /// <summary>Names the phase.</summary>
     public override string ToString() => _name;

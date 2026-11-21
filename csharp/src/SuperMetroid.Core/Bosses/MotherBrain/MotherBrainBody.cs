@@ -7,6 +7,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies.Drawing;
 
@@ -70,8 +71,10 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>Sets Mother Brain's body up when the room spawns it.</summary>
+    /// <param name="occupant">Her body.</param>
+    /// <param name="zebesWarning">The room's background warning, which her death types Zebes's warning on.</param>
     /// <returns>The encounter the body begins, which it holds from its setup.</returns>
-    internal MotherBrainEnemyState InitializeMotherBrainBody(RoomEnemyOccupant occupant)
+    internal MotherBrainEnemyState InitializeMotherBrainBody(RoomEnemyOccupant occupant, RoomWarning zebesWarning)
     {
         RoomEnemyPlace body = occupant.Place;
         body.AnimationClock.StepOnNextUpdate();
@@ -83,7 +86,7 @@ internal sealed class MotherBrainBody
         // sequence share.
         // The body begins the encounter, which it holds from here and her head joins (#2218).
         MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(occupant, _places.Member(body, MotherBrainFightDefinitions.Listing, EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead),
-            new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation())
+            new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), zebesWarning)
         {
             Form = MotherBrainForm.Glass,
             HitboxesEnabled = MotherBrainHitboxParts.Brain,

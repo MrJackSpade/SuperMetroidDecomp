@@ -142,8 +142,9 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IFronte
             session.Enter(AttractDemoStep.Loading);
             return;
         }
+        TitleSequenceState title;
         if (session.Demo.Cancelled)
-            session.Show(TitleSequenceState.ReturnFromDemo(
+            title = session.Show(TitleSequenceState.ReturnFromDemo(
                 session.audio,
                 session.Artwork.ScreenContent.TitleGradient,
                 session.Artwork.ScreenContent.TitleBackdrop,
@@ -151,14 +152,14 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IFronte
         else
         {
             session.audio.QueueMusic(MusicRequest.Stop);
-            session.Show(new TitleSequenceState(
+            title = session.Show(new TitleSequenceState(
                 session.audio,
                 session.Artwork.ScreenContent.TitleGradient,
                 session.Artwork.ScreenContent.TitleBackdrop,
                 session.Artwork.SpriteSheets));
         }
-        session.Enter(TitleStep.Showing);
-        session.display.PublishMenu(session.ActiveTitle);
+        session.EnterTitle(new TitleGameSequence.Stage.Showing(title));
+        session.display.PublishMenu(title);
     }
 
     /// <summary>Starts the transition out of a completed or cancelled demo scene.</summary>

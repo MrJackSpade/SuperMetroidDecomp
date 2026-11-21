@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
@@ -41,8 +42,10 @@ internal sealed class CeresRidleyFlight
     /// Ridley sets himself up. A Ceres Ridley whose boss is already dead never spawns: the room's state once its boss is
     /// dead places no Ridley, only its door.
     /// </summary>
+    /// <param name="place">His body.</param>
+    /// <param name="warning">The room's foreground warning, which the self-destruct his getaway starts writes.</param>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal CeresRidleyState InitializeCeresRidley(RoomEnemyPlace place)
+    internal CeresRidleyState InitializeCeresRidley(RoomEnemyPlace place, RoomWarning warning)
     {
         // Ceres Ridley starts with a fresh encounter, below, and the minimap stays off, which the room's load sees to once
         // the enemies are loaded; Ceres has no arena to mark explored.
@@ -54,7 +57,7 @@ internal sealed class CeresRidleyFlight
         place.Position = place.Position.WithWhole(CeresRidleyArenaDefinitions.Spawn);
         _ridleyEncounter.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
 
-        var ridley = new CeresRidleyState(place.Position.Whole);
+        var ridley = new CeresRidleyState(place.Position.Whole, warning);
         _ridleyEncounter.BeginCeres(place, ridley);
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.Standing);
         // Ceres Ridley's setup ends by stopping the music.

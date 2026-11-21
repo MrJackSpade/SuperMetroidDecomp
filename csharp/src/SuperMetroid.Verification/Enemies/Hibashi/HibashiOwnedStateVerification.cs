@@ -35,8 +35,9 @@ internal static class HibashiOwnedStateVerification
         AssertEqual(HibashiDefinitions.FirstWait, graphicsState.InactiveTimer.UpdatesLeft, "a new flame starts at its first wait");
         HibashiBehavior.RunHibashiMainAi(graphics.HeldOccupant().SpawnSettings<HibashiFlameSpawnSettings>(), graphics, graphics.RequireSpeciesState<HibashiEnemyState>());
         AssertEqual(HibashiAction.Active, graphicsState.Action, "a new flame erupts on its first update");
+        // The eruption's last cue finishes it; its next update rests it.
         graphicsState.Action = HibashiAction.Finished;
-        HibashiBehavior.RestHibashi(graphics.HeldOccupant(), graphicsState);
+        HibashiBehavior.RunHibashiMainAi(graphics.HeldOccupant().SpawnSettings<HibashiFlameSpawnSettings>(), graphics, graphicsState);
         AssertEqual((HibashiAction.Inactive, ushort.MaxValue + EnemyWaitDefinitions.RunOutUpdate), (graphicsState.Action, graphicsState.InactiveTimer.UpdatesLeft),
             "a finished eruption rests for parameter one's full word and the update it runs out on");
         Console.WriteLine("Hibashi owned state: both parts' parameters and the spawn height match.");

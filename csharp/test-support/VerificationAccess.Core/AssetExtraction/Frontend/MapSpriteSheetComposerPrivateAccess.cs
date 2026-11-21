@@ -14,7 +14,7 @@ internal static class MapSpriteSheetComposerPrivateAccess
     extension(global::SuperMetroid.AssetExtraction.Frontend.MapSpriteSheetComposer)
     {
         /// <summary>The private method <c>Sources</c>, invoked by name.</summary>
-        internal static global::SuperMetroid.AssetExtraction.Artwork.SpriteSheetSources Sources(global::SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSpriteCompositions sprites, global::SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation maps) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Artwork.SpriteSheetSources>(typeof(global::SuperMetroid.AssetExtraction.Frontend.MapSpriteSheetComposer), "Sources", [typeof(global::SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSpriteCompositions), typeof(global::SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation)], new object?[] { sprites, maps });
+        internal static global::SuperMetroid.AssetExtraction.Artwork.SpriteSheetSources Sources(global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteArtwork sprites, global::SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation maps) =>
+            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Artwork.SpriteSheetSources>(typeof(global::SuperMetroid.AssetExtraction.Frontend.MapSpriteSheetComposer), "Sources", [typeof(global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteArtwork), typeof(global::SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation)], new object?[] { sprites, maps });
     }
 }

@@ -36,8 +36,8 @@ internal static class EnemyProjectileEnginePrivateAccess
     extension(global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine)
     {
         /// <summary>The private method <c>InitializeEnemyProjectileFromDefinition</c>, invoked by name.</summary>
-        internal static void InitializeEnemyProjectileFromDefinition(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind kind, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior behavior, global::SuperMetroid.Core.Enemies.SpriteGraphics graphics) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine), "InitializeEnemyProjectileFromDefinition", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind), typeof(global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior), typeof(global::SuperMetroid.Core.Enemies.SpriteGraphics)], new object?[] { projectile, kind, behavior, graphics });
+        internal static void InitializeEnemyProjectileFromDefinition(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind kind, global::SuperMetroid.Core.Enemies.SpriteGraphics graphics) =>
+            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine), "InitializeEnemyProjectileFromDefinition", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind), typeof(global::SuperMetroid.Core.Enemies.SpriteGraphics)], new object?[] { projectile, kind, graphics });
     }
 
     /// <summary>The private instance members checks read or call.</summary>

@@ -108,51 +108,51 @@ internal static class BlockReactionChangeDefinitionsPrivateAccess
         }
 
         /// <summary>The private property <c>CrumbleReveal1x1</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange CrumbleReveal1x1
+        internal static global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange CrumbleReveal1x1
         {
-            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "CrumbleReveal1x1");
+            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "CrumbleReveal1x1");
         }
 
         /// <summary>The private property <c>CrumbleReveal1x2</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange CrumbleReveal1x2
+        internal static global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange CrumbleReveal1x2
         {
-            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "CrumbleReveal1x2");
+            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "CrumbleReveal1x2");
         }
 
         /// <summary>The private property <c>CrumbleReveal2x1</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange CrumbleReveal2x1
+        internal static global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange CrumbleReveal2x1
         {
-            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "CrumbleReveal2x1");
+            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "CrumbleReveal2x1");
         }
 
         /// <summary>The private property <c>CrumbleReveal2x2</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange CrumbleReveal2x2
+        internal static global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange CrumbleReveal2x2
         {
-            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "CrumbleReveal2x2");
+            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "CrumbleReveal2x2");
         }
 
         /// <summary>The private property <c>PermanentShotBlock1x1</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange PermanentShotBlock1x1
+        internal static global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange PermanentShotBlock1x1
         {
-            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "PermanentShotBlock1x1");
+            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "PermanentShotBlock1x1");
         }
 
         /// <summary>The private property <c>PermanentShotBlock1x2</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange PermanentShotBlock1x2
+        internal static global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange PermanentShotBlock1x2
         {
-            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "PermanentShotBlock1x2");
+            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "PermanentShotBlock1x2");
         }
 
         /// <summary>The private property <c>PermanentShotBlock2x1</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange PermanentShotBlock2x1
+        internal static global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange PermanentShotBlock2x1
         {
-            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "PermanentShotBlock2x1");
+            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "PermanentShotBlock2x1");
         }
 
         /// <summary>The private property <c>PermanentShotBlock2x2</c>, reached by name.</summary>
-        internal static global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange PermanentShotBlock2x2
+        internal static global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange PermanentShotBlock2x2
         {
-            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "PermanentShotBlock2x2");
+            get => PrivateState.StaticGet<global::SuperMetroid.Core.Rooms.RoomObjects.LastingBlockReactionChange>(typeof(global::SuperMetroid.Core.Rooms.RoomObjects.BlockReactionChangeDefinitions), "PermanentShotBlock2x2");
         }
 
         /// <summary>The private property <c>ReactionBombBlock1x1Permanent</c>, reached by name.</summary>

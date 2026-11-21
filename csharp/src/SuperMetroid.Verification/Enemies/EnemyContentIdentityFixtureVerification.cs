@@ -199,7 +199,9 @@ internal static class EnemyContentIdentityFixtureVerification
             foreach (var field in fields)
             {
                 string name = typeof(T).Name + "." + field.Name;
-                document.Add(field.Name, field.Rows == 0 ? Colors(name, field.Colors) : ColorRows(name, field.Rows, field.Colors));
+                document.Add(field.Name, field.Rows == 0 ? Colors(name, field.Colors)
+                    : field.Keys is { } keys ? keys.Zip(ColorRows(name, field.Rows, field.Colors)).ToDictionary(row => row.First, row => row.Second)
+                    : ColorRows(name, field.Rows, field.Colors));
             }
             return load(Json(document));
         }
@@ -292,7 +294,8 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("wallSpikes", 0, CrocomireColorDefinitions.WallSpikesCount)), DraygonColors = ColorCatalog(DraygonColorFormat.Version, DraygonColorFile.Read,
                     new EnemyContentIdentityFixtureField("intro", 0, DraygonColorDefinitions.IntroCount), new EnemyContentIdentityFixtureField("background", 0, DraygonColorDefinitions.BackgroundCount),
                     new EnemyContentIdentityFixtureField("sprite", 0, DraygonColorDefinitions.SpriteCount), new EnemyContentIdentityFixtureField("whiteFlash", 0, DraygonColorDefinitions.WhiteFlashCount),
-                    new EnemyContentIdentityFixtureField("healthBands", SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Count, DraygonColorDefinitions.HealthBandColorCount)), PhantoonColors = ColorCatalog(PhantoonColorFormat.Version, PhantoonColorFile.Read,
+                    new EnemyContentIdentityFixtureField("healthBands", SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Count, DraygonColorDefinitions.HealthBandColorCount,
+                        [.. SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Select(band => band.Key)])), PhantoonColors = ColorCatalog(PhantoonColorFormat.Version, PhantoonColorFile.Read,
                     new EnemyContentIdentityFixtureField("healthBands", PhantoonColorDefinitions.HealthBandCount, PhantoonColorFormat.HealthBandColorCount),
                     new EnemyContentIdentityFixtureField("fadeOut", 0, PhantoonColorFormat.FadeOutCount), new EnemyContentIdentityFixtureField("powerOn", 0, SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork.PhantoonColorCatalogAccess.PowerOnNativeColourCount)), SporeSpawnColors = ColorCatalog(SporeSpawnColorFormat.Version, SporeSpawnColorFile.Read,
                     new EnemyContentIdentityFixtureField("spores", 0, SporeSpawnColorFormat.ColorsPerFrame), new EnemyContentIdentityFixtureField("health", SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst.Count, SporeSpawnColorFormat.ColorsPerFrame),

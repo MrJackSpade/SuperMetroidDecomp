@@ -6,18 +6,18 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroEggMotionDefinitions
 {
     /// <summary>
-    /// Each piece of the shell: where it starts, its horizontal launch speed and the animation it shows, which
-    /// <see cref="IntroEggMotion.FragmentInitialPosition"/>, <see cref="IntroEggMotion.FragmentX"/> and the piece's actor select.
+    /// Each piece of the shell: where it starts and its horizontal launch speed, which
+    /// <see cref="IntroEggMotion.FragmentInitialPosition"/> and <see cref="IntroEggMotion.FragmentX"/> select.
     /// </summary>
     internal static readonly IReadOnlyDictionary<IntroEggShellFragment, IntroEggShellPiece> ShellPieces =
         new Dictionary<IntroEggShellFragment, IntroEggShellPiece>
         {
-            [IntroEggShellFragment.UpperLeft] = new(new(108, 147), SignedSixteenSixteen.FromPixelFraction(-3, 4), IntroEggEffectAnimation.ShellUpperLeft),
-            [IntroEggShellFragment.UpperRight] = new(new(115, 147), SignedSixteenSixteen.FromPixelFraction(1, 4), IntroEggEffectAnimation.ShellUpperRight),
-            [IntroEggShellFragment.Left] = new(new(105, 152), SignedSixteenSixteen.FromPixelFraction(-1, 2), IntroEggEffectAnimation.ShellLeft),
-            [IntroEggShellFragment.Centre] = new(new(112, 150), SignedSixteenSixteen.FromPixelFraction(-7, 8), IntroEggEffectAnimation.ShellCentre),
-            [IntroEggShellFragment.Right] = new(new(118, 153), SignedSixteenSixteen.FromPixelFraction(1, 2), IntroEggEffectAnimation.ShellRight),
-            [IntroEggShellFragment.Lower] = new(new(115, 155), SignedSixteenSixteen.FromPixelFraction(1, 8), IntroEggEffectAnimation.ShellLower),
+            [IntroEggShellFragment.UpperLeft] = new(new(108, 147), SignedSixteenSixteen.FromPixelFraction(-3, 4)),
+            [IntroEggShellFragment.UpperRight] = new(new(115, 147), SignedSixteenSixteen.FromPixelFraction(1, 4)),
+            [IntroEggShellFragment.Left] = new(new(105, 152), SignedSixteenSixteen.FromPixelFraction(-1, 2)),
+            [IntroEggShellFragment.Centre] = new(new(112, 150), SignedSixteenSixteen.FromPixelFraction(-7, 8)),
+            [IntroEggShellFragment.Right] = new(new(118, 153), SignedSixteenSixteen.FromPixelFraction(1, 2)),
+            [IntroEggShellFragment.Lower] = new(new(115, 155), SignedSixteenSixteen.FromPixelFraction(1, 8)),
         };
 
     /// <summary>The definition of <paramref name="fragment"/>.</summary>

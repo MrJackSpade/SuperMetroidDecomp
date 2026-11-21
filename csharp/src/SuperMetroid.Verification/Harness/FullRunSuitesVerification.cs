@@ -242,6 +242,7 @@ using static SuperMetroid.Verification.Frontend.BootDemoSetCountVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleEnemyDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleShellContourVerification;
 using static SuperMetroid.Verification.Audio.ManagedAudioVerification;
+using static SuperMetroid.Verification.Audio.RoomMusicSoundClipVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeObjectVerification;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeVisualsVerification;
@@ -1020,6 +1021,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyGModeGateGlitch), () => VerifyGModeGateGlitch()),
         new(nameof(VerifyFrozenEnemyGateGlitch), () => VerifyFrozenEnemyGateGlitch()),
         new(nameof(VerifyMochtroidBotwoonPipeClip), () => VerifyMochtroidBotwoonPipeClip()),
+        new(nameof(VerifyRoomMusicSoundClips), () => VerifyRoomMusicSoundClips()),
         new(nameof(VerifySparkCrashAlignment), () => VerifySparkCrashAlignment()),
         new(nameof(VerifyEnemyAngleDivision), () => VerifyEnemyAngleDivision()),
         new(nameof(VerifyDraygonEyeEffects), () => VerifyDraygonEyeEffects()),

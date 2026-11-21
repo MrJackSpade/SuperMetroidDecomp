@@ -114,7 +114,7 @@ internal static class RoomBlockFixtures
                 Corner = new Position16<ImagePixels>((ushort)left, (ushort)top),
                 Size = new Extent16<ImagePixels>(side, side),
                 Origin = default,
-                ColourGroups = coloured.ManifestMembers,
+                ColourGroups = coloured,
             });
         }
         return new PaintedBlocks(canvas, colours, frames, count);
@@ -171,7 +171,7 @@ internal static class RoomBlockFixtures
                 Corner = default,
                 Size = size,
                 Origin = default,
-                ColourGroups = coloured.ManifestMembers,
+                ColourGroups = coloured,
             },
         };
         // The image is installed as its part behind and its part in front, as extraction installs a room's background (#1634).

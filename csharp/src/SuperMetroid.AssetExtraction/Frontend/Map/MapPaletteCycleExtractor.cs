@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -29,7 +30,7 @@ internal static class MapPaletteCycleExtractor
             {
                 int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     MapSourceDefinitions.Animation.PaletteColors + (frame * MapPaletteCycleFormat.ColorCount + ink) * sizeof(ushort));
-                return new PaletteRgb5 { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
+                return PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             })];
             if (highlight.Distinct().Count() != 1)
                 throw new InvalidDataException($"Map highlight frame {frame}'s highlight colours differ.");

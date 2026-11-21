@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -25,12 +26,7 @@ public static class SamusVisorColorExtractor
         for (int index = 0; index < colors.Length; index++)
         {
             int word = unchecked(LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]));
-            colors[index] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = (word >> 5) & 31,
-                Blue = (word >> 10) & 31,
-            };
+            colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         }
         return SamusVisorColorFile.Write(new SamusVisorColorDocument
         {

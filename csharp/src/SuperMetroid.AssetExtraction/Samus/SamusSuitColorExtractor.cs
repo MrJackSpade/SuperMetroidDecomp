@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -34,12 +35,7 @@ public static class SamusSuitColorExtractor
             for (int index = 0; index < result.Length; index++)
             {
                 int color = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
-                result[index] = new PaletteRgb5
-                {
-                    Red = color & 31,
-                    Green = color >> 5 & 31,
-                    Blue = color >> 10 & 31,
-                };
+                result[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(color));
             }
             return result;
         }

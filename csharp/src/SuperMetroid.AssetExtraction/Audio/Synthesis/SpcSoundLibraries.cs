@@ -327,7 +327,7 @@ internal sealed class SpcSoundLibraries
             int command;
         NextCommand:
             command = ReadSoundByte(soundChannel);
-            if (command == 0xf9) // cartridge-encoding: allow(DomainDiscriminator) - SFX inline ADSR override
+            if (SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.SetAdsr))
             {
                 soundChannel.AdsrSettings = ReadSoundByte(soundChannel);
                 soundChannel.AdsrSettings = soundChannel.AdsrSettings | LittleEndianBytes.Word(low: 0, high: ReadSoundByte(soundChannel));
@@ -335,30 +335,30 @@ internal sealed class SpcSoundLibraries
                 soundChannel.UpdateAdsr = SpcDriverDefinitions.SoundEffects.Active;
                 goto NextCommand;
             }
-            if (command is 0xf5 or 0xf8) // cartridge-encoding: allow(DomainDiscriminator) - SFX pitch-slide forms
+            if (SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.PitchSlideLegato) || SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.PitchSlide))
             {
-                soundChannel.EnablePitchSlideLegato = command == 0xf5 // cartridge-encoding: allow(DomainDiscriminator) - legato slide
-                    ? (byte)0xf5 // cartridge-encoding: allow(DomainDiscriminator) - retained cartridge marker
+                soundChannel.EnablePitchSlideLegato = SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.PitchSlideLegato)
+                    ? checked((byte)SpcSoundEffectProgramCodec.OpcodeByte(SpcSoundEffectOpcode.PitchSlideLegato))
                     : (byte)0;
                 soundChannel.SubnoteDelta = ReadSoundByte(soundChannel);
                 soundChannel.TargetNote = ReadSoundByte(soundChannel);
                 soundChannel.EnablePitchSlide = SpcDriverDefinitions.SoundEffects.Active;
                 command = ReadSoundByte(soundChannel);
             }
-            if (command == byte.MaxValue)
+            if (SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.End))
             {
                 ResetSoundChannel(library, soundChannel);
                 return;
             }
-            if (command == 0xfe) // cartridge-encoding: allow(DomainDiscriminator) - SFX repeat-start opcode
+            if (SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.BeginRepeat))
             {
                 soundChannel.RepeatCounter = ReadSoundByte(soundChannel);
                 soundChannel.RepeatPoint = soundChannel.PointerIndex;
                 command = ReadSoundByte(soundChannel);
             }
-            if (command is 0xfb or 0xfd) // cartridge-encoding: allow(DomainDiscriminator) - SFX repeat opcodes
+            if (SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.RepeatForever) || SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.EndRepeat))
             {
-                if (command == 0xfd) // cartridge-encoding: allow(DomainDiscriminator) - counted repeat opcode
+                if (SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.EndRepeat))
                 {
                     soundChannel.RepeatCounter = SpcDriverWrap.Byte(soundChannel.RepeatCounter - 1);
                     if (soundChannel.RepeatCounter == 0)
@@ -367,7 +367,7 @@ internal sealed class SpcSoundLibraries
                 soundChannel.PointerIndex = soundChannel.RepeatPoint;
                 command = ReadSoundByte(soundChannel);
             }
-            if (command == 0xfc) // cartridge-encoding: allow(DomainDiscriminator) - SFX noise-enable opcode
+            if (SpcSoundEffectProgramCodec.Is(command, SpcSoundEffectOpcode.EnableNoise))
             {
                 _voices.noiseEnable = _voices.noiseEnable | soundChannel.VoiceBitset;
                 goto NextCommand;

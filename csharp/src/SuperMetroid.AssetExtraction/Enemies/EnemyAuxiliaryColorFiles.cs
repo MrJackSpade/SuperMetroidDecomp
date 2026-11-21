@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -31,10 +32,7 @@ public static class EnemyAuxiliaryColorFiles
                 {
                     int word = RomDataReader.ReadWordFixedBank(cartridge, stored.FirstRow.Value +
                         (frame * stored.RowStrideColors + color) * sizeof(ushort));
-                    rows[frame][color] = new PaletteRgb5
-                    {
-                        Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31,
-                    };
+                    rows[frame][color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
                 }
             }
             palettes.Add(definition.Id, rows);

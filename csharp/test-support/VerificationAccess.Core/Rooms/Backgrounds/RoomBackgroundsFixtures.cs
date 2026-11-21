@@ -320,9 +320,9 @@ internal static class RoomBackgroundsFixtures
     {
         bool twoBpp = kind == SpriteImageColours.TwoBppBackground;
         bool fullPalette = kind == SpriteImageColours.FullPalette;
-        var standard = new ushort[ImageColourGroup.ColourCountOf(kind)];
+        var standard = new RgbColor[ImageColourGroup.ColourCountOf(kind)];
         for (int colour = 0; colour < standard.Length; colour++)
-            standard[colour] = colour / 16 % 2 == 0 ? scene[colour].ToWord() : (ushort)random.Next(32768);
+            standard[colour] = colour / 16 % 2 == 0 ? scene[colour] : RgbColor.FromWord((ushort)random.Next(32768));
         int pixels = size.X * size.Y;
         var image = new RgbaPixel[pixels];
         var indices = new byte[pixels];
@@ -356,7 +356,7 @@ internal static class RoomBackgroundsFixtures
                 if (index % (twoBpp ? 4 : 16) != 0 && index / 16 < 8)
                     groups = groups.With(ImageColourGroup.OfInk(index));
             }
-            frames.Add(frame, new SpriteSheetFrameDocument { Corner = corner, Size = frameSize, Origin = default, ColourGroups = groups.ManifestMembers });
+            frames.Add(frame, new SpriteSheetFrameDocument { Corner = corner, Size = frameSize, Origin = default, ColourGroups = groups });
         }
         var document = new SpriteSheetDocument
         {

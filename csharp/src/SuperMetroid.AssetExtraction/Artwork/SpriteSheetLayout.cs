@@ -151,7 +151,7 @@ internal sealed class SpriteSheetLayout
                 Corner = laidPictures.Corners[laidPictures.PictureOf[index]],
                 Size = bound.Size,
                 Origin = new(checked((short)-bound.TopLeft.X), checked((short)-bound.TopLeft.Y)),
-                ColourGroups = composed.Groups.ManifestMembers,
+                ColourGroups = composed.Groups,
                 Depth = composed.Depth,
             };
         }

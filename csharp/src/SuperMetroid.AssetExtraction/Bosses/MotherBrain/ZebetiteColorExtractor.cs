@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -26,12 +27,7 @@ public static class ZebetiteColorExtractor
                 int address = MotherBrainSourceDefinitions.Zebetite.PulseColors +
                     (frame * ZebetiteColorFormat.ColorsPerFrame + color) * MotherBrainSourceDefinitions.ColorWordBytes;
                 int word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-                frames[frame][color] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = word >> 5 & 31,
-                    Blue = word >> 10 & 31,
-                };
+                frames[frame][color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
         }
         return ZebetiteColorFile.Write(new() { Version = ZebetiteColorFile.Version,

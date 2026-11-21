@@ -138,7 +138,7 @@ internal sealed class MotherBrainHead
                 head.Position.Whole + brainShake,
                 // Her brain's own draw bypasses ordinary enemy colour selection. The game
                 // still selects the shared white hurt colours on odd flash-timer frames.
-                MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(head.HurtFlash.UpdatesLeft) ? EnemyShades.HurtFlashLook : state.Colours.OwnShading),
+                MotherBrainCadenceDefinitions.HurtFlashWhite.IsInSecondHalfAt(head.HurtFlash.UpdatesLeft) ? EnemyShades.HurtFlashLook : state.Colours.OwnShading),
             camera,
             ShownCorpseRows(state));
 

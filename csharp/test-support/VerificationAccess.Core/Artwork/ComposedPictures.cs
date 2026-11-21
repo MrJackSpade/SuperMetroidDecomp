@@ -68,7 +68,7 @@ internal static class ComposedPictures
         {
             Frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
             {
-                [whole] = new SpriteSheetFrameDocument { Corner = default, Size = size, Origin = default, ColourGroups = groups.ManifestMembers },
+                [whole] = new SpriteSheetFrameDocument { Corner = default, Size = size, Origin = default, ColourGroups = groups },
             },
         };
         SpriteImage image = Install(name, size, pixels, paletteIndices, composed, out InstalledSheetDocument installed);
@@ -82,7 +82,7 @@ internal static class ComposedPictures
         return new SpriteSheetDocument
         {
             Palette = palette,
-            Colours = [.. table.ToArray().Select(colour => colour.ToWord())],
+            Colours = [.. table.ToArray()],
             Frames = [],
         };
     }

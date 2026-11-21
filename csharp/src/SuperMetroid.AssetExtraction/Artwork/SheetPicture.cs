@@ -83,7 +83,7 @@ internal sealed class SheetPicture
             planes.Pixels.Slice(from, size.X).CopyTo(pixels.AsSpan(row * size.X, size.X));
             planes.PaletteIndices.Slice(from, size.X).CopyTo(inks.AsSpan(row * size.X, size.X));
         }
-        return new SheetPicture(size, frame.Origin, ImageColourGroups.FromManifest(frame.ColourGroups), frame.Depth, pixels, inks);
+        return new SheetPicture(size, frame.Origin, frame.ColourGroups, frame.Depth, pixels, inks);
     }
 
     /// <summary>Copies the picture onto <paramref name="planes"/> with its rectangle's top-left pixel at <paramref name="corner"/>.</summary>
@@ -103,7 +103,7 @@ internal sealed class SheetPicture
         Corner = corner,
         Size = Size,
         Origin = Origin,
-        ColourGroups = ColourGroups.ManifestMembers,
+        ColourGroups = ColourGroups,
         Depth = Depth,
     };
 

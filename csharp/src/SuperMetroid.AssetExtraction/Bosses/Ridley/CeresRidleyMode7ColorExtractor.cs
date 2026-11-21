@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core;
@@ -27,12 +28,7 @@ public static class CeresRidleyMode7ColorExtractor
             for (int color = 0; color < rows[row].Length; color++)
             {
                 int word = LittleEndianBytes.Word(bytes[color * 2], bytes[color * 2 + 1]);
-                rows[row][color] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = word >> 5 & 31,
-                    Blue = word >> 10 & 31,
-                };
+                rows[row][color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
         }
         return CeresRidleyMode7ColorFile.Write(new CeresRidleyMode7ColorDocument

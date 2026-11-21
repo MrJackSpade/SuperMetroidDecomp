@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 public static class EscapeTimerTilePageTransfers
 {
     /// <summary>The page's upload size in bytes.</summary>
-    public static ushort ByteCountOf(EscapeTimerTilePage page) => page switch
+    public static int ByteCountOf(EscapeTimerTilePage page) => page switch
     {
         EscapeTimerTilePage.First => EscapeTimerTileAtlasFormat.FirstByteCount,
         EscapeTimerTilePage.Second => EscapeTimerTileAtlasFormat.SecondByteCount,

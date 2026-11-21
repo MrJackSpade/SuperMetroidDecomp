@@ -228,12 +228,7 @@ public static class IntroCinematicArtworkFiles
                     native.AsSpan(index * sizeof(ushort)));
                 if (!RgbColor.IsColorWord(checked((ushort)word)))
                     throw new InvalidDataException($"Opening palette color {index} has an unrepresentable high bit.");
-                colors[index] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = word >> 5 & 31,
-                    Blue = word >> 10 & 31,
-                };
+                colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
             using var json = new MemoryStream();
             IntroCinematicPaletteFile.Write(json, new IntroCinematicPaletteDocument

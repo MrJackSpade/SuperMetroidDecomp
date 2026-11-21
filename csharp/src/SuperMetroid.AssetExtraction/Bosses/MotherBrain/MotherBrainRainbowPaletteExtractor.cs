@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -103,11 +104,6 @@ internal static class MotherBrainRainbowPaletteExtractor
             return ToColor(word);
         }
 
-        static PaletteRgb5 ToColor(int word) => new()
-        {
-            Red = word & 31,
-            Green = word >> 5 & 31,
-            Blue = word >> 10 & 31,
-        };
+        static PaletteRgb5 ToColor(int word) => PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
     }
 }

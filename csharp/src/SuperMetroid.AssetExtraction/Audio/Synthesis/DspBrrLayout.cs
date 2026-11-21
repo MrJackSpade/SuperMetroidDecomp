@@ -12,8 +12,9 @@ internal static class DspBrrLayout
     internal const int LoopPointerOffset = 2;
     /// <summary>One header followed by eight bytes of packed samples.</summary>
     internal const int BlockBytes = 9;
-    /// <summary>Header bit zero marks the end of a BRR sequence.</summary>
-    internal const byte EndFlag = 1;
     /// <summary>The low two header bits contain END and LOOP.</summary>
-    internal const byte HeaderFlagsMask = 3;
+    private const int HeaderFlagsMask = 3;
+
+    /// <summary>How the block whose header byte is <paramref name="header"/> ends its sample (#2563).</summary>
+    internal static BrrBlockEnd EndOf(int header) => (BrrBlockEnd)(header & HeaderFlagsMask);
 }

@@ -109,7 +109,7 @@ internal static class IntroScenePictureSheetComposer
             Corner = new Position16<ImagePixels>(checked((ushort)(left * CharacterPixels)), checked((ushort)(top * CharacterPixels))),
             Size = new Extent16<ImagePixels>(checked((ushort)(columns * CharacterPixels)), checked((ushort)(tiles.Length / columns * CharacterPixels))),
             Origin = default,
-            ColourGroups = coloured.ManifestMembers,
+            ColourGroups = coloured,
         };
     }
 }

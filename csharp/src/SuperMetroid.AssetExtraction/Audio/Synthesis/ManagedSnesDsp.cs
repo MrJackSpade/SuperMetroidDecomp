@@ -318,7 +318,7 @@ public sealed class ManagedSnesDsp
     {
         ManagedPcmSampleBank bank = sampleBank ?? throw new InvalidOperationException(
             "S-DSP received key-on before an extracted PCM sample bank was installed.");
-        voice.PreviousFlags = 0;
+        voice.PreviousFlags = BrrBlockEnd.None;
         voice.ReleasedBrrCursor = null;
         voice.Sample = bank.Resolve(voice.SourceNumber);
         voice.SampleCursor = 0;
@@ -477,7 +477,7 @@ public sealed class ManagedSnesDsp
         voice.DecodeBuffer[0] = voice.DecodeBuffer[16];
         voice.DecodeBuffer[1] = voice.DecodeBuffer[17];
         voice.DecodeBuffer[2] = voice.DecodeBuffer[18];
-        if (voice.PreviousFlags is 1 or 3)
+        if (voice.PreviousFlags.HasFlag(BrrBlockEnd.End))
         {
             // END/LOOP re-reads DIR + SRCN in the native decoder, without a new
             // KON. The sound driver can restore an instrument during release.
@@ -499,7 +499,7 @@ public sealed class ManagedSnesDsp
             }
             (sample, voice.SampleCursor) = bank.ResolveLoopEntry(voice.SourceNumber);
             voice.Sample = sample;
-            if (voice.PreviousFlags == 1)
+            if (voice.PreviousFlags == BrrBlockEnd.End)
             {
                 voice.AdsrState = EnvelopeState.Release;
                 voice.Gain = 0;
@@ -508,7 +508,7 @@ public sealed class ManagedSnesDsp
         }
 
         ReadOnlySpan<short> source = sample.Samples.Span;
-        voice.PreviousFlags = 0;
+        voice.PreviousFlags = BrrBlockEnd.None;
         for (int sampleIndex = 0; sampleIndex < InstrumentSampleFormat.StreamingWindowSampleCount; sampleIndex++)
         {
             if (voice.SampleCursor >= source.Length)
@@ -521,7 +521,7 @@ public sealed class ManagedSnesDsp
                 }
                 else
                 {
-                    voice.PreviousFlags = 1;
+                    voice.PreviousFlags = BrrBlockEnd.End;
                     voice.DecodeBuffer[sampleIndex + 3] = 0;
                     continue;
                 }
@@ -529,7 +529,7 @@ public sealed class ManagedSnesDsp
             voice.DecodeBuffer[sampleIndex + 3] = source[voice.SampleCursor++];
         }
         if (voice.SampleCursor == source.Length)
-            voice.PreviousFlags = sample.LoopSampleIndex.HasValue ? (byte)3 : (byte)1;
+            voice.PreviousFlags = sample.LoopSampleIndex.HasValue ? BrrBlockEnd.End | BrrBlockEnd.Loop : BrrBlockEnd.End;
     }
 
     /// <summary>Reads a source's loop pointer from the live BRR directory in audio RAM.</summary>
@@ -548,12 +548,12 @@ public sealed class ManagedSnesDsp
     private void AdvanceReleasedBrr(int index, int cursor)
     {
         Voice voice = voices[index];
-        if ((voice.PreviousFlags & DspBrrLayout.EndFlag) != 0)
+        if (voice.PreviousFlags.HasFlag(BrrBlockEnd.End))
         {
             cursor = ReadLoopAddress(voice.SourceNumber);
             registers[endFlagsAddress] |= unchecked((byte)(1 << index));
         }
-        voice.PreviousFlags = unchecked((byte)(apuRam[cursor] & DspBrrLayout.HeaderFlagsMask));
+        voice.PreviousFlags = DspBrrLayout.EndOf(apuRam[cursor]);
         voice.ReleasedBrrCursor = SpcDriverWrap.Word(cursor + DspBrrLayout.BlockBytes);
     }
 
@@ -670,8 +670,8 @@ public sealed class ManagedSnesDsp
         public ManagedPcmSample? Sample;
         /// <summary>Next sample index within the bound PCM source.</summary>
         public int SampleCursor;
-        /// <summary>Previous BRR END and LOOP flags used when the next window starts.</summary>
-        public int PreviousFlags;
+        /// <summary>How the previous window's last block ended its sample, read when the next window starts.</summary>
+        public BrrBlockEnd PreviousFlags;
         /// <summary>BRR header cursor for a silent released voice whose PCM mapping vanished.</summary>
         public int? ReleasedBrrCursor;
         /// <summary>Routes the shared noise sample into this voice instead of PCM.</summary>
@@ -733,7 +733,7 @@ public sealed class ManagedSnesDsp
             SourceNumber = 0;
             Sample = null;
             SampleCursor = 0;
-            PreviousFlags = 0;
+            PreviousFlags = BrrBlockEnd.None;
             ReleasedBrrCursor = null;
             UseNoise = false;
             AttackRate = DecayRate = SustainRate = GainRate = 0;

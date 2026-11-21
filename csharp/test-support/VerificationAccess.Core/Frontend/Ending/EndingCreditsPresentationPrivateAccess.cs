@@ -12,8 +12,8 @@ internal static class EndingCreditsPresentationPrivateAccess
     extension(global::SuperMetroid.Core.Frontend.Ending.EndingCreditsPresentation)
     {
         /// <summary>The private method <c>FloorRepeatsBeyondEdges</c>, invoked by name.</summary>
-        internal static bool FloorRepeatsBeyondEdges(global::SuperMetroid.Core.Frontend.Ending.IEndingActorScene ending) =>
-            PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Frontend.Ending.EndingCreditsPresentation), "FloorRepeatsBeyondEdges", [typeof(global::SuperMetroid.Core.Frontend.Ending.IEndingActorScene)], new object?[] { ending });
+        internal static bool FloorRepeatsBeyondEdges(global::SuperMetroid.Core.Frontend.Ending.EndingCreditsPhase phase) =>
+            PrivateState.InvokeStatic<bool>(typeof(global::SuperMetroid.Core.Frontend.Ending.EndingCreditsPresentation), "FloorRepeatsBeyondEdges", [typeof(global::SuperMetroid.Core.Frontend.Ending.EndingCreditsPhase)], new object?[] { phase });
 
         /// <summary>The private method <c>PrepareSprites</c>, invoked by name.</summary>
         internal static global::SuperMetroid.Core.Assets.ScreenSprites PrepareSprites(global::SuperMetroid.Core.Frontend.Ending.EndingCreditsState ending, global::SuperMetroid.Core.Frontend.Ending.EndingSpriteLayer? only = null) =>

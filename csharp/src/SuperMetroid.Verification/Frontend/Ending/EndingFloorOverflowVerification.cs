@@ -32,7 +32,7 @@ internal static class EndingFloorOverflowVerification
         foreach (EndingCreditsPhase phase in EndingCreditsPhaseOrder.All)
         {
             PrivateState.Set(ending, nameof(EndingCreditsState.Phase), phase);
-            bool repeats = EndingCreditsPresentation.FloorRepeatsBeyondEdges(ending);
+            bool repeats = EndingCreditsPresentation.FloorRepeatsBeyondEdges(ending.Phase);
             bool expected = beforeEscape.Contains(phase);
             if (repeats != expected)
                 wrong.Add($"{phase} {(repeats ? "repeats" : "does not repeat")} its floor");
@@ -40,7 +40,7 @@ internal static class EndingFloorOverflowVerification
                 repeating++;
         }
         AssertTrue(wrong.Count == 0, $"ending phases disagree with the cartridge's Mode 7 settings:{Environment.NewLine}{string.Join(Environment.NewLine, wrong)}");
-        AssertTrue(EndingCreditsPresentation.FloorRepeatsBeyondEdges(PhaseOf(ending, EndingCreditsPhase.ZebesExplosionAnimation)),
+        AssertTrue(EndingCreditsPresentation.FloorRepeatsBeyondEdges(PhaseOf(ending, EndingCreditsPhase.ZebesExplosionAnimation).Phase),
             "the planet's explosion repeats its floor beyond its edges");
         Console.WriteLine($"Ending floor: {repeating} phases from the escape's setup through the planet escape's music wait repeat the floor, as the cartridge's Mode 7 settings 0 do.");
     }

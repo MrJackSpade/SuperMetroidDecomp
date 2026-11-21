@@ -22,23 +22,24 @@ internal static class EncounterArtworkPlacements
         {
             if (EncounterLookUploads.ShownAs(encounter) is not EncounterArtwork shown)
                 continue;
-            int current = EncounterLookUploadsConstants.IndexOf(encounter, looks.Current(shown));
-            Record(placements, encounter, Enumerable.Range(0, current + 1), resolver);
+            Record(placements, EncounterLookUploads.Steps(encounter, resolver).CopiesThrough(ComposedLook.Of(encounter, looks.Current(shown))));
         }
         return placements;
     }
 
     /// <summary>
-    /// The placements the copies of <paramref name="lookPlaces"/>, places among <paramref name="encounter"/>'s looks, leave,
-    /// copied in the order given, with their artwork as <paramref name="resolver"/> holds it: the looks a check shows, apart
-    /// from the encounter's other looks.
+    /// The placements the copies of <paramref name="shown"/>, looks of <paramref name="encounter"/>, leave, copied in the
+    /// order given, with their artwork as <paramref name="resolver"/> holds it: the looks a check shows, apart from the
+    /// encounter's other looks.
     /// </summary>
-    internal static SpriteArtworkPlacements Of(ComposedEncounter encounter, IEnumerable<int> lookPlaces, IInstalledEncounterArtwork resolver)
+    internal static SpriteArtworkPlacements Of(ComposedEncounter encounter, IEnumerable<ComposedLook> shown, IInstalledEncounterArtwork resolver)
     {
-        ArgumentNullException.ThrowIfNull(lookPlaces);
+        ArgumentNullException.ThrowIfNull(shown);
         ArgumentNullException.ThrowIfNull(resolver);
         var placements = new SpriteArtworkPlacements();
-        Record(placements, encounter, lookPlaces, resolver);
+        EncounterLookSteps steps = EncounterLookUploads.Steps(encounter, resolver);
+        foreach (ComposedLook look in shown)
+            Record(placements, steps.CopiesOf(look));
         return placements;
     }
 
@@ -52,13 +53,10 @@ internal static class EncounterArtworkPlacements
         return placements;
     }
 
-    /// <summary>Records every copy of <paramref name="lookPlaces"/>, places among <paramref name="encounter"/>'s looks, in order.</summary>
-    private static void Record(SpriteArtworkPlacements placements, ComposedEncounter encounter, IEnumerable<int> lookPlaces, IInstalledEncounterArtwork resolver)
+    /// <summary>Records every one of <paramref name="copies"/>, in order.</summary>
+    private static void Record(SpriteArtworkPlacements placements, IEnumerable<EncounterArtworkUpload> copies)
     {
-        foreach (int look in lookPlaces)
-        {
-            foreach (EncounterArtworkUpload upload in EncounterLookUploads.Uploads(encounter, look, resolver))
-                placements.Record(upload.FirstByte, upload.Characters.Length, new StagedObjCharacters(upload.Characters.Span));
-        }
+        foreach (EncounterArtworkUpload upload in copies)
+            placements.Record(upload.FirstByte, upload.Characters.Length, new StagedObjCharacters(upload.Characters.Span));
     }
 }

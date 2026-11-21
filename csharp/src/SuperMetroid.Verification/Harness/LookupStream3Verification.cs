@@ -1083,8 +1083,8 @@ internal static class LookupStream3Verification
     /// </summary>
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
-        EncounterArtworkUpload[] Copies(params ComposedLook[] looks) => [.. looks.SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
-            EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look), InstalledPageResolver))];
+        EncounterArtworkUpload[] Copies(params ComposedLook[] looks) =>
+            [.. looks.SelectMany(EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, InstalledPageResolver).CopiesOf)];
         foreach (bool timerList in new[] { true, false })
         {
             int count = timerList ? 7 : 2;
@@ -1146,8 +1146,8 @@ internal static class LookupStream3Verification
             uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
             AssertEqual(source, (uint)(MotherBrainSourceDefinitions.Corpse.Characters + MotherBrainCorpseSheet.PageOffset(row)),
                 "stream 3 corpse page starts at its offset in the corpse sheet");
-            EncounterArtworkUpload page = EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
-                EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainCorpseLook), InstalledPageResolver)[row];
+            EncounterArtworkUpload page = EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, InstalledPageResolver)
+                .CopiesOf(EncounterLookUploads.MotherBrainCorpseLook)[row];
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 page.FirstByte, "stream 3 corpse page placement");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry), page.Characters.Length, "stream 3 corpse page bytes");

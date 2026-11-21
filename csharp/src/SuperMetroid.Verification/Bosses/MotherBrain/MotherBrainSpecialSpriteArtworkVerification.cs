@@ -73,8 +73,8 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             AssertEqual(ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(baby, page)),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5) * 2,
                 $"Baby page {page} shows where the cartridge's record places it");
-            EncounterArtworkUpload shown = EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
-                EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainBabyLook), new EnemyTileTransfers(stock))[page];
+            EncounterArtworkUpload shown = EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, new EnemyTileTransfers(stock))
+                .CopiesOf(EncounterLookUploads.MotherBrainBabyLook)[page];
             AssertEqual(ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(baby, page)) - ObjectCharactersByte, shown.FirstByte,
                 $"the Baby's look copies page {page} at its record's characters");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record), shown.Characters.Length,
@@ -97,7 +97,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         var resolver = new EnemyTileTransfers(new ImportEnemyArtwork(stock.Enemies, stock.Bosses, InstalledFixtures.AreaArtwork));
         EncounterArtworkUpload[] standing = [.. new[] { EncounterLookUploads.MotherBrainLegsLook, EncounterLookUploads.MotherBrainAttackLook }
-            .SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain, EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look), resolver))];
+            .SelectMany(EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, resolver).CopiesOf)];
         AssertEqual(MotherBrainLegLoadListConstants.RecordCount, standing.Length, "her standing body's looks copy one page a leg-loading record");
         AssertEqual(MotherBrainLegLoadListConstants.RecordCount, MotherBrainWaitDefinitions.BeforePauseUpdates,
             "the wait before her pause lasts one update a leg-loading record");
@@ -154,8 +154,8 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     {
         EscapeTimerCharacters timer = EscapeTimerCharacters.Read(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom)));
         var resolver = new EnemyTileTransfers(stock, timer: timer);
-        IReadOnlyList<EncounterArtworkUpload> copies = EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
-            EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainEscapeTimerLook), resolver);
+        IReadOnlyList<EncounterArtworkUpload> copies = EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, resolver)
+            .CopiesOf(EncounterLookUploads.MotherBrainEscapeTimerLook);
         SnesVram ObjVram(int copied) => ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(copies.Take(copied)), resolver);
 
         EscapeTimerTilePage[] pages = Enum.GetValues<EscapeTimerTilePage>();
@@ -210,9 +210,8 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 throw new InvalidOperationException($"{sheet.Sheet} is not one of her special sheets."),
             _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainSpriteSheet)} {sheet.Sheet}."),
         };
-        int place = EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look);
-        AssertEqual(sheet.PageCount, EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain, place, resolver).Count,
+        AssertEqual(sheet.PageCount, EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, resolver).CopiesOf(look).Count,
             $"her {look} look copies every page of {sheet.FileName}");
-        return ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(ComposedEncounter.MotherBrain, [place], resolver), resolver);
+        return ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(ComposedEncounter.MotherBrain, [look], resolver), resolver);
     }
 }

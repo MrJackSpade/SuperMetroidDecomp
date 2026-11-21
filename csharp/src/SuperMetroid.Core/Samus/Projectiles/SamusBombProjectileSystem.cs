@@ -802,7 +802,7 @@ public sealed class SamusBombProjectileSystem
     /// Reacts to a bombed cell: a room's block it stands for (<see cref="ContinuedBlocks"/>) reacts; a cell that stands for
     /// nothing is air, and a plain terrain's air, solid blocks and slopes reach nothing.
     /// </summary>
-    internal static void ReactToBombedBlock(
+    private static void ReactToBombedBlock(
         SamusTerrain terrain,
         Position16<RoomBlocks> bombedBlock,
         SamusProjectileType projectileType)

@@ -130,10 +130,7 @@ internal static class NoobTubeObjectVerification
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "intact n00b-tube draw installs live type-$C collision");
-        SamusBombProjectileSystem.ReactToBombedBlock(
-            SamusTerrain.InRoom(level, roomObjects),
-            new(blockX, blockY),
-            SamusBombProjectileSystem.PowerBombType);
+        BombExplosions.ReachBlockWithPowerBomb(SamusTerrain.InRoom(level, roomObjects), new(blockX, blockY));
         AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "Power Bomb observes the intact tube's type-$C collision");
         AssertEqual(RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger),
@@ -341,10 +338,7 @@ internal static class NoobTubeObjectVerification
         AssertEqual(RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger),
             level.GetCollisionBlockByIndex(blockIndex).Behavior,
             "already-broken n00b tube leaves its BTS-$44 origin block");
-        SamusBombProjectileSystem.ReactToBombedBlock(
-            SamusTerrain.InRoom(level, roomObjects),
-            level.BlockAt(blockIndex),
-            SamusBombProjectileSystem.NormalBombType);
+        BombExplosions.ExplodeBombAt(SamusTerrain.InRoom(level, roomObjects), level.BlockAt(blockIndex));
         roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(level.BlockAt(blockIndex),
             BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false)));
         AssertEqual(0, roomObjects.Places.ActiveCount, "hits on the deleted tube revive nothing");

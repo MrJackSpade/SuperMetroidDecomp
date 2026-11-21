@@ -440,6 +440,24 @@ fixture's `Glow(Tint Level)`, whose property initializer reads `Level`, loses it
 argument passed to a removed parameter whose evaluation calls code or writes state stays as written, so the call fails
 to compile there instead of the effect silently going with it.
 
+The enum-default fixtures hold the shape of the failures at f4af8a1aca and 0ea41f339b (#2608): the prune removed
+`SamusPresentationMode.Gameplay` and `LiquidMotionStage.AwaitingFirstPass` as unreferenced enum members, though every new
+presentation's mode and every new liquid motion's stage held them as their default, unnamed; with the names gone a
+debugger state holding either could not be restored ("value 0 is not a defined member"). An enum's zero member is the
+value of storage that starts at its type's default, so the audit counts it as referenced wherever one does
+(`EnumDefaults` in `csharp/src/SuperMetroid.ReachabilityAudit/Analysis`): a field or automatic property of the enum
+without an initializer, or of a struct instance, which `default` holds at zero whatever its initializer; a struct's
+primary constructor parameter; a parameter marked `[Optional]` alone; an array of the enum created without an initializer,
+cleared or resized; and a `default`, a zero, a cast of zero or a `new E()` converted to the enum. A removed member never
+renumbers the members after it: each implicitly valued member after it gets its value written out. Each fixture failed on
+the tool before:
+
+- `enum-held-default`: a presentation's automatic property and a liquid motion's struct field hold their enums' zero
+  members, which nothing names (the shapes of the two failures). Both stay; an unused member between `Gameplay` and
+  `Cinematic` goes, and `Cinematic` keeps its value as `Cinematic = 2`.
+- `enum-unnamed-default`: the zero members are held only by expressions: a new array of facings, a lock set back to
+  `default` and a speed an optional parameter declares as `default`, which a call leaves out. Nothing is removed.
+
 A value typed `object` names no type, so what is compared through it is not followed. A `with` expression copies a
 record without comparing it, and a pattern names each value it tests (a property pattern by name, a positional one
 through the synthesized `Deconstruct`), so neither needs a rule of its own.

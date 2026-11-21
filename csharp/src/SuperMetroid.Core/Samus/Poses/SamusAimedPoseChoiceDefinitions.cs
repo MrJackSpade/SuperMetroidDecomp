@@ -46,7 +46,7 @@ internal static class SamusAimedPoseChoiceDefinitions
 
     /// <summary>
     /// The turn a standing or running pose takes, by the direction it aims, over all ten: a straight-down aim turns as the
-    /// diagonal-down aim facing its way does, as the game's turning table gives it.
+    /// diagonal-down aim facing its way does, as the game turns her.
     /// </summary>
     internal static IdentityTable<Shot, SamusPoseId> StandingTurns { get; } = new(new Dictionary<Shot, SamusPoseId>
     {
@@ -64,7 +64,7 @@ internal static class SamusAimedPoseChoiceDefinitions
 
     /// <summary>
     /// The turn a crouching pose takes, by the direction it aims, over all ten: a straight-down aim turns as the
-    /// diagonal-down aim facing its way does, as the game's turning table gives it.
+    /// diagonal-down aim facing its way does, as the game turns her.
     /// </summary>
     internal static IdentityTable<Shot, SamusPoseId> CrouchingTurns { get; } = new(new Dictionary<Shot, SamusPoseId>
     {

@@ -47,7 +47,7 @@ internal sealed class EnemyProjectileEngine
         });
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Projectile">The <c>projectile</c> <see cref="ApplyCommonCue"/> was handed.</param>
+    /// <param name="Projectile">The projectile the cases read.</param>
     /// <param name="Owner">The <see cref="EnemyProjectileEngine"/> reacting.</param>
     private readonly record struct ApplyCommonCueContext(EnemyProjectile Projectile, EnemyProjectileEngine Owner);
 

@@ -131,8 +131,8 @@ internal sealed class DownwardGateBehavior
         });
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Projectile">The <c>projectile</c> <see cref="ApplyDownwardGateCue"/> was handed.</param>
-    /// <param name="Owner">The <c>owner</c> <c>ApplyDownwardGateCue</c> was handed.</param>
+    /// <param name="Projectile">The projectile the cases read.</param>
+    /// <param name="Owner">The owner the cases read.</param>
     private readonly record struct ApplyDownwardGateCueContext(EnemyProjectile Projectile, GateBehavior Owner);
 
     /// <summary>A downward gate, moving or closed (#1760).</summary>

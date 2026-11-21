@@ -76,10 +76,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
-    /// <param name="Place">The <c>place</c> <see cref="ApplyFakeKraidCue"/> was handed.</param>
-    /// <param name="Samus">The <c>samus</c> <c>ApplyFakeKraidCue</c> was handed.</param>
-    /// <param name="Level">The <c>level</c> <c>ApplyFakeKraidCue</c> was handed.</param>
-    /// <param name="Camera">The <c>camera</c> <c>ApplyFakeKraidCue</c> was handed.</param>
+    /// <param name="Place">The place the cases read.</param>
+    /// <param name="Samus">The samus the cases read.</param>
+    /// <param name="Level">The level the cases read.</param>
+    /// <param name="Camera">The camera the cases read.</param>
     /// <param name="Owner">The <see cref="FakeKraidBehavior"/> reacting.</param>
     private readonly record struct ApplyFakeKraidCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, SamusState Samus, RoomLevelData Level, Position16<RoomPixels> Camera, FakeKraidBehavior Owner);
 
@@ -119,7 +119,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             ? HorizontalDirection.Right
             : HorizontalDirection.Left;
 
-    /// <summary>The port whose clock each port hands on to (#2553): top, middle and bottom in turn, then the top again.</summary>
+    /// <summary>The spike row whose clock each row hands on to (#2553): top, middle and bottom in turn, then the top again.</summary>
     private static IdentityTable<FakeKraidSpikeRow, FakeKraidSpikeRow> SpikeRowAfter { get; } = new(new Dictionary<FakeKraidSpikeRow, FakeKraidSpikeRow>
     {
         [FakeKraidSpikeRow.Top] = FakeKraidSpikeRow.Middle,

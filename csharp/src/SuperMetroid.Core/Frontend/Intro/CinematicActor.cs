@@ -152,7 +152,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
         });
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="OwnerCue">The handler of the owner's cues the step was handed.</param>
+    /// <param name="OwnerCue">The owner's reaction to its cues, as the step was given it.</param>
     /// <param name="Owner">The <see cref="CinematicActor{TAnimation, TFrame, TCue}"/> reacting.</param>
     private readonly record struct StepContext(Action<TCue>? OwnerCue, CinematicActor<TAnimation, TFrame, TCue> Owner);
 

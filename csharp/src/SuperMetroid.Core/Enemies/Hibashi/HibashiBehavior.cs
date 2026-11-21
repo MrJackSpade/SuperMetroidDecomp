@@ -53,7 +53,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         });
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Place">The <c>place</c> <see cref="ApplyHibashiCue"/> was handed.</param>
+    /// <param name="Place">The place the cases read.</param>
     /// <param name="Owner">The <see cref="HibashiBehavior"/> reacting.</param>
     private readonly record struct ApplyHibashiCueContext(RoomEnemyPlace Place, HibashiBehavior Owner);
 

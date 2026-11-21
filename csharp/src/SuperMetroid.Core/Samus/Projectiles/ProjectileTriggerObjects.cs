@@ -26,7 +26,7 @@ internal sealed class ProjectileTriggerObjects
     /// A hit on a block no active place lies at changes nothing (#2553): a resident-trigger block can outlive its object, as
     /// the n00b tube's setup writes its origin before the already-broken tube deletes itself. The game's generic trigger
     /// then finds no object and leaves only the carry of its last compare, against the first room-object slot's
-    /// stored block, and every caller discards that carry: the shot, bomb and grapple reactions
+    /// stored block, and every reaction discards that carry: the shot, bomb and grapple reactions
     /// set the shootable block's collision and clear shootable air's after the spawn whatever the setup
     /// returned, and the trigger deletes itself. The block's own collision decides whether the strike stops, as
     /// it does with an object there.

@@ -93,8 +93,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
-    /// <param name="Place">The <c>place</c> <see cref="ApplyWalkingSpacePirateCue"/> was handed.</param>
-    /// <param name="Samus">The <c>samus</c> <c>ApplyWalkingSpacePirateCue</c> was handed.</param>
+    /// <param name="Place">The place the cases read.</param>
+    /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Owner">The <see cref="WalkingSpacePirateBehavior"/> reacting.</param>
     private readonly record struct ApplyWalkingSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, SamusState Samus, WalkingSpacePirateBehavior Owner);
 

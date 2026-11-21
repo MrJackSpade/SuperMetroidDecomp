@@ -163,7 +163,7 @@ internal sealed class CeresRidleyBabyScene
             });
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Ridley">The <c>ridley</c> <see cref="ApplyCeresBabyCue"/> was handed.</param>
+    /// <param name="Ridley">The ridley the cases read.</param>
     /// <param name="Owner">The <see cref="CeresRidleyBabyScene"/> reacting.</param>
     private readonly record struct ApplyCeresBabyCueContext(CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
 }

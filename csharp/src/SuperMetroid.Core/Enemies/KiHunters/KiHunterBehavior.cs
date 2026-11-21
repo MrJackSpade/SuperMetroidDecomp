@@ -70,7 +70,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
-    /// <param name="Place">The <c>place</c> <see cref="ApplyKiHunterCue"/> was handed.</param>
+    /// <param name="Place">The place the cases read.</param>
     /// <param name="Owner">The <see cref="KiHunterBehavior"/> reacting.</param>
     private readonly record struct ApplyKiHunterCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, KiHunterBehavior Owner);
 

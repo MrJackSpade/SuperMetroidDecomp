@@ -186,9 +186,9 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         });
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Samus">The <c>samus</c> <see cref="ApplyEscapeEtecoonCue"/> was handed.</param>
-    /// <param name="Place">The <c>place</c> <c>ApplyEscapeEtecoonCue</c> was handed.</param>
-    /// <param name="State">The <c>state</c> <c>ApplyEscapeEtecoonCue</c> was handed.</param>
+    /// <param name="Samus">The samus the cases read.</param>
+    /// <param name="Place">The place the cases read.</param>
+    /// <param name="State">The state the cases read.</param>
     private readonly record struct ApplyEscapeEtecoonCueContext(SamusState Samus, RoomEnemyPlace Place, EscapeEtecoonEnemyState State);
 
     /// <summary>The run an escaping Etecoon starts the way it runs once the rising acid is high (#2167).</summary>
@@ -215,8 +215,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         });
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Samus">The <c>samus</c> <see cref="ApplyEscapeDachoraCue"/> was handed.</param>
-    /// <param name="Place">The <c>place</c> <c>ApplyEscapeDachoraCue</c> was handed.</param>
+    /// <param name="Samus">The samus the cases read.</param>
+    /// <param name="Place">The place the cases read.</param>
     /// <param name="Owner">The <see cref="EscapeAnimalsBehavior"/> reacting.</param>
     private readonly record struct ApplyEscapeDachoraCueContext(SamusState Samus, RoomEnemyPlace Place, EscapeAnimalsBehavior Owner);
 

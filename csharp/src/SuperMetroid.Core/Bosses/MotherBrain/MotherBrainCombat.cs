@@ -54,7 +54,7 @@ internal sealed class MotherBrainCombat
 
     /// <summary>
     /// The body's shot response for each combat phase: the struck rectangle's own reaction, as the game runs the
-    /// rectangle's shot routine for the body. Her brain's rectangle, which the body shows before its first animation
+    /// rectangle's shot reaction for the body. Her brain's rectangle, which the body shows before its first animation
     /// (#2220), runs the head's reaction on the body; every body rectangle's is the dud shot.
     /// </summary>
     /// <param name="body">Her body, whose encounter the brain's reaction runs in.</param>

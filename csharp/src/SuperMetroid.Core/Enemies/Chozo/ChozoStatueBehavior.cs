@@ -189,9 +189,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         });
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="Statue">The <c>statue</c> <see cref="ApplyChozoStatueCue"/> was handed.</param>
-    /// <param name="Level">The <c>level</c> <c>ApplyChozoStatueCue</c> was handed.</param>
-    /// <param name="Samus">The <c>samus</c> <c>ApplyChozoStatueCue</c> was handed.</param>
+    /// <param name="Statue">The statue the cases read.</param>
+    /// <param name="Level">The level the cases read.</param>
+    /// <param name="Samus">The samus the cases read.</param>
     /// <param name="State">The <c>state</c> <c>ApplyChozoStatueCue</c> works with.</param>
     /// <param name="Owner">The <see cref="ChozoStatueBehavior"/> reacting.</param>
     private readonly record struct ApplyChozoStatueCueContext(RoomEnemyPlace Statue, RoomLevelData Level, SamusState Samus, ChozoStatueState State, ChozoStatueBehavior Owner);

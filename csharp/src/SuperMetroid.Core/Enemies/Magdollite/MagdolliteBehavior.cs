@@ -541,9 +541,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
-    /// <param name="Place">The <c>place</c> <see cref="ApplyMagdolliteCue"/> was handed.</param>
-    /// <param name="Camera">The <c>camera</c> <c>ApplyMagdolliteCue</c> was handed.</param>
-    /// <param name="State">The <c>state</c> <c>ApplyMagdolliteCue</c> was handed.</param>
+    /// <param name="Place">The place the cases read.</param>
+    /// <param name="Camera">The camera the cases read.</param>
+    /// <param name="State">The state the cases read.</param>
     /// <param name="Owner">The <see cref="MagdolliteBehavior"/> reacting.</param>
     private readonly record struct ApplyMagdolliteCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, Position16<RoomPixels> Camera, MagdollitePartState State, MagdolliteBehavior Owner);
 

@@ -274,10 +274,10 @@ internal sealed class TorizoAttacks
             });
 
         /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
-        /// <param name="Audio">The <c>audio</c> <see cref="ApplyTorizoProjectileCue"/> was handed.</param>
-        /// <param name="Projectiles">The <c>projectiles</c> <c>ApplyTorizoProjectileCue</c> was handed.</param>
-        /// <param name="Projectile">The <c>projectile</c> <c>ApplyTorizoProjectileCue</c> was handed.</param>
-        /// <param name="Samus">The <c>samus</c> <c>ApplyTorizoProjectileCue</c> was handed.</param>
+        /// <param name="Audio">The audio the cases read.</param>
+        /// <param name="Projectiles">The projectiles the cases read.</param>
+        /// <param name="Projectile">The projectile the cases read.</param>
+        /// <param name="Samus">The samus the cases read.</param>
         /// <param name="Owner">The <see cref="TorizoProjectileBehavior"/> reacting.</param>
         private readonly record struct ApplyTorizoProjectileCueContext(EnemyAudioQueue Audio, EnemyProjectileEngine Projectiles, EnemyProjectile Projectile, SamusState Samus, TorizoProjectileBehavior Owner);
 

@@ -204,8 +204,8 @@ internal sealed class MotherBrainBody
         });
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="State">The <c>state</c> <see cref="ApplyMotherBrainBodyCue"/> was handed.</param>
-    /// <param name="Samus">The <c>samus</c> <c>ApplyMotherBrainBodyCue</c> was handed.</param>
+    /// <param name="State">The state the cases read.</param>
+    /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Owner">The <see cref="MotherBrainBody"/> reacting.</param>
     private readonly record struct ApplyMotherBrainBodyCueContext(MotherBrainEnemyState State, SamusState Samus, MotherBrainBody Owner);
 

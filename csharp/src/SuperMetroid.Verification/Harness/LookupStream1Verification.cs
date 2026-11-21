@@ -611,7 +611,7 @@ internal static class LookupStream1Verification
             hash.Append("drawing data", value.DrawingData.Select(item => (byte)item).ToArray());
             foreach (SpriteVisualPiece appearance in SamusProjectileDirectionCodec.InAimOrder.Select(direction => value.CoverAppearances[direction]))
                 AppendCanonicalSpritePart(hash, CannonCoverAppearance(appearance.TileRow, appearance.TileColumn,
-                    appearance.Palette ?? 0, appearance.Depth, appearance.FlipX, appearance.FlipY));
+                    appearance.Palette, appearance.Depth, appearance.FlipX, appearance.FlipY));
             foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
                 hash.AppendName("cover orientation", SamusArmCannonCoverOrientationKeys.Installed.Of(value.CoverOrientations[direction]));
         });

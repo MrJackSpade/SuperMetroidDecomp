@@ -23,9 +23,9 @@ internal static class RunningCadenceVerification
         AssertSequenceEqual(SamusRunningCadenceCodec.OrdinaryDelays(cartridge), SamusRunningCadenceDefinitions.Timings[SamusRunningCadence.Ordinary].Delays, "ordinary running delays");
         for (int stage = 0; stage < SamusSpeedBoostCounter.AuthoredStages; stage++)
             AssertSequenceEqual(SamusRunningCadenceCodec.BoostDelays(cartridge, stage),
-                SamusRunningCadenceDefinitions.Timings[SamusRunningCadences.SpeedBoostCadence(stage)].Delays, $"boost stage {stage} delays");
+                SamusRunningCadenceDefinitions.Timings[SamusRunningCadences.SpeedBoostCadence(stage).Cadence].Delays, $"boost stage {stage} delays");
         for (int selection = 0; selection <= SamusRunningCadenceCodec.UnauthoredSelection; selection++)
-            AssertEqual(SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection), SamusRunningCadences.CountdownAfterAdvance(CadenceOfSelection(selection)),
+            AssertEqual(SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection), CountdownOfSelection(selection),
                 $"restart countdown after selection {selection}");
         AssertThrows<ArgumentOutOfRangeException>(() => SamusRunningCadences.SpeedBoostCadence(SamusSpeedBoostCounter.AuthoredStages),
             "no authored stage lies past the full stage");
@@ -163,9 +163,9 @@ internal static class RunningCadenceVerification
         Console.WriteLine("Running cadence: six typed cadences and six restarts match the cartridge, the unauthored cadence reads the residue, and 10240 command/gate cases, 1536 queue reports and 256 turned-away echoes pass.");
     }
 
-    /// <summary>The cadence the cartridge's restart and cadence tables number <paramref name="selection"/>.</summary>
-    private static SamusRunningCadence CadenceOfSelection(int selection) =>
+    /// <summary>The countdown the cadence the cartridge's restart and cadence tables number <paramref name="selection"/> restarts with.</summary>
+    private static int CountdownOfSelection(int selection) =>
         selection == SamusRunningCadenceCodec.UnauthoredSelection
-            ? SamusRunningCadence.UnauthoredBoost
-            : SamusRunningCadences.SpeedBoostCadence(selection);
+            ? SuperMetroid.Core.Compatibility.UnauthoredBoostCadence.CountdownAfterAdvance
+            : SamusRunningCadences.SpeedBoostCadence(selection).CountdownAfterAdvance;
 }

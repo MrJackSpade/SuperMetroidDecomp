@@ -89,7 +89,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>The equipment control the cursor rests on (#1772); its category is the column the cursor is in.</summary>
     private PauseEquipmentControl SelectedControl { get; set; } = PauseEquipmentControls.ReserveMode;
     /// <summary>The map page's scroll, framed from the visible area cells as the pause sets up (#2554).</summary>
-    private MapScroll ActiveMapScroll { get; }
+    internal MapScroll ActiveMapScroll { get; }
     /// <summary>The map screen's scroll position.</summary>
     private Offset16<MapPixels> MapScrollPosition => ActiveMapScroll.Scroll;
     /// <summary>Animated map arrows and their current visibility state.</summary>

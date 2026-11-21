@@ -21,8 +21,7 @@ internal static class GrapplePointAnimationNative
         internal int PointAnimationFrame
         {
             get => GrappleSheetDefinitions.Endpoint.ToList().IndexOf(self.Endpoint.Showing);
-            set => self.Endpoint.ShowAt(GrappleAnimations.Endpoint, new(0, Ensure.BetweenInclusive(0, GrappleSheetDefinitions.Endpoint.Count - 1, value)),
-                self.Endpoint.UpdatesLeft);
+            set => ShowAt(self.Endpoint, Ensure.BetweenInclusive(0, GrappleSheetDefinitions.Endpoint.Count - 1, value), self.Endpoint.UpdatesLeft);
         }
 
         /// <summary>
@@ -32,10 +31,20 @@ internal static class GrapplePointAnimationNative
         internal WrappingCountdown PointAnimationTimer
         {
             get => WrappingCountdown.Start(self.Endpoint.UpdatesLeft - 1);
-            set => self.Endpoint.ShowAt(GrappleAnimations.Endpoint, new(0, self.PointAnimationFrame), value.IsNegative ? 1 : value.RawValue + 1);
+            set => ShowAt(self.Endpoint, self.PointAnimationFrame, value.IsNegative ? 1 : value.RawValue + 1);
         }
 
         /// <summary>The rope draws its pattern's picture still shows for, counting the next.</summary>
         internal int RopeAnimationTimer => self.Rope.UpdatesLeft;
+    }
+
+    /// <summary>
+    /// Shows the endpoint's frame <paramref name="frame"/> for <paramref name="updates"/> more draws, as the endpoint's play
+    /// shows a frame it plays from and holds.
+    /// </summary>
+    private static void ShowAt(ShowingAnimationPlayer<GrappleEndpointSegment, GrappleEndpointFrame, NoAnimationCue> endpoint, int frame, int updates)
+    {
+        endpoint.ShowFrom(GrappleAnimations.Endpoint, new(0, frame));
+        endpoint.HoldShownFrameFor(updates);
     }
 }

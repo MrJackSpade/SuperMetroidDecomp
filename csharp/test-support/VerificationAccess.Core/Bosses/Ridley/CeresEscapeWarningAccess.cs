@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Rooms.Backgrounds;
 

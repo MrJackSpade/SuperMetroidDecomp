@@ -280,9 +280,6 @@ internal static class AudioVerification
         AssertTrue(
             !MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectLibrary), typeof(int), typeof(int)]),
             "QueueSound exposes no reversible library-and-ID argument list");
-        AssertThrows<InvalidOperationException>(
-            () => sfx.QueueSound(default, priority: SoundRequestPriority.WhenIdle),
-            "default sound identity cannot silently select a queue");
         AssertEqual<SoundEffectId>(SamusSound.MenuCursor,
             SoundEffectCommands.Decode(SoundEffectLibrary.Samus, 0x37),
             "the import decodes library one's request $37 to the menu cursor");

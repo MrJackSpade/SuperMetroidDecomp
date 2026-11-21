@@ -10,4 +10,18 @@ internal static class SamusShotKindStateAccess
     internal static T KindStateAs<T>(this SamusProjectile shot) where T : SamusShotKindState =>
         Ensure.NotNull(shot).Occupant?.KindState as T
             ?? throw new InvalidOperationException($"Shot place {shot.Place} keeps no {typeof(T).Name}.");
+
+    /// <summary>The kind state <paramref name="shot"/>'s occupant keeps, or none for a free place, a beam or an explosion.</summary>
+    internal static SamusShotKindState? KindStateOrNone(this SamusProjectile shot) => Ensure.NotNull(shot).Occupant?.KindState;
+
+    /// <summary>
+    /// Whether <paramref name="shot"/> is a Super Missile's link (#2554): a Super Missile naming the place every link names
+    /// (<see cref="Compatibility.UnlinkedSuperMissileLink"/>), whose own place another Super Missile, its owner, names.
+    /// </summary>
+    /// <param name="shot">The shot.</param>
+    /// <param name="pool">Every shot place.</param>
+    internal static bool IsSuperMissileLink(this SamusProjectile shot, IEnumerable<SamusProjectile> pool) =>
+        shot.KindStateOrNone() is SuperMissileShotState { LinkChainPosition: Compatibility.UnlinkedSuperMissileLink.Place }
+        && pool.Any(other => !ReferenceEquals(other, shot)
+            && other.KindStateOrNone() is SuperMissileShotState { LinkChainPosition: { } named } && named == shot.Place);
 }

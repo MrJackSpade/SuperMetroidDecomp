@@ -250,7 +250,10 @@ internal static class RoomObjectSystemAccess
             RoomLevelData level,
             Position16<RoomBlocks> position,
             byte behavior)
-            => self.BlockReactions.TrySpawnCollisionBombBlock(level, position, RoomBlockBehaviorCodec.Decode(behavior));
+            => RoomBlockBehaviorCodec.Decode(behavior).Bombable is { } bombable
+                && BlockReactionChanges.TryCollisionBomb(bombable, out BlockReactionChange? change)
+                ? self.BlockReactions.TrySpawnCollisionBombBlock(level, position, change)
+                : throw new ArgumentException($"Block behaviour {behavior} sets off no collision bomb block.", nameof(behavior));
 
         /// <summary>
         /// Spawns the bank-$84 shot/bombed/grappled-reaction PLM selected by bombable BTS.
@@ -281,7 +284,8 @@ internal static class RoomObjectSystemAccess
             self.BlockReactions.SpawnBombReactionBlock(
                 level,
                 position,
-                RoomBlockBehaviorCodec.Decode(behavior),
+                RoomBlockBehaviorCodec.Decode(behavior).Bombable
+                    ?? throw new ArgumentException($"Block behaviour {behavior} gives a bomb block no reaction.", nameof(behavior)),
                 projectileType);
             return self.Places.ActiveCount > active;
         }
@@ -351,7 +355,7 @@ internal static class RoomObjectSystemAccess
             {
                 // `$94:9E8D-$9E9E` indexes the current area's eight-entry table before
                 // Spawn_PLM. Every retail entry at `$94:9F46-$9FC4` is PLMEntries_nothing.
-                place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
+                place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
                 return true;
             }
 
@@ -371,7 +375,7 @@ internal static class RoomObjectSystemAccess
                 // The deactivating setup does not synthesize a restore block. Deactivation turns shootable air into
                 // ordinary air and a shootable block into a solid block until the same-frame program draws its first
                 // breaking frame.
-                place.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(bts.Shootable)));
+                place.Become(new LastingBlockReactionObject(BlockReactionChanges.PermanentShot(bts.Shootable)));
                 level.SetTerrain(position, block.Terrain.Deactivated());
                 return true;
             }
@@ -380,7 +384,7 @@ internal static class RoomObjectSystemAccess
             {
                 // CF2E sees projectile family `$0500` and replaces the entry's normal
                 // power-bomb animation pointer with the one-frame visible `$C057` reveal.
-                place.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedPowerBombBlockReveal));
+                place.Become(new LastingBlockReactionObject(BlockReactionChangeDefinitions.BombedPowerBombBlockReveal));
                 return true;
             }
 
@@ -388,11 +392,11 @@ internal static class RoomObjectSystemAccess
             {
                 // CF67 performs the analogous redirect to visible super-missile word
                 // `$C09F`; it neither clears collision nor queues the shot-block sound.
-                place.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedSuperMissileBlockReveal));
+                place.Become(new LastingBlockReactionObject(BlockReactionChangeDefinitions.BombedSuperMissileBlockReveal));
                 return true;
             }
 
-            place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
+            place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
             return true;
         }
 
@@ -453,7 +457,8 @@ internal static class RoomObjectSystemAccess
             self.BlockReactions.SpawnBombedSpecialBlock(
                 level,
                 position,
-                RoomBlockBehaviorCodec.Decode(area, behavior),
+                RoomBlockBehaviorCodec.Decode(area, behavior).Special
+                    ?? throw new ArgumentException($"Block behaviour {behavior} gives a special block no reaction.", nameof(behavior)),
                 projectileType);
             return self.Places.ActiveCount > active;
         }

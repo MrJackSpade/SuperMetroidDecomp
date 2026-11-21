@@ -479,11 +479,11 @@ internal static class EnemySpawnSettingsCodec
     /// <exception cref="ArgumentException">The timed rest is not a whole number of units below the permanent stop's.</exception>
     private static int ShutterRestUnits(ShutterRest rest)
     {
-        if (rest.IsPermanent)
+        if (!rest.TryGetUpdates(out int updates))
             return PermanentShutterRestUnits;
-        return rest.Updates % ShutterRestUpdatesPerUnit == 0 && rest.Updates / ShutterRestUpdatesPerUnit < PermanentShutterRestUnits
-            ? rest.Updates / ShutterRestUpdatesPerUnit
-            : throw new ArgumentException($"A shutter rest of {rest.Updates} updates is not a whole number of timed rest units.", nameof(rest));
+        return updates % ShutterRestUpdatesPerUnit == 0 && updates / ShutterRestUpdatesPerUnit < PermanentShutterRestUnits
+            ? updates / ShutterRestUpdatesPerUnit
+            : throw new ArgumentException($"A shutter rest of {updates} updates is not a whole number of timed rest units.", nameof(rest));
     }
 
     /// <summary>The Shaktool segment a placement names by its position in the chain; a position past the seven fails.</summary>

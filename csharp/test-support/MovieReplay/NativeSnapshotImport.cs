@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.TestSupport.Assertions;
@@ -135,7 +136,7 @@ internal static class NativeSnapshotImport
                 : effect is ColourEffectId.GreyOutTourianStatueRidley or ColourEffectId.GreyOutTourianStatuePhantoon
                     ? (runtime.Enemies.TourianStatue
                         ?? throw new InvalidDataException("The native snapshot greys a sprite statue in a room with no statues."))
-                        .SpriteStatueGreyOut(SuperMetroid.Core.Areas.Tourian.TourianStatueAnimationDefinitions.Statues.Values.Single(statue => statue.ColourEffect == effect)
+                        .Actors.SpriteStatueGreyOut(SuperMetroid.Core.Areas.Tourian.TourianStatueAnimationDefinitions.Statues.Values.Single(statue => statue.ColourEffect == effect)
                             .GreyedSprite ?? throw new InvalidDataException($"The native snapshot greys {effect}, no sprite statue's grey-out."))
                     : litTorizo;
             // Each effect shows on the target its start hands it (#2544).

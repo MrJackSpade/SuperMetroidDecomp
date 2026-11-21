@@ -28,16 +28,11 @@ internal static class PauseMenuStateAccess
             int frameCycle = 0) =>
             self.Step(delayedHeldInput, newlyPressedInput, heldInput ?? delayedHeldInput, frameCycle, NoFrozenBombs());
 
-        /// <summary>Frames the map page by <paramref name="scroll"/> in place of the framing the menu set up, for a check of a map's edges.</summary>
-        internal void FrameMap(MapScroll scroll) =>
-            PrivateFrontendState.Set(self, nameof(PauseMenuState.CurrentMapScroll), Ensure.NotNull(scroll));
-
         /// <summary>
-        /// Moves the map page's scroll to <paramref name="scroll"/> under the page's framing and limits, as a check or an
-        /// imported snapshot places it; no scroll step is under way afterwards.
+        /// Moves the map page's scroll to <paramref name="scroll"/> under the framing and limits the menu set up, as a check
+        /// or an imported snapshot places it between scroll steps.
         /// </summary>
-        internal void ScrollMapTo(Offset16<MapPixels> scroll) =>
-            self.FrameMap(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.Map.MapScroll>([typeof(global::SuperMetroid.Core.Frontend.Map.MapFraming), typeof(global::SuperMetroid.Core.Frontend.Map.MapScrollLimits), typeof(global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.MapPixels>)], new object?[] { self.ActiveMapScroll.Framing, self.ActiveMapScroll.Limits, scroll }));
+        internal void ScrollMapTo(Offset16<MapPixels> scroll) => self.ActiveMapScroll.Scroll = scroll;
 
         /// <summary>True while a map/equipment page change is fading or loading; page input waits for it.</summary>
         internal bool IsPageTransitionActive => self.Transition is not null;

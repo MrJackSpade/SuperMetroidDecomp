@@ -115,7 +115,8 @@ internal static class EnemySheetVariantsVerification
         {
             foreach (RoomEnemyPlacement record in population.Placements.ToArray().Where(record => record.DefinitionId == EnemyDefinitionId.Chozo))
             {
-                ChozoStatueSite site = record.SpawnSettingsOf<ChozoStatueSpawnSettings>().Site;
+                ChozoStatueSite site = (record.SpawnSettings as ChozoStatueSpawnSettings
+                    ?? throw new InvalidDataException($"A Chozo placement carries {record.SpawnSettings}.")).Site;
                 string sheet = installed.For(population).Enemy(EnemyDefinitionId.Chozo).Sheet.Image.Name;
                 if (!bySite.TryGetValue(site, out string? drawn))
                     bySite.Add(site, sheet);

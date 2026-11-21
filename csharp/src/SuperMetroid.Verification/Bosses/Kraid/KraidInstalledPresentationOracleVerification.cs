@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Buffers.Binary;

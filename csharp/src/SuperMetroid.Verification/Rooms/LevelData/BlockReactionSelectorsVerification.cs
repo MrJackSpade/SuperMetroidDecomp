@@ -162,7 +162,8 @@ internal static class BlockReactionSelectorsVerification
             // Independent cartridge header indirection, not the replacement's reaction cases.
             ushort header = ReadRomWord(rom, 0x949da4 + index * 2);
             ushort instruction = ReadRomWord(rom, 0x840000 | (header + 2));
-            AssertEqual(instruction, BombSpecialNativeList(BombSpecialBlockReactions.ChangeFor(RoomBlockBehaviorCodec.Decode(index).Special)),
+            AssertEqual(instruction, BombSpecialNativeList(BombSpecialBlockReactions.ChangeFor(RoomBlockBehaviorCodec.Decode(index).Special
+                    ?? throw new InvalidDataException($"BTS {index:X2} gives a special block no reaction."))),
                 $"bomb special: native instruction at BTS {index:X2}");
         }
         for (int areaIndex = 0; areaIndex < AreaIds.All.Count; areaIndex++)
@@ -172,23 +173,22 @@ internal static class BlockReactionSelectorsVerification
             ushort header = ReadRomWord(rom, 0x949da4 + (sharedReactions + areaReactions * areaIndex + entry) * 2);
             ushort instruction = ReadRomWord(rom, 0x840000 | (header + 2));
             AssertEqual(instruction, BombSpecialNativeList(BombSpecialBlockReactions.ChangeFor(
-                    RoomBlockBehaviorCodec.Decode(area, areaTableBehavior | entry).Special)),
+                    RoomBlockBehaviorCodec.Decode(area, areaTableBehavior | entry).Special
+                        ?? throw new InvalidDataException($"{area}'s entry {entry} gives a special block no reaction."))),
                 $"bomb special: native instruction at {area}'s entry {entry}");
         }
         for (int index = sharedRead; index < 0x80; index++)
         {
             SpecialBlockReaction? reaction = RoomBlockBehaviorCodec.Decode(index).Special;
             AssertTrue(reaction is null, $"bomb special: BTS {index:X2} gives a special block no reaction");
-            AssertThrows<ArgumentOutOfRangeException>(() => BombSpecialBlockReactions.ChangeFor(reaction),
-                $"bomb special: rejects BTS {index:X2}, which has no reaction");
         }
     }
 
     /// <summary>The native list a bomb-special reaction stands for: the shared delete, the speed reveal or a crumble reveal.</summary>
-    private static ushort BombSpecialNativeList(BlockReactionChange change) =>
-        change == BlockReactionChange.MadeAtSpawn ? RoomObjectNativeListAddresses.DeleteList
-            : change == SpeedBoosterBlockObjectDefinitions.BombReveal
-                ? RoomObjectNativeListAddresses.SpeedBoosterBlockEntries.Single(entry => entry.Program == change).Entry
+    private static ushort BombSpecialNativeList(LastingBlockReactionChange change) =>
+        ReferenceEquals(change, LastingBlockReactionChange.MadeAtSpawn) ? RoomObjectNativeListAddresses.DeleteList
+            : ReferenceEquals(change, SpeedBoosterBlockObjectDefinitions.BombReveal)
+                ? RoomObjectNativeListAddresses.SpeedBoosterBlockEntries.Single(entry => ReferenceEquals(entry.Program, change)).Entry
                 : RoomObjectNativeListAddresses.BlockReactionEntry(change);
 
     /// <summary>Compares a selector with the native header indirection and rejects indexes outside its domain.</summary>

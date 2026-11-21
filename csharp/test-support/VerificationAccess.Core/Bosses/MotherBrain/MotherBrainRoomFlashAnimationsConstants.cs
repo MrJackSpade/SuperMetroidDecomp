@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -10,10 +10,11 @@ internal static class MotherBrainRoomFlashAnimationsConstants
     /// recording resumes it partway.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
-    internal static AnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue> ShowingFor(MotherBrainRoomFlashImage image, int updates)
+    internal static ShowingAnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue> ShowingFor(MotherBrainRoomFlashImage image, int updates)
     {
-        AnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue> flash = MotherBrainRoomFlashAnimations.Starting();
-        flash.ShowAt(MotherBrainRoomFlashAnimations.Flash, new AnimationPlace(0, image.Step), updates);
+        ShowingAnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue> flash = MotherBrainRoomFlashAnimations.Starting();
+        flash.ShowFrom(MotherBrainRoomFlashAnimations.Flash, new AnimationPlace(0, image.Step));
+        flash.HoldShownFrameFor(updates);
         return flash;
     }
 }

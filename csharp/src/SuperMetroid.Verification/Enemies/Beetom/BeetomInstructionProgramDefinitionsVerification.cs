@@ -96,7 +96,8 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
         enemies.VerificationServices().NextRandom = nextRandom;
-        Action<RoomEnemyPlace, SamusState, GameplayAction> initialize = enemies.BeetomBehavior.InitializeBeetom;
+        void initialize(RoomEnemyPlace beetom, SamusState samus, GameplayAction input) =>
+            beetom.SetSpeciesState(enemies.BeetomBehavior.InitializeBeetom(beetom, samus, input));
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Beetom, place.KeptDefinition);
         initialize(place, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), 0);

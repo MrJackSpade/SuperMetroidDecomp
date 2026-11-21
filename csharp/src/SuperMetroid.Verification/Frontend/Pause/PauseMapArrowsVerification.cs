@@ -24,14 +24,17 @@ internal static class PauseMapArrowsVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = bus;
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(10, 11), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
-        pause.FrameMap(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.Map.MapScroll>([typeof(global::SuperMetroid.Core.Frontend.Map.MapFraming), typeof(global::SuperMetroid.Core.Frontend.Map.MapScrollLimits), typeof(global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.MapPixels>)], new object?[] { MapFramingDefinitions.Pause, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.Map.MapScrollLimits>([typeof(int), typeof(int), typeof(int), typeof(int)], new object?[] { 0, 512, 0, 256 }), Offset16<MapPixels>.Zero }));
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(10, 11), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.Secret });
+        // The menu frames the map whose every cell the assist reveals; the arrows show by the scroll's distance from its limits.
+        MapScrollLimits limits = pause.ActiveMapScroll.Limits;
+        int middleX = (limits.Left - 23 + limits.Right - 232) / 2;
+        int middleY = (limits.Top - 55 + limits.Bottom - 177) / 2;
         pause.BindFixtureArtwork(RetailPresentationFixture());
         var nativeArrowColors = new RgbColor[16];
         int nativePaletteTimer = 1, nativePaletteFrame = 0;
         int allArrowParts = 0;
         var arrowAttributes = new HashSet<ushort>();
-        foreach (var (x, y) in new VerifyPauseMapArrowsCase[] { new VerifyPauseMapArrowsCase(100, 70), new VerifyPauseMapArrowsCase(-24, 70), new VerifyPauseMapArrowsCase(-23, 70), new VerifyPauseMapArrowsCase(280, 70), new VerifyPauseMapArrowsCase(281, 70), new VerifyPauseMapArrowsCase(100, -56), new VerifyPauseMapArrowsCase(100, -55), new VerifyPauseMapArrowsCase(100, 79), new VerifyPauseMapArrowsCase(100, 80) })
+        foreach (var (x, y) in new VerifyPauseMapArrowsCase[] { new(middleX, middleY), new(limits.Left - 24, middleY), new(limits.Left - 23, middleY), new(limits.Right - 232, middleY), new(limits.Right - 231, middleY), new(middleX, limits.Top - 56), new(middleX, limits.Top - 55), new(middleX, limits.Bottom - 177), new(middleX, limits.Bottom - 176) })
         {
             pause.ScrollMapTo(new Offset16<MapPixels>(x, y));
             pause.Step(0, 0);
@@ -46,8 +49,8 @@ internal static class PauseMapArrowsVerification
             }
             var expected = new OamBuffer();
             expected.BeginFrame();
-            bool[] visible = [unchecked((short)(-24 - x)) < 0, unchecked((short)(512 - 232 - x)) >= 0,
-                unchecked((short)(-56 - y)) < 0, unchecked((short)(256 - 177 - y)) >= 0];
+            bool[] visible = [unchecked((short)(limits.Left - 24 - x)) < 0, unchecked((short)(limits.Right - 232 - x)) >= 0,
+                unchecked((short)(limits.Top - 56 - y)) < 0, unchecked((short)(limits.Bottom - 177 - y)) >= 0];
             for (int index = 0; index < 4; index++)
             {
                 if (!visible[index]) continue;
@@ -61,7 +64,7 @@ internal static class PauseMapArrowsVerification
             }
             int expectedBytes = expected.NextByteOffset;
             expected.FinalizeFrame();
-            if (x == 100 && y == 70)
+            if (x == middleX && y == middleY)
             {
                 allArrowParts = expectedBytes / 4;
                 for (int offset = 2; offset < expectedBytes; offset += 4)
@@ -86,7 +89,7 @@ internal static class PauseMapArrowsVerification
         pause = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause);
         pause.BindFixtureArtwork(RetailPresentationFixture());
         AssertTrue(ScenePixels.Same(beforeRestore, pause.ComposeScene()), "debugger restore/rebind retains the current arrow display");
-        pause.ScrollMapTo(new Offset16<MapPixels>(100, 70));
+        pause.ScrollMapTo(new Offset16<MapPixels>(middleX, middleY));
         pause.Step(0, 0); _ = pause.ComposeScene(); int stable = pause.LastRenderedSpriteCount;
         pause.Step(ControllerButton.R, 0); _ = pause.ComposeScene();
         AssertEqual(stable, pause.LastRenderedSpriteCount, "R press retains arrows on its native stable-page dispatch");

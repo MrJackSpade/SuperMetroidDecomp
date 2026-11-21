@@ -178,7 +178,7 @@ internal static class BotwoonAnimationsVerification
 
         // Botwoon is loaded, as his initializer leaves him, before his body segments animate: they show his body's colours.
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        var state = new BotwoonEnemyState(body: []);
+        var state = new BotwoonEnemyState();
         head.SetSpeciesState(state);
         // A changed selector restarts the segment; an unchanged one keeps running.
         Action<EnemyProjectile, int> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
@@ -236,7 +236,7 @@ internal static class BotwoonAnimationsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.KeptDefinition);
-        var state = new BotwoonEnemyState(body: []);
+        var state = new BotwoonEnemyState();
         head.SetSpeciesState(state);
         return new NewBotwoonHeadResult(enemies, head, state);
     }

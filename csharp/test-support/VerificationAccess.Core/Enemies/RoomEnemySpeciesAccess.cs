@@ -113,7 +113,7 @@ internal static class RoomEnemySpeciesAccess
         yield return spawns.EscapeExplosions;
         yield return ((RoomEnemySpecies.ObjectRequests)species.RoomObjectRequests).DownwardGate;
         yield return ((RoomEnemySpecies.LoaderOperations)species.LoaderHooks).PrePhantoonRoom;
-        if (species.TourianStatue is TourianStatueActors statue)
+        if (species.TourianStatue?.Actors is TourianStatueActors statue)
             yield return statue.Unlock;
     }
 

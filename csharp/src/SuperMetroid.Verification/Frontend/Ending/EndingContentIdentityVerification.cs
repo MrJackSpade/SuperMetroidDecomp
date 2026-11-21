@@ -58,7 +58,7 @@ internal static class EndingContentIdentityVerification
             png.Position = 0;
             return png;
         }
-        var supplied = new EndingFloorSceneArtwork[3];
+        var supplied = new EndingFloorSceneCharacters[3];
         for (int i = 0; i < supplied.Length; i++)
         {
             using var map = Map(64, i);
@@ -67,7 +67,7 @@ internal static class EndingContentIdentityVerification
         }
         using var rewardMap = Map(128, 3);
         using var rewardPng = Png(3);
-        EndingRewardIconArtwork reward = EndingRewardIconCharacters.Read(rewardMap, rewardPng);
+        EndingRewardIconCharacters reward = EndingRewardIconCharacters.Read(rewardMap, rewardPng);
         var catalog = new EndingFloorCharacters(supplied[0], supplied[1], supplied[2], reward);
         EndingFloorSceneId[] originalOrder = [EndingFloorSceneId.SideCloudEscape, EndingFloorSceneId.TopAndBottomCloudEscape, EndingFloorSceneId.PlanetExplosion];
         for (int i = 0; i < originalOrder.Length; i++)

@@ -25,10 +25,10 @@ public readonly record struct SoundAcknowledgement<TSound>
     public static SoundAcknowledgement<TSound> Of(RequestedSound<TSound>? request) => new() { Request = request };
 
     /// <summary>The acknowledged request, or none.</summary>
-    private RequestedSound<TSound>? Request { get; init; }
+    internal RequestedSound<TSound>? Request { get; init; }
 
     /// <summary>Whether the library reports new music loading.</summary>
-    private bool IsMusicLoading { get; init; }
+    internal bool IsMusicLoading { get; init; }
 
     /// <summary>Whether the library reports nothing at all.</summary>
     public bool IsNone => !IsMusicLoading && Request is null;

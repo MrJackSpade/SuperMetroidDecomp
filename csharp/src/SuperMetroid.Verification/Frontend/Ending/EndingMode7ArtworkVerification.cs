@@ -30,7 +30,7 @@ internal static class EndingMode7ArtworkVerification
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
             byte[] nativePacked = RomDataReader.Decompress(nativeBus, packedSource,
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
-            EndingFloorSceneArtwork compiledScene = stock[id];
+            EndingFloorSceneCharacters compiledScene = stock[id];
             AssertTrue(compiledScene.Characters.Span.SequenceEqual(nativeCharacters.AsSpan(0,
                     EndingFloorArtworkFormat.CharacterByteCount)),
                 $"installed ending {id} PNG preserves every high-lane character byte");

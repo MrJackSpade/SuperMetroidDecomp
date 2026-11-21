@@ -71,7 +71,7 @@ internal static class DeadTourianBehaviorVerification
             DeadSidehopperEnemyState state = corpse.RequireSpeciesState<DeadSidehopperEnemyState>();
             AssertEqual(DeadSidehopperAction.AliveWaitForCamera, state.Action, "the Shitroid victim starts waiting for the camera");
 
-            EnemyPowerBombStage reaction = enemies.DeadSidehopperBehavior.DeadSidehopperPowerBombReaction.ReplacesCommon
+            EnemyPowerBombStage reaction = enemies.DeadSidehopperBehavior.DeadSidehopperPowerBombReaction(state).ReplacesCommon
                 ?? throw new InvalidOperationException("The dead Sidehopper's Power Bomb reaction replaces the common damage.");
             reaction(new EnemyPowerBombContext(corpse.HeldOccupant(), Samus: RoomEnemyFrameFixtures.StandaloneSamus(), level, new(cameraX, 0)));
             AssertEqual(wakes, state.Action != DeadSidehopperAction.AliveWaitForCamera,

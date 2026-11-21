@@ -204,7 +204,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemyPlace> initializeBody = fixturePlace => enemies.KiHunterBehavior.InitializeKiHunter(fixturePlace.HeldOccupant().SpawnSettings<KiHunterSpawnSettings>(), fixturePlace);
-            Action<RoomEnemyPlace> initializeWings = fixturePlace => enemies.KiHunterBehavior.InitializeKiHunterWings(fixturePlace.HeldOccupant(), fixturePlace);
+            Action<RoomEnemyPlace> initializeWings = fixturePlace => fixturePlace.SetUpAsPlaced();
 
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.Bind(EnemyDefinitionId.KihunterGreen, body.KeptDefinition);

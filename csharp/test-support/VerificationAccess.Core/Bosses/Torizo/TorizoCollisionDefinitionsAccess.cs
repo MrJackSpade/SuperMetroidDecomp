@@ -28,6 +28,7 @@ internal static class TorizoCollisionDefinitionsAccess
     {
         /// <summary>The body hitboxes of the frame at native address <paramref name="frame"/>.</summary>
         internal static TorizoHitboxList HitboxesAt(ushort frame) =>
-            TorizoCollision.HitboxesAt(RoomEnemyPlaceFrameAccess.TryFrameAt(NativeBank, frame));
+            TorizoCollision.HitboxesAt(RoomEnemyPlaceFrameAccess.TryFrameAt(NativeBank, frame)
+                ?? throw new ArgumentOutOfRangeException(nameof(frame), frame, "No installed Torizo frame lies at this word."));
     }
 }

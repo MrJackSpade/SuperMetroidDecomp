@@ -1024,7 +1024,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "missile producer installs literal projectile invincibility timer twenty");
     AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.Missile), missile.HeldShot().Type, "missile is an ordinary missile");
     AssertEqual(0x0064, missile.HeldShot().Damage, "missile reads damage from `$93:8641`");
-    AssertEqual(SamusShotBehaviors.Missile, missile.Behavior,
+    AssertTrue(missile.KindStateOrNone() is MissileShotState and not SuperMissileShotState,
         "missile selects `$90:AF68` pre-instruction family");
     AssertTrue(missile.KindStateAs<MissileShotState>().Ignition.HasIgnited,
         "first alpha pass ignites the missile");
@@ -1513,11 +1513,11 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(super.KindStateAs<SuperMissileShotState>().Ignition.HasIgnited, "super owner has ignited");
     AssertEqual(1, super.KindStateAs<SuperMissileShotState>().LinkChainPosition,
         "super owner names place one as its link");
-    AssertEqual(SamusShotBehaviors.SuperMissile, super.Behavior,
+    AssertTrue(super.KindStateOrNone() is SuperMissileShotState && !super.IsSuperMissileLink(superProjectiles.Shots),
         "super owner selects `$90:AFE5`");
     AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), superLink.HeldShot().Type, "super link is a Super Missile");
     AssertEqual(0x012c, superLink.HeldShot().Damage, "super link carries native damage sentinel");
-    AssertEqual(SamusShotBehaviors.SuperMissileLink, superLink.Behavior,
+    AssertTrue(superLink.IsSuperMissileLink(superProjectiles.Shots),
         "super link selects stationary `$90:B075`");
     AssertEqual(super.Position.X.Whole, superLink.Position.X.Whole,
         "slow horizontal link follows owner center after ignition movement");

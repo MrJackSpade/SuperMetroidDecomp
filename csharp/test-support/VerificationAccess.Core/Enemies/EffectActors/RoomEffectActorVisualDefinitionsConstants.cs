@@ -1,4 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Enemies.EffectActors;
@@ -28,7 +28,8 @@ internal static class RoomEffectActorVisualDefinitionsConstants
     {
         if (picture.HitBurst is { } burst)
             return HitBurstSpritemaps[burst];
-        return EnemyFrameCartridgeLookupTooling.WordIn(Bank, picture.RequireEnemyFrame());
+        return EnemyFrameCartridgeLookupTooling.WordIn(Bank, picture.EnemyFrame
+            ?? throw new InvalidOperationException("The picture draws neither a hit burst nor an enemy frame."));
     }
 
     /// <summary>Every picture the room sprite objects' animations show, each once.</summary>

@@ -189,16 +189,16 @@ internal static class SpecialAttackParticlesVerification
                 exploding.Behavior = null;
                 break;
             case PlaceHolding.Missile:
-                _ = IgnitedMissile(projectiles, place, fraction, SamusProjectileFamily.Missile, SamusShotBehaviors.Missile);
+                _ = IgnitedMissile(projectiles, place, fraction, SamusProjectileFamily.Missile);
                 break;
             case PlaceHolding.SuperMissile:
-                IgnitedMissile(projectiles, place, fraction, SamusProjectileFamily.SuperMissile, SamusShotBehaviors.SuperMissile)
+                IgnitedMissile(projectiles, place, fraction, SamusProjectileFamily.SuperMissile)
                     .KindStateAs<SuperMissileShotState>().LinkChainPosition = FifthPlace;
                 _ = SuperMissileLink(projectiles, FifthPlace, fraction);
                 return fraction;
             case PlaceHolding.SuperMissileLink:
                 _ = SuperMissileLink(projectiles, place, fraction);
-                IgnitedMissile(projectiles, FifthPlace, fraction, SamusProjectileFamily.SuperMissile, SamusShotBehaviors.SuperMissile)
+                IgnitedMissile(projectiles, FifthPlace, fraction, SamusProjectileFamily.SuperMissile)
                     .KindStateAs<SuperMissileShotState>().LinkChainPosition = place;
                 return fraction;
             case PlaceHolding.CrashEcho:
@@ -231,7 +231,7 @@ internal static class SpecialAttackParticlesVerification
 
     /// <summary>Puts an ignited missile or Super Missile in <paramref name="place"/>.</summary>
     private static SamusProjectile IgnitedMissile(SamusProjectileSystem projectiles, int place, int fraction,
-        SamusProjectileFamily family, SamusShotBehavior behavior)
+        SamusProjectileFamily family)
     {
         SamusProjectile missile = projectiles.Pool.Occupy(place);
         Fly(missile, place, fraction);
@@ -240,11 +240,18 @@ internal static class SpecialAttackParticlesVerification
         SamusProjectileSegment segment = SamusProjectileKinds.Animation(kind, missile.Direction);
         missile.Animation = ProjectileFixturePlaybacks.StartingAfter(segment, MidPictureUpdates);
         missile.Radius = SamusProjectilePlayback.InitialRadius(segment);
-        MissileShotState ignition = family == SamusProjectileFamily.SuperMissile
-            ? new SuperMissileShotState(new SamusMissileIgnition.Pending(), linkPlace: null)
-            : new MissileShotState(new SamusMissileIgnition.Pending());
-        ignition.Ignite(SamusProjectileMotionDefinitions.MissileIgnitionSpeed);
-        missile.HeldShot().Install(behavior, ignition);
+        if (family == SamusProjectileFamily.SuperMissile)
+        {
+            var super = new SuperMissileShotState(new SamusMissileIgnition.Pending(), linkPlace: null);
+            super.Ignite(SamusProjectileMotionDefinitions.MissileIgnitionSpeed);
+            missile.HeldShot().Install(SamusShotBehaviors.SuperMissile, super);
+        }
+        else
+        {
+            var ignited = new MissileShotState(new SamusMissileIgnition.Pending());
+            ignited.Ignite(SamusProjectileMotionDefinitions.MissileIgnitionSpeed);
+            missile.HeldShot().Install(SamusShotBehaviors.Missile, ignited);
+        }
         return missile;
     }
 
@@ -341,7 +348,7 @@ internal static class SpecialAttackParticlesVerification
                 SoundEffectId? sound = projectiles.Combos.StepSpazerCombo(samus, particle.HeldShot(), particle.KindStateAs<SpazerParticleState>(), shared, SpazerCameraY);
                 if (sound is not null)
                 {
-                    AssertEqual(SamusSound.SpazerSpecialAttackEnd, sound.Value, $"update {update} Spazer sound");
+                    AssertEqual(SamusSound.SpazerSpecialAttackEnd, sound, $"update {update} Spazer sound");
                     AssertEqual(0, place, $"update {update}: only the first place voices the Spazer convergence");
                     convergenceSounds++;
                 }

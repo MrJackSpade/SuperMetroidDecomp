@@ -44,7 +44,7 @@ internal static class EnemySystemFixtures
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null,
         BossSourceArtwork? installedBosses = null, EnemyBreakableTerrainObjects? breakableTerrain = null,
         AreaId area = AreaId.Crateria, DoorPassage? doorPassage = null, RoomFxOverlayState? roomFx = null,
-        RoomFloor? floor = null, ITourianStatueRoom? statueRoom = null, CeresElevatorShaftRoomMainState? shaftTurn = null,
+        RoomFloor? floor = null, TourianStatueRoom? statueRoom = null, CeresElevatorShaftRoomMainState? shaftTurn = null,
         RoomWarnings? warnings = null)
     {
         var system = new RoomEnemySystem(new RoomEnemySystemDependencies

@@ -71,11 +71,14 @@ internal static class RoomObjectFixtures
         var visuals = new RoomObjectVisuals(artwork);
         var room = (RoomObjectRoom)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectRoom));
         var services = (RoomObjectServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectServices));
-        var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces(), ShotCapClosing(),
-            GameplayAudioRequests.Standalone());
+        var roomObjects = new RoomObjectSystem(room, services, ReachedByEnemies(services), visuals, new CollectibleBlockPairs(), ShotCapClosing());
         VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;
     }
+
+    /// <summary>The room objects a room's enemies reach, over a room's free places, as the room loader composes them.</summary>
+    private static RoomObjectsReachedByEnemies ReachedByEnemies(RoomObjectServices services) =>
+        new(new RoomObjectPlaces(), services.Samus, services.Bosses, services.Events, GameplayAudioRequests.Standalone());
 
     /// <summary>The shot cap's closing rule the room loader composes each room's objects with (#1906).</summary>
     private static ShotOpenedCapClosing<LockedDoor> ShotCapClosing() =>
@@ -85,8 +88,7 @@ internal static class RoomObjectFixtures
     internal static RoomObjectSystem Bound(RoomObjectRoom room, RoomObjectServices services, RoomObjectSystem fixture)
     {
         RoomObjectVisuals visuals = VisualsOf(fixture);
-        var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces(), ShotCapClosing(),
-            GameplayAudioRequests.Standalone());
+        var roomObjects = new RoomObjectSystem(room, services, ReachedByEnemies(services), visuals, new CollectibleBlockPairs(), ShotCapClosing());
         VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;
     }

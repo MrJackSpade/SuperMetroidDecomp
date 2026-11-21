@@ -203,7 +203,7 @@ internal static class BeamFiredOverLastShotVerification
                 SamusProjectile chainsaw = FlyingBeam(projectiles, LastPlace);
                 // The flying beam's place now holds the Chainsaw shot.
                 chainsaw.HeldShot().Type = SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false);
-                chainsaw.HeldShot().Install(SamusShotBehaviors.ChainsawPowerBomb, kindState: null);
+                chainsaw.HeldShot().Install(SamusShotBehaviors.ChainsawPowerBomb);
                 chainsaw.BeamFuse = UpdateCountdown.For(chainsawFuseLeft);
             }, chainsawFuseLeft),
             ("a free place whose last beam carried a fuse", projectiles =>
@@ -244,7 +244,7 @@ internal static class BeamFiredOverLastShotVerification
     }
 
     /// <summary>Puts a missile in the last place at <paramref name="ignition"/>, ignited at <paramref name="ignitedAt"/> when given.</summary>
-    private static SamusProjectile Missile(SamusProjectileSystem projectiles, SamusMissileIgnition ignition, SignedEightEight? ignitedAt)
+    private static SamusProjectile Missile(SamusProjectileSystem projectiles, SamusMissileIgnition.Unignited ignition, SignedEightEight? ignitedAt)
     {
         SamusProjectile missile = projectiles.Pool.Occupy(LastPlace);
         missile.OccupyAsFired(SamusProjectileType.Of(SamusProjectileFamily.Missile));
@@ -260,7 +260,7 @@ internal static class BeamFiredOverLastShotVerification
     /// Puts a Super Missile in the last place, starting at <paramref name="ignition"/> naming <paramref name="linkPlace"/>,
     /// then ignited as its ignition does, at its speed, naming <paramref name="ignitedLinkPlace"/>.
     /// </summary>
-    private static SamusProjectile SuperMissile(SamusProjectileSystem projectiles, SamusMissileIgnition ignition, int? linkPlace,
+    private static SamusProjectile SuperMissile(SamusProjectileSystem projectiles, SamusMissileIgnition.Unignited ignition, int? linkPlace,
         int? ignitedLinkPlace)
     {
         SamusProjectile missile = projectiles.Pool.Occupy(LastPlace);
@@ -337,7 +337,7 @@ internal static class BeamFiredOverLastShotVerification
         shot.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
         shot.Direction = SamusProjectileDirection.Right;
         shot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(200 + place, 90 + place));
-        shot.HeldShot().Install(SamusShotBehaviors.Beam, kindState: null);
+        shot.HeldShot().Install(SamusShotBehaviors.Beam);
         return shot;
     }
 

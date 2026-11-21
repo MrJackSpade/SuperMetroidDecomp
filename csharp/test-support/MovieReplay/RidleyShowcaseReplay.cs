@@ -798,9 +798,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     : behavior == SamusShotBehaviors.Beam ? SamusBeamFrameBehaviorCodes.NoWave
                     : behavior == SamusShotBehaviors.UnchargedWaveBeamTrail ? SamusBeamFrameBehaviorCodes.WaveThreeFrameTrail
                     : behavior == SamusShotBehaviors.WaveBeamTrail ? SamusBeamFrameBehaviorCodes.WaveFourFrameTrail
-                    : behavior == SamusShotBehaviors.Missile ? NativeSnapshotMemory.ProjectileMissileCallback
-                    : behavior == SamusShotBehaviors.SuperMissile ? NativeSnapshotMemory.ProjectileSuperMissileCallback
-                    : behavior == SamusShotBehaviors.SuperMissileLink ? NativeSnapshotMemory.ProjectileSuperMissileLinkCallback
+                    // A missile's and a Super Missile's behaviours are bound to the state they run with, which names their kind.
+                    : projectile.KindStateOrNone() is SuperMissileShotState
+                        ? projectile.IsSuperMissileLink(runtime.Projectiles.Shots)
+                            ? NativeSnapshotMemory.ProjectileSuperMissileLinkCallback
+                            : NativeSnapshotMemory.ProjectileSuperMissileCallback
+                    : projectile.KindStateOrNone() is MissileShotState ? NativeSnapshotMemory.ProjectileMissileCallback
                     : throw new InvalidDataException($"Movie projectile behaviour {behavior.GetType().Name} needs a native identity mapping");
                 Check(owner + " FrameBehavior", callback, NativeSnapshotMemory.ProjectileFrameBehavior + index);
                 // A shot holding a still picture has no timer: the native timer only re-shows the same picture (#2347).
@@ -820,7 +823,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 }
                 // A Super Missile's link never sets or reads its trail timer, on the cartridge or here; the cartridge's word is
                 // whatever the place's previous projectile left, which a fresh link does not inherit (#1590).
-                if (projectile.Behavior != SamusShotBehaviors.SuperMissileLink)
+                if (!projectile.IsSuperMissileLink(runtime.Projectiles.Shots))
                     Check(owner + " TrailTimer", global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile, global::SuperMetroid.Core.UpdateCountdown?>(projectile, "Trail")?.UpdatesLeft
                         ?? throw new InvalidDataException($"{owner} leaves no trail, which no projectile this movie reaches does."),
                         NativeSnapshotMemory.ProjectileTrailTimer + index);

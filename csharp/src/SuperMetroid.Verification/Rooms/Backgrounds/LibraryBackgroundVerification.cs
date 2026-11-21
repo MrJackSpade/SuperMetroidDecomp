@@ -171,7 +171,7 @@ internal static void VerifyLibraryBackgroundLoader()
     vram = new SnesVram();
     vram.ExecuteWordTransfer([0xffff], 0x4800, 1);
     ImportedLibraryBackgroundList clear = LibraryBackgroundProgramImporter.Read(bus, 0xe040);
-    LibraryBackgroundReplay.Execute(vram, clear.Name, clear.Instructions, picture: LibraryBackgroundPicture.Ordinary, artwork: new LibraryBackgroundArtwork());
+    LibraryBackgroundReplay.Execute(vram, clear.Name, clear.Instructions, picture: LibraryBackgroundPicture.Ordinary, artwork: SuperMetroid.TestSupport.RepositoryInstallation.Verification.BossBodySheetFixtures.LibraryArtwork);
     AssertEqual(0x0338, vram.ReadWord(0x4800), "library background clear first word");
     AssertEqual(0x0338, vram.ReadWord(0x4fff), "library background clear final word");
 

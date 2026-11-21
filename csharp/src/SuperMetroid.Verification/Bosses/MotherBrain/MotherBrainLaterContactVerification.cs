@@ -61,10 +61,13 @@ internal static class MotherBrainLaterContactVerification
         {
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var shot = shots.Shots[0];
-            shot.Occupy(type, 100); shot.Direction = SamusProjectileDirection.Right;
+            SamusProjectileOccupant held = shot.Occupy(type, 100); shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
             shot.Animation = ProjectileFixturePlaybacks.Active();
-            shot.Behavior = type.Family == SamusProjectileFamily.Missile ? SamusShotBehaviors.Missile : SamusShotBehaviors.Beam;
+            if (type.Family == SamusProjectileFamily.Missile)
+                held.Install(SamusShotBehaviors.Missile, new MissileShotState(new SamusMissileIgnition.Pending()));
+            else
+                held.Install(SamusShotBehaviors.Beam);
             enemies.ResolveShotsOnInteractiveEnemies(shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), SuperMetroid.Core.Progression.AreaId.Crateria, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
             AssertEqual(1000, body.Health, "Body projectile callback retains body health");
             AssertTrue(shot.IsSpent, "Body blocks the beam or missile");

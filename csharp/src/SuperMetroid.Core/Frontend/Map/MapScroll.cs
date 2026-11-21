@@ -27,13 +27,13 @@ public sealed class MapScroll
     }
 
     /// <summary>How the screen frames the map.</summary>
-    private MapFraming Framing { get; }
+    internal MapFraming Framing { get; }
 
     /// <summary>How far the map's revealed cells reach.</summary>
-    private MapScrollLimits Limits { get; }
+    internal MapScrollLimits Limits { get; }
 
     /// <summary>The screen's top-left corner as an offset from the map's corner, negative left of or above it.</summary>
-    public Offset16<MapPixels> Scroll { get; private set; }
+    public Offset16<MapPixels> Scroll { get; internal set; }
 
     /// <summary>The accepted scroll step under way, or null while none is.</summary>
     private MapScrollStep? StepUnderWay { get; set; }

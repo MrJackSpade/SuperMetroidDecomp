@@ -1,3 +1,5 @@
+using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Kraid;
 
 namespace SuperMetroid.Verification.Harness;

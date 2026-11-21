@@ -1948,7 +1948,7 @@ internal static class LookupStream4Verification
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artworkBosses);
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[0]; place.Bind(EnemyDefinitionId.Ridley, place.KeptDefinition);
-                new Action<RoomEnemyPlace>(enemies.NorfairRidleyBehavior.Combat.InitializeNorfairRidley)(place);
+                place.SetUpAsPlaced();
                 NorfairRidleyState state = enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.");
                 state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; enemies.NorfairRidleyBehavior.BeginRoarHold(state);
                 RoomFxOverlayState liquid = enemies.RoomFx.FxOverlay;
@@ -2022,7 +2022,7 @@ internal static class LookupStream4Verification
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
                 place.Bind(EnemyDefinitionId.Ridley, place.KeptDefinition);
-                new Action<RoomEnemyPlace>(enemies.NorfairRidleyBehavior.Combat.InitializeNorfairRidley)(place);
+                place.SetUpAsPlaced();
                 ushort[] shown = RidleyLaidColours.Of(enemies.Ridley() ?? throw new InvalidOperationException("Verification requires the initialized Ridley."),
                     RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
                 for (int color = 0; color < 256; color++)
@@ -2064,7 +2064,7 @@ internal static class LookupStream4Verification
                 var guard = NewBotwoonColorReadGuard(rom);
                 Action<RoomEnemyPlace, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthBand;
                 RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-                var state = new BotwoonEnemyState(body: []);
+                var state = new BotwoonEnemyState();
                 // Botwoon's sprites are pre-coloured in each band's colours over his row, the seventh (#1512).
                 IReadOnlyList<SheetShade> botwoonShades = BossSheetShades.OwnRow(artworkBosses, EnemyDefinitionId.Botwoon, 7 * 16);
                 ushort[] Shown() => BossShadeColours.Laid(state.BodyShading.Shades, botwoonShades, BossShadeColours.Sprites, 0x1234);

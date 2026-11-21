@@ -167,7 +167,7 @@ internal static class DragonAnimationDefinitionsVerification
         body.Bind(EnemyDefinitionId.Dragon, body.KeptDefinition);
         wing.Bind(EnemyDefinitionId.Dragon, wing.KeptDefinition);
         enemies.DragonBehavior.InitializeDragonBody(body);
-        enemies.DragonBehavior.InitializeDragonWing(wing, wing.RequireSpeciesState<DragonWingState>());
+        DragonBehavior.InitializeDragonWing(wing, wing.RequireSpeciesState<DragonWingState>());
     }
 
     /// <summary>Starts with nondefault instruction values so an omitted install remains observable.</summary>

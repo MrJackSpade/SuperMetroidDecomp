@@ -16,18 +16,12 @@ namespace SuperMetroid.Verification.Bosses;
 /// <summary>Checks boss BG2 resource requirements and display bindings.</summary>
 internal static class BossDisplayBindingsResourcesVerification
 {
-    /// <summary>Rejects missing resources and cross-boss bindings before VRAM writes.</summary>
+    /// <summary>
+    /// Rejects cross-boss bindings and malformed components before VRAM writes; every boss's BG2 frames are required
+    /// installed content (#2554), so none can be missing.
+    /// </summary>
     internal static void VerifyBossDisplayResources(BossDisplayDocuments stock)
     {
-        foreach ((EnemyDefinitionId definition, EnemyFrameName[] family) in BossDisplayDocuments.Families())
-        {
-            EnemyFrameName frame = family.First(frame => stock.Writes(frame.Bank, frame.Pointer).Length != 0);
-            // The body's pictures are composed at install (#1466), so missing BG2 frames fail there, before anything draws.
-            BossBodyOwner bodyOwner = BossDisplayFixture.BodyOwnerOf(definition)
-                ?? throw new InvalidOperationException($"{definition} writes BG2 frames without a body layer.");
-            AssertThrows<InvalidDataException>(() => BossBodySheetFixtures.For(stock.Build(omitBg2Bank: frame.Bank).Bosses, bodyOwner),
-                "selected BG2 resource is mandatory");
-        }
         var json = new EnemyIdentityFixture();
         var bad = new Dictionary<string, EnemyExtendedVisualComponent[]>(stock.Oam.Frames, StringComparer.Ordinal);
         string ordinary = EnemyExtendedFrameDefinitions.Frames.First(frame => !EnemyExtendedFrameBounds.IsBg2Only(frame)).Name;

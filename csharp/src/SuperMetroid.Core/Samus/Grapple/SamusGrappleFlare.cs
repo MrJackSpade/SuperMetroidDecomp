@@ -13,22 +13,22 @@ internal sealed class SamusGrappleFlare
     private static readonly Animation<ChargeFlareSegment> MainFlare = ChargeFlareAnimationDefinitions.Animations[ChargeFlareComponent.MainFlare];
 
     /// <summary>The play of the main flare's animation, on its first picture with its wait spent until fired.</summary>
-    private readonly ShowingAnimationPlayer<ChargeFlareSegment, ChargeFlarePicture, NoAnimationCue> player =
+    internal ShowingAnimationPlayer<ChargeFlareSegment, ChargeFlarePicture, NoAnimationCue> Player { get; } =
         ShowingAnimationPlayer<ChargeFlareSegment, ChargeFlarePicture, NoAnimationCue>.StartShowing(
             ChargeFlareAnimationDefinitions.Segments, MainFlare, ChargeFlareAnimationDefinitions.ClearedPictureUpdates);
 
     /// <summary>The picture the flare shows.</summary>
-    internal ChargeFlarePicture Picture => player.Showing;
+    internal ChargeFlarePicture Picture => Player.Showing;
 
     /// <summary>
     /// The flare when fired: it restarts at the main flare's loop, showing the loop's first picture for that picture's own
     /// updates, and plays on through the loop.
     /// </summary>
-    internal void RestartAtLoop() => player.ShowFrom(MainFlare, AnimationPlace.Before(MainFlare.CyclePhase));
+    internal void RestartAtLoop() => Player.ShowFrom(MainFlare, AnimationPlace.Before(MainFlare.CyclePhase));
 
     /// <summary>Plays the flare one update on: once the picture's updates run out, the next picture shows.</summary>
-    internal void PlayForward() => player.Step();
+    internal void PlayForward() => Player.Step();
 
     /// <summary>Returns the flare to its first picture, its wait spent.</summary>
-    internal void Clear() => player.Show(MainFlare, ChargeFlareAnimationDefinitions.ClearedPictureUpdates);
+    internal void Clear() => Player.Show(MainFlare, ChargeFlareAnimationDefinitions.ClearedPictureUpdates);
 }

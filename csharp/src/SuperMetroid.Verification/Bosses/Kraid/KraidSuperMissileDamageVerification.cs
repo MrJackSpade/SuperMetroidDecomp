@@ -67,10 +67,9 @@ internal static class KraidSuperMissileDamageVerification
                     "Each actual close-range Super Missile deals exactly 300 damage");
                 AssertEqual(2, runtime.Projectiles.Pool.ShotCount.Count,
                     "Mouth collision defers owner/link removal to projectile pre-instructions");
-                AssertEqual(SamusShotBehaviors.SuperMissile,
-                    runtime.Projectiles.Shots[0].Behavior, "Owner retains native pre-instruction");
-                AssertEqual(SamusShotBehaviors.SuperMissileLink,
-                    runtime.Projectiles.Shots[1].Behavior, "Link retains native pre-instruction");
+                AssertTrue(runtime.Projectiles.Shots[0].KindStateOrNone() is SuperMissileShotState
+                    && !runtime.Projectiles.Shots[0].IsSuperMissileLink(runtime.Projectiles.Shots), "Owner retains native pre-instruction");
+                AssertTrue(runtime.Projectiles.Shots[1].IsSuperMissileLink(runtime.Projectiles.Shots), "Link retains native pre-instruction");
                 AssertEqual(true, runtime.Projectiles.Shots[1].IsSpent,
                     "Descending mouth pass marks the overlapping link for native cleanup");
             }

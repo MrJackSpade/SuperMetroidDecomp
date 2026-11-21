@@ -51,7 +51,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
             SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(stock.Bosses, EnemyDefinitionId.Botwoon, 7 * 16);
         Action<RoomEnemyPlace, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthBand;
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        var state = new BotwoonEnemyState(body: []);
+        var state = new BotwoonEnemyState();
         IReadOnlyList<BotwoonHealthBand> bands = BotwoonHealthBandDefinitions.InOrderShown;
         for (int band = 0; band < bands.Count; band++)
         {

@@ -25,7 +25,8 @@ internal static class OverlappingEnemyShotsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
         var interactive = (List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies;
-        Action<RoomEnemyPlace, SamusState, GameplayAction> initialize = enemies.BeetomBehavior.InitializeBeetom;
+        void initialize(RoomEnemyPlace beetom, SamusState shooter, GameplayAction input) =>
+            beetom.SetSpeciesState(enemies.BeetomBehavior.InitializeBeetom(beetom, shooter, input));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) };
         for (int index = 0; index < 3; index++)
         {
@@ -49,7 +50,7 @@ internal static class OverlappingEnemyShotsVerification
         shot.Position = shot.Position.WithWhole(new(128, 128));
         shot.Radius = new(4, 4);
         shot.Animation = ProjectileFixturePlaybacks.Active();
-        shot.Behavior = SamusShotBehaviors.Missile;
+        shot.HeldShot().Install(SamusShotBehaviors.Missile, new MissileShotState(new SamusMissileIgnition.Pending()));
 
         enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         foreach (var enemy in enemies.Places.InUpdateOrder.Take(3))

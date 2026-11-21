@@ -26,7 +26,7 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { BotwoonColors = BotwoonColorFile.Read(colors) });
         Action<RoomEnemyPlace, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthBand;
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        var state = new BotwoonEnemyState(body: []);
+        var state = new BotwoonEnemyState();
         IReadOnlyList<BotwoonHealthBand> bands = BotwoonHealthBandDefinitions.InOrderShown;
         AssertEqual(8, bands.Count, "Botwoon has eight health bands");
 

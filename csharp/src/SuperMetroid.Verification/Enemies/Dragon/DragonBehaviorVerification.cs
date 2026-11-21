@@ -68,7 +68,7 @@ internal static class DragonBehaviorVerification
                 if (part == 0)
                     enemies.DragonBehavior.InitializeDragonBody(place);
                 else
-                    enemies.DragonBehavior.InitializeDragonWing(place, place.RequireSpeciesState<DragonWingState>());
+                    DragonBehavior.InitializeDragonWing(place, place.RequireSpeciesState<DragonWingState>());
             }
         }
         foreach (int bodySlot in new[] { 0, 2 })
@@ -95,7 +95,7 @@ internal static class DragonBehaviorVerification
         place.Bind(EnemyDefinitionId.Dragon, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         if (wing)
-            enemies.DragonBehavior.InitializeDragonWing(place, place.RequireSpeciesState<DragonWingState>());
+            DragonBehavior.InitializeDragonWing(place, place.RequireSpeciesState<DragonWingState>());
         else
             enemies.DragonBehavior.InitializeDragonBody(place);
         DragonPartState state = enemies.DragonPartStates[0] ?? throw new InvalidOperationException("Dragon has no state.");

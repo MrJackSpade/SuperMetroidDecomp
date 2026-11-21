@@ -475,9 +475,13 @@ internal static class NativeEnemyFamilyStateImport
                 1 => HorizontalDirection.Right,
                 _ => throw new InvalidDataException($"Native Yard airborne facing {words.C:X4} is neither left nor right."),
             };
-            if (words.E > YardEnemyState.MissedProbesBeforeFalling)
-                throw new InvalidDataException($"Recorded Yard missed-probe count {words.E} lies past the {YardEnemyState.MissedProbesBeforeFalling} that drop it.");
-            global::SuperMetroid.Core.PrivateState.Set(yardRecord, nameof(YardEnemyState.ConsecutiveTurnCounter), (int)words.E);
+            // The recorded count is the misses in a row the Yard has counted, each counted as the game counts it.
+            yardRecord.ResetMissedProbes();
+            for (int miss = 1; miss <= words.E; miss++)
+            {
+                if (yardRecord.MissedSurfaceTooOften() && miss < words.E)
+                    throw new InvalidDataException($"Recorded Yard missed-probe count {words.E} lies past the {miss} misses that drop it.");
+            }
             yardRecord.Movement = YardNativeWords.YardMovements.Decode(words.F, "recorded YardMovement");
             // A crawl's routine names its way (#2278).
             if (yardRecord.Movement == YardMovement.Crawling)

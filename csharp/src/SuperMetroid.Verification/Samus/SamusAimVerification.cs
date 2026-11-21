@@ -444,8 +444,8 @@ SamusTerrain.InRoom(boxedLevel, SamusRoomObjectFixtures.Uninstalled), SamusPoseI
     samus.ChangePoseKeepingAnimation(SamusPoseId.StandingAimDiagonalUpRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     SamusPresentation.InitializeAnimation(samus);
-    AssertEqual(SamusPoseId.FallingRightPose, SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus), "up-right walk-off target");
     SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), frameCounter: 0);
+    AssertEqual(SamusPoseId.FallingRightPose, samus.Pose, "up-right walk-off target");
     AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.VerticalVelocity.Direction, "aimed walk-off starts downward");
     SamusPoseMetadata.RefreshCollisionRadii(samus); // Next alpha precedes the airborne input/aim transition.
     SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, SamusPoseId.FallingAimDiagonalUpRightPose);
@@ -696,8 +696,10 @@ internal static void VerifySamusGunExtendedMovement()
     AssertEqual(SamusPoseId.FiringLandingLeftPose, mirroredLanding.Pose, "held Shot selects mirrored firing landing $E7");
 
     AssertTrue(SamusPoseMetadata.IsRightFacingRunningPose(SamusPoseId.MovingRightGunExtendedPose), "$0B is admitted by running dispatcher");
-    AssertTrue(SamusPoseMetadata.IsRightFacingNormalJumpPose(SamusPoseId.NormalJumpGunExtendedRightPose), "$13 is admitted by jump dispatcher");
-    AssertTrue(SamusPoseMetadata.IsRightFacingFallingPose(SamusPoseId.FallingGunExtendedRightPose), "$67 is admitted by falling dispatcher");
+    AssertTrue(SamusPoseTraits.Of(SamusPoseId.NormalJumpGunExtendedRightPose) is { Facing: SamusFacingDirection.Right, Movement: SamusMovementType.NormalJumping },
+        "$13 is admitted by jump dispatcher: it faces right and moves as a normal jump");
+    AssertTrue(SamusPoseTraits.Of(SamusPoseId.FallingGunExtendedRightPose) is { Facing: SamusFacingDirection.Right, Movement: SamusMovementType.Falling },
+        "$67 is admitted by falling dispatcher: it faces right and moves as a fall");
     AssertTrue(SamusPoseMetadata.IsRightFacingLandingPose(SamusPoseId.FiringLandingRightPose), "$E6 is admitted by landing dispatcher");
     AssertTrue(SamusPoseMetadata.IsLeftFacingLandingPose(SamusPoseId.FiringLandingLeftPose), "$E7 is admitted by mirrored landing dispatcher");
 

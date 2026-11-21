@@ -59,7 +59,7 @@ internal static class SamusPoseTransitions
     /// <summary>
     /// Runs the facing lookup used by the walk-off transition for a grounded walk-off.
     /// </summary>
-    public static SamusPoseId SelectFallingPoseForCurrentAim(SamusState samus)
+    private static SamusPoseId SelectFallingPoseForCurrentAim(SamusState samus)
     {
         // The falling pose selection indexes its pair with the pose's facing, not the muzzle direction.
         // Moonwalk's visual facing opposes this physics facing; aim input is reconsidered

@@ -162,9 +162,9 @@ internal static class NativeSnapshotImport
             // view, where the deleted adjacent-slot inspection (#1526) stands for the none the port's glow keeps. A set-up
             // object watches its definition's condition; one not yet set up watches none.
             if (SuperMetroid.Core.Fx.FxNativeWords.RecordedColourEffectCondition(W(NativeSnapshotMemory.PaletteFxFrameBehavior + slot * 2))
-                    is { } recordedCondition && recordedCondition != imported.Condition)
+                    is { } recordedCondition && recordedCondition != ColourEffectAnimations.Definition(effect).Condition)
             {
-                throw new InvalidDataException($"The native snapshot's {effect} watches {recordedCondition}, not its definition's {imported.Condition}.");
+                throw new InvalidDataException($"The native snapshot's {effect} watches {recordedCondition}, not its definition's {ColourEffectAnimations.Definition(effect).Condition}.");
             }
             importedEffects.Add(imported);
         }

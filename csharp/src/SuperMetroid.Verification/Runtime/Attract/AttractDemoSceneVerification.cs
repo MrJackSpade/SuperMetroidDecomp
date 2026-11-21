@@ -158,7 +158,7 @@ internal static class AttractDemoSceneVerification
     /// </summary>
     private static void VerifyAttractSamusStaging()
     {
-        AttractDemoScene pseudoScrewAttack = StockAttractDemoScenes.FirstSet.Scenes[5];
+        AttractDemoScene pseudoScrewAttack = StockAttractDemoScenes.Playlist(completionSetUnlocked: false)[0].Scenes[5];
         AttractDemoScene crystalFlash = StockAttractDemoScenes.CompletionSet.Scenes[4];
         AssertEqual(AttractDemoSamusSetups.MorphLeft, pseudoScrewAttack.Samus.Setup, "the pseudo Screw Attack stages the rolling morph ball");
         AssertEqual(AttractDemoSamusSetups.LowHealthLeft, crystalFlash.Samus.Setup, "the Crystal Flash stages low energy");

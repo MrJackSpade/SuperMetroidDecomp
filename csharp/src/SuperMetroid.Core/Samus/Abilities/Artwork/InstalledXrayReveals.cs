@@ -98,7 +98,7 @@ public sealed class InstalledXrayReveals
     /// blocks; the other two traverse vertical and horizontal extensions instead. A shape is drawable exactly when it
     /// copies blocks of its own (<see cref="XrayRevealShapeDefinitions"/>).
     /// </remarks>
-    public static bool IsDrawable(XrayRevealShape shape) => IsDrawable(shape, out _);
+    private static bool IsDrawable(XrayRevealShape shape) => IsDrawable(shape, out _);
 
     /// <summary>Whether this reveal shape carries authored visual blocks, and the copy shape it is: <paramref name="copy"/>.</summary>
     public static bool IsDrawable(XrayRevealShape shape, out XrayRevealCopyShape copy) => CopyShapes.TryGetValue(shape, out copy);

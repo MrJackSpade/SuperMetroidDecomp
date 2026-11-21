@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 internal sealed record ShownFileSelectPage(SelectedFileSelectPage Selected, ImmutableDictionary<SaveSlot, ShownFileSelectSave?> Slots)
 {
     /// <summary>The page.</summary>
-    internal FileSelectPage Page => Selected.Page;
+    private FileSelectPage Page => Selected.Page;
 
     /// <summary>Whether the page lays its slots out as the main menu does, rather than as copy and clear do.</summary>
     internal bool Main => Page is FileSelectPage.MainWithData or FileSelectPage.MainEmpty;

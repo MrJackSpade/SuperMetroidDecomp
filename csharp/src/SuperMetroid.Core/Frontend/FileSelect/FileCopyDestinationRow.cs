@@ -37,7 +37,7 @@ internal abstract class FileCopyDestinationRow
     internal static FileCopyDestinationRow Choosing(FileCopyRoute route) => RowsChoosing[route];
 
     /// <summary>The rows of <paramref name="source"/>'s menu, from the top.</summary>
-    internal static IReadOnlyList<FileCopyDestinationRow> MenuFrom(SaveSlot source) => Menus[source];
+    private static IReadOnlyList<FileCopyDestinationRow> MenuFrom(SaveSlot source) => Menus[source];
 
     /// <summary>Each source's menu: its two routes, then Exit.</summary>
     private static IdentityTable<SaveSlot, IReadOnlyList<FileCopyDestinationRow>> Menus => field ??= new(source =>

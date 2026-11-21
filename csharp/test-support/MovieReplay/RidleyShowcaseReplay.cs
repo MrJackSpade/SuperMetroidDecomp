@@ -734,10 +734,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // This movie never places a bomb. Check every physical bomb slot and
                 // both activation owners so that absence is verified, not assumed from
                 // the aggregate counter or from ordinary beam/missile comparisons.
-                foreach (var bomb in runtime.BombProjectiles.Bombs)
+                // The bombs are listed in place order.
+                for (int place = 0; place < runtime.BombProjectiles.Bombs.Count; place++)
                 {
-                    int address = NativeSnapshotMemory.ProjectileType + (bomb.Place + 5) * 2;
-                    VerificationAssertions.AssertTrue(!bomb.IsOccupied, $"Bomb place {bomb.Place} holds no bomb");
+                    SamusBomb bomb = runtime.BombProjectiles.Bombs[place];
+                    int address = NativeSnapshotMemory.ProjectileType + (place + 5) * 2;
+                    VerificationAssertions.AssertTrue(!bomb.IsOccupied, $"Bomb place {place} holds no bomb");
                     VerificationAssertions.AssertTrue(W(address) == 0,
                         "Movie now activates a bomb slot; add its full live-state mapping");
                 }

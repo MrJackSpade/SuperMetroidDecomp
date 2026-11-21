@@ -55,7 +55,7 @@ internal sealed class RoomColourEffect
     internal ColourEffectColours Colours { get; }
 
     /// <summary>The condition the effect's definition names: <see cref="ColourEffectCondition.WatchesNothing"/> for an effect that watches nothing.</summary>
-    internal ColourEffectCondition Condition { get; }
+    private ColourEffectCondition Condition { get; }
 
     /// <summary>
     /// The condition the effect checks at the start of its turn: its condition from the update after it shows its first

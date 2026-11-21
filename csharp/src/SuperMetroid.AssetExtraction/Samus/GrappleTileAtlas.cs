@@ -30,7 +30,7 @@ public sealed class GrappleTileAtlas
     /// <summary>Resolves one endpoint character or four-character rope-orientation transfer.</summary>
     /// <param name="transfer">One of the seven grapple transfers (<see cref="GrappleTileDefinitions.Transfers"/>).</param>
     /// <returns>The current 32-byte endpoint or 128-byte segment transfer.</returns>
-    public ReadOnlyMemory<byte> Resolve(GrappleTileTransfer transfer) => tiles.AsMemory(transfer.AtlasOffset, transfer.ByteCount);
+    private ReadOnlyMemory<byte> Resolve(GrappleTileTransfer transfer) => tiles.AsMemory(transfer.AtlasOffset, transfer.ByteCount);
     /// <summary>
     /// The endpoint character of <paramref name="pointFrame"/> followed by the four rope characters the rope
     /// <paramref name="orientation"/> selects: OBJ characters $20-$24 as the beam's sprites name them.

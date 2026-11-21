@@ -15,13 +15,13 @@ internal sealed class EndingPostCreditsText
     /// <summary>
     /// The item-percentage text (#2541), the first typed text the screen shows: none until the logo's end.
     /// </summary>
-    internal EndingTypewriter? ItemPercentage { get; private set; }
+    private EndingTypewriter? ItemPercentage { get; set; }
 
     /// <summary>
     /// The final message (#2541), from the end of the move down on, below which the item percentage stays shown; none
     /// before. The screen draws it after the item percentage, whatever order they were started in (#2553).
     /// </summary>
-    internal EndingTypewriter? FinalMessage { get; private set; }
+    private EndingTypewriter? FinalMessage { get; set; }
 
     /// <summary>Pixels the text is moved down the screen, zero until the item percentage's move down.</summary>
     internal int Drop { get; set; }

@@ -193,7 +193,6 @@ global using static SuperMetroid.AssetExtraction.Samus.ChargeFlareSpritesPrivate
 global using static SuperMetroid.AssetExtraction.Samus.ProjectileSpriteDefinitionsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.GrappleSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractorPrivateAccess;
-global using static SuperMetroid.AssetExtraction.Samus.GrappleTileAtlasPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.InstalledProjectileSpritesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.InstalledSamusHyperBeamColorsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorExtractorPrivateAccess;

@@ -81,7 +81,7 @@ internal static class YardAirborneVerification
 
         var attract = CreateRetailRuntimeFixture();
         attract.YardKickDistance.Record(stale);
-        attract.AttractDemo.InitializeAttractDemo(StockAttractDemoScenes.FirstSet.Scenes[0]);
+        attract.AttractDemo.InitializeAttractDemo(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)[0].Scenes[0]);
         AssertEqual(initial, attract.YardKickDistance.HorizontalDistancePlusOne, "loading an attract demo initialises Samus with one pixel");
     }
 

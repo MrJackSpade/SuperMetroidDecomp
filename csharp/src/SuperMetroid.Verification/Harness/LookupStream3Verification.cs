@@ -331,11 +331,11 @@ internal static class LookupStream3Verification
         {
             foreach (var transfer in transfers)
             {
-                AssertTrue(planar.AsSpan(transfer.AtlasOffset, transfer.ByteCount).SequenceEqual(atlas.Resolve(transfer).Span),
+                AssertTrue(planar.AsSpan(transfer.AtlasOffset, transfer.ByteCount).SequenceEqual(atlas.Shown(transfer).Span),
                     "stream 3 exact Grapple calculated/upload bytes");
                 AssertTrue(atlas.TryResolve(transfer.SourceAddress, transfer.ByteCount, out var resolved),
                     "stream 3 existing Grapple transfer identity binding");
-                AssertTrue(resolved.Span.SequenceEqual(atlas.Resolve(transfer).Span),
+                AssertTrue(resolved.Span.SequenceEqual(atlas.Shown(transfer).Span),
                     "stream 3 rebound Grapple bytes preserve transfer boundaries");
             }
         }

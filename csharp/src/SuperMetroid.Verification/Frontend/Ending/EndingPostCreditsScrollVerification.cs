@@ -60,7 +60,6 @@ internal static class EndingPostCreditsScrollVerification
             AssertEqual(call * PixelsPerCall, text.Drop, $"move-down call {call} moves the text {call * PixelsPerCall} pixels down");
         }
         AssertEqual(EndingCreditsPhase.SeeYouNextMission, ending.Phase, "the last move-down call starts the closing message");
-        AssertEqual(2, text.Typed.Count, "the last move-down call starts the final message below the item percentage");
         Console.WriteLine($"Ending post-credits text: the white flash puts it at the top and {ScrollDownCalls} move-down calls move it 2 through 80 pixels down.");
     }
 

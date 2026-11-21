@@ -16,7 +16,7 @@ public sealed class SamusBomb
     internal SamusBomb(int place) => Place = place;
 
     /// <summary>The bomb's place among the five, zero through four: bombs take the lowest free one, and a spread fills all five.</summary>
-    public int Place { get; }
+    private int Place { get; }
 
     /// <summary>
     /// The bomb holding the place (#2558, #2560), which owns all it is and does: from its placing, which gives it its type

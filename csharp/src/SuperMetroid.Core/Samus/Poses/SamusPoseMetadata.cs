@@ -623,7 +623,7 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>True for the right-facing poses that move as <see cref="SamusMovementType.NormalJumping"/>.</summary>
-    public static bool IsRightFacingNormalJumpPose(SamusPoseId pose) =>
+    private static bool IsRightFacingNormalJumpPose(SamusPoseId pose) =>
         FacesAndMoves(pose, SamusFacingDirection.Right, SamusMovementType.NormalJumping);
 
     /// <summary>True for the left-facing poses that move as <see cref="SamusMovementType.NormalJumping"/>.</summary>
@@ -631,7 +631,7 @@ internal static class SamusPoseMetadata
         FacesAndMoves(pose, SamusFacingDirection.Left, SamusMovementType.NormalJumping);
 
     /// <summary>True for the right-facing poses that move as <see cref="SamusMovementType.Falling"/>.</summary>
-    public static bool IsRightFacingFallingPose(SamusPoseId pose) =>
+    private static bool IsRightFacingFallingPose(SamusPoseId pose) =>
         FacesAndMoves(pose, SamusFacingDirection.Right, SamusMovementType.Falling);
 
     /// <summary>True for the left-facing poses that move as <see cref="SamusMovementType.Falling"/>.</summary>

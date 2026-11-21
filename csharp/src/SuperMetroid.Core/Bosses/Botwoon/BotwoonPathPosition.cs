@@ -3,9 +3,10 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <summary>
 /// Where Botwoon stands on the authored path he walks (#2553): the next step of <see cref="Path"/> to take, or one of the
 /// two positions just outside it, one before its first step and one after its last, where a walk ends. A walk starts on
-/// one of the path's steps and moves one step at a time only from a step, so no other position can be reached.
+/// one of the path's steps and moves one step at a time only from a step, so no other position can be reached. Two
+/// positions are equal when they stand at the same step of the same path.
 /// </summary>
-internal sealed class BotwoonPathPosition
+internal sealed record BotwoonPathPosition
 {
     /// <summary>Stands at <paramref name="step"/> of <paramref name="path"/>, which lies in range.</summary>
     private BotwoonPathPosition(BotwoonPathDefinition path, int step)
@@ -15,10 +16,10 @@ internal sealed class BotwoonPathPosition
     }
 
     /// <summary>The authored path being walked.</summary>
-    internal BotwoonPathDefinition Path { get; }
+    private BotwoonPathDefinition Path { get; }
 
     /// <summary>The next step of <see cref="Path"/> to take, from one before the first step to one after the last.</summary>
-    internal int Step { get; }
+    private int Step { get; }
 
     /// <summary>The start of <paramref name="walk"/>: its path at its first step, one of the path's steps.</summary>
     internal static BotwoonPathPosition StartOf(BotwoonPathWalk walk) => new(Ensure.NotNull(walk.Path), walk.FirstStep);

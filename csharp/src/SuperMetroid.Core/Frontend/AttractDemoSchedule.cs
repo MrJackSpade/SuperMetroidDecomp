@@ -17,7 +17,7 @@ internal sealed class AttractDemoSchedule(IReadOnlyList<AttractDemoSet> playlist
     private int setPlace;
 
     /// <summary>The demo set the title plays.</summary>
-    internal AttractDemoSet Set => playlist[setPlace];
+    private AttractDemoSet Set => playlist[setPlace];
 
     /// <summary>
     /// How many of <see cref="Set"/>'s demonstrations have begun since the set last started from its first; the next

@@ -16,13 +16,11 @@ internal abstract record BoulderStart
     {
         /// <summary>Starts a Boulder that hangs <paramref name="drop"/> pixels above its resting place.</summary>
         /// <param name="drop">The pixels it hangs above its resting place, one or more.</param>
-        internal FallsFrom(int drop) => Drop = Ensure.BetweenInclusive(1, int.MaxValue, drop);
-
-        /// <summary>The pixels it hangs above its resting place, one or more.</summary>
-        internal int Drop { get; }
+        internal FallsFrom(int drop) => InitialLift = Ensure.BetweenInclusive(1, int.MaxValue, drop);
 
         /// <inheritdoc/>
-        internal override int InitialLift => Drop;
+        /// <remarks>The drop it falls before it bounces, one or more pixels.</remarks>
+        internal override int InitialLift { get; }
     }
 
     /// <summary>Rolls at once, without falling or bouncing.</summary>

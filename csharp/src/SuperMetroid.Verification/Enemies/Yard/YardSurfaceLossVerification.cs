@@ -13,17 +13,11 @@ internal static class YardSurfaceLossVerification
     /// <summary>
     /// Runs the production crawling movement of a floor Yard in open air, so its surface probe misses. With two misses
     /// already counted it counts a third and turns around the outside corner; with three it counts the fourth and drops.
-    /// The count's slot variable holds the same value.
+    /// The Yard crawls in open air from its first miss, so every crawl misses its surface.
     /// </summary>
     internal static void VerifyYardSurfaceLoss()
     {
         RoomLevelData air = VerificationHelpersVerification.CreateEmptyRoom(new(64, 64));
-        foreach ((int counted, int expected, YardBehavior expectedBehavior, YardMovement expectedMovement) in
-                 new VerifyYardSurfaceLossCase[]
-                 {
-                     new VerifyYardSurfaceLossCase(2, 3, YardBehavior.NormalCrawling, YardMovement.Crawling),
-                     new VerifyYardSurfaceLossCase(3, 4, YardBehavior.Dropped, YardMovement.Airborne),
-                 })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
@@ -36,14 +30,13 @@ internal static class YardSurfaceLossVerification
                 Behavior = YardBehavior.NormalCrawling,
                 CrawlingVelocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256)),
             };
-            global::SuperMetroid.Core.PrivateState.Set(state, nameof(YardEnemyState.ConsecutiveTurnCounter), counted);
-
-            enemies.YardBehavior.RunYardCrawlingMovement(place, state, air);
-
-            string context = $"Yard missing its surface after {counted} misses";
-            AssertEqual(expected, state.ConsecutiveTurnCounter, $"{context}: count");
-            AssertEqual(expectedBehavior, state.Behavior, $"{context}: behavior");
-            AssertEqual(expectedMovement, state.Movement, $"{context}: movement");
+            for (int miss = 1; miss <= 4; miss++)
+            {
+                enemies.YardBehavior.RunYardCrawlingMovement(place, state, air);
+                string context = $"Yard missing its surface for the {miss} time in a row";
+                AssertEqual(miss < 4 ? YardBehavior.NormalCrawling : YardBehavior.Dropped, state.Behavior, $"{context}: behavior");
+                AssertEqual(miss < 4 ? YardMovement.Crawling : YardMovement.Airborne, state.Movement, $"{context}: movement");
+            }
         }
         Console.WriteLine("  Yard surface loss: the fourth consecutive missed surface drops the Yard.");
     }

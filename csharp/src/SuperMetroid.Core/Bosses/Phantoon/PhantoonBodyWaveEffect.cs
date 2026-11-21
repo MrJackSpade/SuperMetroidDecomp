@@ -73,13 +73,13 @@ public sealed class PhantoonBodyWaveEffect
     }
 
     /// <summary>Runs one update of the wave: a pending setup consumes the update; later active updates end the wave once it is ended or advance its phase and rebuild its shape.</summary>
-    /// <param name="boss">Owning Phantoon state; its wave's length, phase step and amplitude remain boss-owned inputs.</param>
+    /// <param name="boss">Owning Phantoon state; its wave's ending, phase step and amplitude remain boss-owned inputs.</param>
     /// <remarks>Does not publish the wave. Ending it keeps its last shape, and a new setup does not clear it; LatchDisplay owns the displayed snapshot.</remarks>
     public void Step(PhantoonEnemyState boss)
     {
         if (_wave is RequestedWave requested)
         {
-            boss.Wave.SetUp(requested.Length);
+            boss.Wave.SetUp();
             _wave = new RipplingWave(requested.Length);
             Phase = PhantoonWaveDefinitions.InitialPhase;
             return; // The setup update does not also ripple.
@@ -90,7 +90,7 @@ public sealed class PhantoonBodyWaveEffect
             _wave = new EndedWave(rippling.Length); // The wave ends, keeping its last shape.
             return;
         }
-        // The wave keeps its setup length: only this effect's setup sets the boss's wave length (PhantoonWaveState.SetUp).
+        // The wave keeps the length it was begun with: only a new begin changes it.
         Phase += boss.Wave.PhaseStep;
         _built = new(Phase, boss.Wave.Amplitude);
     }

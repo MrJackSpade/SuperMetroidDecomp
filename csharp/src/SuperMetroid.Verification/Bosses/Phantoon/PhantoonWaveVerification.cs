@@ -27,7 +27,6 @@ internal static class PhantoonWaveVerification
         wave.Begin(PhantoonWaveDefinitions.IntroLength);
         AssertTrue(!wave.Active, "a requested wave waits for its setup update");
         wave.Step(boss);
-        AssertEqual<PhantoonWaveLength?>(PhantoonWaveLength.Short, boss.Wave.Length, "the wave's setup copies the pending length to the eye");
         AssertEqual(PhantoonWaveDefinitions.InitialPhase, wave.Phase, "the setup update only seeds the phase");
         // The setup does not run the scroll pre-instruction: the wave is flat at the scroll it was last built from.
         AssertEqual(new PhantoonWave(default, new TrigonometryAngle(0), PhantoonWaveDefinitions.ShortPeriod),

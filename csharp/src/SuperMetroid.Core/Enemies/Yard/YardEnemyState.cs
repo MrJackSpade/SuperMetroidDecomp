@@ -26,14 +26,14 @@ public sealed class YardEnemyState
     internal YardSegment? HidingAnimation { get; set; }
 
     /// <summary>The missing-surface probes in a row that drop Yard.</summary>
-    internal const int MissedProbesBeforeFalling = 4;
+    private const int MissedProbesBeforeFalling = 4;
 
     /// <summary>
     /// Consecutive missing-surface probe count, 0 through <see cref="MissedProbesBeforeFalling"/>: only a missed probe
     /// counts it, and the miss that reaches that count drops Yard instead of installing another outside-corner turn, while
     /// surface contact and landing reset it.
     /// </summary>
-    public int ConsecutiveTurnCounter { get; private set; }
+    private int ConsecutiveTurnCounter { get; set; }
 
     /// <summary>
     /// Counts one more missed surface probe and reports whether Yard has now missed enough in a row to drop instead of

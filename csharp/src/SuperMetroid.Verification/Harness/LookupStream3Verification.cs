@@ -2098,7 +2098,7 @@ internal static class LookupStream3Verification
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             actual.Presentation.DrawHelmet(actualOam, MenuSheetFixtures.FileSelect(actual), frame, SuperMetroid.Core.Saves.SaveSlot.A);
-            var anchor = layout.HelmetAnchors[0];
+            var anchor = layout.HelmetAnchors[nameof(SuperMetroid.Core.Saves.SaveSlot.A)];
             expectedParts.DrawOnScreen(expectedOam, new(anchor.X, anchor.Y), (ushort)(expected.ObjectPalette << 9));
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertTrue(actualOam.ImageEquals(expectedOam),

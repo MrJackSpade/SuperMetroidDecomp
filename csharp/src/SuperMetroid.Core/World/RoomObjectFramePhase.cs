@@ -67,28 +67,23 @@ internal sealed class RoomObjectFramePhase
         if (samus.Xray.AreObjectsSuspended)
             return;
 
-        RoomObjectStepOutcome step = StepRoomObjects(newlyPressed: GameplayAction.None, room, samus);
-
-        // Setup-time room objects do not have Samus contact/input available. If a future
-        // change publishes a player-facing event here, fail at the exact ownership
-        // boundary instead of silently discarding it.
-        if (step.Pickups.Count != 0 || step.StationActivations.Count != 0)
-        {
-            throw new InvalidDataException(
-                "A door-transition room-object step unexpectedly published a player interaction.");
-        }
-        SpawnThrownProjectiles(step, room);
+        // The freshly loaded objects have met no contact of Samus's, so the step touches no item and no station acts: the
+        // untouched view's step yields only the projectiles its objects throw.
+        IReadOnlyList<RoomObjectProjectileRequest> thrown =
+            room.RoomObjects.Untouched.Step(room.LevelData, FrameInputs(GameplayAction.None, room, samus));
+        EnemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(EnemyRoomEffectSite.Of(room, samus));
+        SpawnThrownProjectiles(thrown, room);
     }
 
-    /// <summary>
-    /// Steps the room objects, for ordinary gameplay and for the explicit
-    /// transition-time call. Player-facing events remain with each phase that runs them because the
-    /// transition path cannot legitimately collect an item or activate a station.
-    /// </summary>
-    /// <returns>The step's outcome, which the phase that ran it acts on.</returns>
+    /// <summary>The room objects' inputs for a step with <paramref name="newlyPressed"/> newly pressed.</summary>
+    private static RoomObjectFrameInputs FrameInputs(GameplayAction newlyPressed, RoomScope room, SamusState samus) =>
+        new() { Scrolls = room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = newlyPressed, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = room.BombProjectiles.PowerBombExplosion.IsActive };
+
+    /// <summary>Steps the room objects for ordinary gameplay.</summary>
+    /// <returns>The step's outcome, which the phase acts on.</returns>
     private static RoomObjectStepOutcome StepRoomObjects(GameplayAction newlyPressed, RoomScope room, SamusState samus)
     {
-        RoomObjectStepOutcome step = room.RoomObjects.Step(room.LevelData, new RoomObjectFrameInputs { Scrolls = room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = newlyPressed, CollectedItems = samus.CollectedItems, PowerBombExplosionActive = room.BombProjectiles.PowerBombExplosion.IsActive });
+        RoomObjectStepOutcome step = room.RoomObjects.Step(room.LevelData, FrameInputs(newlyPressed, room, samus));
         EnemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(EnemyRoomEffectSite.Of(room, samus));
         return step;
     }
@@ -98,12 +93,10 @@ internal sealed class RoomObjectFramePhase
     /// shards and the Bomb Torizo statue hand's fragments. The glass and the hand never share a room, so one step throws
     /// only one of the two kinds.
     /// </summary>
-    private static void SpawnThrownProjectiles(RoomObjectStepOutcome step, RoomScope room)
+    private static void SpawnThrownProjectiles(IReadOnlyList<RoomObjectProjectileRequest> thrown, RoomScope room)
     {
-        foreach (RoomObjectProjectileRequest thrown in step.ThrownProjectiles)
-        {
-            thrown.React(SpawnThrownProjectilesReactions, room);
-        }
+        foreach (RoomObjectProjectileRequest projectile in thrown)
+            projectile.React(SpawnThrownProjectilesReactions, room);
     }
 
     /// <summary>What <c>SpawnThrownProjectiles</c> does on each <see cref="RoomObjectProjectileRequest"/>, built once (#2553).</summary>
@@ -139,7 +132,7 @@ internal sealed class RoomObjectFramePhase
             foreach (StationActivationEvent station in step.StationActivations)
                 _waitingMessages.Enqueue(() => station.Open(opening));
             OpenNextMessage();
-            SpawnThrownProjectiles(step, room);
+            SpawnThrownProjectiles(step.ThrownProjectiles, room);
         }
     }
 

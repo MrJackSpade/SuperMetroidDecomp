@@ -179,6 +179,12 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     /// <summary>Door-object owner bound to this room's allocation and draw state.</summary>
     internal DoorObjects DoorObjects { get; }
 
+    /// <summary>
+    /// The objects as the door transition's step reaches them, freshly loaded and untouched by Samus
+    /// (<see cref="UntouchedRoomObjects"/>).
+    /// </summary>
+    internal UntouchedRoomObjects Untouched => new(this);
+
 
     /// <summary>
     /// Steps the room objects with the buttons newly pressed at the frame boundary.

@@ -46,4 +46,7 @@ internal sealed record KraidBehaviorDependencies
 
     /// <summary>Where the body offers its later parts the creation that builds each of them joining its encounter (#2554).</summary>
     public required EnemyPartOffers PartOffers { get; init; }
+
+    /// <summary>The room's enemy places, where his body finds his other parts as his room lists them (#2554).</summary>
+    public required EnemyPlaces Places { get; init; }
 }

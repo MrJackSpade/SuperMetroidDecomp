@@ -14,8 +14,6 @@ internal sealed class KraidHead
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
-    private readonly KraidParts _parts;
     /// <summary>Kraid's state and part lookups, part animations, phase waits, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
@@ -25,13 +23,12 @@ internal sealed class KraidHead
     private readonly KraidProjectiles.RockBehavior _spitRock;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidHead(EnemyRoomBinding room, EnemyProjectileEngine projectiles, KraidParts parts, KraidEncounterAccess access, KraidBackground background,
+    internal KraidHead(EnemyRoomBinding room, EnemyProjectileEngine projectiles, KraidEncounterAccess access, KraidBackground background,
         KraidProjectiles.RockBehavior spitRock)
     {
         _spitRock = Ensure.NotNull(spitRock);
         _room = room;
         _projectiles = projectiles;
-        _parts = parts;
         _access = access;
         _background = background;
     }
@@ -71,7 +68,7 @@ internal sealed class KraidHead
                 throw new InvalidOperationException($"Undefined {nameof(KraidHurtFlashShade)} {shown}.");
         }
         PictureShading parts = state.Colours.Parts;
-        foreach (RoomEnemyPlace part in _parts.All)
+        foreach (RoomEnemyPlace part in state.Parts.All)
             part.Shading = parts;
     }
 
@@ -91,7 +88,7 @@ internal sealed class KraidHead
     internal void SetupKraidFirstPhaseThinking(RoomEnemyPlace body, KraidEnemyState state)
     {
         state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
-        _parts.PlaceLintsAtBodyHeights(body);
+        state.Parts.PlaceLintsAtBodyHeights(body);
         state.ThinkingWait.LastFor(ChooseKraidThinkingUpdates());
     }
 

@@ -9,9 +9,9 @@ public sealed class KraidArmState : KraidAnimatedPartState
 {
     /// <summary>Makes the arm of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the arm is part of.</param>
-    /// <param name="reference">Kraid's reference to the arm, which it joins as it sets up.</param>
-    internal KraidArmState(KraidEnemyState kraid, KraidPartReference reference)
-        : base(kraid, reference, KraidPartSegment.ArmRisingOrSinking)
+    /// <param name="place">The place of the arm, which his body found as his room lists it.</param>
+    internal KraidArmState(KraidEnemyState kraid, RoomEnemyPlace place)
+        : base(kraid, place, KraidPartSegment.ArmRisingOrSinking)
     {
     }
 

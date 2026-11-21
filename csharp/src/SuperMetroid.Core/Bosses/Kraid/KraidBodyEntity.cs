@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class KraidBodyEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : KraidEntity(species, occupant, place, common, species.Parts.BodyReference, () => species.BeginKraid(place))
+    : KraidEntity(species, occupant, place, common, () => species.BeginKraid(place))
 {
 
     /// <inheritdoc/>

@@ -21,8 +21,6 @@ internal sealed class KraidRise
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
-    private readonly KraidParts _parts;
     /// <summary>Applies Kraid's colours, background pictures, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>The room camera's distance mode, which the fight requests.</summary>
@@ -42,16 +40,19 @@ internal sealed class KraidRise
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
-        _parts = dependencies.Parts;
         _presentation = dependencies.Presentation;
         _cameraDistance = dependencies.CameraDistance;
         _access = dependencies.Access;
         _background = dependencies.Background;
         _head = dependencies.Head;
+        _places = dependencies.Places;
         _bodyLayer = dependencies.BodyLayer;
     }
 
     /// <summary>The body layer Kraid draws himself, which the room shows (#2194).</summary>
+    /// <summary>The room's enemy places, where his body finds his other parts as his room lists them.</summary>
+    private readonly EnemyPlaces _places;
+
     private readonly KraidBodyLayer _bodyLayer;
 
     /// <summary>Creates his body's encounter state and restores the defeated room when the area-boss flag is set.</summary>
@@ -60,7 +61,7 @@ internal sealed class KraidRise
     {
         // The body begins the encounter each of his parts joins as it sets up (#2218): a body that sets up again begins a
         // new one.
-        var state = new KraidEnemyState(_parts);
+        var state = new KraidEnemyState(new KraidParts(_places, body));
         // The room shows the body layer he draws himself, of this encounter, his backdrop's colours and his own (#2194).
         _bodyLayer.Show(state);
         _presentation.AttachBossBody(_bodyLayer);
@@ -134,7 +135,7 @@ internal sealed class KraidRise
     private void SetupKraidSecondPhaseThinking(RoomEnemyPlace body, KraidEnemyState state)
     {
         state.BodyState.FightPhase = KraidFightPhase.SecondPhaseThinking;
-        _parts.PlaceLintsAtBodyHeights(body);
+        state.Parts.PlaceLintsAtBodyHeights(body);
         state.ThinkingWait.LastFor(_head.ChooseKraidThinkingUpdates());
     }
 
@@ -168,7 +169,7 @@ internal sealed class KraidRise
 
             case KraidGrowthPhase.BringBodyInFront:
                 BringKraidBodyInFront(state);
-                _parts.Arm.Contact = _parts.Arm.Contact.Without(EnemyContact.IgnoresSamus);
+                state.Parts.Arm.Contact = state.Parts.Arm.Contact.Without(EnemyContact.IgnoresSamus);
                 state.BodyState.GrowthPhase = KraidGrowthPhase.SettleParts;
                 state.ShowBody();
                 return;

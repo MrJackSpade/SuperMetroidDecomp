@@ -9,9 +9,9 @@ public sealed class KraidBodyState : KraidPartState
 {
     /// <summary>Makes the body of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the body is part of.</param>
-    /// <param name="reference">Kraid's reference to the body, which it joins as it sets up.</param>
-    internal KraidBodyState(KraidEnemyState kraid, KraidPartReference reference)
-        : base(kraid, reference)
+    /// <param name="place">The place of the body, which his body found as his room lists it.</param>
+    internal KraidBodyState(KraidEnemyState kraid, RoomEnemyPlace place)
+        : base(kraid, place)
     {
     }
 

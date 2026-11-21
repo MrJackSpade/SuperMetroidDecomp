@@ -40,19 +40,26 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
     internal KraidEnemyState BeginKraid(RoomEnemyPlace body)
     {
         KraidEnemyState state = Rise.InitializeKraidBody(body);
-        Offer(EnemyDefinitionId.KraidArm, (occupant, place, common) => new KraidArmEntity(this, occupant, place, common, state));
-        Offer(EnemyDefinitionId.KraidFoot, (occupant, place, common) => new KraidFootEntity(this, occupant, place, common, state));
-        Offer(EnemyDefinitionId.KraidLintTop, (occupant, place, common) => new KraidLintEntity(this, occupant, place, common, Parts.TopLintReference, KraidLintPart.Top, state));
-        Offer(EnemyDefinitionId.KraidLintMiddle, (occupant, place, common) => new KraidLintEntity(this, occupant, place, common, Parts.MiddleLintReference, KraidLintPart.Middle, state));
-        Offer(EnemyDefinitionId.KraidLintBottom, (occupant, place, common) => new KraidLintEntity(this, occupant, place, common, Parts.BottomLintReference, KraidLintPart.Bottom, state));
-        Offer(EnemyDefinitionId.KraidFirstNail, (occupant, place, common) => new KraidNailEntity(this, occupant, place, common, Parts.FirstNailReference, KraidNailPart.First, state));
-        Offer(EnemyDefinitionId.KraidSecondNail, (occupant, place, common) => new KraidNailEntity(this, occupant, place, common, Parts.SecondNailReference, KraidNailPart.Second, state));
+        KraidParts parts = state.Parts;
+        Offer(EnemyDefinitionId.KraidArm, parts.Arm, (occupant, place, common) => new KraidArmEntity(this, occupant, place, common, state));
+        Offer(EnemyDefinitionId.KraidFoot, parts.Foot, (occupant, place, common) => new KraidFootEntity(this, occupant, place, common, state));
+        Offer(EnemyDefinitionId.KraidLintTop, parts.TopLint, (occupant, place, common) => new KraidLintEntity(this, occupant, place, common, KraidLintPart.Top, state));
+        Offer(EnemyDefinitionId.KraidLintMiddle, parts.MiddleLint, (occupant, place, common) => new KraidLintEntity(this, occupant, place, common, KraidLintPart.Middle, state));
+        Offer(EnemyDefinitionId.KraidLintBottom, parts.BottomLint, (occupant, place, common) => new KraidLintEntity(this, occupant, place, common, KraidLintPart.Bottom, state));
+        Offer(EnemyDefinitionId.KraidFirstNail, parts.FirstNail, (occupant, place, common) => new KraidNailEntity(this, occupant, place, common, KraidNailPart.First, state));
+        Offer(EnemyDefinitionId.KraidSecondNail, parts.SecondNail, (occupant, place, common) => new KraidNailEntity(this, occupant, place, common, KraidNailPart.Second, state));
         return state;
     }
 
-    /// <summary>Offers <paramref name="part"/> the creation <paramref name="create"/> makes.</summary>
-    private void Offer(EnemyDefinitionId part, Func<RoomEnemyOccupant, RoomEnemyPlace, EnemyCommonParticipation, KraidEntity> create) =>
-        _partOffers.Offer<EnemySpawnSettings>(part, (occupant, _, place, common) => EnemyOccupant.Running(create(occupant, place, common)));
+    /// <summary>
+    /// Offers <paramref name="part"/> the creation <paramref name="create"/> makes, for the place his body found it in as
+    /// his room lists it.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The room lists the part elsewhere than his body found it.</exception>
+    private void Offer(EnemyDefinitionId part, RoomEnemyPlace listed, Func<RoomEnemyOccupant, RoomEnemyPlace, EnemyCommonParticipation, KraidEntity> create) =>
+        _partOffers.Offer<EnemySpawnSettings>(part, (occupant, _, place, common) => place == listed
+            ? EnemyOccupant.Running(create(occupant, place, common))
+            : throw new InvalidDataException($"Kraid's {part} set up as enemy {place.Ordinal}, but his body lists enemy {listed.Ordinal} as it."));
 
     /// <summary>Kraid's body, which joins its own reference as it is set up (#1877, #2146).</summary>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
@@ -66,8 +73,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
     /// <summary>Kraid's part animations and states, random numbers and his sound and music requests.</summary>
     private KraidEncounterAccess Access { get; }
 
-    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
-    internal KraidParts Parts { get; }
 
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private KraidBackground Background { get; }
@@ -96,16 +101,15 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
     {
         _bossArtwork = dependencies.Presentation.Artwork;
         _partOffers = dependencies.PartOffers;
-        Parts = new KraidParts();
         Access = new KraidEncounterAccess(dependencies.Room, dependencies.Audio);
-        BodyLayer = new KraidBodyLayer(_bossArtwork, Parts);
-        Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, Parts, dependencies.Collision, dependencies.DeathsAndDrops, Access);
+        BodyLayer = new KraidBodyLayer(_bossArtwork);
+        Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, dependencies.Collision, dependencies.DeathsAndDrops, Access);
         Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork, Projectiles.Rocks);
-        Head = new KraidHead(dependencies.Room, dependencies.Projectiles, Parts, Access, Background, Projectiles.SpitRock);
-        Rise = new KraidRise(new KraidRiseDependencies { PassEvents = dependencies.PassEvents, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head, BodyLayer = BodyLayer });
-        Death = new KraidDeath(new KraidDeathDependencies { PassEvents = dependencies.PassEvents, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head });
-        Limbs = new KraidLimbs(dependencies.Room, dependencies.Earthquake, Parts, Access);
-        Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.EffectActors, Parts, dependencies.Collision);
+        Head = new KraidHead(dependencies.Room, dependencies.Projectiles, Access, Background, Projectiles.SpitRock);
+        Rise = new KraidRise(new KraidRiseDependencies { PassEvents = dependencies.PassEvents, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Places = dependencies.Places, Presentation = dependencies.Presentation.Surfaces, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head, BodyLayer = BodyLayer });
+        Death = new KraidDeath(new KraidDeathDependencies { PassEvents = dependencies.PassEvents, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head });
+        Limbs = new KraidLimbs(dependencies.Room, dependencies.Earthquake, Access);
+        Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.EffectActors, dependencies.Collision);
     }
 
     /// <summary>

@@ -11,19 +11,22 @@ public sealed class KraidEnemyState
     /// Begins an encounter whose parts each hold it from their setup (#2218): each part's state knows the place that joins
     /// <paramref name="parts"/>' reference to it, and each animated part plays the animation its setup starts (#2298).
     /// </summary>
-    /// <param name="parts">Kraid's references to his parts in his room.</param>
+    /// <param name="parts">His parts' places, which his body found as his room lists them.</param>
     internal KraidEnemyState(KraidParts parts)
     {
-        Ensure.NotNull(parts);
-        BodyState = new(this, parts.BodyReference);
-        ArmState = new(this, parts.ArmReference);
-        TopLintState = new(this, parts.TopLintReference);
-        MiddleLintState = new(this, parts.MiddleLintReference);
-        BottomLintState = new(this, parts.BottomLintReference);
-        FootState = new(this, parts.FootReference);
-        FirstNailState = new(this, parts.FirstNailReference, sibling: parts.SecondNailReference);
-        SecondNailState = new(this, parts.SecondNailReference, sibling: parts.FirstNailReference);
+        Parts = Ensure.NotNull(parts);
+        BodyState = new(this, parts.Body);
+        ArmState = new(this, parts.Arm);
+        TopLintState = new(this, parts.TopLint);
+        MiddleLintState = new(this, parts.MiddleLint);
+        BottomLintState = new(this, parts.BottomLint);
+        FootState = new(this, parts.Foot);
+        FirstNailState = new(this, parts.FirstNail, sibling: parts.SecondNail);
+        SecondNailState = new(this, parts.SecondNail, sibling: parts.FirstNail);
     }
+
+    /// <summary>His eight parts' places, which his body found as his room lists them as it set up (#2554).</summary>
+    internal KraidParts Parts { get; }
 
     /// <summary>Kraid's body's, sprite parts' and eyes' colours (#1512).</summary>
     internal KraidColours Colours { get; } = new();

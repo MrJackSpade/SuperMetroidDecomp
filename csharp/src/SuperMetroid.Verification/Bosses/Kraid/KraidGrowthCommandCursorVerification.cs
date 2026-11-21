@@ -32,6 +32,10 @@ internal static class KraidGrowthCommandCursorVerification
                     new Dictionary<KraidHeadFrame, KraidHeadTilemapAtlas> { [KraidHeadTilemapFormat.HeadsByMouthStage[2]] = head }, referenceArt.RoomBackgroundTiles) });
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         enemies.Places.BindKraidPartsInRoomOrder();
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
         KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
         Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.RunKraidHeadAnimationStep;
         Action<RoomEnemyPlace, ushort> footMain = (foot, cameraY) => enemies.KraidBehavior.Limbs.RunKraidFootMain(foot, state.FootState, cameraY);

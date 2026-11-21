@@ -87,6 +87,10 @@ internal static class KraidHeadInstructionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
         enemies.Places.BindKraidPartsInRoomOrder();
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
         KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
         var guard = new KraidHeadProgramReadGuard(rom);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));

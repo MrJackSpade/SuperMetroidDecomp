@@ -78,6 +78,10 @@ internal static class KraidMovementChoicesVerification
         var body = enemies.Places.InUpdateOrder[0];
         enemies.Places.BindKraidPartsInRoomOrder();
         var foot = enemies.Places.InUpdateOrder[5];
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
         KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
         KraidFootState part = state.FootState;
         ushort rng = 0;

@@ -829,6 +829,10 @@ internal static class LookupStream2Verification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         // The parts hold Kraid's encounter, which the body's setup begins; this fixture begins it directly.
         enemies.Places.BindKraidPartsInRoomOrder();
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
         KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
         enemies.VerificationServices().ReadRandom = () => 1;
         Action<RoomEnemyPlace, KraidLintState> align = enemies.KraidBehavior.Projectiles.AlignKraidLint;

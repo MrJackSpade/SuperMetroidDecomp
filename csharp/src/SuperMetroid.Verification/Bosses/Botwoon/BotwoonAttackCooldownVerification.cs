@@ -136,6 +136,8 @@ internal static class BotwoonAttackCooldownVerification
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.KeptDefinition);
         head.Position = head.Position.WithWhole(new(1000, 1000));
+        // His room's load reads whether its mini-boss is defeated; this room's is not.
+        enemies.VerificationServices().IsAreaMiniBossDefeated ??= () => false;
         BotwoonEnemyState state = enemies.BotwoonBehavior.InitializeBotwoon(head.HeldOccupant(), head);
         state.HealthBand = BotwoonHealthBandDefinitions.BelowEighth;
         head.SetSpeciesState(state);

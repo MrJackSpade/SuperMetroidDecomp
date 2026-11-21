@@ -203,6 +203,8 @@ internal static class BotwoonAnimationsVerification
         // Landing hands the segment to the shared native big-explosion list.
         // His body is spawned as his setup spawns it, from the segment behind his head down to his tail.
         Action<EnemyProjectile, int> runBody = enemies.BotwoonBehavior.MoveBotwoonBodySegment;
+        // His room's load reads whether its mini-boss is defeated; this room's is not.
+        enemies.VerificationServices().IsAreaMiniBossDefeated ??= () => false;
         BotwoonSegmentState spawned = enemies.BotwoonBehavior.InitializeBotwoon(head.HeldOccupant(), head).Body[1];
         EnemyProjectile body = spawned.Projectile;
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Contains(body) && body.Kind == RoomEnemyProjectileKind.BotwoonBody,

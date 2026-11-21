@@ -48,13 +48,14 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     {
         Ensure.NotNull(level);
         RoomBlockBehavior behavior = level.GetCollisionBlock(block).Behavior;
-        bool wreckedShip = _area == AreaId.WreckedShip &&
-            behavior == ChozoStatueRoomDefinitions.WreckedShipHandBehavior;
-        bool lowerNorfair = _area == AreaId.Norfair &&
-            behavior == ChozoStatueRoomDefinitions.LowerNorfairHandBehavior;
-        if (!wreckedShip && !lowerNorfair) return;
+        // The site whose hand behaviour the block has in its area is the hand's.
+        if (ChozoStatueSiteDefinitions.Sites.SingleOrDefault(entry => entry.Value.Area == _area && entry.Value.HandBehavior == behavior)
+            is not { Key: var handSite, Value: { } site })
+        {
+            return;
+        }
         // The hand's block wakes the statue whose spawned hand made it the hand.
-        if (!_hands.TryGetValue(wreckedShip ? ChozoStatueSite.WreckedShip : ChozoStatueSite.LowerNorfair, out ChozoStatueHandTrigger? hand))
+        if (!_hands.TryGetValue(handSite, out ChozoStatueHandTrigger? hand))
             return;
         // The hand block is solid whether or not the touch is admitted. Samus morphed facing left is not admitted; only
         // these three poses are.

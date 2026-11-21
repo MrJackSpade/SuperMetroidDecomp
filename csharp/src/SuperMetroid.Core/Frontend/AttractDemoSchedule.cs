@@ -72,7 +72,6 @@ internal sealed class AttractDemoSchedule
         ScenesBegun++;
         end = AttractPlaybackEnd.Completed;
         Scene = new SceneState.Loading(UpdateCountdown.Lasting(GameLoadingDefinitions.EnemySetupWaits), scene.Duration);
-        AwaitsScene = false;
     }
 
     /// <summary>Counts one enemy-setup wait; returns whether it was the last, after which the scene plays.</summary>

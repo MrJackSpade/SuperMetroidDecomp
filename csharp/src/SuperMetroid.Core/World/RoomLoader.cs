@@ -697,7 +697,7 @@ internal sealed class RoomLoader
     }
 
     /// <summary>Loads the selected room, its state and its graphics, entered neither at a load station nor through a door's transition.</summary>
-    internal void LoadRoom(
+    internal RoomScope LoadRoom(
         DoorDefinition door,
         SelectedRoom room,
         Position16<RoomPixels> camera,
@@ -833,7 +833,7 @@ internal sealed class RoomLoader
         // setup have run, below.
         var progress = new RoomAreaProgress(_system, room.Area);
         var roomObjectSamus = new RoomObjectSamusAccess(_player);
-        var reachedByEnemies = new RoomObjectsReachedByEnemies(new RoomObjectPlaces(), roomObjectSamus, progress, progress, _audioRequests);
+        var reachedByEnemies = new RoomObjectsReachedByEnemies(roomObjectSamus, progress, progress, _audioRequests);
         var areaServices = new RoomEnemyRuntimeServices(_system, destinationCamera.Scrolls, _player, reachedByEnemies, _display, progress);
         // Each enemy system gets its own compatibility services: the sweep, the places and the effect-actor places start
         // with no earlier kill, occupant or taken place, and a Puyo's ceiling turn starts from what loading the beams'
@@ -883,7 +883,8 @@ internal sealed class RoomLoader
         // Site's green door before it closes behind Samus.
         var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, reachedByEnemies, _roomObjectVisuals,
             new CollectibleBlockPairs(),
-            new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft));
+            new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft),
+            new RoomObjectThrownProjectileSpawners(roomObjectServices, roomObjectServices));
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);
 
         // The door's setup runs after the destination's room objects exist and before its enemies and first view are

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus.Poses;
 

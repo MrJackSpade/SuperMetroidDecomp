@@ -158,7 +158,7 @@ public sealed class SamusProjectileOccupant
     /// <param name="behavior">The behaviour the projectile runs from its next update.</param>
     internal void Install(SamusShotBehavior behavior)
     {
-        Projectile.Behavior = Ensure.NotNull(behavior);
+        Behavior = Ensure.NotNull(behavior);
         KindState = null;
     }
 }

@@ -160,7 +160,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen, IComposedFront
                     FileSelectMapDefinitions.LoadPreludeFrames + FileSelectMapDefinitions.LoadFadeFrames + FileSelectMapDefinitions.LoadBlackFrames);
             else
                 requestWait = UpdateCountdown.Ended();
-            if (FileSelectMapPhaseDefinitions.EntrySounds.TryGetValue(Phase, out SoundEffectId entrySound))
+            if (FileSelectMapPhaseDefinitions.EntrySounds.TryGetValue(Phase, out SoundEffectId? entrySound))
                 Queue(entrySound);
             if (FileSelectMapPhaseDefinitions.RoomMapPhases.Contains(Phase))
             {

@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Rooms;
 /// <param name="Wetness">When the ground is wet, so that her footsteps and landings splash.</param>
 /// <param name="DryLandingsRaiseDust">Whether her landings raise dust while the ground is dry; otherwise they raise nothing.</param>
 [IndependentFlag("whether dry landings raise dust is a fact of the ground, independent of when it is wet")]
-internal sealed record RoomGround(RoomGroundWetness Wetness, bool DryLandingsRaiseDust);
+public sealed record RoomGround(RoomGroundWetness Wetness, bool DryLandingsRaiseDust);

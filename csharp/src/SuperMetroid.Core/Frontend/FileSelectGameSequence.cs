@@ -156,7 +156,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session, FileSelect
     /// <summary>Starts the opening cinematic in the text language <paramref name="options"/> selected.</summary>
     private void StartIntro(GameOptionsMenuState options)
     {
-        IntroCinematicState intro = session.Show(CreateIntroCinematic(options.JapaneseText));
+        IntroCinematicState intro = session.Show(CreateIntroCinematic(options.Language));
         session.EnterIntro(intro);
         session.display.PublishIntro(intro);
     }
@@ -196,15 +196,15 @@ internal sealed class FileSelectGameSequence(FrontendSession session, FileSelect
     /// <summary>Publishes the area map, and opens the options once it asks for them.</summary>
     private void ShowAreaMap(FileSelectMapMenuState map, SuperMetroidSaveSlot mapSlot)
     {
-        session.display.PublishFileMap(map);
+        session.display.Publish(map);
         if (map.Outcome == FileSelectMapOutcome.Options)
         {
             GameOptionsMenuState options = session.Show(new GameOptionsMenuState(session.audio, session.Artwork.ScreenContent,
                 session.Artwork.SpriteSheets, mapSlot.ControllerBindings,
                 mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled,
-                japaneseText: mapSlot.JapaneseText));
+                language: mapSlot.Language));
             Current = new Stage.Options(options);
-            session.display.PublishMenu(options);
+            session.display.Publish(options);
         }
         // A latched load request waits out the next frame before the game load.
     }

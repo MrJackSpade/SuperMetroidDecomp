@@ -32,11 +32,11 @@ internal sealed class RoomObjectRuntimeServices(RoomEnemySystem enemies, SharedG
 
     /// <summary>Spawns a shard Mother Brain's glass threw.</summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request) =>
-        Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(request);
+        _enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(request);
 
     /// <summary>Spawns a fragment the Bomb Torizo statue's hand threw.</summary>
     public void SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request) =>
-        Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(request);
+        _enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(request);
 
     /// <summary>Spawns a Noob Tube projectile at its room object's block.</summary>
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>

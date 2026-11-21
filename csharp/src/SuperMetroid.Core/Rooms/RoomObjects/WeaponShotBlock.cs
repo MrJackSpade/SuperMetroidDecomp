@@ -13,5 +13,5 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record WeaponShotBlock(
     RoomObjectSetupBlock Parent,
     BlockReactionChange Break,
-    BlockReactionChange Reveal,
+    LastingBlockReactionChange Reveal,
     IReadOnlyDictionary<SamusProjectileFamily, ShotBlockWeaponEffect> Weapons);

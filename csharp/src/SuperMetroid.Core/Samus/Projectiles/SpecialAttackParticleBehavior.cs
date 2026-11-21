@@ -19,7 +19,4 @@ internal abstract class SpecialAttackParticleBehavior<TState> : SamusShotBehavio
     /// <param name="update">What the shot update hands every behaviour.</param>
     /// <param name="state">The state the particle's kind keeps.</param>
     private protected abstract SoundEffectId? Step(SamusShotUpdate update, TState state);
-
-    /// <inheritdoc/>
-    internal sealed override bool EndsItselfAfterEnemyHit => true;
 }

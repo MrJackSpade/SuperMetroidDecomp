@@ -200,7 +200,7 @@ internal sealed class KraidHead
         if (!AdvanceKraidHeadAnimationToItsEnd(state, fight.Head))
             return;
         fight.Phase = KraidFightPhase.FirstPhaseThinking;
-        CloseKraidMouth(state);
+        CloseKraidMouth(state, fight);
     }
 
     /// <summary>
@@ -208,7 +208,7 @@ internal sealed class KraidHead
     /// then spends one pending reopen and, while any remain, waits to glow his eye again; otherwise every mark is forgotten.
     /// His open-mouth attack and his reaction to a damaging shot both close it so.
     /// </summary>
-    private static void CloseKraidMouth(KraidEnemyState state)
+    private static void CloseKraidMouth(KraidEnemyState state, KraidStageRun.Fighting fight)
     {
         state.HoldClosedMouth();
         if (state.MouthReopenMarked)

@@ -141,16 +141,16 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
     private sealed class LibraryRequests
     {
         /// <summary>The game's most recent request to the library; none requests nothing.</summary>
-        internal TSound? Requested { get; set; }
+        internal RequestedSound<TSound>? Requested { get; set; }
 
         /// <summary>What the library reports back as acknowledged.</summary>
         internal SoundAcknowledgement<TSound> Acknowledged { get; set; }
 
         /// <summary>The request the library took at its most recent check, which the next check acts on.</summary>
-        internal TSound? Taken { get; set; }
+        internal RequestedSound<TSound>? Taken { get; set; }
 
         /// <summary>The request the library acted on at its most recent check, for detecting a change.</summary>
-        internal TSound? ActedOn { get; set; }
+        internal RequestedSound<TSound>? ActedOn { get; set; }
     }
 
     /// <summary>

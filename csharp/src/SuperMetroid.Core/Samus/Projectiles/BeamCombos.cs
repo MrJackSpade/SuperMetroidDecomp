@@ -62,7 +62,7 @@ internal sealed class BeamCombos
             // and each plays its part.
             IReadOnlyList<SpecialAttackReplacesFirstShots.ParticleShot<SpecialAttackParticle, SamusProjectileOccupant>> particles =
                 SpecialAttackReplacesFirstShots.ParticleShots(SpecialAttackParticleDefinitions.InPlaceOrder, part => part.ShotPlace,
-                    part => OccupyComboShot(_pool, part.ShotPlace, ParticleType(kind, part, beam), ParticleShotKind(kind, part)));
+                    part => OccupyComboShot(_pool, part.ShotPlace, ParticleType(kind, part, beam), ParticleShotKind(kind, part, beam)));
             // The Ice and Plasma particles turn round Samus by OrbitTurnOn each update, or by OrbitTurnBack (a full circle
             // less as much) when a left-facing Samus starts the attack, which carries them the opposite way by as much.
             TrigonometryAngle orbitTurn = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right)
@@ -71,7 +71,7 @@ internal sealed class BeamCombos
             foreach ((SpecialAttackParticle part, SamusProjectileOccupant held) in particles)
             {
                 SamusProjectile shot = held.Projectile;
-                BeamComboShotKind shotKind = ParticleShotKind(kind, part);
+                BeamComboShotKind shotKind = ParticleShotKind(kind, part, beam);
                 held.PicturedBeams = beam;
                 held.Direction = kind == SamusComboKind.Spazer ? SamusProjectileDirection.DownFacingLeft : SamusProjectileDirection.UpFacingRight;
                 switch (kind)
@@ -153,10 +153,10 @@ internal sealed class BeamCombos
     /// of: the charged beam for an Ice attack, the Spazer echo for a Spazer attack's trailing particle, and the attack's own
     /// otherwise.
     /// </summary>
-    private static BeamComboShotKind ParticleShotKind(SamusComboKind kind, SpecialAttackParticle part) =>
+    private static BeamComboShotKind ParticleShotKind(SamusComboKind kind, SpecialAttackParticle part, SamusBeamCombination beam) =>
         kind == SamusComboKind.Ice ? BeamComboShotKind.Charged
-        : kind == SamusComboKind.Spazer && part.SpazerTrail ? BeamComboShotKind.Echo
-        : BeamComboShotKind.Combo;
+        : kind == SamusComboKind.Spazer && part.SpazerTrail ? new BeamComboShotKind.EchoShot(SamusBeamEcho.SpazerComboTrail)
+        : new BeamComboShotKind.ComboShot(SamusProjectileSelection.SpecialAttackParticles(beam));
 
     /// <summary>Gives a particle the damage and animation of the charged beam, the special attack or the Spazer echo, and starts its first frame.</summary>
     private static void InitializeComboShot(SamusProjectileOccupant held, BeamComboShotKind shotKind)

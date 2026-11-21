@@ -35,11 +35,11 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
     /// height it rests at below where it was placed.
     /// </summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal static PlatformEnemyState InitializePlatform(PlatformSpawnSettings settings, RoomEnemyPlace place)
+    internal static PlatformEnemyState InitializePlatform(PlatformSpawnSettings settings, RoomEnemyPlace place, EnemyDefinitionId definition)
     {
         var state = new PlatformEnemyState
         {
-            Kind = Ensure.Listed(PlatformKindDefinitions.Kinds, occupant.DefinitionId),
+            Kind = Ensure.Listed(PlatformKindDefinitions.Kinds, definition),
         };
 
         // The platform moves left or right as its spawn settings say.

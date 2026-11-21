@@ -51,8 +51,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
     internal ChozoStatueState InitializeChozoStatue(ChozoStatueSpawnSettings chozoStatueSpawnSettings, RoomEnemyPlace statue)
     {
         ChozoStatueSite site = chozoStatueSpawnSettings.Site;
-        if (!Enum.IsDefined(site))
-            throw new InvalidOperationException($"Undefined {nameof(ChozoStatueSite)} {site}.");
 
         // The setup makes the statue solid to Samus and animates it, on screen or off.
         statue.Contact = statue.Contact.With(EnemyContact.SolidToSamus);
@@ -68,17 +66,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<Ch
         // The statue's hand carries what triggering it wakes: this statue, as its room lists it first (#2554).
         var hand = new ChozoStatueHandTrigger(this, state);
 
-        if (site == ChozoStatueSite.WreckedShip)
-        {
-            state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.WreckedShipIdle), AnimationPlace.StartOfAnimation);
-            RequestChozoHand(ChozoStatueHandObject.WreckedShip, ChozoStatueRoomDefinitions.WreckedShipHandBlock, hand);
-            RequestChozoObject(ChozoStatueRoomObject.SlopeAccessClosing, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
-        }
-        else
-        {
-            state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.LowerNorfairIdle), AnimationPlace.StartOfAnimation);
-            RequestChozoHand(ChozoStatueHandObject.LowerNorfair, ChozoStatueRoomDefinitions.LowerNorfairHandBlock, hand);
-        }
+        state.Playback = new(ChozoStatueAnimations.StartingWith(definition.Idle), AnimationPlace.StartOfAnimation);
+        RequestChozoHand(definition.Hand, definition.HandBlock, hand);
+        foreach (RoomObjectSpawnRequest<ChozoStatueRoomObject> placed in definition.PlacedObjects)
+            RequestChozoObject(placed.RoomObject, placed.Block);
         return state;
     }
 

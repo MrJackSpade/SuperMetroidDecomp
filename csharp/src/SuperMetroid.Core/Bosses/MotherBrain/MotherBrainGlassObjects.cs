@@ -17,17 +17,12 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Room sound queue receiving the glass-shatter effect.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
-    /// <summary>The room's enemy projectiles, among which the glass's shards spawn.</summary>
-    private readonly IMotherBrainGlassShardSpawner _shards;
-
-    /// <summary>Binds the glass animation's handling to the room's event services, sound queue and enemy projectiles.</summary>
-    internal MotherBrainGlassObjects(IDefeatedBossesReader bosses, IStoryEvents events, RoomObjectSoundQueue sounds,
-        IMotherBrainGlassShardSpawner shards)
+    /// <summary>Binds the glass animation's handling to the room's event services and sound queue.</summary>
+    internal MotherBrainGlassObjects(IDefeatedBossesReader bosses, IStoryEvents events, RoomObjectSoundQueue sounds)
     {
         _bosses = bosses;
         _events = events;
         _sounds = sounds;
-        _shards = Ensure.NotNull(shards);
     }
     /// <summary>The place of the live glass room object, or null after deletion.</summary>
     private RoomObjectPlace? _motherBrainGlassPlace;
@@ -81,7 +76,7 @@ internal sealed class MotherBrainGlassObjects
         // The shards spawn from the glass's block.
         Position16<RoomBlocks> glassBlock = place.Block;
         foreach (MotherBrainGlassShard shard in shards)
-            outcome.Threw(new MotherBrainGlassProjectileRequest(shard, glassBlock, _shards));
+            outcome.Threw(new MotherBrainGlassProjectileRequest(shard, glassBlock));
     }
 
     /// <summary>Sets the glass-destroyed event.</summary>

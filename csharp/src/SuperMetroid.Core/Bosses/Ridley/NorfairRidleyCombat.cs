@@ -53,7 +53,7 @@ internal sealed class NorfairRidleyCombat
     /// <returns>The state the enemy holds from its setup.</returns>
     internal NorfairRidleyState InitializeNorfairRidley(RoomEnemyPlace place)
     {
-        var ridley = new NorfairRidleyState { MovementAnimationEnabled = true };
+        var ridley = new NorfairRidleyState { Motion = RidleyMotion.Running };
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);

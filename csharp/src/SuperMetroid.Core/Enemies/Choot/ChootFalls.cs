@@ -10,7 +10,7 @@ internal static class ChootFalls
     /// <summary>The definition of <paramref name="fallingPath"/>.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="fallingPath"/> is not a defined path.</exception>
     private static ChootFallingPathDefinition Path(ChootFallingPath fallingPath) =>
-        Paths.TryGetValue(fallingPath, out ChootFallingPathDefinition? path)
+        ChootFallingPathDefinitions.Paths.TryGetValue(fallingPath, out ChootFallingPathDefinition? path)
             ? path
             : throw new InvalidOperationException($"Undefined {nameof(ChootFallingPath)} {fallingPath}.");
 }

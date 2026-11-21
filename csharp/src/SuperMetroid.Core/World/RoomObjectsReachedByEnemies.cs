@@ -17,15 +17,14 @@ namespace SuperMetroid.Core.World;
 internal sealed class RoomObjectsReachedByEnemies
 {
     /// <summary>Builds the room's shared room-object places and sounds and the room objects its enemies reach.</summary>
-    /// <param name="places">The room's own room-object places, every one free.</param>
     /// <param name="samus">Samus as room objects see her.</param>
     /// <param name="bosses">Which of the area's bosses are defeated.</param>
     /// <param name="events">The story events that have happened.</param>
     /// <param name="audioRequests">The update's audio requests, which the room objects' sounds join.</param>
-    internal RoomObjectsReachedByEnemies(RoomObjectPlaces places, IRoomSamusAccess samus, IDefeatedBossesReader bosses,
+    internal RoomObjectsReachedByEnemies(IRoomSamusAccess samus, IDefeatedBossesReader bosses,
         IStoryEvents events, GameplayAudioRequests audioRequests)
     {
-        Places = new RoomObjectPlaceList(Ensure.NotNull(places));
+        Places = new RoomObjectPlaceList();
         Sounds = new RoomObjectSoundQueue(audioRequests);
         BreakableTerrain = new EnemyBreakableTerrainObjects(Places);
         BombTorizoHand = new BombTorizoHandObjects(samus, Sounds);

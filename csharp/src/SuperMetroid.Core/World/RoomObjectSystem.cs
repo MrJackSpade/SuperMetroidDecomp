@@ -127,6 +127,12 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     /// <summary>Handles grey door conditions and opening animation.</summary>
     private GreyDoorObjects GreyDoors { get; }
 
+    /// <summary>
+    /// The room's enemy projectiles' spawners of the projectiles its room objects throw (#2514), which the update that runs
+    /// the room objects' step hands each thrown projectile.
+    /// </summary>
+    internal RoomObjectThrownProjectileSpawners Thrown { get; }
+
     /// <summary>Creates one room's empty room-object list and the room-object family owners that run in it.</summary>
     /// <param name="room">The room the objects live in.</param>
     /// <param name="services">The room's service owners; each room-object family receives the ones it uses.</param>
@@ -139,12 +145,15 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     /// its builder so each room starts at the first pair.
     /// </param>
     /// <param name="shotCapClosing">Whether a blue cap a shot opened closes behind Samus, composed by the system's builder.</param>
+    /// <param name="thrown">The room's enemy projectiles' spawners of the projectiles its room objects throw.</param>
     internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectsReachedByEnemies reachedByEnemies,
-        RoomObjectVisuals visuals, CollectibleBlockPairs collectibleBlockPairs, ShotOpenedCapClosing<LockedDoor> shotCapClosing)
+        RoomObjectVisuals visuals, CollectibleBlockPairs collectibleBlockPairs, ShotOpenedCapClosing<LockedDoor> shotCapClosing,
+        RoomObjectThrownProjectileSpawners thrown)
     {
         Ensure.NotNull(room);
         Ensure.NotNull(services);
         Ensure.NotNull(reachedByEnemies);
+        Thrown = Ensure.NotNull(thrown);
         Events = services.Events;
         Places = reachedByEnemies.Places;
         Sounds = reachedByEnemies.Sounds;

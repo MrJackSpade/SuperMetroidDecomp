@@ -120,19 +120,19 @@ internal static class BlockReactionChangeDefinitions
 
     /// <summary>A shot block breaking up for good, 1x1.</summary>
     private static LastingBlockReactionChange PermanentShotBlock1x1 { get; } =
-        BlockBreakups.Permanent(1, BlockArrangement.Single, BlockBreakupPace.Steady, CrumbleSound);
+        BlockBreakups.LastingPermanent(1, BlockArrangement.Single, BlockBreakupPace.Steady, CrumbleSound);
 
     /// <summary>A shot block breaking up for good, 2x1.</summary>
     private static LastingBlockReactionChange PermanentShotBlock2x1 { get; } =
-        BlockBreakups.Permanent(1, BlockArrangement.Horizontal, BlockBreakupPace.Steady, CrumbleSound);
+        BlockBreakups.LastingPermanent(1, BlockArrangement.Horizontal, BlockBreakupPace.Steady, CrumbleSound);
 
     /// <summary>A shot block breaking up for good, 1x2.</summary>
     private static LastingBlockReactionChange PermanentShotBlock1x2 { get; } =
-        BlockBreakups.Permanent(1, BlockArrangement.Vertical, BlockBreakupPace.Steady, CrumbleSound);
+        BlockBreakups.LastingPermanent(1, BlockArrangement.Vertical, BlockBreakupPace.Steady, CrumbleSound);
 
     /// <summary>A shot block breaking up for good, 2x2.</summary>
     private static LastingBlockReactionChange PermanentShotBlock2x2 { get; } =
-        BlockBreakups.Permanent(1, BlockArrangement.Square, BlockBreakupPace.Steady, CrumbleSound);
+        BlockBreakups.LastingPermanent(1, BlockArrangement.Square, BlockBreakupPace.Steady, CrumbleSound);
 
     /// <summary>A Super Missile block breaking up for good.</summary>
     internal static BlockReactionChange PermanentSuperMissileBlock { get; } =

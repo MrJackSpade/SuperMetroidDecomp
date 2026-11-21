@@ -79,7 +79,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
         body.Shading = state.Colours.Sprites;
 
         // He hangs from the ceiling by the stalk's links, the last he spawns highest (#1932).
-        state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => SpawnSporeSpawnStalk(occupant, body, segment)).OfType<EnemyProjectile>().Reverse()];
+        state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => SpawnSporeSpawnStalk(occupant, body, segment)).OfType<SporeSpawnStalkLink>().Reverse()];
 
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {

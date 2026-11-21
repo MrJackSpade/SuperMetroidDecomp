@@ -14,6 +14,7 @@ public abstract record RoomObjectProjectileRequest
     /// <summary>The block of the room object that threw the projectile, which the projectile's place is relative to.</summary>
     public Position16<RoomBlocks> RoomObjectBlock { get; }
 
-    /// <summary>Spawns the projectile among the room's enemy projectiles, through the spawner its thrower gave it.</summary>
-    internal abstract void Spawn();
+    /// <summary>Spawns the projectile among the room's enemy projectiles, through its kind's spawner of <paramref name="spawners"/>.</summary>
+    /// <param name="spawners">The room's enemy projectiles' spawners of the projectiles room objects throw.</param>
+    internal abstract void Spawn(SuperMetroid.Core.World.RoomObjectThrownProjectileSpawners spawners);
 }

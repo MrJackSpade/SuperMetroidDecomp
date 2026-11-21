@@ -254,10 +254,10 @@ public sealed class SamusBombProjectileSystem
             // The bomb plays the animation its update left: its fuse's, or the explosion the fuse started. A bomb its own
             // update ended this pass has none: the game still steps its cleared place's animation, whose cleared wait runs
             // on past its end, so it shows nothing more.
-            if (bomb.Animation is not { } playing)
+            if (bomb.Occupant is not { Animation: { } playing } live)
                 continue;
 
-            AdvanceProjectileAnimation(bomb, playing);
+            AdvanceProjectileAnimation(live, playing);
         }
 
         // Main gameplay runs the bomb overlap check after the input phase (which placed/updated the
@@ -972,16 +972,12 @@ public sealed class SamusBombProjectileSystem
 
         /// <summary>
         /// Tells the resident room object whose trigger a bombed solid or shootable block holds of the projectile's type.
-        /// Coloured doors are such blocks, and so is the intact n00b tube, a solid block its intact picture makes shootable.
+        /// Coloured doors are such blocks, and so is the intact n00b tube, a solid block its intact picture makes shootable. A
+        /// block no object holds any more (the already-broken n00b tube's origin) takes the bomb and nothing happens.
         /// </summary>
-        /// <exception cref="InvalidOperationException">No room object holds the trigger.</exception>
         private bool NotifyResidentTrigger()
         {
-            if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType)))
-            {
-                throw new InvalidOperationException(
-                    $"Bombed resident-trigger block {block.Position} has no active room-object owner.");
-            }
+            roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType));
             return true;
         }
 

@@ -14,7 +14,7 @@ internal abstract class ChootFallLoop
 
     /// <summary>A loop of <paramref name="fallingPath"/> at its first update, at the path's first sample.</summary>
     /// <exception cref="KeyNotFoundException"><paramref name="fallingPath"/> is not a defined path.</exception>
-    internal static AtSample Starting(ChootFallingPath fallingPath) => new(Paths[fallingPath], sample: 0, updatesIntoSample: 0, age: 0);
+    internal static AtSample Starting(ChootFallingPath fallingPath) => new(ChootFallingPathDefinitions.Paths[fallingPath].Samples, sample: 0, updatesIntoSample: 0, age: 0);
 
     /// <summary>A loop at one of its path's samples.</summary>
     internal sealed class AtSample : ChootFallLoop

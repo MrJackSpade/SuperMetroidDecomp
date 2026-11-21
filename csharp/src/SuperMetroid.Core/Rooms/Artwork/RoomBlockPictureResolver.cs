@@ -88,15 +88,15 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     {
         LayeredPicture?[]? blocks = null;
         Dictionary<CollectiblePicture, LayeredPicture>? collectibles = null;
-        for (int index = 0; index < used.Length; index++)
+        foreach (UsedPicture entry in used)
         {
-            RoomCellPicture shown = used[index];
+            RoomCellPicture shown = entry.Picture;
             ImmutableArray<AppearanceInput> inputs = InputsOf(shown);
-            if (!TakeValues(appearance, inputs, values[index]))
+            if (!TakeValues(appearance, inputs, entry.Values))
                 continue;
             blocks ??= Copy(previous);
             collectibles ??= new Dictionary<CollectiblePicture, LayeredPicture>(previous.Collectibles);
-            Place(blocks, collectibles, shown, PictureOf(shown, inputs, values[index]));
+            Place(blocks, collectibles, shown, PictureOf(shown, inputs, entry.Values));
         }
         return blocks is null || collectibles is null ? previous : new RoomBlockPictureTable(blocks, collectibles);
     }

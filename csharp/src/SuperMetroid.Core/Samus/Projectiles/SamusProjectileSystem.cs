@@ -294,7 +294,7 @@ public sealed class SamusProjectileSystem
                     // Uncharged firing tests both current and prior new-input latches.
                     buttons.ControllerNewInput | buttons.ControllerPreviousNewInput,
                     samusBombs,
-                    terrain.RoomObjects).Request;
+                    terrain.RoomObjects);
             }
             else if (samus.SelectedHudItem is HudItem.Missile or HudItem.SuperMissile)
             {
@@ -345,8 +345,8 @@ public sealed class SamusProjectileSystem
             // explosion's first frame is selected in this same projectile pass, in the animation the behaviour left. A
             // behaviour that deleted its projectile leaves none: the game still steps its cleared place's animation, whose
             // cleared wait runs on past its end, so it shows nothing more.
-            if (shot.Animation is { } animation)
-                Animation.AdvanceProjectileAnimation(shot, animation);
+            if (shot.Occupant is { Animation: { } animation } playing)
+                Animation.AdvanceProjectileAnimation(playing, animation);
         }
     }
 

@@ -52,7 +52,7 @@ internal sealed class FrontendSession
         DemoPlaylist = StockAttractDemoScenes.Playlist(saves.DetermineCompletionDemoSetUnlocked());
         // The game starts at the title.
         Phases = new GamePhases(this);
-        RunningPhase = new TitleGameSequence(this, TitleGameSequence.Stage.Starting.Instance);
+        running = new SequenceStep.Stepless(new TitleGameSequence(this, TitleGameSequence.Stage.Starting.Instance));
     }
 
     /// <summary>One phase for every sequence of the game, each of which names the phase it hands over to.</summary>
@@ -264,10 +264,11 @@ internal sealed class FrontendSession
     /// <param name="phase">The sequence's phase.</param>
     internal void Enter(IGamePhase phase)
     {
-        RunningPhase = Ensure.NotNull(phase);
-        LoadingRoute = GameDataLoadRoute.SelectedGame;
-        DoorTransitionStep = DoorTransitionStep.EnteringDoor;
-        AttractDemoStep = AttractDemoStep.Loading;
+        Ensure.NotNull(phase);
+        running = phase == Phases.LoadingGame ? new SequenceStep.Of<GameDataLoadRoute>(phase, GameDataLoadRoute.SelectedGame)
+            : phase == Phases.DoorTransition ? new SequenceStep.Of<DoorTransitionStep>(phase, DoorTransitionStep.EnteringDoor)
+            : phase == Phases.AttractDemo ? new SequenceStep.Of<AttractDemoStep>(phase, AttractDemoStep.Loading)
+            : new SequenceStep.Stepless(phase);
     }
 
     /// <summary>Enters the title sequence at <paramref name="stage"/>.</summary>

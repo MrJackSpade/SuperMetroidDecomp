@@ -81,7 +81,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerSurfaceOrientation blockSide = settings.BlockSide;
         SignedEightEight? crawlSpeed = settings.CrawlSpeed;
 
-        SetUpCrawler(place, animationFamily, orientation, blockSide, crawlSpeed);
+        return SetUpCrawler(place, animationFamily, orientation, blockSide, crawlSpeed);
     }
 
     /// <summary>
@@ -89,7 +89,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// showing <paramref name="animationFamily"/>'s animations, its velocity the crawl speed signed for
     /// <paramref name="blockSide"/>; one placed without a crawl speed takes the default speed on its first landing.
     /// </summary>
-    private static void SetUpCrawler(RoomEnemyPlace place, CrawlerAnimationFamily animationFamily, CrawlerSurfaceOrientation orientation,
+    private static CrawlerEnemyState SetUpCrawler(RoomEnemyPlace place, CrawlerAnimationFamily animationFamily, CrawlerSurfaceOrientation orientation,
         CrawlerSurfaceOrientation blockSide, SignedEightEight? crawlSpeed)
     {
         var state = new CrawlerEnemyState(CrawlerAction.Settling)

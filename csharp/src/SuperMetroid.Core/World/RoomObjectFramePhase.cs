@@ -74,7 +74,7 @@ internal sealed class RoomObjectFramePhase
             throw new InvalidDataException(
                 "A door-transition room-object step unexpectedly published a player interaction.");
         }
-        SpawnThrownProjectiles(step);
+        SpawnThrownProjectiles(step, room.RoomObjects.Thrown);
     }
 
     /// <summary>
@@ -92,13 +92,13 @@ internal sealed class RoomObjectFramePhase
 
     /// <summary>
     /// Spawns the enemy projectiles the step's room objects threw, in the order they threw them, each through the spawner
-    /// its thrower gave it: Mother Brain's glass's shards and the Bomb Torizo statue hand's fragments. The glass and the
-    /// hand never share a room, so one step throws only one of the two kinds.
+    /// of its kind among <paramref name="spawners"/>: Mother Brain's glass's shards and the Bomb Torizo statue hand's
+    /// fragments. The glass and the hand never share a room, so one step throws only one of the two kinds.
     /// </summary>
-    private static void SpawnThrownProjectiles(RoomObjectStepOutcome step)
+    private static void SpawnThrownProjectiles(RoomObjectStepOutcome step, RoomObjectThrownProjectileSpawners spawners)
     {
         foreach (RoomObjectProjectileRequest thrown in step.ThrownProjectiles)
-            thrown.Spawn();
+            thrown.Spawn(spawners);
     }
 
     /// <summary>Runs the ordinary room-object phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
@@ -132,7 +132,7 @@ internal sealed class RoomObjectFramePhase
             }
             foreach (StationActivationEvent station in step.StationActivations)
                 station.Open(opening);
-            SpawnThrownProjectiles(step);
+            SpawnThrownProjectiles(step, room.RoomObjects.Thrown);
         }
     }
 

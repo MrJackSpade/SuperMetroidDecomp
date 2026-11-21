@@ -107,14 +107,13 @@ internal sealed class DefinitionObjects
                 catalogs.Add(new DefinitionCatalog(type, members));
         }
         catalogs.Sort((left, right) => string.CompareOrdinal(left.Prefix, right.Prefix));
-        return new Declarations(catalogs, catalogs.ToDictionary(catalog => catalog.Prefix, StringComparer.Ordinal),
+        return new Declarations(catalogs.ToDictionary(catalog => catalog.Prefix, StringComparer.Ordinal),
             new DefinitionExposure(game, types, catalogs));
     }
 
     /// <summary>The catalogs of the game's static members and what each may hold.</summary>
-    /// <param name="Catalogs">Every catalog, in its prefix's ordinal order.</param>
     /// <param name="ByPrefix">Each catalog by the prefix its roots' names begin with.</param>
     /// <param name="Exposure">Which catalogs may hold an object of each type.</param>
-    internal sealed record Declarations(IReadOnlyList<DefinitionCatalog> Catalogs, IReadOnlyDictionary<string, DefinitionCatalog> ByPrefix,
+    internal sealed record Declarations(IReadOnlyDictionary<string, DefinitionCatalog> ByPrefix,
         DefinitionExposure Exposure);
 }

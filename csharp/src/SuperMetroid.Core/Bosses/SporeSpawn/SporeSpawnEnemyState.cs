@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 

@@ -436,7 +436,7 @@ internal static class SpecialAttackParticlesVerification
                 bool wasNegative = particle.Velocity.X.IsNegative;
                 SoundEffectId? sound = projectiles.Combos.StepWaveCombo(samus, particle.HeldShot(), shared);
                 SoundEffectId? expected = !particle.IsActive
-                    ? BeamComboDefinitions.WaveRemovalSound
+                    ? BeamComboDefinitions.WaveRemovalStop
                     : place == 3 && wasNegative != particle.Velocity.X.IsNegative
                         ? BeamComboDefinitions.WavePulseSound
                         : null;

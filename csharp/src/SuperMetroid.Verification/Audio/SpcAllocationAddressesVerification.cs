@@ -1,6 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
-using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
 

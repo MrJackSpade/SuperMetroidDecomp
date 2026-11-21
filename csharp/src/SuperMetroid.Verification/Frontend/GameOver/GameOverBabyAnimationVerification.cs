@@ -60,7 +60,7 @@ internal static class GameOverBabyAnimationVerification
             AssertEqual(expected.Sound, GameOverBabyAnimationDefinitions.CryCallbacks.Word(cry.Raised), "Baby sound handoff");
             SoundEffectId sound = GameOverBabyCries.ResolveCry(expected.Sound);
             AssertEqual((byte)0xa9, GameOverBabyAnimationRomByte(rom, 0x820000 | expected.Sound), "native Baby cry LDA immediate");
-            AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Room, ReadVerificationWord(rom, 0x820001 + expected.Sound)), sound,
+            AssertEqual(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Room, ReadVerificationWord(rom, 0x820001 + expected.Sound)), sound,
                 "the import decodes the native Baby cry effect to the cry");
             AssertEqual(SoundEffectLibrary.Room, sound.Library, "Baby cry library");
             AssertEqual((byte)0x22, GameOverBabyAnimationRomByte(rom, 0x820003 + expected.Sound), "native Baby cry JSL");

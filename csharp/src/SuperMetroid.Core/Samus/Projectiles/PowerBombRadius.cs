@@ -85,12 +85,6 @@ public readonly record struct PowerBombRadius : IComparable<PowerBombRadius>
     /// <summary>Whether <paramref name="left"/> is the longer length.</summary>
     public static bool operator >(PowerBombRadius left, PowerBombRadius right) => left.CompareTo(right) > 0;
 
-    /// <summary>Whether <paramref name="left"/> is no longer than <paramref name="right"/>.</summary>
-    public static bool operator <=(PowerBombRadius left, PowerBombRadius right) => left.CompareTo(right) <= 0;
-
-    /// <summary>Whether <paramref name="left"/> is no shorter than <paramref name="right"/>.</summary>
-    public static bool operator >=(PowerBombRadius left, PowerBombRadius right) => left.CompareTo(right) >= 0;
-
     /// <summary>
     /// The whole pixels this radius would reach grown by <paramref name="speed"/>, counted past 255: what
     /// <see cref="PowerBombGrowthHold"/> tests before the radius grows.

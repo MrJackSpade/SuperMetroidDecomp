@@ -4,8 +4,6 @@ namespace SuperMetroid.Desktop.Input;
 [Flags]
 internal enum XInputButtons
 {
-    /// <summary>No digital control is held.</summary>
-    None = 0,
     /// <summary>D-pad up.</summary>
     DPadUp = 1 << 0,
     /// <summary>D-pad down.</summary>

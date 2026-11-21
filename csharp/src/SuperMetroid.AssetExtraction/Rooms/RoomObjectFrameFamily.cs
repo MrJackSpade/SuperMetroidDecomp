@@ -20,9 +20,6 @@ internal sealed record RoomObjectFrameFamily<TFrame>(
     /// <summary>Every frame's entry, looked up by frame; a frame listed twice is rejected.</summary>
     private readonly Dictionary<TFrame, RoomObjectFamilyFrame<TFrame>> byFrame = Frames.ToDictionary(frame => frame.Frame);
 
-    /// <summary>Every frame's geometry, looked up by frame.</summary>
-    public IReadOnlyDictionary<TFrame, RoomObjectFrameLayout> Layouts => byFrame.ToDictionary(entry => entry.Key, entry => entry.Value.Layout);
-
     /// <summary>Every frame's published name, looked up by frame.</summary>
     public IReadOnlyDictionary<TFrame, string> Ids => byFrame.ToDictionary(entry => entry.Key, entry => entry.Value.Id);
 }

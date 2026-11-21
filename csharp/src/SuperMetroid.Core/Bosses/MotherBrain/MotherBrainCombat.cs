@@ -126,7 +126,7 @@ internal sealed class MotherBrainCombat
         int projectileDamage)
     {
         RoomEnemyPlace head = brain.Place;
-        SamusProjectile projectile = held.Projectile;
+        _ = held.Projectile;
         // The shot collision marked the projectile before running this reaction.
         TouchHeadWithoutImpact(head, held, projectiles, projectileType);
 

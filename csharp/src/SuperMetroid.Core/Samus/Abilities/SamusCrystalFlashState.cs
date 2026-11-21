@@ -223,7 +223,7 @@ public sealed class SamusCrystalFlashState
         RaisedHeight = samus.Position.Y.Whole;
         Phase = CrystalFlashPhase.DrainingAmmo;
         // The raise becomes the main phase with one essential-priority request that silences the room library.
-        samus.AudioRequests.QueueSound(RoomSound.Silence, SoundRequestPriority.Essential);
+        samus.AudioRequests.QueueSound(RoomSoundStop.Any, SoundRequestPriority.Essential);
         EndHitImmunityAndKnockback(samus);
     }
 

@@ -15,28 +15,22 @@ internal static class MotherBrainSoundDefinitions
     /// <summary>The red hand beam fires.</summary>
     internal static SoundEffectId HandBeam { get; } = EnemySound.MotherBrainHandBeam;
 
-    /// <summary>A bomb, onion ring or stray hand beam explodes.</summary>
-    internal static SoundEffectId Explosion { get; } = RoomSound.ProjectileImpact;
+    /// <summary>
+    /// A bomb, onion ring, stray hand beam, her death or the Baby's or the escape door's dust explodes; the explosion
+    /// competes at low priority. The request carries its priority (#2580): the sound is one other requests ask for at
+    /// normal priority.
+    /// </summary>
+    internal static SoundRequest Explosion { get; } = new(EnemySound.SmallExplosion, SoundRequestPriority.Low);
 
     /// <summary>Floor dust bursts as Mother Brain rises.</summary>
     internal static SoundEffectId AscentDust { get; } = EnemySound.HeavyRumble;
 
-    /// <summary>The rainbow drain's looping sound stops.</summary>
-    internal static SoundEffectId StopRainbowDrain { get; } = SamusSound.Silence;
+    /// <summary>The stop of the rainbow drain's looping sound.</summary>
+    internal static SoundEffectId StopRainbowDrain { get; } = SamusSoundStop.Any;
 
     /// <summary>The rainbow drain's looping sound starts, also when the Baby begins draining Mother Brain.</summary>
     internal static SoundEffectId StartRainbowDrain { get; } = SamusSound.MotherBrainRainbowBeam;
 
     /// <summary>The rainbow beam starts charging.</summary>
     internal static SoundEffectId RainbowBeamCharge { get; } = EnemySound.MotherBrainRainbowCharge;
-
-    /// <summary>
-    /// The cue sounds that request a priority other than the normal one, with that priority: the explosion competes at low
-    /// priority.
-    /// </summary>
-    internal static IReadOnlyDictionary<SoundEffectId, SoundRequestPriority> CueSoundPriorities { get; } =
-        new Dictionary<SoundEffectId, SoundRequestPriority>
-        {
-            [Explosion] = SoundRequestPriority.Low,
-        };
 }

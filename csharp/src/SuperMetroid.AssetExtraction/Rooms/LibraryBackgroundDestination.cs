@@ -6,21 +6,19 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 public enum LibraryBackgroundDestination
 {
-    /// <summary>The tilemap staging a decompression fills, which later transfers read.</summary>
-    TilemapStaging,
 
     /// <summary>The first of the background layer's two tilemap pages; a two-page transfer fills both.</summary>
-    BackgroundFirstPage,
+    BackgroundFirstPage = 1,
 
     /// <summary>The second of the background layer's two tilemap pages.</summary>
-    BackgroundSecondPage,
+    BackgroundSecondPage = 2,
 
     /// <summary>The two further background pages Kraid's room shows his body on.</summary>
-    KraidBackgroundPages,
+    KraidBackgroundPages = 3,
 
     /// <summary>The sprite characters the Tourian entrance statue's ghost would be drawn from.</summary>
-    StatueGhostSpriteCharacters,
+    StatueGhostSpriteCharacters = 4,
 
     /// <summary>The layer-3 characters Kraid's room reads the HUD from while his body covers the standard ones.</summary>
-    KraidLayer3Characters,
+    KraidLayer3Characters = 5,
 }

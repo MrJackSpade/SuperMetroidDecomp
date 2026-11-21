@@ -85,7 +85,7 @@ internal static class DoorEntryRoomFxSoundVerification
         AssertTrue(queued.Count >= 2, "the entry frame queues at least the rumble and the door's cancel");
         AssertEqual<SoundEffectId>(EnemySound.Lavaquake, queued[0],
             "the HDMA pass's rumble is queued first");
-        AssertEqual<SoundEffectId>(EnemySound.Silence, queued[1],
+        AssertEqual<SoundEffectId>(EnemySoundStop.Any, queued[1],
             "the door's library-two cancel follows it");
         Console.WriteLine("Door entry room-FX sound: the entry frame's rumble precedes the door's cancel and DisableSounds.");
     }

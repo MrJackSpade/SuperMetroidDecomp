@@ -152,9 +152,9 @@ public static class ManagedAudioRegressionSmokeTest
             }
             if (cancelHalfway && frame == ShortScenarioFrames / 2)
             {
-                commands.Add(new AudioRequest.RequestSound(SamusSound.Silence));
-                commands.Add(new AudioRequest.RequestSound(EnemySound.Silence));
-                commands.Add(new AudioRequest.RequestSound(RoomSound.Silence));
+                commands.Add(new AudioRequest.RequestSound(SamusSoundStop.Any));
+                commands.Add(new AudioRequest.RequestSound(EnemySoundStop.Any));
+                commands.Add(new AudioRequest.RequestSound(RoomSoundStop.Any));
             }
             HashFrame(name, engine, commands, tally);
         }

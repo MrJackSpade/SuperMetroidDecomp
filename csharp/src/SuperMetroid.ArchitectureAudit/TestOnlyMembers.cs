@@ -17,7 +17,7 @@ namespace SuperMetroid.ArchitectureAudit;
 /// <para>
 /// Checks are the files only verification projects compile. What System.Text.Json reads or binds of a payload shipped code
 /// serializes is production use. A member production never uses at all is dead code, which the reachability prune
-/// removes, so the census leaves it to the prune. The architecture audit's push gate fails on every finding.
+/// removes, leaving the checks that read it failing to build (#2599), so the census leaves it to the prune. The architecture audit's push gate fails on every finding.
 /// </para>
 /// </summary>
 internal static class TestOnlyMembers

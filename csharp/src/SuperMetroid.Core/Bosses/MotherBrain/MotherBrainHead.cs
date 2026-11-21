@@ -231,19 +231,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Plays her brain at her brain's draw (<see cref="MotherBrainBrainAnimation"/>) and returns the picture it shows, or
-    /// null when the brain is not live; its cues act on <paramref name="state"/> and read <paramref name="samus"/>. A
-    /// brain that shows a picture counts its own shake down at the same draw (#2469).
-    /// </summary>
-    /// <remarks>
-    /// Once her late fight has begun its own cues act on it (#2471): her attacks on the Baby count, aim at and cry at the
-    /// Baby it made.
-    /// </remarks>
-    internal EnemyFrameId? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus) =>
-        PlayMotherBrainBrain(state, samus)?.Frame;
-
-    /// <summary>
-    /// Plays her brain at her brain's draw as <see cref="AdvanceMotherBrainBrain"/> does, returning the picture it shows and
+    /// Plays her brain at her brain's draw, advancing it one update, returning the picture it shows and
     /// whether her brain's shake, which a shown picture counts down, was still shaking; null when the brain is not live.
     /// </summary>
     private MotherBrainBrainPicture? PlayMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)

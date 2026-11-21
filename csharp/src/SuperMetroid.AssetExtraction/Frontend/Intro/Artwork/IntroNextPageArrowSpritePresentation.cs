@@ -18,9 +18,6 @@ public sealed class IntroNextPageArrowSpritePresentation : ICinematicSpriteFrame
     /// <inheritdoc/>
     IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
-    /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroNextPageArrowSpritePresentation), frames);
-
     /// <summary>Retains the three validated frames after JSON compilation.</summary>
     private IntroNextPageArrowSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;

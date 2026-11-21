@@ -17,7 +17,4 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
 
     /// <summary>The Gravity Suit's loading colours.</summary>
     internal static SamusLoadingSuitPaletteFxColorDefinition GravitySuit { get; } = new(ColourEffectId.SamusLoadingGravitySuit, ColorsPerFrame);
-
-    /// <summary>The power, Varia, and gravity programs in definition order, each the suit's loading effect's colours.</summary>
-    public static IReadOnlyList<SamusLoadingSuitPaletteFxColorDefinition> All { get; } = [PowerSuit, VariaSuit, GravitySuit];
 }

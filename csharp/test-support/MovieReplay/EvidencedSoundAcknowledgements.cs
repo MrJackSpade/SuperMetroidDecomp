@@ -95,9 +95,9 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcceptanceTiming<So
             ? SoundAcknowledgement<SoundEffectId>.Of(null)
             : SoundAcknowledgement<SoundEffectId>.Of(library switch
             {
-                SoundEffectLibrary.Samus => SamusSound.Silence,
-                SoundEffectLibrary.Enemies => EnemySound.Silence,
-                SoundEffectLibrary.Room => RoomSound.Silence,
+                SoundEffectLibrary.Samus => SamusSoundStop.Any,
+                SoundEffectLibrary.Enemies => EnemySoundStop.Any,
+                SoundEffectLibrary.Room => RoomSoundStop.Any,
                 _ => throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound-effect library."),
             });
 

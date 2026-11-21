@@ -17,9 +17,6 @@ internal sealed class DefinitionCatalog(Type type, IReadOnlyList<FieldInfo> memb
     /// <summary>Separates a root's declaring type from its field name.</summary>
     internal const string MemberSeparator = "::";
 
-    /// <summary>The declaring type.</summary>
-    internal Type Type { get; } = type;
-
     /// <summary>
     /// What every root this catalog names begins with: the declaring type's name and <see cref="MemberSeparator"/>.
     /// Catalogs in the ordinal order of their prefixes hold their roots in the ordinal order of the roots' names.

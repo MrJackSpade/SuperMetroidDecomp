@@ -213,12 +213,6 @@ public readonly struct ControllerBindings : IEquatable<ControllerBindings>
         return hash.ToHashCode();
     }
 
-    /// <summary>Whether <paramref name="left"/> and <paramref name="right"/> bind every action alike.</summary>
-    public static bool operator ==(ControllerBindings left, ControllerBindings right) => left.Equals(right);
-
-    /// <summary>Whether <paramref name="left"/> and <paramref name="right"/> bind some action differently.</summary>
-    public static bool operator !=(ControllerBindings left, ControllerBindings right) => !left.Equals(right);
-
     /// <summary>Names each action's button, for diagnostics.</summary>
     public override string ToString()
     {

@@ -18,9 +18,6 @@ public sealed class IntroMotherBrainSpritePresentation : ICinematicSpriteFrames
     /// <inheritdoc/>
     IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
-    /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroMotherBrainSpritePresentation), frames);
-
     /// <summary>Retains the validated frame set after source arrays have been copied into compositions.</summary>
     private IntroMotherBrainSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;

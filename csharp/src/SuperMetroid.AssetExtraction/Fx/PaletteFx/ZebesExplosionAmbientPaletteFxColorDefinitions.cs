@@ -14,7 +14,4 @@ public static class ZebesExplosionAmbientPaletteFxColorDefinitions
 
     /// <summary>The exploding planet's lava.</summary>
     internal static ZebesExplosionAmbientPaletteFxColorDefinition ExplodingZebesLava { get; } = new(ColourEffectId.ExplodingZebesLava, 1);
-
-    /// <summary>The afterglow and lava programs in definition order.</summary>
-    public static IReadOnlyList<ZebesExplosionAmbientPaletteFxColorDefinition> All { get; } = [ZebesExplosionPlanetAfterglow, ExplodingZebesLava];
 }

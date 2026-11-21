@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Escape.Artwork;
 public static class EscapeTypewriterDefinitions
 {
     /// <summary>The key click the Zebes typewriter plays.</summary>
-    public static readonly SoundEffectId ZebesClick = RoomSound.IntroTypewriter;
+    public static readonly SoundEffectId ZebesClick = RoomSound.Typewriter;
 
     /// <summary>The key click the Ceres typewriter plays for every other glyph.</summary>
-    public static readonly SoundEffectId CeresClick = EnemySound.CeresTypewriter;
+    public static readonly SoundEffectId CeresClick = RoomSound.Typewriter;
 
     /// <summary>
     /// The glyphs whose typing requests the key click (#1619): every second glyph of the count written, on its even place,

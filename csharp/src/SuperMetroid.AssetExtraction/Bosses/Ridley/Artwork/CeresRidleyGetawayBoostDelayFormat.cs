@@ -7,6 +7,4 @@ public static class CeresRidleyGetawayBoostDelayFormat
     public const string FileName = "ceres-ridley-getaway-boost-delays.json";
     /// <summary>Supported revision of the wing delay schema.</summary>
     public const int Version = 2;
-    /// <summary>Ridley's wings' two frames, each leaving its own delays.</summary>
-    public const int WingFrameCount = 2;
 }

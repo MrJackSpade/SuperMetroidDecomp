@@ -24,9 +24,6 @@ public static class CeresRidleyColorFormat
     /// <summary>The body colours of one body-fade shade, leaving the eye colours alone.</summary>
     public const int BodyFadeColorCount = 11;
 
-    /// <summary>The health bands shared by both Ridley encounters, each with its own damage shade: entered by health in Norfair, by accepted hits in Ceres.</summary>
-    public const int HealthBandCount = 3;
-
     /// <summary>The colours of one health band's damage shade.</summary>
     public const int HealthColorCount = 14;
 

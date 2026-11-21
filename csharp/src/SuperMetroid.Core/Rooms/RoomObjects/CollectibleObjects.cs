@@ -197,7 +197,7 @@ internal sealed class CollectibleObjects
         CollectibleDefinition definition = CollectibleDefinitions.Items[item.Kind];
         definition.Grant.Apply(samus);
 
-        outcome.Collected(new CollectiblePickupEvent(item.Kind, definition.Message, definition.Consequence));
+        outcome.Collected(new CollectiblePickupEvent(definition.Message, definition.Consequence));
         // The item's cue starts the fanfare as it runs, before its message box opens.
         _sounds.QueuePermanentItemFanfare();
 

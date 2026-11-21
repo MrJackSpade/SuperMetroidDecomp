@@ -89,32 +89,6 @@ public sealed class SamusBodySources
     }
 
     /// <summary>
-    /// SHA-256 of the decoded frames and bundled Samus presentation catalogs the import composes the sheets from. The body
-    /// and death-explosion characters are import data the installation never holds (#1636); the sheets composed from them
-    /// carry their identity, and what the installation holds of the body for the game carries its own
-    /// (<see cref="InstalledSamusBody.ContentIdentity"/>).
-    /// </summary>
-    public string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-body-v7", content =>
-    {
-        foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
-        {
-            content.Append("art origin", artOrigins[pose]);
-            content.Append("frame count", frames[pose].Count);
-            foreach ((int frame, SamusBodyDecodedFrame decoded) in frames[pose].OrderBy(pair => pair.Key))
-            {
-                content.Append("frame", frame);
-                content.Append("origin rise", decoded.OriginRise);
-                content.AppendName("top picture", decoded.Pictures.Top.Name);
-                content.AppendName("bottom picture", decoded.Pictures.Bottom?.Name ?? "");
-            }
-        }
-        content.Append("spritemaps", Convert.FromHexString(Spritemaps.ContentIdentity));
-        content.Append("atmosphere", Convert.FromHexString(Atmosphere.ContentIdentity));
-        content.Append("death steps", Convert.FromHexString(DeathSteps.ContentIdentity));
-        content.Append("arm cannon", Convert.FromHexString(ArmCannon.ContentIdentity));
-    });
-
-    /// <summary>
     /// <paramref name="decoded"/>, where each of <paramref name="pose"/>'s decoded frames places the body, by the frame of
     /// the animation each lies at.
     /// </summary>

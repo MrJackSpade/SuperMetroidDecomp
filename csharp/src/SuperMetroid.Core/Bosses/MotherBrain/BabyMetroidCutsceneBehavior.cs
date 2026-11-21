@@ -198,8 +198,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (step.DeathExplosion is { } explosion)
         {
             _projectiles.SpawnDustOrExplosion(explosion.Position, explosion.Animation);
-            // The explosion competes at low priority (MotherBrainEncounter.RequestCueSound).
-            _motherBrainEncounter.RequestCueSound(explosion.SoundEffect);
+            // The explosion competes at the low priority its request carries.
+            _motherBrainEncounter.RequestCueSound(explosion.Sound);
         }
 
         if (step.BabyFadeImage is { } image)

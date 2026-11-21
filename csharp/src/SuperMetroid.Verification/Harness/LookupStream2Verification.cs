@@ -292,12 +292,17 @@ internal static class LookupStream2Verification
         Suite(nameof(VerifyNinjaSpacePirateInstructionProgramDefinitions), () => VerifyNinjaSpacePirateInstructionProgramDefinitions());
     }
 
-    /// <summary>Checks projectile identity selectors, extracted compositions, and 417 actual OAM drawings.</summary>
+    /// <summary>Checks projectile identity selectors, extracted compositions, and 416 actual OAM drawings.</summary>
     internal static void VerifyLookupStream2ProjectileIdentityGeometry(ISnesAddressSpace rom)
     {
         var expected = new SortedSet<ushort>();
         foreach (ushort record in SamusProjectileFrameDefinitions.TimedRecordAddresses)
             expected.Add(ReadVerificationWord(rom, (0x930000 | record) + 2));
+        // The invisible frames select the cartridge's empty record, which holds no parts: they draw nothing and bind no
+        // composition (#2558), so the compositions are the selector union without it. VerifyLookupStream2PowerDirectionBindings
+        // confirms each record selecting it resolves to drawing nothing.
+        AssertEqual((ushort)0, ReadVerificationWord(rom, 0x930000 | ProjectileSpriteNative.EmptyRecordAddress), "The empty record the invisible frames select holds no parts");
+        AssertTrue(expected.Remove(ProjectileSpriteNative.EmptyRecordAddress), "The invisible frames select the empty record");
         int physicalAddress = 0x93f0fa;
         int physicalRecords = 0;
         for (int orientation = 0; orientation < 8; orientation++)
@@ -313,7 +318,7 @@ internal static class LookupStream2Verification
         }
         AssertEqual(48, physicalRecords, "All48 physical Plasma startup records including omitted stages");
         AssertEqual(0x93f5e2, physicalAddress, "Native Plasma startup layout end after the final ten-part composition");
-        AssertEqual(417, expected.Count, "The timed records reference417 distinct compositions");
+        AssertEqual(416, expected.Count, "The timed records reference416 distinct compositions besides the empty record");
         int ordinal = 0;
         foreach (ushort pointer in expected)
             AssertEqual(pointer, ProjectileSpriteDefinitions.NativePointers[ordinal++], "Calculated projectile identity equals native sorted selector union");
@@ -326,7 +331,7 @@ internal static class LookupStream2Verification
             var actual = new OamBuffer();
             DrawImportedProjectileSpritemap(rom, native, pointer, new(255, 255));
             selected.Draw(pointer, actual, new(255, 255));
-            AssertTrue(native.ImageEquals(actual), "All417 installed identities extract and draw exact native OAM");
+            AssertTrue(native.ImageEquals(actual), "All416 installed identities extract and draw exact native OAM");
         }
         var flare = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         for (ushort selector = 0; selector < ChargeFlareSpriteNative.NativeSelectorCount; selector++)
@@ -338,8 +343,8 @@ internal static class LookupStream2Verification
             AssertTrue(native.ImageEquals(actual), "Existing flare span caller preserves exact extracted OAM");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[-1], "Projectile identity lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
-        Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,all existing flare selectors and bounds pass;all417 identities and 208 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[416], "Projectile identity upper bound");
+        Console.WriteLine("Projectile identity geometry:416 exact identities and the empty record from805 native selectors,48 physical startup records,416 actual extracted OAM draws,all existing flare selectors and bounds pass;all416 identities and 208 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
     }
     /// <summary>Checks Norfair and Old Tourian palette-FX owner catalogs and native definition identities.</summary>
     internal static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)

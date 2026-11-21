@@ -35,7 +35,6 @@ public sealed class UnusedVariableCodeFixProvider : DocumentFixProvider
             ?? throw new InvalidOperationException($"{document.FilePath} has no syntax tree.");
         var edits = new SourceEdits(await document.GetTextAsync(cancellationToken).ConfigureAwait(false), document.FilePath ?? document.Name);
         var declarators = new List<VariableDeclaratorSyntax>();
-        var sites = new Dictionary<SyntaxNode, Diagnostic>();
         foreach (Diagnostic diagnostic in diagnostics)
         {
             SyntaxToken identifier = root.FindToken(diagnostic.Location.SourceSpan.Start);
@@ -44,7 +43,6 @@ public sealed class UnusedVariableCodeFixProvider : DocumentFixProvider
                 case VariableDeclaratorSyntax declarator when declarator.Initializer is null ||
                     declarator.Parent?.Parent is LocalDeclarationStatementSyntax { IsConst: true }:
                     declarators.Add(declarator);
-                    sites[declarator] = diagnostic;
                     break;
                 case CatchDeclarationSyntax catchDeclaration when catchDeclaration.Identifier == identifier:
                     edits.Replace(TextSpan.FromBounds(catchDeclaration.Type.Span.End, identifier.Span.End), string.Empty);
@@ -53,10 +51,11 @@ public sealed class UnusedVariableCodeFixProvider : DocumentFixProvider
                     edits.Replace(identifier.Span, "_");
                     break;
                 default:
-                    throw new CleanupFailure(diagnostic, $"the variable is declared by a {identifier.Parent?.Kind()}");
+                    throw new InvalidOperationException($"{document.FilePath}: {diagnostic.Id} is reported at a {identifier.Parent?.Kind()} at " +
+                        $"{diagnostic.Location.SourceSpan}, which declares no variable this fix knows.");
             }
         }
-        VariableDeclarations.Remove(edits, declarators, node => sites[node]);
+        VariableDeclarations.Remove(edits, declarators);
         return document.WithText(edits.Apply()).Project.Solution;
     }
 }

@@ -86,7 +86,7 @@ internal static class ResumeChargingSoundCancelVerification
         rejected.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None, ControllerPreviousNewInput = GameplayAction.None });
         AssertTrue(!rejected.Samus.ChargingSound.IsArmed, "the rejected release clears the pending resume");
         rejected.PostDraw(GameplayAction.Shoot);
-        AssertTrue(rejected.Requests.SoundRequests.SequenceEqual([new SoundRequest(SamusSound.Silence, SoundRequestPriority.Essential)]),
+        AssertTrue(rejected.Requests.SoundRequests.SequenceEqual([new SoundRequest(SamusSoundStop.Any, SoundRequestPriority.Essential)]),
             "the rejected release requests only the charge-silencing sound, and no resume follows it");
     }
 

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Cleanup fixture (tools/cleanup/check-fixtures.ps1), #2599: the shapes of the SME6400 sites the fixer declined at cda71cca6b. Each file is named
+       after a type that is not its first (FrontendFloorSheetComposer.cs, GameOverBabyPaletteNames.cs), or its third
+       (RoomPaletteFxPrograms.cs, on which the fixer threw): that type stays, and the others move to files of their own. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Analyzer Include="$(CleanupAnalyzer)" />
+    <Analyzer Include="$(CleanupCodeFixes)" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FloorSheetComposer.cs" />
+    <Compile Include="PaletteNames.cs" />
+    <Compile Include="PalettePrograms.cs" />
+  </ItemGroup>
+</Project>

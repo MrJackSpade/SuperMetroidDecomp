@@ -302,7 +302,7 @@ internal static class PaletteFxNativeProgramOracle
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.QueueSfx2:
-                    AssertEvent(beat, new ColourEffectCue.QueueSound(Sound: SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operandByte)), at);
+                    AssertEvent(beat, new ColourEffectCue.QueueSound(Sound: SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, operandByte)), at);
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;

@@ -22,6 +22,6 @@ internal sealed class ProjectileImpactAudio
     internal void RequestMissileImpactSound()
     {
         if (_frame != ImpactAudioContext.Cinematic)
-            Requests.QueueSound(EnemySound.MissileImpact, SoundRequestPriority.Normal);
+            Requests.QueueSound(EnemySound.WeaponExplosion, SoundRequestPriority.Normal);
     }
 }

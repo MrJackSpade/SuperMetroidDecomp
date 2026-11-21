@@ -24,7 +24,4 @@ public static class MaridiaEnvironmentalPaletteFxColorDefinitions
     /// <summary>The background waterfalls' rotation.</summary>
     internal static MaridiaEnvironmentalPaletteFxColorDefinition MaridiaBackgroundWaterfalls { get; } = new(ColourEffectId.MaridiaBackgroundWaterfalls, WaterfallRotationColors);
 
-    /// <summary>The sand-pit, sand-fall, and waterfall programs in definition order.</summary>
-    public static IReadOnlyList<MaridiaEnvironmentalPaletteFxColorDefinition> All { get; } = [MaridiaSandPits, MaridiaSandFalls, MaridiaBackgroundWaterfalls];
-
 }

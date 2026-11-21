@@ -11,36 +11,36 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode;
 /// evaluation where it could have an effect. An assignment statement whose value is free of effects goes; one whose
 /// value is not becomes <c>_ = value;</c>; an assignment used as a value is replaced by the value; an increment or a
 /// compound assignment statement goes, or keeps its right-hand side as <c>_ = value;</c>; an <c>out</c> argument and a
-/// deconstruction target become <c>_</c>. Any other use reads the variable, and the fix fails naming it. A parameter only
-/// a removed statement read is left to <see cref="UnreadParameters"/>.
+/// deconstruction target become <c>_</c>. An assignment whose value is used with the variable's type, not its own, is
+/// replaced by the value converted to that type. Any other use (one that reads the variable, an implicit one, one in
+/// documentation or with no operation, a write through a receiver whose evaluation has effects) is left as written
+/// (#2599): the variable is removed all the same, and the build fails at that use. A parameter only a removed statement
+/// read is left to <see cref="UnreadParameters"/>.
 /// </summary>
 internal static class Writes
 {
-    /// <summary>Removes the writes at <paramref name="references"/> to <paramref name="symbol"/>.</summary>
-    internal static async Task RemoveAsync(SolutionEdits edits, ISymbol symbol, List<ReferenceLocation> references, Diagnostic site,
-        UnreadParameters unread, CancellationToken cancellationToken)
+    /// <summary>Removes the writes at <paramref name="references"/>.</summary>
+    internal static async Task RemoveAsync(SolutionEdits edits, List<ReferenceLocation> references, UnreadParameters unread,
+        CancellationToken cancellationToken)
     {
         foreach (ReferenceLocation reference in references)
         {
             if (reference.IsImplicit || reference.Location.SourceTree is not { } tree)
-                throw new CleanupFailure(reference.Location, site.Id, $"'{symbol.Name}' is used implicitly");
+                continue;
             SyntaxNode root = await tree.GetRootAsync(cancellationToken).ConfigureAwait(false);
             SemanticModel model = await reference.Document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false)
                 ?? throw new InvalidOperationException($"{tree.FilePath} has no semantic model.");
             SyntaxNode name = root.FindNode(reference.Location.SourceSpan, getInnermostNodeForTie: true);
-            var expression = (ExpressionSyntax)(name.Parent is MemberAccessExpressionSyntax access && access.Name == name ? access : name);
-            IOperation operation = model.GetOperation(expression, cancellationToken)
-                ?? throw new CleanupFailure(reference.Location, site.Id, $"'{symbol.Name}' is used where it has no operation");
-            if (operation is IMemberReferenceOperation { Instance: { IsImplicit: false } instance } && !SideEffects.IsFree(instance))
-                throw new CleanupFailure(reference.Location, site.Id, $"'{symbol.Name}' is written through a receiver whose evaluation has effects");
-            Remove(await edits.ForAsync(tree, cancellationToken).ConfigureAwait(false), operation, expression, symbol, reference.Location, site,
-                unread, model);
+            if ((name.Parent is MemberAccessExpressionSyntax access && access.Name == name ? access : name) is not ExpressionSyntax expression ||
+                model.GetOperation(expression, cancellationToken) is not { } operation ||
+                operation is IMemberReferenceOperation { Instance: { IsImplicit: false } instance } && !SideEffects.IsFree(instance))
+                continue;
+            Remove(await edits.ForAsync(tree, cancellationToken).ConfigureAwait(false), operation, expression, unread, model);
         }
     }
 
     /// <summary>Removes one write, the use <paramref name="operation"/> of <paramref name="expression"/>.</summary>
-    private static void Remove(SourceEdits edits, IOperation operation, ExpressionSyntax expression, ISymbol symbol, Location location, Diagnostic site,
-        UnreadParameters unread, SemanticModel model)
+    private static void Remove(SourceEdits edits, IOperation operation, ExpressionSyntax expression, UnreadParameters unread, SemanticModel model)
     {
         switch (operation.Parent)
         {
@@ -56,9 +56,11 @@ internal static class Writes
                         edits.Replace(expression.Span, "_");
                     return;
                 }
-                if (!SymbolEqualityComparer.Default.Equals(assignment.Value.Type, assignment.Type))
-                    throw new CleanupFailure(location, site.Id, $"the value of an assignment to '{symbol.Name}' is used with its converted type");
-                edits.Replace(assignment.Syntax.Span, assignment.Value.Syntax.ToString());
+                // The value's own type, before the implicit conversion to the variable's that the assignment makes.
+                ITypeSymbol? valueType = (assignment.Value is IConversionOperation { IsImplicit: true } conversion ? conversion.Operand : assignment.Value).Type;
+                edits.Replace(assignment.Syntax.Span, assignment.Type is null || SymbolEqualityComparer.Default.Equals(valueType, assignment.Type)
+                    ? assignment.Value.Syntax.ToString()
+                    : $"({assignment.Type.ToMinimalDisplayString(model, assignment.Syntax.SpanStart)})({assignment.Value.Syntax})");
                 return;
             case ICompoundAssignmentOperation compound when compound.Target.Syntax == expression &&
                 compound.Parent is IExpressionStatementOperation { Syntax: ExpressionStatementSyntax line }:
@@ -81,7 +83,8 @@ internal static class Writes
                 edits.Replace(expression.Span, "_");
                 return;
             default:
-                throw new CleanupFailure(location, site.Id, $"'{symbol.Name}' is used as {operation.Parent?.Kind.ToString() ?? "a value"}, which reads it");
+                // A use that reads the variable stays as written: the variable goes, and the build fails here.
+                return;
         }
     }
 

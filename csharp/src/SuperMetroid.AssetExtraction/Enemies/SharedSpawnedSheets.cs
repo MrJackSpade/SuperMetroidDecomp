@@ -1,5 +1,3 @@
-using SuperMetroid.AssetExtraction.Artwork;
-
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The installed spawned-object sheets with their common art held once (#1513).</summary>

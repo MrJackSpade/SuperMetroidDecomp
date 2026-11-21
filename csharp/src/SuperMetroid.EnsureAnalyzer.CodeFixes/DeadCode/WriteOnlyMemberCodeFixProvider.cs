@@ -41,9 +41,8 @@ public sealed class WriteOnlyMemberCodeFixProvider : DocumentFixProvider
         var edits = new SolutionEdits(solution);
         var declarators = new List<VariableDeclaratorSyntax>();
         var properties = new List<PropertyDeclarationSyntax>();
-        var sites = new Dictionary<SyntaxNode, Diagnostic>();
         var kept = new List<KeptInitializer>();
-        var unread = new UnreadParameters(solution, edits, diagnostics[0]);
+        var unread = new UnreadParameters(solution, edits);
         foreach (Diagnostic diagnostic in diagnostics)
         {
             SyntaxToken identifier = root.FindToken(diagnostic.Location.SourceSpan.Start);
@@ -53,33 +52,35 @@ public sealed class WriteOnlyMemberCodeFixProvider : DocumentFixProvider
             switch (identifier.Parent)
             {
                 case VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Parent: FieldDeclarationSyntax } declaration } declarator:
-                    member = model.GetDeclaredSymbol(declarator, cancellationToken) ?? throw new CleanupFailure(diagnostic, "the field has no symbol");
+                    member = model.GetDeclaredSymbol(declarator, cancellationToken)
+                        ?? throw new InvalidOperationException($"{document.FilePath}: the {diagnostic.Id} field at {diagnostic.Location.SourceSpan} has no symbol.");
                     initializer = declarator.Initializer?.Value;
                     type = declaration.Type;
                     declarators.Add(declarator);
-                    sites[declarator] = diagnostic;
                     break;
                 case PropertyDeclarationSyntax property when property.Identifier == identifier && IsAutomatic(property):
-                    member = model.GetDeclaredSymbol(property, cancellationToken) ?? throw new CleanupFailure(diagnostic, "the property has no symbol");
+                    member = model.GetDeclaredSymbol(property, cancellationToken)
+                        ?? throw new InvalidOperationException($"{document.FilePath}: the {diagnostic.Id} property at {diagnostic.Location.SourceSpan} has no symbol.");
                     initializer = property.Initializer?.Value;
                     type = property.Type;
                     properties.Add(property);
                     break;
                 default:
-                    throw new CleanupFailure(diagnostic, $"the finding is at a {identifier.Parent?.Kind()}, not a field or an automatic property");
+                    throw new InvalidOperationException($"{document.FilePath}: {diagnostic.Id} is reported at a {identifier.Parent?.Kind()} at " +
+                        $"{diagnostic.Location.SourceSpan}, which is neither a field nor an automatic property, the members this fix knows.");
             }
             var references = await MemberReferences.FindAsync(member, solution, cancellationToken).ConfigureAwait(false);
-            await Writes.RemoveAsync(edits, member, references, diagnostic, unread, cancellationToken).ConfigureAwait(false);
+            await Writes.RemoveAsync(edits, references, unread, cancellationToken).ConfigureAwait(false);
             if (initializer is not null && !SideEffects.IsFree(model.GetOperation(initializer, cancellationToken)))
                 kept.Add(new KeptInitializer(member, initializer, type, model));
             else if (initializer is not null)
                 unread.Removing(initializer, model);
         }
         SourceEdits own = await edits.ForAsync(root.SyntaxTree, cancellationToken).ConfigureAwait(false);
-        VariableDeclarations.Remove(own, declarators, node => sites[node]);
+        VariableDeclarations.Remove(own, declarators);
         foreach (PropertyDeclarationSyntax property in properties)
             own.Remove(property);
-        await InitializerEvaluation.KeepAsync(edits, kept, diagnostics[0], cancellationToken).ConfigureAwait(false);
+        await InitializerEvaluation.KeepAsync(edits, kept, cancellationToken).ConfigureAwait(false);
         await unread.RemoveAsync(cancellationToken).ConfigureAwait(false);
         return edits.Apply();
     }

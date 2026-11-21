@@ -24,9 +24,6 @@ public sealed class CeresFlightSpritePresentation : ICinematicSpriteFrames
     /// <inheritdoc/>
     IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
-    /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(CeresFlightSpritePresentation), frames);
-
     /// <summary>Retains the validated composition map shared by approach and destruction scenes.</summary>
     private CeresFlightSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;

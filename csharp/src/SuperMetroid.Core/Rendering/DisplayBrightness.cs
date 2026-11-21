@@ -27,11 +27,6 @@ public readonly record struct DisplayBrightness
     /// <summary>How many whole steps the fade takes from black to full light.</summary>
     public static int StepsFromBlackToFull => StepsToFull;
 
-    /// <summary>The brightness <paramref name="stepsAboveBlack"/> whole fade steps above black.</summary>
-    /// <param name="stepsAboveBlack">The steps above black, from zero through <see cref="StepsFromBlackToFull"/>.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The step lies below black or above full.</exception>
-    public static DisplayBrightness StepsAbove(int stepsAboveBlack) => new(stepsAboveBlack);
-
     /// <summary>How many whole fade steps this brightness lies above black.</summary>
     public int StepsAboveBlack { get; }
 

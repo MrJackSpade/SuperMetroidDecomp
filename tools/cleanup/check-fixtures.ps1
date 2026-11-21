@@ -9,7 +9,9 @@
 #   2. restores it and runs tools/cleanup/CodeFixRunner.cs on its Fixture.csproj for that one rule;
 #   3. compares every file of the copy (less bin/, obj/ and the two files step 1 added) with expected/, byte for byte,
 #      including which files exist;
-#   4. builds the fixed copy with tools/build.ps1.
+#   4. builds the fixed copy with tools/build.ps1. A fix is always applied, and breaks the code where it must (#2599):
+#      a fixture whose expected/ does not compile holds expected-build-errors.txt beside input/ and expected/, one line
+#      per text the failing build's output must hold (an error code, say), and the build must fail with every one.
 # Before the fixtures it builds SuperMetroid.EnsureAnalyzer.CodeFixes (and so the analyzer) once in Debug. A failed
 # fixture keeps its copy and names it; a passing one is deleted. Exits nonzero when any fixture fails.
 #
@@ -86,8 +88,18 @@ function Test-Fixture([string]$Name) {
     }
     if ($failures.Count -gt 0) { return @{ Failures = $failures; Copy = $copy } }
 
-    & pwsh -NoProfile -NonInteractive -File (Join-Path $repository 'tools/build.ps1') $project | Out-Host
-    if ($LASTEXITCODE -ne 0) { $failures.Add("the fixed copy does not build (exit $LASTEXITCODE)") }
+    $built = @(& pwsh -NoProfile -NonInteractive -File (Join-Path $repository 'tools/build.ps1') $project 2>&1 | ForEach-Object { "$_" })
+    $buildExit = $LASTEXITCODE
+    $built | Out-Host
+    $breaks = Join-Path $fixtures "$Name/expected-build-errors.txt"
+    if (Test-Path -LiteralPath $breaks) {
+        if ($buildExit -eq 0) { $failures.Add("the fixed copy builds, but $breaks names errors its build must fail with") }
+        $output = $built -join "`n"
+        foreach ($expectedError in @([IO.File]::ReadAllLines($breaks) | Where-Object { $_.Trim() })) {
+            if (-not $output.Contains($expectedError.Trim())) { $failures.Add("the build of the fixed copy does not report '$($expectedError.Trim())'") }
+        }
+    }
+    elseif ($buildExit -ne 0) { $failures.Add("the fixed copy does not build (exit $buildExit)") }
     return @{ Failures = $failures; Copy = $copy }
 }
 

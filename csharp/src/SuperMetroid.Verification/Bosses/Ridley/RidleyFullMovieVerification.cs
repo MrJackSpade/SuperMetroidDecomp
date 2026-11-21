@@ -472,7 +472,7 @@ internal static class RidleyFullMovieVerification
             AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
             AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
             AssertTrue(dust.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.SmallDustCloud }, "native impact selects variant nine");
-            AssertEqual(joins, runtime.AudioRequests.SoundsQueued.Contains(EnemySound.Quake),
+            AssertEqual(joins, runtime.AudioRequests.SoundsQueued.Contains(EnemySound.BigExplosion),
                 $"behind {competing} waiting library-two requests the impact's normal-priority quake sound {(joins ? "joins" : "is turned away")}");
         }
 

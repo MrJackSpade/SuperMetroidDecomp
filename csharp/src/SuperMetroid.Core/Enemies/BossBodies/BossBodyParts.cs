@@ -35,13 +35,6 @@ internal sealed class BossBodyParts : IBossBodyDisplay
     /// <summary>The body as it stands, until a part shows another frame or the body is cleared or cut.</summary>
     private BossBodyLayer? published;
 
-    /// <summary>A body of <paramref name="owner"/>'s no part shows a frame on yet, which the room shows from the start.</summary>
-    /// <exception cref="InvalidOperationException">The boss draws its own body, as Kraid does.</exception>
-    public BossBodyParts(BossBodyOwner owner)
-        : this(owner, null)
-    {
-    }
-
     /// <summary>
     /// A body of <paramref name="owner"/>'s no part shows a frame on yet, which the room shows from the start, placed and
     /// hidden as <paramref name="showing"/> says (#2194).

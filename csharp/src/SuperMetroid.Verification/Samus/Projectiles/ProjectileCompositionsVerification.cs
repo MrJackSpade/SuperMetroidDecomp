@@ -157,13 +157,16 @@ internal static class ProjectileCompositionsVerification
             SamusBeamCombination pictured = CombinationShowing(id) ?? throw new InvalidOperationException($"No beam combination's sheet holds composition ${id:X4}.");
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+            // Each place is taken first: the shot and the bomb hold what a check stages, never their places (#2560).
             var shot = shots.Shots[0];
+            shot.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), 123);
             shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active(); shot.SpritemapPointer = id;
-            shot.Occupy(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), 123); shot.HeldShot().PicturedBeams = pictured; shot.HeldShot().Position = shot.Position.WithWhole(new(coordinate, coordinate));
+            shot.HeldShot().PicturedBeams = pictured; shot.HeldShot().Position = shot.Position.WithWhole(new(coordinate, coordinate));
             shot.HeldShot().Radius = shot.Radius.WithX(7).WithY(9);
             var bomb = bombs.Bombs[0];
+            bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
             bomb.HeldBomb().Animation = ProjectileFixturePlaybacks.Active(); bomb.SpritemapPointer = id;
-            bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type)); bomb.HeldBomb().PicturedBeams = pictured; bomb.HeldBomb().Position = bomb.Position.WithWhole(new(coordinate, coordinate));
+            bomb.HeldBomb().PicturedBeams = pictured; bomb.HeldBomb().Position = bomb.Position.WithWhole(new(coordinate, coordinate));
             bomb.HeldBomb().Fuse = UpdateCountdown.For(1);
             {
                 var native = new SpriteFrameBuffer(); var extracted = new SpriteFrameBuffer();

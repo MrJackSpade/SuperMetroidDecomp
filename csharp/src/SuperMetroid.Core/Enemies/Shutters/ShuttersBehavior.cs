@@ -99,16 +99,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     /// <summary>What <see cref="RunGrowingShutterMain"/> does for each <see cref="GrowingShutterAction"/> member, each member's own arm.</summary>
     private IdentityTable<GrowingShutterAction, Action<RoomEnemyOccupant, RoomEnemyPlace, GrowingShutterEnemyState, SamusState, Position16<RoomPixels>>> RunGrowingShutterMainForGrowingShutterAction => field ??= new(new Dictionary<GrowingShutterAction, Action<RoomEnemyOccupant, RoomEnemyPlace, GrowingShutterEnemyState, SamusState, Position16<RoomPixels>>>
     {
-        [GrowingShutterAction.WaitForTimer] = (_, place, state, samus, camera) =>
-        {
-            if (AdvanceGrowingShutterTimer(state))
-                ActivateGrowingShutter(place, state, camera);
-        },
-        [GrowingShutterAction.WaitForProximity] = (occupant, place, state, samus, camera) =>
-        {
-            if (IsSamusWithinShutterHorizontalDistance(place, samus, NearDistance(occupant.SpawnSettings<GrowingShutterSpawnSettings>())))
-                ActivateGrowingShutter(place, state, camera);
-        },
+        [GrowingShutterAction.WaitForTimer] = (occupant, place, state, samus, camera) => WaitToGrow(occupant, place, state, samus, camera),
+        [GrowingShutterAction.WaitForProximity] = (occupant, place, state, samus, camera) => WaitToGrow(occupant, place, state, samus, camera),
         [GrowingShutterAction.Grow] = (occupant, place, state, samus, camera) =>
         {
             if (state.Growth == VerticalDirection.Up)
@@ -132,8 +124,23 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
         RunGrowingShutterMainForGrowingShutterAction[state.Action](occupant, place, state, samus, camera);
     }
 
-    /// <summary>Steps the timer-mode wait one update and reports whether it ran out on this update (#2281).</summary>
-    private static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state) => state.ActivationTimer.StepEnds();
+    /// <summary>
+    /// Waits one update for what the shutter's placement waits for, its timer (#2281) or Samus coming near, and grows it once
+    /// the wait is over.
+    /// </summary>
+    private void WaitToGrow(RoomEnemyOccupant occupant, RoomEnemyPlace place, GrowingShutterEnemyState state, SamusState samus, Position16<RoomPixels> camera)
+    {
+        if (occupant.SpawnSettings<GrowingShutterSpawnSettings>().Wait.Match(GrowingWaits, new ShutterWaitContext<GrowingShutterEnemyState>(place, state, samus)))
+            ActivateGrowingShutter(place, state, camera);
+    }
+
+    /// <summary>
+    /// Whether each growing shutter's wait is over this update: its timer runs out on the update after its wait (#2281), or
+    /// Samus has come near.
+    /// </summary>
+    private static GrowingShutterWaitCases<ShutterWaitContext<GrowingShutterEnemyState>, bool> GrowingWaits { get; } = new(
+        Timer: static (_, context) => context.State.ActivationTimer.StepEnds(),
+        SamusNear: static (near, context) => IsSamusWithinShutterHorizontalDistance(context.Place, context.Samus, near.Distance));
 
     /// <summary>Switches a timed or proximity shutter into growth and queues audible activation on screen.</summary>
     private void ActivateGrowingShutter(
@@ -399,25 +406,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     /// <summary>What <see cref="RunVerticalShutterMain"/> does for each <see cref="VerticalShutterAction"/> member, each member's own arm.</summary>
     private IdentityTable<VerticalShutterAction, Action<RoomEnemyOccupant, RoomEnemyPlace, VerticalShutterEnemyState, SamusState, Position16<RoomPixels>>> RunVerticalShutterMainForVerticalShutterAction => field ??= new(new Dictionary<VerticalShutterAction, Action<RoomEnemyOccupant, RoomEnemyPlace, VerticalShutterEnemyState, SamusState, Position16<RoomPixels>>>
     {
-        [VerticalShutterAction.WaitForTimer] = (occupant, place, state, samus, camera) =>
-        {
-            state.ActionTimer = state.ActionTimer.Decrement().Remaining;
-            if (state.ActionTimer.IsZero)
-            {
-                state.ActionTimer = WrappingCountdown.Start(TimerWait(occupant.SpawnSettings<ShutterSpawnSettings>()));
-                ActivateVerticalShutter(occupant, place, state, camera);
-            }
-        },
-        [VerticalShutterAction.WaitForHorizontalProximity] = (occupant, place, state, samus, camera) =>
-        {
-            if (IsSamusWithinShutterHorizontalDistance(
-                place,
-                samus,
-                ProximityDistance(occupant.SpawnSettings<ShutterSpawnSettings>())))
-            {
-                ActivateVerticalShutter(occupant, place, state, camera);
-            }
-        },
+        [VerticalShutterAction.WaitForTimer] = (occupant, place, state, samus, camera) => WaitForTrigger(occupant, place, state, samus, camera),
+        [VerticalShutterAction.WaitForHorizontalProximity] = (occupant, place, state, samus, camera) => WaitForTrigger(occupant, place, state, samus, camera),
         [VerticalShutterAction.Activate] = (occupant, place, state, samus, camera) => ActivateVerticalShutter(occupant, place, state, camera),
         [VerticalShutterAction.Still] = (_, place, state, samus, camera) =>
         {
@@ -461,23 +451,39 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory, IEs
     /// Samus, activating on its first update, or standing still until a reaction. The trigger never changes, so
     /// initialization installs it once and the first update already runs it.
     /// </summary>
-    /// <summary>The distance Samus must come within to grow a shutter that waits for her.</summary>
-    /// <exception cref="InvalidOperationException">The shutter waits for a timer.</exception>
-    private static int NearDistance(GrowingShutterSpawnSettings settings) => settings.Wait is GrowingShutterWait.SamusNear near
-        ? near.Distance
-        : throw new InvalidOperationException($"A growing shutter waiting for {settings.Wait} waits for no one near.");
+    /// <summary>
+    /// Waits one update for what the shutter's placement is triggered by, its timer, which starts its wait over, or Samus
+    /// coming near, and starts the shutter once it is.
+    /// </summary>
+    private void WaitForTrigger(RoomEnemyOccupant occupant, RoomEnemyPlace place, VerticalShutterEnemyState state, SamusState samus, Position16<RoomPixels> camera)
+    {
+        if (occupant.SpawnSettings<ShutterSpawnSettings>().Trigger.Match(TriggerWaits, new ShutterWaitContext<VerticalShutterEnemyState>(place, state, samus)))
+            ActivateVerticalShutter(occupant, place, state, camera);
+    }
 
-    /// <summary>The wait of a timer-triggered shutter.</summary>
-    /// <exception cref="InvalidOperationException">The shutter has another trigger.</exception>
-    private static int TimerWait(ShutterSpawnSettings settings) => settings.Trigger is ShutterTrigger.Timer timer
-        ? timer.Wait
-        : throw new InvalidOperationException($"A shutter triggered by {settings.Trigger} waits on no timer.");
+    /// <summary>
+    /// Whether each vertical shutter's trigger starts it this update: its timer counts down and, reaching zero, starts it and
+    /// starts its wait over; Samus starts it once she is horizontally closer than its distance; a trigger with no wait
+    /// starts it at once when it is immediate, while a shot's reaction starts it only when a shot reacts, never by waiting.
+    /// </summary>
+    private static ShutterTriggerCases<ShutterWaitContext<VerticalShutterEnemyState>, bool> TriggerWaits { get; } = new(
+        Timer: static (timer, context) =>
+        {
+            context.State.ActionTimer = context.State.ActionTimer.Decrement().Remaining;
+            if (!context.State.ActionTimer.IsZero)
+                return false;
+            context.State.ActionTimer = WrappingCountdown.Start(timer.Wait);
+            return true;
+        },
+        HorizontalProximity: static (near, context) => IsSamusWithinShutterHorizontalDistance(context.Place, context.Samus, near.Distance),
+        Plain: static (plain, _) => plain.Mode == ShutterTriggerMode.Immediate);
 
-    /// <summary>The distance Samus must come within to start a proximity-triggered shutter.</summary>
-    /// <exception cref="InvalidOperationException">The shutter has another trigger.</exception>
-    private static int ProximityDistance(ShutterSpawnSettings settings) => settings.Trigger is ShutterTrigger.HorizontalProximity near
-        ? near.Distance
-        : throw new InvalidOperationException($"A shutter triggered by {settings.Trigger} waits for no one near.");
+    /// <summary>What a shutter's wait reads besides what it waits for: the shutter, its state and Samus.</summary>
+    /// <typeparam name="TState">The shutter's state.</typeparam>
+    /// <param name="Place">The shutter.</param>
+    /// <param name="State">The shutter's state.</param>
+    /// <param name="Samus">Samus, whom a proximity wait measures.</param>
+    private readonly record struct ShutterWaitContext<TState>(RoomEnemyPlace Place, TState State, SamusState Samus);
 
     /// <summary>The action a shutter of <paramref name="triggerMode"/> starts in: the wait its trigger names.</summary>
     private static VerticalShutterAction InitialAction(ShutterTriggerMode triggerMode) => InitialActionByTriggerMode[triggerMode];

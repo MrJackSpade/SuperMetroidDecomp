@@ -105,19 +105,22 @@ internal sealed class EndingStage
     /// shows that scene's own backdrop behind every layer; a load within a scene restores some of its colours.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The load is not one the ending makes.</exception>
-    internal void LoadColours(EndingColourLoad load) => screen.Colours.Load(load, BackdropShownBy[load](Backdrops));
+    internal void LoadColours(EndingColourLoad load) => ColourLoads[load](screen.Colours, Backdrops);
 
-    /// <summary>The backdrop each colour load shows, or null for a load within a scene, which shows none of its own.</summary>
-    private static IdentityTable<EndingColourLoad, Func<EndingBackdrops, RgbColor?>> BackdropShownBy => field ??= new(new Dictionary<EndingColourLoad, Func<EndingBackdrops, RgbColor?>>
+    /// <summary>
+    /// What each colour load does: a scene's whole screen of colours starts the scene with its backdrop, and a load within a
+    /// scene restores some of its colours, showing no backdrop of its own.
+    /// </summary>
+    private static IdentityTable<EndingColourLoad, Action<EndingColours, EndingBackdrops>> ColourLoads => field ??= new(new Dictionary<EndingColourLoad, Action<EndingColours, EndingBackdrops>>
     {
-        [EndingColourLoad.Escape] = static backdrops => backdrops.Escape,
-        [EndingColourLoad.Explosion] = static backdrops => backdrops.Explosion,
-        [EndingColourLoad.Credits] = static backdrops => backdrops.Credits,
-        [EndingColourLoad.PostCredits] = static backdrops => backdrops.PostCredits,
-        [EndingColourLoad.ExplosionBackgrounds] = static _ => null,
-        [EndingColourLoad.FinalGunship] = static _ => null,
-        [EndingColourLoad.RestoredShot] = static _ => null,
-        [EndingColourLoad.LogoInitial] = static _ => null,
+        [EndingColourLoad.Escape] = static (colours, backdrops) => colours.StartScene(EndingColourLoad.Escape, backdrops.Escape),
+        [EndingColourLoad.Explosion] = static (colours, backdrops) => colours.StartScene(EndingColourLoad.Explosion, backdrops.Explosion),
+        [EndingColourLoad.Credits] = static (colours, backdrops) => colours.StartScene(EndingColourLoad.Credits, backdrops.Credits),
+        [EndingColourLoad.PostCredits] = static (colours, backdrops) => colours.StartScene(EndingColourLoad.PostCredits, backdrops.PostCredits),
+        [EndingColourLoad.ExplosionBackgrounds] = static (colours, _) => colours.Restore(EndingColourLoad.ExplosionBackgrounds),
+        [EndingColourLoad.FinalGunship] = static (colours, _) => colours.Restore(EndingColourLoad.FinalGunship),
+        [EndingColourLoad.RestoredShot] = static (colours, _) => colours.Restore(EndingColourLoad.RestoredShot),
+        [EndingColourLoad.LogoInitial] = static (colours, _) => colours.Restore(EndingColourLoad.LogoInitial),
     });
 
 

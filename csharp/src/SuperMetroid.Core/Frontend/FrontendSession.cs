@@ -169,7 +169,10 @@ internal sealed class FrontendSession
             options.MoonwalkEnabled, options.IconCancelEnabled));
     }
     /// <summary>Ceres elevator departure and blackout transition state.</summary>
-    internal CeresDepartureState ceresDeparture = new();
+    internal CeresDepartureState CeresDeparture { get; private set; } = new();
+
+    /// <summary>Starts a fresh Ceres elevator departure, whose hold the following update owns.</summary>
+    internal void BeginCeresDeparture() => CeresDeparture = new();
     /// <summary>Reserve-tank recovery state that can temporarily own the game-state loop.</summary>
     internal readonly SamusReserveAutoRecoveryState reserveRecovery = new();
     /// <summary>Door approach and destination loading state across gameplay states.</summary>

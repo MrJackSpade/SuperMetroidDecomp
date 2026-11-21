@@ -899,21 +899,17 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     /// <exception cref="InvalidOperationException">The bomb has ended and has no animation to play.</exception>
     /// <exception cref="InvalidDataException">The animation shows a still picture, which no bomb animation does.</exception>
-    private void AdvanceProjectileAnimation(
-        SamusBomb bomb)
-    {
-        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation = bomb.Animation
-            ?? throw new InvalidOperationException("An inactive bomb has no animation to play.");
-        if (SamusProjectilePlayback.StepToNewFrame(animation) is { } frame)
-        {
-            // A bomb shows each frame its animation reaches, as the game's animation does.
-            bomb.Sprite = _artwork.ProjectileFrames.Resolve(frame);
-            bomb.Radius = SamusProjectileFrameDefinitions.Radius(frame);
-            return;
-        }
-        if (animation.HasStopped)
-            ClearProjectile(bomb);
-    }
+    private void AdvanceProjectileAnimation(SamusBomb bomb) =>
+        // A bomb shows each frame its animation reaches, as the game's animation does.
+        SamusProjectilePlayback.PlayOn(
+            bomb.Animation ?? throw new InvalidOperationException("An inactive bomb has no animation to play."),
+            _artwork.ProjectileFrames,
+            (sprite, radius) =>
+            {
+                bomb.Sprite = sprite;
+                bomb.Radius = radius;
+            },
+            () => ClearProjectile(bomb));
 
     /// <summary>Scans bombs from the first place up and publishes the last overlapping bomb's Samus launch direction.</summary>
     private void PublishBombJumpOverlap(SamusState samus)

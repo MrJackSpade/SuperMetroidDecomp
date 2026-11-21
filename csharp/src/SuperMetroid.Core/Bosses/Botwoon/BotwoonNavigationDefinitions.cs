@@ -53,6 +53,13 @@ internal static class BotwoonNavigationDefinitions
     /// <summary>The farthest a hole's distance on either axis is measured for its bearing, in pixels.</summary>
     internal const int HoleBearingReach = 255;
 
+    /// <summary>How far along its path each traversal moves Botwoon per step taken: one step on going forward, one back going backward.</summary>
+    internal static IdentityTable<BotwoonPathTraversal, int> TraversalStrides { get; } = new(new Dictionary<BotwoonPathTraversal, int>
+    {
+        [BotwoonPathTraversal.Forward] = 1,
+        [BotwoonPathTraversal.Backward] = -1,
+    });
+
     /// <summary>The one-pixel movement each step of a path stands for: one pixel along each axis the step points along.</summary>
     internal static IdentityTable<BotwoonPathStep, Offset16<RoomPixels>> StepMovements { get; } = new(new Dictionary<BotwoonPathStep, Offset16<RoomPixels>>
         {

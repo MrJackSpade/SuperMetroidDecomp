@@ -81,11 +81,11 @@ public static class SamusShades
         });
 
     /// <summary>
-    /// The combination whose shade each beam combination shows. A combination the game authors a shade for, and the
-    /// SpaceTime beam with its defined black (#1318), shows its own. Spazer with Plasma, the Chainsaw beam (Spazer, Plasma
-    /// and Wave, #1736) and the Murder beam (Spazer, Plasma, Ice and Wave), which the pause screen's category quirk
-    /// equips, read their colours past the end of the cartridge's beam shade table, which authors none for Spazer with
-    /// Plasma, so each shows the shade of its beams without Spazer, the combination the pause screen otherwise equips.
+    /// The combination whose shade each beam combination shows. A combination the game has a shade of its own for, and
+    /// the SpaceTime beam with its defined black (#1318), shows its own. Spazer with Plasma, the Chainsaw beam (Spazer,
+    /// Plasma and Wave, #1736) and the Murder beam (Spazer, Plasma, Ice and Wave), which the pause screen's category quirk
+    /// equips, have no beam shade of their own in the game, so each shows the shade of its beams without Spazer, the
+    /// combination the pause screen otherwise equips.
     /// </summary>
     private static readonly IdentityTable<SamusBeamCombination, SamusBeamCombination> ShownShades = new(new Dictionary<SamusBeamCombination, SamusBeamCombination>
         {

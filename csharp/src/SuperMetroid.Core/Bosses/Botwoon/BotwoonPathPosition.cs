@@ -52,7 +52,7 @@ internal sealed class BotwoonPathPosition
             return false;
         }
         movement = BotwoonNavigationDefinitions.StepMovements[Path.Steps[Step]];
-        next = new(Path, Step + (traversal == BotwoonPathTraversal.Backward ? -1 : 1));
+        next = new(Path, Step + BotwoonNavigationDefinitions.TraversalStrides[traversal]);
         return true;
     }
 }

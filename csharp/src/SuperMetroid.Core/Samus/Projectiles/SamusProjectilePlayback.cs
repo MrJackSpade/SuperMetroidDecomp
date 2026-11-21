@@ -28,6 +28,30 @@ internal static class SamusProjectilePlayback
         Ensure.NotNull(animation).StepToNewFrame();
 
     /// <summary>
+    /// Plays a shot's or a bomb's <paramref name="animation"/> one update on: each frame it shows anew publishes its picture
+    /// and radius through <paramref name="show"/>, a projectile showing a still picture keeps it, and an animation that
+    /// ends deletes its projectile through <paramref name="delete"/>.
+    /// </summary>
+    /// <param name="animation">The projectile's animation.</param>
+    /// <param name="frames">The installed pictures of the projectiles' frames.</param>
+    /// <param name="show">Publishes the picture and the radius of the frame shown anew.</param>
+    /// <param name="delete">Deletes the projectile.</param>
+    internal static void PlayOn(
+        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation,
+        InstalledProjectileFrameBindings frames,
+        Action<ProjectileSpriteId, Extent16<RoomPixels>> show,
+        Action delete)
+    {
+        Ensure.NotNull(frames);
+        Ensure.NotNull(show);
+        Ensure.NotNull(delete);
+        if (StepToNewFrame(animation) is { } frame)
+            show(frames.Resolve(frame), SamusProjectileFrameDefinitions.Radius(frame));
+        else if (animation.HasStopped)
+            delete();
+    }
+
+    /// <summary>
     /// Where <paramref name="playback"/> stands: before its first play, at the start of the segment its animation starts
     /// at; otherwise in its playing phase's segment, after the beats of it played.
     /// </summary>

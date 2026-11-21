@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Fx;
@@ -100,7 +101,7 @@ internal sealed class CrocomireBodyLayer
         // The smoke rises from the room's lava/acid line, which in his room is its acid's surface as its tide moves it.
         int acidY = _roomFx.FxOverlay.LavaAcidLine;
         _effectActors.SpawnRoomEffectActor(
-            Position16<RoomPixels>.Wrapped(state.Body.Position.X.Whole + xOffset, acidY + CrocomireBridgeCollapseDefinitions.AcidSmokeDepth - CrocomireRandomDefinitions.AcidSmokeRise.Of(random)),
+            OffRoomPlaces.Placed(new Offset16<RoomPixels>(state.Body.Position.X.Whole + xOffset, acidY + CrocomireBridgeCollapseDefinitions.AcidSmokeDepth - CrocomireRandomDefinitions.AcidSmokeRise.Of(random))),
             RoomEffectActorKind.BigDustCloud,
             graphics: SpriteGraphics.SharedStandard);
     }

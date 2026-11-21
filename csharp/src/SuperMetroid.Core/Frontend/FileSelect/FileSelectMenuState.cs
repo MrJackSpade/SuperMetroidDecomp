@@ -165,7 +165,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontend
             {
                 StepMainMenu(pressed);
             }
-            else if (Phase is FileSelectPhase.FadeOutToCopy || Phase is FileSelectPhase.FadeOutToClear || Phase is FileSelectPhase.FadeOutToMain || Phase is FileSelectPhase.FadeInFromDataManagement)
+            else if (Phase is FileSelectPhase.FadeOutToCopy or FileSelectPhase.FadeOutToClear or FileSelectPhase.FadeOutToMain or FileSelectPhase.FadeInFromDataManagement)
             {
                 StepDataManagementFade();
             }

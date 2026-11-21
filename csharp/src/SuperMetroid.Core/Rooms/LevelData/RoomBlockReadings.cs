@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// holds neither reading until a room's area resolves it (<see cref="AreaBlockReadings"/>, #1805).
 /// </summary>
 /// <param name="Shootable">
-/// The reaction shootable blocks and shootable air read: every behaviour gives them one, as the game's shootable table
-/// gives every byte an entry (#2553).
+/// The reaction shootable blocks and shootable air read: every behaviour gives them one, as every behaviour a block can
+/// keep has a shootable reaction in the game (#2553).
 /// </param>
 /// <param name="Bombable">The reaction bombable blocks and bombable air read, or null for none.</param>
 /// <param name="Special">The reaction special blocks read, or null for none.</param>

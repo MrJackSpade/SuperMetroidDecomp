@@ -197,7 +197,7 @@ internal static class SamusPosturePoseTransitions
         // and spin-jump input transitions can select the same morphing-transition setup. The literal
         // previous-movement-type test below even has a dedicated spin-jumping side effect.
         // Morph and unmorph keep their facing; unmorphing starts from a stable ball pose, ordinary or Spring Ball.
-        bool startsMorphing = targetPose is SamusPoseId.MorphingTransitionRightPose or SamusPoseId.MorphingTransitionLeftPose;
+        bool startsMorphing = SamusPoseMetadata.IsMorphingTransitionPose(targetPose);
         if (startsMorphing)
         {
             // The morphing-transition setup restores PreviousPose and

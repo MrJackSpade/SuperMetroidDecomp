@@ -37,7 +37,7 @@ internal static class SamusRunningCadences
         {
             if (timing.Boost is not { } boost)
                 continue;
-            if (boost.Stage < 0 || boost.Stage >= stages.Length || stages[boost.Stage] is not null)
+            if (boost.Stage >= stages.Length || stages[boost.Stage] is not null)
                 throw new InvalidDataException($"The running cadences name boost stage {boost.Stage} outside the authored stages or twice.");
             stages[boost.Stage] = SpeedBoostCadence.Authored(timing, boost);
         }

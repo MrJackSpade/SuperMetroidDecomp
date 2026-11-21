@@ -149,10 +149,10 @@ public sealed class SamusShinesparkState
     public Position16<RoomPixels> SecondOrbitingCopy { get; private set; }
 
     /// <summary>The echo the crash releases first, only when Samus's shot count leaves room for both.</summary>
-    public ShinesparkCrashEcho FirstReleasedEcho { get; } = new(leavesOrbitHeight: true);
+    public ShinesparkCrashEcho FirstReleasedEcho { get; } = new(ShinesparkCrashEchoRelease.First);
 
     /// <summary>The echo the crash releases second, whenever the shot count leaves room for one; it is drawn before the first.</summary>
-    public ShinesparkCrashEcho SecondReleasedEcho { get; } = new(leavesOrbitHeight: false);
+    public ShinesparkCrashEcho SecondReleasedEcho { get; } = new(ShinesparkCrashEchoRelease.Second);
 
     /// <summary>
     /// Starting the X-ray scope clears the special suit-colouring timer and X-ray's colouring

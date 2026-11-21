@@ -11,6 +11,12 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>Reads of Samus's pose definitions (<see cref="SamusPoseDefinitions"/>): collision radii, facing and movement, and the per-pose facts her movement consults, including the bomb-jump direction publication.</summary>
 internal static class SamusPoseMetadata
 {
+    /// <summary>The X-ray scope's crouching poses, from <see cref="SamusPoseFamilyDefinitions.XrayCrouchingPoses"/>.</summary>
+    private static readonly FrozenSet<SamusPoseId> XrayCrouchingPoses = SamusPoseFamilyDefinitions.XrayCrouchingPoses.ToFrozenSet();
+
+    /// <summary>The morphing transitions, from <see cref="SamusPoseFamilyDefinitions.MorphingTransitionPoses"/>.</summary>
+    private static readonly FrozenSet<SamusPoseId> MorphingTransitionPoses = SamusPoseFamilyDefinitions.MorphingTransitionPoses.ToFrozenSet();
+
     /// <summary>The shinespark flights, from <see cref="SamusPoseFamilyDefinitions.ShinesparkPoses"/>.</summary>
     private static readonly FrozenSet<SamusPoseId> ShinesparkPoses = SamusPoseFamilyDefinitions.ShinesparkPoses.ToFrozenSet();
 
@@ -323,8 +329,10 @@ internal static class SamusPoseMetadata
     /// True for the X-ray scope's two crouching poses, which have the <see cref="SamusMovementType.Crouching"/> movement
     /// type outside the crouching family.
     /// </summary>
-    public static bool IsXrayCrouchingPose(SamusPoseId pose) => pose is
-        SamusPoseId.XrayingCrouchingRightPose or SamusPoseId.XrayingCrouchingLeftPose;
+    public static bool IsXrayCrouchingPose(SamusPoseId pose) => XrayCrouchingPoses.Contains(pose);
+
+    /// <summary>True for the two morphing transitions, which start Samus's morph.</summary>
+    public static bool IsMorphingTransitionPose(SamusPoseId pose) => MorphingTransitionPoses.Contains(pose);
 
     /// <summary>
     /// True for the grounded poses that start a fall when their movement finds no floor below: standing, landing,

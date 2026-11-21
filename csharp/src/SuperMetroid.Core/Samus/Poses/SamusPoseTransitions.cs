@@ -187,7 +187,7 @@ internal static class SamusPoseTransitions
 
         // A pose that disables shooting lands through the ordinary facing pair before her aim chooses a landing; hurt and
         // damage-boost art disable shooting. An aiming pose lands keeping its aim, a level aim with held Shot firing.
-        return sourceAim.Landing(facingLeft, (controllerInput & GameplayAction.Shoot) != GameplayAction.None);
+        return sourceAim.Landing(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, (controllerInput & GameplayAction.Shoot) != GameplayAction.None);
     }
 
     /// <summary>

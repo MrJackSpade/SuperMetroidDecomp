@@ -349,7 +349,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         },
         [IntroCinematicPhase.FadeOutFirstNarration] = () =>
         {
-            // The fade-out installs the first page's setup, which runs in the next update.
+            // Once the narration has faded out, the first page is set up on the next update.
             if (fade.Darken())
                 Phase = IntroCinematicPhase.SetupFirstPage;
         },

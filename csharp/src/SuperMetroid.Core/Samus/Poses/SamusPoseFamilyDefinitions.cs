@@ -6,6 +6,23 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </summary>
 internal static class SamusPoseFamilyDefinitions
 {
+    /// <summary>
+    /// The X-ray scope's two crouching poses, which have the <see cref="Movement.SamusMovementType.Crouching"/> movement
+    /// type outside the crouching family.
+    /// </summary>
+    internal static readonly SamusPoseId[] XrayCrouchingPoses =
+    [
+        SamusPoseId.XrayingCrouchingRightPose,
+        SamusPoseId.XrayingCrouchingLeftPose,
+    ];
+
+    /// <summary>The two morphing transitions, facing right and left, which start Samus's morph.</summary>
+    internal static readonly SamusPoseId[] MorphingTransitionPoses =
+    [
+        SamusPoseId.MorphingTransitionRightPose,
+        SamusPoseId.MorphingTransitionLeftPose,
+    ];
+
     /// <summary>The six shinespark flights: horizontal, vertical and diagonal, facing right and left.</summary>
     internal static readonly SamusPoseId[] ShinesparkPoses =
     [

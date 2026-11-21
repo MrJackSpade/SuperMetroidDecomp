@@ -17,7 +17,7 @@ internal sealed class HyperBeamFlareCount<TSegment, TPicture> : IHyperBeamFlareC
     where TPicture : struct
 {
     /// <summary>Counts with <paramref name="player"/>, showing its pictures in <paramref name="composition"/>.</summary>
-    private HyperBeamFlareCount(AnimationPlayer<TSegment, TPicture, NoAnimationCue> player, Func<bool, TPicture, ProjectileSpriteId> composition)
+    private HyperBeamFlareCount(AnimationPlayer<TSegment, TPicture, NoAnimationCue> player, Func<HorizontalDirection, TPicture, ProjectileSpriteId> composition)
     {
         this.player = player;
         this.composition = composition;
@@ -27,11 +27,11 @@ internal sealed class HyperBeamFlareCount<TSegment, TPicture> : IHyperBeamFlareC
     private readonly AnimationPlayer<TSegment, TPicture, NoAnimationCue> player;
 
     /// <summary>The composition each of the component's pictures shows in, by Samus's facing.</summary>
-    private readonly Func<bool, TPicture, ProjectileSpriteId> composition;
+    private readonly Func<HorizontalDirection, TPicture, ProjectileSpriteId> composition;
 
     /// <summary>The Hyper Beam's shot: the count shows the animation's last picture for <see cref="HyperBeamPictureUpdates"/>.</summary>
     internal static HyperBeamFlareCount<TSegment, TPicture> FromLast(AnimationSegments<TSegment, TPicture, NoAnimationCue> segments,
-        Animation<TSegment> animation, Func<bool, TPicture, ProjectileSpriteId> composition)
+        Animation<TSegment> animation, Func<HorizontalDirection, TPicture, ProjectileSpriteId> composition)
     {
         var player = AnimationPlayer<TSegment, TPicture, NoAnimationCue>.StartShowing(segments, animation, ClearedPictureUpdates);
         player.ShowLastFrame(animation, HyperBeamPictureUpdates);
@@ -44,7 +44,7 @@ internal sealed class HyperBeamFlareCount<TSegment, TPicture> : IHyperBeamFlareC
     /// reaches zero, so the picture keeps one update less of the wait it had left, and at least one.
     /// </summary>
     internal static HyperBeamFlareCount<TSegment, TPicture> TakingOver(AnimationPlayer<TSegment, TPicture, NoAnimationCue> forward,
-        Func<bool, TPicture, ProjectileSpriteId> composition)
+        Func<HorizontalDirection, TPicture, ProjectileSpriteId> composition)
     {
         AnimationPlayer<TSegment, TPicture, NoAnimationCue> player = forward.Copy();
         player.HoldShownFrameFor(Math.Max(forward.UpdatesLeft - 1, 1));
@@ -52,7 +52,7 @@ internal sealed class HyperBeamFlareCount<TSegment, TPicture> : IHyperBeamFlareC
     }
 
     /// <inheritdoc/>
-    public ProjectileSpriteId? Composition(bool facingLeft) => player.Shown is { } shown ? composition(facingLeft, shown) : null;
+    public ProjectileSpriteId? Composition(HorizontalDirection facing) => player.Shown is { } shown ? composition(facing, shown) : null;
 
     /// <inheritdoc/>
     public bool PlayBackward() => player.StepBackward(HyperBeamPictureUpdates, HyperBeamFirstPictureUpdates);

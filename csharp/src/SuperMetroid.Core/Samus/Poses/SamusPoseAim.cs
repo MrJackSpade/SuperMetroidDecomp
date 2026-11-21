@@ -28,10 +28,19 @@ internal abstract record SamusPoseAim
     internal interface ISteady
     {
         /// <summary>The landing a jump or fall in the pose takes, facing left or right, with Shoot held or released.</summary>
-        /// <param name="facingLeft">Whether she faces left.</param>
+        /// <param name="facing">The way she faces.</param>
         /// <param name="shotHeld">Whether Shoot is held.</param>
-        SamusPoseId Landing(bool facingLeft, bool shotHeld);
+        SamusPoseId Landing(HorizontalDirection facing, bool shotHeld);
     }
+
+    /// <summary>
+    /// The turn Samus takes on the ground from a pose of this aim, given the generic turn her input chose and the turns of
+    /// her posture by the direction they keep: an aiming pose's turn keeps its aim, and any other keeps the generic turn, as
+    /// the front views, which disable shooting, do.
+    /// </summary>
+    /// <param name="chosen">The generic turn her input transitions chose.</param>
+    /// <param name="turns">The turns of her posture, standing or crouched, by the direction they keep.</param>
+    internal virtual SamusPoseId TurnOnGround(SamusPoseId chosen, IdentityTable<SamusProjectileDirection, SamusPoseId> turns) => chosen;
 
     /// <summary>A pose whose arm cannon is armed: it aims or turns, and places a held charge's flare.</summary>
     internal abstract record Armed : SamusPoseAim
@@ -47,13 +56,22 @@ internal abstract record SamusPoseAim
         /// <inheritdoc/>
         public override SamusFlareAim Flare { get; } = new SamusFlareAim.AtMuzzle(Direction);
 
+        /// <summary>The turn keeping <see cref="Direction"/>.</summary>
+        /// <param name="chosen">The generic turn her input transitions chose, which the aim replaces.</param>
+        /// <param name="turns">The turns of her posture, standing or crouched, by the direction they keep.</param>
+        internal override SamusPoseId TurnOnGround(SamusPoseId chosen, IdentityTable<SamusProjectileDirection, SamusPoseId> turns) =>
+            Ensure.NotNull(turns)[Direction];
+
+        /// <summary>The pose Samus stops in as she runs into a wall aiming in <see cref="Direction"/>.</summary>
+        internal SamusPoseId WallStop => SamusAimedPoseChoiceDefinitions.WallStops[Direction];
+
         /// <summary>
         /// The aimed landing keeping <see cref="Direction"/>; a level aim takes the landing's extra Shot-binding test, held
         /// Shot selecting the firing landing.
         /// </summary>
-        /// <param name="facingLeft">Whether she faces left; the aim names the way.</param>
+        /// <param name="facing">The way she faces, which the aim names.</param>
         /// <param name="shotHeld">Whether Shoot is held.</param>
-        public SamusPoseId Landing(bool facingLeft, bool shotHeld)
+        public SamusPoseId Landing(HorizontalDirection facing, bool shotHeld)
         {
             SamusLandingChoice landing = SamusAimedPoseChoiceDefinitions.Landings[Direction];
             return shotHeld ? landing.ShootHeld : landing.ShootReleased;
@@ -75,7 +93,7 @@ internal abstract record SamusPoseAim
     internal sealed record ShootingDisabled : SamusPoseAim, ISteady
     {
         /// <inheritdoc/>
-        public SamusPoseId Landing(bool facingLeft, bool shotHeld) =>
-            facingLeft ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose;
+        public SamusPoseId Landing(HorizontalDirection facing, bool shotHeld) =>
+            facing == HorizontalDirection.Left ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose;
     }
 }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal interface IChargeFlarePlay
 {
     /// <summary>The composition the component's picture shows in for Samus's facing.</summary>
-    ProjectileSpriteId Composition(bool facingLeft);
+    ProjectileSpriteId Composition(HorizontalDirection facing);
 
     /// <summary>The ordinary flare's first update: the component shows its first picture for that picture's own updates.</summary>
     void Start();

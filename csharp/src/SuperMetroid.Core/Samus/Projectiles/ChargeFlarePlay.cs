@@ -19,9 +19,9 @@ internal sealed class ChargeFlarePlay<TSegment, TPicture> : IChargeFlarePlay
     /// <summary>Sets up the component's animation cleared, on its first picture.</summary>
     /// <param name="segments">The component's runs of pictures.</param>
     /// <param name="looping">The component's animation, which loops.</param>
-    /// <param name="composition">The composition each of its pictures shows in, by Samus's facing (true for left).</param>
+    /// <param name="composition">The composition each of its pictures shows in, by the way Samus faces.</param>
     internal ChargeFlarePlay(AnimationSegments<TSegment, TPicture, NoAnimationCue> segments, LoopingAnimation<TSegment> looping,
-        Func<bool, TPicture, ProjectileSpriteId> composition)
+        Func<HorizontalDirection, TPicture, ProjectileSpriteId> composition)
     {
         this.segments = segments;
         this.looping = looping;
@@ -36,7 +36,7 @@ internal sealed class ChargeFlarePlay<TSegment, TPicture> : IChargeFlarePlay
     private readonly LoopingAnimation<TSegment> looping;
 
     /// <summary>The composition each of the component's pictures shows in, by Samus's facing.</summary>
-    private readonly Func<bool, TPicture, ProjectileSpriteId> composition;
+    private readonly Func<HorizontalDirection, TPicture, ProjectileSpriteId> composition;
 
     /// <summary>The play of the component's animation: the picture it shows and the updates that picture has left.</summary>
     private readonly AnimationPlayer<TSegment, TPicture, NoAnimationCue> player;
@@ -45,7 +45,7 @@ internal sealed class ChargeFlarePlay<TSegment, TPicture> : IChargeFlarePlay
     internal TPicture Picture => player.Showing;
 
     /// <inheritdoc/>
-    public ProjectileSpriteId Composition(bool facingLeft) => composition(facingLeft, Picture);
+    public ProjectileSpriteId Composition(HorizontalDirection facing) => composition(facing, Picture);
 
     /// <inheritdoc/>
     public void Start() => player.Show(looping.Animation);

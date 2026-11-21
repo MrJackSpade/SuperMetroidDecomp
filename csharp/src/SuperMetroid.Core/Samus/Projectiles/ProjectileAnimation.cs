@@ -32,20 +32,16 @@ internal sealed class ProjectileAnimation
     /// radius, and an animation that ends deletes the projectile. A shot showing a still picture keeps it.
     /// </summary>
     /// <exception cref="InvalidOperationException">The projectile has ended and has no animation to play.</exception>
-    internal void AdvanceProjectileAnimation(
-        SamusProjectile shot)
-    {
-        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation = shot.Animation
-            ?? throw new InvalidOperationException("An ended projectile has no animation to play.");
-        if (SamusProjectilePlayback.StepToNewFrame(animation) is { } frame)
-        {
-            shot.Sprite = _artwork.ProjectileFrames.Resolve(frame);
-            shot.Radius = SamusProjectileFrameDefinitions.Radius(frame);
-            return;
-        }
-        if (animation.HasStopped)
-            ClearProjectile(shot);
-    }
+    internal void AdvanceProjectileAnimation(SamusProjectile shot) =>
+        SamusProjectilePlayback.PlayOn(
+            shot.Animation ?? throw new InvalidOperationException("An ended projectile has no animation to play."),
+            _artwork.ProjectileFrames,
+            (sprite, radius) =>
+            {
+                shot.Sprite = sprite;
+                shot.Radius = radius;
+            },
+            () => ClearProjectile(shot));
 
 
     /// <summary>Deletes a projectile, ending it, and decrements the shot count, which stays at zero.</summary>
@@ -111,7 +107,7 @@ internal sealed class ProjectileAnimation
         // The flare is published wherever it lies; the display clips it to the view (#1541).
 
         // A component the Hyper Beam's count has stepped back past its first picture draws nothing (#1275, #2114).
-        if (_charge.FlareComposition(component, pose.FacingLeft) is not { } picture)
+        if (_charge.FlareComposition(component, pose.FacingLeft ? HorizontalDirection.Left : HorizontalDirection.Right) is not { } picture)
             return;
         // The flare is Samus's own charge, so it shows the sheet of the beams she has equipped (#1586).
         SpriteSheetFrame image = artwork.Sheets.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(picture));

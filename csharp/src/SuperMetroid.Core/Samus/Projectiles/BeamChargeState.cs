@@ -97,8 +97,8 @@ internal sealed class BeamChargeState
     /// The composition flare <paramref name="component"/> shows for Samus's facing: the Hyper Beam's count's while it counts,
     /// none once it has stepped back past the component's first picture, and the ordinary flare's otherwise.
     /// </summary>
-    internal ProjectileSpriteId? FlareComposition(ChargeFlareComponent component, bool facingLeft) =>
-        _hyperBeamCount is { } count ? count[component].Composition(facingLeft) : _flare[component].Composition(facingLeft);
+    internal ProjectileSpriteId? FlareComposition(ChargeFlareComponent component, HorizontalDirection facing) =>
+        _hyperBeamCount is { } count ? count[component].Composition(facing) : _flare[component].Composition(facing);
 
     /// <summary>Plays flare <paramref name="component"/>'s ordinary animation one update on.</summary>
     internal void PlayFlareForward(ChargeFlareComponent component) => _flare[component].PlayForward();

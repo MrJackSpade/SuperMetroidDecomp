@@ -238,7 +238,7 @@ internal static class OutOfHealthGameStateVerification
         AssertEqual(SuperMetroidGameState.CeresDeparture, game.GameState, "the Ceres elevator takes the update Samus runs out of health on, not her death");
         AssertEqual(beforeElevator, runtime.GameTime.Reading, "the out-of-health check returns before counting the play time");
 
-        int holdUpdates = game.Session.ceresDeparture.Hold.UpdatesLeft;
+        int holdUpdates = game.Session.CeresDeparture.Hold.UpdatesLeft;
         for (int update = 0; update < holdUpdates + 2; update++)
         {
             game.Step(0);

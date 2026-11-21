@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal interface IHyperBeamFlareCount
 {
     /// <summary>The composition the counted picture shows in for Samus's facing, or none once the count has stepped back past the first.</summary>
-    ProjectileSpriteId? Composition(bool facingLeft);
+    ProjectileSpriteId? Composition(HorizontalDirection facing);
 
     /// <summary>
     /// Counts one update back: once the picture's updates run out, the picture before it shows for

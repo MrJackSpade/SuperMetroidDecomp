@@ -20,12 +20,10 @@ internal sealed class SamusPoseInputList
     /// <summary>A list named <paramref name="name"/> whose chords <paramref name="match"/> reads in order.</summary>
     /// <param name="name">The list's name, for diagnostics.</param>
     /// <param name="match">Selects the first satisfied chord of the list.</param>
-    /// <param name="turnsOnGround">Whether the list can turn Samus on the ground.</param>
-    private SamusPoseInputList(string name, Func<GameplayAction, GameplayAction, SamusPoseInputMatch> match, bool turnsOnGround = false)
+    private SamusPoseInputList(string name, Func<GameplayAction, GameplayAction, SamusPoseInputMatch> match)
     {
         _name = name;
         _match = match;
-        TurnsOnGround = turnsOnGround;
     }
 
     /// <summary>
@@ -38,23 +36,23 @@ internal sealed class SamusPoseInputList
 
     /// <summary>The input-transition list of both forward-facing poses, in the power suit and suited.</summary>
     internal static SamusPoseInputList ForwardFacing { get; } = new(nameof(ForwardFacing),
-        (held, _) => SamusPoseInputRules.MatchForwardFacing(held), turnsOnGround: true);
+        (held, _) => SamusPoseInputRules.MatchForwardFacing(held));
 
     /// <summary>The input-transition list of the right-facing standing poses and the landings, whatever their aim.</summary>
     internal static SamusPoseInputList StandingAndLandingRight { get; } = new(nameof(StandingAndLandingRight),
-        (held, newlyPressed) => SamusPoseInputRules.MatchStandingAndLandingRight(held, newlyPressed), turnsOnGround: true);
+        (held, newlyPressed) => SamusPoseInputRules.MatchStandingAndLandingRight(held, newlyPressed));
 
     /// <summary>The input-transition list of the left-facing standing poses and the landings, whatever their aim.</summary>
     internal static SamusPoseInputList StandingAndLandingLeft { get; } = new(nameof(StandingAndLandingLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchStandingAndLandingRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(), turnsOnGround: true);
+        (held, newlyPressed) => SamusPoseInputRules.MatchStandingAndLandingRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
 
     /// <summary>The input-transition list of the right-facing running poses, whatever their aim.</summary>
     internal static SamusPoseInputList RunningRight { get; } = new(nameof(RunningRight),
-        (held, newlyPressed) => SamusPoseInputRules.MatchRunningRight(held, newlyPressed), turnsOnGround: true);
+        (held, newlyPressed) => SamusPoseInputRules.MatchRunningRight(held, newlyPressed));
 
     /// <summary>The input-transition list of the left-facing running poses, whatever their aim.</summary>
     internal static SamusPoseInputList RunningLeft { get; } = new(nameof(RunningLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchRunningRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(), turnsOnGround: true);
+        (held, newlyPressed) => SamusPoseInputRules.MatchRunningRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
 
     /// <summary>The input-transition list of the right-facing jump transitions, whatever their aim.</summary>
     internal static SamusPoseInputList JumpTransitionRight { get; } = new(nameof(JumpTransitionRight),
@@ -114,11 +112,11 @@ internal sealed class SamusPoseInputList
 
     /// <summary>The input-transition list of the crouching right poses.</summary>
     internal static SamusPoseInputList CrouchingRight { get; } = new(nameof(CrouchingRight),
-        (held, newlyPressed) => SamusPoseInputRules.MatchCrouchingRight(held, newlyPressed), turnsOnGround: true);
+        (held, newlyPressed) => SamusPoseInputRules.MatchCrouchingRight(held, newlyPressed));
 
     /// <summary>The input-transition list of the crouching left poses.</summary>
     internal static SamusPoseInputList CrouchingLeft { get; } = new(nameof(CrouchingLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchCrouchingLeft(held, newlyPressed), turnsOnGround: true);
+        (held, newlyPressed) => SamusPoseInputRules.MatchCrouchingLeft(held, newlyPressed));
 
     /// <summary>The input-transition list of the falling right poses.</summary>
     internal static SamusPoseInputList FallingRight { get; } = new(nameof(FallingRight),
@@ -138,11 +136,11 @@ internal sealed class SamusPoseInputList
 
     /// <summary>The input-transition list of the left-facing moonwalk poses, whatever their aim.</summary>
     internal static SamusPoseInputList MoonwalkLeft { get; } = new(nameof(MoonwalkLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkLeft(held, newlyPressed), turnsOnGround: true);
+        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkLeft(held, newlyPressed));
 
     /// <summary>The input-transition list of the right-facing moonwalk poses, whatever their aim.</summary>
     internal static SamusPoseInputList MoonwalkRight { get; } = new(nameof(MoonwalkRight),
-        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkRight(held, newlyPressed), turnsOnGround: true);
+        (held, newlyPressed) => SamusPoseInputRules.MatchMoonwalkRight(held, newlyPressed));
 
     /// <summary>The input-transition list of the knockback right poses.</summary>
     internal static SamusPoseInputList KnockbackRight { get; } = new(nameof(KnockbackRight),
@@ -186,11 +184,11 @@ internal sealed class SamusPoseInputList
 
     /// <summary>The input-transition list of the ran into wall right poses.</summary>
     internal static SamusPoseInputList RanIntoWallRight { get; } = new(nameof(RanIntoWallRight),
-        (held, newlyPressed) => SamusPoseInputRules.MatchRanIntoWallRight(held, newlyPressed), turnsOnGround: true);
+        (held, newlyPressed) => SamusPoseInputRules.MatchRanIntoWallRight(held, newlyPressed));
 
     /// <summary>The input-transition list of the ran into wall left poses.</summary>
     internal static SamusPoseInputList RanIntoWallLeft { get; } = new(nameof(RanIntoWallLeft),
-        (held, newlyPressed) => SamusPoseInputRules.MatchRanIntoWallRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(), turnsOnGround: true);
+        (held, newlyPressed) => SamusPoseInputRules.MatchRanIntoWallRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
 
     /// <summary>The input-transition list of the normal jump gun extended right poses.</summary>
     internal static SamusPoseInputList NormalJumpGunExtendedRight { get; } = new(nameof(NormalJumpGunExtendedRight),
@@ -270,11 +268,11 @@ internal sealed class SamusPoseInputList
 
     /// <summary>The input-transition list of the moving right gun extended poses.</summary>
     internal static SamusPoseInputList MovingRightGunExtended { get; } = new(nameof(MovingRightGunExtended),
-        (held, newlyPressed) => SamusPoseInputRules.MatchMovingRightGunExtended(held, newlyPressed), turnsOnGround: true);
+        (held, newlyPressed) => SamusPoseInputRules.MatchMovingRightGunExtended(held, newlyPressed));
 
     /// <summary>The input-transition list of the moving left gun extended poses.</summary>
     internal static SamusPoseInputList MovingLeftGunExtended { get; } = new(nameof(MovingLeftGunExtended),
-        (held, newlyPressed) => SamusPoseInputRules.MatchMovingRightGunExtended(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(), turnsOnGround: true);
+        (held, newlyPressed) => SamusPoseInputRules.MatchMovingRightGunExtended(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored());
 
     /// <summary>The input-transition list of the falling gun extended right poses.</summary>
     internal static SamusPoseInputList FallingGunExtendedRight { get; } = new(nameof(FallingGunExtendedRight),
@@ -319,12 +317,6 @@ internal sealed class SamusPoseInputList
     /// </summary>
     internal FrozenSet<SamusPoseId> SelectableTargets => field ??= SamusPoseInputTransitions.Selectable(this);
 
-    /// <summary>
-    /// Whether the list can turn Samus on the ground: one of its transitions turns her, or sets up a moonwalk, which turns
-    /// her instead when moonwalking is switched off. Every pose that selects such a list aims, or is a front view, which
-    /// <see cref="SamusGroundTurnSources"/> checks as the poses load.
-    /// </summary>
-    internal bool TurnsOnGround { get; }
 
     /// <summary>Names the list.</summary>
     public override string ToString() => _name;

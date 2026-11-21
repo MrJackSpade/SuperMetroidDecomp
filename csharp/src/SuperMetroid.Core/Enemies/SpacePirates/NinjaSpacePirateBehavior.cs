@@ -512,7 +512,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The place the cases read.</param>
-    /// <param name="State">The <c>state</c> <c>ApplyNinjaSpacePirateCue</c> works with.</param>
+    /// <param name="State">The pirate's state <see cref="ApplyNinjaSpacePirateCue"/> works with.</param>
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Owner">The <see cref="NinjaSpacePirateBehavior"/> reacting.</param>
     private readonly record struct ApplyNinjaSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, NinjaSpacePirateEnemyState State, SamusState Samus, NinjaSpacePirateBehavior Owner);

@@ -81,13 +81,7 @@ internal static class SamusGroundedPoseTransitions
     /// may be the current running pose after a killed-X-speed collision or the prospective
     /// running pose tested by the one-pixel arm-pump probe.
     /// </summary>
-    private static SamusPoseId SelectRanIntoWallPose(SamusPoseId sourcePose)
-    {
-        return SamusPoseMetadata.ReadAim(sourcePose) is SamusPoseAim.Aiming { Direction: var direction }
-            ? SamusAimedPoseChoiceDefinitions.WallStops[direction]
-            : throw new InvalidDataException(
-                $"Pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(sourcePose)}).");
-    }
+    private static SamusPoseId SelectRanIntoWallPose(SamusPoseAim.Aiming aim) => aim.WallStop;
 
     /// <summary>
     /// Checks whether the prospective pose runs into a wall.
@@ -108,11 +102,14 @@ internal static class SamusGroundedPoseTransitions
     {
         Ensure.NotNull(terrain);
 
-        if (currentXSpeedKilledByBlock && SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running)
-            return SelectRanIntoWallPose(samus.Pose);
+        // Every running pose aims, and the wall stop keeps its aim.
+        if (currentXSpeedKilledByBlock && SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running &&
+            SamusPoseMetadata.ReadAim(samus.Pose) is SamusPoseAim.Aiming running)
+            return SelectRanIntoWallPose(running);
 
         if (prospectivePose is not { } target ||
-            SamusPoseMetadata.ReadMovementType(target) != SamusMovementType.Running)
+            SamusPoseMetadata.ReadMovementType(target) != SamusMovementType.Running ||
+            SamusPoseMetadata.ReadAim(target) is not SamusPoseAim.Aiming targetAim)
             return null;
 
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
@@ -127,13 +124,13 @@ internal static class SamusGroundedPoseTransitions
                 samus.Kinematics, samus.Kinematics.InteractiveEnemies, direction, UnsignedSixteenSixteen.OnePixel);
             samus.Kinematics.RecordSolidEnemyCollision(direction, enemyProbe.Enemy);
             if (enemyProbe.Collided)
-                return SelectRanIntoWallPose(target);
+                return SelectRanIntoWallPose(targetAim);
         }
 
         SignedSixteenSixteen onePixelForward = SignedSixteenSixteen.OnePixel.Toward(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
         BlockMoveResult onePixelProbe = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
         return onePixelProbe.Collided
-            ? SelectRanIntoWallPose(target)
+            ? SelectRanIntoWallPose(targetAim)
             : null;
     }
 
@@ -260,7 +257,7 @@ internal static class SamusGroundedPoseTransitions
         // The two front-view poses take an unusual route. They face neither way, so they cannot honestly be classified as
         // either a right-facing or left-facing source. The game instead skips the shot-direction lookup entirely when the
         // previous pose is forward-facing, retaining the generic standing turn selected by that front-view pose's input
-        // transitions (SamusGroundTurnSource.FacingForward).
+        // transitions (SamusPoseAim.TurnOnGround).
         // Crouching input transitions publish the crouching turn directly, whereas every admitted
         // standing, running and landing pose's transitions publish the standing turn. The setup still uses
         // the previous SamusMovementType.Crouching to choose the crouched turn that keeps her aim.
@@ -285,10 +282,10 @@ internal static class SamusGroundedPoseTransitions
         }
 
         // The turn reads the PREVIOUS pose before it starts the final turn's pose. A forward-facing Samus keeps the generic
-        // turn the input transitions chose; every other pose that turns on the ground aims (bound as the poses load), and a
-        // previous crouching movement selects the crouched turn keeping that aim, every other the standing one. A
+        // turn the input transitions chose; every other pose that turns on the ground aims, and a previous crouching
+        // movement selects the crouched turn keeping that aim, every other the standing one. A
         // straight-down aim turns as its diagonal-down neighbour.
-        SamusPoseId selectedTurnPose = SamusGroundTurnSources.Of(samus.Pose).Turn(targetPose, wasCrouching
+        SamusPoseId selectedTurnPose = SamusPoseMetadata.ReadAim(samus.Pose).TurnOnGround(targetPose, wasCrouching
             ? SamusAimedPoseChoiceDefinitions.CrouchingTurns
             : SamusAimedPoseChoiceDefinitions.StandingTurns);
 

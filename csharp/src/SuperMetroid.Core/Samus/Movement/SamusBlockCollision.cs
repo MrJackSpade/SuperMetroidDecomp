@@ -157,7 +157,7 @@ public static class SamusBlockCollision
                             acceptedDisplacement,
                             state.VerticalVelocity.Speed);
                     }
-                    else if (standing.CollisionType == StandingCollisionType.SolidBlock || standing.CollisionType == StandingCollisionType.ShootableBlock || standing.CollisionType == StandingCollisionType.GrappleBlock)
+                    else if (standing.CollisionType is StandingCollisionType.SolidBlock or StandingCollisionType.ShootableBlock or StandingCollisionType.GrappleBlock)
                     {
                         acceptedDisplacement = ClipHorizontalToSolid(
                             state,
@@ -486,7 +486,7 @@ public static class SamusBlockCollision
                         // An observing probe and a move down react as a floor, a move up as a ceiling.
                         reactsDownward: move.Observes || !acceptedDisplacement.IsNegative);
                 }
-                else if (standing.CollisionType == StandingCollisionType.SolidBlock || standing.CollisionType == StandingCollisionType.ShootableBlock || standing.CollisionType == StandingCollisionType.GrappleBlock)
+                else if (standing.CollisionType is StandingCollisionType.SolidBlock or StandingCollisionType.ShootableBlock or StandingCollisionType.GrappleBlock)
                 {
                     acceptedDisplacement = ClipVerticalToSolid(
                         state,

@@ -79,7 +79,7 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
     }
 
     /// <summary>
-    /// What <c>NextFrame</c> makes of each outcome of a projectile animation, which never pauses, built once (#2553): a frame
+    /// What <see cref="NextFrame"/> makes of each outcome of a projectile animation, which never pauses, built once (#2553): a frame
     /// shows for its duration or for good, a rest holds the timeline, and the animation's end deletes the projectile, as the
     /// game's projectile animation deletes it at its end.
     /// </summary>

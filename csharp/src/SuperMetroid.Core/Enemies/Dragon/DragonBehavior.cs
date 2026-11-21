@@ -302,7 +302,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         Offset16<RoomPixels> muzzle = DragonFireballDefinitions.MuzzleFacingRight;
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + (left ? muzzle.MirroredX() : muzzle));
         projectile.Velocity = projectile.Velocity.WithY(DragonFireballDefinitions.LaunchRise);
-        projectile.Velocity = projectile.Velocity.WithX(left ? -DragonFireballDefinitions.SidewaysSpeed : DragonFireballDefinitions.SidewaysSpeed);
+        projectile.Velocity = projectile.Velocity.WithX(DragonFireballDefinitions.SidewaysSpeed.Toward(bodyState.Facing));
     }
 
     /// <summary>Flies the fireball for one update.</summary>

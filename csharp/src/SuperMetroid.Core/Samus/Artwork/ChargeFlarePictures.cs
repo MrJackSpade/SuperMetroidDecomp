@@ -13,12 +13,12 @@ public static class ChargeFlarePictures
     public static ProjectileSpriteId MainFlare(MainFlarePicture picture) => MainFlareCompositions[picture];
 
     /// <summary>The composition the slow spark ring shows for <paramref name="picture"/> facing left or right.</summary>
-    public static ProjectileSpriteId SlowSparks(bool facingLeft, SparkPicture picture) =>
-        SparkCompositions[facingLeft ? ProjectileSpriteGroup.FlareSlowSparksLeft : ProjectileSpriteGroup.FlareSlowSparksRight][picture];
+    public static ProjectileSpriteId SlowSparks(HorizontalDirection facing, SparkPicture picture) =>
+        SparkCompositions[facing == HorizontalDirection.Left ? ProjectileSpriteGroup.FlareSlowSparksLeft : ProjectileSpriteGroup.FlareSlowSparksRight][picture];
 
     /// <summary>The composition the fast spark ring shows for <paramref name="picture"/> facing left or right.</summary>
-    public static ProjectileSpriteId FastSparks(bool facingLeft, SparkPicture picture) =>
-        SparkCompositions[facingLeft ? ProjectileSpriteGroup.FlareFastSparksLeft : ProjectileSpriteGroup.FlareFastSparksRight][picture];
+    public static ProjectileSpriteId FastSparks(HorizontalDirection facing, SparkPicture picture) =>
+        SparkCompositions[facing == HorizontalDirection.Left ? ProjectileSpriteGroup.FlareFastSparksLeft : ProjectileSpriteGroup.FlareFastSparksRight][picture];
 
     /// <summary>The main flare's composition of each of its pictures, as <see cref="ChargeFlareSpriteDefinitions.All"/> lists them.</summary>
     private static readonly IdentityTable<MainFlarePicture, ProjectileSpriteId> MainFlareCompositions = new(picture =>

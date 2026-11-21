@@ -1416,8 +1416,11 @@ internal static class LookupStream3Verification
             MotherBrainDeathColorFile.Write(new MotherBrainDeathColorDocument
             {
                 Version = MotherBrainDeathColorFormat.Version,
-                BodyFade = body.Select(row => row.Select(Rgb).ToArray()).ToArray(),
-                LegFade = leg.Select(row => row.Select(Rgb).ToArray()).ToArray(),
+                BodyFade = [.. Enumerable.Range(0, body.Length).Select(stage => new MotherBrainBodyColoursDocument
+                {
+                    Body = [.. body[stage].Select(Rgb)],
+                    BackLegs = [.. leg[stage].Select(Rgb)],
+                })],
                 CorpseFade = corpse.Select(row => row.Select(Rgb).ToArray()).ToArray(),
             }), writable: false));
         void Check(MotherBrainDeathColorCatalog catalog)

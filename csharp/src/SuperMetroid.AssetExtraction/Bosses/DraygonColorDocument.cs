@@ -15,6 +15,6 @@ public sealed record DraygonColorDocument
     public required PaletteRgb5[] Sprite { get; init; }
     /// <summary>Gets the 16 colors used by a white hurt-flash frame.</summary>
     public required PaletteRgb5[] WhiteFlash { get; init; }
-    /// <summary>Gets eight health-band rows containing four colors each.</summary>
-    public required PaletteRgb5[][] HealthBands { get; init; }
+    /// <summary>Gets each of the eight health bands' four colors, keyed by the band's installed key.</summary>
+    public required Dictionary<string, PaletteRgb5[]> HealthBands { get; init; }
 }

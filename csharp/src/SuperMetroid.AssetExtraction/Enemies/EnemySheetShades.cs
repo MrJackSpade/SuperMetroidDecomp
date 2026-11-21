@@ -599,7 +599,7 @@ internal sealed class EnemySheetShades
             SheetShade.Run(TourianStatueShades.Entrance, body, Frame(LoadedSetColours.RowColours, statue.StatueColor)),
             SheetShade.Run(TourianStatueShades.Entrance, decoration, Frame(LoadedSetColours.RowColours, statue.BaseColor)),
         ]);
-        foreach ((PictureShade glow, SuperMetroid.Core.Areas.Tourian.TourianStatue boss) in TourianStatueColorDefinitions.EyeGlowRows)
+        foreach ((SuperMetroid.Core.Areas.Tourian.TourianStatue boss, PictureShade glow) in TourianStatueColorDefinitions.EyeGlows)
         {
             yield return SheetShade.Run(glow, decoration + 9,
                 Frame(TourianStatueColorDefinitions.EyeColorCount, colour => statue.ResolveEye(boss, colour)));

@@ -25,8 +25,8 @@ public static class SporeSpawnColorExtractor
         {
             Version = SporeSpawnColorFormat.Version,
             Spores = Read(SporeSpawnSourceDefinitions.SporeColors),
-            Health = ReadFrames(SporeSpawnSourceDefinitions.HealthColors,
-                SporeSpawnColorFormat.HealthFrameCount),
+            Health = Rgb5Rows.KeyedInTableOrder(SporeSpawnSourceDefinitions.HealthTableOrder, band => band.Key,
+                row => Read(SporeSpawnSourceDefinitions.HealthColors + row * SporeSpawnSourceDefinitions.ImageBytes)),
             DeathSprite = ReadFrames(SporeSpawnSourceDefinitions.DeathSpriteColors,
                 SporeSpawnColorFormat.DeathSpriteFrameCount),
             DeathLevel = ReadFrames(SporeSpawnSourceDefinitions.DeathLevelColors,

@@ -24,6 +24,10 @@ internal static class RidleySourceDefinitions
         /// <summary>$A6:E46A: the three fourteen-colour damage shades shared by Ceres and Norfair Ridley.</summary>
         internal const int HealthColors = 0xa6e46a;
 
+        /// <summary>The health colourings in the order <see cref="HealthColors"/> holds their shades: least hurt first.</summary>
+        internal static IReadOnlyList<SuperMetroid.Core.Bosses.Ridley.RidleyHealthShade> HealthTableOrder =>
+            SuperMetroid.Core.Bosses.Ridley.RidleyHealthShadeDefinitions.LeastHurtFirst;
+
         /// <summary>$A6:C1DF: the sixteen three-colour self-destruct alarm shades.</summary>
         internal const int AlarmColors = 0xa6c1df;
 

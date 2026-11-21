@@ -6,7 +6,7 @@ public static class SporeSpawnColorFormat
     /// <summary>Installed editable JSON filename for spore, health, sprite-death, level-death, and background-death colors.</summary>
     public const string FileName = "spore-spawn-colors.json";
     /// <summary>Supported schema revision, requiring the frame counts and sixteen RGB5 colors per row.</summary>
-    public const int Version = 1;
+    public const int Version = 2;
 
     /// <summary>The colours in each Spore Spawn colour image, including the transparent first colour.</summary>
     public const int ColorsPerFrame = 16;

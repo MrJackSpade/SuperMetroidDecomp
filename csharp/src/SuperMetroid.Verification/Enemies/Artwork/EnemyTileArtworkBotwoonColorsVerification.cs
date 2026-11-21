@@ -76,7 +76,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "live Botwoon health palette avoids migrated RGB5 ROM reads");
 
-        visual.Health[0][5] = visual.Health[0][5] with { Green = 32 };
+        visual.Health.Values.First()[5] = visual.Health.Values.First()[5] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => BotwoonColorFile.Read(new MemoryStream(BotwoonColorFile.Write(visual), writable: false)),
             "reading Botwoon colors rejects an RGB5 channel outside five-bit precision");
         Console.WriteLine("  Botwoon colors: 128 native RGB5 words, eight live health bands, preserved threshold progression, ROM guard and strict failures pass.");

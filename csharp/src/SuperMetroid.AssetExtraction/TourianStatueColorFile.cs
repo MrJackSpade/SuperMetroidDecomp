@@ -24,17 +24,15 @@ public static class TourianStatueColorFile
     {
         TourianStatueColorDocument document;
         document = JsonAssetDocument.Read<TourianStatueColorDocument>(json, Options, "Tourian statue color");
-        if (document.Version != TourianStatueColorFormat.Version ||
-            document.Eye is null || document.Eye.Length != TourianStatueColorDefinitions.EyeGlowCount)
-            throw new InvalidDataException("Tourian statue colors require four eye rows at the supported version.");
-        var eye = new RgbColor[document.Eye.Length][];
-        for (int row = 0; row < eye.Length; row++)
-            eye[row] = Compile(document.Eye[row], TourianStatueColorDefinitions.EyeColorCount,
-                $"eye row {row}");
+        if (document.Version != TourianStatueColorFormat.Version)
+            throw new InvalidDataException("Tourian statue colors require the supported version.");
+        Dictionary<SuperMetroid.Core.Areas.Tourian.TourianStatue, RgbColor[]> eye = Rgb5Rows.CompileKeyed(document.Eye,
+            [.. TourianStatueColorDefinitions.EyeGlows.Keys], statue => statue.ToString(), TourianStatueColorDefinitions.EyeColorCount,
+            "Tourian statue eye glow");
         return new(
             new(Compile(document.Base, TourianStatueColorFormat.BaseColorCount, "base")),
             new(Compile(document.Statue, TourianStatueColorFormat.StatueColorCount, "statue")),
-            new(eye.SelectMany(glow => glow).ToArray()),
+            eye.ToDictionary(glow => glow.Key, glow => new TourianStatuePalettes.PaletteBand(glow.Value)),
             new(Compile(document.Grey, TourianStatueColorDefinitions.GreyColorCount, "grey")));
     }
 

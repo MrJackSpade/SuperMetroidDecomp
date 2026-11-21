@@ -45,7 +45,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         for (int color = 0; color < TourianStatueColorDefinitions.EyeColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueEyeColors +
                 (row * TourianStatueColorDefinitions.EyeColorCount + color) * sizeof(ushort),
-                (colors.ResolveEye(TourianStatuePalettes.EyeRowOrder[row], color)).ToWord());
+                (colors.ResolveEye(EnemySourceDefinitions.TourianStatueEyeRowOrder[row], color)).ToWord());
         for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueGreyColors + color * sizeof(ushort),
                 colors.ResolveGrey(color).ToWord());

@@ -21,11 +21,6 @@ public static class DraygonColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var bands = new PaletteRgb5[DraygonColorDefinitions.HealthBandCount][];
-        for (int band = 0; band < bands.Length; band++)
-            bands[band] = Read(DraygonSourceDefinitions.HealthBandColors +
-                band * DraygonColorDefinitions.HealthBandColorCount * sizeof(ushort),
-                DraygonColorDefinitions.HealthBandColorCount);
         return DraygonColorFile.Write(new DraygonColorDocument
         {
             Version = DraygonColorFormat.Version,
@@ -36,7 +31,9 @@ public static class DraygonColorExtractor
                 DraygonColorDefinitions.SpriteCount),
             WhiteFlash = Read(DraygonSourceDefinitions.WhiteFlashColors,
                 DraygonColorDefinitions.WhiteFlashCount),
-            HealthBands = bands,
+            HealthBands = Rgb5Rows.KeyedInTableOrder(DraygonSourceDefinitions.HealthTableOrder, band => band.Key,
+                row => Read(DraygonSourceDefinitions.HealthBandColors + row * DraygonColorDefinitions.HealthBandColorCount * sizeof(ushort),
+                    DraygonColorDefinitions.HealthBandColorCount)),
         });
 
         PaletteRgb5[] Read(int source, int count)

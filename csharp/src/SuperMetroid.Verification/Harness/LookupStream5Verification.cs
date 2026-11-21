@@ -943,17 +943,17 @@ internal static class LookupStream5Verification
                 AssertEqual(Pack(expected.Grey[color]), actual.ResolveGrey(color), "Exact grey ramp color");
                 AssertEqual(Shown(expected.Grey[color]), actual.GreyColor(color), "Installed grey colour");
             }
-            for (int row = 0; row < expected.Eye.Length; row++)
+            foreach ((string statue, PaletteRgb5[] glow) in expected.Eye)
             {
-                for (int color = 0; color < expected.Eye[row].Length; color++)
-                    AssertEqual(Shown(expected.Eye[row][color]), actual.ResolveEye(TourianStatuePalettes.EyeRowOrder[row], color), "Installed eye glow colour");
+                for (int color = 0; color < glow.Length; color++)
+                    AssertEqual(Shown(glow[color]), actual.ResolveEye(Enum.Parse<SuperMetroid.Core.Areas.Tourian.TourianStatue>(statue), color), "Installed eye glow colour");
             }
             string identity = SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", hash =>
             {
                 hash.AppendWords("baseColors", expected.Base.Select(Pack).ToArray());
                 hash.AppendWords("statueColors", expected.Statue.Select(Pack).ToArray());
                 hash.AppendWords("greyColors", expected.Grey.Select(Pack).ToArray());
-                hash.AppendWordFrames("eyeColors", expected.Eye.Select(row => row.Select(Pack).ToArray()).ToArray());
+                hash.AppendWordFrames("eyeColors", expected.Eye.Values.Select(row => row.Select(Pack).ToArray()).ToArray());
             });
             AssertEqual(identity, actual.ContentIdentity, "Exact canonical selected palette identity");
             return actual;

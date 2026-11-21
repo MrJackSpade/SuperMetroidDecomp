@@ -124,7 +124,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "live Mother Brain death palettes avoid migrated RGB5/selector ROM reads");
 
-        visual.BodyFade[0][5] = visual.BodyFade[0][5] with { Blue = 32 };
+        visual.BodyFade[0].Body[5] = visual.BodyFade[0].Body[5] with { Blue = 32 };
         AssertThrows<InvalidDataException>(
             () => MotherBrainDeathColorFile.Read(new MemoryStream(MotherBrainDeathColorFile.Write(visual), writable: false)),
             "reading Mother Brain death colors rejects an RGB5 channel outside five-bit precision");

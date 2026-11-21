@@ -105,7 +105,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "live Spore Spawn palette consumers avoid all migrated ROM colors");
 
-        visual.Health[0][5] = visual.Health[0][5] with { Green = 32 };
+        visual.Health.Values.First()[5] = visual.Health.Values.First()[5] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(visual), writable: false)),
             "reading Spore Spawn colors rejects an RGB5 channel outside five-bit precision");
         Console.WriteLine("  Spore Spawn colors: 432 native RGB5 words, initial/health/seven death frames, ROM guard and strict failures pass.");

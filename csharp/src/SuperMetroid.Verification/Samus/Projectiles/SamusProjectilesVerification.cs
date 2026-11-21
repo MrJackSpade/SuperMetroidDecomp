@@ -285,7 +285,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             cadenceBombs.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, cadenceSamus, 0, 0);
             cadenceProjectiles.StepFrame(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, cadenceSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), cadenceBombs, new SharedGameState(new SharedRandom()));
         }
-        AssertEqual<int?>(expectedReload, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile, global::SuperMetroid.Core.UpdateCountdown?>(cadenceProjectiles.Shots[0], "Trail")?.UpdatesLeft,
+        AssertEqual<int?>(expectedReload, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant, global::SuperMetroid.Core.UpdateCountdown?>(cadenceProjectiles.Shots[0].HeldShot(), "Trail")?.UpdatesLeft,
             $"wave combination {beamType} reloads native trail cadence");
     }
 
@@ -642,7 +642,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(1000, hyperSlot.HeldShot().Damage, "Hyper Beam overwrites ROM-table damage with 1000");
     AssertEqual(SamusShotBehaviors.HyperBeam, hyperSlot.Behavior,
         "Hyper Beam selects trail-free Wave movement");
-    AssertEqual<int?>(null, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile, global::SuperMetroid.Core.UpdateCountdown?>(hyperSlot, "Trail")?.UpdatesLeft, "Hyper Beam does not arm a projectile trail");
+    AssertEqual<int?>(null, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant, global::SuperMetroid.Core.UpdateCountdown?>(hyperSlot.HeldShot(), "Trail")?.UpdatesLeft, "Hyper Beam does not arm a projectile trail");
     AssertEqual(21, hyperBombs.CooldownTimer, "Hyper Beam installs literal cooldown 21");
     AssertEqual(
         (SoundEffectId?)SoundEffectCommands.Decode(
@@ -1539,7 +1539,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     }
     AssertEqual(1, superProjectiles.LiveTrails.Count,
         "super's initial four-count leaves its first exhaust trail");
-    AssertEqual<int?>(2, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectile, global::SuperMetroid.Core.UpdateCountdown?>(super, "Trail")?.UpdatesLeft,
+    AssertEqual<int?>(2, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant, global::SuperMetroid.Core.UpdateCountdown?>(super.HeldShot(), "Trail")?.UpdatesLeft,
         "super exhaust reloads two instead of missile four");
 
     bool superExploded = false;

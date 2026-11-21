@@ -79,7 +79,7 @@ internal static class GateBeamCollisionVerification
             shot.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1));
             // The scans take the shot holding its place (#2558): an uncharged Power beam, which strikes the gate probes
             // as the unfired place the check used before did.
-            SamusProjectileOccupant held = shot.Held;
+            SamusProjectileOccupant held = shot.HeldShot();
             bool result = false;
             if (wave && horizontal) ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, held, roomObjects, InstalledFixtures.SamusOverreads.StraddledTerrain);
             else if (wave) ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, held, roomObjects);

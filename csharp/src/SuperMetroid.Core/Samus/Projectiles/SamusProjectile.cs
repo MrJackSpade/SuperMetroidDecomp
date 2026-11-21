@@ -33,9 +33,9 @@ public sealed class SamusProjectile
     /// </summary>
     public SamusProjectileOccupant? Occupant { get; private set; }
 
-    /// <summary>The projectile holding the place, for a step that changes it.</summary>
+    /// <summary>The projectile holding the place, which a write to the place changes.</summary>
     /// <exception cref="InvalidOperationException">No projectile holds the place.</exception>
-    public SamusProjectileOccupant Held =>
+    private SamusProjectileOccupant Held =>
         Occupant ?? throw new InvalidOperationException($"No projectile holds Samus's shot place {Place}.");
 
     /// <summary>
@@ -167,12 +167,7 @@ public sealed class SamusProjectile
     /// The Power Bomb fuse the beam holding the place carries (<see cref="SamusProjectileOccupant.BeamFuse"/>); none for a
     /// free place.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
-    internal UpdateCountdown BeamFuse
-    {
-        get => Occupant is { } held ? held.BeamFuse : UpdateCountdown.Ended();
-        set => Held.BeamFuse = value;
-    }
+    internal UpdateCountdown BeamFuse => Occupant is { } held ? held.BeamFuse : UpdateCountdown.Ended();
 
     /// <summary>
     /// What a beam fired into this projectile's place finds there (#2524), from which <see cref="BeamFiredOverLastShot"/>

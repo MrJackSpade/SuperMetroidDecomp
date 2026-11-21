@@ -41,7 +41,7 @@ internal static class ProjectileOriginsVerification
                 or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose
                 ? unchecked((sbyte)stored)
                 : stored;
-            initialize(samus, slot.Held);
+            initialize(samus, slot.HeldShot());
             AssertEqual(x + dx, slot.Position.X.Whole, "Physical muzzle X follows native direction/table selection");
             AssertEqual(unchecked((ushort)(y + dy - correction)), slot.Position.Y.Whole, "Physical muzzle Y follows native signed origin and unsigned pose correction");
             AssertEqual(direction, slot.Direction, "Origin lookup does not rewrite the direction");

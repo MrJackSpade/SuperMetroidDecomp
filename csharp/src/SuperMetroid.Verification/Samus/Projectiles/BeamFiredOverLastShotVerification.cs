@@ -194,19 +194,19 @@ internal static class BeamFiredOverLastShotVerification
                 BeamCombos.InitializeComboShot(echo.HeldShot(), BeamComboShotKind.Echo);
                 echo.HeldShot().Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(new TrigonometryAngle(echoAngle)));
             }, echoAngle),
-            ("a beam carrying a fuse", projectiles => FlyingBeam(projectiles, LastPlace).BeamFuse = UpdateCountdown.For(carriedFuse), carriedFuse),
+            ("a beam carrying a fuse", projectiles => FlyingBeam(projectiles, LastPlace).HeldShot().BeamFuse = UpdateCountdown.For(carriedFuse), carriedFuse),
             ("a Chainsaw shot part-way through its fuse", projectiles =>
             {
                 SamusProjectile chainsaw = FlyingBeam(projectiles, LastPlace);
                 // The flying beam's place now holds the Chainsaw shot.
                 chainsaw.HeldShot().Type = SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false);
                 chainsaw.HeldShot().Install(SamusShotBehaviors.ChainsawPowerBomb, kindState: null);
-                chainsaw.BeamFuse = UpdateCountdown.For(chainsawFuseLeft);
+                chainsaw.HeldShot().BeamFuse = UpdateCountdown.For(chainsawFuseLeft);
             }, chainsawFuseLeft),
             ("a free place whose last beam carried a fuse", projectiles =>
             {
                 SamusProjectile ended = FlyingBeam(projectiles, LastPlace);
-                ended.BeamFuse = UpdateCountdown.For(carriedFuse);
+                ended.HeldShot().BeamFuse = UpdateCountdown.For(carriedFuse);
                 projectiles.Animation.ClearProjectile(ended);
             }, 0),
         ];

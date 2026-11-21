@@ -24,9 +24,9 @@ public sealed class SamusBomb
     /// </summary>
     public SamusBombOccupant? Occupant { get; private set; }
 
-    /// <summary>The bomb holding the place, for a step that changes it.</summary>
+    /// <summary>The bomb holding the place, which a write to the place changes.</summary>
     /// <exception cref="InvalidOperationException">No bomb holds the place.</exception>
-    public SamusBombOccupant Held =>
+    private SamusBombOccupant Held =>
         Occupant ?? throw new InvalidOperationException($"No bomb holds Samus's bomb place {Place}.");
 
     /// <summary>Whether a bomb holds the place: from its placing, which gives it its type, until it ends.</summary>

@@ -17,7 +17,7 @@ internal static class CeresDoorAnimationsVerification
         foreach ((HorizontalDirection facing, NativeProgramEntry<CeresDoorSegment>[] entries) in EntriesBySide)
         {
         beats += NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, entries, CeresDoorAnimations.Segments(facing),
-            CeresDoorAnimations.StartingAt(facing).Where(start => entries.Any(entry => entry.Program == start.Key)).ToDictionary(),
+            CeresDoorAnimationsConstants.StartingAt(facing).Where(start => entries.Any(entry => entry.Program == start.Key)).ToDictionary(),
             CeresDoorFrameDefinitionsConstants.Spritemap,
             new NativeEnemyCueRules<CeresDoorCue>(word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null, (word, operands, cue, at) =>
             {

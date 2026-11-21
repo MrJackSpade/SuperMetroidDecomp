@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Core.Rooms.RoomObjects.ShotBlockObjectDraws;
 using Stage = SuperMetroid.Core.Rooms.RoomObjects.BlockBreakupStage;
 

@@ -5,7 +5,6 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;
 

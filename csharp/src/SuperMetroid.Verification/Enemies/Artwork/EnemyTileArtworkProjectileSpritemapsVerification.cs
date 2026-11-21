@@ -6,7 +6,6 @@ using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.FallingSparks;
-using SuperMetroid.Core.Enemies.SaveStation;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.MovieReplay;

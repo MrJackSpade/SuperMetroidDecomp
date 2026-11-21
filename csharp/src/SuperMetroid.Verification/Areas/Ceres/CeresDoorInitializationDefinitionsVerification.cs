@@ -43,7 +43,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 $"production Ceres {actor} {settings} main behaviour, function selector {selector}");
             CeresDoorAnimationState door = place.RequireSpeciesState<CeresDoorAnimationState>();
             AnimationPlayback<CeresDoorSegment> playback = door.Playback;
-            CeresDoorSegment started = CeresDoorAnimations.StartingAt(door.Facing).Keys.Single(segment =>
+            CeresDoorSegment started = CeresDoorAnimationsConstants.StartingAt(door.Facing).Keys.Single(segment =>
                 new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(door.Facing, segment), AnimationPlace.StartOfAnimation).Equals(playback));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + selector * 2)),
                 NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.EntriesBySide[door.Facing], started),

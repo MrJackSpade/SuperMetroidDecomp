@@ -3,7 +3,6 @@ using K = SuperMetroid.Core.Bosses.Torizo.TorizoCueKind;
 using A = SuperMetroid.Core.Bosses.Torizo.TorizoAnimation;
 using S = SuperMetroid.Core.Bosses.Torizo.TorizoBodySegment;
 using L = SuperMetroid.Core.Bosses.Torizo.TorizoArtworkLook;
-using P = SuperMetroid.Core.Bosses.Torizo.TorizoPostureDefinitions;
 using static SuperMetroid.Core.Bosses.Torizo.TorizoAnimationSteps;
 using static SuperMetroid.Core.Bosses.Torizo.TorizoSide;
 using SuperMetroid.Core.Enemies.Artwork;

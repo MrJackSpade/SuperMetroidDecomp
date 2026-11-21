@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.Core.Enemies.Sbug;
 
 namespace SuperMetroid.Verification.Enemies.Sbug;
 

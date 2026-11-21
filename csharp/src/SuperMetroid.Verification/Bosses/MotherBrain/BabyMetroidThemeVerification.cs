@@ -17,6 +17,9 @@ internal static class BabyMetroidThemeVerification
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         // Mother Brain is placed as her room's population places her, and her late fight brings in the Baby, whose own main
         // AI then runs its cutscene; it stands at its final charge with no health left.
+        // Her late fight and the Baby read the room's random numbers, which stand at zero here.
+        enemies.VerificationServices().ReadRandom = () => 0;
+        enemies.VerificationServices().NextRandom = () => 0;
         MotherBrainEnemyState state = MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
         BabyMetroidCutsceneEntity entity = MotherBrainBabyArrival.BabyOf(MotherBrainBabyArrival.BringInBaby(state, samus));
         BabyMetroidCutsceneState baby = entity.Baby;

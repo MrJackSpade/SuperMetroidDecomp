@@ -38,10 +38,10 @@ internal static class HibashiDefinitionsVerification
         AssertEqual(22, steps.Length, "Hibashi eruption steps");
         // The flame erupts as its animation plays: each of its steps raises its hitbox to the step's height and gives it
         // the step's half-height, the first its half-width too. Each step is observed on the update it moves the hitbox.
-        HibashiEnemyState flame = graphics.EntityOf<HibashiEntity>().State;
-        flame.Playback = new(HibashiAnimations.StartingWith(HibashiSegment.Flame), AnimationPlace.StartOfAnimation);
+        HibashiEnemyState erupting = graphics.EntityOf<HibashiEntity>().State;
+        erupting.Playback = new(HibashiAnimations.StartingWith(HibashiSegment.Flame), AnimationPlace.StartOfAnimation);
         graphics.AnimationClock.StepOnNextUpdate();
-        object?[] eruption = [graphics, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+        object?[] eruptionUpdate = [graphics, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int frameIndex = 0; frameIndex < steps.Length; frameIndex++)
         {
             HibashiEruptionStep frame = steps[frameIndex];
@@ -53,7 +53,7 @@ internal static class HibashiDefinitionsVerification
             hitbox.Radius = hitbox.Radius.WithX(0);
             ushort before = hitbox.Position.Y.Whole;
             for (int update = 0; update < 64 && hitbox.Position.Y.Whole == before; update++)
-                EnemyInstructionRunner.Process(eruption);
+                EnemyInstructionRunner.Process(eruptionUpdate);
             AssertEqual(unchecked((ushort)(0x0200 - frame.YOffset)), hitbox.Position.Y.Whole,
                 $"Hibashi production Y position {frameIndex}");
             AssertEqual(frame.YRadius, hitbox.Radius.Y,

@@ -21,6 +21,9 @@ internal static class BabyMetroidDeathCryVerification
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         // Mother Brain is placed as her room's population places her, and her late fight brings in the Baby, whose own main
         // AI then runs its cutscene.
+        // Her late fight and the Baby read the room's random numbers, which stand at zero here.
+        enemies.VerificationServices().ReadRandom = () => 0;
+        enemies.VerificationServices().NextRandom = () => 0;
         MotherBrainEnemyState motherBrain = MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
         BabyMetroidCutsceneEntity entity = MotherBrainBabyArrival.BabyOf(MotherBrainBabyArrival.BringInBaby(motherBrain, samus));
         ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.ImportMaps, InstalledFixtures.BossArtwork,
@@ -29,18 +32,21 @@ internal static class BabyMetroidDeathCryVerification
         BabyMetroidCutsceneState baby = entity.Baby;
         global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.FinalCharge);
         global::SuperMetroid.Core.PrivateState.Set(baby, "Health", 79);
+        // The room shows the colours the Baby's arrival laid over it; the fatal blow and the recovery change only the
+        // background's.
+        ushort[] arrived = Shown();
         enemies.BeginEnemySoundRequestFrame();
         entity.Place.RunMainAi(samus);
         AssertEqual(0, enemies.Audio.SoundRequests.Count, "The live final charge does not emit a death cry early");
         ushort[] charged = Shown();
         for (int index = 0; index < 256; index++)
-            AssertEqual((ushort)(index + 1), charged[index], "Live final charge preserves room colors");
+            AssertEqual(arrived[index], charged[index], "Live final charge preserves room colors");
         baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
         entity.Place.RunMainAi(samus);
         AssertEqual(BabyMetroidCutscenePhase.TakeFinalBlow, baby.Phase, "Fatal hit enters native shake phase");
         ushort[] blackout = Shown();
         for (int index = 0; index < 256; index++)
-            AssertEqual((ushort)(IsBlackoutColor(index) ? 0 : index + 1), blackout[index],
+            AssertEqual(IsBlackoutColor(index) ? (ushort)0 : arrived[index], blackout[index],
                 $"Fatal blow blacks out only native background colors: {index}");
         AssertEqual(1, enemies.Audio.SoundRequests.Count, "Fatal transition emits exactly one death cry");
         var request = enemies.Audio.SoundRequests.Single();
@@ -64,7 +70,7 @@ internal static class BabyMetroidDeathCryVerification
                 int offset = index is >= 49 and <= 62 ? index - 49 : 14 + index - 81;
                 ushort expected = IsBlackoutColor(index)
                     ? bus.ReadCartridgeWord(0xadf3d3 - frame * 0x38 + offset * 2)
-                    : (ushort)(index + 1);
+                    : arrived[index];
                 AssertEqual(expected, cgram[index], $"Recovery row {frame} restores exact cartridge colors and preserves other palettes: {index}");
             }
         }

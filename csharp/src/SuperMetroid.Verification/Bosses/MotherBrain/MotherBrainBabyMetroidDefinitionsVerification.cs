@@ -53,6 +53,9 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
 
         // Mother Brain is placed as her room's population places her, her body and then her brain, which joins the encounter
         // her body begins; her late fight then brings in the Baby as her final beam charges.
+        // Her late fight reads the room's random numbers, which stand at zero here.
+        enemies.VerificationServices().ReadRandom = () => 0;
+        enemies.VerificationServices().NextRandom = () => 0;
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
         MotherBrainEnemyState state = enemies.Places.InUpdateOrder[0].PlaceAs<MotherBrainBodyEntity>(EnemyDefinitionId.MotherBrainBody, EnemySpawnSettings.None, samus).Encounter;
         enemies.Places.InUpdateOrder[1].PlaceAs<MotherBrainHeadEntity>(EnemyDefinitionId.MotherBrainHead, EnemySpawnSettings.None, samus);

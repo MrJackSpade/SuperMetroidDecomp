@@ -28,12 +28,38 @@ internal static class PlacedEnemyAccess
             return self.EntityOf<TEntity>();
         }
 
+        /// <summary>
+        /// Binds <paramref name="species"/> placed with <paramref name="settings"/> at <paramref name="at"/> in the place, as
+        /// its population entry places it there, and sets it up as the population load does with <paramref name="samus"/>.
+        /// </summary>
+        /// <typeparam name="TEntity">The entity the species builds for the enemy.</typeparam>
+        /// <exception cref="InvalidOperationException">The species built another entity.</exception>
+        internal TEntity PlaceAs<TEntity>(EnemyDefinitionId species, EnemySpawnSettings settings, SamusState samus, Position16<RoomPixels> at)
+            where TEntity : class, IEnemyEntity =>
+            self.PlaceAs<TEntity>(species, settings, samus, at, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
+
+        /// <summary>
+        /// Binds <paramref name="species"/> placed with <paramref name="settings"/> at <paramref name="at"/> in the place and
+        /// sets it up as the population load does in a room whose terrain is <paramref name="level"/>.
+        /// </summary>
+        /// <typeparam name="TEntity">The entity the species builds for the enemy.</typeparam>
+        /// <exception cref="InvalidOperationException">The species built another entity.</exception>
+        internal TEntity PlaceAs<TEntity>(EnemyDefinitionId species, EnemySpawnSettings settings, SamusState samus, Position16<RoomPixels> at, RoomLevelData level)
+            where TEntity : class, IEnemyEntity
+        {
+            self.BindEntry(RoomEnemyPlaceSpawnParameters.PlacementFor(species, settings) with { Placing = EnemyPlacing.At(at) }, self.KeptDefinition);
+            // The population load places the enemy where its entry places it before its setup runs.
+            self.Position = FixedPosition<RoomPixels>.FromWhole(at);
+            self.InitializeAsPlaced(samus, level);
+            return self.EntityOf<TEntity>();
+        }
+
         /// <summary>The entity the place's enemy is.</summary>
         /// <typeparam name="TEntity">The entity a check expects.</typeparam>
         /// <exception cref="InvalidOperationException">The place holds no such entity.</exception>
         internal TEntity EntityOf<TEntity>() where TEntity : class, IEnemyEntity =>
             self.Entity as TEntity
-                ?? throw new InvalidOperationException($"Enemy place {self.Ordinal} holds {self.Entity?.GetType().Name ?? "no entity"}, not {typeof(TEntity).Name}.");
+                ?? throw new InvalidOperationException($"Enemy place {self.Ordinal} holds {self.Occupant?.DefinitionId.ToString() ?? "no enemy"}, whose entity is not the one the check expects.");
 
         /// <summary>Runs the place's enemy's main AI as the enemy pass runs it, with <paramref name="samus"/> on enemy frame <paramref name="enemyFrame"/>.</summary>
         internal void RunMainAi(SamusState samus, int enemyFrame = 0) => EnemyLifecycle.RunMainAi(self, AiFrame(samus, enemyFrame));

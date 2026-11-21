@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class MotherBrainBrainAnimation
 {
     /// <summary>The brain's playing animation, where it stands and the picture it shows, or null while her brain is not live and not drawn.</summary>
-    internal MotherBrainBrainPlayback? Playback { get; private set; }
+    internal MotherBrainBrainPlayback? Playback { get; set; }
 
     /// <summary>The brain animation's clock: how long the picture shown holds before the animation steps on.</summary>
     private EnemyAnimationClock Clock { get; } = new();

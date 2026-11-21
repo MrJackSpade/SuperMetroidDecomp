@@ -465,7 +465,6 @@ global using static SuperMetroid.Core.Enemies.Flies.FlyAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Gunship.GunshipAnimationsPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Gunship.GunshipBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Hibashi.HibashiAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Hibashi.HibashiBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Hoppers.HopperAnimationsPrivateAccess;
@@ -745,7 +744,3 @@ global using static SuperMetroid.Diagnostics.SaveStates.DefinitionCatalogPrivate
 global using static SuperMetroid.Diagnostics.SaveStates.DefinitionObjectsPrivateAccess;
 global using static SuperMetroid.Diagnostics.Saves.SaveRamCodecPrivateAccess;
 global using static SuperMetroid.Diagnostics.Saves.SaveRamMapPackingPrivateAccess;
-global using static SuperMetroid.Core.World.RoomEnemySpeciesRoomLoadPreparationPrivateAccess;
-global using static SuperMetroid.Core.Bosses.Ridley.CeresEncounterPrivateAccess;
-global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRoomActorsPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Shaktool.ShaktoolEntityPrivateAccess;

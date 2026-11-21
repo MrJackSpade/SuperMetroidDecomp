@@ -74,7 +74,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
             new(ShaktoolAnimations.StartingWith(ShaktoolSegment.SawHandHeadBobFinalPiece), AnimationPlace.StartOfAnimation);
         trailingSaw.AnimationClock.StepOnNextUpdate();
         object?[] arguments = [trailingSaw, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
-        for (int update = 0; update < 21 && enemies.ShaktoolSegments[0]?.Motion != definitions[0].Motion; update++)
+        for (int update = 0; update < 21 && enemies.ShaktoolSegments[1]?.Motion != definitions[1].Motion; update++)
             EnemyInstructionRunner.Process(arguments);
         for (int index = 0; index < definitions.Length; index++)
         {

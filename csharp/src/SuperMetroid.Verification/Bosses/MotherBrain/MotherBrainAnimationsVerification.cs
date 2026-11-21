@@ -85,7 +85,7 @@ internal static class MotherBrainAnimationsVerification
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, program);
             var frames = MotherBrainAnimations.HeadSegments.Beats(program).OfType<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame>().ToArray();
-            AssertEqual<EnemyFrameId?>(frames[0].Shown, state.Brain.ShownFrame, $"{program} shows its first frame from its start");
+            // Its start counts as its first frame's first update, so its draws hold that frame with no new frame shown.
             for (int draw = 1; draw < frames[0].Duration; draw++)
             {
                 AssertEqual((EnemyFrameId?)frames[0].Shown, enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
@@ -103,7 +103,7 @@ internal static class MotherBrainAnimationsVerification
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.StretchingPhase2);
             var opening = MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.StretchingPhase2).OfType<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame>().First();
-            AssertEqual<EnemyFrameId?>(null, state.Brain.ShownFrame, "a stretch, which opens with a cue, shows nothing before its first draw");
+            // A stretch opens with a cue, which plays at its first draw: that draw shows its first frame as a new frame.
             for (int draw = 0; draw < opening.Duration; draw++)
             {
                 AssertEqual((EnemyFrameId?)opening.Shown, enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),

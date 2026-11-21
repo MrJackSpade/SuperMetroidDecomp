@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies.Gunship;
@@ -10,14 +11,17 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// </summary>
 internal static class GunshipShipFixtures
 {
+    /// <summary>Where the fixture's ship is placed: inside the room, clear of its top, as the Landing Site places its ship.</summary>
+    private static readonly Position16<RoomPixels> ShipPlace = new(0x0480, 0x0480);
+
     /// <summary>Places the gunship in <paramref name="enemies"/>' first three places beside <paramref name="samus"/>.</summary>
     /// <returns>The top hull, which moves the ship.</returns>
     internal static GunshipTopEntity PlaceShip(RoomEnemySystem enemies, SamusState samus)
     {
         IReadOnlyList<RoomEnemyPlace> places = Ensure.NotNull(enemies).Places.InUpdateOrder;
-        GunshipTopEntity top = places[0].PlaceAs<GunshipTopEntity>(EnemyDefinitionId.ShipTop, EnemySpawnSettings.None, samus);
-        places[1].PlaceAs<GunshipBottomEntity>(EnemyDefinitionId.ShipBottomEntrance, new GunshipSpawnSettings(GunshipBottomPiece.Hull), samus);
-        places[2].PlaceAs<GunshipBottomEntity>(EnemyDefinitionId.ShipBottomEntrance, new GunshipSpawnSettings(GunshipBottomPiece.EntrancePad), samus);
+        GunshipTopEntity top = places[0].PlaceAs<GunshipTopEntity>(EnemyDefinitionId.ShipTop, EnemySpawnSettings.None, samus, ShipPlace);
+        places[1].PlaceAs<GunshipBottomEntity>(EnemyDefinitionId.ShipBottomEntrance, new GunshipSpawnSettings(GunshipBottomPiece.Hull), samus, ShipPlace);
+        places[2].PlaceAs<GunshipBottomEntity>(EnemyDefinitionId.ShipBottomEntrance, new GunshipSpawnSettings(GunshipBottomPiece.EntrancePad), samus, ShipPlace);
         return top;
     }
 }

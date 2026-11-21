@@ -139,6 +139,7 @@ internal static class ZebetiteDefinitionsVerification
             SuperMetroid.Core.Samus.SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
             RoomEnemyPlace primary = enemies.Places.InUpdateOrder[0];
             primary.PlaceAs<ZebetiteEntity>(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Primary), samus);
+            primary.Health = ZebetiteDefinitions.MaximumHealth;
             primary.RunMainAi(samus);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[1];
             AssertEqual(Zebetites.SpawnPopulation(ZebetiteHalf.Linked, destroyed: split), place.HeldOccupant().Spawn, "production Zebetite linked population");

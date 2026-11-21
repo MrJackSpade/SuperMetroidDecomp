@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies;
@@ -15,11 +16,17 @@ internal static class RoomEnemyPlaceInitializationAccess
         /// population load does (#2554): its species builds its entity, which runs its setup with <paramref name="samus"/> as
         /// the load hands her.
         /// </summary>
-        internal void InitializeAsPlaced(SamusState samus)
+        internal void InitializeAsPlaced(SamusState samus) => self.InitializeAsPlaced(samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
+
+        /// <summary>
+        /// Sets the slot's enemy up as the population load does with <paramref name="samus"/> in a room whose
+        /// terrain is <paramref name="level"/>, for an enemy whose setup reads the room's terrain.
+        /// </summary>
+        internal void InitializeAsPlaced(SamusState samus, RoomLevelData level)
         {
             PopulationEnemySpawn spawn = EnemyPlaceRegistries.Of(self).Bind(self.HeldOccupant().Spawn);
             RoomEnemyOccupant occupant = self.Bind(spawn, self.KeptDefinition);
-            var surroundings = new EnemyPopulationSurroundings(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), samus, GameplayAction.None, default);
+            var surroundings = new EnemyPopulationSurroundings(level, samus, GameplayAction.None, default);
             EnemyOccupant built = self.Build(occupant, spawn.Loaded(surroundings));
             built.Initialization?.Initialize();
             built.SurroundingsInitialization?.Initialize(surroundings);

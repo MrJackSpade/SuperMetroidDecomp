@@ -58,9 +58,12 @@
 //
 // The owner's rule (2026-11-15, #2599): a fix is always applied, and when it cannot be applied without breaking the
 // code, it breaks the code; the build then fails at that site and the cleanup commits it as it is. Nothing is left
-// unfixed: no site is skipped or recorded as unfixed, and no fixer's failure is caught. A fixer that offers no fix,
-// has no fix-all, produces no usable change or throws is a defect of that fixer, and fails the run with its full
-// exception (written to standard error, nonzero exit); so does a fix the runner cannot apply.
+// unfixed: no site is skipped or recorded as unfixed, and no fixer's failure is caught. Where a fixer offers no fix for
+// a finding, or its fix-all produces none or changes nothing, the runner applies its own (RunnerFixes, #2611): a foreach
+// variable nothing reads (IDE0059) becomes the discard name or its empty loop goes, unused usings are removed, and any
+// other finding gets an #error line that breaks the build at its site. A fixer that has no fix-all, produces an
+// unusable change or throws is a defect of that fixer, and fails the run with its full exception (written to standard
+// error, nonzero exit); so does a fix the runner cannot apply.
 //
 // Usage: dotnet run tools/cleanup/CodeFixRunner.cs -- <solution.slnx | project.csproj> <summary.json> <rule,rule,...> [--dry-run]
 // --dry-run prints every finding with all its locations and writes nothing.
@@ -325,9 +328,9 @@ internal sealed record CleanupStep(int? Number, string Kind, double Seconds, int
 /// </summary>
 /// <remarks>The owner's rulings (2026-11-15, #2599): a fix is always applied, breaking the code if it must, and the
 /// cleanup commits what it has. A failed prune, review prune or inventory step, steps that do not settle and steps that
-/// undo each other are each recorded as a problem and the run goes on. A fixer that offers no fix or throws is a defect
-/// of that fixer, never a site left unfixed, and fails the run, as a failure to load the solution or the analyzers, or
-/// an unusable command line, does.</remarks>
+/// undo each other are each recorded as a problem and the run goes on. A finding its fixer offers no fix for gets the
+/// runner's own (<see cref="RunnerFixes"/>, #2611). A fixer that throws is a defect of that fixer, never a site left
+/// unfixed, and fails the run, as a failure to load the solution or the analyzers, or an unusable command line, does.</remarks>
 internal sealed class CleanupLoop(string solutionPath, string artifacts, string[] rules, string pruneCategories, string prunePrefix,
     string pruneDestination, int maxRounds)
 {
@@ -919,11 +922,11 @@ internal sealed class SolutionFixer
     private const string UnnecessarySuppression = "IDE0079";
 
     /// <summary>The unused-using rule, which reports one finding per file covering every unnecessary using.</summary>
-    private const string UnusedUsing = "IDE0005";
+    internal const string UnusedUsing = "IDE0005";
 
     /// <summary>The hidden finding the unused-using analyzer reports beside IDE0005 for its fixer, which fixes that id
     /// rather than IDE0005 itself.</summary>
-    private const string UnusedUsingFixable = "RemoveUnnecessaryImportsFixable";
+    internal const string UnusedUsingFixable = "RemoveUnnecessaryImportsFixable";
 
     private readonly HashSet<string> _rules;
     private readonly bool _dryRun;
@@ -1358,10 +1361,13 @@ internal sealed class SolutionFixer
         string path = document.FilePath!;
         if (cleanupRule.Id != UnusedUsing)
             return await ApplyFixAllAsync(document, cleanupRule, cleanupRule.Id, diagnostics);
-        return chosen.FixerOnly.GetValueOrDefault(path) is { } fixable
-            ? await ApplyFixAllAsync(document, cleanupRule, UnusedUsingFixable, fixable)
-            : throw new InvalidOperationException($"{Relative(path)} reports {UnusedUsing} without {UnusedUsingFixable} in {chosen.Project.Name}, " +
-                "so the code-style fixer has nothing to fix it from.");
+        if (chosen.FixerOnly.GetValueOrDefault(path) is { } fixable)
+            return await ApplyFixAllAsync(document, cleanupRule, UnusedUsingFixable, fixable);
+        // The code-style fixer fixes only the hidden finding it is reported with; without one it has nothing to fix from,
+        // so the runner removes the usings the findings cover itself (#2611).
+        Console.WriteLine($"  {Relative(path)} reports {UnusedUsing} without {UnusedUsingFixable} in {chosen.Project.Name}; " +
+            "the runner removes the usings its findings cover");
+        return WithText(document.Project.Solution, path, RemoveLines(await document.GetTextAsync(), UsingLines(diagnostics), path));
     }
 
     /// <summary>Applies one rule's fixes to one file, or returns null when it has nothing to fix in this pass: no
@@ -1538,8 +1544,10 @@ internal sealed class SolutionFixer
     /// <summary>Runs the rule's fixer, for the diagnostic id it fixes, over exactly the given findings of one document
     /// and returns the solution it produces, which may change other documents too.</summary>
     /// <remarks>The owner's rule (#2599): a fix is always applied, breaking the code if it must, and nothing is left
-    /// unfixed. A fixer that offers no fix, has no fix-all, produces no usable change or throws is a defect of that
-    /// fixer: nothing here is caught, and the run fails with the full exception.</remarks>
+    /// unfixed. Where the fixer offers no fix for a finding, or its fix-all produces none or changes nothing, the runner
+    /// applies its own (<see cref="RunnerFixes"/>, #2611): the run never stops on a finding and never skips one. A fixer
+    /// that has no fix-all, produces an unusable change or throws is a defect of that fixer: nothing here is caught, and
+    /// the run fails with the full exception.</remarks>
     private async Task<Solution> ApplyFixAllAsync(Document document, CleanupRule cleanupRule, string rule, List<Diagnostic> diagnostics)
     {
         var providers = FixersFor(document.Project, cleanupRule.Fixer, rule);
@@ -1547,21 +1555,49 @@ internal sealed class SolutionFixer
             throw new InvalidOperationException(
                 $"{rule} has {providers.Count} {cleanupRule.Fixer} code fix providers in {document.Project.Name}; expected exactly one.");
         CodeFixProvider provider = providers[0];
-        var actions = new List<CodeAction>();
-        await provider.RegisterCodeFixesAsync(new CodeFixContext(document, diagnostics[0], (action, _) => actions.Add(action), CancellationToken.None));
-        if (actions.Count == 0)
-            throw Defect($"{provider.GetType().Name} offers no fix for {rule} at {Describe(diagnostics[0])}.");
+        string fixer = provider.GetType().Name;
+        // Each finding is offered to the fixer; those it offers no fix for get the runner's own fix in this pass, and the
+        // others the fixer's in a later one, since the runner's fix changes the file.
+        var offered = new List<Diagnostic>();
+        var refused = new List<Diagnostic>();
+        string? equivalenceKey = null;
+        foreach (Diagnostic diagnostic in diagnostics)
+        {
+            var actions = new List<CodeAction>();
+            await provider.RegisterCodeFixesAsync(new CodeFixContext(document, diagnostic, (action, _) => actions.Add(action), CancellationToken.None));
+            if (actions.Count == 0)
+            {
+                refused.Add(diagnostic);
+                continue;
+            }
+            offered.Add(diagnostic);
+            equivalenceKey ??= actions[0].EquivalenceKey;
+        }
+        if (refused.Count > 0)
+            return await RunnerFixAsync(document, rule, refused, $"{fixer} offers no fix");
         if (provider.GetFixAllProvider() is not { } fixAll)
-            throw Defect($"{provider.GetType().Name} has no fix-all provider.");
-        var context = new FixAllContext(document, provider, FixAllScope.Document, actions[0].EquivalenceKey, [rule],
-            new FixedDiagnostics(document, diagnostics), CancellationToken.None);
+            throw Defect($"{fixer} has no fix-all provider.");
+        var context = new FixAllContext(document, provider, FixAllScope.Document, equivalenceKey, [rule],
+            new FixedDiagnostics(document, offered), CancellationToken.None);
         if (await fixAll.GetFixAsync(context) is not { } fix)
-            throw Defect($"{provider.GetType().Name} produced no fix-all action for {rule} in {Relative(document.FilePath!)}.");
+            return await RunnerFixAsync(document, rule, offered, $"{fixer}'s fix-all produces no fix");
         var operations = await fix.GetOperationsAsync(CancellationToken.None);
         var applies = operations.OfType<ApplyChangesOperation>().ToList();
-        return applies.Count == 1
-            ? applies[0].ChangedSolution
-            : throw Defect($"{provider.GetType().Name} produced {applies.Count} solution changes for {rule} in {Relative(document.FilePath!)}; expected one.");
+        if (applies.Count != 1)
+            throw Defect($"{fixer} produced {applies.Count} solution changes for {rule} in {Relative(document.FilePath!)}; expected one.");
+        Solution changed = applies[0].ChangedSolution;
+        bool changesDocuments = changed.GetChanges(document.Project.Solution).GetProjectChanges().Any(project =>
+            project.GetChangedDocuments(onlyGetDocumentsWithTextChanges: true).Any() || project.GetAddedDocuments().Any() ||
+            project.GetRemovedDocuments().Any());
+        return changesDocuments ? changed : await RunnerFixAsync(document, rule, offered, $"{fixer}'s fix changes nothing");
+    }
+
+    /// <summary>The runner's own fix of findings whose fixer fixes none of them, logged with why it was needed.</summary>
+    private async Task<Solution> RunnerFixAsync(Document document, string rule, List<Diagnostic> diagnostics, string why)
+    {
+        foreach (Diagnostic diagnostic in diagnostics)
+            Console.WriteLine($"  {why} for {rule} at {Describe(diagnostic)}; the runner applies its own");
+        return await RunnerFixes.FixAsync(document, rule, diagnostics);
     }
 
     /// <summary>The code fix providers for a rule, from the fixer assemblies of the given source the project's fixes
@@ -1707,7 +1743,7 @@ internal sealed class SolutionFixer
     }
 
     /// <summary>The solution with a file's text replaced in every project that compiles it.</summary>
-    private static Solution WithText(Solution solution, string path, SourceText text)
+    internal static Solution WithText(Solution solution, string path, SourceText text)
     {
         foreach (DocumentId id in solution.GetDocumentIdsWithFilePath(path))
             solution = solution.WithDocumentText(id, text);
@@ -1715,7 +1751,7 @@ internal sealed class SolutionFixer
     }
 
     /// <summary>The 1-based lines of the using directives an unused-using finding covers.</summary>
-    private static HashSet<int> UsingLines(IEnumerable<Diagnostic> diagnostics)
+    internal static HashSet<int> UsingLines(IEnumerable<Diagnostic> diagnostics)
     {
         var lines = new HashSet<int>();
         foreach (Diagnostic diagnostic in diagnostics)
@@ -1732,7 +1768,7 @@ internal sealed class SolutionFixer
     }
 
     /// <summary>The text with the given 1-based lines removed; each must hold exactly one using directive.</summary>
-    private static SourceText RemoveLines(SourceText text, HashSet<int> lines, string path)
+    internal static SourceText RemoveLines(SourceText text, HashSet<int> lines, string path)
     {
         var changes = new List<TextChange>();
         foreach (int line in lines.Order())
@@ -2276,4 +2312,124 @@ internal sealed class FixedDiagnostics(Document document, List<Diagnostic> diagn
     /// <summary>The chosen findings when asked for the chosen document's project.</summary>
     public override Task<IEnumerable<Diagnostic>> GetAllDiagnosticsAsync(Project project, CancellationToken cancellationToken) =>
         Task.FromResult<IEnumerable<Diagnostic>>(project.Id == document.Project.Id ? diagnostics : []);
+}
+
+/// <summary>
+/// The runner's own fixes, for findings whose fixer offers none, or whose fix-all produces none or changes nothing
+/// (#2611). The owner's rule for the cleanup: "when a fix cant be applied without breaking the code, the job should BREAK
+/// THE FUCKING CODE". Nothing is skipped and nothing is recorded as unfixed: a shape the runner knows gets its fix, and
+/// every other finding gets an <c>#error</c> line above it naming the rule and the finding, so the build fails at that
+/// site, the cleanup commits it as "Cleanup (does not build)" and the developer makes the choice no fixer could. The next
+/// pass would add the same line again, which the runner sees as a fix that stands as applied (<c>RepeatsAsync</c>).
+/// </summary>
+internal static class RunnerFixes
+{
+    /// <summary>The unused-value rule, whose code-style fixer offers no fix for a foreach iteration variable.</summary>
+    private const string UnusedValue = "IDE0059";
+
+    /// <summary>The solution with the runner's fix of the given findings of one rule in one document.</summary>
+    public static async Task<Solution> FixAsync(Document document, string rule, List<Diagnostic> diagnostics)
+    {
+        string path = document.FilePath!;
+        SourceText text = await document.GetTextAsync();
+        // An unused using's fix removes the usings the finding covers, as the code-style fixer's does.
+        if (rule is SolutionFixer.UnusedUsing or SolutionFixer.UnusedUsingFixable)
+            return SolutionFixer.WithText(document.Project.Solution, path,
+                SolutionFixer.RemoveLines(text, SolutionFixer.UsingLines(diagnostics), path));
+        SyntaxNode root = (await document.GetSyntaxRootAsync())!;
+        SemanticModel model = (await document.GetSemanticModelAsync())!;
+        var changes = new List<TextChange>();
+        var erroredLines = new HashSet<int>();
+        foreach (Diagnostic diagnostic in diagnostics)
+        {
+            if (rule == UnusedValue && UnreadIterationVariable(root, diagnostic) is { } loop)
+            {
+                changes.Add(IterationVariableFix(loop, model, text));
+                continue;
+            }
+            TextLine line = text.Lines.GetLineFromPosition(diagnostic.Location.SourceSpan.Start);
+            if (erroredLines.Add(line.LineNumber))
+                changes.Add(ErrorLine(text, line, rule, diagnostic));
+        }
+        changes.Sort((left, right) => left.Span.Start != right.Span.Start
+            ? left.Span.Start.CompareTo(right.Span.Start)
+            : left.Span.Length.CompareTo(right.Span.Length));
+        for (int index = 1; index < changes.Count; index++)
+        {
+            if (changes[index].Span.Start < changes[index - 1].Span.End)
+                throw new InvalidOperationException($"The runner's {rule} fixes for {path} overlap at {changes[index].Span}.");
+        }
+        return SolutionFixer.WithText(document.Project.Solution, path, text.WithChanges(changes));
+    }
+
+    /// <summary>The foreach loop whose iteration variable a finding reports, or null for any other finding.</summary>
+    private static ForEachStatementSyntax? UnreadIterationVariable(SyntaxNode root, Diagnostic diagnostic)
+    {
+        SyntaxToken token = root.FindToken(diagnostic.Location.SourceSpan.Start);
+        return token.Parent is ForEachStatementSyntax loop && loop.Identifier == token ? loop : null;
+    }
+
+    /// <summary>
+    /// The fix of a foreach loop whose iteration variable nothing reads. A foreach variable cannot be written, so nothing
+    /// in the body uses its value. A loop with a body to run keeps it, running once per element as before, and its
+    /// variable becomes the discard name <c>_</c>, which the unused-value rule never reports; a <c>nameof</c> still naming
+    /// the old name fails the build there. A loop with nothing to run (an empty block or an empty statement) is removed:
+    /// its collection's evaluation stays as <c>_ = collection;</c> unless reading it has no effect (a local, parameter,
+    /// field or constant), and a loop that was another statement's body leaves an empty block.
+    /// </summary>
+    private static TextChange IterationVariableFix(ForEachStatementSyntax loop, SemanticModel model, SourceText text)
+    {
+        if (loop.Statement is not (EmptyStatementSyntax or BlockSyntax { Statements.Count: 0 }))
+            return new TextChange(loop.Identifier.Span, "_");
+        string kept = ReadsWithoutEffect(loop.Expression, model) ? "" : $"_ = {loop.Expression.WithoutTrivia()};";
+        if (loop.Parent is not (BlockSyntax or SwitchSectionSyntax or GlobalStatementSyntax))
+            return new TextChange(loop.Span, kept.Length == 0 ? "{ }" : kept);
+        return kept.Length > 0 ? new TextChange(loop.Span, kept) : new TextChange(WholeLines(loop, text), "");
+    }
+
+    /// <summary>Whether evaluating an expression only reads a local, a parameter, a field or a constant.</summary>
+    private static bool ReadsWithoutEffect(ExpressionSyntax expression, SemanticModel model)
+    {
+        while (expression is ParenthesizedExpressionSyntax parenthesized)
+            expression = parenthesized.Expression;
+        if (expression is not (IdentifierNameSyntax or MemberAccessExpressionSyntax { Expression: ThisExpressionSyntax or IdentifierNameSyntax }))
+            return false;
+        if (expression is MemberAccessExpressionSyntax { Expression: IdentifierNameSyntax receiver }
+            && model.GetSymbolInfo(receiver).Symbol is not (INamedTypeSymbol or INamespaceSymbol))
+            return false;
+        return model.GetSymbolInfo(expression).Symbol is ILocalSymbol or IParameterSymbol or IFieldSymbol;
+    }
+
+    /// <summary>The span of a statement with its whole lines, when nothing else shares them; otherwise its own span.</summary>
+    private static TextSpan WholeLines(SyntaxNode statement, SourceText text)
+    {
+        TextLine first = text.Lines.GetLineFromPosition(statement.SpanStart);
+        TextLine last = text.Lines.GetLineFromPosition(statement.Span.End);
+        bool alone = string.IsNullOrWhiteSpace(text.ToString(TextSpan.FromBounds(first.Start, statement.SpanStart)))
+            && string.IsNullOrWhiteSpace(text.ToString(TextSpan.FromBounds(statement.Span.End, last.End)));
+        return alone ? TextSpan.FromBounds(first.Start, last.EndIncludingLineBreak) : statement.Span;
+    }
+
+    /// <summary>An <c>#error</c> line above a finding's line, with its indentation, naming the rule and the finding.</summary>
+    private static TextChange ErrorLine(SourceText text, TextLine line, string rule, Diagnostic diagnostic)
+    {
+        string content = line.ToString();
+        string indent = content[..(content.Length - content.TrimStart().Length)];
+        string message = string.Join(' ', diagnostic.GetMessage(System.Globalization.CultureInfo.InvariantCulture)
+            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+        return new TextChange(new TextSpan(line.Start, 0),
+            $"{indent}#error {rule}: {message} No fixer offers a fix here; the cleanup applies this break (#2611).{LineBreak(text, line)}");
+    }
+
+    /// <summary>The line break a line ends with, or else the text's first line break, or else CRLF.</summary>
+    private static string LineBreak(SourceText text, TextLine line)
+    {
+        foreach (TextLine candidate in new[] { line }.Concat(text.Lines))
+        {
+            string lineBreak = text.ToString(TextSpan.FromBounds(candidate.End, candidate.EndIncludingLineBreak));
+            if (lineBreak.Length > 0)
+                return lineBreak;
+        }
+        return "\r\n";
+    }
 }

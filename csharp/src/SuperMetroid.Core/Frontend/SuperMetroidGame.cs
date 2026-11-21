@@ -42,32 +42,17 @@ public sealed class SuperMetroidGame
 
     /// <summary>
     /// Creates a reset-state session, reading the selected save slot and fixing the power-on save check's outcome
-    /// (<see cref="Compatibility.PowerOnEarthquakeSoundDelay"/>) before any update runs.
-    /// </summary>
-    /// <param name="saves">The saves the session owns; the host loads them and persists them on <see cref="SavesChanged"/>.</param>
-    /// <param name="audioOutput">What the session's audio produces for its host.</param>
-    /// <param name="artwork">The installed catalogs the game draws from.</param>
-    /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
-    public SuperMetroidGame(
-        SaveSlotStore saves,
-        GameAudioOutput audioOutput,
-        GameArtwork artwork,
-        GameplayAssists? assists = null)
-        : this(saves, assists, SuperMetroidGameHostServices.Default, new SharedRandom(), audioOutput, artwork)
-    {
-    }
-
-    /// <summary>
-    /// Creates the game-state loop with host-supplied timing and display policies: a host may supply its own timing
-    /// or keep the display it shows while it reads the game's state.
+    /// (<see cref="Compatibility.PowerOnEarthquakeSoundDelay"/>) before any update runs. Every host composes its game
+    /// through <see cref="GameSessionComposer.Create"/>, which passes the game's own timing and a session random of its own.
     /// </summary>
     /// <remarks>
     /// Frontend screens are always rendered because their state machines own their own compositors; only
     /// gameplay updates publish through <see cref="SuperMetroidGameHostServices.GameplayFrames"/>.
     /// </remarks>
-    /// <param name="saves">The saves the session owns.</param>
+    /// <param name="saves">The saves the session owns; the host loads them and persists them on <see cref="SavesChanged"/>.</param>
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
-    /// <param name="hostServices">The compatibility services and display policy.</param>
+    /// <param name="hostServices">The compatibility services and display policy: <see cref="SuperMetroidGameHostServices.Default"/>
+    /// for a host on the game's own timing, or the hardware timing a recording was made under.</param>
     /// <param name="random">The session's random number generator, which the frontend and every gameplay runtime share.</param>
     /// <param name="audioOutput">What the session's audio produces for its host.</param>
     /// <param name="artwork">The installed catalogs the game draws from.</param>

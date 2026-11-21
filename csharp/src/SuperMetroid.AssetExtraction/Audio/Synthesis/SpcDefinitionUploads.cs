@@ -123,7 +123,8 @@ internal sealed class SpcDefinitionUploads
             int slot = MusicTrackNumbers.Number(dataSet, definition.Song);
             int pointerAddress = SpcDriverDefinitions.Ram.DefaultMusicPointer + slot * 2;
             int uploadedPointer = _voices.ReadWord(pointerAddress);
-            if (uploadedPointer != definition.Address || bank.TrackPointers[slot] != definition.Address)
+            // The catalog checked, when it loaded, that the bank's own track table routes each track to its address.
+            if (uploadedPointer != definition.Address)
             {
                 throw new InvalidDataException(
                     $"Music track '{definition.Song}' routes to uploaded ${uploadedPointer:X4}, " +

@@ -29,10 +29,11 @@ internal static class OptionsGeometryLookupsVerification
     private static void VerifyOptionsCursorRows(ISnesAddressSpace rom, int address, int count, GameOptionsPage page, string name)
     {
         var document = RequiredJson.Deserialize<GameOptionsPresentationDocument>(GameOptionsPresentationExtractor.Extract(rom), ArtworkJson.Options);
-        Offset16<ScreenPixels>[] anchors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
-        AssertEqual(count, anchors.Length, $"{name} row count");
+        Dictionary<string, Offset16<ScreenPixels>> anchors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
+        IReadOnlyList<GameOptionsCursorRow> rows = GameOptionsLayoutFile.CursorRowsOn(page);
+        AssertEqual(count, anchors.Count, $"{name} row count");
         for (int index = 0; index < count; index++)
-            AssertEqual(ReadVerificationWord(rom, address + 4 * index), anchors[index].Y, $"{name} native word {index}");
+            AssertEqual(ReadVerificationWord(rom, address + 4 * index), anchors[rows[index].Name].Y, $"{name} native word {index}");
     }
 
     /// <summary>Checks the seven controller-label boxes against the native byte offsets their labels are drawn at.</summary>

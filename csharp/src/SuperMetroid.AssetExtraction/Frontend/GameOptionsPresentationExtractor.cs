@@ -75,18 +75,12 @@ public static class GameOptionsPresentationExtractor
         // The headings' and cursor's anchors are read from the cartridge's page setups and cursor tables; the game keeps no
         // copy of them (#1615).
         int headingRow = Word(GameOptionsSourceDefinitions.HeadingRowOperand);
-        var rows = new Dictionary<GameOptionsPage, int>
-        {
-            [GameOptionsPage.Primary] = GameOptionsPageRows.Primary.Count,
-            [GameOptionsPage.Controller] = GameOptionsPageRows.Controller.Count,
-            [GameOptionsPage.Special] = GameOptionsPageRows.Special.Count,
-        };
         var headings = new Dictionary<string, Offset16<ScreenPixels>>(StringComparer.Ordinal);
-        var cursors = new Dictionary<string, Offset16<ScreenPixels>[]>(StringComparer.Ordinal);
+        var cursors = new Dictionary<string, Dictionary<string, Offset16<ScreenPixels>>>(StringComparer.Ordinal);
         foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
         {
             headings.Add(GameOptionsPresentationFormat.MenuName(page), Heading(page));
-            cursors.Add(GameOptionsPresentationFormat.MenuName(page), Cursor(page, rows[page]));
+            cursors.Add(GameOptionsPresentationFormat.MenuName(page), Cursor(page));
         }
 
         using var output = new MemoryStream();
@@ -126,12 +120,17 @@ public static class GameOptionsPresentationExtractor
         Offset16<ScreenPixels> Heading(GameOptionsPage page) =>
             Offset16<ScreenPixels>.Of(Word(GameOptionsSourceDefinitions.HeadingColumnOperands[page]), headingRow);
 
-        Offset16<ScreenPixels>[] Cursor(GameOptionsPage page, int rows)
+        // The cartridge's cursor table holds one entry per row, from the top.
+        Dictionary<string, Offset16<ScreenPixels>> Cursor(GameOptionsPage page)
         {
-            var result = new Offset16<ScreenPixels>[rows];
-            for (int row = 0; row < rows; row++)
-                result[row] = Offset16<ScreenPixels>.Of(GameOptionsSourceDefinitions.CursorColumns[page],
-                    Word(GameOptionsSourceDefinitions.CursorRowTables[page] + GameOptionsSourceDefinitions.CursorRowStride * row));
+            var result = new Dictionary<string, Offset16<ScreenPixels>>(StringComparer.Ordinal);
+            int entry = 0;
+            foreach (GameOptionsCursorRow row in GameOptionsLayoutFile.CursorRowsOn(page))
+            {
+                result.Add(row.Name, Offset16<ScreenPixels>.Of(GameOptionsSourceDefinitions.CursorColumns[page],
+                    Word(GameOptionsSourceDefinitions.CursorRowTables[page] + GameOptionsSourceDefinitions.CursorRowStride * entry)));
+                entry++;
+            }
             return result;
         }
     }

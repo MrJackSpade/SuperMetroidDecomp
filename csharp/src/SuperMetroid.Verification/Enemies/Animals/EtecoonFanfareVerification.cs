@@ -63,14 +63,14 @@ internal static class EtecoonFanfareVerification
         AssertTrue(queue.HasQueuedSounds, "post-fade fanfare reaches CPU queue");
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus });
         AssertEqual(0, enemies.Audio.SoundRequests.Count, "next frame does not repeat fanfare");
-        var channels = renderer.PlayerForVerification.soundChannels;
+        var channels = renderer.PlayerForVerification.soundLibraries[SuperMetroid.Core.Audio.SoundEffectLibrary.Enemies].Channels;
         var notes = new HashSet<int>();
         int peak = 0;
         for (int frame = 0; frame < 240; frame++)
         {
             var pcm = renderer.RenderFrame(queue.AdvanceFrame(renderer.Acknowledgements));
             foreach (short sample in pcm) peak = Math.Max(peak, Math.Abs((int)sample));
-            if (channels[1][0].Disabled == 0) notes.Add(channels[1][0].Note);
+            if (channels[0].Disabled == 0) notes.Add(channels[0].Note);
         }
         AssertTrue(peak > 0 && notes.Count >= 4, "post-fade fanfare produces PCM and advances melody notes");
         Console.WriteLine($"Etecoon door fanfare: dormant gate, one Max15 request and audible melody verified (peak {peak}, notes {notes.Count}).");

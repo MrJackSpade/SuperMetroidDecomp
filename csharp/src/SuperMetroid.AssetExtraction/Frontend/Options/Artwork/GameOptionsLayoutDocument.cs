@@ -34,9 +34,9 @@ public record GameOptionsLayoutDocument
     /// <summary>Heading origins for primary, controller, and special menus in screen pixels, X=0-255 and Y=0-255; drawing subtracts vertical scroll from Y.</summary>
     [JsonPropertyOrder(8)]
     public required Dictionary<string, Offset16<ScreenPixels>> HeadingAnchors { get; init; }
-    /// <summary>Cursor origins in selection-row order for each menu: five primary, nine controller, and three special points, in screen pixels X=0-255 and Y=0-255.</summary>
+    /// <summary>Each menu's cursor origins keyed by the row's name: five primary, nine controller, and three special points, in screen pixels X=0-255 and Y=0-255.</summary>
     [JsonPropertyOrder(9)]
-    public required Dictionary<string, Offset16<ScreenPixels>[]> CursorAnchors { get; init; }
+    public required Dictionary<string, Dictionary<string, Offset16<ScreenPixels>>> CursorAnchors { get; init; }
     /// <summary>BG palette index 0-7 for chosen language and toggle regions; must differ from the unselected index.</summary>
     [JsonPropertyOrder(11)]
     public required int SelectedPalette { get; init; }

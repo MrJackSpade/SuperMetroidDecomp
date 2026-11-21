@@ -623,11 +623,11 @@ internal static class LookupStream3Verification
             }
             foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
-                Offset16<ScreenPixels>[] cursors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
-                IReadOnlyList<GameOptionsRow> rows = GameOptionsRowConstants.OnPage(page);
-                AssertEqual(cursors.Length, rows.Count, "options stock cursor rows");
-                for (int place = 0; place < rows.Count; place++)
-                    AssertEqual(cursors[place], presentation.Presentation.CursorPosition(rows[place]), "options stock cursor");
+                Dictionary<string, Offset16<ScreenPixels>> cursors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
+                IReadOnlyList<GameOptionsCursorRow> rows = GameOptionsLayoutFile.CursorRowsOn(page);
+                AssertEqual(cursors.Count, rows.Count, "options stock cursor rows");
+                foreach (GameOptionsCursorRow row in rows)
+                    AssertEqual(cursors[row.Name], presentation.Presentation.CursorPosition(row.Row), "options stock cursor");
             }
             foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {

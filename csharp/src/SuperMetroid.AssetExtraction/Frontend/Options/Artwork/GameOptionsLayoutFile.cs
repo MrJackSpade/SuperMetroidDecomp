@@ -13,8 +13,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 /// </summary>
 public static class GameOptionsLayoutFile
 {
-    /// <summary>Supported layout revision: 2 holds no hidden cursor anchor, since transitions show no cursor (#1775).</summary>
-    public const int Version = 2;
+    /// <summary>
+    /// Supported layout revision: 2 holds no hidden cursor anchor, since transitions show no cursor (#1775); 3 keys each
+    /// cursor anchor by its row's name (#2565).
+    /// </summary>
+    public const int Version = 3;
 
     /// <summary>The layout of the extracted artwork document <paramref name="artwork"/>, as the installation holds it.</summary>
     /// <exception cref="InvalidDataException">The artwork document does not decode.</exception>
@@ -43,12 +46,10 @@ public static class GameOptionsLayoutFile
     }
 
     /// <summary>The presentation the anchors and duration name, once each is checked.</summary>
-    /// <remarks>
-    /// The layout lists each page's cursor anchors in its rows' order from the top, which keys them by row (#2415).
-    /// </remarks>
+    /// <remarks>The layout keys each page's cursor anchors by the row's name (#2565).</remarks>
     /// <exception cref="InvalidDataException">A menu's anchors are missing or off screen, or the duration is below one update.</exception>
     internal static GameOptionsPresentation Presentation(Dictionary<string, Offset16<ScreenPixels>>? headingAnchors,
-        Dictionary<string, Offset16<ScreenPixels>[]>? cursorAnchors, int cursorFrameDuration)
+        Dictionary<string, Dictionary<string, Offset16<ScreenPixels>>>? cursorAnchors, int cursorFrameDuration)
     {
         string[] menuNames = [.. GameOptionsPresentationFormat.MenuPages.Select(GameOptionsPresentationFormat.MenuName)];
         RequireExactKeys(headingAnchors, menuNames, "options heading anchors");
@@ -59,11 +60,9 @@ public static class GameOptionsLayoutFile
         {
             string name = GameOptionsPresentationFormat.MenuName(page);
             ValidatePoint(headingAnchors[name], $"{name} heading", byte.MaxValue);
-            int expected = RowsOn(page).Count;
-            Offset16<ScreenPixels>[]? points = cursorAnchors[name];
-            if (points is null || points.Length != expected)
-                throw new InvalidDataException($"Options {name} requires {expected} cursor anchors.");
-            foreach (Offset16<ScreenPixels> point in points)
+            Dictionary<string, Offset16<ScreenPixels>>? points = cursorAnchors[name];
+            RequireExactKeys(points, [.. CursorRowsOn(page).Select(row => row.Name)], $"options {name} cursor anchors");
+            foreach (Offset16<ScreenPixels> point in points.Values)
                 ValidatePoint(point, $"{name} cursor", byte.MaxValue);
         }
         return new GameOptionsPresentation(new GameOptionsPlacements
@@ -75,29 +74,41 @@ public static class GameOptionsLayoutFile
         });
     }
 
-    /// <summary>Each row's cursor anchor, from the checked lists of each page's anchors in its rows' order from the top.</summary>
+    /// <summary>Each row's cursor anchor, from the checked anchors of each page keyed by the row's name.</summary>
     private static Dictionary<GameOptionsRow, Offset16<ScreenPixels>> CursorAnchorsByRow(
-        Dictionary<string, Offset16<ScreenPixels>[]> cursorAnchors)
+        Dictionary<string, Dictionary<string, Offset16<ScreenPixels>>> cursorAnchors)
     {
         var byRow = new Dictionary<GameOptionsRow, Offset16<ScreenPixels>>();
         foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
         {
-            IReadOnlyList<GameOptionsRow> rows = RowsOn(page);
-            Offset16<ScreenPixels>[] points = cursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
-            for (int place = 0; place < rows.Count; place++)
-                byRow.Add(rows[place], points[place]);
+            Dictionary<string, Offset16<ScreenPixels>> points = cursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
+            foreach (GameOptionsCursorRow row in CursorRowsOn(page))
+                byRow.Add(row.Row, points[row.Name]);
         }
         return byRow;
     }
 
-    /// <summary>The rows of <paramref name="page"/> from the top, the order the layout lists the page's cursor anchors in.</summary>
+    /// <summary>
+    /// The rows of <paramref name="page"/> from the top, the order the cartridge's cursor table holds them in, each with the
+    /// name the layout keys its cursor anchor by.
+    /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="page"/> is not one of the three options pages.</exception>
-    private static IReadOnlyList<GameOptionsRow> RowsOn(GameOptionsPage page) => page switch
+    internal static IReadOnlyList<GameOptionsCursorRow> CursorRowsOn(GameOptionsPage page) => page switch
     {
-        GameOptionsPage.Primary => [.. GameOptionsPageRows.Primary.Select(row => new GameOptionsRow.OnPrimaryPage(row))],
-        GameOptionsPage.Controller => [.. GameOptionsPageRows.Controller.Select(row => new GameOptionsRow.OnControllerPage(row))],
-        GameOptionsPage.Special => [.. GameOptionsPageRows.Special.Select(row => new GameOptionsRow.OnSpecialPage(row))],
+        GameOptionsPage.Primary => [.. GameOptionsPageRows.Primary.Select(row => new GameOptionsCursorRow(row.ToString(), new GameOptionsRow.OnPrimaryPage(row)))],
+        GameOptionsPage.Controller => [.. GameOptionsPageRows.Controller.Select(row => new GameOptionsCursorRow(ControllerRowName(row), new GameOptionsRow.OnControllerPage(row)))],
+        GameOptionsPage.Special => [.. GameOptionsPageRows.Special.Select(row => new GameOptionsCursorRow(row.ToString(), new GameOptionsRow.OnSpecialPage(row)))],
         _ => throw new ArgumentOutOfRangeException(nameof(page), page, "Options rows exist only on the three menu pages."),
+    };
+
+    /// <summary>The installed name of a controller-page row: the action it assigns, or Exit or Reset.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="row"/> is none of the controller page's rows.</exception>
+    private static string ControllerRowName(GameOptionsControllerRow row) => row switch
+    {
+        GameOptionsControllerRow.AssignsAction assigns => assigns.Action.ToString(),
+        GameOptionsControllerRow.Exit => nameof(GameOptionsControllerRow.Exit),
+        GameOptionsControllerRow.Reset => nameof(GameOptionsControllerRow.Reset),
+        _ => throw new ArgumentOutOfRangeException(nameof(row), row, "Undefined controller-page row."),
     };
 
     /// <summary>Requires exactly the names <paramref name="expected"/> in <paramref name="values"/>.</summary>

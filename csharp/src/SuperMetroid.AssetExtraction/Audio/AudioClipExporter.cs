@@ -181,7 +181,6 @@ internal static class AudioClipExporter
     /// </summary>
     internal static SoundEffectClipPolicy Policy(SoundEffectLibrary soundLibrary, int command, string policyKey)
     {
-        int libraryIndex = SoundLibraryNumbers.DriverIndex(soundLibrary);
         ManagedSpcSoundLibrary Configure(int priority, int mode)
         {
             var library = new ManagedSpcSoundLibrary { Priority = priority, Mode = mode };
@@ -210,8 +209,8 @@ internal static class AudioClipExporter
         return new SoundEffectClipPolicy(
             priority,
             mode,
-            IgnoresPriority: !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 1, mode: 0),
-            IgnoresLowHealthMode: SpcSoundEffectTables.HasLowHealthMode(libraryIndex) && !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 0, mode: SpcDriverDefinitions.SoundEffects.LowHealthMode));
+            IgnoresPriority: !SpcSoundLibraries.RejectsRequest(soundLibrary, command, priority: 1, mode: 0),
+            IgnoresLowHealthMode: SpcSoundEffectTables.HasLowHealthMode(soundLibrary) && !SpcSoundLibraries.RejectsRequest(soundLibrary, command, priority: 0, mode: SpcDriverDefinitions.SoundEffects.LowHealthMode));
     }
 
     /// <summary>

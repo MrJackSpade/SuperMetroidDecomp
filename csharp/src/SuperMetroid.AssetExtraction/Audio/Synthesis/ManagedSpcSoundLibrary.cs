@@ -1,8 +1,10 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
-/// <summary>Shared allocation and command state for one of the three SFX libraries.</summary>
+/// <summary>Shared allocation and command state for one of the three SFX libraries, with the library's own channels.</summary>
 internal sealed class ManagedSpcSoundLibrary
 {
+    /// <summary>The library's SFX instruction cursors and borrowed voice state, in the driver's channel order.</summary>
+    internal ManagedSpcSoundChannel[] Channels { get; init; } = [];
     /// <summary>Preemption level selected by the incoming sound command.</summary>
     internal int Priority;
     /// <summary>Twice the next logical SFX channel index during hardware voice assignment.</summary>

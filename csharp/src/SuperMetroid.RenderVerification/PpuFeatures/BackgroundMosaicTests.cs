@@ -50,8 +50,7 @@ internal static class BackgroundMosaicTests
         {
             var registers = new GameplaySceneView(Offset16<RoomPixels>.Zero, Offset16<BackgroundPixels>.Zero,
                 ScreenLayers.Sprites | (mode == 2 ? ScreenLayers.None : ScreenLayers.Background) |
-                    (mode == 3 ? ScreenLayers.Foreground : ScreenLayers.None),
-                BackgroundPixelation: new(size));
+                    (mode == 3 ? ScreenLayers.Foreground : ScreenLayers.None)) { BackgroundPixelation = new(size) };
             var ordinary = new GameplaySceneLayer(registers, rooms, new BackgroundLineScrolls { Horizontal = horizontal, Vertical = vertical });
             // Mode two shows the pixelated background only lying behind the backdrop, which it brightens; mode one blends nothing.
             DisplayLayer layer = mode is 0 or 3 ? ordinary : new GameplayBlendLayer(ordinary, ScreenWindow.Closed, false,

@@ -314,7 +314,7 @@ internal sealed class CrocomireCombat
         }
 
         body.HurtFlash.Lengthen(CrocomireFightDefinitions.MouthShotFlash);
-        body.AiStates |= EnemyAiStates.Hurt;
+        body.MarkHurt();
     }
 
     /// <summary>Places a dust effect at the shot impact while preserving its component-relative offset.</summary>
@@ -339,7 +339,7 @@ internal sealed class CrocomireCombat
             return;
 
         body.HurtFlash.Lengthen(CrocomireFightDefinitions.PowerBombFlash);
-        body.AiStates |= EnemyAiStates.Hurt;
+        body.MarkHurt();
         state.Phase = CrocomirePhase.PowerBombCharge;
 
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, SelectCrocomirePowerBombAnimation(state));

@@ -391,7 +391,7 @@ internal sealed class EnemyCollision
         }
 
         enemy.HurtFlash.Restart(enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension);
-        enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
+        enemy.MarkHurt();
         // The common shot reaction queues the definition's cry before subtracting health,
         // including lethal hits. Frozen targets suppress this cry; death
         // explosion animations retain their separate, later sound owner. The
@@ -612,7 +612,7 @@ internal sealed class EnemyCollision
         }
 
         enemy.HurtFlash.Restart(enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension);
-        enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
+        enemy.MarkHurt();
         // The common shot reaction a bomb runs queues the definition's cry before subtracting health, lethal hits
         // included, as it does for a beam or a missile; a frozen enemy makes no cry.
         bool hurtUnfrozen = enemy.Freeze.IsOver;
@@ -732,7 +732,7 @@ internal sealed class EnemyCollision
             int damage = vulnerability.DamageFrom(SamusProjectileDamage.Read(SamusProjectileKind.PowerBomb));
             enemy.Invincibility.Restart(EnemyCollisionDefinitions.PowerBombInvincibilityUpdates);
             enemy.HurtFlash.Restart(enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension);
-            enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
+            enemy.MarkHurt();
             enemy.Health = damage >= enemy.Health
                 ? 0
                 : enemy.Health - damage;
@@ -806,7 +806,7 @@ internal sealed class EnemyCollision
         enemy.Freeze.Restart(roomArea == AreaId.Norfair
             ? EnemyCollisionDefinitions.NorfairFreezeUpdates
             : EnemyCollisionDefinitions.FreezeUpdates);
-        enemy.AiStates = enemy.AiStates | EnemyAiStates.Frozen;
+        enemy.MarkFrozen();
         enemy.Invincibility.Restart(EnemyCollisionDefinitions.FreezeInvincibilityUpdates);
     }
 
@@ -984,7 +984,7 @@ internal sealed class EnemyCollision
         // power-bomb damage, which add their own visible flash. Samus's timers are also
         // cleared, because Samus touching it this way is Samus attacking the enemy.
         enemy.HurtFlash.Restart(enemy.HurtFlashFrames);
-        enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
+        enemy.MarkHurt();
         samus.ClearHurtTimers();
         enemy.Health = damage >= enemy.Health
             ? 0

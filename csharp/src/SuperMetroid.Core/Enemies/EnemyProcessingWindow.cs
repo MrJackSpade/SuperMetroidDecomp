@@ -51,7 +51,7 @@ internal sealed class EnemyProcessingWindow
 
             bool active = _frameContext.ProcessAllEnemies ||
                 place.Processing.HasAny(EnemyProcessing.OffScreen) ||
-                (place.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None ||
+                place.IsFrozen ||
                 IsWithinProcessingWindow(place, camera);
             if (!active)
                 continue;

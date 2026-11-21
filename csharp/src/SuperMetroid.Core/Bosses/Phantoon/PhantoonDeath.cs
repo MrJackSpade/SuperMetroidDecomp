@@ -112,7 +112,7 @@ internal sealed class PhantoonDeath
     internal void BeginPhantoonWavyPixelatedDeath(PhantoonEnemyState state)
     {
         RoomEnemyPlace mouth = state.Mouth;
-        state.Wave.Amplitude = SignedSixteenSixteen.Zero;
+        state.Wave.Amplitude = UnsignedSixteenSixteen.Zero;
         state.Wave.AmplitudeShrinking = false;
         state.Wave.PhaseStep = PhantoonWaveDefinitions.PhaseStep;
         state.BodyWave.Begin(PhantoonWaveDefinitions.DeathLength);

@@ -162,7 +162,7 @@ internal sealed class KraidCombat
                         ? 0
                         : body.Health - damage;
                     body.HurtFlash.Restart(body.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension);
-                    body.AiStates = body.AiStates | EnemyAiStates.Hurt;
+                    body.MarkHurt();
                     if (type.HasAnyBeam(SamusBeamFlags.Plasma))
                         body.Invincibility.Restart(EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates);
                 }

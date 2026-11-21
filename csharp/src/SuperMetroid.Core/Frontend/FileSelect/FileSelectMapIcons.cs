@@ -40,7 +40,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area, MapS
         foreach (MapBossMarker marker in MapLandmarks.BossMarkers(area))
         {
             Position16<MapPixels> point = layout.Get(marker.Id);
-            if (defeated.HasFlag(marker.Boss))
+            if (defeated.HasFlag(AreaBossDefinitions.RecordedAs[marker.Boss]))
             {
                 Draw(MapSpriteId.MarkerDefeatedBoss, point, MapSpriteColouring.Markers);
                 Draw(MapSpriteId.MarkerBoss, point, MapSpriteColouring.DefeatedBossMarker);

@@ -51,6 +51,9 @@ public sealed class SharedRandom
     /// <summary>Stores the power-on seed, as a reset does.</summary>
     internal void SeedPowerOn() => State = SharedRandomDefinitions.PowerOnState;
 
-    /// <summary>Stores the state with its two halves exchanged, as the lava and acid effect does.</summary>
-    internal void SwapHalves() => State = State.WithHalvesSwapped();
+    /// <summary>
+    /// Stirs the sequence as a lava or acid wave does (#2563): the state with its two halves exchanged, so every later draw
+    /// follows on from the stirred number.
+    /// </summary>
+    internal void StirForLiquidWave() => State = State.WithHalvesSwapped();
 }

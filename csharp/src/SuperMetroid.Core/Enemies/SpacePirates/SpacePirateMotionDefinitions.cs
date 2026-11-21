@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class SpacePirateMotionDefinitions
 {
     /// <summary>A slow wall Space Pirate's jump: two steps an update, landing at steps 190 and 66 of the turn (#2182).</summary>
-    internal static WallSpacePirateJump SlowWallJump { get; } = new(RotationAngle.FromSteps(190), RotationAngle.FromSteps(66), 2);
+    internal static WallSpacePirateJump SlowWallJump { get; } = new(RotationAngle.FromSteps(190), RotationAngle.FromSteps(66), RotationAngle.FromSteps(2));
 
     /// <summary>A fast wall Space Pirate's jump: four steps an update, landing at steps 192 and 64 of the turn (#2182).</summary>
-    internal static WallSpacePirateJump FastWallJump { get; } = new(RotationAngle.FromSteps(192), RotationAngle.FromSteps(64), 4);
+    internal static WallSpacePirateJump FastWallJump { get; } = new(RotationAngle.FromSteps(192), RotationAngle.FromSteps(64), RotationAngle.FromSteps(4));
 
     /// <summary>
     /// How far into a block a wall Space Pirate standing against a wall must be, in pixels, for it to snap to the next

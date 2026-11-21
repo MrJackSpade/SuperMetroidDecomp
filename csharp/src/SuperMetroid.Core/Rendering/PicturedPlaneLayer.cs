@@ -24,7 +24,7 @@ public sealed record PicturedPlaneLayer(PicturedPlane Plane, Offset16<PlanePixel
 
     /// <summary>
     /// How the plane is pixelated (#1774): each square block of the screen shows the plane as its top-left pixel shows it,
-    /// a clear pixel there leaving the whole block showing what lies behind. The default leaves the plane unpixelated.
+    /// a clear pixel there leaving the whole block showing what lies behind. Unless set, the plane is unpixelated.
     /// </summary>
-    public BackgroundPixelation Pixelation { get; init; }
+    public BackgroundPixelation Pixelation { get; init; } = BackgroundPixelation.Unpixelated;
 }

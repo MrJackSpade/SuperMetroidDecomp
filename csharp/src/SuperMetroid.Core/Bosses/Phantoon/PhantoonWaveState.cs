@@ -23,14 +23,8 @@ public sealed class PhantoonWaveState
     /// <summary>Ends the wave on its next active update.</summary>
     internal void End() => HasEnded = true;
 
-    /// <summary>The wave's peak displacement, never negative (#1936).</summary>
-    public SignedSixteenSixteen Amplitude
-    {
-        get;
-        internal set => field = value.IsNegative
-            ? throw new ArgumentOutOfRangeException(nameof(value), value, "A wave's amplitude is never negative.")
-            : value;
-    }
+    /// <summary>The wave's peak displacement (#1936, #2563).</summary>
+    public UnsignedSixteenSixteen Amplitude { get; internal set; }
 
     /// <summary>Whether the amplitude is shrinking rather than growing.</summary>
     public bool AmplitudeShrinking { get; internal set; }

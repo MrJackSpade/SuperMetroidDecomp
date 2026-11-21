@@ -72,8 +72,8 @@ public sealed class SharedGameState
     public int RandomNumber => Random.Read();
 
     /// <summary>Stirs the shared random number, as the lava and acid waves do
-    /// (<see cref="SharedRandom.SwapHalves"/>).</summary>
-    internal void SwapRandomHalves() => Random.SwapHalves();
+    /// (<see cref="SharedRandom.StirForLiquidWave"/>).</summary>
+    internal void StirRandomForLiquidWave() => Random.StirForLiquidWave();
 
     /// <summary>
     /// Draws the shared random sequence's next value (<see cref="SharedRandom.Generate"/>); every later draw follows on

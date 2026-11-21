@@ -349,7 +349,7 @@ internal sealed class PhantoonCombat
             return;
         }
 
-        if ((body.AiStates & EnemyAiStates.Hurt) == EnemyAiStates.None)
+        if (!body.IsHurt)
             return;
 
         _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);

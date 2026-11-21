@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 internal static class MorphBallEyeBeamDefinitions
 {
     /// <summary>The colour the beam adds when it appears: red and green at intensity 16, without blue.</summary>
-    internal static RgbColor InitialColor { get; } = new(132, 132, 0);
+    internal static RgbColor InitialColor { get; } = new FadeLevelColour(16, 16, 0).ToColour();
 
     /// <summary>
     /// The sixteen colours the full beam cycles through, one each update: red and green from intensity 16 down to 8 and

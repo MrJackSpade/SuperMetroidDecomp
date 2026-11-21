@@ -62,7 +62,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
     internal bool RunCommonGrappleAi(RoomEnemyOccupant grappled, IEnemyAiFrame frame)
     {
         RoomEnemyPlace enemy = Ensure.NotNull(grappled).Place;
-        if ((enemy.AiStates & EnemyAiStates.Grappled) == EnemyAiStates.None)
+        if (!enemy.IsGrappled)
             return false;
 
         switch (grappled.Definition.GrappleResponse)

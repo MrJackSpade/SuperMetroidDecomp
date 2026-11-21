@@ -328,7 +328,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.IceDamageToFreeze = 0;
                 place.Freeze.Restart(MetroidBehaviorDefinitions.FrozenDuration);
-                place.AiStates |= EnemyAiStates.Frozen;
+                place.MarkFrozen();
                 return;
             }
             state.IceDamageToFreeze -= collisionProjectileDamage;
@@ -477,7 +477,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             if (!frozenVulnerability.FreezesWithoutDamage && frozenDamage != 0)
             {
                 enemy.HurtFlash.Restart(enemy.HurtFlashFrames + MetroidBehaviorDefinitions.FrozenHurtFlashExtension);
-                enemy.AiStates |= EnemyAiStates.Hurt;
+                enemy.MarkHurt();
                 enemy.Health = frozenDamage >= enemy.Health
                     ? 0
                     : enemy.Health - frozenDamage;

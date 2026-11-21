@@ -13,15 +13,13 @@ public static class Loops
         cells.AddRange(loaded);
     }
 
-    /// <summary>Counts <paramref name="values"/> without reading them.</summary>
-    public static int Counted(IEnumerable<int> values)
+    /// <summary>Announces each of <paramref name="values"/> without reading it.</summary>
+    public static void Announced(IEnumerable<int> values)
     {
-        int count = 0;
-        foreach (var _ in values)
+        foreach (int _ in values)
         {
-            count++;
+            Console.WriteLine("value");
         }
-        return count;
     }
 
     /// <summary>Walks a parameter, a field and a local with nothing to run.</summary>

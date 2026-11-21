@@ -361,7 +361,7 @@ the same, its build failing on the error (CS0029). A fixture may hold several pr
 `obj/` are left out of the comparison.
 
 The fixture of #2611, `IDE0059.foreach`, holds foreach variables nothing reads, which the code-style fixer offers no fix
-for: the loop header #2553 left in `RoomScrollGrid` over the statement after it, and a counting loop, each keeping its
+for: the loop header #2553 left in `RoomScrollGrid` over the statement after it, and a loop announcing each element, each keeping its
 body under the discard name `_`; loops with nothing to run over a parameter, a field and a local, removed with their
 lines; one over a call's result, kept as `_ = Values();`; and one that is an `if`'s body, leaving `{ }`.
 

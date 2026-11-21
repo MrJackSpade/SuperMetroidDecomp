@@ -857,7 +857,6 @@ internal sealed class RoomLoader
         // picture taking the first pair, and their own places, every one free; a cap a shot opened consults the Landing
         // Site's green door before it closes behind Samus.
         var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _roomObjectVisuals, new CollectibleBlockPairs(),
-            new RoomObjectPlaces(),
             new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft),
             new RoomObjectOutputs(_audioRequests, new RoomObjectThrownProjectileSpawners(roomObjectServices, roomObjectServices)));
         scope.RoomObjects = roomObjects;

@@ -366,7 +366,7 @@ public sealed class SamusProjectileSystem
             ChargeFlareComponents hyper = ChargeFlareComponents.HyperBeamFlare;
             foreach (ChargeFlareComponent component in hyper.DrawOrder)
             {
-                if (Charge.Flare(component).PlayBackward() && component == ChargeFlareComponent.FastSparks)
+                if (Charge.PlayHyperBeamFlareBackward(component) && component == ChargeFlareComponent.FastSparks)
                     Charge.ClearCount();
             }
             // Every component is shown, the fast spark first, even on the frame that ends the flare.

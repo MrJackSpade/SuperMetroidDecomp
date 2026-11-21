@@ -456,6 +456,12 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     }
 
     /// <summary>
+    /// A play of the same animation standing where this one stands, its shown frame keeping its updates left (#2553): an
+    /// owner that hands the play over to another way of counting goes on in the copy.
+    /// </summary>
+    internal AnimationPlayer<TSegment, TFrame, TEvent> Copy() => (AnimationPlayer<TSegment, TFrame, TEvent>)MemberwiseClone();
+
+    /// <summary>
     /// Shows the shown frame for <paramref name="updates"/> more updates from now, in place of the updates it had left
     /// (#2396): an owner that hands a frame over to another way of counting gives it the wait that count leaves it.
     /// </summary>

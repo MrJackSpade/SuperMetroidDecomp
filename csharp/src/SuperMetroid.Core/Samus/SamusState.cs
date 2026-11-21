@@ -437,8 +437,14 @@ public sealed class SamusState
     /// </summary>
     public TransitionShot<SamusTransitionShot> TransitionShot { get; } = new();
 
-    /// <summary>Whether Mother Brain's hyper beam is enabled.</summary>
-    public bool HyperBeamEnabled { get; set; }
+    /// <summary>
+    /// Whether the Baby's gift has enabled the Hyper Beam (<see cref="EnableHyperBeam"/>): once enabled it stays, so the
+    /// charge flare never plays forward again (#2553).
+    /// </summary>
+    public bool HyperBeamEnabled { get; private set; }
+
+    /// <summary>The Baby's gift enables the Hyper Beam, for good.</summary>
+    public void EnableHyperBeam() => HyperBeamEnabled = true;
 
     /// <summary>
     /// Equipped-item flags. The animation cue's equipment test and the Morph-Ball projectile

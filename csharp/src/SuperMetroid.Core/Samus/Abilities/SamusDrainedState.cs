@@ -363,7 +363,7 @@ public sealed class SamusDrainedState
             SamusBeamFlags.Charge |
             SamusBeamFlags.Wave |
             SamusBeamFlags.Plasma;
-        samus.HyperBeamEnabled = true;
+        samus.EnableHyperBeam();
         HyperBeamColourEffect = new();
         samus.ChargingSound.Cancel();
     }

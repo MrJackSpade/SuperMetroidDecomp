@@ -28,9 +28,4 @@ public sealed record ColourFade : ColourEffect
 
     /// <summary>How far the fade has come.</summary>
     public FadeLevel Progress { get; }
-
-    /// <inheritdoc />
-    public override RgbColor Apply(RgbColor shown, IColourBlend blend) =>
-        Ensure.NotNull(blend).Partway(Direction == GradualFadeDirection.Toward ? shown : Endpoint,
-            Direction == GradualFadeDirection.Toward ? Endpoint : shown, Progress);
 }

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -33,7 +34,7 @@ public static class MapLandmarkExtractor
                 int x = Read(boss + slot * 4);
                 if (x == MapSourceDefinitions.Landmarks.UnusedBossSlot)
                     continue;
-                if (shown >= markers.Length || Ensure.Listed(AreaBossDefinitions.Bosses, markers[shown).RecordedAs.Boss] != MapSourceDefinitions.Landmarks.BossSlotFlags[slot])
+                if (shown >= markers.Length || Ensure.Listed(AreaBossDefinitions.Bosses, markers[shown].Boss).RecordedAs != MapSourceDefinitions.Landmarks.BossSlotFlags[slot])
                     throw new InvalidDataException($"{area}'s boss slot {slot} differs from the named boss markers.");
                 points.Add(markers[shown].Id, Position16<MapPixels>.Of(x, Read(boss + slot * 4 + 2)));
                 shown++;

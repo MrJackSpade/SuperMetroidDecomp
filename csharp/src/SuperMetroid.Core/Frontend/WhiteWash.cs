@@ -41,5 +41,5 @@ internal sealed class WhiteWash
 
     /// <summary>The colour of a wash with <paramref name="stepsLeft"/> of its <see cref="Steps"/> steps left.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="stepsLeft"/> is outside 0-<see cref="Steps"/>.</exception>
-    private static ShownColour Colour(int stepsLeft) => new ShownColour.Faded(RgbColor.White, new FadeLevel(stepsLeft, Steps));
+    private static ShownColour.Faded Colour(int stepsLeft) => new ShownColour.Faded(RgbColor.White, new FadeLevel(stepsLeft, Steps));
 }

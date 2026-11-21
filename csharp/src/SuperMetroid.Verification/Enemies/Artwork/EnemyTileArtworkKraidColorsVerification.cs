@@ -19,7 +19,8 @@ using SuperMetroid.AssetExtraction.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Harness;
+using SuperMetroid.Verification.Harness;
+
 using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
@@ -478,7 +479,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 AssertEqual(consumer == KraidPaletteConsumer.HealthFlash, shade == KraidShades.HurtFlash, $"Kraid's {consumer} update shows the hurt flash only on its flash");
                 AssertEqual(PictureShading.Shaded(shade), body.Shading, $"Kraid's body slot draws in {shade}");
                 // His body shows the band's shade over its sixth tile colours, his parts over their sprite row.
-                Lay(colours, BossSheetShades.Body(BossBodyOwner.Kraid, artwork.Bosses, [], new RgbColor[ImageColourGroup.HalfColours]),
+                Lay(colours, BossSheetShades.Body(BossBodyOwner.Kraid, artwork.Bosses, [], SpriteImageColours.Background, new RgbColor[ImageColourGroup.HalfColours]),
                     shade, 0);
                 Lay(colours, BossSheetShades.OwnRow(artwork.Bosses, EnemyDefinitionId.Kraid, KraidPartsRow * 16), shade,
                     ImageColourGroup.HalfColours);
@@ -501,7 +502,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             case KraidPaletteConsumer.DeathArm:
                 enemies.KraidBehavior.Death.InitializeKraidDeath(state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
                 AssertTrue(state.Colours.ShowsDeathArm, "Kraid's death shows his death colours");
-                Lay(colours, BossSheetShades.Body(BossBodyOwner.Kraid, artwork.Bosses, [], new RgbColor[ImageColourGroup.HalfColours]),
+                Lay(colours, BossSheetShades.Body(BossBodyOwner.Kraid, artwork.Bosses, [], SpriteImageColours.Background, new RgbColor[ImageColourGroup.HalfColours]),
                     KraidShades.DeathArm, 0);
                 break;
             default:

@@ -101,7 +101,7 @@ internal sealed class PhantoonColours : IGameplayShadingSource
     /// </summary>
     private static PictureShadeFade PowerComingOn(int step) =>
         new(PictureShading.Standard, PictureShading.Shaded(PhantoonShades.Powered),
-            Math.Min(step, PhantoonColorDefinitions.PowerOnSteps), PhantoonColorDefinitions.PowerOnSteps);
+            new FadeLevel(Math.Min(step, PhantoonColorDefinitions.PowerOnSteps), PhantoonColorDefinitions.PowerOnSteps));
 
     /// <summary>
     /// The pictures the power coming on recolours: the room's and its effect overlay's. The HUD keeps its own colours,

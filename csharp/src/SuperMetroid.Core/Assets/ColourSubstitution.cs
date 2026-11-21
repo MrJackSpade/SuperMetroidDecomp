@@ -30,8 +30,9 @@ public sealed record ColourSubstitution : ColourEffect
     /// <summary>The colour shown in place of each replaced colour.</summary>
     public ImmutableArray<RgbColor> Shown { get; }
 
-    /// <inheritdoc />
-    public override RgbColor Apply(RgbColor shown, IColourBlend blend)
+    /// <summary>The colour an ink showing <paramref name="shown"/> shows: its substitute, or itself where it is not replaced.</summary>
+    /// <param name="shown">The colour the ink shows before the substitution.</param>
+    internal RgbColor Substituted(RgbColor shown)
     {
         int index = Replaced.IndexOf(shown);
         return index < 0 ? shown : Shown[index];

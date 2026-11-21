@@ -85,7 +85,7 @@ internal static class TorizoPaletteShakeVerification
         AssertEqual(white, state.Colours.Shading, "The restarted fade's first step shows the hurt flash's white");
         Execute(TorizoCueKind.AdvanceColourFade);
         PictureShadeFade fromWhite = new(PictureShading.Shaded(TorizoShades.Body(new TorizoLook(TorizoLookKind.White))),
-            PictureShading.Shaded(TorizoShades.Body(new TorizoLook(TorizoLookKind.Normal))), 1, TorizoShadeDefinitions.FadeLastStep);
+            PictureShading.Shaded(TorizoShades.Body(new TorizoLook(TorizoLookKind.Normal))), new FadeLevel(1, TorizoShadeDefinitions.FadeLastStep));
         AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(fromWhite), state.Colours.Shading,
             "The fade restarts from the hurt flash's white by its own steps");
 
@@ -175,7 +175,7 @@ internal static class TorizoPaletteShakeVerification
             PictureShading.Shaded(TorizoShades.GlowingBelly(new TorizoLook(TorizoLookKind.Black))), new FadeLevel(1, 13));
         AssertEqual(fading, colours.Shading.Fades[^1], "The death fade moves the glowing colours from the record shown");
         colours.ShowBellyGlow(new ColourEffectFrame(ColourEffectId.BombTorizoBelly, records[^1].Shade.Step));
-        AssertEqual(0, colours.Shading.Fades[^1].Progress, "The glow's next record shows unmoved until the fade's next step");
+        AssertEqual(0, colours.Shading.Fades[^1].Progress.Step, "The glow's next record shows unmoved until the fade's next step");
         colours.ShowBellyGlow(shown);
         SheetShade black = shades.Single(shade => shade.Shade == TorizoShades.GlowingBelly(new TorizoLook(TorizoLookKind.Black)));
         SheetShade normal = shades.Single(shade => shade.Shade == TorizoShades.GlowingBelly(new TorizoLook(TorizoLookKind.Normal)));

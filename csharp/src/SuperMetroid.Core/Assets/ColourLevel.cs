@@ -5,8 +5,4 @@ namespace SuperMetroid.Core.Assets;
 /// each colour <see cref="Level"/> of the way up from black, which the backend shows (<see cref="IColourBlend.AtLevel"/>).
 /// </summary>
 /// <param name="Level">How far up from black the colour shows.</param>
-public sealed record ColourLevel(FadeLevel Level) : ColourEffect
-{
-    /// <inheritdoc />
-    public override RgbColor Apply(RgbColor shown, IColourBlend blend) => Ensure.NotNull(blend).AtLevel(shown, Level);
-}
+public sealed record ColourLevel(FadeLevel Level) : ColourEffect;

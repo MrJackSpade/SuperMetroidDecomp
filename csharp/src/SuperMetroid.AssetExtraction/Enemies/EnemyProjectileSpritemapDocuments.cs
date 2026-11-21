@@ -4,6 +4,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 

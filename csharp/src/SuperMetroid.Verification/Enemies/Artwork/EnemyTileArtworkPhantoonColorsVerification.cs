@@ -110,14 +110,14 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         state.Colours.Show(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths));
         for (int step = 1; step <= 4; step++)
             state.Colours.Fade(PhantoonBodyLook.FadedOut, step, steps);
-        PictureShadeFade fromHealth = new(Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), Body(PhantoonBodyLook.FadedOut), 4, steps);
+        PictureShadeFade fromHealth = new(Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), Body(PhantoonBodyLook.FadedOut), new FadeLevel(4, steps));
         AssertEqual(PictureShading.Standard.With(fromHealth), Shown(state), "Phantoon's fade has come four of its twelve steps from his health colours");
         state.Colours.Show(PhantoonBodyLook.White);
         state.Colours.Fade(PhantoonBodyLook.FadedOut, 5, steps);
         AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.White), Body(PhantoonBodyLook.FadedOut), new FadeLevel(1, 8))),
             Shown(state), "Phantoon's fade restarts from the hurt flash's white over the eight steps it has left");
         AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.White), _ => RgbColor.White, "Phantoon's white hurt flash");
-        PictureShadeFade toFadedOut = new(Body(PhantoonBodyLook.White), Body(PhantoonBodyLook.FadedOut), 1, 8);
+        PictureShadeFade toFadedOut = new(Body(PhantoonBodyLook.White), Body(PhantoonBodyLook.FadedOut), new FadeLevel(1, 8));
         state.Colours.Fade(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths), 6, steps);
         AssertEqual(PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard.With(toFadedOut), Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), new FadeLevel(1, 7))),
             Shown(state), "a fade toward another goal starts from the running fade as it shows");

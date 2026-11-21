@@ -26,9 +26,15 @@ internal sealed class ShaktoolChain
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="segment"/> is the chain's first, its leading saw, which orbits nothing.</exception>
     internal RoomEnemyPlace Before(ShaktoolSegmentDefinition segment) => Segments[Ensure.BetweenInclusive(1, Segments.Count - 1, IndexOf(segment)) - 1].Place;
 
-    /// <summary>The place of the segment the chain lists right after the one <paramref name="segment"/> defines, which the centre faces.</summary>
+    /// <summary>The segment the chain lists right after the one <paramref name="segment"/> defines, which the centre faces.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="segment"/> is the chain's last, its trailing saw.</exception>
-    internal RoomEnemyPlace After(ShaktoolSegmentDefinition segment) => Segments[Ensure.BetweenInclusive(0, Segments.Count - 2, IndexOf(segment)) + 1].Place;
+    internal ShaktoolChainSegment After(ShaktoolSegmentDefinition segment) => Segments[Ensure.BetweenInclusive(0, Segments.Count - 2, IndexOf(segment)) + 1];
+
+    /// <summary>The state the chain holds for the segment <paramref name="segment"/> defines, which its setup initializes.</summary>
+    internal ShaktoolSegmentState StateOf(ShaktoolSegmentDefinition segment) => Segments[IndexOf(segment)].State;
+
+    /// <summary>The chain's segment <paramref name="segment"/> defines.</summary>
+    internal ShaktoolChainSegment Segment(ShaktoolSegmentDefinition segment) => Segments[IndexOf(segment)];
 
     /// <summary>Where the chain lists the segment <paramref name="segment"/> defines.</summary>
     private int IndexOf(ShaktoolSegmentDefinition segment)

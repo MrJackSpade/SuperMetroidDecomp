@@ -27,18 +27,30 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (Ensure.NotNull(settings).Part == EvirBodyPart.Arms)
             throw new InvalidDataException($"Evir arms in enemy place {Ensure.NotNull(place).Ordinal} are listed with no body before them.");
+        _lenders.Lend(place, settings);
         var body = new EvirBodyEntity(this, occupant, place, common, surroundings, settings);
         _partOffers.OfferLoaded<EvirSpawnSettings>(EnemyDefinitionId.Evir, (later, laterSettings, laterPlace, laterCommon, laterSurroundings) =>
             laterSettings.Part == EvirBodyPart.Arms
-                ? EnemyOccupant.Running(new EvirArmsEntity(this, later, laterPlace, laterCommon, place))
+                ? CreateArms(later, laterSettings, laterPlace, laterCommon, place)
                 : CreateBody(later, laterSettings, laterPlace, laterCommon, laterSurroundings));
         _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.EvirProjectile, (spit, _, spitPlace, spitCommon) =>
             EnemyOccupant.Running(new EvirSpitEntity(this, spit, spitPlace, spitCommon, place)));
         return EnemyOccupant.Running(body);
     }
 
+    /// <summary>An Evir's arms, following <paramref name="body"/>, whose placement's period a later body may borrow.</summary>
+    private EnemyOccupant CreateArms(RoomEnemyOccupant occupant, EvirSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+        RoomEnemyPlace body)
+    {
+        _lenders.Lend(place, settings);
+        return EnemyOccupant.Running(new EvirArmsEntity(this, occupant, place, common, body));
+    }
+
     /// <summary>Where a body offers the arms and spit listed after it the creation that builds each following it.</summary>
     private readonly EnemyPartOffers _partOffers;
+
+    /// <summary>What a body's first half-cycle reads of the place it borrows from, with every Evir body's and arms' period.</summary>
+    private readonly PlaceLender _lenders = new();
 
     /// <summary>The room's enemy places, where each Evir part finds its partners when it is placed.</summary>
     private readonly EnemyPlaces _places;
@@ -106,29 +118,36 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         SetEvirBodyFacing(place, state, samus);
 
         // The body bobs down at its speed and up at the same speed.
-        state.MovementTimer = UpdateCountdown.For(EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, PlaceLender.Instance) + EnemyWaitDefinitions.RunOutUpdate);
+        state.MovementTimer = UpdateCountdown.For(EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, _lenders) + EnemyWaitDefinitions.RunOutUpdate);
         state.BobbingDirection = VerticalDirection.Up;
         state.ShowsSpawnAnimation = true;
         return state;
     }
 
-    /// <summary>What an Evir body's first half-cycle reads of a room's enemy place (<see cref="EvirBorrowedFirstHalfCycle"/>).</summary>
+    /// <summary>
+    /// What an Evir body's first half-cycle reads of a room's enemy place (<see cref="EvirBorrowedFirstHalfCycle"/>): the
+    /// direction-change period of the Evir body or arms placed there, which the species' factory lends it from the part's
+    /// own settings as it builds the part (#2554).
+    /// </summary>
     private sealed class PlaceLender : IEvirHalfCycleLender<RoomEnemyPlace>
     {
-        /// <summary>The one reader every body uses.</summary>
-        internal static PlaceLender Instance { get; } = new();
+        /// <summary>The direction-change period each Evir body and arms the room has placed carries, by its place.</summary>
+        private readonly Dictionary<RoomEnemyPlace, int> _periods = [];
+
+        /// <summary>Lends the period <paramref name="settings"/> names for the Evir part built in <paramref name="place"/>.</summary>
+        internal void Lend(RoomEnemyPlace place, EvirSpawnSettings settings) => _periods[place] = settings.DirectionChangePeriod;
 
         /// <inheritdoc/>
         public bool IsEmpty(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).IsFree;
 
         /// <inheritdoc/>
+        /// <exception cref="InvalidDataException">The place holds an enemy other than an Evir body or arms, which no room places where a body reads.</exception>
         public int DirectionChangePeriod(RoomEnemyPlace enemy) => Ensure.NotNull(enemy).History switch
         {
             // A place that holds its enemy, or waits for its killed enemy's respawn, still reads that enemy's entry.
-            PopulatedEnemyPlace { Occupancy: OccupiedEnemyPlace or AwaitingRespawnEnemyPlace } taken =>
-                (taken.LastSpawn.SpawnSettings is EvirSpawnSettings settings
-                    ? settings
-                    : throw new InvalidDataException($"An Evir's population entry carries {taken.LastSpawn.SpawnSettings}.")).DirectionChangePeriod,
+            PopulatedEnemyPlace { Occupancy: OccupiedEnemyPlace or AwaitingRespawnEnemyPlace } => _periods.TryGetValue(enemy, out int period)
+                ? period
+                : throw new InvalidDataException($"An Evir body borrows its first half-cycle from enemy place {enemy.Ordinal}, which holds no Evir body or arms."),
             _ => FreePlacePeriod,
         };
 

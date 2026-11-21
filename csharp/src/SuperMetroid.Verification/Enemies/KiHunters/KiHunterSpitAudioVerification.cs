@@ -46,14 +46,9 @@ internal static class KiHunterSpitAudioVerification
         samus.Control.LockOutPlayer();
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        var body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KihunterGreen));
-        var state = runtime.Enemies.KiHunterBodyStates[body.Ordinal];
-        body.Position = body.Position.WithWhole(new(128, 128));
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Action = KiHunterAction.AnimatingOnGround;
-        // Stage the real spit opcode; subsequent frames must not replay its one-shot call.
-        // The spit cue, four poses into the right spit animation.
-        state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));
-        body.AnimationClock.StepOnNextUpdate();
+        // The Ki Hunter, placed wingless, falls, lands and spits at Samus within its range; later frames must not replay its
+        // one-shot call.
+        _ = KiHunterSpitStaging.PlaceWingless(runtime);
         game.EnterMainGameplay(runtime);
         var spit = EnemySound.AcidSpit;
         int requests = 0, starts = 0;
@@ -64,13 +59,12 @@ internal static class KiHunterSpitAudioVerification
             requests += runtime.Enemies.Audio.SoundRequests.Count(request => request.SoundEffect == spit);
             starts += frame.Audio.Events.Count(audioEvent => audioEvent is AudioEvent.StartSoundEffect started && started.SoundEffect == spit);
         }
-        Step();
-        AssertEqual(1, runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.KiHunterAcidSpit && !projectile.Velocity.X.IsNegative), "staged attack spawns one real acid projectile");
+        do
+            Step();
+        while (requests == 0);
+        AssertEqual(1, runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.KiHunterAcidSpit), "the spit spawns one real acid projectile");
         AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == spit && request.Priority.Requests == 6), "the spit sound has normal priority");
-        // Remain in the post-spit waiting state without introducing another attack.
-        // The right spit animation's final sleep.
-        state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 8));
-        body.AnimationClock.StepOnNextUpdate();
+        // The Ki Hunter rests in its spit's last pose, making no other attack.
         for (int frame = 1; frame < 20; frame++) Step();
         Console.WriteLine($"One KiHunter spit: {requests} requests, {starts} SPC starts over 20 frames.");
         var level = runtime.Room.LoadedLevelData;

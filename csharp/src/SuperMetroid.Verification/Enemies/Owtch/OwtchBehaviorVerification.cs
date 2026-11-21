@@ -29,14 +29,15 @@ internal static class OwtchBehaviorVerification
             place.Bind(EnemyDefinitionId.Owtch, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter1(EnemyDefinitionId.Owtch, OwtchNativeWords.Behaviors.Word(initial));
-            OwtchBehavior.InitializeOwtch(place.HeldOccupant().SpawnSettings<OwtchSpawnSettings>(), place);
-            OwtchEnemyState state = enemies.OwtchStates[0] ?? throw new InvalidOperationException("Owtch has no state.");
+            // The Owtch's setup builds the state its animation, which the check plays, runs on.
+            OwtchEnemyState state = OwtchBehavior.InitializeOwtch(place.HeldOccupant().SpawnSettings<OwtchSpawnSettings>(), place);
             OwtchSegment started = initial == OwtchBehaviorState.MovingLeft ? OwtchSegment.MovingLeft : OwtchSegment.MovingRight;
             AssertEqual(new AnimationPlayback<OwtchSegment>(OwtchAnimations.StartingWith(started), AnimationPlace.StartOfAnimation), state.Playback, $"Owtch state {initial} starts {started}");
 
             state.Playback = new(OwtchAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(OwtchAnimations.Segments, crawl, OwtchFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(OwtchAnimations.Segments, crawl)), $"Owtch {program} loop");
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(OwtchAnimations.Segments, crawl),
+                    () => OwtchBehavior.AdvanceOwtchTypedAnimation(place, state)), $"Owtch {program} loop");
             AssertEqual(walking, state.Behavior, $"Owtch {program} cue sets main AI's direction");
         }
         Console.WriteLine("  Owtch behavior: the initializer picks each facing, the cues set the walking direction and the loops run on time.");

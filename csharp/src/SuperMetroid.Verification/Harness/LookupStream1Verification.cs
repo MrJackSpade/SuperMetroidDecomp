@@ -212,7 +212,8 @@ internal static class LookupStream1Verification
             balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
             balloon.Bind(EnemyDefinitionId.Powamp, balloon.KeptDefinition);
             balloon.Bind(balloon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-            PowampBehavior.InitializePowampBalloon(balloon, balloon.HeldOccupant().SpawnSettings<PowampBalloonSpawnSettings>());
+            // The balloon is set up as its room sets it up.
+            balloon.SetUpAsPlaced();
             var body = enemies.Places.InUpdateOrder[1];
             body.BindPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts));
             body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);

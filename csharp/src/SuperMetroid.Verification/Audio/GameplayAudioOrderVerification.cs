@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Verification.Enemies.KiHunters;
 namespace SuperMetroid.Verification.Audio;
 
 /// <summary>
@@ -170,30 +171,19 @@ internal static class GameplayAudioOrderVerification
     }
 
     /// <summary>
-    /// The room's green Ki Hunter one update from its spit: the room runs, nothing pressed, for the updates a run of the same
-    /// room takes before the update its Ki Hunter spits on, so the next update is that one.
+    /// The room's green Ki Hunter, placed wingless, one update from its spit: the room runs, nothing pressed, for the updates
+    /// a run of the same room takes before the update its Ki Hunter spits on, so the next update is that one.
     /// </summary>
     private static RoomEnemyPlace KiHunterAtItsSpit(SuperMetroidRuntime runtime)
     {
-        int before = UpdatesBeforeTheSpit();
-        for (int update = 0; update < before; update++)
-            runtime.StepFrame(0, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay });
-        return runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KihunterGreen));
-    }
-
-    /// <summary>
-    /// How many updates the Crateria Ki Hunter room runs, nothing pressed, before the update on which its Ki Hunter spits
-    /// acid: a run of its own, which the room's start decides as it decides every run of it.
-    /// </summary>
-    private static int UpdatesBeforeTheSpit()
-    {
-        (SuperMetroidRuntime runtime, _) = KiHunterRoomWithSessionAudio();
-        for (int update = 0; ; update++)
+        int before = KiHunterSpitStaging.UpdatesBeforeTheSpit(() =>
         {
-            runtime.AudioRequests.BeginRecordedUpdate();
-            runtime.StepFrame(0, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay });
-            if (runtime.AudioRequests.SoundRequests.Any(request => request.SoundEffect == EnemySound.AcidSpit))
-                return update;
-        }
+            (SuperMetroidRuntime replica, _) = KiHunterRoomWithSessionAudio();
+            _ = KiHunterSpitStaging.PlaceWingless(replica);
+            return replica;
+        });
+        RoomEnemyPlace kiHunter = KiHunterSpitStaging.PlaceWingless(runtime);
+        KiHunterSpitStaging.Run(runtime, before);
+        return kiHunter;
     }
 }

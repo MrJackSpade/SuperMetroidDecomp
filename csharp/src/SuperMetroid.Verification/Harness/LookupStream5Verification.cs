@@ -1111,21 +1111,21 @@ internal static class LookupStream5Verification
                 place.SetSpawnParameter2(EnemyDefinitionId.MorphBallEye, (ushort)(0x8000 | direction));
                 place.Bind(EnemyDefinitionId.MorphBallEye, place.KeptDefinition);
                 place.Position = place.Position.WithWhole(new(origin, origin));
-                new Action<RoomEnemyPlace>(fixturePlace => enemies.MorphBallEyeBehavior.InitializeMorphBallEyeMount(fixturePlace.HeldOccupant().SpawnSettings<MorphBallEyeMountSpawnSettings>(), fixturePlace))(place);
+                // The mount's setup builds the state its animation runs on.
+                MorphBallEyeMountState mountState = enemies.MorphBallEyeBehavior.InitializeMorphBallEyeMount(place.HeldOccupant().SpawnSettings<MorphBallEyeMountSpawnSettings>(), place);
                 AssertEqual(unchecked((ushort)(origin + expected.First)), place.Position.X.Whole, "Actual mount X with native wrap");
                 AssertEqual(unchecked((ushort)(origin + expected.Second)), place.Position.Y.Whole, "Actual mount Y with native wrap");
-                MorphBallEyeMountState mountState = enemies.Places.InUpdateOrder[0].SpeciesState<MorphBallEyeMountState>() ?? throw new InvalidOperationException("The mount has no state.");
                 AssertEqual(new AnimationPlayback<MorphBallEyeSegment>(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation),
                     mountState.Playback,
                     "Actual directional mount program");
-                AssertTrue(place.Entity is MorphBallEyeMountEntity, "Mount remains decorative: it is placed as a mount, whose main AI does nothing");
+                AssertTrue(place.HeldOccupant().Spawn.SpawnSettings is MorphBallEyeMountSpawnSettings, "Mount remains decorative: it is placed as a mount, whose main AI does nothing");
             }
         }
         var owner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var body = owner.Places.InUpdateOrder[1];
         body.BindPlaced(EnemyDefinitionId.MorphBallEye, new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
-        body.SetUpAsPlaced();
-        MorphBallEyeEnemyState eye = body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.");
+        // The eye's setup builds the state the beam's request reads.
+        MorphBallEyeEnemyState eye = MorphBallEyeBehavior.InitializeMorphBallEyeBody(body.HeldOccupant().SpawnSettings<MorphBallEyeBodySpawnSettings>(), body);
         // The eye's request casts the beam: its first step activates the eye and starts it widening, six more make it full.
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Request(body, eye);
         Action step = owner.MorphBallEyeBehavior.StepMorphBallEyeBeam;

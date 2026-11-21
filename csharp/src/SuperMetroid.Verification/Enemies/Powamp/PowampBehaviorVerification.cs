@@ -27,15 +27,17 @@ internal static class PowampBehaviorVerification
         balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
         balloon.Bind(EnemyDefinitionId.Powamp, balloon.KeptDefinition);
         balloon.Bind(balloon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        PowampBehavior.InitializePowampBalloon(balloon, balloon.HeldOccupant().SpawnSettings<PowampBalloonSpawnSettings>());
+        // The balloon is set up as its room sets it up, so the body that follows it finds it.
+        balloon.SetUpAsPlaced();
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
         body.BindPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts));
         body.Bind(EnemyDefinitionId.Powamp, body.KeptDefinition);
         body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        PowampBehavior.InitializePowampBody(body);
+        // The body's setup builds the state its animation runs on.
+        PowampBodyState bodyState = PowampBehavior.InitializePowampBody(body);
         AssertEqual(new AnimationPlayback<PowampSegment>(PowampAnimations.StartingWith(PowampSegment.BalloonDeflated), AnimationPlace.StartOfAnimation), balloon.RequireSpeciesState<PowampBalloonState>().Playback,
             "the balloon starts deflated");
-        AssertEqual(new AnimationPlayback<PowampSegment>(PowampAnimations.StartingWith(PowampSegment.BodySlow), AnimationPlace.StartOfAnimation), body.RequireSpeciesState<PowampBodyState>().Playback,
+        AssertEqual(new AnimationPlayback<PowampSegment>(PowampAnimations.StartingWith(PowampSegment.BodySlow), AnimationPlace.StartOfAnimation), bodyState.Playback,
             "the body starts on its slow pulse");
 
         // The ROM oracle holds every balloon beat to a four-byte native frame record, so the native pointer at a place

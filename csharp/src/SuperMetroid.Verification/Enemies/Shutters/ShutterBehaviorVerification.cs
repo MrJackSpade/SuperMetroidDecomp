@@ -25,15 +25,21 @@ internal static class ShutterBehaviorVerification
     /// </summary>
     internal static void VerifyShutterBehavior()
     {
-        VerifyPose(EnemyDefinitionId.ShutterGrowing, ShutterSegment.QuarterGrown,
-            (enemies, place) =>
-            {
-                place.SetSpawnSettings(new GrowingShutterSpawnSettings(
-                    Wait: new GrowingShutterWait.SamusNear(144), Growth: VerticalDirection.Down,
-                    GrowthSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(17)));
-                ShuttersBehavior.InitializeGrowingShutter(place.HeldOccupant().SpawnSettings<GrowingShutterSpawnSettings>(), place);
-            },
-            enemies => enemies.Places.InUpdateOrder[0].EntityState<ShuttersEntity, GrowingShutterEnemyState>()?.Playback);
+        {
+            RoomEnemySystem enemies = NewSystem();
+            RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.ShutterGrowing);
+            place.SetSpawnSettings(new GrowingShutterSpawnSettings(
+                Wait: new GrowingShutterWait.SamusNear(144), Growth: VerticalDirection.Down,
+                GrowthSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(17)));
+            // The growing shutter's setup builds the state its animation, which the check plays, runs on.
+            GrowingShutterEnemyState state = ShuttersBehavior.InitializeGrowingShutter(place.HeldOccupant().SpawnSettings<GrowingShutterSpawnSettings>(), place);
+            AssertEqual(new AnimationPlayback<ShutterSegment>(ShutterAnimations.StartingWith(ShutterSegment.QuarterGrown), AnimationPlace.StartOfAnimation), state.Playback,
+                $"shutter {EnemyDefinitionId.ShutterGrowing} initial animation");
+            ushort pose = ShutterAnimationsConstants.Spritemaps(ShutterSegment.QuarterGrown).Single();
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames([pose], [1]),
+                EnemyInstructionRunner.ShownFrames(place, 3, () => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(place, state)),
+                $"shutter {EnemyDefinitionId.ShutterGrowing} shows and holds its pose");
+        }
         foreach (EnemyDefinitionId definition in new[] { EnemyDefinitionId.ShutterShootable, EnemyDefinitionId.ShutterDestroyable })
         {
             VerifyPose(definition, ShutterSegment.FullyGrown,

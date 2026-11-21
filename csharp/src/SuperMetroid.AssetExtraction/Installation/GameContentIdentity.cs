@@ -60,7 +60,7 @@ public sealed record GameContentIdentity(
             audio.ContentIdentity,
             maps.ContentIdentity,
             projectiles.ContentSha256,
-            typeof(SuperMetroidRuntime).Module.ModuleVersionId,
+            global::SuperMetroid.Core.BuildIdentity.Version,
             additionalContentSha256);
     }
 

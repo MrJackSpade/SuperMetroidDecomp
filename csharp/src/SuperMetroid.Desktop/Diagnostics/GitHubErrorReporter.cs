@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using System.Diagnostics;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -145,13 +144,12 @@ public sealed class GitHubErrorReporter : IDisposable
             .Append(exception.Message)
             .Append('\n');
 
-        foreach (StackFrame frame in new StackTrace(exception, fNeedFileInfo: false).GetFrames())
+        // Each frame's method as the runtime names it in the stack trace, without its parameters or source location.
+        foreach (string frame in (exception.StackTrace ?? "").Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
-            MethodBase? method = frame.GetMethod();
-            identity.Append(method?.DeclaringType?.FullName)
-                .Append('.')
-                .Append(method?.Name)
-                .Append('\n');
+            string method = frame.StartsWith("at ", StringComparison.Ordinal) ? frame[3..] : frame;
+            int parameters = method.IndexOf('(', StringComparison.Ordinal);
+            identity.Append(parameters < 0 ? method : method[..parameters]).Append('\n');
         }
 
         if (exception.InnerException is Exception inner)
@@ -227,8 +225,8 @@ public sealed class GitHubErrorReporter : IDisposable
         GitHubErrorContext context)
     {
         var body = new StringBuilder();
-        body.AppendLine($"Core build ID: {typeof(UnsupportedGameStateException).Module.ModuleVersionId}");
-        body.AppendLine($"Host build ID: {typeof(GitHubErrorReporter).Module.ModuleVersionId}");
+        body.AppendLine($"Core build ID: {global::SuperMetroid.Core.BuildIdentity.Version}");
+        body.AppendLine($"Host build ID: {BuildIdentity.Version}");
         body.Append("<!-- supermetroid-error-id:")
             .Append(fingerprint)
             .AppendLine(" -->")
@@ -242,8 +240,7 @@ public sealed class GitHubErrorReporter : IDisposable
             .AppendLine()
             .Append("- Captured UTC: ").AppendLine(DateTimeOffset.UtcNow.ToString("O"))
             .Append("- Boundary: ").AppendLine(context.Boundary)
-            .Append("- Build: ").AppendLine(
-                typeof(GitHubErrorReporter).Assembly.GetName().Version?.ToString() ?? "unknown")
+            .Append("- Build: ").AppendLine(BuildIdentity.AssemblyVersion)
             .Append("- Runtime: ").AppendLine(RuntimeInformation.FrameworkDescription)
             .Append("- OS: ").AppendLine(RuntimeInformation.OSDescription);
         AppendHexContext(body, "Frame", context.FrameNumber);

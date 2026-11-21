@@ -10,4 +10,7 @@ internal static partial class BuildIdentity
     internal static partial Guid Version { get; }
     /// <summary>The build's informational version, as the build stamps it on this assembly.</summary>
     internal static partial string InformationalVersion { get; }
+
+    /// <summary>The build's assembly version.</summary>
+    internal static partial string AssemblyVersion { get; }
 }

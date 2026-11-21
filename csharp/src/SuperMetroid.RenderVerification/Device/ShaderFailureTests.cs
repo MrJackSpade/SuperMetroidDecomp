@@ -20,7 +20,7 @@ internal static class ShaderFailureTests
             try
             {
                 using var failed = new global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11FrameRenderer(device, (global::System.Func<string, global::System.IO.Stream?>)(name => name == missing ? null :
-                    typeof(D3D11FrameRenderer).Assembly.GetManifestResourceStream(name)));
+                    D3D11FrameRenderer.OpenShaderFile(name)));
             }
             catch (InvalidDataException error)
             {

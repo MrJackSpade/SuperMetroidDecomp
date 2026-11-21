@@ -1,5 +1,4 @@
 using System.IO.Compression;
-using System.Reflection;
 using System.Text;
 
 namespace SuperMetroid.Desktop.Diagnostics;
@@ -51,9 +50,8 @@ internal sealed class DesktopSessionLog : IDisposable
         var session = new DesktopSessionLog(executableDirectory);
         Console.SetOut(new SessionConsoleWriter(session, session.originalOutput));
         Console.SetError(new SessionConsoleWriter(session, session.originalError));
-        Assembly? entry = Assembly.GetEntryAssembly();
         Console.WriteLine($"Session started (UTC): {DateTimeOffset.UtcNow:O}");
-        Console.WriteLine($"Game version: {entry?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? entry?.GetName().Version?.ToString() ?? "unknown"}");
+        Console.WriteLine($"Game version: {BuildIdentity.InformationalVersion}");
         Console.WriteLine($"Executable directory: {Path.GetFullPath(executableDirectory)}");
         Console.WriteLine($"Runtime: {System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}; {System.Runtime.InteropServices.RuntimeInformation.OSDescription}");
         Console.WriteLine($"Session diagnostic ZIP: {session.ArchivePath}");

@@ -13,7 +13,7 @@ namespace SuperMetroid.EnsureAnalyzer.Generators;
 /// <c>string InformationalVersion</c> gets their values: the version is the first sixteen bytes of the SHA-256 of the
 /// assembly's name and every authored source in compilation order, so it changes exactly when the built code does; the
 /// informational version is the compilation's own <c>AssemblyInformationalVersionAttribute</c>, or "unknown" when it
-/// declares none.
+/// declares none; a <c>string AssemblyVersion</c> is the assembly's own version.
 /// </summary>
 [Generator(LanguageNames.CSharp)]
 public sealed class BuildIdentityGenerator : IIncrementalGenerator
@@ -57,6 +57,8 @@ public sealed class BuildIdentityGenerator : IIncrementalGenerator
                 members.Append($"    {accessibility} static partial global::System.Guid Version => new(\"{Version(compilation, cancellation)}\");\n");
             else if (property.Name == "InformationalVersion" && property.Type.SpecialType == SpecialType.System_String)
                 members.Append($"    {accessibility} static partial string InformationalVersion => {Literal(InformationalVersion(compilation))};\n");
+            else if (property.Name == "AssemblyVersion" && property.Type.SpecialType == SpecialType.System_String)
+                members.Append($"    {accessibility} static partial string AssemblyVersion => {Literal(compilation.Assembly.Identity.Version.ToString())};\n");
         }
         string accessibilityOfType = SyntaxFacts.GetText(type.DeclaredAccessibility);
         return $$"""

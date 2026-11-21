@@ -111,7 +111,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     public TextLanguage Language { get; private set; }
 
     /// <summary>The page the menu shows: the page taking input, or the page a transition shows (#2560).</summary>
-    public GameOptionsPage Page { get; private set; } = GameOptionsPage.Primary;
+    private GameOptionsPage Page { get; set; } = GameOptionsPage.Primary;
 
     /// <summary>The seven live button assignments committed when the controller page exits.</summary>
     public ControllerBindings ControllerBindings { get; private set; }

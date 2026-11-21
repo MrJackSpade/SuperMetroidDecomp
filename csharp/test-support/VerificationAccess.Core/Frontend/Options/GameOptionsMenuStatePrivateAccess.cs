@@ -30,4 +30,14 @@ internal static class GameOptionsMenuStatePrivateAccess
         /// <summary>The private field <c>screen</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Frontend.Menus.MenuScreen screen => PrivateState.Field<global::SuperMetroid.Core.Frontend.Options.GameOptionsMenuState, global::SuperMetroid.Core.Frontend.Menus.MenuScreen>(self, "screen");
     }
+
+    /// <summary>The private instance members checks read or call.</summary>
+    extension(global::SuperMetroid.Core.Frontend.Options.GameOptionsMenuState self)
+    {
+        /// <summary>The private property <c>Page</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Frontend.Options.GameOptionsPage Page
+        {
+            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Options.GameOptionsMenuState, global::SuperMetroid.Core.Frontend.Options.GameOptionsPage>(self, "Page");
+        }
+    }
 }

@@ -63,8 +63,9 @@ internal static class MotherBrainTubeDescentVerification
             AssertEqual(MotherBrainAscentPhase.DrawMural, state.AscentPhase, $"the mural is still drawing at update {update}");
             enemies.MotherBrainBehavior.FakeDeath.DrawNextMuralRows(state);
         }
-        AssertTrue(enemies.LastEnemyFrame.All<MotherBrainRoomChangeRequest>().SequenceEqual(Enumerable.Range(0, 12).Select(row =>
-                new MotherBrainMuralRowReveal(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainMuralRow>([typeof(int)], new object?[] { row })))),
+        AssertEqual(string.Join(",", Enumerable.Range(0, 12)),
+            string.Join(",", enemies.LastEnemyFrame.All<MotherBrainRoomChangeRequest>().Select(request =>
+                request is MotherBrainMuralRowReveal reveal ? reveal.Row.Place.ToString(System.Globalization.CultureInfo.InvariantCulture) : request.ToString())),
             "the mural's twelve rows are revealed in order");
         AssertTrue(enemies.LastEnemyFrame.All<MotherBrainRoomChangeRequest>().Select(request => request.Block).SequenceEqual(Enumerable.Range(0, 12).Select(row =>
                 new Position16<RoomBlocks>(2, 2 + row))),

@@ -184,7 +184,7 @@ public sealed partial class TitleSequenceState : IFrontendScreen, IComposedFront
     }
 
     /// <summary>The title's running step; the skip's fade-out runs alongside it (#1719).</summary>
-    public TitleSequencePhase Phase { get; private set; }
+    public TitleSequencePhase Phase { get; internal set; }
 
     /// <summary>How far the skip to the title screen has run alongside the running step (#1719).</summary>
     internal TitleSkipStage SkipStage { get; set; }

@@ -358,7 +358,6 @@ using static SuperMetroid.Verification.Rooms.Scrolling.RoomScrollDefinitionsVeri
 using static SuperMetroid.Verification.Rooms.RoomSetupCodeCatalogVerification;
 using static SuperMetroid.Verification.Rooms.RoomStateDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomStateSelectionDefinitionsVerification;
-using static SuperMetroid.Verification.Runtime.RuntimeCartridgeBoundaryVerification;
 using static SuperMetroid.Verification.Samus.Movement.SamusAerialAndLiquidsVerification;
 using static SuperMetroid.Verification.Samus.SamusAimVerification;
 using static SuperMetroid.Verification.Samus.SamusDamageAndGrabVerification;

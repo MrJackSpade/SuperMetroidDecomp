@@ -33,7 +33,7 @@ internal static class SamusBallBounceDefinitionsVerification
             for (int phase = 0; phase < 3; phase++)
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
-                samus.Pose = pose;
+                samus.ChangePoseKeepingAnimation(pose);
                 samus.MorphBallBounceState = phase switch
                 {
                     0 => SamusBallBounceState.None,

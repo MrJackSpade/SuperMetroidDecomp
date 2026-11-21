@@ -17,7 +17,7 @@ internal static class SamusStateAccess
         internal SamusPoseId PoseId
         {
             get => self.Pose;
-            set => self.Pose = value;
+            set => self.ChangePoseKeepingAnimation(value);
         }
 
         /// <summary>

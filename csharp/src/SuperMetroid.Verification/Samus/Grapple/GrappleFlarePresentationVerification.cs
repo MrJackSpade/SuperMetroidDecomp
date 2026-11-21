@@ -53,7 +53,7 @@ internal static class GrappleFlarePresentationVerification
             Check(native, actual, wholeState: cases == 0);
             SamusState Seed(SamusState samus)
             {
-                samus.Pose = pose;
+                samus.ChangePoseKeepingAnimation(pose);
                 samus.Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate));
                 samus.Grapple.Phase = phase;
                 samus.Grapple.FireDirection = pose is SamusPoseId.FacingLeftNormalPose or SamusPoseId.MovingLeftNormalPose

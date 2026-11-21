@@ -224,7 +224,7 @@ SamusTerrain.InRoom(firingLevel, SamusRoomObjectFixtures.Uninstalled), firingSam
         SamusTerrain.InRoom(firingLevel, SamusRoomObjectFixtures.Uninstalled),
         deferredConnectionSamus,
         GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
-    deferredConnectionSamus.Pose = SamusPoseId.NormalJumpForwardLeftPose;
+    deferredConnectionSamus.ChangePoseKeepingAnimation(SamusPoseId.NormalJumpForwardLeftPose);
     // Native frame 411 is already aimed left while the previously launched endpoint
     // reaches its block. Keep that accepted direction in sync so the firing-pose-change
     // pre-handler does not legitimately restart the beam before collision dispatch.

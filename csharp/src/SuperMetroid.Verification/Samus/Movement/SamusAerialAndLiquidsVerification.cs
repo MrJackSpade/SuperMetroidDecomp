@@ -215,7 +215,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, unche
         foreach (SamusPoseId target in new[] { unselectable.SpinTarget, unselectable.NeutralTarget })
         {
             SamusState turning = InstalledFixtures.CreateSamus();
-            turning.Pose = unselectable.Source;
+            turning.ChangePoseKeepingAnimation(unselectable.Source);
             AssertThrows<InvalidOperationException>(
                 () => SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(turning, target),
                 $"diagonal-up aimed turn {unselectable.Source} admits no jump to {target}");

@@ -335,7 +335,7 @@ internal static void VerifySamusRenderingSlice()
     {
         AssertEqual(movementType, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose)), "Rendering fixture uses native movement identity");
         // The native state holds the pose animating by its own animation at the frame the case draws.
-        samus.Pose = pose;
+        samus.ChangePoseKeepingAnimation(pose);
         samus.AnimatedPose = pose;
         samus.AnimationNumber = frame;
         oamFrame.BeginFrame();
@@ -349,7 +349,7 @@ internal static void VerifySamusRenderingSlice()
 
     // Positioning must consume those same ROM bytes instead of duplicating a convenient
     // host switch. `$37` proves signed -4/-2 values.
-    samus.Pose = SamusPoseId.MorphingTransitionRightPose;
+    samus.ChangePoseKeepingAnimation(SamusPoseId.MorphingTransitionRightPose);
     samus.AnimatedPose = samus.Pose;
     samus.Position = samus.Position.WithWholeY(0x0086);
     samus.AnimationNumber = 0;
@@ -370,7 +370,7 @@ internal static void VerifySamusRenderingSlice()
     // Standing's position selector has two special families. Front-view frames zero/one
     // remain generic, but frame two and later use Y-1. Keep frame two here because pose `$00`
     // already carries a deliberately different graphics offset in the fixture above.
-    samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
+    samus.ChangePoseKeepingAnimation(SamusPoseId.ForwardFacingPowerSuitPose);
     samus.AnimatedPose = samus.Pose;
     WriteSamusTileAnimationPointer(bus, samus.Pose, 0xe100);
     samus.AnimationNumber = 2;
@@ -394,7 +394,7 @@ internal static void VerifySamusRenderingSlice()
     WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.NormalLandingRightPose), [8, 0, 0xff, 0xff, 9, 0, 21, 0]);
     WriteSamusTileAnimationPointer(bus, SamusPoseId.NormalLandingRightPose, 0xe100);
     WriteSamusSpritemapBases(bus, SamusPoseId.NormalLandingRightPose, top: 0, bottom: 0);
-    samus.Pose = SamusPoseId.NormalLandingRightPose;
+    samus.ChangePoseKeepingAnimation(SamusPoseId.NormalLandingRightPose);
     samus.AnimatedPose = samus.Pose;
     samus.AnimationNumber = 0;
     oamFrame.BeginFrame();
@@ -417,7 +417,7 @@ internal static void VerifySamusRenderingSlice()
     // Over the Ceres shaft's turning floor, Samus's drawing turns her point with the floor before applying the
     // ordinary pose offset. A quarter turn around (1152, 128) maps (+8,+6) to (-6,+8). The body must use that
     // temporary point while collision-visible Samus coordinates remain unchanged afterward.
-    samus.Pose = SamusPoseId.FacingRightNormalPose;
+    samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
     samus.AnimatedPose = samus.Pose;
     samus.AnimationNumber = 0;
     samus.Position = samus.Position.WithWhole(new(0x0488, 0x0086));

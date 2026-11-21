@@ -31,7 +31,7 @@ internal static class SpinChargeVerification
             for (int frame = 0; frame < 60; frame++)
                 projectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
             AssertEqual(60, projectiles.Charge.UpdatesHeld, "spin charge fixture armed through real producer");
-            samus.Pose = pose;
+            samus.ChangePoseKeepingAnimation(pose);
             foreach (GameplayAction input in new GameplayAction[] { GameplayAction.Shoot, 0, 0 })
             {
                 projectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
@@ -39,7 +39,7 @@ internal static class SpinChargeVerification
                 AssertEqual(0, projectiles.Pool.ShotCount.Count, $"pose {(int)SamusPoseNumbers.Number(pose):X2} keeps empty projectile slots");
             }
             // Leaving spin must restore normal release semantics, not lock charge forever.
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             projectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
             AssertEqual(0, projectiles.Charge.UpdatesHeld, "ordinary pose consumes the retained charge");
         }

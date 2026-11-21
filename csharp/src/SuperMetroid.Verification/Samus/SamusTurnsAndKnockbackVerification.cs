@@ -216,7 +216,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         AssertEqual((ushort)SixteenSixteenWords.WholeOf(extra), endpoint.HorizontalSpeed.ExtraRunSpeed.Whole, "turn endpoint retains whole dash speed");
         AssertEqual((ushort)extra, endpoint.HorizontalSpeed.ExtraRunSpeed.Fraction, "turn endpoint retains fractional dash speed");
 
-        endpoint.Pose = source;
+        endpoint.ChangePoseKeepingAnimation(source);
         SamusPresentation.InitializeAnimation(endpoint);
         endpoint.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         ushort timerBeforeRelease = endpoint.AnimationFrameTimer.RawValue;

@@ -49,7 +49,7 @@ internal static class PoseProjectileOriginVerification
             foreach (int pose in Enumerable.Range(0, SamusPoseNumbering.RecordCount).Where(SamusPoseNumbering.NamesPose))
             for (byte direction = 0; direction < 10; direction++)
             {
-                guardedPose = samus.Pose = SamusPoseNumbering.FromNumber(pose);
+                guardedPose = samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(pose));
                 // Her centre lies at least 21 pixels inside the room's left edge (#2528); her height, ~X, lies above the room.
                 samus.Position = samus.Position.WithWholeX(21 + (pose * 251 + art) % 4096);
                 samus.Position = samus.Position.WithWholeY(unchecked((ushort)~samus.Position.X.Whole));

@@ -100,7 +100,7 @@ internal static class GModeGateGlitchVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         EnterDirectGMode(samus);
         samus.Position = samus.Position.WithWhole(new(140, 360));
-        samus.Pose = SamusPoseId.FacingLeftNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingLeftNormalPose);
         samus.EquippedBeams = SamusBeamFlags.Wave;
         samus.SelectedHudItem = HudItem.Beam;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -476,7 +476,7 @@ internal static class GModeGateGlitchVerification
     /// <summary>Uses fatal X-Ray damage and reserve recovery to reach direct G-Mode with all subsystem words disabled.</summary>
     private static void EnterDirectGMode(SamusState samus)
     {
-        samus.Pose = SamusPoseId.FacingLeftNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingLeftNormalPose);
         samus.EquippedItems |= SamusEquipmentFlags.XrayScope;
         samus.Health = 0;
         samus.MaxHealth = 99;

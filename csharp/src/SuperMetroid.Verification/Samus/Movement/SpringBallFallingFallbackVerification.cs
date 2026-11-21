@@ -38,7 +38,7 @@ internal static class SpringBallFallingFallbackVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpringBall);
-        samus.Pose = SamusPoseId.SpringBallFallingRightPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.SpringBallFallingRightPose);
         samus.Position = samus.Position.WithWhole(new(512, 400));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);

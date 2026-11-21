@@ -605,7 +605,7 @@ internal static void VerifySamusXray()
     AssertEqual(0, interrupted.AudioRequests.CountOf(SamusSound.XrayStart),
         "deferred setup does not queue command-five activation sound early");
 
-    interrupted.Pose = SamusPoseId.MovingLeftNormalPose;
+    interrupted.ChangePoseKeepingAnimation(SamusPoseId.MovingLeftNormalPose);
     AssertTrue(!interrupted.Xray.CommitActivation(interrupted, interruptedPose ?? throw new InvalidOperationException("The admitted setup returned no activation pose."), superseded: true),
         "higher-priority hit expiry suppresses only X-Ray's Samus command");
     AssertEqual(SamusPoseId.MovingLeftNormalPose, interrupted.Pose,

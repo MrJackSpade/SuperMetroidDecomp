@@ -54,7 +54,7 @@ internal static class RidleyFullMovieVerification
         {
             runtime.System.SetRandomNumber((ushort)sample.First);
             (state ?? throw new InvalidOperationException("Verification requires state.")).Flight.Roaring = sample.Second; state.Flight.FacingDirection = sample.Third;
-            state.PhaseTimer.LastFor(21); samus.Pose = SamusPoseId.SpinJumpRightPose;
+            state.PhaseTimer.LastFor(21); samus.ChangePoseKeepingAnimation(SamusPoseId.SpinJumpRightPose);
             state.Flight.BodyPlayback = pointers.BodyPlaybackAt(NativeSnapshotMemory.RidleyRightFlyingSleep, state.Flight.FacingDirection);
             body.AnimationClock.HoldFor(9);
             runtime.Enemies.NorfairRidleyBehavior.Combat.TickNorfairRidleyWallSweep(body, state, samus, RidleyWallSweepTarget.WallBehind);
@@ -83,7 +83,7 @@ internal static class RidleyFullMovieVerification
         state.Phase = NorfairRidleyPhase.CarryRelease; state.PhaseTimer.LastFor(11);
         state.Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(0xfc00)); state.Flight.Velocity = state.Flight.Velocity.WithY(new SignedEightEight(0x0300));
         state.Tail.Action = RidleyTailAction.None;
-        samus.Position = samus.Position.WithWhole(new(110, 300)); samus.Pose = SamusPoseId.NormalJumpAimDiagonalUpRightPose;
+        samus.Position = samus.Position.WithWhole(new(110, 300)); samus.ChangePoseKeepingAnimation(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
         samus.Health = 399; samus.EquippedItems = SamusEquipmentFlags.GravitySuit;
         samus.InvincibilityTimer = WrappingCountdown.Start(0); SamusPoseMetadata.RefreshCollisionRadii(samus);
         // One EnemyMain pass outside the frame loop, as the door-transition wait runs it: no prepared processing list.
@@ -152,7 +152,7 @@ internal static class RidleyFullMovieVerification
         (state ?? throw new InvalidOperationException("Verification requires state.")).Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(0xc0)); state.Flight.Velocity = state.Flight.Velocity.WithY(new SignedEightEight(0x400));
         state.Flight.FacingDirection = RidleyFacing.Right; state.Phase = NorfairRidleyPhase.PogoFall;
         state.GrabState = RidleyGrabState.Released; state.Flight.ClawHeight = RidleyClawHeight.Standing;
-        samus.Position = samus.Position.WithWhole(new(198, 402)); samus.Pose = SamusPoseId.KnockbackLeftPose;
+        samus.Position = samus.Position.WithWhole(new(198, 402)); samus.ChangePoseKeepingAnimation(SamusPoseId.KnockbackLeftPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         runtime.Enemies.NorfairRidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, samus, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
         AssertEqual(NorfairRidleyPhase.CarryMoveToAnchor, state.Phase, "native grab immediately enters carry movement");
@@ -174,7 +174,7 @@ internal static class RidleyFullMovieVerification
         state.Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(0x2b0)); state.Flight.Velocity = state.Flight.Velocity.WithY(new SignedEightEight(0x3cd));
         state.Flight.FacingDirection = RidleyFacing.Right; state.HealthBand = NorfairRidleyHealthBandDefinitions.NearlyDead; state.Flight.HitRoomBoundary = false;
         state.GrabState = RidleyGrabState.Released; state.Flight.ClawHeight = RidleyClawHeight.Standing;
-        samus.Position = samus.Position.WithWhole(new(156, 411)); samus.Pose = SamusPoseId.FacingLeftNormalPose;
+        samus.Position = samus.Position.WithWhole(new(156, 411)); samus.ChangePoseKeepingAnimation(SamusPoseId.FacingLeftNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         NorfairRidleyCombat.TickNorfairRidleyGrabApproach(body, state, samus, runtime.BombProjectiles.PowerBombExplosion);
         AssertEqual(NorfairRidleyPhase.CarryMoveToAnchor, state.Phase, "lunge grab enters immediate carry");
@@ -185,7 +185,7 @@ internal static class RidleyFullMovieVerification
         body.Position = new(new(134, 0x7d00), new(356, 0xec00)); body.Health = 0;
         state.Flight.Velocity = state.Flight.Velocity.WithX(new SignedEightEight(0x1de)); state.Flight.Velocity = state.Flight.Velocity.WithY(new SignedEightEight(0x419));
         state.FightMode = RidleyFightMode.Fighting; state.GrabState = RidleyGrabState.Released; state.PhaseTimer.LastFor(0x2A);
-        samus.Position = samus.Position.WithWhole(new(134, 411)); samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.Position = samus.Position.WithWhole(new(134, 411)); samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         NorfairRidleyCombat.TickNorfairRidleyGrabApproach(body, state, samus, runtime.BombProjectiles.PowerBombExplosion);
         AssertEqual(NorfairRidleyPhase.MoveToDeathSpot, state.Phase, "zero-health grab enters death movement");
@@ -355,7 +355,7 @@ internal static class RidleyFullMovieVerification
                 "command seven replaces previous whole Y and retains previous fraction");
             AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous), "checkpoint consumed once");
 
-            samus.Pose = left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
+            samus.ChangePoseKeepingAnimation(left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPosturePoseTransitions.ApplyMorphTransition(samus, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
                 left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose, 0);
@@ -376,7 +376,7 @@ internal static class RidleyFullMovieVerification
             SamusPoseTransitions.ApplyAerialLandingInRoom(samus, level, false, 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
             AssertEqual(1, samus.AnimationNumber, "native standing initializer skips raised-gun frame");
             AssertEqual((ushort)2, samus.AnimationFrameTimer.RawValue, "native source3604 landing delay");
-            samus.Pose = pose;
+            samus.ChangePoseKeepingAnimation(pose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPoseTransitions.ApplyAerialLanding(samus, false, GameplayAction.None);
             AssertEqual(1, samus.AnimationNumber, "roomless landing shares native frame skip");
@@ -505,7 +505,7 @@ internal static class RidleyFullMovieVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpringBall);
-        samus.Pose = SamusPoseId.SpringBallMovingLeftPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.SpringBallMovingLeftPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(5), 3);
         samus.Position = new(new(79, 0x8000), new(425, ushort.MaxValue));
@@ -522,7 +522,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(FixedCoordinate.Of(0x004c, 0x4000), samus.Kinematics.Position.X, "released spring ball stays stopped next update");
         // Original source 1983: stationary Spring Ball keeps command six even
         // while the hurt mover calculates a fresh fractional base speed.
-        samus.Pose = SamusPoseId.SpringBallGroundRightPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.SpringBallGroundRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         samus.Position = new(new(202, 0x8000), new(425, ushort.MaxValue));
         samus.KnockbackActive = true; samus.KnockbackDirection = SamusKnockbackDirection.UpRight;
@@ -671,7 +671,7 @@ internal static class RidleyFullMovieVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPresentation.InitializeAnimation(samus);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.Position = samus.Position.WithWhole(new(512, 400));

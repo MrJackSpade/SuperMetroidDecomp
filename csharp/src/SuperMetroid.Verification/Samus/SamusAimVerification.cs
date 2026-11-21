@@ -452,7 +452,7 @@ SamusTerrain.InRoom(boxedLevel, SamusRoomObjectFixtures.Uninstalled), SamusPoseI
 
     // PSP_Falling chooses ordinary falling from the physics-facing byte. Aim is
     // reconsidered on the next input pass, rather than being preserved by the walk-off.
-    samus.Pose = SamusPoseId.StandingAimDiagonalUpRightPose;
+    samus.ChangePoseKeepingAnimation(SamusPoseId.StandingAimDiagonalUpRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     SamusPresentation.InitializeAnimation(samus);
     AssertEqual(SamusPoseId.FallingRightPose, SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus), "up-right walk-off target");

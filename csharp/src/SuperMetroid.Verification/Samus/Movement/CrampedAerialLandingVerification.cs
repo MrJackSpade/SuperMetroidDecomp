@@ -94,7 +94,7 @@ internal static class CrampedAerialLandingVerification
 
         WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.ScrewAttackRightPose),
             [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
-        samus.Pose = SamusPoseId.ScrewAttackRightPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.ScrewAttackRightPose);
         samus.Position = samus.Position.WithWholeY(0x0034);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPoseTransitions.ApplyAerialLandingInRoom(samus, level, true, 0, 39440, roomObjects: SamusRoomObjectFixtures.Uninstalled);

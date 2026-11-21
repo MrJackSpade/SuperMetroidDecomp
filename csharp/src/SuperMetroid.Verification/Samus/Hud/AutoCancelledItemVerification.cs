@@ -35,7 +35,7 @@ internal static class AutoCancelledItemVerification
         foreach (bool autoCancelled in new[] { true, false })
         {
             SamusState samus = InstalledFixtures.CreateSamus();
-            samus.Pose = pose;
+            samus.ChangePoseKeepingAnimation(pose);
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);

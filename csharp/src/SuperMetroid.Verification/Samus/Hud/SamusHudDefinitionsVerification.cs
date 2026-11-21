@@ -69,7 +69,7 @@ internal static class SamusHudDefinitionsVerification
             {
                 if (rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != movement) continue;
                 if (!SamusPoseNumbering.NamesPose(pose)) continue;
-                metadataPose = samus.Pose = SamusPoseNumbering.FromNumber(pose);
+                metadataPose = samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(pose));
                 if (locked) samus.Control.LockOutPlayer(); else samus.Control.Unlock();
                 samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(selected); setTurn(samus, turn);
                 bool expected = !locked && pose is not (0 or 0x9b) && selected == 4 &&
@@ -95,7 +95,7 @@ internal static class SamusHudDefinitionsVerification
             for (int frame = 0; frame < 10; frame++)
                 shots.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
             AssertEqual(10, shots.Charge.UpdatesHeld, "Fixture charge earned through real producer");
-            metadataPose = samus.Pose = pose;
+            metadataPose = samus.ChangePoseKeepingAnimation(pose);
             setTurn(samus, turn);
             SamusHudSelectionMode handler = HandlerOf(rom, movement);
             bool ball = SamusPoseMetadata.IsStableBallPose(pose);

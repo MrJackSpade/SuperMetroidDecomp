@@ -570,7 +570,6 @@ global using static SuperMetroid.Core.Frontend.Ending.EndingLogoPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingPictureSpritePrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingPostShotPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingRewardJumpPrivateAccess;
-global using static SuperMetroid.Core.Frontend.Ending.EndingShipShakeCursorPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingSpriteSheetsPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingTextAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Frontend.FileSelect.FileSelectAreaMapGraphicsPrivateAccess;
@@ -698,7 +697,6 @@ global using static SuperMetroid.Core.Samus.Projectiles.BeamChargeStatePrivateAc
 global using static SuperMetroid.Core.Samus.Projectiles.BeamCombosPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.BeamFiringPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.BombSpreadFlightPrivateAccess;
-global using static SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponentStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.ChargedShotGlowPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.HyperBeamColourEffectStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.PowerBombBlastTimelinePrivateAccess;

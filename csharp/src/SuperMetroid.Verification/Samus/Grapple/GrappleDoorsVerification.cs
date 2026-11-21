@@ -71,7 +71,7 @@ internal static class GrappleDoorsVerification
     /// <summary>Seeds an endpoint collision probe without an impossible forward-facing firing pose.</summary>
     internal static void SeedStationaryGrappleCollisionProbe(SamusState samus)
     {
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Grapple.Phase = GrapplePhase.Firing;
         samus.Grapple.FireDirection = SamusPoseMetadata.ReadAimDirection(samus)
             ?? throw new InvalidOperationException("The grapple probe's standing pose aims in a direction.");

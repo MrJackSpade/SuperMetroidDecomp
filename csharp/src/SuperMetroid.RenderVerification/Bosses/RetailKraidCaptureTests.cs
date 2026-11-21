@@ -37,7 +37,7 @@ internal static class RetailKraidCaptureTests
         var samus = runtime.Player.IntroducedSamus;
         // Match the existing Kraid rise audit's stationary approach position.
         samus.Position = samus.Position.WithWhole(new(128, 456));
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         // The first sample is captured before any update: latch the loaded room for display first.
         runtime.FrameBoundary.BeginAcceptedFrame(0);

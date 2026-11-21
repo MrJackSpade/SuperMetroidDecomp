@@ -34,7 +34,7 @@ internal static class GrappleSoundsVerification
         foreach (GrapplePhase phase in new[] { GrapplePhase.CancelPending, GrapplePhase.ReleaseFromSwing, GrapplePhase.Dropped })
         {
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            samus.Pose = SamusPoseId.GrappleSwingRightPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.GrappleSwingRightPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Grapple.Phase = phase;
             if (phase == GrapplePhase.CancelPending)

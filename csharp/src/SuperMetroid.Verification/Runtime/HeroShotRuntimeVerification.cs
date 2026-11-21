@@ -52,7 +52,7 @@ internal static class HeroShotRuntimeVerification
             }
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             samus.Position = samus.Position.WithWhole(new(512, 490));
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);

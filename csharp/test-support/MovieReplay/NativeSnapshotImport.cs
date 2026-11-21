@@ -258,7 +258,7 @@ internal static class NativeSnapshotImport
         samus.ReserveTankMode = SaveSlotNumbering.SavedReserveMode(W(NativeSnapshotMemory.ReserveMode));
         samus.MaxReserveEnergy = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxReserve));
         samus.ReserveEnergy = SamusCountWords.Decode(W(NativeSnapshotMemory.Reserve));
-        samus.Pose = SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.Pose));
+        samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.Pose)));
         samus.Position = samus.Position.WithWhole(new(W(NativeSnapshotMemory.X), W(NativeSnapshotMemory.Y)));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(W(NativeSnapshotMemory.XFraction)).WithFractionY(W(NativeSnapshotMemory.YFraction));
         SamusPoseMetadata.RefreshCollisionRadii(samus);

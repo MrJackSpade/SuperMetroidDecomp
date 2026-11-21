@@ -80,7 +80,7 @@ internal static class ChargeFlareProductionVerification
         runtime.Artwork.ChargeFlarePlacement = placement;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
+        runtime.Player.IntroducedSamus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         SamusPresentation.InitializeAnimation(runtime.Player.IntroducedSamus);
         InstalledFixtures.BindProjectileArtwork(runtime);

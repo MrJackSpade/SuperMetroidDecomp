@@ -59,7 +59,7 @@ internal static class EscapeRunningFootstepsVerification
                 Effects = [.. request.Effects.Where(effect => effect is not (MotherBrainStepEffect.DefeatRecord or MotherBrainStepEffect.ZebesTimebombEvent))],
             }, SuperMetroid.Core.World.EnemyRoomEffectSite.Of(runtime.Room.LoadedScope, samus));
 
-            samus.Pose = pose;
+            samus.ChangePoseKeepingAnimation(pose);
             samus.Control.Unlock();
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(8));

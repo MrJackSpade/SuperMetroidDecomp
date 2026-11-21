@@ -136,7 +136,7 @@ internal static class GrappleFiringDefinitionsVerification
         foreach (bool left in new[] { false, true })
         foreach (GameplayAction input in heldInputs)
         {
-            samus.Pose = left ? SamusPoseId.DraygonGrabbedMovingLeftPose : SamusPoseId.DraygonGrabbedMovingRightPose;
+            samus.ChangePoseKeepingAnimation(left ? SamusPoseId.DraygonGrabbedMovingLeftPose : SamusPoseId.DraygonGrabbedMovingRightPose);
             samus.Position = samus.Position.WithWhole(new(512, 512));
             bool outward = input.HasAny(left ? GameplayAction.Left : GameplayAction.Right);
             int direction = outward && input.HasAny(GameplayAction.Down) ? (left ? 6 : 3) :

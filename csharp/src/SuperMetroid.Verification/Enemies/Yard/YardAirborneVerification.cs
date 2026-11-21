@@ -113,7 +113,7 @@ internal static class YardAirborneVerification
         RoomEnemyPlace actor = enemies.Places.InUpdateOrder[yard];
         YardEnemyState state = enemies.YardStates[yard] ?? throw new InvalidOperationException("The Aqueduct's Yard has no state.");
         SamusState samus = runtime.Player.IntroducedSamus;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         // One enemy pass over the Yard, with the camera on it, makes it an enemy the touch pass reaches, as the room's
         // contact check does; the scrolling, which would record a new measure, does not run.

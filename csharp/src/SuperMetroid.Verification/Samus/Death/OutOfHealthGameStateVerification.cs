@@ -365,7 +365,7 @@ internal static class OutOfHealthGameStateVerification
         samus.Control.Unlock();
         samus.Health = 999;
         samus.ReserveEnergy = 0;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
@@ -407,7 +407,7 @@ internal static class OutOfHealthGameStateVerification
         runtime.EnemySession.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(128, 96));
@@ -439,7 +439,7 @@ internal static class OutOfHealthGameStateVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(128, 139));

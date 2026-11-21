@@ -92,7 +92,7 @@ internal static class BombJumpWallVerification
         // Damage may interrupt a humanoid bomb start before its first moving frame.
         // Native owns independent movement/input pointers: replace only the former
         // until the common hurt-expiry command restores both.
-        hurt.Pose = SamusPoseId.NormalJumpForwardRightPose;
+        hurt.ChangePoseKeepingAnimation(SamusPoseId.NormalJumpForwardRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(hurt);
         AssertTrue(SamusKnockbackMovement.Start(hurt, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left, KnockbackTimer = SuperMetroid.Core.Enemies.EnemyCollisionDefinitions.SamusTouchKnockbackUpdates }, poseCollision: null), "normal hurt interrupts humanoid bomb start");
         AssertTrue(!hurt.BombJumpStarting && !hurt.BombJumpActive, "hurt replaces the bomb movement owner immediately");

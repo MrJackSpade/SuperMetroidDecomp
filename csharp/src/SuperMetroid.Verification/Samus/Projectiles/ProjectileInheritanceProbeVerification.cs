@@ -197,7 +197,7 @@ internal static class ProjectileInheritanceProbeVerification
         samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(0);
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(512, 490));
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
         SamusPoseMetadata.RefreshCollisionRadii(samus);

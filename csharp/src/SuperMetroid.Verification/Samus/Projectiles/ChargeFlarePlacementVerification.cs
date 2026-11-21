@@ -190,7 +190,7 @@ internal static class ChargeFlarePlacementVerification
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
+        runtime.Player.IntroducedSamus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         SamusPresentation.InitializeAnimation(runtime.Player.IntroducedSamus);
         runtime.Projectiles.Charge.SetFlareCount(30);

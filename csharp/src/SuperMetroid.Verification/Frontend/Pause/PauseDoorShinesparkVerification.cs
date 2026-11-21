@@ -57,7 +57,7 @@ internal static class PauseDoorShinesparkVerification
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();
             samus.Health = 999;
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);

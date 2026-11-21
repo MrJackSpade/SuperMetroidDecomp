@@ -77,7 +77,7 @@ internal static class GrappleConnectionDefinitionsVerification
             int sourcePose = Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose).FirstOrDefault(pose =>
                 GrappleConnectionDispatchRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) == movement, -1);
             if (sourcePose < 0) continue; // Native unused movement $0C has no authored pose.
-            metadataPose = samus.Pose = SamusPoseNumbering.FromNumber(sourcePose);
+            metadataPose = samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(sourcePose));
             samus.Position = samus.Position.WithWhole(new(512, 512));
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(vertical == 1 ? (ushort)1 : (ushort)0, vertical == 2 ? (ushort)1 : (ushort)0));
             var g = samus.Grapple;
@@ -215,7 +215,7 @@ internal static class GrappleConnectionDefinitionsVerification
             bool banned = GrappleCancellationAndDropRomByte(rom, 0x9bb8b8 + movement) != 0;
             byte direction = GrappleCancellationAndDropRomByte(rom,
                 SamusSourceDefinitions.PoseDefinitions.Value + sourcePose * 8 + 3);
-            samus.Pose = SamusPoseNumbering.FromNumber(sourcePose);
+            samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(sourcePose));
             samus.Grapple.Phase = GrapplePhase.Firing; samus.Grapple.FireDirection = SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right;
             samus.Grapple.PoseChangeAutoFireTimer = UpdateCountdown.For(timer);
             samus.LiquidPhysics.BeginFrameSoundRequests();
@@ -232,7 +232,7 @@ internal static class GrappleConnectionDefinitionsVerification
             int sourcePose = Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose).First(pose =>
                 GrappleCancellationAndDropRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction &&
                 SamusPoseNumbering.FromNumber(pose) is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose));
-            samus.Pose = SamusPoseNumbering.FromNumber(sourcePose);
+            samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(sourcePose));
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY((ushort)radius);
             AssertEqual(GrappleCancellationAndDropRomByte(rom, (radius < 17 ? 0x9bc9c4 : 0x9bc9ba) + direction), drop(guard, samus), "Actual directional drop at every radius");
         }
@@ -241,7 +241,7 @@ internal static class GrappleConnectionDefinitionsVerification
             SamusPoseNumbering.FromNumber(pose) is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose)))
         foreach (ushort radius in new ushort[] { 0, 16, 17, ushort.MaxValue })
         {
-            samus.Pose = SamusPoseNumbering.FromNumber(sourcePose);
+            samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(sourcePose));
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(radius);
             bool left = SamusPoseMetadata.IsFacingLeft(SamusPoseNumbering.FromNumber(sourcePose));
             int expected = radius < 17 ? (left ? 0x28 : 0x27) : (left ? 2 : 1);
@@ -250,7 +250,7 @@ internal static class GrappleConnectionDefinitionsVerification
         foreach (bool left in new[] { false, true })
         foreach (ushort radius in new ushort[] { 0, 16, 17, ushort.MaxValue })
         {
-            samus.Pose = left ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose;
+            samus.ChangePoseKeepingAnimation(left ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose);
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(radius);
             AssertEqual(left ? 2 : 1, drop(NewSlopeHeightNoReadBus(), samus), "Swing-pose drop bypasses all metadata");
         }

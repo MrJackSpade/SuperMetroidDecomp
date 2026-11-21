@@ -86,7 +86,7 @@ internal static class ReserveModeVerification
         secondRecovery.Begin(knockbackVariant);
         while (secondRecovery.IsActive)
             secondRecovery.StepAfterFrame(knockbackVariant, 0);
-        knockbackVariant.Pose = SamusPoseId.FacingRightNormalPose;
+        knockbackVariant.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(knockbackVariant);
         SamusPresentation.InitializeAnimation(knockbackVariant);
         knockbackVariant.HorizontalSpeed.SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage;

@@ -47,7 +47,7 @@ internal static class ChainsawFiringVerification
         pause.Step(0, (ControllerButton.Left | ControllerButton.A));
         AssertEqual((ushort)0x000d, samus.EquippedBeams.ToEquipmentWord(),
             "same-frame Boots Left+A equips Wave, Spazer, and Plasma without Ice");
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(128, 128));
         samus.SelectedHudItem = HudItem.Beam;
         var shared = CreateBombFixture();

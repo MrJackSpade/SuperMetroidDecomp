@@ -31,7 +31,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// The room's Fireflea darkness, which its Fireflea effect starts as the room loads and which lasts as long as the
     /// room; null when the room's effect is not Fireflea darkness (#2053).
     /// </summary>
-    public FirefleaFxState? Fireflea { get; private set; }
+    public FirefleaFxState? Fireflea { get; internal set; }
 
     /// <summary>
     /// Whether the room's last applied effect animates Samus's visor (<see cref="RoomEffectDefinition.VisorAnimation"/>):
@@ -95,7 +95,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// motion pass after the room loads, and each pass from then moves the lava, acid or water before the update draws its
     /// random number, until an enemy ends the motion directly, which stops its per-frame updates until the next room load.
     /// </summary>
-    internal LiquidMotion Motion { get; private set; }
+    internal LiquidMotion Motion { get; set; }
 
     /// <summary>Lava's bubbling clock, which falls due each time lava bubbles.</summary>
     private IntervalClock lavaBubbling;
@@ -127,14 +127,14 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     internal bool QuakeSoundsSilenced { get; private set; }
 
     /// <summary>The kind of effect the room shows.</summary>
-    public RoomFxType Type { get; private set; }
+    public RoomFxType Type { get; internal set; }
 
     /// <summary>
     /// The liquid surface before tide displacement, a room line at or below the room's top with its fraction: the room
     /// effect's starting level (a room load starts the fraction at half a pixel), moved toward <see cref="TargetSurface"/> by
     /// <see cref="LiquidLevelSpeed"/>; null when the effect names no surface or the room has no effect (#1546).
     /// </summary>
-    public FixedCoordinate? BaseY { get; private set; }
+    public FixedCoordinate? BaseY { get; internal set; }
 
     /// <summary>
     /// The room line, at or below the room's top, a rising or falling liquid stops at, or null when nothing names one and
@@ -177,13 +177,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// The live liquid surface's room line after rising and tide processing, or null while the liquid has no surface
     /// (#1546). A tide can carry the surface above the room's top, to a negative line, where the room shows no liquid.
     /// </summary>
-    public int? Surface { get; private set; }
+    public int? Surface { get; internal set; }
 
     /// <summary>
     /// The liquid the room effect fills the room with, as room objects have since changed it, or null for an effect with no
     /// liquid (#1695).
     /// </summary>
-    public RoomLiquid? Liquid { get; private set; }
+    public RoomLiquid? Liquid { get; internal set; }
 
     /// <summary>
     /// The earthquake the current effect pass sustains (<see cref="RoomEarthquake.Sustain"/>), if any: rising lava's or
@@ -746,7 +746,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// Moves the tide: the surface's offset is the tide's wave at its crest's height, and the phase advances by a different
     /// step in each half-wave, so the tide spends longer in one half than in the other.
     /// </summary>
-    private void StepLiquidTide()
+    internal void StepLiquidTide()
     {
         LiquidTide tide = Liquid?.Tide ?? LiquidTide.None;
         if (tide == LiquidTide.None)

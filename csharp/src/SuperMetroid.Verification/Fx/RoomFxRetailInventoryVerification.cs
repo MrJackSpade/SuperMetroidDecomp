@@ -812,6 +812,9 @@ internal static class RoomFxRetailInventoryVerification
                 expectedRequests = 1;
                 referenceSoundCount++;
             }
+            // The runtime steps without the game's audio dispatch, so the session's queues would fill and turn the quake
+            // away; empty them as a dispatch that played every sound leaves them, so each frame's admission is the quake's own.
+            runtime.AudioRequests.QueuesReached.Reset();
             runtime.StepFrame(0);
             // Lava's ambient sound ($88:B421, #1269) shares the request list; this checks the
             // earthquake cadence only.

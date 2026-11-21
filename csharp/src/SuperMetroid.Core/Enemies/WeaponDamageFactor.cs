@@ -11,7 +11,7 @@ public readonly record struct WeaponDamageFactor
     private const int HalvesPerWholeDamage = 2;
 
     /// <summary>Keeps the factor as the halves of the weapon's damage a hit deals, zero or more.</summary>
-    private WeaponDamageFactor(int halves) => _halves = Ensure.AtLeastZero(halves);
+    internal WeaponDamageFactor(int halves) => _halves = Ensure.AtLeastZero(halves);
 
     /// <summary>The halves of the weapon's damage a hit deals, zero or more.</summary>
     private readonly int _halves;

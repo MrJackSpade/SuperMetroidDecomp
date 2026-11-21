@@ -1,4 +1,3 @@
-using System.Reflection;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -59,8 +58,8 @@ internal static class RoomFxOverlayStateAccess
         internal FirefleaFxState StartFirefleaDarknessForCheck()
         {
             var darkness = new FirefleaFxState();
-            SetPrivate(self, nameof(RoomFxOverlayState.Type), RoomFxType.Fireflea);
-            SetPrivate(self, nameof(RoomFxOverlayState.Fireflea), darkness);
+            self.Type = RoomFxType.Fireflea;
+            self.Fireflea = darkness;
             return darkness;
         }
 
@@ -76,37 +75,33 @@ internal static class RoomFxOverlayStateAccess
         internal void ImportLiquidMotion(bool stopped, RotationAngle tidePhase, SignedSixteenSixteen tideOffset, FixedCoordinate baseY,
             int surface)
         {
-            SetPrivate(self, nameof(RoomFxOverlayState.Motion),
-                stopped ? SuperMetroid.Core.Compatibility.LiquidMotion.Stopped : SuperMetroid.Core.Compatibility.LiquidMotion.Moving);
-            SetPrivate(self, "TidePhase", tidePhase);
-            SetPrivate(self, "TideOffset", tideOffset);
-            SetPrivate(self, nameof(RoomFxOverlayState.BaseY), baseY);
-            SetPrivate(self, nameof(RoomFxOverlayState.Surface), surface);
+            self.Motion = stopped ? SuperMetroid.Core.Compatibility.LiquidMotion.Stopped : SuperMetroid.Core.Compatibility.LiquidMotion.Moving;
+            self.TidePhase = tidePhase;
+            self.TideOffset = tideOffset;
+            self.BaseY = baseY;
+            self.Surface = surface;
         }
 
         /// <summary>Gives the liquid <paramref name="liquid"/>'s tide standing at <paramref name="phase"/> with <paramref name="offset"/>, for a check of one tide step.</summary>
         internal void SetTideForCheck(RoomLiquid liquid, RotationAngle phase, SignedSixteenSixteen offset)
         {
-            SetPrivate(self, nameof(RoomFxOverlayState.Liquid), liquid);
-            SetPrivate(self, "TidePhase", phase);
-            SetPrivate(self, "TideOffset", offset);
+            self.Liquid = liquid;
+            self.TidePhase = phase;
+            self.TideOffset = offset;
         }
 
         /// <summary>Runs one step of the liquid's tide alone, the step its motion pass takes after the rise.</summary>
-        internal void StepTideForCheck() =>
-            (typeof(RoomFxOverlayState).GetMethod("StepLiquidTide", BindingFlags.Instance | BindingFlags.NonPublic)
-                ?? throw new InvalidOperationException($"{nameof(RoomFxOverlayState)} has no tide step.")).Invoke(self, null);
+        internal void StepTideForCheck() => self.StepLiquidTide();
 
         /// <summary>Places the quake sounds at <paramref name="position"/> in their rhythm, for a check of the sound each position plays.</summary>
         internal void SetEarthquakeSoundRhythmPositionForCheck(int position) =>
-            SetPrivate(self, "EarthquakeSoundRhythm",
-                CyclingSequence<int>.At(RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays, position));
+            self.EarthquakeSoundRhythm = CyclingSequence<int>.At(RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays, position);
 
         /// <summary>Returns the loaded room to its own effect, <paramref name="type"/>, which has no Fireflea darkness.</summary>
         internal void EndFirefleaDarknessForCheck(RoomFxType type)
         {
-            SetPrivate(self, nameof(RoomFxOverlayState.Type), type);
-            SetPrivate(self, nameof(RoomFxOverlayState.Fireflea), null);
+            self.Type = type;
+            self.Fireflea = null;
         }
 
         /// <summary>The liquid's base surface, which the check requires the effect to name.</summary>
@@ -124,13 +119,6 @@ internal static class RoomFxOverlayStateAccess
         internal int NamedSurface => self.Surface
             ?? throw new InvalidOperationException("The room effect has no liquid surface.");
     }
-
-    /// <summary>Writes <paramref name="property"/> of <paramref name="fx"/> through its private setter, as the room's load would.</summary>
-    /// <exception cref="InvalidOperationException">The property has no setter.</exception>
-    private static void SetPrivate(RoomFxOverlayState fx, string property, object? value) =>
-        (typeof(RoomFxOverlayState).GetProperty(property, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.SetMethod
-            ?? throw new InvalidOperationException($"{nameof(RoomFxOverlayState)}.{property} has no setter."))
-            .Invoke(fx, [value]);
 
     /// <summary>The liquid lines a check requires a published effect to carry (#1546).</summary>
     extension(RoomFxOverlayRenderSnapshot self)

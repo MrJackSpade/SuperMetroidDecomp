@@ -52,6 +52,12 @@ internal static class GameplayAudioRequestsAccess2
         internal IReadOnlyList<SoundEffectId> SoundsQueued => Marks.TryGetValue(self, out SessionMarks? marks)
             ? [.. marks.Libraries.SelectMany(marks.Queues.SoundsQueuedSinceForVerification)]
             : throw NotRecorded();
+
+        /// <summary>The session's queues a runtime's requests go on into.</summary>
+        /// <exception cref="InvalidOperationException">The requests go on into no session's queues.</exception>
+        internal AudioQueues QueuesReached => self.sounds is SessionGameplayAudioQueues session
+            ? session.queues
+            : throw new InvalidOperationException("These audio requests go on into no session's queues.");
     }
 
     /// <summary>Reads the recorded music requests.</summary>

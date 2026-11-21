@@ -22,16 +22,16 @@ public sealed class RoomLevelData
     internal readonly RoomTerrainBlock[] terrain;
 
     /// <summary>Each foreground block's behaviour, row by row; its terrain's collision kind gives it meaning.</summary>
-    private readonly RoomBlockBehavior[] behaviors;
+    internal readonly RoomBlockBehavior[] behaviors;
 
     /// <summary>
     /// Where each foreground block leads as a door block, row by row, or null where it leads nowhere (#2090). A block's exit
     /// is what its behaviour leads through, so a behaviour write takes it away.
     /// </summary>
-    private readonly DoorBlockExit?[] exits;
+    internal readonly DoorBlockExit?[] exits;
 
     /// <summary>What each foreground block shows, row by row: its terrain's appearance unless a layout or draw shows another.</summary>
-    private readonly RoomBlockAppearance[] shownForeground;
+    internal readonly RoomBlockAppearance[] shownForeground;
 
     /// <summary>
     /// The collectible picture each foreground block where a collectible showing its own picture lies shows over its
@@ -451,7 +451,7 @@ public sealed class RoomLevelData
     /// A terrain write at <paramref name="place"/> in the level space that shows <paramref name="shown"/>. Writes inside
     /// the grid reach collision and the display; writes past it persist in the terrain beyond the room.
     /// </summary>
-    private void WriteObjectTerrain(int place, RoomTerrainBlock block, RoomBlockAppearance shown)
+    internal void WriteObjectTerrain(int place, RoomTerrainBlock block, RoomBlockAppearance shown)
     {
         if (place >= terrain.Length)
         {

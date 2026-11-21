@@ -72,52 +72,24 @@ internal static class RoomLevelDataAccess
         }
     }
 
-    /// <summary>The level's private terrain array.</summary>
-    private static readonly System.Reflection.FieldInfo TerrainField = GridField("terrain");
-
-    /// <summary>The level's private behaviour array.</summary>
-    private static readonly System.Reflection.FieldInfo BehaviorsField = GridField("behaviors");
-
-    /// <summary>The level's private door-exit array.</summary>
-    private static readonly System.Reflection.FieldInfo ExitsField = GridField("exits");
-
-    /// <summary>The level's private shown-foreground array.</summary>
-    private static readonly System.Reflection.FieldInfo ShownForegroundField = GridField("shownForeground");
-
-    /// <summary>
-    /// The level's private terrain write at a place in its level space, bound once: a fixture restoring a room writes many
-    /// blocks per case.
-    /// </summary>
-    private static readonly Action<RoomLevelData, int, RoomTerrainBlock, RoomBlockAppearance> TerrainWrite =
-        (typeof(RoomLevelData).GetMethod("WriteObjectTerrain", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-            ?? throw new MissingMemberException(nameof(RoomLevelData), "WriteObjectTerrain"))
-        .CreateDelegate<Action<RoomLevelData, int, RoomTerrainBlock, RoomBlockAppearance>>();
-
     /// <summary>
     /// Writes <paramref name="terrain"/> at <paramref name="place"/> of <paramref name="level"/>'s level space, showing
-    /// <paramref name="shown"/>, through the level's own private write.
+    /// <paramref name="shown"/>, through the level's own terrain write.
     /// </summary>
     internal static void WriteObjectTerrain(RoomLevelData level, int place, RoomTerrainBlock terrain, RoomBlockAppearance shown) =>
-        TerrainWrite(Ensure.NotNull(level), place, terrain, shown);
-
-    /// <summary>The level's private grid field <paramref name="name"/>.</summary>
-    /// <exception cref="MissingMemberException">The level has no such field.</exception>
-    private static System.Reflection.FieldInfo GridField(string name) =>
-        typeof(RoomLevelData).GetField(name, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-            ?? throw new MissingMemberException(nameof(RoomLevelData), name);
+        Ensure.NotNull(level).WriteObjectTerrain(place, terrain, shown);
 
     /// <summary>The grid's terrain array of <paramref name="level"/>, which a restore writes.</summary>
-    private static RoomTerrainBlock[] TerrainOf(RoomLevelData level) => (RoomTerrainBlock[])TerrainField.GetValue(Ensure.NotNull(level))!;
+    private static RoomTerrainBlock[] TerrainOf(RoomLevelData level) => Ensure.NotNull(level).terrain;
 
     /// <summary>The grid's behaviour array of <paramref name="level"/>, which a restore writes.</summary>
-    private static RoomBlockBehavior[] BehaviorsOf(RoomLevelData level) => (RoomBlockBehavior[])BehaviorsField.GetValue(Ensure.NotNull(level))!;
+    private static RoomBlockBehavior[] BehaviorsOf(RoomLevelData level) => Ensure.NotNull(level).behaviors;
 
     /// <summary>The grid's door-exit array of <paramref name="level"/>, which a restore writes.</summary>
-    private static Doors.DoorBlockExit?[] ExitsOf(RoomLevelData level) => (Doors.DoorBlockExit?[])ExitsField.GetValue(Ensure.NotNull(level))!;
+    private static Doors.DoorBlockExit?[] ExitsOf(RoomLevelData level) => Ensure.NotNull(level).exits;
 
     /// <summary>The grid's shown-foreground array of <paramref name="level"/>.</summary>
-    private static RoomBlockAppearance[] ShownForegroundOf(RoomLevelData level) =>
-        (RoomBlockAppearance[])ShownForegroundField.GetValue(Ensure.NotNull(level))!;
+    private static RoomBlockAppearance[] ShownForegroundOf(RoomLevelData level) => Ensure.NotNull(level).shownForeground;
 
     /// <summary>
     /// The first place from <paramref name="from"/> on whose element's bytes differ between <paramref name="now"/> and

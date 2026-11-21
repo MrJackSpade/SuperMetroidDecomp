@@ -23,7 +23,7 @@ internal static class MapWindowMotionDefinitionsVerification
         for (int area = 0; area < 6; area++)
         {
             int expected = ReadVerificationWord(rom, 0x81aa1c + area * 4 + field);
-            Offset16<ScreenPixels> installed = labels.Get(ZebesAreaFixtures.Of(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area)));
+            Offset16<ScreenPixels> installed = labels.Get(SuperMetroid.Core.Progression.ZebesAreaFixtures.Of(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area)));
             AssertEqual(expected, vertical ? installed.Y : installed.X, $"imported area {area} origin field {field}");
         }
     }
@@ -49,7 +49,7 @@ internal static class MapWindowMotionDefinitionsVerification
         {
             int address = 0x81aa34 + area * 16 + edge * 4;
             uint expected = SixteenSixteenWords.Compose(ReadVerificationWord(rom, address + 2), ReadVerificationWord(rom, address));
-            AssertEqual(unchecked((int)expected), select(FileSelectMapWindowMotions.Get(ZebesAreaFixtures.Of(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area)))).RawValue,
+            AssertEqual(unchecked((int)expected), select(FileSelectMapWindowMotions.Get(SuperMetroid.Core.Progression.ZebesAreaFixtures.Of(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area)))).RawValue,
                 $"map window area {area} edge {edge} signed16.16 velocity");
         }
     }
@@ -62,7 +62,7 @@ internal static class MapWindowMotionDefinitionsVerification
     {
         for (int area = 0; area < 6; area++)
             AssertEqual(ReadVerificationWord(rom, 0x81aa94 + area * 2) + 1,
-                FileSelectMapWindowMotions.Get(ZebesAreaFixtures.Of(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area))).MovingUpdates, $"map window area {area} moving updates");
+                FileSelectMapWindowMotions.Get(SuperMetroid.Core.Progression.ZebesAreaFixtures.Of(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area))).MovingUpdates, $"map window area {area} moving updates");
     }
 
     /// <summary>

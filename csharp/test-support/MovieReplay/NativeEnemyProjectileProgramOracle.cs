@@ -94,7 +94,7 @@ internal static class NativeEnemyProjectileProgramOracle
 
     /// <summary>
     /// Reads every typed segment's native bank-$86 list, comparing its beats with the segment's as
-    /// <see cref="CompareAll{TSegment, TFrame, TEvent}(IImportCartridgeSource, NativeProgramEntry{TSegment}[], AnimationSegments{TSegment, TFrame, TEvent}, IReadOnlyDictionary{TSegment, Animation{TSegment}}, Func{TFrame, ushort}, NativeEnemyProjectileCueRules{TEvent}, Func{TFrame, ushort?}?, IReadOnlySet{TSegment}?, IReadOnlyList{NativeCountedEntry{TSegment}}?, IReadOnlySet{TSegment}?)"/>
+    /// <see cref="CompareAll"/>
     /// does: each beat's native address, and each control instruction with its address and the beat it follows.
     /// </summary>
     internal static Dictionary<TSegment, NativeEnemyList<TSegment>> Lists<TSegment, TFrame, TEvent>(

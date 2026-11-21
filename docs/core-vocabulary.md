@@ -1037,6 +1037,19 @@ shows, never for the hitbox or depth its record carried (`PhantoonBody`, whose h
 `PhantoonBodyHitArea`), and data is never reached through another thing's identity (a shot flame drops from
 `ShotFlameDropChances`, not through his eye's enemy definition).
 
+SME6489 (#2602) keeps reflection out of the game's code. Every project the analyzer runs on is covered: the game, its
+tools, test-support and every verification project; only the code-analysis tooling that needs reflection by its nature
+(the analyzer and its code fixes, the architecture and reachability audits) is not. No code uses a `System.Reflection`
+type or member, or an API whose signature carries one (`Type.GetProperty`, `Delegate.Method`, `typeof(T).Assembly`); a
+method of `Type` or a property of it that yields another type or member (`Type.GetType` by name, `MakeGenericType`,
+`IsAssignableFrom`, `BaseType`); `Activator`; an uninitialized object; `Delegate.DynamicInvoke`; `TypeDescriptor`;
+`dynamic`; or an `[UnsafeAccessor]`. System.Text.Json serializes only through source-generated contexts: a
+`JsonSerializer` or `HttpClient` JSON call is given a generated `JsonTypeInfo`, and nothing uses
+`DefaultJsonTypeInfoResolver`. A type's name, `typeof`, `nameof`, an enum's values, an applied attribute and the JSON
+document model are not reflection. Nothing excuses a site: a check that needs a member the game uses calls it, internal
+and visible to the verification assemblies; a member only checks would read is deleted and the check drives the game; a
+walk of an object graph, a registry of commands or a serializer is written or generated as code that names what it reaches.
+
 SME6472 (#2575) keeps definition data in domain catalogs. Outside a catalog file, Core builds no value of a Core type
 wholly from constants with a nonzero numeric literal among them (`new Offset16<RoomPixels>(1, 0)`,
 `SignedSixteenSixteen.FromWholePixels(1)`, `UpdateCountdown.Lasting(1)`) and passes no nonzero numeric literal by name

@@ -605,7 +605,7 @@
     {
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
-      "files": 43,
+      "files": 44,
       "dependsOn": [
         "csharp/test-support/WindowsConsole"
       ]
@@ -97271,6 +97271,15 @@
     },
     {
       "path": "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/DispatchImplementation.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit.Analysis",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/EnumDefaults.cs",
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
       "namespace": "SuperMetroid.ReachabilityAudit.Analysis",

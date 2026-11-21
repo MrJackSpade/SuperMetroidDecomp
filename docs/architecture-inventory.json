@@ -183607,6 +183607,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.ReachabilityAudit.Analysis.EnumDefaults",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/EnumDefaults.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.ReachabilityAudit.Analysis.FrameworkDispatch",
       "kind": "static class",
       "scope": "tool",

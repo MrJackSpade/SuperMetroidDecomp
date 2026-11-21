@@ -18,7 +18,7 @@ internal sealed class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant
     internal ShaktoolSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal ShaktoolSegmentState State { get; } = ShaktoolBehavior.InitializeShaktool(settings, place, chain);
+    private readonly ShaktoolSegmentState state = ShaktoolBehavior.InitializeShaktool(settings, place, chain);
 
     /// <summary>The chain the segment is in: its seven segments and their shared motion and target.</summary>
     private ShaktoolChain Chain { get; } = chain;
@@ -27,10 +27,10 @@ internal sealed class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant
     private Action<ShaktoolSegmentState, RoomLevelData> Course { get; } = species.CourseOf(place, settings.Segment, chain);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => ShaktoolBehavior.RunShaktoolMainAi(State, Course, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => ShaktoolBehavior.RunShaktoolMainAi(state, Course, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShaktoolBehavior.AdvanceShaktoolTypedAnimation(Place, State, Chain);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShaktoolBehavior.AdvanceShaktoolTypedAnimation(Place, state, Chain);
 
     /// <summary>Whether Shaktool's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == ShaktoolReactions.Touch || base.ReactsToTouch;

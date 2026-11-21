@@ -130,13 +130,6 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<ZebetiteEnemyState?> ZebetiteStates =>
             [.. self.Places.InUpdateOrder.Select(place => place.EntityState<ZebetiteEntity, ZebetiteEnemyState>())];
 
-        /// <summary>
-        /// Per-physical-slot Shaktool state. A live retail group occupies seven consecutive
-        /// non-null entries; every other room slot remains null.
-        /// </summary>
-        internal IReadOnlyList<ShaktoolSegmentState?> ShaktoolSegments =>
-            [.. self.Places.InUpdateOrder.Select(place => place.SpeciesState<ShaktoolSegmentState>())];
-
         /// <summary>Typed state for all physical places occupied by a Fune.</summary>
         internal IReadOnlyList<FuneEnemyState?> FuneStates =>
             [.. self.Places.InUpdateOrder.Select(place => place.EntityState<FuneEntity, FuneEnemyState>())];

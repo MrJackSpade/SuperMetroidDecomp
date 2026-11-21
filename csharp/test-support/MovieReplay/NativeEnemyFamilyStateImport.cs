@@ -393,20 +393,6 @@ internal static class NativeEnemyFamilyStateImport
             if (verticalShutterSpeed != verticalShutterSettings.Speed)
                 throw new InvalidDataException($"Recorded vertical shutter speed {verticalShutterSpeed} is not its placement's {verticalShutterSettings.Speed}.");
         }
-        if (enemy.Holds(EnemyDefinitionId.Shaktool) && enemies.ShaktoolSegments[index] is { } segment)
-        {
-            int segmentIndex = Array.IndexOf(ShaktoolSegmentDefinitions.Segments, enemy.HeldOccupant().SpawnSettings<ShaktoolSpawnSettings>().Segment);
-            // Every segment's record holds a copy of the chain's target; the leading saw's, which no straightening turns
-            // on, is the chain's (#2452), which the chain reached through its wall before the segments' import
-            // (ImportShaktoolTarget).
-            segment.OrbitAngle = RotationAngleConstants.FromRaw(words.B);
-            segment.AngularVelocity = RotationAngleConstants.FromRaw(Index(words.C, 1020, "Shaktool angular velocity"));
-            ImportShaktoolOrientation(segment, segmentIndex, words.D);
-            // Every segment's owner is the chain's leading saw, the first enemy its room lists.
-            if (SlotIndex(words.E, "Shaktool owner") != 0)
-                throw new InvalidDataException($"Recorded Shaktool owner ${words.E:X4} does not name the first enemy, where the chain's saw is placed.");
-            segment.Motion = ShaktoolNativeWords.DecodeMotion(words.F, "recorded ShaktoolSegmentMotion");
-        }
         // A Multiviola's velocity words (C to F) are the last update's, which every update rebuilds from its heading before it
         // moves (#2531), so none is imported.
         if (enemy.EntityState<CrawlerEntity, CrawlerEnemyState>() is { } crawler)
@@ -630,8 +616,33 @@ internal static class NativeEnemyFamilyStateImport
         int columns = (Math.Max(leading.X, stands.X) >> 4) + 2, rows = (Math.Max(leading.Y, stands.Y) >> 4) + 2;
         trailingSaw.RunMainAi(PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus(),
             level: PlacedEnemyAccess.SolidRoom(new(columns, rows))));
-        if (trailingSaw.SpeciesState<ShaktoolSegmentState>()?.Motion != ShaktoolSegmentMotion.Idle)
-            throw new InvalidOperationException("The Shaktool trailing saw's move through solid terrain did not reverse its chain.");
+        // A wall that turns the chain end for end puts the trailing saw back where it stood and trades the saws' places.
+        if (leadingSaw.Position.Whole != stands || trailingSaw.Position.Whole != leading)
+            throw new InvalidOperationException("The Shaktool trailing saw's move through solid terrain did not turn its chain end for end.");
+    }
+
+    /// <summary>
+    /// Translates the recorded record words of the Shaktool segment in <paramref name="enemy"/> into its state in
+    /// <paramref name="chain"/>, the chain the import holds (<see cref="ShaktoolChainHolding"/>): its orbit, its angular speed,
+    /// the centre's heading or the trailing saw's curl, and its motion. Every segment's record holds a copy of the chain's
+    /// target; the leading saw's, which no straightening turns on, is the chain's (#2452), which the chain reached through
+    /// its wall before the segments' import (<see cref="ImportShaktoolTarget"/>).
+    /// </summary>
+    /// <param name="chain">The chain the import holds, whose segments the room's first seven places hold.</param>
+    /// <param name="enemy">The imported segment's place.</param>
+    /// <param name="words">The segment's six recorded record words.</param>
+    /// <exception cref="InvalidDataException">A word lies outside what the segment's own updates leave.</exception>
+    internal static void ImportShaktoolSegment(ShaktoolChain chain, RoomEnemyPlace enemy, NativeEnemyRecordWords words)
+    {
+        ShaktoolSegmentDefinition definition = Ensure.NotNull(enemy).HeldOccupant().SpawnSettings<ShaktoolSpawnSettings>().Segment;
+        ShaktoolSegmentState segment = Ensure.NotNull(chain).StateOf(definition);
+        segment.OrbitAngle = RotationAngleConstants.FromRaw(words.B);
+        segment.AngularVelocity = RotationAngleConstants.FromRaw(Index(words.C, 1020, "Shaktool angular velocity"));
+        ImportShaktoolOrientation(segment, Array.IndexOf(ShaktoolSegmentDefinitions.Segments, definition), words.D);
+        // Every segment's owner is the chain's leading saw, the first enemy its room lists.
+        if (SlotIndex(words.E, "Shaktool owner") != 0)
+            throw new InvalidDataException($"Recorded Shaktool owner ${words.E:X4} does not name the first enemy, where the chain's saw is placed.");
+        segment.Motion = ShaktoolNativeWords.DecodeMotion(words.F, "recorded ShaktoolSegmentMotion");
     }
 
     /// <summary>The nearest offset, searched outward ring by ring, whose aim the enemies' aim calculation reads as <paramref name="aim"/>.</summary>

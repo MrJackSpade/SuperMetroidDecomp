@@ -18,9 +18,8 @@ internal static class ShaktoolOwnedStateVerification
     /// </summary>
     internal static void VerifyShaktoolOwnedState()
     {
-        RoomEnemySystem enemies = CreateShaktoolGroup();
-        ShaktoolSegmentState[] states = [.. Enumerable.Range(0, 7).Select(index =>
-            enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException($"Shaktool segment {index} has no state."))];
+        (RoomEnemySystem enemies, ShaktoolChain chain) = CreateShaktoolGroup();
+        ShaktoolSegmentState[] states = [.. chain.Segments.Select(segment => segment.State)];
         RoomEnemyPlace center = enemies.Places.InUpdateOrder[3];
         ShaktoolSegmentState centerState = states[3];
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
@@ -96,17 +95,16 @@ internal static class ShaktoolOwnedStateVerification
     /// </summary>
     internal static void VerifyShaktoolImportedTarget()
     {
-        RoomEnemySystem untouched = CreateShaktoolGroup();
+        (RoomEnemySystem untouched, ShaktoolChain untouchedChain) = CreateShaktoolGroup();
         NativeEnemyFamilyStateImport.ImportShaktoolTarget(untouched, 0);
-        AssertEqual(ShaktoolSegmentDefinitions.TrailingSaw.Motion, untouched.ShaktoolSegments[6]?.Motion, "a zero target leaves the placed chain moving");
-        AssertThrows<InvalidDataException>(() => NativeEnemyFamilyStateImport.ImportShaktoolTarget(CreateShaktoolGroup(), 0x4080),
+        AssertEqual(ShaktoolSegmentDefinitions.TrailingSaw.Motion, untouchedChain.Segments[6].State.Motion, "a zero target leaves the placed chain moving");
+        AssertThrows<InvalidDataException>(() => NativeEnemyFamilyStateImport.ImportShaktoolTarget(CreateShaktoolGroup().Enemies, 0x4080),
             "a target between steps is refused");
 
         RotationAngle target = RotationAngle.FromSteps(0x60);
-        RoomEnemySystem enemies = CreateShaktoolGroup();
+        (RoomEnemySystem enemies, ShaktoolChain chain) = CreateShaktoolGroup();
         NativeEnemyFamilyStateImport.ImportShaktoolTarget(enemies, target.RawValue);
-        ShaktoolSegmentState[] states = [.. Enumerable.Range(0, 7).Select(index =>
-            enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException($"Shaktool segment {index} has no state."))];
+        ShaktoolSegmentState[] states = [.. chain.Segments.Select(segment => segment.State)];
         for (int index = 0; index < states.Length; index++)
             AssertEqual(ShaktoolSegmentMotion.Idle, states[index].Motion, $"segment {index} stops for the wall that sets the target");
 
@@ -126,8 +124,11 @@ internal static class ShaktoolOwnedStateVerification
         Console.WriteLine("Shaktool imported target: reached through the chain's wall, and the curl reaches it.");
     }
 
-    /// <summary>Initializes the seven Shaktool segments in slots zero through six.</summary>
-    private static RoomEnemySystem CreateShaktoolGroup()
+    /// <summary>
+    /// Places the seven Shaktool segments in slots zero through six, each set up in the chain the check holds
+    /// (<see cref="ShaktoolChainHolding"/>), so the check steers their orbits while their own entities run their AI.
+    /// </summary>
+    private static (RoomEnemySystem Enemies, ShaktoolChain Chain) CreateShaktoolGroup()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         for (int index = 0; index < 7; index++)
@@ -138,9 +139,8 @@ internal static class ShaktoolOwnedStateVerification
             // The chain is placed curling clockwise, as its population entry names how it starts moving.
             place.SetSpawnSettings(new ShaktoolSpawnSettings(ShaktoolChainMotion.CurlingClockwise, ShaktoolSegmentDefinitions.Segments[index]));
             place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
-            place.SetUpAsPlaced();
         }
-        return enemies;
+        return (enemies, enemies.HoldShaktoolChain());
     }
 
     /// <summary>Runs the focused Shaktool owned-state check.</summary>

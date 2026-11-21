@@ -21,8 +21,7 @@ internal static class NorfairLavaJumperOwnedStateVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
-        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        parent.Bind(EnemyDefinitionId.Squeept, parent.KeptDefinition);
+        parent.BindPlaced(EnemyDefinitionId.Squeept, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         parent.Health = 10;
         parent.SetUpAsPlaced();
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];

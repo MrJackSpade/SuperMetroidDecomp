@@ -1194,6 +1194,7 @@ internal static class LookupStream2Verification
         AssertEqual(5, transfers.Length, "Gunship calculated transfer count");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var place = enemies.Places.InUpdateOrder[0];
+        place.Bind(EnemyDefinitionId.ShipTop, place.KeptDefinition);
         var part = new GunshipState(GunshipPhase.WaitForEngines) { PhaseTimer = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineStartUpdates) };
         place.SetSpeciesState(part);
         int enumerated = 0;

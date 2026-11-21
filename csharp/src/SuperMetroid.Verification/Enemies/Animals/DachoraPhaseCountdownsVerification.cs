@@ -16,6 +16,7 @@ internal static class DachoraPhaseCountdownsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.BindPlaced(EnemyDefinitionId.Dachora, new DachoraSpawnSettings(HorizontalDirection.Right, DachoraRole.Runner));
         var state = new DachoraEnemyState(DachoraAction.WaitingForSamus);
         place.SetSpeciesState(state);
 

@@ -96,6 +96,7 @@ internal static class MetroidBehaviorDefinitionsVerification
 
         // A Metroid frozen while it escapes strains its moves away, flashing, and keeps none once they are spent.
         var frozenPlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>());
+        frozenPlace.Bind(EnemyDefinitionId.Metroid, frozenPlace.KeptDefinition);
         var frozen = new MetroidEnemyState(
             new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard),
             new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))

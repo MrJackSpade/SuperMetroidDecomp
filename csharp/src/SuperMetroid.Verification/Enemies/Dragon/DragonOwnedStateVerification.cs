@@ -15,8 +15,7 @@ internal static class DragonOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.SetSpawnSettings(new DragonSpawnSettings(DragonPart.Body));
-        body.Bind(EnemyDefinitionId.Dragon, body.KeptDefinition);
+        body.BindPlaced(EnemyDefinitionId.Dragon, new DragonSpawnSettings(DragonPart.Body));
         enemies.DragonBehavior.InitializeDragonBody(body);
         RoomEnemyPlace wing = enemies.Places.InUpdateOrder[1];
         wing.SetSpawnParameter1(EnemyDefinitionId.Dragon, 1);

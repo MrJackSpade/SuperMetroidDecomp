@@ -47,13 +47,27 @@ internal static class EnemyPlaceRegistries
     }
 
     /// <summary>
-    /// Binds <paramref name="entry"/> in <paramref name="place"/> through the place's registry, as a population load binds it,
-    /// with <paramref name="definition"/>; the occupant's entity is built where the check sets it up.
+    /// Binds <paramref name="entry"/> in <paramref name="place"/> with <paramref name="definition"/>, as a check authors the
+    /// place's population entry (#2554): the place holds the occupant's identity and entry at once, and the entry is bound
+    /// to its species' creation through the place's registry, as a population load binds it, where the enemy is built. A
+    /// check authors the entry's settings, and sets up the body whose setup offers a part's creation, before it builds
+    /// either; one that sets its enemy up as placed binds the entry then (<see cref="RoomEnemyPlaceInitializationAccess"/>),
+    /// and a build from the binding itself, as a respawn builds it, binds it as it builds.
     /// </summary>
     /// <param name="place">The fixture place.</param>
     /// <param name="entry">The population entry.</param>
     /// <param name="definition">The occupant's definition.</param>
     /// <returns>The new occupant.</returns>
     internal static RoomEnemyOccupant BindEntry(this RoomEnemyPlace place, RoomEnemyPlacement entry, RoomEnemyDefinition definition) =>
-        Ensure.NotNull(place).Bind(Of(place).Bind(entry), definition);
+        Ensure.NotNull(place).Bind(new OrdinaryEnemySpawn<EnemySpawnSettings>(Ensure.NotNull(entry), entry.SpawnSettings, BuildBound), definition);
+
+    /// <summary>
+    /// Builds <paramref name="occupant"/> from its entry bound through <paramref name="place"/>'s registry as it is built:
+    /// the creation an earlier part offered it, or its species' own.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Only the population load builds the occupant's enemy.</exception>
+    private static EnemyOccupant BuildBound(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        Of(place).Bind(occupant.Spawn).Respawn is { } build
+            ? build.Create(occupant, place, common)
+            : throw new InvalidOperationException($"Enemy {occupant.DefinitionId} is built only by its room's population load; a check sets it up as placed.");
 }

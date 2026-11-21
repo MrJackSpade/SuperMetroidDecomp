@@ -10,13 +10,16 @@ internal static class CrocomireTongueFixtures
     {
         /// <summary>
         /// Joins <paramref name="tongue"/>, the encounter's own tongue place, to the encounter as his tongue's setup does in
-        /// a living room (#2400): the tongue holds the encounter at its body offset.
+        /// a living room (#2400): the place holds his tongue, as his room lists it after his body, and the tongue holds the
+        /// encounter at its body offset.
         /// </summary>
         /// <exception cref="InvalidOperationException">The encounter's tongue is another place.</exception>
         internal void JoinFixtureTongue(RoomEnemyPlace tongue)
         {
             if (!ReferenceEquals(state.Tongue, tongue))
                 throw new InvalidOperationException($"The encounter's tongue is enemy {state.Tongue.Ordinal}, not {tongue.Ordinal}.");
+            if (!tongue.Holds(EnemyDefinitionId.CrocomireTongue))
+                tongue.Bind(EnemyDefinitionId.CrocomireTongue, tongue.KeptDefinition);
             tongue.SetSpeciesState(new CrocomireTongueState(state));
         }
     }

@@ -62,29 +62,23 @@ internal static class PowampAnimations
     });
 
     /// <summary>The body's animation that starts at each of its segments: each pulse repeats.</summary>
-    internal static Dictionary<B, Animation<B>> BodyStartingAt { get; } = new Dictionary<B, Animation<B>>
+    internal static IdentityTable<B, Animation<B>> BodyStartingAt { get; } = new(new Dictionary<B, Animation<B>>
     {
         [B.BodyFast] = Animation<B>.Looping([BodySegments.Whole(B.BodyFast)]),
         [B.BodySlow] = Animation<B>.Looping([BodySegments.Whole(B.BodySlow)]),
-    };
+    });
 
     /// <summary>
     /// The balloon's animation that starts at each of its segments. An inflated or deflated balloon rests on its picture
     /// until its body starts its next inflate or sink (#2439); nothing waits on the rest's length.
     /// </summary>
-    internal static Dictionary<L, Animation<L>> BalloonStartingAt { get; } = new Dictionary<L, Animation<L>>
+    internal static IdentityTable<L, Animation<L>> BalloonStartingAt { get; } = new(new Dictionary<L, Animation<L>>
     {
         [L.InflatingFromDeflated] = new([BalloonSegments.Whole(L.InflatingFromDeflated), BalloonSegments.Whole(L.InflatingFromHalfway)], AnimationEnd.Holds),
         [L.InflatingFromHalfway] = new([BalloonSegments.Whole(L.InflatingFromHalfway)], AnimationEnd.Holds),
         [L.StartSinking] = new([BalloonSegments.Whole(L.StartSinking), BalloonSegments.Whole(L.Deflated)], AnimationEnd.Holds),
         [L.Deflated] = new([BalloonSegments.Whole(L.Deflated)], AnimationEnd.Holds),
-    };
-
-    /// <summary>The body's animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<B> BodyStartingWith(B segment) => BodyStartingAt[segment];
-
-    /// <summary>The balloon's animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<L> BalloonStartingWith(L segment) => BalloonStartingAt[segment];
+    });
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<TFrame, NoAnimationCue> Show<TFrame>(TFrame frame, int duration)

@@ -221,14 +221,18 @@ internal static class LookupStream1Verification
             if (isBody)
             {
                 PowampBodySegment pulse = root == 0xc163 ? PowampBodySegment.BodyFast : PowampBodySegment.BodySlow;
-                body.RequireSpeciesState<PowampBodyState>().Playback = new(PowampAnimations.BodyStartingWith(pulse), AnimationPlace.StartOfAnimation);
+                body.RequireSpeciesState<PowampBodyState>().Playback = new(PowampAnimations.BodyStartingAt[pulse], AnimationPlace.StartOfAnimation);
             }
             else
             {
-                PowampBehavior.StartPowampBalloonAnimation(balloon, balloon.RequireSpeciesState<PowampBalloonState>(),
-                    root == 0xc183 ? PowampMotionDefinitions.InflatingFromDeflated : PowampMotionDefinitions.StartSinking);
+                // The body's own AI starts the balloon's program: its rest's end the inflation, its release the sinking.
+                PowampBodyState bodyState = body.RequireSpeciesState<PowampBodyState>();
+                bodyState.Action = root == 0xc183 ? PowampAction.DeflatedResting : PowampAction.GrappledResting;
+                bodyState.ActionTimer = UpdateCountdown.For(1);
+                enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, bodyState, VerificationHelpersVerification.CreateEmptyRoom(new(16, 16)),
+                    new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
             }
-            var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampBalloonState>(), balloon.HeldOccupant());
+            PowampBalloonState balloonState = balloon.RequireSpeciesState<PowampBalloonState>();
             place.AnimationClock.StepOnNextUpdate();
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, GameplayAction.None];
             int calls = 0;
@@ -245,9 +249,9 @@ internal static class LookupStream1Verification
                     AssertEqual(sprite, place.SpritemapPointer, "Native Powamp held visual");
                     if (!isBody)
                     {
-                        PowampBehavior.AlignPowampBalloonY(body, pair);
+                        // The body places the balloon this far above it at the pose the balloon stands at.
                         int nativeOffset = unchecked((short)Word(0xa80000 | ((root == 0xc183 ? 0xc277 : 0xc27d) + pose * 2)));
-                        AssertEqual((ushort)(100 + nativeOffset), balloon.Position.Y.Whole, "Native pose-driven balloon collision center");
+                        AssertEqual(nativeOffset, PowampMotion.BalloonHeight(balloonState.Inflation.Pose), "Native pose-driven balloon collision center");
                     }
                 }
             }
@@ -261,10 +265,9 @@ internal static class LookupStream1Verification
             else
             {
                 AssertEqual(0, place.AnimationClock.Hold, "Powamp Sleep follows full terminal hold");
-                ushort terminalY = balloon.Position.Y.Whole;
-                PowampBehavior.AlignPowampBalloonY(body, pair);
-                AssertEqual(terminalY, balloon.Position.Y.Whole, "Sleep preserves terminal balloon collision center");
+                PowampBalloonPose terminal = balloonState.Inflation.Pose;
                 EnemyInstructionRunner.Process(arguments);
+                AssertEqual(terminal, balloonState.Inflation.Pose, "Sleep preserves terminal balloon collision center");
                 AssertTrue(place.AnimationClock.IsStopped, "Sleeping Powamp keeps its clock stopped");
             }
         }

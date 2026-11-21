@@ -21,9 +21,9 @@ internal static class PowampAnimationsVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int beats = NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, BodyEntries,
-            PowampAnimations.BodySegments, PowampAnimations.BodyStartingAt, PowampFrameToolingDefinitions.Spritemap, NoOwnerInstructions)
+            PowampAnimations.BodySegments, PowampAnimations.BodyStartingAt.ToDictionary(), PowampFrameToolingDefinitions.Spritemap, NoOwnerInstructions)
             + NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, BalloonEntries,
-            PowampAnimations.BalloonSegments, PowampAnimations.BalloonStartingAt, PowampFrameToolingDefinitions.BalloonSpritemap, NoOwnerInstructions);
+            PowampAnimations.BalloonSegments, PowampAnimations.BalloonStartingAt.ToDictionary(), PowampFrameToolingDefinitions.BalloonSpritemap, NoOwnerInstructions);
         Console.WriteLine($"  Powamp animations: {BodyEntries.Length + BalloonEntries.Length} segments ({beats} beats) and "
             + $"{PowampAnimations.BodyStartingAt.Count + PowampAnimations.BalloonStartingAt.Count} animations match bank $A8.");
     }

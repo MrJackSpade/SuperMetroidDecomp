@@ -411,15 +411,15 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The playback of the body's <paramref name="segment"/> animation, restarted on the next animation pass.</summary>
     private static AnimationPlayback<PowampBodySegment> StartPowampAnimation(RoomEnemyPlace place, PowampBodySegment segment) =>
-        EnemyAnimationPlayback.Start(place, PowampAnimations.BodyStartingWith(segment));
+        EnemyAnimationPlayback.Start(place, PowampAnimations.BodyStartingAt[segment]);
 
     /// <summary>
     /// Restarts the balloon's animation at <paramref name="start"/>'s segment on the next animation pass, and its sequence
     /// where that start puts it (#1845).
     /// </summary>
-    internal static void StartPowampBalloonAnimation(RoomEnemyPlace balloon, PowampBalloonState state, PowampBalloonStart start)
+    private static void StartPowampBalloonAnimation(RoomEnemyPlace balloon, PowampBalloonState state, PowampBalloonStart start)
     {
-        state.Playback = EnemyAnimationPlayback.Start(balloon, PowampAnimations.BalloonStartingWith(start.Segment));
+        state.Playback = EnemyAnimationPlayback.Start(balloon, PowampAnimations.BalloonStartingAt[start.Segment]);
         state.Inflation = start.Inflation;
     }
 

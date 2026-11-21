@@ -85,7 +85,7 @@ internal static class RoomRevealPresentationContractChecks
         {
             if (XrayReveals.Find(type, reaction) is { } command && InstalledXrayReveals.IsDrawable(command, out XrayRevealCopyShape copy))
                 entries.Add(new(type, reaction, XrayRevealVisualBlocks.ForShape(copy,
-                    [.. new[] { 1, 2, 3, 4 }.Take(XrayRevealVisualBlocks.CountFor(copy))])));
+                    [.. new[] { 1, 2, 3, 4 }.Take(XrayRevealVisualBlocks.CountFor(copy)).Select(SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock)])));
         }
         // The overlays are required with the reveals (#1596); every required room overlay shows one block.
         var overlays = new InstalledXrayOverlays(InstalledXrayOverlays.TankKinds.ToDictionary(tank => tank, _ => RoomBlockAppearance.Of(0)),
@@ -93,7 +93,7 @@ internal static class RoomRevealPresentationContractChecks
                 [new XrayRoomOverlayVisual(Position16<RoomBlocks>.Of(0, 0), RoomBlockAppearance.Of(0))])));
         var catalog = new InstalledXrayReveals(entries, overlays);
         Require(catalog.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehaviorCodec.Decode(2)) is { } tall &&
-            tall.Shape == XrayRevealShape.CopyTall && tall.Blocks == XrayRevealVisualBlocks.Tall(1, 2),
+            tall.Shape == XrayRevealShape.CopyTall && tall.Blocks == XrayRevealVisualBlocks.Tall(SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(1), SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(2)),
             "one identity must select the compiled command and the matching installed operands");
         Require(catalog.Apply(RoomCollisionType.HorizontalExtension, RoomBlockBehaviorCodec.Decode(3)) ==
             new XrayRevealDefinition(XrayRevealShape.HorizontalExtension, null), "extensions must retain their compiled command and show no blocks");

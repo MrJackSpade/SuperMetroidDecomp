@@ -46,8 +46,8 @@ internal sealed class ShinesparkEchoProjectile
 
         bool firstDeparts = shots < SamusProjectileSystem.PlaceCount - 1;
         if (firstDeparts)
-            first.Depart(Launch(SamusShotPool.FirstEchoPlace, angles.First, picturedBeams, first), crashPosition);
-        second.Depart(Launch(SamusShotPool.SecondEchoPlace, angles.Second, picturedBeams, second), crashPosition);
+            first.Depart(Launch(ShinesparkCrashEchoPlaces.First(SamusProjectileSystem.PlaceCount), angles.First, picturedBeams, first), crashPosition);
+        second.Depart(Launch(ShinesparkCrashEchoPlaces.Second(SamusProjectileSystem.PlaceCount), angles.Second, picturedBeams, second), crashPosition);
         return firstDeparts;
     }
 

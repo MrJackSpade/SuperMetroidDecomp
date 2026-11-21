@@ -7,9 +7,9 @@ public enum LiquidTide
     /// <summary>The surface stays on its base line.</summary>
     None,
 
-    /// <summary>The surface rises and falls by up to <see cref="LiquidTideDefinitions.SmallTidePeakPixels"/>.</summary>
+    /// <summary>The surface rises and falls by up to the small tide's peak (<see cref="LiquidTideDefinitions.Motions"/>).</summary>
     Small,
 
-    /// <summary>The surface rises and falls by up to <see cref="LiquidTideDefinitions.LargeTidePeakPixels"/>.</summary>
+    /// <summary>The surface rises and falls by up to the large tide's peak (<see cref="LiquidTideDefinitions.Motions"/>).</summary>
     Large,
 }

@@ -18,10 +18,6 @@ internal sealed class EnemyDeathAndDropAnimation(IEnemyProjectileBranchingCues<E
     {
     }
 
-    /// <summary>The segment <paramref name="started"/> starts at: a counted explosion's burst, or the segment the rest are keyed by.</summary>
-    private protected override EnemyDeathAndDropSegment SegmentStartedAt(Animation<EnemyDeathAndDropSegment> started) =>
-        StartingAt.Any(keyed => ReferenceEquals(keyed.Value, started)) ? base.SegmentStartedAt(started) : started.Phases[0].Segment;
-
     /// <inheritdoc/>
     private protected override IUnpausedAnimationPlay<EnemyDeathAndDropSegment, EnemyProjectileFrameId, EnemyDeathAndDropCue> Segments => EnemyDeathAndDropAnimations.Segments;
 

@@ -54,9 +54,9 @@ internal static class CollectibleObjectDraws
         CollectibleDraw.EnergyTankBright or CollectibleDraw.EnergyTankDim or CollectibleDraw.MissileTankDim or CollectibleDraw.MissileTankBright
             or CollectibleDraw.SuperMissileTankDim or CollectibleDraw.SuperMissileTankBright or CollectibleDraw.PowerBombTankBright
             or CollectibleDraw.PowerBombTankDim => DrawGroup.Tank,
-        CollectibleDraw.FirstBlockPairPrimaryLook or CollectibleDraw.FirstBlockPairAlternateLook or CollectibleDraw.SecondBlockPairPrimaryLook
-            or CollectibleDraw.SecondBlockPairAlternateLook or CollectibleDraw.ThirdBlockPairPrimaryLook or CollectibleDraw.ThirdBlockPairAlternateLook
-            or CollectibleDraw.FourthBlockPairPrimaryLook or CollectibleDraw.FourthBlockPairAlternateLook => DrawGroup.OwnPicture,
+        CollectibleDraw.SolidPairPrimaryLook or CollectibleDraw.SolidPairAlternateLook or CollectibleDraw.FirstDoorPairPrimaryLook
+            or CollectibleDraw.FirstDoorPairAlternateLook or CollectibleDraw.SecondDoorPairPrimaryLook or CollectibleDraw.SecondDoorPairAlternateLook
+            or CollectibleDraw.ThirdDoorPairPrimaryLook or CollectibleDraw.ThirdDoorPairAlternateLook => DrawGroup.OwnPicture,
         CollectibleDraw.ShotBlockIntact or CollectibleDraw.ShotBlockCracking or CollectibleDraw.ShotBlockDust => DrawGroup.ShotReveal,
         _ => throw new InvalidOperationException($"Undefined {nameof(CollectibleDraw)} {draw}."),
     };

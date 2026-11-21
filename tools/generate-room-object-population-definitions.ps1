@@ -196,21 +196,21 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $lines.Add('internal static class RoomObjectPopulationDefinitions')
     $lines.Add('{')
     # Each placed kind's family setup (#2383), carrying what the kind places (#2481): the coloured, grey and eye doors,
-    # the items, the map and refill stations and the scroll extensions are the kinds verification's kind-variant tables
-    # list, each with the door, item, station access rule or extension it places; the scroll trigger and each other kind
-    # are named for it. A setup carries every argument its family requires (#2483), so a placement of a family that
-    # requires one and gives none is refused.
+    # the items, the map and refill stations and the scroll extensions are the kinds Core's table of kinds by setup lists,
+    # each with the door, item, station access rule or extension it places; the scroll trigger and each other kind are
+    # named for it. A setup carries every argument its family requires (#2483), so a placement of a family that requires
+    # one and gives none is refused. A placement names its object once, by its setup, whose kind follows from it (#2557).
     $familySetups = @{}
     $familyVariants = @{}
-    $variantSource = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectKindVariants.cs'))
+    $variantSource = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectKindDefinitions.cs'))
     function Add-FamilyKinds([string] $table, [string] $setup) {
         $start = $variantSource.IndexOf(" $table ")
-        if ($start -lt 0) { throw "RoomObjectKindVariants declares no $table table." }
-        $end = $variantSource.IndexOf('};', $start)
-        foreach ($match in [regex]::Matches($variantSource.Substring($start, $end - $start), '(?m)^\s*\[RoomObjectKind\.(\w+)\] = (.+),\r?$')) {
-            if ($familySetups.ContainsKey($match.Groups[1].Value)) { throw "Room-object kind $($match.Groups[1].Value) is listed by two families." }
-            $familySetups[$match.Groups[1].Value] = $setup
-            $familyVariants[$match.Groups[1].Value] = $match.Groups[2].Value
+        if ($start -lt 0) { throw "RoomObjectKindDefinitions declares no $table table." }
+        $end = $variantSource.IndexOf('}.ToFrozenDictionary();', $start)
+        foreach ($match in [regex]::Matches($variantSource.Substring($start, $end - $start), '(?m)^\s*\[(.+)\] = RoomObjectKind\.(\w+),\r?$')) {
+            if ($familySetups.ContainsKey($match.Groups[2].Value)) { throw "Room-object kind $($match.Groups[2].Value) is listed by two families." }
+            $familySetups[$match.Groups[2].Value] = $setup
+            $familyVariants[$match.Groups[2].Value] = $match.Groups[1].Value -replace '^new \w+\(', 'new('
         }
     }
     Add-FamilyKinds 'ColoredDoors' 'ColoredDoorSetup'
@@ -220,11 +220,13 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     Add-FamilyKinds 'EyeDoorParts' 'EyeDoorPartSetup'
     Add-FamilyKinds 'AccessStations' 'AccessStationSetup'
     Add-FamilyKinds 'ScrollExtensions' 'ScrollExtensionSetup'
-    $draygonCannonSetups = @{
-        DraygonCannonFacingRight = 'DraygonCannonOrientation.Right, DraygonCannonStart.Whole'
-        DraygonCannonFacingRightDestroyed = 'DraygonCannonOrientation.Right, DraygonCannonStart.Destroyed'
-        DraygonCannonFacingLeft = 'DraygonCannonOrientation.Left, DraygonCannonStart.Whole'
+    $draygonCannonSetups = @{}
+    $cannonStart = $variantSource.IndexOf(' DraygonCannons ')
+    if ($cannonStart -lt 0) { throw 'RoomObjectKindDefinitions declares no DraygonCannons table.' }
+    foreach ($match in [regex]::Matches($variantSource.Substring($cannonStart, $variantSource.IndexOf('}.ToFrozenDictionary();', $cannonStart) - $cannonStart), '(?m)^\s*\[new DraygonCannonVariant\((.+)\)\] = RoomObjectKind\.(\w+),\r?$')) {
+        $draygonCannonSetups[$match.Groups[2].Value] = $match.Groups[1].Value
     }
+    if ($draygonCannonSetups.Count -ne 3) { throw "Expected three Draygon cannon kinds, found $($draygonCannonSetups.Count)." }
     function Format-PlacementSetup([string] $name, [string] $argumentText, [string] $scrollProgram) {
         if ($name -eq 'ScrollTrigger') { return 'new ScrollTriggerSetup({0})' -f $scrollProgram }
         # A Draygon cannon's placement carries the wall cannon it controls, the wall it faces out from and whether it starts
@@ -378,8 +380,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                 }
             }
             $setupText = Format-PlacementSetup $placedKind $argumentText $scrollProgram
-            $placementLines.Add([pscustomobject]@{ Kind = $placedKind; X = $blockX; Y = $blockY
-                Line = ('        new(RoomObjectKind.{0}, new({1}, {2}), {3}{4}),' -f $placedKind, $blockX, $blockY, $setupText, $site) })
+            $placementLines.Add([pscustomobject]@{ Kind = $placedKind; X = $blockX; Y = $blockY; Program = $scrollProgram
+                Line = ('        new(new({0}, {1}), {2}{3}),' -f $blockX, $blockY, $setupText, $site) })
             $offset += 6
         }
         # A scroll extension continues the trigger or extension its step back leads to (#2572); one whose step back leads to
@@ -390,16 +392,48 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             if ($placed.Kind -ceq 'ScrollTrigger' -or $placed.Kind.EndsWith('ScrollExtension')) { [void] $scrollChain.Add(('{0},{1}' -f $placed.X, $placed.Y)) }
         }
         $stepsBack = @{ RightwardsScrollExtension = @(-1, 0); LeftwardsScrollExtension = @(1, 0); DownwardsScrollExtension = @(0, -1); UpwardsScrollExtension = @(0, 1) }
+        # Each trigger is placed once with the reach its extensions give it (#2557): the run of blocks the extensions
+        # continue it through, each straight stretch one run of its extension. An extension's setup only writes its own
+        # block and frees its place at once, so placing the trigger's extensions straight after it, rather than where the
+        # cartridge lists them, takes no place another object would take and changes nothing the game reads. Every
+        # retail reach is one unbranched path from its trigger.
+        $extensionsByBlock = @{}
         foreach ($placed in $placementLines) {
             if ($stepsBack.ContainsKey($placed.Kind)) {
                 $back = $stepsBack[$placed.Kind]
-                if (-not $scrollChain.Contains(('{0},{1}' -f ($placed.X + $back[0]), ($placed.Y + $back[1])))) {
+                $from = '{0},{1}' -f ($placed.X + $back[0]), ($placed.Y + $back[1])
+                if (-not $scrollChain.Contains($from)) {
                     $orphanExtensions++
                     continue
                 }
+                if ($extensionsByBlock.ContainsKey($from)) { throw "Population $name branches the reach of its scroll trigger at ($from)." }
+                $extensionsByBlock[$from] = $placed
             }
-            $lines.Add($placed.Line)
         }
+        $reached = 0
+        foreach ($placed in $placementLines) {
+            if ($stepsBack.ContainsKey($placed.Kind)) { continue }
+            if ($placed.Kind -cne 'ScrollTrigger') {
+                $lines.Add($placed.Line)
+                continue
+            }
+            $runs = [Collections.Generic.List[object]]::new()
+            $at = '{0},{1}' -f $placed.X, $placed.Y
+            while ($extensionsByBlock.ContainsKey($at)) {
+                $extension = $extensionsByBlock[$at]
+                if ($runs.Count -gt 0 -and $runs[$runs.Count - 1].Kind -ceq $extension.Kind) { $runs[$runs.Count - 1].Blocks++ }
+                else { $runs.Add([pscustomobject]@{ Kind = $extension.Kind; Blocks = 1 }) }
+                $reached++
+                $at = '{0},{1}' -f $extension.X, $extension.Y
+            }
+            if ($runs.Count -eq 0) {
+                $lines.Add($placed.Line)
+                continue
+            }
+            [string[]] $reach = @($runs | ForEach-Object { 'new ScrollReachRun({0}, {1})' -f $familyVariants[$_.Kind], $_.Blocks })
+            $lines.Add(('        .. ScrollTriggerPlacements.Reaching(new({0}, {1}), {2}, {3}),' -f $placed.X, $placed.Y, $placed.Program, ($reach -join ', ')))
+        }
+        if ($reached -ne $extensionsByBlock.Count) { throw "Population $name places scroll extensions that no trigger's reach covers." }
         $recordTotal += $count
         if ($count -eq 0) { $lines[$summaryIndex] = $lines[$summaryIndex] -replace '\.</summary>$', ': none.</summary>' }
         $lines.Add('    ]);')

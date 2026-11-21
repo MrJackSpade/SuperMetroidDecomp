@@ -8,21 +8,43 @@ using S = SuperMetroid.Core.Frontend.Intro.CinematicSpritePose;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The animations of the ending scenes' picture actors (#641, #1600, #2196, #2197): a still picture holds, the planet's
-/// layers and the explosion's stars play their scene and publish its cues.
+/// The animations of the ending scenes' picture actors (#641, #1600, #2196, #2197): a still picture holds, listed once with
+/// its picture (#2557), the planet's layers and the explosion's stars play their scene and publish its cues.
 /// </summary>
 internal static class EndingSceneAnimations
 {
     /// <summary>The ending scenes' picture actors' animations.</summary>
     internal static CinematicAnimations<EndingSceneAnimation, CinematicSpritePose, EndingSceneCue> Pictures { get; } = new(
+        new Dictionary<EndingSceneAnimation, CinematicSpritePose>
+        {
+            [A.TopCloudPattern] = S.TopCloudPattern,
+            [A.TopCloudEdge] = S.TopCloudEdge,
+            [A.BottomCloudEdge] = S.BottomCloudEdge,
+            [A.BottomCloudPattern] = S.BottomCloudPattern,
+            [A.RightSideCloud] = S.RightSideCloud,
+            [A.LeftSideCloud] = S.LeftSideCloud,
+            [A.ExplosionStars] = S.EndingStarfield,
+            [A.ExplosionLeftStars] = S.EndingStarfield,
+            [A.ExplosionAfterglow] = S.PlanetAfterglow,
+            [A.ClearTimeDigit0] = S.ClearTimeDigit0,
+            [A.ClearTimeDigit1] = S.ClearTimeDigit1,
+            [A.ClearTimeDigit2] = S.ClearTimeDigit2,
+            [A.ClearTimeDigit3] = S.ClearTimeDigit3,
+            [A.ClearTimeDigit4] = S.ClearTimeDigit4,
+            [A.ClearTimeDigit5] = S.ClearTimeDigit5,
+            [A.ClearTimeDigit6] = S.ClearTimeDigit6,
+            [A.ClearTimeDigit7] = S.ClearTimeDigit7,
+            [A.ClearTimeDigit8] = S.ClearTimeDigit8,
+            [A.ClearTimeDigit9] = S.ClearTimeDigit9,
+            [A.ClearTimeColon] = S.ClearTimeColon,
+            [A.SuitlessIdle] = S.SuitlessIdleUpper,
+            [A.SuitlessLegsIdle] = S.SuitlessLower,
+            [A.SuitedIdle] = S.SuitedIdleBody,
+            [A.HelmetIdle] = S.SuitedHelmetHead,
+            [A.HeadIdle] = S.HelmetlessHeadResting,
+        },
         new Dictionary<EndingSceneAnimation, IHidingAnimationBeat<CinematicSpritePose, EndingSceneCue>[]>
         {
-            [A.TopCloudPattern] = [B.Hold(S.TopCloudPattern)],
-            [A.TopCloudEdge] = [B.Hold(S.TopCloudEdge)],
-            [A.BottomCloudEdge] = [B.Hold(S.BottomCloudEdge)],
-            [A.BottomCloudPattern] = [B.Hold(S.BottomCloudPattern)],
-            [A.RightSideCloud] = [B.Hold(S.RightSideCloud)],
-            [A.LeftSideCloud] = [B.Hold(S.LeftSideCloud)],
             [A.PlanetRumbling] =
             [
                 B.Show(S.PlanetRumbleDeepShadow, 13),
@@ -46,7 +68,6 @@ internal static class EndingSceneAnimations
                 B.Show(S.PlanetGlowWideHalo, 16),
                 B.Show(S.PlanetGlowSpreadingHalo, 16),
             ],
-            [A.ExplosionStars] = [B.Hold(S.EndingStarfield)],
             [A.ExplosionLavaHidden] = [B.Hide(156)],
             [A.ExplosionLava] =
             [
@@ -67,62 +88,19 @@ internal static class EndingSceneAnimations
                 B.Raise(K.WaitForFlyaway),
                 B.Hold(S.EndingStarfield),
             ],
-            [A.ExplosionLeftStars] = [B.Hold(S.EndingStarfield)],
-            [A.ExplosionAfterglow] = [B.Hold(S.PlanetAfterglow)],
-            [A.ClearTimeDigit0] = [B.Hold(S.ClearTimeDigit0)],
-            [A.ClearTimeDigit1] = [B.Hold(S.ClearTimeDigit1)],
-            [A.ClearTimeDigit2] = [B.Hold(S.ClearTimeDigit2)],
-            [A.ClearTimeDigit3] = [B.Hold(S.ClearTimeDigit3)],
-            [A.ClearTimeDigit4] = [B.Hold(S.ClearTimeDigit4)],
-            [A.ClearTimeDigit5] = [B.Hold(S.ClearTimeDigit5)],
-            [A.ClearTimeDigit6] = [B.Hold(S.ClearTimeDigit6)],
-            [A.ClearTimeDigit7] = [B.Hold(S.ClearTimeDigit7)],
-            [A.ClearTimeDigit8] = [B.Hold(S.ClearTimeDigit8)],
-            [A.ClearTimeDigit9] = [B.Hold(S.ClearTimeDigit9)],
-            [A.ClearTimeColon] = [B.Hold(S.ClearTimeColon)],
             [A.AnimalEscape] =
             [
                 B.Show(S.EscapePodShortTrail, 1),
                 B.Show(S.EscapePodLongTrail, 3),
             ],
-            [A.SuitlessIdle] = [B.Hold(S.SuitlessIdleUpper)],
-            [A.SuitlessLegsIdle] = [B.Hold(S.SuitlessLower)],
-            [A.SuitedIdle] = [B.Hold(S.SuitedIdleBody)],
-            [A.HelmetIdle] = [B.Hold(S.SuitedHelmetHead)],
-            [A.HeadIdle] = [B.Hold(S.HelmetlessHeadResting)],
         },
         plays => new Dictionary<EndingSceneAnimation, Animation<EndingSceneAnimation>>
         {
-            [A.TopCloudPattern] = plays.Still(A.TopCloudPattern),
-            [A.TopCloudEdge] = plays.Still(A.TopCloudEdge),
-            [A.BottomCloudEdge] = plays.Still(A.BottomCloudEdge),
-            [A.BottomCloudPattern] = plays.Still(A.BottomCloudPattern),
-            [A.RightSideCloud] = plays.Still(A.RightSideCloud),
-            [A.LeftSideCloud] = plays.Still(A.LeftSideCloud),
             [A.ExplodingPlanet] = new([plays.Repeated(A.PlanetRumbling, 5), plays.Whole(A.ExplodingPlanet)], AnimationEnd.Stops),
             [A.ExplosionGlow] = plays.Looping(A.ExplosionGlow),
-            [A.ExplosionStars] = plays.Still(A.ExplosionStars),
             [A.ExplosionLava] = plays.LeadingInto(A.ExplosionLavaHidden, A.ExplosionLava),
             [A.ExplosionSilhouette] = plays.Through(A.ExplosionSilhouette, AnimationEnd.Stops),
             [A.ExplosionRightStars] = plays.Through(A.ExplosionRightStars, AnimationEnd.Holds),
-            [A.ExplosionLeftStars] = plays.Still(A.ExplosionLeftStars),
-            [A.ExplosionAfterglow] = plays.Still(A.ExplosionAfterglow),
-            [A.ClearTimeDigit0] = plays.Still(A.ClearTimeDigit0),
-            [A.ClearTimeDigit1] = plays.Still(A.ClearTimeDigit1),
-            [A.ClearTimeDigit2] = plays.Still(A.ClearTimeDigit2),
-            [A.ClearTimeDigit3] = plays.Still(A.ClearTimeDigit3),
-            [A.ClearTimeDigit4] = plays.Still(A.ClearTimeDigit4),
-            [A.ClearTimeDigit5] = plays.Still(A.ClearTimeDigit5),
-            [A.ClearTimeDigit6] = plays.Still(A.ClearTimeDigit6),
-            [A.ClearTimeDigit7] = plays.Still(A.ClearTimeDigit7),
-            [A.ClearTimeDigit8] = plays.Still(A.ClearTimeDigit8),
-            [A.ClearTimeDigit9] = plays.Still(A.ClearTimeDigit9),
-            [A.ClearTimeColon] = plays.Still(A.ClearTimeColon),
             [A.AnimalEscape] = plays.Looping(A.AnimalEscape),
-            [A.SuitlessIdle] = plays.Still(A.SuitlessIdle),
-            [A.SuitlessLegsIdle] = plays.Still(A.SuitlessLegsIdle),
-            [A.SuitedIdle] = plays.Still(A.SuitedIdle),
-            [A.HelmetIdle] = plays.Still(A.HelmetIdle),
-            [A.HeadIdle] = plays.Still(A.HeadIdle),
         });
 }

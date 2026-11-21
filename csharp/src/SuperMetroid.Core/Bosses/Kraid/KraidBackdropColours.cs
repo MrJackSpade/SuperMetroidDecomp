@@ -39,35 +39,24 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     /// (<see cref="KraidBackgroundDefinitions.BackdropFadeLastStep"/>), whatever values the counter takes (#2302).
     /// </summary>
     /// <param name="fade">The colours faded toward.</param>
-    internal void Step(KraidBackdropFade fade)
+    internal void Step(KraidBackdropSettledColours fade)
     {
-        KraidBackdropSettledColours goal = GoalOf(fade);
-        if (running is not null && running.Goal == goal)
+        if (running is not null && running.Goal == fade)
         {
             running = running with { Progress = running.Progress.Then() };
             return;
         }
         StartedFrom = Shows;
-        running = new RunningKraidBackdropFade(goal, StepCountedFadeProgress.Started(KraidBackgroundDefinitions.BackdropFadeLastStep));
+        running = new RunningKraidBackdropFade(fade, StepCountedFadeProgress.Started(KraidBackgroundDefinitions.BackdropFadeLastStep));
     }
 
     /// <summary>Completes the fade toward <paramref name="fade"/>'s colours: the backdrop shows them from now on.</summary>
     /// <param name="fade">The colours faded toward.</param>
-    internal void Complete(KraidBackdropFade fade)
+    internal void Complete(KraidBackdropSettledColours fade)
     {
-        StartedFrom = new KraidBackdropShown.Settled(GoalOf(fade));
+        StartedFrom = new KraidBackdropShown.Settled(fade);
         running = null;
     }
-
-    /// <summary>The goal of each fade.</summary>
-    private static IdentityTable<KraidBackdropFade, KraidBackdropSettledColours> GoalByFade => field ??= new(new Dictionary<KraidBackdropFade, KraidBackdropSettledColours>
-    {
-        [KraidBackdropFade.ToBlack] = KraidBackdropSettledColours.Black,
-        [KraidBackdropFade.ToKraidColours] = KraidBackdropSettledColours.KraidColours,
-    });
-
-    /// <summary>The colours a fade toward <paramref name="fade"/> ends on.</summary>
-    private static KraidBackdropSettledColours GoalOf(KraidBackdropFade fade) => GoalByFade[fade];
 
     /// <inheritdoc />
     public void ShadeGameplay(GameplayShadingBuilder frame)

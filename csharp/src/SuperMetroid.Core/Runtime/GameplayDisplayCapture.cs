@@ -350,7 +350,7 @@ public static class GameplayDisplayCapture
         // line scrolls.
         // The reveal is drawn on the background from block pictures (#1392), so it replaces what the room's background shows
         // (#2544), and a boss's body with it (#2573). No boss whose body shows lets X-ray reveal blocks
-        // (XrayBlockRevealDefinitions).
+        // (AreaBossDefinition.XrayKeepsBackground).
         var gameplay = shownReveal is not null
             ? new GameplaySceneLayer(view, ordinary.Rooms with { Background = new XrayRevealBackground(shownReveal) })
             : new GameplaySceneLayer(view, ordinary.Rooms, ordinary.BackgroundLineScrolls) { BossBody = ordinary.BossBody };
@@ -365,10 +365,11 @@ public static class GameplayDisplayCapture
         bool roomDarkens = scene.Blend?.Operation == BlendOperation.Subtract;
         // The X-ray's own tint: grey in a reveal room, none elsewhere; in Fireflea's room the room's darkness shade, never
         // lighter than the reveal's grey. Its last pass clears the tint at once, except in Fireflea's room.
-        int level = latched.Fireflea is { } darkness
-            ? Math.Max(darkness.Shade.FadeLevels.Red, GreyLevel(mode))
-            : GreyLevel(mode);
-        if (finishedThisFrame && !mode.KeepsDarkness) level = 0;
+        FadeLevelColour grey = GreyOf(mode);
+        FadeLevelColour tint = latched.Fireflea is { } darkness && darkness.Shade.FadeLevels.Red > grey.Red
+            ? FadeLevelColour.Grey(darkness.Shade.FadeLevels.Red)
+            : grey;
+        if (finishedThisFrame && !mode.KeepsDarkness) tint = XrayWindowRenderDefinitions.NoTint;
         // Releasing Run starts the beam's closing, whose window and backdrop still show until its first update is spent;
         // the X-ray keeps the display until its last step finally unfreezes gameplay.
         bool closing = finishedThisFrame || (xray.BeamPhase is XrayBeamPhase.Closing or XrayBeamPhase.Finish && !xray.Closing.ShowsBeam);
@@ -377,10 +378,10 @@ public static class GameplayDisplayCapture
         bool closed = warmingUp || closing || xray.BeamPhase == XrayBeamPhase.NoBeam;
         ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, latched.Scrolls.ForegroundPosition);
         var layer = new GameplayBlendLayer(gameplay, window, reveal,
-            new XrayDimmingBlend(mode, roomDarkens, new FadeLevelColour(level, level, level).ToColour()), overlayBehind);
+            new XrayDimmingBlend(mode, roomDarkens, tint.ToColour()), overlayBehind);
         return new(paint, new DisplayLayer[] { layer, basis.Hud }, DisplayBrightness.Full);
     }
 
-    /// <summary>The fade level, in every channel, of the X-ray's grey in a room <paramref name="mode"/> dims; zero for none.</summary>
-    private static int GreyLevel(XrayRoomBlendMode mode) => mode.WashesGrey ? XrayWindowRenderDefinitions.RevealTintLevel : 0;
+    /// <summary>The X-ray's grey in a room <paramref name="mode"/> dims, or no tint where it takes none.</summary>
+    private static FadeLevelColour GreyOf(XrayRoomBlendMode mode) => mode.WashesGrey ? XrayWindowRenderDefinitions.RevealTint : XrayWindowRenderDefinitions.NoTint;
 }

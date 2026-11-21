@@ -106,7 +106,7 @@ public sealed class HudState
             PreviousSelectedItem = samus.SelectedHudItem;
 
             SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
-            if (movementType is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) &&
+            if (!SamusMovementTypeDefinitions.Movements[movementType].SilencesItemSelection &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
                 !timeIsFrozen)
                 audio.QueueSound(SamusSound.HudWeaponSelect, SoundRequestPriority.Normal);
@@ -210,12 +210,15 @@ public sealed class HudState
         for (int tank = 0; tank < tankCount; tank++)
             images.Add(art.EnergyTank(tank, tank < fullTanks ? HudEnergyTank.Full : HudEnergyTank.Empty));
         images.AddRange(art.EnergyCount(values.Health % SamusEnergyDefinitions.EnergyPerTank));
-        if (values.MaxMissiles != 0)
-            images.AddRange(art.Ammo(HudAmmoCounter.Missiles, values.Missiles));
-        if (values.MaxSuperMissiles != 0)
-            images.AddRange(art.Ammo(HudAmmoCounter.SuperMissiles, values.SuperMissiles));
-        if (values.MaxPowerBombs != 0)
-            images.AddRange(art.Ammo(HudAmmoCounter.PowerBombs, values.PowerBombs));
+        // Each ammunition counter shows its digits once Samus can carry any of it.
+        void Ammo(HudAmmoCounter counter, int count, int maximum)
+        {
+            if (maximum != 0)
+                images.AddRange(art.Ammo(counter, count));
+        }
+        Ammo(HudAmmoCounter.Missiles, values.Missiles, values.MaxMissiles);
+        Ammo(HudAmmoCounter.SuperMissiles, values.SuperMissiles, values.MaxSuperMissiles);
+        Ammo(HudAmmoCounter.PowerBombs, values.PowerBombs, values.MaxPowerBombs);
         // AUTO shows its arrows filled or empty; the pause screen's switch to manual (the only way manual is reached)
         // clears its place; before the first reserve tank the template shows.
         HudReserveIndicator? reserve = ReserveIndicators[values.ReserveMode](values);

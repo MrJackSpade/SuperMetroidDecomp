@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Earthquakes;
 
@@ -32,32 +31,17 @@ internal sealed class KraidLimbs
     /// <summary>Installs the arm part in its place with the rising-or-sinking animation.</summary>
     internal void InitializeKraidArm(RoomEnemyPlace arm)
     {
-        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
-        {
-            KraidEncounterAccess.MarkKraidPartDead(arm);
-            return;
-        }
-        // The arm joins the encounter its body began, which it holds from here (#2218).
-        KraidEnemyState state = _parts.Encounter;
-        KraidEncounterAccess.AttachKraidPart(state.ArmState);
-        arm.Shading = _parts.Body.Shading;
-        state.ArmState.StartAnimation(KraidPartSegment.ArmRisingOrSinking);
+        if (_parts.JoinEncounter(_room, arm, state => state.ArmState) is { } part)
+            part.StartAnimation(KraidPartSegment.ArmRisingOrSinking);
     }
 
     /// <summary>Installs a foot part with its initial animation and shared body state.</summary>
     internal void InitializeKraidFoot(RoomEnemyPlace foot)
     {
-        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
-        {
-            KraidEncounterAccess.MarkKraidPartDead(foot);
+        if (_parts.JoinEncounter(_room, foot, state => state.FootState) is not { } part)
             return;
-        }
-        // The foot joins the encounter its body began, which it holds from here (#2218).
-        KraidEnemyState state = _parts.Encounter;
-        KraidEncounterAccess.AttachKraidPart(state.FootState);
-        foot.Shading = _parts.Body.Shading;
-        state.FootState.StartAnimation(KraidPartSegment.FootInitial);
-        state.FootState.Phase = KraidFootPhase.Resting;
+        part.StartAnimation(KraidPartSegment.FootInitial);
+        part.Phase = KraidFootPhase.Resting;
     }
 
     /// <summary>
@@ -180,13 +164,7 @@ internal sealed class KraidLimbs
         RoomEnemyPlace body = _parts.Body;
         arm.Position = arm.Position.WithWhole(body.Position.Whole + KraidArenaDefinitions.ArmOffset);
 
-        // The arm hides only when its anchor leaves the screen's gameplay
-        // viewport: it is hidden, not drawn behind anything.
-        bool onScreen = arm.Position.Y.Whole >= cameraY &&
-            arm.Position.Y.Whole - cameraY < ScreenGeometry.ScreenHeightPixels;
-        arm.Presence = onScreen
-            ? arm.Presence.Without(EnemyPresence.Hidden)
-            : arm.Presence.With(EnemyPresence.Hidden);
+        ShowWithinGameplayView(arm, cameraY);
 
         // While mouth reopens are pending the arm's swing waits on the frame it shows, its hold kept, and runs on from there
         // once none is pending.
@@ -238,6 +216,18 @@ internal sealed class KraidLimbs
             }
         },
     });
+    /// <summary>
+    /// Hides <paramref name="limb"/> only while its anchor lies outside the screen's gameplay view below
+    /// <paramref name="cameraY"/> (#2557): it is hidden, not drawn behind anything. The arm and the foot are shown so.
+    /// </summary>
+    private static void ShowWithinGameplayView(RoomEnemyPlace limb, int cameraY)
+    {
+        bool onScreen = limb.Position.Y.Whole >= cameraY &&
+            limb.Position.Y.Whole - cameraY < ScreenGeometry.ScreenHeightPixels;
+        limb.Presence = onScreen
+            ? limb.Presence.Without(EnemyPresence.Hidden)
+            : limb.Presence.With(EnemyPresence.Hidden);
+    }
 
     /// <summary>Runs the foot's lunge, retreat, and grown-form walking phases.</summary>
     internal void RunKraidFootMain(RoomEnemyPlace foot, KraidFootState part, int cameraY)
@@ -245,11 +235,7 @@ internal sealed class KraidLimbs
         KraidEnemyState state = part.Kraid;
         RoomEnemyPlace body = _parts.Body;
         foot.Position = foot.Position.WithWhole(body.Position.Whole + KraidArenaDefinitions.FootOffset);
-        bool onScreen = foot.Position.Y.Whole >= cameraY &&
-            foot.Position.Y.Whole - ScreenGeometry.ScreenHeightPixels < cameraY;
-        foot.Presence = onScreen
-            ? foot.Presence.Without(EnemyPresence.Hidden)
-            : foot.Presence.With(EnemyPresence.Hidden);
+        ShowWithinGameplayView(foot, cameraY);
 
         RunKraidFootMainForKraidFootPhase[part.Phase](foot, part, state, body);
     }

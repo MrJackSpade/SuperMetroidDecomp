@@ -44,7 +44,7 @@ internal sealed class EndingTypewriter
     /// <summary>Set after the text and any percentage hold have finished.</summary>
     public bool Completed { get; private set; }
     /// <summary>Whether the text is the item percentage's, whose completion lets the scene move the text down (#2562).</summary>
-    internal bool TypesItemPercentage => sequence == EndingTextSequence.ItemPercentage;
+    internal bool TypesItemPercentage => EndingTextSequenceDefinitions.HoldingPercentage.Contains(sequence);
 
     /// <summary>The installed characters.</summary>
     private EndingTextCharacter[] Characters { get; set; }

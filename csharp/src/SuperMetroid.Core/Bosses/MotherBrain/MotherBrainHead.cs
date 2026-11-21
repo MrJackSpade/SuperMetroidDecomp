@@ -49,8 +49,9 @@ internal sealed class MotherBrainHead
     /// <summary>Sets Mother Brain's head up when the room spawns it.</summary>
     internal void InitializeMotherBrainHead(RoomEnemyPlace head)
     {
-        // The head joins the encounter her body, listed right before it, began; it holds it from here (#2218).
-        MotherBrainEnemyState state = _places.ListedBefore(head, 1).RequireSpeciesState<MotherBrainEnemyState>();
+        // The head joins the encounter her body began; it holds it from here (#2218).
+        MotherBrainEnemyState state = _places.Member(head, MotherBrainFightDefinitions.Listing, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainBody)
+            .RequireSpeciesState<MotherBrainEnemyState>();
         head.SetSpeciesState(state);
 
         head.Health = MotherBrainFightDefinitions.FirstPhaseHealth;
@@ -144,8 +145,7 @@ internal sealed class MotherBrainHead
             return;
 
         // The joints are drawn from the brain down to her body, so the joints nearer her brain lie over the others.
-        int shakeIndex = MotherBrainCadenceDefinitions.NeckShakeStep.Of(head.HurtFlash.UpdatesLeft);
-        Offset16<RoomPixels> neckShake = MotherBrainShakeDefinitions.Offsets[shakeIndex];
+        Offset16<RoomPixels> neckShake = MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.NeckShakeStep, head.HurtFlash.UpdatesLeft);
         foreach (MotherBrainNeckJoint joint in state.Neck.Joints.Reverse())
         {
             DrawMotherBrainWorldFrame(
@@ -511,28 +511,31 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Runs the head's big purple breath step and the breath's setup.</summary>
-    private void SpawnMotherBrainPurpleBreathBig(MotherBrainEnemyState state)
-    {
-        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard, new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.PurpleBreathBig));
-        if (breath is null)
-            return;
+    private void SpawnMotherBrainPurpleBreathBig(MotherBrainEnemyState state) =>
+        _ = SpawnMotherBrainPurpleBreath(state, RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, MotherBrainEffectSegment.PurpleBreathBig);
 
-        _projectileAttacks.Projectile.MotherBrains.Start(breath, new MotherBrainProjectileState(state));
-        RoomEnemyPlace head = state.Head;
-        breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
-    }
-
-    /// <summary>Runs the small-breath spawn and the breath's setup.</summary>
+    /// <summary>Runs the small-breath spawn and the breath's setup; a small breath that spawns is her one small breath.</summary>
     private void SpawnMotherBrainPurpleBreathSmall(MotherBrainEnemyState state)
     {
-        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard, new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.PurpleBreathSmall));
+        if (SpawnMotherBrainPurpleBreath(state, RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall, MotherBrainEffectSegment.PurpleBreathSmall))
+            state.SmallPurpleBreathActive = true;
+    }
+
+    /// <summary>
+    /// Spawns a purple breath of <paramref name="kind"/> playing <paramref name="animation"/> at her mouth, the breath offset
+    /// from her head; it returns whether a projectile was free for it.
+    /// </summary>
+    private bool SpawnMotherBrainPurpleBreath(MotherBrainEnemyState state, RoomEnemyProjectileKind kind, MotherBrainEffectSegment animation)
+    {
+        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile(kind, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard,
+            new MotherBrainEffectAnimation(_projectileAttacks.Projectile, animation));
         if (breath is null)
-            return;
+            return false;
 
         _projectileAttacks.Projectile.MotherBrains.Start(breath, new MotherBrainProjectileState(state));
         RoomEnemyPlace head = state.Head;
         breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
-        state.SmallPurpleBreathActive = true;
+        return true;
     }
 
     /// <summary>Spawns the rainbow beam's charge glow, pinned to her head in the update it spawns.</summary>

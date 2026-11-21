@@ -36,7 +36,18 @@ internal static class RoomFxBlendSheetShades
     internal static IReadOnlyList<SheetShade> Of(RoomFxBlendInks blends)
     {
         Ensure.NotNull(blends);
-        return [.. TintOrder.Select(blend => SheetShade.Run(RoomEffectTintShading.Of(blend),
-            blend == RoomEffectTint.None ? ClearedInk : FirstInk, [.. blends.Inks(blend)]))];
+        return [.. TintOrder.Select(blend => SheetShade.Run(RoomEffectTintShading.Of(blend), FirstInkOf(blend), [.. blends.Inks(blend)]))];
     }
+
+    /// <summary>
+    /// The first ink <paramref name="blend"/>'s colours write: each blend's colour run starts at the first blend ink, but the
+    /// empty blend's, which only clears its cleared ink.
+    /// </summary>
+    private static int FirstInkOf(RoomEffectTint blend) => InkRunsApart.TryGetValue(blend, out int first) ? first : FirstInk;
+
+    /// <summary>The blends whose colour run starts elsewhere than the first blend ink, with the ink it starts at: the empty blend's.</summary>
+    private static readonly Dictionary<RoomEffectTint, int> InkRunsApart = new Dictionary<RoomEffectTint, int>
+    {
+        [RoomEffectTint.None] = ClearedInk,
+    };
 }

@@ -40,8 +40,8 @@ internal static class EndingObjectArtworkVerification
     /// <summary>Matches four explosion-fragment source pointers and filenames to their native loader operands.</summary>
     internal static void VerifyEndingObjectFragmentMetadata(ISnesAddressSpace bus)
     {
-        string[] names = ["ending-explosion-fragment-70.json", "ending-explosion-fragment-74.json",
-            "ending-explosion-fragment-78.json", "ending-explosion-fragment-7c.json"];
+        string[] names = ["ending-explosion-WideExplosion.json", "ending-explosion-ConcentricExplosion.json",
+            "ending-explosion-Eclipse.json", "ending-explosion-Blank.json"];
         AssertEqual(names.Length, EndingObjectArtworkFormat.FragmentCount, "ending fragment count");
         for (int index = 0; index < names.Length; index++)
         {
@@ -50,11 +50,11 @@ internal static class EndingObjectArtworkVerification
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(load + 5), "native fragment address LDA");
             int source = (int)new SnesAddress(bus.ReadCartridgeByte(load + 2), CartridgeImportSource.Require(bus).ReadCartridgeWord(load + 6));
             AssertEqual(source, EndingArtworkSources.ObjectFragment((EndingExplosionPicture)index), "native fragment compressed source");
-            AssertEqual(names[index], EndingObjectArtworkFormat.FragmentFileName(index), "published fragment filename");
+            AssertEqual(names[index], EndingObjectArtworkFormat.FragmentFileName((EndingExplosionPicture)index), "published fragment filename");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingObjectArtworkFormat.FragmentFileName(invalid), "fragment filename bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingObjectArtworkFormat.FragmentFileName((EndingExplosionPicture)invalid), "fragment filename bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingArtworkSources.ObjectFragment((EndingExplosionPicture)invalid), "fragment source bounds");
         }
     }
@@ -120,13 +120,13 @@ internal static class EndingObjectArtworkVerification
         AssertTrue(BackgroundTileWordBytes.Of(stock.WaitingTilemap.Tiles.Span).AsSpan().SequenceEqual(
                 nativeWaitingMap.AsSpan(0, EndingObjectArtworkFormat.WaitingTilemapByteCount)),
             "installed waiting-Samus map preserves all native BG2 tile words");
-        AssertSheet(stock.PostCreditsFragmentA,
+        AssertSheet(stock.TransformationCharacters,
             EndingSourceDefinitions.Artwork.TransformationCharacters,
-            EndingObjectArtworkFormat.PostCreditsFragmentAByteCount,
+            EndingObjectArtworkFormat.TransformationCharactersByteCount,
             "post-credits fragment A");
-        AssertMap(stock.PostCreditsFragmentB,
+        AssertMap(stock.TransformationMap,
             EndingSourceDefinitions.Artwork.TransformationTilemap,
-            EndingObjectArtworkFormat.PostCreditsFragmentBByteCount,
+            EndingObjectArtworkFormat.TransformationMapByteCount,
             "post-credits fragment B");
         AssertSheet(stock.PostShotLogoTiles, EndingSourceDefinitions.Artwork.PostShotLogoTiles,
             EndingObjectArtworkFormat.PostShotLogoTileByteCount,

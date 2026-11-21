@@ -47,7 +47,7 @@ internal static class BossRoomObjectProgramsVerification
 
     /// <summary>Crocomire's arena changes play as their native lists do.</summary>
     internal static void VerifyCrocomireArenaPrograms(ISnesAddressSpace rom) =>
-        CompareChanges(rom, CrocomireArenaEntries, CrocomireArenaMutationDefinitions.Changes, NativeTerrainChanges.NoSteps, "Crocomire arena");
+        CompareChanges(rom, CrocomireArenaEntries, CrocomireArenaDraws.Changes, NativeTerrainChanges.NoSteps, "Crocomire arena");
 
     /// <summary>
     /// Mother Brain's fake-death changes play as their native lists do: each mutation's own change, and the reveal of

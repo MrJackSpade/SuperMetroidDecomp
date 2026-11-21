@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
 {
     /// <summary>Colours in one palette row.</summary>
-    private const int RowColours = 16;
+    internal const int RowColours = 16;
 
     /// <summary>Pixels along a character's side.</summary>
     internal const int CharacterPixels = 8;
@@ -132,7 +132,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     }
 
     /// <summary>Colours in one two-bit palette row.</summary>
-    private const int TwoBppRowColours = 4;
+    internal const int TwoBppRowColours = 4;
 
     /// <summary>Bytes in one two-bit character.</summary>
     internal const int TwoBppCharacterBytes = 16;
@@ -213,7 +213,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
         SpriteImageColours kind, InstalledBackgroundSet[]? backgroundSets, IReadOnlySet<string> split, bool keepsEmpty)
     {
         Ensure.NotNull(frames);
-        bool twoBit = kind == SpriteImageColours.TwoBppBackground;
+        bool twoBit = Ensure.Listed(SpriteImageColourDefinitions.Colourings, kind).TwoBitCharacters;
         var parts = new List<FramePart>(frames.Count);
         // The in-front parts of frames with pixels in both parts are laid in rows below the painted planes, each row as tall
         // as its tallest part.

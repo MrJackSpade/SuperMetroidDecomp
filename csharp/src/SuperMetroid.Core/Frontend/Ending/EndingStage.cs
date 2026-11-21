@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -29,10 +30,10 @@ internal sealed class EndingStage
     internal EndingColours Colours => screen.Colours;
 
     /// <summary>The screen's brightness and the cadence of its fades, shared through scene and colour handoffs.</summary>
-    internal ScreenFade Fade { get; } = new(0);
+    internal ScreenFade Fade { get; } = new(DisplayBrightness.Black);
 
     /// <summary>The screen's brightness through the scene's fades, from black through full.</summary>
-    internal int Brightness => Fade.Level;
+    internal DisplayBrightness Brightness => Fade.Level;
 
     /// <summary>The turning floor's view, which the escape, the explosion and the planet escape share (#2541).</summary>
     internal EndingTurningFloor Floor { get; } = new();

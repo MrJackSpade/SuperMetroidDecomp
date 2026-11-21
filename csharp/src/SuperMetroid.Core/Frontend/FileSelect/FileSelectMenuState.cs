@@ -20,8 +20,11 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// validity and displayed energy/time are read from the saves themselves
 /// rather than from separately authored metadata.
 /// </remarks>
-public sealed class FileSelectMenuState : IMenuFrontendScreen
+public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
+    /// <summary>The buttons that confirm a choice throughout the menu: Start or A.</summary>
+    private const ControllerButton ConfirmButtons = ControllerButton.Start | ControllerButton.A;
+
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
     public void BindSpriteSheets(InstalledSpriteSheets sheets)
@@ -52,7 +55,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>The selected slot's helmet picture, retained through the options fade.</summary>
     private FileSelectHelmetFrame HelmetAnimationFrame => selectedHelmet.Frame;
     /// <summary>The screen's brightness and the cadence of its entry and submenu fades; the menu opens black.</summary>
-    private readonly ScreenFade screenFade = new(0);
+    private readonly ScreenFade screenFade = new(DisplayBrightness.Black);
     /// <summary>The opening's black hold (<see cref="FileSelectPhase.BlackHold"/>), counted once each update.</summary>
     private readonly UpdateCountdown blackHold = UpdateCountdown.Lasting(FileSelectLayout.BlackHoldUpdates);
     /// <summary>The page file select has selected, which it shows with its slots as they are now.</summary>
@@ -174,7 +177,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             {
                 selectedHelmet.Step();
                 // Start/A ends the turn early; otherwise it ends once its last picture has shown for its whole hold.
-                if ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None || selectedHelmet.HasFinished)
+                if ((pressed & ConfirmButtons) != ControllerButton.None || selectedHelmet.HasFinished)
                     Phase = new FileSelectPhase.FadeOutToOptions();
             }
             else if (Phase is FileSelectPhase.FadeOutToOptions)
@@ -324,7 +327,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             Phase = new FileSelectPhase.FadeOutToTitle();
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
+        if ((pressed & ConfirmButtons) == ControllerButton.None)
             return;
 
         if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out SaveSlot chosen))
@@ -443,7 +446,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             submenuSelection, SaveSlots.All.Where(slot => saveSlots[slot] is not null).ToHashSet(), pressed));
 
         // The page's rows are its slots and Exit: confirming the row that names no slot leaves the page.
-        bool confirmed = (pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None;
+        bool confirmed = (pressed & ConfirmButtons) != ControllerButton.None;
         bool selectsSlot = FileSelectItemRows.TryGetSaveSlot(submenuSelection, out SaveSlot source);
         if ((pressed & ControllerButton.B) != ControllerButton.None || (confirmed && !selectsSlot))
         {
@@ -484,7 +487,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             Phase = new FileSelectPhase.DataManagement.CopySelectSource();
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
+        if ((pressed & ConfirmButtons) == ControllerButton.None)
             return;
         QueueCursorSound();
         if (copyDestination is not FileCopyDestinationRow.Destination chosen)
@@ -574,7 +577,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             QueueCursorSound();
             return FileSelectConfirmationAnswer.Declined;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
+        if ((pressed & ConfirmButtons) == ControllerButton.None)
             return FileSelectConfirmationAnswer.Undecided;
 
         audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);

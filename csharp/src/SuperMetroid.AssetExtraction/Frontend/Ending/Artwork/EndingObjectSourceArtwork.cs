@@ -21,18 +21,17 @@ public class EndingObjectSourceArtwork
     {
         Ensure.NotNull(parts);
         WaitingTilemap = Ensure.NotNull(parts.WaitingTilemap);
-        PostCreditsFragmentB = Ensure.NotNull(parts.PostCreditsFragmentB);
+        TransformationMap = Ensure.NotNull(parts.TransformationMap);
         PostShotLogoMap = Ensure.NotNull(parts.PostShotLogoMap);
         Ensure.NotNull(parts.Fragments);
         if (!IsWholeMap(WaitingTilemap) ||
-            !IsWholeMap(PostCreditsFragmentB) ||
+            !IsWholeMap(TransformationMap) ||
             !IsWholeMap(PostShotLogoMap) ||
             parts.Fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
             parts.Fragments.Any(fragment => fragment is null || !IsWholeMap(fragment)))
             throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
         fragments = [.. parts.Fragments];
-        fragmentsById = EndingObjectArtworkFormat.ExplosionPictures.ToDictionary(picture => picture,
-            picture => fragments[Ensure.Listed(EndingObjectArtworkFormat.FragmentNumbers, picture)]);
+        fragmentsById = EndingObjectArtworkFormat.ExplosionPictures.Zip(fragments, KeyValuePair.Create).ToDictionary();
         CloudSprites = Ensure.NotNull(parts.CloudSprites);
         ExplosionSprites = Ensure.NotNull(parts.ExplosionSprites);
         CompletionTextSprites = Ensure.NotNull(parts.CompletionTextSprites);
@@ -40,7 +39,7 @@ public class EndingObjectSourceArtwork
         LogoSprites = Ensure.NotNull(parts.LogoSprites);
     }
 
-    /// <summary>The four explosion maps in their installed fragments' order (<see cref="EndingObjectArtworkFormat.FragmentNumbers"/>).</summary>
+    /// <summary>The four explosion maps in the installation's order of their pictures (<see cref="EndingObjectArtworkFormat.ExplosionPictures"/>).</summary>
     private readonly RoomBackgroundTilemapAtlas[] fragments;
 
     /// <summary>The same maps keyed by the explosion map each one holds.</summary>
@@ -52,7 +51,7 @@ public class EndingObjectSourceArtwork
     /// <summary>The waiting scene's 32x32 backdrop map.</summary>
     public RoomBackgroundTilemapAtlas WaitingTilemap { get; }
     /// <summary>The transformation's 32x32 map, imported from <c>$99:DAB1</c>.</summary>
-    public RoomBackgroundTilemapAtlas PostCreditsFragmentB { get; }
+    public RoomBackgroundTilemapAtlas TransformationMap { get; }
     /// <summary>The post-shot logo's 32x32 map.</summary>
     public RoomBackgroundTilemapAtlas PostShotLogoMap { get; }
 

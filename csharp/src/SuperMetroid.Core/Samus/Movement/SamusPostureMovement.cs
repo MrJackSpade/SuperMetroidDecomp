@@ -65,22 +65,16 @@ public static class SamusPostureMovement
         SamusState samus,
         int frameCounter)
     {
-        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-
         // Samus moves with no base speed, but keeps any extra run speed, which her horizontal movement adds to it.
         // A run at its full boost stage therefore keeps sliding through the crouch transition into a crouch, and
         // her pose handling stores the shine before ordinary crouching stops that momentum.
         var requestedHorizontal = SamusHorizontalDisplacement.TowardFacing(samus, baseSpeed: default);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
-        if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        BlockMoveResult horizontal = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
         // An external Y displacement, when present, replaces the floor probe. Otherwise the probe couples
         // its downward reach to the total X speed calculated by the horizontal pass;
         // this matters for a Speed-Booster slide through the crouching transition.
-        SignedSixteenSixteen verticalDisplacement = SamusExtraDisplacement
-            .CalculateNoSpeedVerticalDisplacement(samus.Kinematics, speed);
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = verticalDisplacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        BlockMoveResult vertical = SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
         return new GroundedMovementResult(horizontal, vertical);
     }
 

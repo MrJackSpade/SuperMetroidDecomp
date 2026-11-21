@@ -51,19 +51,12 @@ internal static class SamusAerialPoseTransitions
         // The spin, Space Jump, Screw Attack and wall-jump input transitions emit only same-facing
         // normal-jump poses when aim or Shoot cancels rotation.
         SamusPoseId sourcePose = samus.Pose;
-        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            terrain,
-            targetPose,
-            frameCounter,
-            out int centerAdjustment);
-        if (collision == LargerPoseCollisionOutcome.RetainSource)
-            return;
-        if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+        // Samus takes the ordinary crouch when the expanded body is blocked above and below; the pose change still runs and
+        // sees the spin/wall-jump previous movement type, and a Screw Attack spin asks for the suit's shade back.
+        LargerPoseCollisionOutcome collision = TryEnlargeInto(samus, terrain, targetPose, sourcePose, frameCounter, out int centerAdjustment);
+        if (collision != LargerPoseCollisionOutcome.Allowed)
         {
-            // Samus takes the ordinary crouch when the expanded body is blocked above and
-            // below. The pose change still runs and sees the spin/wall-jump previous movement type.
-            samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
-            if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
+            if (collision == LargerPoseCollisionOutcome.CrouchFallback && samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
                 samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
             return;
         }
@@ -128,18 +121,8 @@ internal static class SamusAerialPoseTransitions
             : throw new InvalidDataException(
                 $"{(jumping ? "Jump" : "Fall")} pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(samus)}).");
 
-        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            terrain,
-            selectedTurnPose,
-            frameCounter,
-            out int centerAdjustment);
-        if (collision == LargerPoseCollisionOutcome.RetainSource)
+        if (TryEnlargeInto(samus, terrain, selectedTurnPose, sourcePose, frameCounter, out int centerAdjustment) != LargerPoseCollisionOutcome.Allowed)
             return;
-        if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-        {
-            samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
-            return;
-        }
 
         // The changed-pose collision resolves expansion before the pose change runs the final movement type.
         // A crouch substitution never reaches the aerial-turn momentum setup.
@@ -199,15 +182,8 @@ internal static class SamusAerialPoseTransitions
         // The accepted wall contact still passes through the ordinary changed-pose
         // collision check. Expanding a compact spin body beneath a ceiling can
         // move the center away from it, reject the expansion, or select crouch.
-        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            terrain, targetPose, frameCounter, out int centerAdjustment);
-        if (collision == LargerPoseCollisionOutcome.RetainSource)
+        if (TryEnlargeInto(samus, terrain, targetPose, samus.Pose, frameCounter, out int centerAdjustment) != LargerPoseCollisionOutcome.Allowed)
             return;
-        if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-        {
-            samus.ApplyPoseChangeCollisionCrouchFallback(samus.Pose);
-            return;
-        }
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
         // A wall jump from a Screw Attack spin asks for the normal suit shade back before the jump starts; the shade
@@ -290,22 +266,12 @@ internal static class SamusAerialPoseTransitions
         // or jumping. The game's drop selects by radius/shot direction in those poses too;
         // only its output domain is restricted, not the source to connected-grapple art.
         SamusPoseId sourcePose = samus.Pose;
-        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            terrain,
-            targetPose,
-            frameCounter,
-            out int centerAdjustment);
-        if (collision == LargerPoseCollisionOutcome.Allowed)
+        if (TryEnlargeInto(samus, terrain, targetPose, sourcePose, frameCounter, out int centerAdjustment) == LargerPoseCollisionOutcome.Allowed)
         {
             samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
             samus.ChangePoseRestartingIfChanged(targetPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
         }
-        else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-        {
-            samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
-        }
-
     }
 
     /// <summary>
@@ -423,7 +389,7 @@ internal static class SamusAerialPoseTransitions
         // way.
         // The pose update happens after movement. The next input phase, including
         // the intro-demo input mode, owns publication of the new live radius.
-        samus.ChangePose(targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose
+        samus.ChangePose(SamusPoseTraits.IsIn(targetPose, SamusPoseFamily.GenericSpinJump)
             ? SelectEquippedSpinPose(samus, SamusPoseMetadata.ReadFacingDirection(targetPose))
             : targetPose);
         SamusAerialMovement.InitializeJump(samus);
@@ -515,17 +481,8 @@ internal static class SamusAerialPoseTransitions
         // The input transitions that name this setup change within one facing's normal jumps or falls.
         SamusPoseId sourcePose = samus.Pose;
         SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(sourcePose);
-        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-                terrain,
-                targetPose,
-                frameCounter,
-                out int centerAdjustment);
-        if (collision != LargerPoseCollisionOutcome.Allowed)
-        {
-            if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-                samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
+        if (TryEnlargeInto(samus, terrain, targetPose, sourcePose, frameCounter, out int centerAdjustment) != LargerPoseCollisionOutcome.Allowed)
             return;
-        }
 
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
         if (sourcePose != targetPose)
@@ -540,6 +497,21 @@ internal static class SamusAerialPoseTransitions
             InitializeOrdinaryAerialAcceleration(samus);
         }
         samus.ChangePose(targetPose);
+    }
+
+    /// <summary>
+    /// Tries to enlarge Samus from her compact pose into <paramref name="targetPose"/> (#2557): the larger pose's collision is
+    /// resolved; blocked above and below she takes the ordinary crouch, its pose change seeing <paramref name="sourcePose"/>
+    /// as the pose she came from; blocked otherwise she keeps her pose. Only an allowed expansion leaves the pose change to
+    /// the enlarging transition, which moves her by <paramref name="centerAdjustment"/>.
+    /// </summary>
+    private static LargerPoseCollisionOutcome TryEnlargeInto(SamusState samus, SamusTerrain terrain, SamusPoseId targetPose,
+        SamusPoseId sourcePose, int frameCounter, out int centerAdjustment)
+    {
+        LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(terrain, targetPose, frameCounter, out centerAdjustment);
+        if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+            samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
+        return collision;
     }
 
     /// <summary>

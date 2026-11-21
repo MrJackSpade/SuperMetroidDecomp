@@ -1,4 +1,6 @@
 
+using SuperMetroid.Core.Frontend.Intro;
+
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Stable identities and rectangle shape of the four portrait eye drawings. The installed cells are the drawings; timing and pixels are outside this retained scope.</summary>
@@ -17,11 +19,10 @@ public static class IntroEyeTilemapFormat
     /// <summary>JSON filename containing the four editable eye rectangles.</summary>
     public const string FileName = "intro-samus-eye-frames.json";
 
-    /// <summary>Builds the stable frame identity for a zero-based selector index.</summary>
-    public static string FrameId(int index)
-    {
-        if ((uint)index >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        return $"eye-frame-{index}";
-    }
+    /// <summary>The four eye drawings in the order the document lists them.</summary>
+    internal static IReadOnlyList<IntroEyeFrame> Eyes { get; } =
+        [IntroEyeFrame.Open, IntroEyeFrame.HalfOpen, IntroEyeFrame.Closed, IntroEyeFrame.Deadpan];
+
+    /// <summary>The document's identity of the drawing of <paramref name="eye"/>, spelled from its installed key.</summary>
+    internal static string FrameId(IntroEyeFrame eye) => $"eye-{IntroEyeFrameKeys.Installed.Of(eye)}";
 }

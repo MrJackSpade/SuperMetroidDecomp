@@ -8,6 +8,9 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record ColoredDoorSetup(ColoredDoorVariant Door, DoorLock LockedBy) : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKindDefinitions.ColoredDoors[Door];
+
+    /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpColoredDoor(Door, LockedBy);
 
     /// <inheritdoc/>

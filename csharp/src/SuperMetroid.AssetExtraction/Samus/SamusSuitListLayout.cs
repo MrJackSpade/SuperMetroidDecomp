@@ -13,14 +13,6 @@ public static class SamusSuitListLayout
     /// <summary>The suits in the order their colour lists follow one another.</summary>
     public static ImmutableArray<SamusSuit> Order { get; } = [SamusSuit.Power, SamusSuit.Varia, SamusSuit.Gravity];
 
-    /// <summary>The place of <paramref name="suit"/>'s entries among the per-suit lists, in <see cref="Order"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="suit"/> is not one of Samus's suits.</exception>
-    public static int Place(SamusSuit suit)
-    {
-        int place = Order.IndexOf(suit);
-        return place >= 0 ? place : throw new ArgumentOutOfRangeException(nameof(suit), suit, "Samus has no such suit.");
-    }
-
     /// <summary>The suit whose entries lie at <paramref name="place"/> among the per-suit lists.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="place"/> is past the last suit's entries.</exception>
     public static SamusSuit AtPlace(int place) =>

@@ -5,12 +5,6 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public enum RoomEnemyProjectileKind
 {
-    /// <summary>
-    /// No enemy's projectile: the place the pre-Phantoon room's setup holds in the pool for its first projectile updates
-    /// (<see cref="Compatibility.PrePhantoonRoomHeldProjectilePlace"/>). It shows nothing, touches nothing and frees the
-    /// place when its hold ends.
-    /// </summary>
-    PrePhantoonRoomHeldPlace,
     /// <summary>A Yapping Maw's body.</summary>
     YappingMawBody,
     /// <summary>

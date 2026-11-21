@@ -20,6 +20,9 @@ internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRi
     /// <summary>Ceres Ridley's encounter behaviour.</summary>
     private CeresRidleyBehavior Ceres { get; } = ceres;
 
+    /// <summary>The station's escape progress, which ends Ceres Ridley's touch and drawing.</summary>
+    private ICeresEscapeStatus Escape { get; } = escape;
+
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {

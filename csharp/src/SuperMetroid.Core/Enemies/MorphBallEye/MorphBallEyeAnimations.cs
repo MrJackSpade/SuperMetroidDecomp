@@ -17,36 +17,18 @@ internal static class MorphBallEyeAnimations
     internal static AnimationSegments<MorphBallEyeSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<MorphBallEyeSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
-        [P.FacingRightDeactivating] =
-        [
-            Show(EnemyFrameId.MorphBallEyeFacingRightHalfOpen, 8),
-            Show(EnemyFrameId.MorphBallEyeLookingLeft, 48),
-            Show(EnemyFrameId.MorphBallEyeFacingRightHalfOpen, 5),
-        ],
+        [P.FacingRightDeactivating] = Deactivating(EnemyFrameId.MorphBallEyeFacingRightHalfOpen, EnemyFrameId.MorphBallEyeLookingLeft),
         [P.FacingRightClosed] =
         [
             Hold(EnemyFrameId.MorphBallEyeFacingRightClosed),
         ],
-        [P.FacingLeftDeactivating] =
-        [
-            Show(EnemyFrameId.MorphBallEyeFacingLeftHalfOpen, 8),
-            Show(EnemyFrameId.MorphBallEyeLookingRight, 48),
-            Show(EnemyFrameId.MorphBallEyeFacingLeftHalfOpen, 5),
-        ],
+        [P.FacingLeftDeactivating] = Deactivating(EnemyFrameId.MorphBallEyeFacingLeftHalfOpen, EnemyFrameId.MorphBallEyeLookingRight),
         [P.FacingLeftClosed] =
         [
             Hold(EnemyFrameId.MorphBallEyeFacingLeftClosed),
         ],
-        [P.FacingRightActivating] =
-        [
-            Show(EnemyFrameId.MorphBallEyeFacingRightClosed, 32),
-            Hold(EnemyFrameId.MorphBallEyeFacingRightHalfOpen),
-        ],
-        [P.FacingLeftActivating] =
-        [
-            Show(EnemyFrameId.MorphBallEyeFacingLeftClosed, 32),
-            Hold(EnemyFrameId.MorphBallEyeFacingLeftHalfOpen),
-        ],
+        [P.FacingRightActivating] = Activating(EnemyFrameId.MorphBallEyeFacingRightClosed, EnemyFrameId.MorphBallEyeFacingRightHalfOpen),
+        [P.FacingLeftActivating] = Activating(EnemyFrameId.MorphBallEyeFacingLeftClosed, EnemyFrameId.MorphBallEyeFacingLeftHalfOpen),
         [P.MountFacingRight] =
         [
             Hold(EnemyFrameId.MorphEyeMountRight),
@@ -96,6 +78,21 @@ internal static class MorphBallEyeAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MorphBallEyeSegment> StartingWith(MorphBallEyeSegment segment) => StartingAt[segment];
+
+    /// <summary>The eye closing over a facing's lid poses, <paramref name="halfOpen"/>, <paramref name="ballEyeLooking"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] Deactivating(EnemyFrameId halfOpen, EnemyFrameId ballEyeLooking) =>
+    [
+        Show(halfOpen, 8),
+        Show(ballEyeLooking, 48),
+        Show(halfOpen, 5),
+    ];
+
+    /// <summary>The eye opening over a facing's lid poses, <paramref name="closed"/>, <paramref name="halfOpen"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] Activating(EnemyFrameId closed, EnemyFrameId halfOpen) =>
+    [
+        Show(closed, 32),
+        Hold(halfOpen),
+    ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

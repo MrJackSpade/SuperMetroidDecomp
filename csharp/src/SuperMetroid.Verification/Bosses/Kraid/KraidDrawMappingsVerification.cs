@@ -119,7 +119,7 @@ internal static class KraidDrawMappingsVerification
         IEnumerable<Definition> definitions)
     {
         var exported = RoomObjectKraidVisualFiles.All.ToDictionary(draw => RoomObjectDrawAddressCodec.Of(draw.Draw));
-        InstalledRoomObjectKraidVisuals pictures = InstalledRoomObjectKraidVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.Kraid;
         foreach (var expected in definitions)
         {
             AssertTrue(KraidRoomDrawsAt.TryShape(KraidRoomDrawsAt.Draw(expected.Pointer), out RoomBlockShape? described), "Kraid word owner exists");

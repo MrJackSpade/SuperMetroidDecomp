@@ -67,36 +67,24 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainDescentPhase DescentPhase
     {
-        get => Stage == MotherBrainBodyStage.FakeDeathDescent ? field : throw NotIn(MotherBrainBodyStage.FakeDeathDescent);
-        internal set
-        {
-            field = value;
-            Stage = MotherBrainBodyStage.FakeDeathDescent;
-        }
+        get => PhaseIn(MotherBrainBodyStage.FakeDeathDescent, field);
+        internal set => field = Entering(MotherBrainBodyStage.FakeDeathDescent, value);
     }
 
     /// <summary>The phase of the <see cref="MotherBrainBodyStage.FakeDeathAscent"/> stage the body runs; setting it enters that stage.</summary>
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainAscentPhase AscentPhase
     {
-        get => Stage == MotherBrainBodyStage.FakeDeathAscent ? field : throw NotIn(MotherBrainBodyStage.FakeDeathAscent);
-        internal set
-        {
-            field = value;
-            Stage = MotherBrainBodyStage.FakeDeathAscent;
-        }
+        get => PhaseIn(MotherBrainBodyStage.FakeDeathAscent, field);
+        internal set => field = Entering(MotherBrainBodyStage.FakeDeathAscent, value);
     }
 
     /// <summary>The phase of the <see cref="MotherBrainBodyStage.Phase2Fight"/> stage the body runs; setting it enters that stage.</summary>
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainPhase2FightPhase Phase2FightPhase
     {
-        get => Stage == MotherBrainBodyStage.Phase2Fight ? field : throw NotIn(MotherBrainBodyStage.Phase2Fight);
-        internal set
-        {
-            field = value;
-            Stage = MotherBrainBodyStage.Phase2Fight;
-        }
+        get => PhaseIn(MotherBrainBodyStage.Phase2Fight, field);
+        internal set => field = Entering(MotherBrainBodyStage.Phase2Fight, value);
     }
 
     /// <summary>The failure of reading a stage's phase while her body is in another.</summary>

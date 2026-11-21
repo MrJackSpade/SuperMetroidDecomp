@@ -70,7 +70,7 @@ internal static class EnemyTileArtworkVerification
     private static byte[] ReadNativeCrocomireMeltingPassImage(ISnesAddressSpace rom, CrocomireMeltingIllustration pass)
     {
         bool first = pass == CrocomireMeltingIllustration.Flesh;
-        var expected = new byte[first ? CrocomireMeltingArtworkFormat.FirstByteCount : CrocomireMeltingArtworkFormat.SecondByteCount];
+        var expected = new byte[first ? CrocomireMeltingArtworkFormat.FleshByteCount : CrocomireMeltingArtworkFormat.BareSkullByteCount];
         int firstChunk = first ? 0xa4a07d : 0xa4ac7d;
         for (int band = 0; band < CrocomireMeltingDefinitions.MeltImageBandCount; band++)
         {

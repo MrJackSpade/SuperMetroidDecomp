@@ -102,9 +102,9 @@ internal sealed class CrocomireFight
     /// <summary>Sets Crocomire's tongue up when the room spawns it.</summary>
     internal void InitializeCrocomireTongue(RoomEnemyPlace place)
     {
-        // The room lists the tongue right after its body, which has set the encounter up; the tongue joins it in a
-        // defeated room too, where it is deleted at once (#2400).
-        CrocomireEnemyState state = _places.ListedBefore(place, 1).RequireSpeciesState<CrocomireEnemyState>();
+        // The tongue joins the encounter its body has set up, in a defeated room too, where it is deleted at once (#2400).
+        CrocomireEnemyState state = _places.Member(place, CrocomirePartListingDefinitions.Listing, EnemyDefinitionId.CrocomireTongue, EnemyDefinitionId.Crocomire)
+            .RequireSpeciesState<CrocomireEnemyState>();
         state.JoinTongue(place);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
@@ -356,11 +356,8 @@ internal sealed class CrocomireFight
         },
         [CrocomirePhase.ProjectileAttack] = (state, samus) =>
         {
-            if (state.StepBack.Take())
-            {
-                state.Phase = CrocomirePhase.SteppingBack;
-                return CrocomireBodyAnimation.StepBack;
-            }
+            if (StepBackOnHit(state, CrocomirePhase.SteppingBack) is { } stepBack)
+                return stepBack;
             if (CrocomireVolley.TryNextGradient(state.ShotsSpat, _access.LastShotGradient, out int gradient))
             {
                 state.ShotsSpat++;
@@ -371,15 +368,7 @@ internal sealed class CrocomireFight
             state.Phase = CrocomirePhase.SteppingForward;
             return CrocomireBodyAnimation.StepForwardAfterDelay;
         },
-        [CrocomirePhase.NearSpikeWallCharge] = (state, samus) =>
-        {
-            if (state.StepBack.Take())
-            {
-                state.Phase = CrocomirePhase.SteppingBack;
-                return CrocomireBodyAnimation.StepBack;
-            }
-            return null;
-        },
+        [CrocomirePhase.NearSpikeWallCharge] = (state, samus) => StepBackOnHit(state, CrocomirePhase.SteppingBack),
         [CrocomirePhase.SteppingBack] = (state, samus) =>
         {
             if (state.StepCounter != 0)
@@ -398,12 +387,8 @@ internal sealed class CrocomireFight
             }
             return null;
         },
-        [CrocomirePhase.WaitingForFirstDamage] = (state, samus) => RunCrocomireWaitingForDamage(
-                    state,
-                    CrocomirePhase.WaitingForSecondDamage),
-        [CrocomirePhase.WaitingForSecondDamage] = (state, samus) => RunCrocomireWaitingForDamage(
-                    state,
-                    CrocomirePhase.SteppingBack),
+        [CrocomirePhase.WaitingForFirstDamage] = (state, samus) => StepBackOnHit(state, CrocomirePhase.WaitingForSecondDamage),
+        [CrocomirePhase.WaitingForSecondDamage] = (state, samus) => StepBackOnHit(state, CrocomirePhase.SteppingBack),
         [CrocomirePhase.PowerBombCharge] = (state, samus) =>
         {
             // The charge consumes one step and ends once fewer than two remain, as it does when none remained.
@@ -431,10 +416,11 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>
-    /// Waits for a hit while the damage wait roars: a hit steps him back into <paramref name="damagedDestination"/>;
-    /// otherwise his roar plays on, the damage wait's animation roaring again each time his mouth has closed.
+    /// Steps him back on a pending hit (#2557): a hit spends the pending step back and steps him back into
+    /// <paramref name="damagedDestination"/>; otherwise his phase plays on. The damage waits, his spit volley and his charge
+    /// near the spike wall all react to a hit so.
     /// </summary>
-    private static CrocomireBodyAnimation? RunCrocomireWaitingForDamage(
+    private static CrocomireBodyAnimation? StepBackOnHit(
         CrocomireEnemyState state,
         CrocomirePhase damagedDestination)
     {

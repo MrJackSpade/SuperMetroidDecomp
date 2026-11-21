@@ -28,7 +28,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>The room's enemy places, where the Dachora finds its echoes when it is placed.</summary>
     private readonly EnemyPlaces _places;
-    /// <summary>The speed-boost echoes each Dachora found when it was placed (<see cref="DachoraTimingDefinitions.EchoCount"/>), which its room lists right after it.</summary>
+    /// <summary>The speed-boost echoes each Dachora found when it was placed (<see cref="DachoraPartListingDefinitions"/>).</summary>
     private readonly EnemyPartLinks<RoomEnemyPlace[]> _echoes = new();
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
@@ -57,7 +57,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             : DachoraSegment.EchoLeft), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Initializes the Dachora's body, which finds the echoes its room lists right after it.</summary>
+    /// <summary>Initializes the Dachora's body, which finds the echoes its room lists with it.</summary>
     internal void InitializeDachora(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         DachoraSpawnSettings settings = occupant.SpawnSettings<DachoraSpawnSettings>();
@@ -67,7 +67,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
         PrepareDachoraPlace(place);
-        _echoes.Place(place, _places.ListedRunAfter(place, DachoraTimingDefinitions.EchoCount));
+        _echoes.Place(place, _places.Members(place, DachoraPartListingDefinitions.Listing, DachoraRole.Runner, DachoraRole.SpeedBoostEcho));
         state.Playback = new(DachoraAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
             ? DachoraSegment.IdleRight
             : DachoraSegment.IdleLeft), AnimationPlace.StartOfAnimation);
@@ -399,7 +399,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ShowDachoraColours(
         RoomEnemyPlace place, DachoraColourPhase phase, int frame)
     {
-        int lastFrame = phase == DachoraColourPhase.Default ? 0 : DachoraColorDefinitions.AnimatedFrameCount - 1;
+        int lastFrame = Ensure.Listed(DachoraColorDefinitions.PhaseFrameCounts, phase) - 1;
         place.Shading = PictureShading.Shaded(DachoraShades.Of(phase, Ensure.BetweenInclusive(0, lastFrame, frame)));
     }
 

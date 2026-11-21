@@ -213,7 +213,7 @@ internal static class NativeEnemyFamilyStateImport
             ridleyRoomDoorRecord.Look = words.B != 0 ? CeresRidleyRoomDoorLook.Overlay : CeresRidleyRoomDoorLook.Actor;
         if (enemy.SpeciesState<DeadTorizoEnemyState>() is { } deadTorizoRecord)
         {
-            deadTorizoRecord.Phase = CorpsesNativeWords.DeadTorizoPhases.Decode(words.A, "recorded DeadTorizoPhase");
+            deadTorizoRecord.Phase = CorpsesNativeWords.DeadTorizoPhases.Decode(words.A, "recorded dead Torizo CorpsePhase");
             // The corpse only sinks: its recorded sideways speed is nothing (#2432).
             if (words.B != 0)
                 throw new InvalidDataException($"Recorded dead Torizo sideways speed ${words.B:X4} is not nothing.");
@@ -346,7 +346,7 @@ internal static class NativeEnemyFamilyStateImport
             if (words.F != AnimalsNativeWords.DachoraEchoRoutine)
                 throw new InvalidDataException($"Recorded Dachora echo {enemy.Ordinal} runs routine {words.F:X4}, not the echo's.");
             dachoraEcho.Lifetime = UpdateCountdownAccess.Recorded(unchecked((short)words.D));
-            if (enemies.Places.ListedBeforeOrNone(enemy, 1)?.SpeciesState<DachoraEnemyState>() is { } echoBody)
+            if ((enemy.Ordinal > 0 ? enemies.Places.PlacesBefore(enemy)(1) : null)?.SpeciesState<DachoraEnemyState>() is { } echoBody)
                 echoBody.TrailTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.A));
         }
         if (enemy.SpeciesState<DachoraEnemyState>() is { } dachoraRecord)
@@ -1424,16 +1424,16 @@ internal static class NativeEnemyFamilyStateImport
     /// <summary>Decodes a dead Tourian corpse's recorded bank-$A9 main-AI function word into its phase.</summary>
     /// <param name="species">The corpse's species, whose wait, pre-rot and rotting routines are its own.</param>
     /// <param name="word">The recorded function word; zero is an emptied record.</param>
-    private static DeadTourianCorpsePhase DeadTourianCorpsePhaseOf(DeadTourianCorpseSpecies species, ushort word) =>
+    private static CorpsePhase DeadTourianCorpsePhaseOf(DeadTourianCorpseSpecies species, ushort word) =>
         new DeadTourianCorpsePhaseOfCase(species, word) switch
         {
-            (_, 0xda63) => DeadTourianCorpsePhase.Finished,
+            (_, 0xda63) => CorpsePhase.Finished,
             (DeadTourianCorpseSpecies.Zoomer, 0xda69) or (DeadTourianCorpseSpecies.Ripper, 0xda73) or (DeadTourianCorpseSpecies.Skree, 0xda6e) =>
-                DeadTourianCorpsePhase.Waiting,
+                CorpsePhase.Waiting,
             (DeadTourianCorpseSpecies.Zoomer, 0xda94) or (DeadTourianCorpseSpecies.Ripper, 0xda99) or (DeadTourianCorpseSpecies.Skree, 0xda9e) =>
-                DeadTourianCorpsePhase.PreRotDelay,
+                CorpsePhase.PreRotDelay,
             (DeadTourianCorpseSpecies.Zoomer, 0xdad0) or (DeadTourianCorpseSpecies.Ripper, 0xdae6) or (DeadTourianCorpseSpecies.Skree, 0xdafc) =>
-                DeadTourianCorpsePhase.Rotting,
+                CorpsePhase.Rotting,
             _ => throw new InvalidDataException($"Recorded dead {species} function ${word:X4} is not one of its routines."),
         };
 

@@ -245,7 +245,7 @@ internal sealed class SamusFramePhases
         // has power.
         if (!_freeze.TimeIsFrozen && !frame.InputHandlingLocked(samus))
             SamusInsideBlockReactions.PrepareFrame(room.SamusTerrain, samus,
-                room.Room.Area != AreaId.WreckedShip || _system.HasDefeatedAnyOf(room.Room.Area, DefeatedBosses.AreaBoss));
+                AreaIds.HasPower(room.Room.Area, _system.HasDefeatedAnyOf(room.Room.Area, DefeatedBosses.AreaBoss)));
 
         // The input phase order is cooldown -> movement-type HUD projectile producer ->
         // projectile handling. The outer gameplay loop then runs overlap

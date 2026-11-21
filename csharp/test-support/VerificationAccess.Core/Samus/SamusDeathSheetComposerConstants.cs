@@ -1,11 +1,18 @@
-﻿using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Cartridge values and helpers of <see cref="SamusDeathSheetComposer"/> that only verification reads.</summary>
+/// <summary>The cartridge's spritemap table entries of Samus's suit explosion, which only verification reads.</summary>
 internal static class SamusDeathSheetComposerConstants
 {
-    /// <summary>The Samus spritemap explosion picture <paramref name="frame"/> shows facing <paramref name="facing"/>.</summary>
+    /// <summary>The spritemap table entry of the right-facing explosion's first frame; its later frames follow it.</summary>
+    internal const int RightExplosionFirstEntry = 2076;
+
+    /// <summary>The spritemap table entry of the left-facing explosion's first frame; its later frames follow it.</summary>
+    internal const int LeftExplosionFirstEntry = 2085;
+
+    /// <summary>The cartridge's spritemap table entry explosion picture <paramref name="frame"/> shows facing <paramref name="facing"/>.</summary>
     internal static int ExplosionSpritemap(HorizontalDirection facing, SamusDeathExplosionFrame frame) =>
-        SamusDeathSheetComposer.ExplosionSpritemap(facing, SamusDeathSheetDefinitions.Explosion.ToList().IndexOf(frame));
+        (facing == HorizontalDirection.Left ? LeftExplosionFirstEntry : RightExplosionFirstEntry) +
+        SamusDeathSheetDefinitions.Explosion.ToList().IndexOf(frame);
 }

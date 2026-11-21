@@ -88,7 +88,7 @@ internal static class SamusPosturePoseTransitions
         // below must not publish it during this frame's pose-commit stage.
         // The jump transition lowers Samus after pose initialization and collision but before the jump starts. It moves
         // only her current position and records no previous position.
-        if (sourcePose is SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingLeftPose)
+        if (SamusPoseTraits.IsIn(sourcePose, SamusPoseFamily.PlainCrouching))
             samus.Kinematics.Position -= new Offset16<RoomPixels>(0, SamusPoseCollisionDefinitions.CrouchJumpLift);
 
         samus.ChangePose(targetPose);

@@ -8,8 +8,8 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// </summary>
 internal sealed class NorfairEnvironmentalPalettePrograms : IReadOnlyList<NorfairEnvironmentalPaletteFxColorDefinition>
 {
-    /// <summary>The four adjacent definition identities.</summary>
-    public int Count => 4;
+    /// <summary>The four adjacent definition identities, one for each owner.</summary>
+    public int Count => Owners.Length;
     /// <summary>Builds one program's definition from its owner index.</summary>
     public NorfairEnvironmentalPaletteFxColorDefinition this[int index]
     {

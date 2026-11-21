@@ -7,9 +7,7 @@ internal static class SamusCollisionPoses
 {
     /// <summary>What room collision needs to know about <paramref name="pose"/>.</summary>
     private static SamusCollisionPose ForRoomCollision(this SamusPoseId pose) =>
-        pose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose ? SamusCollisionPose.StandingNormal
-        : pose == SamusPoseId.RanIntoWallLeftPose ? SamusCollisionPose.RanIntoWallLeft
-        : pose == SamusPoseId.RanIntoWallRightPose ? SamusCollisionPose.RanIntoWallRight
+        SamusCollisionPoseDefinitions.Presented.TryGetValue(pose, out SamusCollisionPose presented) ? presented
         : SamusPoseMetadata.ArmsElevator(pose) ? SamusCollisionPose.StandingOther
         : SamusCollisionPose.Other;
 

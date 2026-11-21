@@ -61,7 +61,7 @@ internal static class GunshipDustDefinitionsVerification
                 AssertEqual((ushort)0, slot.Velocity.Y.RawValue, "Dust clears stale Y velocity");
             }
         }
-        foreach (int place in Enumerable.Range(0, EnemyProjectileEngine.PlaceCount))
+        foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity))
         {
             EnemyProjectile occupied = enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.PhantoonStartingFlame);
             occupied.Position = occupied.Position.WithWholeX(0x1234);

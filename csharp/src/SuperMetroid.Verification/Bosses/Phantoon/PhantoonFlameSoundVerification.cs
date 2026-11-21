@@ -30,7 +30,7 @@ internal static class PhantoonFlameSoundVerification
         callback(phantoon, PhantoonPartCue.SpawnCasualFlame);
         callback(phantoon, PhantoonPartCue.SpawnCasualFlame);
         AssertSequenceEqual(
-            new[] { new SoundRequest(EnemySound.PhantoonAppears1, SoundRequestPriority.Normal), flameSound, flameSound },
+            new[] { new SoundRequest(EnemySound.PhantoonAppearsMiddle, SoundRequestPriority.Normal), flameSound, flameSound },
             enemies.Audio.SoundRequests,
             "the materialization sound and both flame callbacks are each queued, in the order they run");
         Console.WriteLine("Phantoon casual flame: actual spawn emits library 3 / 1D / Max6; materialization audio remains independent.");

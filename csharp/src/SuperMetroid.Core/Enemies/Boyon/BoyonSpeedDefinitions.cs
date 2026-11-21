@@ -11,13 +11,10 @@ public static class BoyonSpeedDefinitions
     /// it lists, ending just short of a pixel.
     /// </summary>
     public static ImmutableArray<UnsignedSixteenSixteen> RisingSamples { get; } =
-    [
-        UnsignedSixteenSixteen.Zero, UnsignedSixteenSixteen.FromPixelFraction(1, 256), UnsignedSixteenSixteen.FromPixelFraction(3, 256), UnsignedSixteenSixteen.FromPixelFraction(3, 128),
-        UnsignedSixteenSixteen.FromPixelFraction(5, 128), UnsignedSixteenSixteen.FromPixelFraction(15, 256), UnsignedSixteenSixteen.FromPixelFraction(21, 256), UnsignedSixteenSixteen.FromPixelFraction(7, 64),
-        UnsignedSixteenSixteen.FromPixelFraction(9, 64), UnsignedSixteenSixteen.FromPixelFraction(45, 256), UnsignedSixteenSixteen.FromPixelFraction(55, 256), UnsignedSixteenSixteen.FromPixelFraction(33, 128),
-        UnsignedSixteenSixteen.FromPixelFraction(39, 128), UnsignedSixteenSixteen.FromPixelFraction(91, 256), UnsignedSixteenSixteen.FromPixelFraction(105, 256), UnsignedSixteenSixteen.FromPixelFraction(15, 32),
-        UnsignedSixteenSixteen.FromPixelFraction(17, 32), UnsignedSixteenSixteen.FromPixelFraction(153, 256), UnsignedSixteenSixteen.FromPixelFraction(171, 256), UnsignedSixteenSixteen.FromPixelFraction(95, 128),
-        UnsignedSixteenSixteen.FromPixelFraction(105, 128), UnsignedSixteenSixteen.FromPixelFraction(231, 256), UnsignedSixteenSixteen.FromPixelFraction(253, 256)];
+        [.. Enumerable.Range(0, RisingSampleCount).Select(place => UnsignedSixteenSixteen.FromPixelFraction(place * (place + 1) / 2, 256))];
+
+    /// <summary>How many places the curve rises through before it saturates.</summary>
+    private const int RisingSampleCount = 23;
 
     /// <summary>
     /// The speed at every place past the <see cref="RisingSamples"/>: the curve's saturated height, which the game

@@ -46,19 +46,16 @@ internal sealed class MotherBrainThirdPhaseDeath
         // A restarted interval runs out on the first update, so a burst after a restart is immediate; after a burst the
         // smoky and mixed explosions wait their own intervals. Each burst takes the group before the last,
         // continuing the place the ascent's dust left (#1872).
-        if (!_bursts.IntervalRunsOut(style == MotherBrainDeathExplosionStyle.Mixed
-            ? MotherBrainDeathExplosionDefinitions.MixedIntervalUpdates
-            : MotherBrainDeathExplosionDefinitions.SmokyIntervalUpdates))
+        MotherBrainDeathExplosionStyleDefinition definition = MotherBrainDeathExplosionStyles.Of(style);
+        if (!_bursts.IntervalRunsOut(definition.IntervalUpdates))
             return;
 
         MotherBrainDeathExplosionGroup group = _bursts.NextOf(MotherBrainDeathExplosionDefinitions.Groups);
-        foreach (Offset16<RoomPixels> anchor in style == MotherBrainDeathExplosionStyle.Mixed ? group.Mixed : group.Smoky)
+        foreach (Offset16<RoomPixels> anchor in definition.Anchors(group))
         {
             // The shared random sequence advances once per projectile, not once per visual batch.
             int random = nextRandomNumber();
-            MotherBrainDeathExplosionAnimation animation = style == MotherBrainDeathExplosionStyle.Mixed
-                ? MotherBrainRandomDefinitions.MixedDeathExplosionAnimation.Choose(random)
-                : MotherBrainDeathExplosionAnimation.Smoke;
+            MotherBrainDeathExplosionAnimation animation = definition.Animation(random);
             requests.Add(new MotherBrainDeathExplosionRequest(
                 Offset: anchor,
                 Animation: animation,

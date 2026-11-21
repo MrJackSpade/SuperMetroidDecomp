@@ -58,20 +58,21 @@ internal static class EnemyTileArtworkKraidColorsVerification
         // reads back. They are the installed health colours at the eyes' inks.
         var eyeReaderOwner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         KraidEyeColours eyes = eyeReaderOwner.KraidBehavior.Background.EyeColours;
-        AssertEyes(catalog, eyes.Hurt.ToArray(), KraidPalettes.HurtFlashBand, "the hurt flash");
+        List<PictureShade> installedGroups = [.. KraidPalettes.HealthShades];
+        AssertEyes(catalog, eyes.Hurt.ToArray(), installedGroups.IndexOf(KraidShades.HurtFlash), "the hurt flash");
         foreach (KraidHealthBand band in KraidHealthBandDefinitions.HighestFirst)
-            AssertEyes(catalog, eyes.Of(band).ToArray(), KraidPalettes.BandOf(band), $"band {band}");
+            AssertEyes(catalog, eyes.Of(band).ToArray(), installedGroups.IndexOf(KraidShades.Health(band)), $"band {band}");
         // The game reads the eye colours from their own installed document by purpose (#1637), and no other Kraid colour.
         SuperMetroid.AssetExtraction.Installation.GameInstallation installation = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation;
         AssertTrue(!File.Exists(Path.Combine(installation.EnemyTileDirectory, KraidColorFormat.FileName)),
             "the installation holds none of Kraid's colours but his eyes'");
         KraidEyeColours installedEyes = installation.LoadEnemyTiles().KraidEyes;
         AssertEqual(KraidPalettes.HealthBandCount, KraidPalettes.HealthShades.Count, "his health colours are the hurt flash's and the eight health bands'");
-        AssertEqual(KraidShades.HurtFlash, KraidPalettes.HealthShades[KraidPalettes.HurtFlashBand], "the hurt flash's colours come first among his health colours");
+        AssertEqual(KraidShades.HurtFlash, KraidPalettes.HealthShades[0], "the hurt flash's colours come first among his health colours");
         AssertTrue(installedEyes.Hurt.ToArray().SequenceEqual(eyes.Hurt.ToArray()), "Kraid's installed hurt flash eye colours are the eyes' colours of his health colours");
         foreach (KraidHealthBand band in KraidHealthBandDefinitions.HighestFirst)
         {
-            AssertEqual(KraidShades.Health(band), KraidPalettes.HealthShades[KraidPalettes.BandOf(band)], $"Kraid band {band}'s shade names its band");
+            AssertTrue(KraidPalettes.HealthShades.Contains(KraidShades.Health(band)), $"Kraid band {band}'s shade is among his health colours");
             AssertTrue(installedEyes.Of(band).ToArray().SequenceEqual(eyes.Of(band).ToArray()),
                 $"Kraid band {band}'s installed eye colours are the eyes' colours of his health colours");
         }
@@ -106,9 +107,9 @@ internal static class EnemyTileArtworkKraidColorsVerification
     private static void VerifyKraidBackdropSurvivesReinitialization(ImportEnemyArtwork artwork)
     {
         RoomEnemySystem enemies = NewKraidRoom(artwork);
-        var fade = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
+        var fade = new Func<KraidBackdropSettledColours, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
         int growthSteps = 0;
-        while (!fade(KraidBackdropFade.ToKraidColours))
+        while (!fade(KraidBackdropSettledColours.KraidColours))
             AssertTrue(++growthSteps <= FadeCounterValues, "Kraid's growth fade completes once the counter passes its last moving value");
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's growth fade ends on his colours");
         // Kraid's body initializer replaces his encounter state; the room's backdrop colours outlive it.
@@ -116,7 +117,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows,
             "re-initializing Kraid keeps the backdrop his growth fade showed");
         int deathSteps = 0;
-        while (!fade(KraidBackdropFade.ToBlack))
+        while (!fade(KraidBackdropSettledColours.Black))
             AssertTrue(++deathSteps <= FadeCounterValues, "Kraid's death fade completes once the counter passes its last moving value");
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.Black), enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's death fade ends on black");
     }
@@ -129,7 +130,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     private static void VerifyKraidDeathFadeFromRoomColours(ImportEnemyArtwork artwork)
     {
         RoomEnemySystem enemies = NewKraidRoom(artwork);
-        StepKraidBackdropFade(enemies, KraidBackdropFade.ToBlack, PictureShading.Standard, PictureShading.Shaded(KraidShades.BackdropBlack),
+        StepKraidBackdropFade(enemies, KraidBackdropSettledColours.Black, PictureShading.Standard, PictureShading.Shaded(KraidShades.BackdropBlack),
             untilCounter: null, "Kraid's death fade from the room's colours");
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.Black), enemies.KraidBehavior.Access.Backdrop.Shows,
             "Kraid's death fade from the room's colours ends on black");
@@ -144,25 +145,25 @@ internal static class EnemyTileArtworkKraidColorsVerification
     private static void VerifyKraidFadeBackFromKraidColours(ImportEnemyArtwork artwork)
     {
         RoomEnemySystem enemies = NewKraidRoom(artwork);
-        StepKraidBackdropFade(enemies, KraidBackdropFade.ToKraidColours, PictureShading.Standard, PictureShading.Shaded(KraidShades.Backdrop),
+        StepKraidBackdropFade(enemies, KraidBackdropSettledColours.KraidColours, PictureShading.Standard, PictureShading.Shaded(KraidShades.Backdrop),
             untilCounter: KraidBackgroundDefinitions.BackdropFadeLastStep, "Kraid's growth fade");
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows,
             "Kraid's growth fade's last moving step lands on his colours");
-        var fade = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
-        AssertTrue(fade(KraidBackdropFade.ToBlack), "Kraid's death fade after his growth fade's last step completes without a step");
+        var fade = new Func<KraidBackdropSettledColours, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
+        AssertTrue(fade(KraidBackdropSettledColours.Black), "Kraid's death fade after his growth fade's last step completes without a step");
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.Black), enemies.KraidBehavior.Access.Backdrop.Shows,
             "a death fade that completes without a step shows its goal");
         // The death zeroes the shared counter once his body has sunk, before the fade back.
         enemies.Presentation.FadeStepCount.Reset();
-        StepKraidBackdropFade(enemies, KraidBackdropFade.ToKraidColours, PictureShading.Shaded(KraidShades.BackdropBlack),
+        StepKraidBackdropFade(enemies, KraidBackdropSettledColours.KraidColours, PictureShading.Shaded(KraidShades.BackdropBlack),
             PictureShading.Shaded(KraidShades.Backdrop), untilCounter: null, "Kraid's fade back from black");
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows,
             "Kraid's fade back ends on his colours");
 
         RoomEnemySystem defeated = NewKraidRoom(artwork);
         defeated.KraidBehavior.Access.Backdrop.ShowKraidColours();
-        var defeatedFade = new Func<KraidBackdropFade, bool>(defeated.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
-        while (!defeatedFade(KraidBackdropFade.ToKraidColours))
+        var defeatedFade = new Func<KraidBackdropSettledColours, bool>(defeated.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
+        while (!defeatedFade(KraidBackdropSettledColours.KraidColours))
         {
             AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), defeated.KraidBehavior.Access.Backdrop.Shows,
                 "Kraid's defeated room's fade back into his colours changes nothing");
@@ -177,13 +178,13 @@ internal static class EnemyTileArtworkKraidColorsVerification
     private static void VerifyKraidDeathFadeDuringGrowthFade(ImportEnemyArtwork artwork)
     {
         RoomEnemySystem enemies = NewKraidRoom(artwork);
-        StepKraidBackdropFade(enemies, KraidBackdropFade.ToKraidColours, PictureShading.Standard, PictureShading.Shaded(KraidShades.Backdrop),
+        StepKraidBackdropFade(enemies, KraidBackdropSettledColours.KraidColours, PictureShading.Standard, PictureShading.Shaded(KraidShades.Backdrop),
             untilCounter: 5, "Kraid's growth fade");
         AssertTrue(enemies.KraidBehavior.Access.Backdrop.Shows is KraidBackdropShown.Fading,
             "Kraid's growth fade is partway when he dies");
         PictureShading growthPartway = PictureShading.Standard.With(
             new PictureShadeFade(PictureShading.Standard, PictureShading.Shaded(KraidShades.Backdrop), 5, KraidBackgroundDefinitions.BackdropFadeLastStep));
-        StepKraidBackdropFade(enemies, KraidBackdropFade.ToBlack, growthPartway, PictureShading.Shaded(KraidShades.BackdropBlack),
+        StepKraidBackdropFade(enemies, KraidBackdropSettledColours.Black, growthPartway, PictureShading.Shaded(KraidShades.BackdropBlack),
             untilCounter: null, "Kraid's death fade during his growth fade");
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.Black), enemies.KraidBehavior.Access.Backdrop.Shows,
             "Kraid's death fade during his growth fade ends on black");
@@ -199,19 +200,19 @@ internal static class EnemyTileArtworkKraidColorsVerification
     {
         const int lastAlone = 6;
         RoomEnemySystem enemies = NewKraidRoom(artwork);
-        StepKraidBackdropFade(enemies, KraidBackdropFade.ToBlack, PictureShading.Standard, PictureShading.Shaded(KraidShades.BackdropBlack),
+        StepKraidBackdropFade(enemies, KraidBackdropSettledColours.Black, PictureShading.Standard, PictureShading.Shaded(KraidShades.BackdropBlack),
             untilCounter: null, "Kraid's death fade");
         enemies.Presentation.FadeStepCount.Reset();
         PictureShading black = PictureShading.Shaded(KraidShades.BackdropBlack), kraid = PictureShading.Shaded(KraidShades.Backdrop);
-        StepKraidBackdropFade(enemies, KraidBackdropFade.ToKraidColours, black, kraid, untilCounter: lastAlone, "Kraid's fade back before the door");
-        var advance = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
+        StepKraidBackdropFade(enemies, KraidBackdropSettledColours.KraidColours, black, kraid, untilCounter: lastAlone, "Kraid's fade back before the door");
+        var advance = new Func<KraidBackdropSettledColours, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
         int moved = lastAlone;
         while (true)
         {
             // The door's fade takes its step on the shared counter between the backdrop's.
             enemies.Presentation.FadeStepCount.Advance();
             int value = enemies.Presentation.FadeStepCount.Step;
-            if (advance(KraidBackdropFade.ToKraidColours))
+            if (advance(KraidBackdropSettledColours.KraidColours))
             {
                 AssertTrue(value > KraidBackgroundDefinitions.BackdropFadeLastStep, "the fade back completes once the counter passes its last moving value");
                 AssertTrue(moved < KraidBackgroundDefinitions.BackdropFadeLastStep, "the door's fade brings the fade back's completion before its own steps come the whole way");
@@ -319,10 +320,10 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// <paramref name="to"/> by its own steps (#2215, #2302): nothing at its first step, then one of its thirteen parts per
     /// later step, and <paramref name="to"/> once it has come the whole way.
     /// </summary>
-    private static void StepKraidBackdropFade(RoomEnemySystem enemies, KraidBackdropFade fade, PictureShading from, PictureShading to,
+    private static void StepKraidBackdropFade(RoomEnemySystem enemies, KraidBackdropSettledColours fade, PictureShading from, PictureShading to,
         int? untilCounter, string label)
     {
-        var advance = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
+        var advance = new Func<KraidBackdropSettledColours, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
         const int length = KraidBackgroundDefinitions.BackdropFadeLastStep;
         int steps = 0;
         while (true)
@@ -460,7 +461,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 // The growth fade's last moving step, its fourteenth, lands on its goal, the import's shade of Kraid's
                 // colours exactly (#2302).
                 for (int step = 0; step <= KraidBackgroundDefinitions.BackdropFadeLastStep; step++)
-                    AssertTrue(!new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade)(KraidBackdropFade.ToKraidColours),
+                    AssertTrue(!new Func<KraidBackdropSettledColours, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade)(KraidBackdropSettledColours.KraidColours),
                         "Kraid's growth fade moves through its last moving step");
                 AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows,
                     "Kraid's growth fade's last step lands on his colours");

@@ -76,12 +76,12 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>
-    /// Shows a released statue's look, its blacked-out eyes or its grey: over the room's pictures for a statue drawn in the
-    /// room's background, otherwise over the scene's sprites.
+    /// Shows a released statue's look, its blacked-out eyes or its grey: over the room's pictures for a statue
+    /// <paramref name="drawnInRoomBackground"/>, otherwise over the scene's sprites.
     /// </summary>
-    internal void ShowStatueLook(PictureShade look)
+    internal void ShowStatueLook(PictureShade look, bool drawnInRoomBackground)
     {
-        if (TourianStatueShades.RoomPictureLooks.Contains(look))
+        if (drawnInRoomBackground)
         {
             _roomLooks.Add(look);
             return;
@@ -154,24 +154,10 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         DecorationBehavior decorations = Decorations;
         if (!_occupants.Contains(occupant))
             _occupants.Add(occupant);
-        // The base decoration, Ridley and Phantoon spawn in this order, which gives them their authored draw order.
         if (occupant.Occupant.SpawnSettings<TourianEntranceStatueSpawnSettings>().Role == TourianEntranceStatueRole.SpawnsDecorations)
         {
-            SpawnTourianEntranceStatueProjectile(
-                RoomEnemyProjectileKind.TourianStatueBaseDecoration,
-                TourianStatueProjectileSegment.BaseDecoration,
-                TourianStatueDecorationDefinitions.BaseDecoration,
-                decorations);
-            SpawnTourianEntranceStatueProjectile(
-                RoomEnemyProjectileKind.TourianStatueRidley,
-                TourianStatueProjectileSegment.Ridley,
-                TourianStatueDecorationDefinitions.RidleyStatue,
-                decorations);
-            SpawnTourianEntranceStatueProjectile(
-                RoomEnemyProjectileKind.TourianStatuePhantoon,
-                TourianStatueProjectileSegment.Phantoon,
-                TourianStatueDecorationDefinitions.PhantoonStatue,
-                decorations);
+            foreach (TourianStatueDecoration decoration in TourianStatueDecorationDefinitions.SpawnOrder)
+                SpawnTourianEntranceStatueProjectile(decoration.Kind, decoration.Segment, decoration.Place, decorations);
         }
 
         // The statues and their decorations show the scene's entrance shade from the start (#1512).

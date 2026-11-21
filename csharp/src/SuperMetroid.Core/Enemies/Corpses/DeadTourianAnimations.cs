@@ -38,18 +38,9 @@ internal static class DeadTourianAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<DeadTourianSegment, Animation<DeadTourianSegment>> StartingAt { get; } = new Dictionary<DeadTourianSegment, Animation<DeadTourianSegment>>
-    {
-        [P.SidehopperHopping] = new([Segments.Whole(P.SidehopperHopping)], AnimationEnd.Holds),
-        [P.SidehopperIdle] = new([Segments.Whole(P.SidehopperIdle)], AnimationEnd.Holds),
-        [P.SidehopperCorpse] = new([Segments.Whole(P.SidehopperCorpse)], AnimationEnd.Holds),
-        [P.SidehopperInitiallyDead] = new([Segments.Whole(P.SidehopperInitiallyDead)], AnimationEnd.Holds),
-        [P.ZoomerCorpseOnItsBack] = new([Segments.Whole(P.ZoomerCorpseOnItsBack)], AnimationEnd.Holds),
-        [P.ZoomerCorpseUpright] = new([Segments.Whole(P.ZoomerCorpseUpright)], AnimationEnd.Holds),
-        [P.RipperCorpseLevel] = new([Segments.Whole(P.RipperCorpseLevel)], AnimationEnd.Holds),
-        [P.RipperCorpseTilted] = new([Segments.Whole(P.RipperCorpseTilted)], AnimationEnd.Holds),
-        [P.SkreeCorpse] = new([Segments.Whole(P.SkreeCorpse)], AnimationEnd.Holds),
-    };
+    private static Dictionary<DeadTourianSegment, Animation<DeadTourianSegment>> StartingAt { get; } = Segments.EachEnding(AnimationEnd.Holds,
+        P.SidehopperHopping, P.SidehopperIdle, P.SidehopperCorpse, P.SidehopperInitiallyDead, P.ZoomerCorpseOnItsBack,
+        P.ZoomerCorpseUpright, P.RipperCorpseLevel, P.RipperCorpseTilted, P.SkreeCorpse);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DeadTourianSegment> StartingWith(DeadTourianSegment segment) => StartingAt[segment];

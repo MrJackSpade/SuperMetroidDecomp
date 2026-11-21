@@ -9,6 +9,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Clears">The room mutation clearing the tube's place, and the block it is spawned at.</param>
 internal abstract record MotherBrainTubeDrop(RoomObjectSpawnRequest<MotherBrainRoomMutation> Clears)
 {
+    /// <summary>
+    /// Whether the tube falls once enough enemy projectiles are free, as the collapse's first does, rather than once the
+    /// wait its predecessor's clear started runs out.
+    /// </summary>
+    internal bool WaitsForFreeProjectiles { get; init; }
+
     /// <summary>Carries out the reaction <paramref name="reactions"/> has to this drop, through the drop it is (#2553).</summary>
     /// <typeparam name="TContext">What the drop's reaction reads besides the drop.</typeparam>
     /// <param name="reactions">What the collapse does on each drop.</param>

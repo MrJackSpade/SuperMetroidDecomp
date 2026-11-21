@@ -1,12 +1,8 @@
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.Scrolling;
@@ -48,9 +44,6 @@ internal static class RoomObjectFixtures
     /// <summary>The repository installation's pictures of Mother Brain's glass frames, read once per process.</summary>
     private static readonly Lazy<InstalledMotherBrainGlassFrames> MotherBrainGlassFrames = new(() => InstalledMotherBrainGlassFrames.Stock());
 
-    /// <summary>The repository installation's pictures of the escape gate's frames, read once per process.</summary>
-    private static readonly Lazy<InstalledEscapeGateFrames> EscapeGateFrames = new(() => InstalledEscapeGateFrames.Stock());
-
     /// <summary>The repository installation's pictures of Mother Brain's fake-death room frames, read once per process.</summary>
     private static readonly Lazy<InstalledMotherBrainFakeDeathFrames> MotherBrainFakeDeathFrames = new(() => InstalledMotherBrainFakeDeathFrames.Stock());
 
@@ -72,9 +65,28 @@ internal static class RoomObjectFixtures
         var room = (RoomObjectRoom)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectRoom));
         var services = (RoomObjectServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectServices));
         var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces(), ShotCapClosing(),
-            GameplayAudioRequests.Standalone());
+            new RoomObjectOutputs(GameplayAudioRequests.Standalone(), UnspawnedThrows));
         VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;
+    }
+
+    /// <summary>
+    /// Where a fixture's thrown projectiles would spawn: a fixture has no enemy projectiles, so a thrown projectile that
+    /// spawns fails there; checks read the step's thrown requests instead.
+    /// </summary>
+    private static readonly RoomObjectThrownProjectileSpawners UnspawnedThrows = new(new NoEnemyProjectiles(), new NoEnemyProjectiles());
+
+    /// <summary>A fixture's absent enemy projectiles, which fail any thrown projectile's spawn.</summary>
+    private sealed class NoEnemyProjectiles : SuperMetroid.Core.Bosses.MotherBrain.IMotherBrainGlassShardSpawner,
+        SuperMetroid.Core.Bosses.Torizo.IBombTorizoStatueFragmentSpawner
+    {
+        /// <inheritdoc/>
+        public void SpawnMotherBrainGlassProjectile(SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassProjectileRequest request) =>
+            throw new InvalidOperationException("A fixture's room objects spawned a glass shard with no enemy projectiles.");
+
+        /// <inheritdoc/>
+        public void SpawnBombTorizoStatueBreakingProjectile(SuperMetroid.Core.Bosses.Torizo.BombTorizoStatueProjectileRequest request) =>
+            throw new InvalidOperationException("A fixture's room objects spawned a statue fragment with no enemy projectiles.");
     }
 
     /// <summary>The shot cap's closing rule the room loader composes each room's objects with (#1906).</summary>
@@ -86,7 +98,7 @@ internal static class RoomObjectFixtures
     {
         RoomObjectVisuals visuals = VisualsOf(fixture);
         var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), new RoomObjectPlaces(), ShotCapClosing(),
-            GameplayAudioRequests.Standalone());
+            new RoomObjectOutputs(GameplayAudioRequests.Standalone(), UnspawnedThrows));
         VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;
     }
@@ -108,34 +120,34 @@ internal static class RoomObjectFixtures
     /// <summary>The repository installation's room-object pictures, read once per process.</summary>
     private static readonly Lazy<RoomObjectArtwork> InstalledArtwork = new(() => new RoomObjectArtwork
     {
-        RoomObjectShotBlockVisuals = InstalledRoomObjectShotBlockVisuals.Stock(),
-        RoomObjectGrappleBlockVisuals = InstalledRoomObjectGrappleBlockVisuals.Stock(),
-        RoomObjectStationVisuals = InstalledRoomObjectStationVisuals.Stock(),
-        RoomObjectBlueDoorVisuals = InstalledRoomObjectBlueDoorVisuals.Stock(),
-        RoomObjectColoredDoorVisuals = InstalledRoomObjectColoredDoorVisuals.Stock(),
-        RoomObjectGreyDoorVisuals = InstalledRoomObjectGreyDoorVisuals.Stock(),
-        RoomObjectEyeDoorVisuals = InstalledRoomObjectEyeDoorVisuals.Stock(),
+        RoomObjectShotBlockVisuals = RoomObjectPicturesStock.ShotBlock,
+        RoomObjectGrappleBlockVisuals = RoomObjectPicturesStock.GrappleBlock,
+        RoomObjectStationVisuals = RoomObjectPicturesStock.Station,
+        RoomObjectBlueDoorVisuals = RoomObjectPicturesStock.BlueDoor,
+        RoomObjectColoredDoorVisuals = RoomObjectPicturesStock.ColoredDoor,
+        RoomObjectGreyDoorVisuals = RoomObjectPicturesStock.GreyDoor,
+        RoomObjectEyeDoorVisuals = RoomObjectPicturesStock.EyeDoor,
         RoomObjectMotherBrainGlassVisuals = MotherBrainGlassFrames.Value,
-        RoomObjectNoobTubeVisuals = InstalledRoomObjectNoobTubeVisuals.Stock(),
-        RoomObjectDownwardGateVisuals = InstalledRoomObjectDownwardGateVisuals.Stock(),
-        RoomObjectElevatorPlatformVisuals = InstalledRoomObjectElevatorPlatformVisuals.Stock(),
-        RoomObjectEscapeGateVisuals = EscapeGateFrames.Value,
-        RoomObjectBombTorizoHandVisuals = InstalledRoomObjectBombTorizoHandVisuals.Stock(),
+        RoomObjectNoobTubeVisuals = RoomObjectPicturesStock.NoobTube,
+        RoomObjectDownwardGateVisuals = RoomObjectPicturesStock.DownwardGate,
+        RoomObjectElevatorPlatformVisuals = RoomObjectPicturesStock.ElevatorPlatform,
+        RoomObjectEscapeGateVisuals = RoomObjectPicturesStock.EscapeGate,
+        RoomObjectBombTorizoHandVisuals = RoomObjectPicturesStock.BombTorizoHand,
         RoomObjectDraygonCannonVisuals = DraygonCannonFrames.Value,
         RoomObjectPhantoonDoorVisuals = PhantoonDoorFrames.Value,
-        RoomObjectChozoStatueVisuals = InstalledRoomObjectChozoStatueVisuals.Stock(),
-        RoomObjectLinkedRestoreVisuals = InstalledRoomObjectLinkedRestoreVisuals.Stock(),
+        RoomObjectChozoStatueVisuals = RoomObjectPicturesStock.ChozoStatue,
+        RoomObjectLinkedRestoreVisuals = RoomObjectPicturesStock.LinkedRestore,
         RoomObjectTourianAccessVisuals = RoomObjectTourianAccessVisuals.Stock(),
-        RoomObjectSpeedBoosterVisuals = InstalledRoomObjectSpeedBoosterVisuals.Stock(),
-        RoomObjectMaridiaElevatubeVisuals = InstalledRoomObjectMaridiaElevatubeVisuals.Stock(),
-        RoomObjectSporeSpawnCeilingVisuals = InstalledRoomObjectSporeSpawnCeilingVisuals.Stock(),
-        RoomObjectSamusEaterVisuals = InstalledRoomObjectSamusEaterVisuals.Stock(),
-        RoomObjectBotwoonWallVisuals = InstalledRoomObjectBotwoonWallVisuals.Stock(),
-        RoomObjectKraidVisuals = InstalledRoomObjectKraidVisuals.Stock(),
-        RoomObjectCrocomireVisuals = InstalledRoomObjectCrocomireVisuals.Stock(),
+        RoomObjectSpeedBoosterVisuals = RoomObjectPicturesStock.SpeedBooster,
+        RoomObjectMaridiaElevatubeVisuals = RoomObjectPicturesStock.MaridiaElevatube,
+        RoomObjectSporeSpawnCeilingVisuals = RoomObjectPicturesStock.SporeSpawnCeiling,
+        RoomObjectSamusEaterVisuals = RoomObjectPicturesStock.SamusEater,
+        RoomObjectBotwoonWallVisuals = RoomObjectPicturesStock.BotwoonWall,
+        RoomObjectKraidVisuals = RoomObjectPicturesStock.Kraid,
+        RoomObjectCrocomireVisuals = RoomObjectPicturesStock.Crocomire,
         RoomObjectMotherBrainFakeDeathVisuals = MotherBrainFakeDeathFrames.Value,
-        RoomObjectCollectibleVisuals = InstalledRoomObjectCollectibleVisuals.Stock(),
-        RoomObjectRevealAndWallVisuals = InstalledRoomObjectRevealAndWallVisuals.Stock(),
+        RoomObjectCollectibleVisuals = RoomObjectPicturesStock.Collectible,
+        RoomObjectRevealAndWallVisuals = RoomObjectPicturesStock.RevealAndWall,
         RoomObjectSetupBlocks = InstalledRoomObjectSetupBlocks.Stock(),
     });
 

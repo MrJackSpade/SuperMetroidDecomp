@@ -826,8 +826,8 @@ internal static class RoomFxRetailInventoryVerification
         static bool Shook(RoomShakeFrameResult shake) => shake != default;
         // The runtime's update records every system's sounds in one ordered list (#1620); the effect's are its quake and lava sounds.
         IReadOnlyList<SoundRequest> EffectSounds() => [.. runtime.AudioRequests.SoundRequests.Where(request =>
-            request.SoundEffect == EnemySound.Lavaquake || request.SoundEffect == EnemySound.LavaBubbling1 ||
-            request.SoundEffect == EnemySound.LavaBubbling2 || request.SoundEffect == EnemySound.LavaBubbling3)];
+            request.SoundEffect == EnemySound.Lavaquake || request.SoundEffect == EnemySound.LavaBubblingBurst ||
+            request.SoundEffect == EnemySound.LavaBubblingFalling || request.SoundEffect == EnemySound.LavaBubblingRising)];
 
         runtime.StepFrame(0);
         AssertTrue(!Shook(runtime.Enemies.Earthquake.LastRoomShake), "room $02/$28 callback install pass does not shake");
@@ -940,8 +940,8 @@ internal static class RoomFxRetailInventoryVerification
 
         int expectedMaximum =
             fx.Liquid?.Tide == LiquidTide.Small
-                ? LiquidTideDefinitions.SmallTidePeakPixels
-                : LiquidTideDefinitions.LargeTidePeakPixels;
+                ? LiquidTideDefinitions.Motions[LiquidTide.Small].PeakPixels
+                : LiquidTideDefinitions.Motions[LiquidTide.Large].PeakPixels;
         AssertTrue(maximumAbsoluteOffset > 0 && maximumAbsoluteOffset <= expectedMaximum,
             $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} tide moves within ±{expectedMaximum} pixels");

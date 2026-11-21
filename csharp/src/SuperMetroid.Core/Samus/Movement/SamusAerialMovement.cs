@@ -335,17 +335,14 @@ public static class SamusAerialMovement
 
         // Before the shared gravity step, an upward speed passing zero at the apex becomes a stationary downward state
         // on this same frame.
-        if (samus.Kinematics.VerticalVelocity.HasPassedApex)
-        {
-            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
-        }
+        _ = samus.Kinematics.TurnAtApex();
 
         // The turn holds Samus still vertically, as the grounded aimed crouching turns do, so Moonfall pauses gravity
         // during its turn.
         AerialMovementResult result;
         if (samus.Kinematics.VerticalVelocity.HasNoDirection)
         {
-            SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(terrain, samus, frameCounter);
+            _ = SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
             result = new AerialMovementResult(false, false);
         }
         else
@@ -388,16 +385,12 @@ public static class SamusAerialMovement
         // An upward speed that passed zero becomes a stationary downward state
         // before the vertical movement can turn the speed past zero into moonfall-like
         // motion. An ordinary walk-off already enters moving down.
-        if (samus.Kinematics.VerticalVelocity.HasPassedApex)
-        {
-            samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
-        }
+        _ = samus.Kinematics.TurnAtApex();
 
         AerialMovementResult result = FinishVerticalMovement(terrain, samus, frameCounter);
         // The movement selects fast-fall art after physics, before Samus is animated.
         // Aimed falling poses have their own animations and keep them.
-        if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
-            SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose &&
+        if (SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.PlainFalling) &&
             SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.VerticalVelocity.Speed.Whole, SamusMovementDefinitions.FastFallAnimationSpeed) &&
             !samus.AnimationHasReached(SamusAnimationFrames.FastFallStart))
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.FastFall,
@@ -432,11 +425,8 @@ public static class SamusAerialMovement
 
         // An upward speed that has passed zero ends the released flight at its apex: the flight clears the speed, turns
         // downward and hands movement back to the pose, but deliberately finishes this final frame of the flight.
-        if (state.VerticalVelocity.HasPassedApex)
-        {
-            state.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
+        if (state.TurnAtApex())
             releasedFlightEnds = true;
-        }
 
         // The released flight always slows until its speed passes zero; only then can an update without input stop her
         // base speed.

@@ -39,16 +39,8 @@ internal sealed class KraidProjectiles
     /// <summary>Initializes one lint part.</summary>
     internal void InitializeKraidLint(RoomEnemyPlace lint, KraidLintPart expected)
     {
-        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
-        {
-            KraidEncounterAccess.MarkKraidPartDead(lint);
+        if (_parts.JoinEncounter(_room, lint, state => state.Lint(expected)) is not { } part)
             return;
-        }
-        // The lint joins the encounter its body began, which it holds from here (#2218).
-        KraidEnemyState state = _parts.Encounter;
-        KraidLintState part = state.Lint(expected);
-        KraidEncounterAccess.AttachKraidPart(part);
-        lint.Shading = _parts.Body.Shading;
         part.ShowPose(KraidPartSegment.LintInitial);
         part.Phase = KraidLintPhase.Inactive;
         part.LintXOffset = KraidArenaDefinitions.LintXOffsets[expected];
@@ -282,13 +274,15 @@ internal sealed class KraidProjectiles
             part.Phase = KraidLintPhase.Produce;
     }
 
+    /// <summary>Where a lint stands as it emerges from his belly (#2557): its offset from his body, less how far it has come.</summary>
+    private int EmergedLintX(KraidLintState part) => part.LintXOffset + _parts.Body.Position.X.Whole - part.LintTravel;
+
     /// <summary>Starts a lint projectile from the attached part.</summary>
     private void ProduceKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
         lint.Contact = lint.Contact.Without(EnemyContact.IgnoresSamus);
         lint.Presence = lint.Presence.Without(EnemyPresence.Hidden);
-        lint.Position = lint.Position.WithWholeX(
-            part.LintXOffset + _parts.Body.Position.X.Whole - part.LintTravel);
+        lint.Position = lint.Position.WithWholeX(EmergedLintX(part));
         part.LintTravel++;
         if (part.LintTravel >= KraidArenaDefinitions.LintEmergePixels)
         {
@@ -303,8 +297,7 @@ internal sealed class KraidProjectiles
         lint.Shading = KraidCadenceDefinitions.LintChargeShowsOwnColours.IsSetIn(part.PhaseWait.UpdatesLeft)
             ? part.Kraid.Colours.Parts
             : EnemyShades.HurtFlashLook;
-        lint.Position = lint.Position.WithWholeX(
-            part.LintXOffset + _parts.Body.Position.X.Whole - part.LintTravel);
+        lint.Position = lint.Position.WithWholeX(EmergedLintX(part));
         if (part.PhaseWait.StepRunsOut())
         {
             part.Phase = KraidLintPhase.Fire;

@@ -26,7 +26,4 @@ internal sealed class TorizoProjectileAnimation(IEnemyProjectileBranchingCues<To
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<TorizoProjectileSegment, Animation<TorizoProjectileSegment>>> StartingAt => TorizoProjectileAnimations.StartingAt;
 
-    /// <summary>The segment <paramref name="started"/> starts at: its key in <see cref="StartingAt"/>, or a forming drool's first segment.</summary>
-    private protected override TorizoProjectileSegment SegmentStartedAt(Animation<TorizoProjectileSegment> started) =>
-        StartingAt.Any(keyed => ReferenceEquals(keyed.Value, started)) ? base.SegmentStartedAt(started) : Ensure.NotNull(started).Phases[0].Segment;
 }

@@ -103,7 +103,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// </summary>
     internal void InitializeGunshipTop(RoomEnemyPlace place, SamusState samus)
     {
-        var pieces = new GunshipPieces(place, _places.ListedAfter(place, 1), _places.ListedAfter(place, 2));
+        var pieces = new GunshipPieces(place,
+            _places.Member(place, GunshipPartListingDefinitions.Listing, GunshipMember.TopHull, GunshipMember.BottomHull),
+            _places.Member(place, GunshipPartListingDefinitions.Listing, GunshipMember.TopHull, GunshipMember.EntrancePad));
         place.SetSpeciesState(pieces);
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
@@ -145,8 +147,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (occupant.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
         {
             // The hull the pad takes its height from can stand above the room's top, after Ceres.
+            Func<int, RoomEnemyPlace> listedBefore = _places.PlacesBefore(place);
             place.Position = OffRoomPlaces.WithWholeY(place.Position, GunshipPadBorrowedHeight.Start(
-                distance => _places.ListedBefore(place, distance).Position.Y.Whole));
+                distance => listedBefore(distance).Position.Y.Whole));
         }
         else
         {
@@ -324,12 +327,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// Whether the landed ship bobs before running <paramref name="phase"/>: every phase from waiting for the
     /// landing entrance through waiting for the engines, Idle among them; firing up the engines is the first that does not.
     /// </summary>
-    private static bool BobsWhileLanded(GunshipPhase phase) => phase is
-        GunshipPhase.WaitForLandingEntranceToOpen or GunshipPhase.EjectSamus or GunshipPhase.FinishLanding or
-        GunshipPhase.Idle or GunshipPhase.WaitForEntranceToOpen or GunshipPhase.LowerSamus or
-        GunshipPhase.WaitForEntranceToClose or GunshipPhase.BeginLiftoffOrRestoreSamus or
-        GunshipPhase.HandleSaveConfirmation or GunshipPhase.WaitForExitPadToOpen or GunshipPhase.RaiseSamus or
-        GunshipPhase.FinishSamusExit or GunshipPhase.WaitForEngines;
+    private static bool BobsWhileLanded(GunshipPhase phase) => GunshipPhaseDefinitions.BobbingWhileLanded.Contains(phase);
 
     /// <summary>Cycles the four idle-bob phases while moving the hull and pad together.</summary>
     private static void StepGunshipBob(RoomEnemyPlace top)

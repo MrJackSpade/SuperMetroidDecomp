@@ -18,11 +18,11 @@ internal static class PirateHitboxShotActions
         EnemyReaction hitboxShot)
     {
         SamusProjectile projectile = held.Projectile;
-        if (hitboxShot == SpacePirateReactions.Shot || hitboxShot == EnemyReaction.OrdinaryShot)
+        if (SpacePirateReactions.GoldNinjaOrdinary.Contains(hitboxShot))
             return PirateHitboxShotAction.Normal;
 
         SamusProjectileFamily family = held.Type.Family;
-        if (hitboxShot == SpacePirateReactions.GoldNinjaInvincibleHitboxShot)
+        if (SpacePirateReactions.InvincibleArmour.Contains(hitboxShot))
         {
             if (family == SamusProjectileFamily.SuperMissile &&
                 projectile.KindStateAs<SuperMissileShotState>().Ignition is SamusMissileIgnition.Pending)
@@ -50,8 +50,7 @@ internal static class PirateHitboxShotActions
     /// Pirates' own show it, while both Ninja body reactions run the Pirates' damage that shows none.
     /// </summary>
     /// <param name="reaction">The reaction the hit runs: its hitbox's, or the definition's when the Pirate collides by its radius.</param>
-    internal static bool ShowsHitBurst(EnemyReaction reaction) =>
-        reaction == EnemyReaction.OrdinaryShot || reaction == SpacePirateReactions.Shot;
+    internal static bool ShowsHitBurst(EnemyReaction reaction) => SpacePirateReactions.ShowingHitBurst.Contains(reaction);
 
     /// <summary>
     /// Whether a shot or bomb whose hit runs through <paramref name="reaction"/> and hurts the gold Ninja while it is not
@@ -59,7 +58,7 @@ internal static class PirateHitboxShotActions
     /// both Ninja body reactions, runs the Pirates' damage that shows none.
     /// </summary>
     /// <param name="reaction">The reaction the hit runs: its hitbox's, or the definition's when the Ninja collides by its radius.</param>
-    internal static bool GoldNinjaShowsHitBurst(EnemyReaction reaction) => reaction == EnemyReaction.OrdinaryShot;
+    internal static bool GoldNinjaShowsHitBurst(EnemyReaction reaction) => Ensure.NotNull(reaction).IsOrdinary;
 
     /// <summary>
     /// The families the gold ninja reflects or is hurt by, a beam, missile or Super Missile: each as the family a reflection

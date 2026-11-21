@@ -12,15 +12,15 @@ internal static class BeamTileCatalogAccess
         internal static BeamTileCatalog Load(IReadOnlyDictionary<string, byte[]> files,
             InstalledBeamPalettes? palettes = null, HyperBeamFxColours? hyperBeamFxColors = null)
         {
-            var sheets = new BeamTileAtlas[BeamTileAtlasDefinitions.ArtworkCount];
-            for (int i = 0; i < sheets.Length; i++)
+            var sheets = new Dictionary<global::SuperMetroid.Core.Progression.SamusBeamCombination, BeamTileAtlas>();
+            foreach (global::SuperMetroid.Core.Progression.SamusBeamCombination selection in BeamTileAtlasDefinitions.Pictured)
             {
-                string name = BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(i));
+                string name = BeamTileAtlasDefinitions.FileName(selection);
                 if (!files.TryGetValue(name, out var png) || png is null)
                     throw new InvalidDataException($"Missing beam artwork {name}.");
-                sheets[i] = BeamTileAtlas.Load(new MemoryStream(png, writable: false), BeamTileAtlasDefinitions.SelectionAt(i));
+                sheets[selection] = BeamTileAtlas.Load(new MemoryStream(png, writable: false), selection);
             }
-            return global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Samus.BeamTileCatalog>([typeof(global::SuperMetroid.AssetExtraction.Samus.BeamTileAtlas[]), typeof(global::SuperMetroid.AssetExtraction.Samus.Artwork.InstalledBeamPalettes), typeof(global::SuperMetroid.AssetExtraction.Samus.Artwork.HyperBeamFxColours)], new object?[] { sheets, palettes, hyperBeamFxColors });
+            return global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Samus.BeamTileCatalog>([typeof(IReadOnlyDictionary<global::SuperMetroid.Core.Progression.SamusBeamCombination, BeamTileAtlas>), typeof(global::SuperMetroid.AssetExtraction.Samus.Artwork.InstalledBeamPalettes), typeof(global::SuperMetroid.AssetExtraction.Samus.Artwork.HyperBeamFxColours)], new object?[] { sheets, palettes, hyperBeamFxColors });
         }
     }
     /// <summary>Exposes <see cref="BeamTileCatalog"/> state that only verification reads.</summary>

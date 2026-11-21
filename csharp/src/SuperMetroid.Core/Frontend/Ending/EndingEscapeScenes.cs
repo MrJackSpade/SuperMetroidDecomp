@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 
@@ -45,7 +46,7 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingActorDefinitions.SideCloudRightTrailing, EndingSpriteRole.SideCloudRightTrailing);
         _stage.SpawnSprite(EndingActorDefinitions.SideCloudLeftTrailing, EndingSpriteRole.SideCloudLeftTrailing);
         _stage.Floor.SetUp(Offset16<FloorPixels>.Zero, EndingMotionDefinitions.EscapeInitialZoom, EndingMotionDefinitions.EscapeInitialAngle.ToAngle());
-        _stage.Fade.Show(0);
+        _stage.Fade.Show(DisplayBrightness.Black);
         _artwork.PostCreditsText.Drop = 0;
         audio.QueueMusic(MusicRequest.Stop);
         audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.ZebesExplosion));
@@ -65,7 +66,7 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingActorDefinitions.BottomCloudEdge, EndingSpriteRole.BottomCloudEdge);
         _stage.SpawnSprite(EndingActorDefinitions.BottomCloudPattern, EndingSpriteRole.BottomCloudPattern);
         _stage.Floor.SetUp(Offset16<FloorPixels>.Zero, EndingMotionDefinitions.EscapeInitialZoom, EndingMotionDefinitions.EscapeInitialAngle.ToAngle());
-        _stage.Fade.Show(0);
+        _stage.Fade.Show(DisplayBrightness.Black);
         _stage.StartFastFade();
     }
 

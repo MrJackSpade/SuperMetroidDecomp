@@ -35,7 +35,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         Suite(nameof(VerifyFrame), () => VerifyFrame(SporeSpawnSourceDefinitions.SporeColors, native.ResolveSpore,
             "spore initialization"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.HealthColors,
-            SporeSpawnColorFormat.HealthFrameCount, native.ResolveHealth, "health"));
+            SporeSpawnColorFormat.HealthFrameCount, (band, colour) => native.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[band], colour), "health"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.DeathSpriteColors,
             SporeSpawnColorFormat.DeathSpriteFrameCount, native.ResolveDeathSprite,
             "death sprite"));
@@ -86,7 +86,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             SporeSpawnBehavior.ShowSporeSpawnHealthShade(body, state, band);
             AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.Health(band)), body.Shading,
                 $"live Spore Spawn health band {band}");
-            AssertShade(sprites, SporeSpawnShades.Health(band), colour => colors.ResolveHealth(shown, colour), $"live Spore Spawn health band {band}");
+            AssertShade(sprites, SporeSpawnShades.Health(band), colour => colors.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[shown], colour), $"live Spore Spawn health band {band}");
         }
 
         foreach (SporeSpawnDeathFadeStep step in SporeSpawnDeathFadeStep.All)

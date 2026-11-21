@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.MamaTurtles;
-using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
@@ -7,11 +6,10 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 /// <summary>Confirms the identified tatori-family extraction and display dependency.</summary>
 internal static class MamaTurtleResourceChecks
 {
-    /// <summary>Checks the frames the Mama/Baby Turtle programs show and their count against the pre-extraction schema boundary.</summary>
+    /// <summary>Checks the frames the Mama/Baby Turtle programs show and their count.</summary>
     public static void Run() => EnemyCompositionResourceChecks.RunSpritemaps("Mama/Baby Turtle",
         MamaTurtleVisualDefinitions.Bank,
         MamaTurtleAnimationsTooling.Spritemaps(Enum.GetValues<MamaTurtleSegment>())
             .Concat(MamaTurtleAnimationsTooling.Spritemaps(Enum.GetValues<BabyTurtleSegment>())),
-        MamaTurtleVisualDefinitions.FrameCount,
-        EnemySpritemapToolingDefinitions.PreMamaTurtleFrameCount);
+        MamaTurtleVisualDefinitions.FrameCount);
 }

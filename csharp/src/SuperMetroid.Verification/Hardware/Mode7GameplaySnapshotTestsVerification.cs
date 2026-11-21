@@ -39,12 +39,12 @@ internal static class Mode7GameplaySnapshotTestsVerification
             var m = new FloorView(0.13, scale, new Offset16<FloorPixels>(128, 96), new Offset16<FloorPixels>(-13, unchecked((short)scroll)));
             var layer = new TurningRoomLayer(m, floor, ScreenGeometry.GameplayHudHeightPixels);
             samples++;
-            var packet = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
+            var packet = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, DisplayBrightness.Full));
             AssertEqual(layer, (TurningRoomLayer)((LayeredScene)packet.Scene).Layers[0], "the turning-floor band layer keeps its floor view");
             if (samples == 1)
             {
                 AssertThrows<ArgumentException>(() => new LayeredScene(memory,
-                    new DisplayLayer[] { new SpritesLayer([]), layer }, 15), "Mode-7 base cannot erase earlier layers");
+                    new DisplayLayer[] { new SpritesLayer([]), layer }, DisplayBrightness.Full), "Mode-7 base cannot erase earlier layers");
             }
         }
         // Retail room assets with an explicitly constructed getaway floor exercise

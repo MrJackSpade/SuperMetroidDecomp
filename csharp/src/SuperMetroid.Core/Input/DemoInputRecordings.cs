@@ -5,7 +5,8 @@ namespace SuperMetroid.Core.Input;
 
 /// <summary>
 /// The demos' recorded inputs (#1300, #1600), generated from the demo recordings: each recording plays its
-/// inputs for their durations, then ends as <see cref="DemoRecording.End"/> says.
+/// inputs for their durations, then ends as <see cref="DemoRecording.End"/> says. Consecutive identical inputs are one input
+/// lasting their durations together (#2557), which plays every update exactly as the run of them did.
 /// </summary>
 public static class DemoInputRecordings
 {
@@ -131,7 +132,7 @@ public static class DemoInputRecordings
         [N.AttractDiagonalShinespark] = new(
         [
             new(A.None, A.None, 165),
-        ], DemoRecordingEnd.LoopsFrom(0)),
+        ], DemoRecordingEnd.HoldsLastInput),
         [N.AttractDiagonalShinesparkContinuation] = new(
         [
             new(A.None, A.None, 150),
@@ -596,8 +597,7 @@ public static class DemoInputRecordings
             new(A.Left, A.None, 17),
             new(A.Dash | A.Left, A.Dash, 1),
             new(A.Dash | A.Left, A.None, 36),
-            new(A.Left, A.None, 2),
-            new(A.Left, A.None, 20),
+            new(A.Left, A.None, 22),
             new(A.None, A.None, 7),
             new(A.Right, A.Right, 1),
             new(A.Right, A.None, 9),
@@ -672,8 +672,7 @@ public static class DemoInputRecordings
             new(A.Right, A.None, 5),
             new(A.None, A.None, 16),
             new(A.Right, A.Right, 1),
-            new(A.Right, A.None, 13),
-            new(A.Right, A.None, 42),
+            new(A.Right, A.None, 55),
             new(A.None, A.None, 7),
             new(A.Jump, A.Jump, 1),
             new(A.Jump, A.None, 21),
@@ -693,8 +692,7 @@ public static class DemoInputRecordings
             new(A.Right, A.Right, 1),
             new(A.Right, A.None, 4),
             new(A.Right | A.Shoot, A.Shoot, 1),
-            new(A.Right | A.Shoot, A.None, 9),
-            new(A.Right | A.Shoot, A.None, 5),
+            new(A.Right | A.Shoot, A.None, 14),
             new(A.Shoot, A.None, 76),
             new(A.Down | A.Shoot, A.Down, 1),
             new(A.Shoot, A.None, 3),
@@ -887,7 +885,7 @@ public static class DemoInputRecordings
             new(A.None, A.None, 90),
             new(A.Left, A.Left, 1),
             new(A.Left, A.None, 1),
-        ], DemoRecordingEnd.LoopsFrom(2)),
+        ], DemoRecordingEnd.HoldsLastInput),
         [N.IntroBabyDiscoveryStopAndLook] = new(
         [
             new(A.None, A.None, 300),
@@ -896,7 +894,7 @@ public static class DemoInputRecordings
             new(A.None, A.None, 240),
             new(A.Left, A.Left, 1),
             new(A.Left, A.None, 1),
-        ], DemoRecordingEnd.LoopsFrom(5)),
+        ], DemoRecordingEnd.HoldsLastInput),
     };
 
     /// <summary>Every signalling recording.</summary>
@@ -912,8 +910,7 @@ public static class DemoInputRecordings
             new(A.Shoot, A.None, 40),
             new(A.Shoot, A.Shoot, 1),
             new(A.Shoot, A.None, 29),
-            new(A.None, A.None, 70),
-            new(A.None, A.None, 20),
+            new(A.None, A.None, 90),
             new(A.Left, A.Left, 1),
             new(A.Left, A.None, 7),
             new(A.Left | A.Jump, A.Jump, 1),

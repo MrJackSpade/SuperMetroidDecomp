@@ -1,5 +1,7 @@
-﻿using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Compatibility;
+
+using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -75,17 +77,17 @@ internal sealed class SpcSoundLibraries
             channel.Legato = 0;
 
         int tableIndex = command - 1;
-        if ((uint)tableIndex >= SpcSoundEffectTables.CommandCount(libraryIndex))
+        SoundEffectLibrary soundLibrary = SoundLibraryNumbers.FromDriverIndex(libraryIndex);
+        if ((uint)tableIndex >= SpcSoundEffectTables.CommandCount(soundLibrary))
         {
             throw new InvalidDataException(
                 $"SPC sound library {libraryIndex + 1} has no command ${command:X2}.");
         }
         library.CurrentSoundIndex = unchecked((byte)(tableIndex * 2));
-        library.CurrentPointer = SpcSoundEffectTables.StreamPointer(libraryIndex, command);
+        library.CurrentPointer = SpcSoundEffectTables.StreamPointer(soundLibrary, command);
         library.CurrentSound = command;
 
-        int configuration = SpcSoundEffectTables.Configuration(libraryIndex, command);
-        ConfigureSoundLibrary(libraryIndex, library, configuration);
+        ConfigureSoundLibrary(soundLibrary, library, SpcSoundEffectTables.PolicyKey(soundLibrary, command));
     }
 
     /// <summary>
@@ -94,54 +96,78 @@ internal sealed class SpcSoundLibraries
     /// blocks everything except its clearing request, and each library has requests exempt from
     /// priority. The offline clip exporter (#1305) reads its policy from this rule.
     /// </summary>
-    internal static bool RejectsRequest(int libraryIndex, int command, int priority, int mode) => libraryIndex switch
+    internal static bool RejectsRequest(int libraryIndex, int command, int priority, int mode)
     {
-        0 => command != 1 && command != 2 && priority != 0,
-        1 => command != 0x71 && command != 0x7e && priority != 0, // cartridge-encoding: allow(HardwareValue) - retail SFX2 cancellation overrides
-        2 => command != 1 && (mode == SpcDriverDefinitions.SoundEffects.LowHealthMode || command != 2 && priority != 0),
-        _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
-    };
+        bool lowHealth = SpcSoundEffectTables.HasLowHealthMode(libraryIndex) && mode == SpcDriverDefinitions.SoundEffects.LowHealthMode;
+        return SpcSoundEffectTables.Admission(libraryIndex, command) switch
+        {
+            SpcSoundRequestAdmission.Clearing => false,
+            SpcSoundRequestAdmission.PriorityExempt => lowHealth,
+            SpcSoundRequestAdmission.ByPriority => lowHealth || priority != 0,
+            _ => throw new ArgumentOutOfRangeException(nameof(command)),
+        };
+    }
 
     /// <summary>Applies native allocation-policy writes for a validated sound library.</summary>
     /// <remarks>#1165 original-handler proof covers all policy cases. Mode is unchanged
     /// except for library-three cancel/low-health operations; low-health preserves priority.
     /// Native handler identities are documented on the SpcLibraryNPolicy catalog members.</remarks>
     internal static void ConfigureSoundLibrary(
-        int libraryIndex,
+        SoundEffectLibrary soundLibrary,
         ManagedSpcSoundLibrary library,
-        int configuration)
+        string policyKey)
     {
-        if (libraryIndex == 0)
+        switch (soundLibrary)
         {
-            (int voices, int priority) = (SpcLibrary1Policy)configuration switch
-            {
-                SpcLibrary1Policy.OneVoiceLowPriority => new SoundLibrarySetup(1, 0),
-                SpcLibrary1Policy.OneVoiceHighPriority => new SoundLibrarySetup(1, 1),
-                SpcLibrary1Policy.TwoVoicesLowPriority => new SoundLibrarySetup(2, 0),
-                SpcLibrary1Policy.ThreeVoicesHighPriority => new SoundLibrarySetup(3, 1),
-                SpcLibrary1Policy.FourVoicesLowPriority or SpcLibrary1Policy.PowerBombFourVoices => new SoundLibrarySetup(4, 0),
-                _ => throw new InvalidDataException($"Unknown SPC SFX1 configuration {configuration}."),
-            };
-            library.VoicesToSetup = checked((byte)voices);
-            library.Priority = checked((byte)priority);
-            return;
+            case SoundEffectLibrary.Samus:
+                Configure(library, SpcSoundPolicyCodec.Parse(SpcSoundPolicyCodec.Library1Keys, policyKey, soundLibrary));
+                break;
+            case SoundEffectLibrary.Enemies:
+                Configure(library, SpcSoundPolicyCodec.Parse(SpcSoundPolicyCodec.Library2Keys, policyKey, soundLibrary));
+                break;
+            case SoundEffectLibrary.Room:
+                Configure(library, SpcSoundPolicyCodec.Parse(SpcSoundPolicyCodec.Library3Keys, policyKey, soundLibrary));
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(soundLibrary), soundLibrary, "Undefined sound library.");
         }
-        if (libraryIndex == 1)
-        {
-            (int voices, int priority) = (SpcLibrary2Policy)configuration switch
-            {
-                SpcLibrary2Policy.OneVoiceLowPriority => new SoundLibrarySetup(1, 0),
-                SpcLibrary2Policy.OneVoiceHighPriority => new SoundLibrarySetup(1, 1),
-                SpcLibrary2Policy.TwoVoicesLowPriority => new SoundLibrarySetup(2, 0),
-                SpcLibrary2Policy.TwoVoicesHighPriority => new SoundLibrarySetup(2, 1),
-                _ => throw new InvalidDataException($"Unknown SPC SFX2 configuration {configuration}."),
-            };
-            library.VoicesToSetup = checked((byte)voices);
-            library.Priority = checked((byte)priority);
-            return;
-        }
+    }
 
-        switch ((SpcLibrary3Policy)configuration)
+    /// <summary>Applies a library-one policy's writes: its voices and priority.</summary>
+    private static void Configure(ManagedSpcSoundLibrary library, SpcLibrary1Policy policy)
+    {
+        (int voices, int priority) = policy switch
+        {
+            SpcLibrary1Policy.OneVoiceLowPriority => new SoundLibrarySetup(1, 0),
+            SpcLibrary1Policy.OneVoiceHighPriority => new SoundLibrarySetup(1, 1),
+            SpcLibrary1Policy.TwoVoicesLowPriority => new SoundLibrarySetup(2, 0),
+            SpcLibrary1Policy.ThreeVoicesHighPriority => new SoundLibrarySetup(3, 1),
+            SpcLibrary1Policy.FourVoicesLowPriority or SpcLibrary1Policy.PowerBombFourVoices => new SoundLibrarySetup(4, 0),
+            _ => throw new ArgumentOutOfRangeException(nameof(policy), policy, "Undefined library-one policy."),
+        };
+        library.VoicesToSetup = checked((byte)voices);
+        library.Priority = checked((byte)priority);
+    }
+
+    /// <summary>Applies a library-two policy's writes: its voices and priority.</summary>
+    private static void Configure(ManagedSpcSoundLibrary library, SpcLibrary2Policy policy)
+    {
+        (int voices, int priority) = policy switch
+        {
+            SpcLibrary2Policy.OneVoiceLowPriority => new SoundLibrarySetup(1, 0),
+            SpcLibrary2Policy.OneVoiceHighPriority => new SoundLibrarySetup(1, 1),
+            SpcLibrary2Policy.TwoVoicesLowPriority => new SoundLibrarySetup(2, 0),
+            SpcLibrary2Policy.TwoVoicesHighPriority => new SoundLibrarySetup(2, 1),
+            _ => throw new ArgumentOutOfRangeException(nameof(policy), policy, "Undefined library-two policy."),
+        };
+        library.VoicesToSetup = checked((byte)voices);
+        library.Priority = checked((byte)priority);
+    }
+
+    /// <summary>Applies a library-three policy's writes: its voices, priority and low-health mode.</summary>
+    private static void Configure(ManagedSpcSoundLibrary library, SpcLibrary3Policy policy)
+    {
+        switch (policy)
         {
             case SpcLibrary3Policy.CancelAndClearLowHealthMode:
                 library.VoicesToSetup = 1;
@@ -169,7 +195,7 @@ internal sealed class SpcSoundLibraries
                 library.Priority = 1;
                 break;
             default:
-                throw new InvalidDataException($"Unknown SPC SFX3 configuration {configuration}.");
+                throw new ArgumentOutOfRangeException(nameof(policy), policy, "Undefined library-three policy.");
         }
     }
 

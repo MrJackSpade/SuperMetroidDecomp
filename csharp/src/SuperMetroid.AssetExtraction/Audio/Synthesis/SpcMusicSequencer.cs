@@ -456,10 +456,10 @@ internal sealed class SpcMusicSequencer
     internal void HandleMusicCommand()
     {
         int command = musicInputLatch;
-        musicInputLatch = (int)MusicPortCommand.None;
-        if (Enum.IsDefined((MusicPortCommand)command))
+        musicInputLatch = MusicPortCommands.Encode(MusicPortCommand.None);
+        if (MusicPortCommands.TryDecode(command, out MusicPortCommand control))
         {
-            switch ((MusicPortCommand)command)
+            switch (control)
             {
                 case MusicPortCommand.Pause:
                     _voices.keyOff = _voices.keyOff | unchecked((byte)~_voices.channelOnMask);
@@ -509,14 +509,14 @@ internal sealed class SpcMusicSequencer
                 StartTrack(0);
                 return;
             }
-            if (MusicTrackControls.TryDecode(record, out MusicTrackControl control))
+            if (MusicTrackControls.TryDecode(record, out MusicTrackControl trackControl))
             {
                 // The driver stores the control word's low byte as its fast-forward flag.
-                fastForward = control switch
+                fastForward = trackControl switch
                 {
                     MusicTrackControl.FastForwardOn => unchecked((byte)record),
                     MusicTrackControl.FastForwardOff => 0,
-                    _ => throw new InvalidOperationException($"Undefined {nameof(MusicTrackControl)} {control}."),
+                    _ => throw new InvalidOperationException($"Undefined {nameof(MusicTrackControl)} {trackControl}."),
                 };
             }
             else

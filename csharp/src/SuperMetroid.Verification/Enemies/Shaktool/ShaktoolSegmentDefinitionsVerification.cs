@@ -48,7 +48,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
             ShaktoolSegmentState state = (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index]."));
             AssertEqual(EnemyContact.BlocksPlasmaBeam | definition.Contact,
                 place.Contact, $"Shaktool production contact {index}");
-            AssertEqual(definition.Processing,
+            AssertEqual(ShaktoolSegmentDefinitions.Processing,
                 place.Processing, $"Shaktool production processing {index}");
             AssertEqual(EnemyPresence.None,
                 place.Presence, $"Shaktool production presence {index}");
@@ -83,7 +83,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     private static void VerifyShaktoolPropertySelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativePropertiesAddress,
             definition => checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(
-                definition.Contact, definition.Processing, EnemyPresence.None, CollidesByFrameHitboxes: false, NewInstructionFrame: false))),
+                definition.Contact, ShaktoolSegmentDefinitions.Processing, EnemyPresence.None, CollidesByFrameHitboxes: false, NewInstructionFrame: false))),
             "property selection"));
 
     /// <summary>Checks the initial orbit angle selected for all seven body segments.</summary>
@@ -91,10 +91,13 @@ internal static class ShaktoolSegmentDefinitionsVerification
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInitialAngleAddress,
             definition => definition.InitialOrbitAngle.RawValue, "initial angle algorithm"));
 
-    /// <summary>Checks each segment's offset back to the controlling Shaktool slot.</summary>
+    /// <summary>
+    /// Checks each segment's offset back to the controlling Shaktool slot is its place in the chain's listing
+    /// (<see cref="ShaktoolSegmentDefinitions.Chain"/>), which the segments find each other by.
+    /// </summary>
     private static void VerifyShaktoolOwnerOffsetAlgorithm(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeOwnerOffsetAddress,
-            definition => checked((ushort)(definition.OwnerPlaceDistance * SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.RecordSize)), "owner offset"));
+            definition => checked((ushort)(Array.IndexOf(ShaktoolSegmentDefinitions.Segments, definition) * SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.RecordSize)), "owner offset"));
 
     /// <summary>Checks the first animation instruction list selected for each segment.</summary>
     private static void VerifyShaktoolInitialInstructionSelection(CartridgeImportAddressSpace rom) =>

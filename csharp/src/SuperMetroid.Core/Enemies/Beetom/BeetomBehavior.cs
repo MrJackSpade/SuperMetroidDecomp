@@ -60,7 +60,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Beetom.</summary>
     internal void InitializeBeetom(RoomEnemyPlace place, SamusState samus, GameplayAction controllerInput)
     {
-        BeetomEnemyState state = _inheritance.Inherit(place.Ordinal, static previous => new BeetomEnemyState(previous, BeetomAction.DecideAction));
+        BeetomEnemyState state = _inheritance.Inherit(place, static previous => new BeetomEnemyState(previous, BeetomAction.DecideAction));
         place.SetSpeciesState(state);
 
         state.ButtonCounter = BeetomMotionDefinitions.MashCount;

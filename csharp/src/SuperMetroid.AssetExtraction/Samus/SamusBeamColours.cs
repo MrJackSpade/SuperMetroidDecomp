@@ -22,8 +22,8 @@ internal static class SamusBeamColours
 
     /// <summary>The beam combinations with a beam shade of their own: the retail combinations and SpaceTime.</summary>
     internal static IEnumerable<SamusBeamCombination> Shown =>
-        SamusBeamCombinationKeys.ListedOrder.Where(combination => combination.CanBeEquipped ||
-            combination is SpacetimeBeamGraphicsDefinitions.Selection);
+        SamusBeamCombinationKeys.ListedOrder.Where(combination =>
+            SamusBeamGraphicsDefinitions.ShownShades.TryGetValue(combination, out SamusBeamCombination shown) && shown == combination);
 
     /// <summary>
     /// The sixteen colours <paramref name="combination"/>'s beams show: SpaceTime's defined black, or the installed palette

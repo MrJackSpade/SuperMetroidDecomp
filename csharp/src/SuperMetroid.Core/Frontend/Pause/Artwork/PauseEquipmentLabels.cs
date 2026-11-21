@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// </summary>
 public static class PauseEquipmentLabels
 {
-    /// <summary>Whether a label is one of the five ordinary beam labels.</summary>
-    internal static bool IsOrdinaryBeam(PauseEquipmentLabelId label) => label is PauseEquipmentLabelId.Charge or
-        PauseEquipmentLabelId.Ice or PauseEquipmentLabelId.Wave or PauseEquipmentLabelId.Spazer or PauseEquipmentLabelId.Plasma;
+    /// <summary>Whether a label is one of the five ordinary beam labels, which Hyper replaces.</summary>
+    internal static bool IsOrdinaryBeam(PauseEquipmentLabelId label) => PauseEquipmentLabelDefinitions.Labels[label].ReplacedByHyper;
 }

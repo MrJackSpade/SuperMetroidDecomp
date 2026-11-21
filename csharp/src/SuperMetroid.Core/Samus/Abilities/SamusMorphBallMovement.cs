@@ -37,18 +37,13 @@ public static class SamusMorphBallMovement
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
 
-        bool stationaryPose = samus.Pose is
-            SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallGroundLeftPose or
-            SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose;
-        BlockMoveResult horizontal;
+        bool stationaryPose = SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.StationaryBall);
         if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && stationaryPose)
         {
             // A resting ball moves only by outside displacement and stops on a wall; it still publishes its total X
             // speed.
             var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: default);
-            horizontal = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
-            if (horizontal.Collided)
-                speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+            _ = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requested);
         }
         else
         {
@@ -61,9 +56,7 @@ public static class SamusMorphBallMovement
                 liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidMedium.Air);
             UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType);
             var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
-            horizontal = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
-            if (horizontal.Collided)
-                speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+            _ = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requested);
         }
 
         BlockMoveResult vertical;
@@ -160,9 +153,7 @@ public static class SamusMorphBallMovement
             requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, calculation.Speed);
         }
 
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
-        if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        _ = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
         BlockMoveResult vertical;
         bool landed;
@@ -177,7 +168,7 @@ public static class SamusMorphBallMovement
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
             SignedSixteenSixteen displacement = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(samus.Kinematics) ??
                 throw new InvalidOperationException("A nonzero external Y displacement always yields a scan distance.");
-            vertical = SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+            vertical = SamusTerrainMoves.MoveVertically(terrain, samus, displacement, frameCounter);
             landed = !displacement.IsNegative && vertical.Collided;
             hitCeiling = displacement.IsNegative && vertical.Collided;
         }
@@ -257,11 +248,9 @@ public static class SamusMorphBallMovement
         }
 
         // The game skips horizontal movement entirely, including its slope alignment.
-        BlockMoveResult horizontal = collisionDirection is null
-            ? BlockMoveResult.NotMoved
-            : SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal, CollisionMovementDirection = collisionDirection });
-        if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        _ = collisionDirection is { } direction
+            ? SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, new SamusHorizontalDisplacement(requestedHorizontal, direction))
+            : BlockMoveResult.NotMoved;
 
         BlockMoveResult vertical = MoveVerticallyWithGravity(
             terrain,
@@ -282,14 +271,11 @@ public static class SamusMorphBallMovement
         int frameCounter)
     {
         Validate(terrain.Level, samus);
-        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
         // The transition movement deliberately supplies zero base speed but still uses pose direction,
         // collision, and the total speed already worked out this update.
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: default);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
-        if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        _ = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedHorizontal);
 
         BlockMoveResult vertical;
         bool landed = false;
@@ -347,7 +333,7 @@ public static class SamusMorphBallMovement
         displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             displacement);
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(terrain, state, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        BlockMoveResult vertical = SamusTerrainMoves.MoveVertically(terrain, samus, displacement, frameCounter);
 
         hitCeiling = displacement.IsNegative && vertical.Collided;
         landed = !displacement.IsNegative && vertical.Collided;
@@ -367,7 +353,7 @@ public static class SamusMorphBallMovement
         SignedSixteenSixteen displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        BlockMoveResult result = SamusTerrainMoves.MoveVertically(terrain, samus, displacement, frameCounter);
         // No-speed Y movement can still go UP when a platform carries Samus. The
         // game publishes the same deferred ceiling hit as a velocity-driven
         // jump. Its speed/direction writes belong to the later winning transition.

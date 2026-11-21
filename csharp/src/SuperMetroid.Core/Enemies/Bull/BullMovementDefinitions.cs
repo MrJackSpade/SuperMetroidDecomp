@@ -40,5 +40,5 @@ public static class BullMovementDefinitions
     /// The compass angle a bomb that leaves the Bull unhurt kicks it at: straight up, as a shot fired straight up does,
     /// whichever side of the Bull the bomb burns on.
     /// </summary>
-    internal static readonly TrigonometryAngle BombKickAngle = new(192);
+    internal static readonly TrigonometryAngle BombKickAngle = ShotAngles.UpFacingRight;
 }

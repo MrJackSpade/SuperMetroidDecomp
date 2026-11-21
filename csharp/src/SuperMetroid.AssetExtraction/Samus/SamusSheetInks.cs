@@ -25,12 +25,12 @@ internal static class SamusSheetInks
     /// <summary>The first ink of her body's colours without the suit.</summary>
     internal const int Suitless = 7 * GroupColours;
 
-    /// <summary>The visor's colour within her suit's.</summary>
-    internal const int VisorColour = 4;
+    /// <summary>The ink of her visor's colour, among her suit's.</summary>
+    internal const int Visor = Suit + 4;
 
-    /// <summary>The first of her beams' colours the Crystal Flash's bubble shows.</summary>
-    internal const int CrystalFlashBubbleFirstColour = 10;
+    /// <summary>The first ink of the Crystal Flash bubble's colours, among her beams'.</summary>
+    internal const int CrystalFlashBubble = Beams + 10;
 
-    /// <summary>The first of her beams' colours the Hyper Beam's own cycle shows.</summary>
-    internal const int HyperBeamFirstColour = 1;
+    /// <summary>The first ink of the Hyper Beam cycle's colours, among her beams'.</summary>
+    internal const int HyperBeamCycle = Beams + 1;
 }

@@ -27,10 +27,6 @@ internal static class EnemyDeathsAndDropsPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Enemies.EnemyDeathsAndDrops self)
     {
-        /// <summary>The private method <c>ConfigurePickup</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Deaths.EnemyDeathAndDropSegment ConfigurePickup(global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Enemies.EnemyPickupKind kind, global::SuperMetroid.Core.Enemies.KilledEnemy killedEnemy) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.EnemyDeathsAndDrops, global::SuperMetroid.Core.Enemies.Deaths.EnemyDeathAndDropSegment>(self, "ConfigurePickup", [typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Enemies.EnemyPickupKind), typeof(global::SuperMetroid.Core.Enemies.KilledEnemy)], new object?[] { projectile, kind, killedEnemy });
-
         /// <summary>The private property <c>Explosions</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileStates<global::SuperMetroid.Core.Enemies.EnemyDeathExplosionState> Explosions
         {

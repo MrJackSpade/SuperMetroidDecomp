@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// a leftover that is no number at all, names the small explosion. The enemies give it their five explosions by name. Three deaths take their explosion so: a Fireflea Samus touches and a Kraid fingernail
 /// Samus's touch leaves in its place die in the explosion their health left by the touch names, so one with one to four
 /// health left dies in the contact, normal, Fake Kraid or big explosion and one with none or more in the small one; and a
-/// Powamp shot dead dies in the explosion twice its burst's last spike's place in the enemy projectile pool names, so the
+/// Powamp shot dead dies in the explosion twice its burst's last spike's place among the enemy-projectile places names, so the
 /// first three places give the small, normal and big explosions and any later place, or a burst into a full pool, the
 /// small one. Each caller names where its leftover comes from.
 /// </summary>
@@ -44,11 +44,10 @@ public sealed class LeftoverNumberDeathExplosion<TExplosion>(TExplosion small, T
         leftoverNumber is int number && Ensure.AtLeastZero(number) < _numbered.Length ? _numbered[number] : _numbered[0];
 
     /// <summary>
-    /// The explosion a death names that takes its number from the enemy projectile pool place a spawn last took (#2474):
-    /// the game leaves twice the place, so the first three places name the small, normal and big explosions and any later
-    /// place the small one; a spawn into a full pool, which leaves no place, also names the small one.
+    /// The explosion a death names that takes its number from the enemy-projectile place the room's latest spawn took
+    /// (#2474, #2556): the game leaves twice the place, so the first three places name the small, normal and big explosions
+    /// and any later place the small one; a spawn into a full pool, which leaves no place, also names the small one.
     /// </summary>
-    /// <param name="projectilePlace">The zero-based pool place the spawn last took, or null when the pool was full.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="projectilePlace"/> is negative.</exception>
-    public TExplosion LeftByProjectilePlace(int? projectilePlace) => Named(projectilePlace * 2);
+    /// <param name="places">The room's enemy-projectile places, which hold what the latest spawn took.</param>
+    public TExplosion LeftByLatestSpawn(EnemyProjectilePlaces places) => Named(Ensure.NotNull(places).LatestSpawn * 2);
 }

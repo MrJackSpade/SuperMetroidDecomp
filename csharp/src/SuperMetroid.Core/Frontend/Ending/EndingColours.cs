@@ -208,8 +208,7 @@ internal sealed class EndingColours
     }
 
     /// <summary>Whether <paramref name="load"/> is a scene's whole screen of colours, which starts that scene.</summary>
-    private static bool StartsScene(EndingColourLoad load) =>
-        load is EndingColourLoad.Escape or EndingColourLoad.Explosion or EndingColourLoad.Credits or EndingColourLoad.PostCredits;
+    private static bool StartsScene(EndingColourLoad load) => EndingColourLoadDefinitions.StartingScenes.Contains(load);
 
     /// <summary>The backdrop colour <paramref name="flash"/> shows while the scene shows it, or none.</summary>
     private RgbColor? FlashBackdrop(EndingFlash flash) => flashes.TryGetValue(flash, out RgbColor? backdrop) ? backdrop : null;

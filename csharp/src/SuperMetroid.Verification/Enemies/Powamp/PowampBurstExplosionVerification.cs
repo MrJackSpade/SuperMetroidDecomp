@@ -30,24 +30,34 @@ internal static class PowampBurstExplosionVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // Occupy every place above the ninth and the first, so the eight spikes take the second through ninth places.
-        foreach (int place in Enumerable.Range(0, EnemyProjectileEngine.PlaceCount).Where(place => place is 0 or > 8))
+        foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity).Where(place => place is 0 or > 8))
             enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.DustOrExplosion);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
-        AssertEqual<int?>(1, enemies.PowampBehavior.SpawnPowampSpikeBurst(body.BoundPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts)), body, body.Shading), "the burst's last spike takes the second place");
+        enemies.PowampBehavior.SpawnPowampSpikeBurst(body.BoundPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts)), body, body.Shading);
+        AssertEqual<int?>(1, enemies.Projectiles.Places.LatestSpawn, "the burst's last spike takes the second place");
         // Each spike is a new projectile in its place, so the places are read again after the burst (#1590).
         AssertEqual(8, enemies.Projectiles.EnemyProjectiles.Count(slot => slot.Kind == RoomEnemyProjectileKind.PowampSpike), "the burst fires all eight spikes");
 
         foreach (EnemyProjectile slot in enemies.Projectiles.EnemyProjectiles)
             slot.Delete();
-        foreach (int place in Enumerable.Range(0, EnemyProjectileEngine.PlaceCount).Where(place => place > 4))
+        foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity).Where(place => place > 4))
             enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.DustOrExplosion);
-        AssertEqual<int?>(null, enemies.PowampBehavior.SpawnPowampSpikeBurst(body.HeldOccupant(), body, body.Shading), "a burst finding the pool full before its eighth spike reports none");
+        enemies.PowampBehavior.SpawnPowampSpikeBurst(body.HeldOccupant(), body, body.Shading);
+        AssertEqual<int?>(null, enemies.Projectiles.Places.LatestSpawn, "a burst finding the pool full before its eighth spike leaves no place");
         Console.WriteLine("  Powamp burst explosion: the last spike's pool place selects the explosion; a full pool selects the small one.");
     }
 
-    /// <summary>The explosion a Powamp dies with after a burst whose last spike took <paramref name="place"/>.</summary>
-    private static EnemyDeathExplosion ExplosionAfter(int? place) => PowampBehavior.ExplosionAfterBurst(place);
+    /// <summary>
+    /// The explosion a Powamp dies with after a burst whose last spike took <paramref name="place"/>, or that found the
+    /// pool full: the one the pool's latest spawn leaves (<see cref="LeftoverNumberDeathExplosion{TExplosion}.LeftByLatestSpawn"/>).
+    /// </summary>
+    internal static EnemyDeathExplosion ExplosionAfter(int? place)
+    {
+        var places = new SuperMetroid.Core.Compatibility.EnemyProjectilePlaces();
+        places.RecordSpawn(place);
+        return EnemyDeathExplosionDefinitions.LeftoverNumbered.LeftByLatestSpawn(places);
+    }
 
     /// <summary>Runs the Powamp burst explosion rule check.</summary>
     [VerificationCommand("--powamp-burst-explosion")]

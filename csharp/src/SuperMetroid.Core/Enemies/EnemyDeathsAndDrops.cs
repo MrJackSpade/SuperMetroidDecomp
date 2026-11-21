@@ -274,18 +274,14 @@ internal sealed class EnemyDeathsAndDrops
         EnemyDropRoll roll = SelectRandomEnemyDrop(
             explosion.Dropper is { } dropper ? _room.Definitions.ReadEnemyDefinition(dropper.DefinitionId).Drops : EnemyDrops.Nothing, samus);
         return FirstPlaceExplosionLeavesNoPickup.BecomesPickup(projectile.Place) && roll is EnemyDropRoll.PickupDrops drop
-            ? ConfigurePickup(projectile, drop.Kind, explosion.KilledEnemy)
+            ? ConfigurePickup(projectile, drop.Kind)
             : ConfigureDormantPickup(projectile);
     }
 
     /// <summary>
-    /// Gives the projectile the selected pickup's identity, life (<see cref="EnemyPickupDefinitions.Lifetime"/>) and collision reaction, keeping
-    /// <paramref name="killedEnemy"/>, the enemy its explosion came from, and returns its animation.
+    /// Gives the projectile the selected pickup's identity, life (<see cref="EnemyPickupDefinitions.Lifetime"/>) and collision reaction, and
+    /// returns its animation.
     /// </summary>
-    private EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind, KilledEnemy killedEnemy) =>
-        ConfigurePickup(projectile, kind, new EnemyKilledEnemyPickupState(kind, EnemyPickupDefinitions.Lifetime, killedEnemy));
-
-    /// <summary>Gives the projectile a directly spawned pickup's identity, which came from no enemy, as the other overload does.</summary>
     private EnemyDeathAndDropSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind) =>
         ConfigurePickup(projectile, kind, new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime));
 
@@ -613,8 +609,8 @@ internal sealed class EnemyDeathsAndDrops
         [EnemyDeathAndDropCueKind.BecomePickup] = (projectile, samus) => ConvertEnemyDeathExplosionToPickup(projectile, samus),
         [EnemyDeathAndDropCueKind.RespawnEnemy] = (projectile, samus) =>
         {
-            // Only a death explosion, or the pickup it became, came from a killed enemy: a drop spawned directly came
-            // from none, whatever an earlier projectile in its place came from.
+            // A death explosion rebuilds the enemy it came from when that enemy respawns; a drop came from no enemy,
+            // whatever an earlier projectile in its place came from.
             if (projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion &&
                 Explosions.Of(projectile).KilledEnemy is { Respawns: true } killed)
                 RespawnEnemyFromSnapshot(killed.Enemy);

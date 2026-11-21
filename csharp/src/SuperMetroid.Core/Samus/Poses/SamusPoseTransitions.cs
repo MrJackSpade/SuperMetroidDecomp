@@ -266,7 +266,7 @@ internal static class SamusPoseTransitions
 
         // Only a pose-transition cue of the current pose's own animation leaves a pose pending.
         bool startsMoonwalkJump = SamusPoseMetadata.IsMoonwalkTurnToSpinJumpPose(samus.Pose) &&
-            targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose;
+            SamusPoseTraits.IsIn(targetPose, SamusPoseFamily.GenericSpinJump);
         SamusPoseId sourcePose = samus.Pose;
         SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(sourcePose);
 

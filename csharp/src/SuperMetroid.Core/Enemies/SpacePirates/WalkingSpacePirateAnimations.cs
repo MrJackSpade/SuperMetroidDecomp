@@ -2,6 +2,7 @@ using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateCueKind;
 using P = SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateSegment;
 using SuperMetroid.Core.Enemies.Artwork;
+using Beats = SuperMetroid.Core.Animation.AnimationBeats<SuperMetroid.Core.Enemies.Artwork.EnemyFrameId, SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateCue>;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
@@ -11,123 +12,86 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 internal static class WalkingSpacePirateAnimations
 {
-    /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<WalkingSpacePirateSegment, EnemyFrameId, WalkingSpacePirateCue> Segments { get; } = new(
-        new Dictionary<WalkingSpacePirateSegment, AnimationBeat<EnemyFrameId, WalkingSpacePirateCue>[]>
-    {
-        [P.FlinchFacingLeft] =
-        [
-            Cue(new WalkingSpacePirateCue.Begin(WalkingSpacePirateAction.StandingStill)),
-            Show(EnemyFrameId.WalkingPirateFlinchLeft, 16),
-        ],
-        [P.FlinchFacingRight] =
-        [
-            Cue(new WalkingSpacePirateCue.Begin(WalkingSpacePirateAction.StandingStill)),
-            Show(EnemyFrameId.WalkingPirateFlinchRight, 16),
-        ],
-        [P.WalkingLeft] =
-        [
-            Cue(new WalkingSpacePirateCue.BeginHeading(WalkingSpacePirateAction.Walking, HorizontalDirection.Left)),
-        ],
-        [P.WalkingLeftStride] =
-        [
-            Show(EnemyFrameId.WalkingPirateWalkingLeftFarLegBack, 10),
-            Show(EnemyFrameId.WalkingPirateWalkingLeftFarLegLifting, 10),
-            Show(EnemyFrameId.WalkingPirateWalkingLeftFarLegPassing, 10),
-            Show(EnemyFrameId.WalkingPirateWalkingLeftFarLegPlanting, 10),
-            Show(EnemyFrameId.WalkingPirateWalkingLeftNearLegBack, 10),
-            Show(EnemyFrameId.WalkingPirateWalkingLeftNearLegLifting, 10),
-            Show(EnemyFrameId.WalkingPirateWalkingLeftNearLegPassing, 10),
-            Show(EnemyFrameId.WalkingPirateWalkingLeftNearLegPlanting, 10),
-        ],
-        [P.FireLasersLeft] =
-        [
-            Cue(new WalkingSpacePirateCue.Begin(WalkingSpacePirateAction.StandingStill)),
-            Show(EnemyFrameId.WalkingPirateStandingFacingLeft, 24),
-            Show(EnemyFrameId.WalkingPirateClawsLiftingFacingLeft, 8),
-            Show(EnemyFrameId.WalkingPirateClawsForwardFacingLeft, 8),
-            Show(EnemyFrameId.WalkingPirateClawsRaisedFacingLeft, 8),
-            Cue(new WalkingSpacePirateCue.FireLaser(HorizontalDirection.Left, LaserHeight: 8)),
-            Show(EnemyFrameId.WalkingPirateClawsRaisedLeaningFacingLeft, 8),
-            Cue(new WalkingSpacePirateCue.FireLaser(HorizontalDirection.Left, LaserHeight: 2)),
-            Show(EnemyFrameId.WalkingPirateFiringFacingLeft, 24),
-            Cue(new WalkingSpacePirateCue.FireLaser(HorizontalDirection.Left, LaserHeight: -8)),
-            Show(EnemyFrameId.WalkingPirateClawsRaisedLeaningFacingLeft, 8),
-            Show(EnemyFrameId.WalkingPirateClawsRaisedFacingLeft, 8),
-            Show(EnemyFrameId.WalkingPirateClawsForwardFacingLeft, 8),
-            Show(EnemyFrameId.WalkingPirateClawsLiftingFacingLeft, 8),
-            Cue(new WalkingSpacePirateCue.Signal(K.ChooseMovement)),
-        ],
-        [P.LookingFacingLeft] =
-        [
-            Cue(new WalkingSpacePirateCue.Begin(WalkingSpacePirateAction.StandingStill)),
-            Show(EnemyFrameId.WalkingPirateLookingAtViewerFacingLeft, 32),
-            Show(EnemyFrameId.WalkingPirateStandingFacingLeft, 10),
-            Show(EnemyFrameId.WalkingPirateLookingAwayFacingLeft, 32),
-            Show(EnemyFrameId.WalkingPirateStandingFacingLeft, 10),
-            Show(EnemyFrameId.WalkingPirateLookingAtViewerFacingLeft, 32),
-            Show(EnemyFrameId.WalkingPirateFacingViewer, 8),
-        ],
-        [P.WalkingRight] =
-        [
-            Cue(new WalkingSpacePirateCue.BeginHeading(WalkingSpacePirateAction.Walking, HorizontalDirection.Right)),
-        ],
-        [P.WalkingRightStride] =
-        [
-            Show(EnemyFrameId.WalkingPirateWalkingRightFarLegBack, 10),
-            Show(EnemyFrameId.WalkingPirateWalkingRightFarLegLifting, 10),
-            Show(EnemyFrameId.WalkingPirateWalkingRightFarLegPassing, 10),
-            Show(EnemyFrameId.WalkingPirateWalkingRightFarLegPlanting, 10),
-            Show(EnemyFrameId.WalkingPirateWalkingRightNearLegBack, 10),
-            Show(EnemyFrameId.WalkingPirateWalkingRightNearLegLifting, 10),
-            Show(EnemyFrameId.WalkingPirateWalkingRightNearLegPassing, 10),
-            Show(EnemyFrameId.WalkingPirateWalkingRightNearLegPlanting, 10),
-        ],
-        [P.FireLasersRight] =
-        [
-            Cue(new WalkingSpacePirateCue.Begin(WalkingSpacePirateAction.StandingStill)),
-            Show(EnemyFrameId.WalkingPirateStandingFacingRight, 24),
-            Show(EnemyFrameId.WalkingPirateClawsLiftingFacingRight, 8),
-            Show(EnemyFrameId.WalkingPirateClawsForwardFacingRight, 8),
-            Show(EnemyFrameId.WalkingPirateClawsRaisedFacingRight, 8),
-            Cue(new WalkingSpacePirateCue.FireLaser(HorizontalDirection.Right, LaserHeight: 8)),
-            Show(EnemyFrameId.WalkingPirateClawsRaisedLeaningFacingRight, 8),
-            Cue(new WalkingSpacePirateCue.FireLaser(HorizontalDirection.Right, LaserHeight: 2)),
-            Show(EnemyFrameId.WalkingPirateFiringFacingRight, 24),
-            Cue(new WalkingSpacePirateCue.FireLaser(HorizontalDirection.Right, LaserHeight: -8)),
-            Show(EnemyFrameId.WalkingPirateClawsRaisedLeaningFacingRight, 8),
-            Show(EnemyFrameId.WalkingPirateClawsRaisedFacingRight, 8),
-            Show(EnemyFrameId.WalkingPirateClawsForwardFacingRight, 8),
-            Show(EnemyFrameId.WalkingPirateClawsLiftingFacingRight, 8),
-            Cue(new WalkingSpacePirateCue.Signal(K.ChooseMovement)),
-        ],
-        [P.LookingFacingRight] =
-        [
-            Cue(new WalkingSpacePirateCue.Begin(WalkingSpacePirateAction.StandingStill)),
-            Show(EnemyFrameId.WalkingPirateLookingAtViewerFacingRight, 32),
-            Show(EnemyFrameId.WalkingPirateStandingFacingRight, 10),
-            Show(EnemyFrameId.WalkingPirateLookingAwayFacingRight, 32),
-            Show(EnemyFrameId.WalkingPirateStandingFacingRight, 10),
-            Show(EnemyFrameId.WalkingPirateLookingAtViewerFacingRight, 32),
-            Show(EnemyFrameId.WalkingPirateFacingViewer, 8),
-        ],
-    });
+    /// <summary>The updates each of the walking pirate's striding poses shows for.</summary>
+    private const int StridePoseUpdates = 10;
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>> StartingAt { get; } = new Dictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>>
-    {
-        [P.FlinchFacingLeft] = Walk([P.FlinchFacingLeft], P.WalkingLeft, P.WalkingLeftStride),
-        [P.FlinchFacingRight] = Walk([P.FlinchFacingRight], P.WalkingRight, P.WalkingRightStride),
-        [P.WalkingLeft] = Walk([], P.WalkingLeft, P.WalkingLeftStride),
-        [P.FireLasersLeft] = Walk([P.FireLasersLeft, P.LookingFacingLeft], P.WalkingRight, P.WalkingRightStride),
-        [P.LookingFacingLeft] = Walk([P.LookingFacingLeft], P.WalkingRight, P.WalkingRightStride),
-        [P.WalkingRight] = Walk([], P.WalkingRight, P.WalkingRightStride),
-        [P.FireLasersRight] = Walk([P.FireLasersRight, P.LookingFacingRight], P.WalkingLeft, P.WalkingLeftStride),
-        [P.LookingFacingRight] = Walk([P.LookingFacingRight], P.WalkingLeft, P.WalkingLeftStride),
-    };
+    /// <summary>The walking pirate's segments facing left.</summary>
+    private static FacedSegments LeftSegments { get; } = new(P.FlinchFacingLeft, P.WalkingLeft, P.WalkingLeftStride, P.FireLasersLeft, P.LookingFacingLeft);
+
+    /// <summary>The walking pirate's segments facing right.</summary>
+    private static FacedSegments RightSegments { get; } = new(P.FlinchFacingRight, P.WalkingRight, P.WalkingRightStride, P.FireLasersRight, P.LookingFacingRight);
+
+    /// <summary>Every segment's beats, each written once over a side (#2557).</summary>
+    internal static AnimationSegments<WalkingSpacePirateSegment, EnemyFrameId, WalkingSpacePirateCue> Segments { get; } = new(
+        FacedBeats(WalkingSpacePirateSide.Left, LeftSegments).Concat(FacedBeats(WalkingSpacePirateSide.Right, RightSegments)).ToDictionary());
+
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at: a flinch walks on the way the pirate faces,
+    /// and its lasers and its look turn it to walk the other way.
+    /// </summary>
+    private static Dictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>> StartingAt { get; } =
+        FacedStarts(LeftSegments, RightSegments).Concat(FacedStarts(RightSegments, LeftSegments)).ToDictionary();
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<WalkingSpacePirateSegment> StartingWith(WalkingSpacePirateSegment segment) => StartingAt[segment];
+
+    /// <summary>The segments a walking pirate plays facing one way.</summary>
+    private sealed record FacedSegments(P Flinch, P Walking, P WalkingStride, P FireLasers, P Looking);
+
+    /// <summary>The beats of <paramref name="segments"/>, the pirate facing as <paramref name="side"/> does.</summary>
+    private static Dictionary<P, AnimationBeat<EnemyFrameId, WalkingSpacePirateCue>[]> FacedBeats(WalkingSpacePirateSide side, FacedSegments segments) => new()
+    {
+        [segments.Flinch] =
+        [
+            Cue(new WalkingSpacePirateCue.Begin(WalkingSpacePirateAction.StandingStill)),
+            Show(side.Flinch, 16),
+        ],
+        [segments.Walking] =
+        [
+            Cue(new WalkingSpacePirateCue.BeginHeading(WalkingSpacePirateAction.Walking, side.Facing)),
+        ],
+        [segments.WalkingStride] = Beats.Steady(StridePoseUpdates, side.Striding),
+        [segments.FireLasers] =
+        [
+            Cue(new WalkingSpacePirateCue.Begin(WalkingSpacePirateAction.StandingStill)),
+            Show(side.Standing, 24),
+            Show(side.ClawsLifting, 8),
+            Show(side.ClawsForward, 8),
+            Show(side.ClawsRaised, 8),
+            Cue(new WalkingSpacePirateCue.FireLaser(side.Facing, LaserHeight: 8)),
+            Show(side.ClawsRaisedLeaning, 8),
+            Cue(new WalkingSpacePirateCue.FireLaser(side.Facing, LaserHeight: 2)),
+            Show(side.Firing, 24),
+            Cue(new WalkingSpacePirateCue.FireLaser(side.Facing, LaserHeight: -8)),
+            Show(side.ClawsRaisedLeaning, 8),
+            Show(side.ClawsRaised, 8),
+            Show(side.ClawsForward, 8),
+            Show(side.ClawsLifting, 8),
+            Cue(new WalkingSpacePirateCue.Signal(K.ChooseMovement)),
+        ],
+        [segments.Looking] =
+        [
+            Cue(new WalkingSpacePirateCue.Begin(WalkingSpacePirateAction.StandingStill)),
+            Show(side.LookingAtViewer, 32),
+            Show(side.Standing, 10),
+            Show(side.LookingAway, 32),
+            Show(side.Standing, 10),
+            Show(side.LookingAtViewer, 32),
+            Show(EnemyFrameId.WalkingPirateFacingViewer, 8),
+        ],
+    };
+
+    /// <summary>
+    /// The animations a pirate facing one way starts at its <paramref name="segments"/>: it walks on its own way after a
+    /// flinch, and the <paramref name="opposite"/> way after its lasers or its look.
+    /// </summary>
+    private static Dictionary<P, Animation<P>> FacedStarts(FacedSegments segments, FacedSegments opposite) => new()
+    {
+        [segments.Flinch] = Walk([segments.Flinch], segments.Walking, segments.WalkingStride),
+        [segments.Walking] = Walk([], segments.Walking, segments.WalkingStride),
+        [segments.FireLasers] = Walk([segments.FireLasers, segments.Looking], opposite.Walking, opposite.WalkingStride),
+        [segments.Looking] = Walk([segments.Looking], opposite.Walking, opposite.WalkingStride),
+    };
 
     /// <summary>
     /// Plays each of <paramref name="before"/> whole, then a walk (#2276, #2414): its heading cue <paramref name="heading"/> once

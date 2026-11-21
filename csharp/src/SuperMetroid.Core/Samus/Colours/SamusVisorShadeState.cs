@@ -18,7 +18,7 @@ public sealed class SamusVisorShadeState
 {
     /// <summary>The steady visor cycle as the room plays it: its first shade shows on the update after it starts.</summary>
     private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Cycle { get; } =
-        SamusGlowPlay.Starting(SamusGlowSegment.VisorCycle);
+        SamusGlowPlay.Starting(SamusGlowSegment.Of(SamusGlow.VisorCycle));
 
     /// <summary>
     /// Advances one update and optionally shows the next shade on Samus's visor.
@@ -45,7 +45,7 @@ public sealed class SamusVisorShadeState
         // blending room: the cycle's first shade shows on its first update.
         if (roomVisorAnimation != RoomVisorAnimation.Animated)
         {
-            SamusGlowPlay.Restart(Cycle, SamusGlowSegment.VisorCycle);
+            SamusGlowPlay.Restart(Cycle, SamusGlowSegment.Of(SamusGlow.VisorCycle));
             return;
         }
 

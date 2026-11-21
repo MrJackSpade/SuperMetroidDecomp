@@ -72,7 +72,7 @@ internal sealed class RoomObjectFramePhase
         IReadOnlyList<RoomObjectProjectileRequest> thrown =
             room.RoomObjects.Untouched.Step(room.LevelData, FrameInputs(GameplayAction.None, room, samus));
         EnemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(EnemyRoomEffectSite.Of(room, samus));
-        SpawnThrownProjectiles(thrown, room);
+        SpawnThrownProjectiles(thrown);
     }
 
     /// <summary>The room objects' inputs for a step with <paramref name="newlyPressed"/> newly pressed.</summary>
@@ -89,20 +89,15 @@ internal sealed class RoomObjectFramePhase
     }
 
     /// <summary>
-    /// Spawns the enemy projectiles the step's room objects threw, in the order they threw them: Mother Brain's glass's
-    /// shards and the Bomb Torizo statue hand's fragments. The glass and the hand never share a room, so one step throws
-    /// only one of the two kinds.
+    /// Spawns the enemy projectiles the step's room objects threw, in the order they threw them, each through the spawner
+    /// its thrower gave it: Mother Brain's glass's shards and the Bomb Torizo statue hand's fragments. The glass and the
+    /// hand never share a room, so one step throws only one of the two kinds.
     /// </summary>
-    private static void SpawnThrownProjectiles(IReadOnlyList<RoomObjectProjectileRequest> thrown, RoomScope room)
+    private static void SpawnThrownProjectiles(IReadOnlyList<RoomObjectProjectileRequest> thrown)
     {
         foreach (RoomObjectProjectileRequest projectile in thrown)
-            projectile.React(SpawnThrownProjectilesReactions, room);
+            projectile.Spawn();
     }
-
-    /// <summary>What <c>SpawnThrownProjectiles</c> does on each <see cref="RoomObjectProjectileRequest"/>, built once (#2553).</summary>
-    private static RoomObjectProjectileRequestReactions<RoomScope> SpawnThrownProjectilesReactions { get; } = new(
-        MotherBrainGlassProjectileRequest: static (shard, room) => room.Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(shard),
-        BombTorizoStatueProjectileRequest: static (fragment, room) => room.Enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(fragment));
 
     /// <summary>Runs the ordinary room-object phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
     internal void RunObjectPhase(bool deathOwnsSamus, SamusState samus, RoomScope room)
@@ -132,7 +127,7 @@ internal sealed class RoomObjectFramePhase
             foreach (StationActivationEvent station in step.StationActivations)
                 _waitingMessages.Enqueue(() => station.Open(opening));
             OpenNextMessage();
-            SpawnThrownProjectiles(step.ThrownProjectiles, room);
+            SpawnThrownProjectiles(step.ThrownProjectiles);
         }
     }
 

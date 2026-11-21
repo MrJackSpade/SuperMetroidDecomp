@@ -22,12 +22,8 @@ internal static class CrocomireDeathStageDefinitions
     [
         new CrocomireDeathStage.Fighting(),
         new CrocomireDeathStage.SinkThroughBridge(),
-        new CrocomireDeathStage.SubmergedPause(CrocomireBodyInAcid.Whole),
-        new CrocomireDeathStage.Rise(CrocomireBodyInAcid.Whole),
-        new CrocomireDeathStage.Sink(CrocomireBodyInAcid.Whole),
-        new CrocomireDeathStage.SubmergedPause(CrocomireBodyInAcid.Whole),
-        new CrocomireDeathStage.Rise(CrocomireBodyInAcid.Whole),
-        new CrocomireDeathStage.Sink(CrocomireBodyInAcid.Whole),
+        .. Hop(CrocomireBodyInAcid.Whole),
+        .. Hop(CrocomireBodyInAcid.Whole),
         new CrocomireDeathStage.ShowMeltImage(CrocomireMeltingIllustration.Flesh),
         new CrocomireDeathStage.BeginMeltPass(CrocomireMeltingIllustration.Flesh),
         new CrocomireDeathStage.ShowMeltBands(),
@@ -36,12 +32,8 @@ internal static class CrocomireDeathStageDefinitions
         new CrocomireDeathStage.Dissolve(),
         new CrocomireDeathStage.ClearMeltImage(),
         new CrocomireDeathStage.Sink(CrocomireBodyInAcid.MeltingFlesh),
-        new CrocomireDeathStage.SubmergedPause(CrocomireBodyInAcid.MeltingFlesh),
-        new CrocomireDeathStage.Rise(CrocomireBodyInAcid.MeltingFlesh),
-        new CrocomireDeathStage.Sink(CrocomireBodyInAcid.MeltingFlesh),
-        new CrocomireDeathStage.SubmergedPause(CrocomireBodyInAcid.MeltingFlesh),
-        new CrocomireDeathStage.Rise(CrocomireBodyInAcid.MeltingFlesh),
-        new CrocomireDeathStage.Sink(CrocomireBodyInAcid.MeltingFlesh),
+        .. Hop(CrocomireBodyInAcid.MeltingFlesh),
+        .. Hop(CrocomireBodyInAcid.MeltingFlesh),
         new CrocomireDeathStage.ShowMeltImage(CrocomireMeltingIllustration.BareSkull),
         new CrocomireDeathStage.BeginMeltPass(CrocomireMeltingIllustration.BareSkull),
         new CrocomireDeathStage.ShowMeltBands(),
@@ -64,4 +56,8 @@ internal static class CrocomireDeathStageDefinitions
         new CrocomireDeathStage.PublishDefeatAndRestoreMusic(),
         new CrocomireDeathStage.InertCorpse(),
     ];
+
+    /// <summary>One hop in the acid showing <paramref name="body"/> (#2557): a pause submerged, a rise and a sink.</summary>
+    private static CrocomireDeathStage[] Hop(CrocomireBodyInAcid body) =>
+        [new CrocomireDeathStage.SubmergedPause(body), new CrocomireDeathStage.Rise(body), new CrocomireDeathStage.Sink(body)];
 }

@@ -34,6 +34,7 @@ internal abstract class EnemyProjectileAnimation
         {
             projectile.FrameHold = WrappingCountdown.Start(shown.Duration);
             projectile.Frame = shown.Frame;
+            projectile.FramePlacement = shown.Placement;
         },
         ShowForGood: static (held, projectile) =>
         {
@@ -41,6 +42,7 @@ internal abstract class EnemyProjectileAnimation
             // starts another animation.
             projectile.StopFrameHold();
             projectile.Frame = held.Frame;
+            projectile.FramePlacement = held.Placement;
         },
         Hide: static (hidden, projectile) =>
         {

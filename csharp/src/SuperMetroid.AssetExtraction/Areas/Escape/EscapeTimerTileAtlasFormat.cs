@@ -16,15 +16,18 @@ public static class EscapeTimerTileAtlasFormat
     /// <summary>PNG height in pixels, eight; a sixteen-pixel-tall digit is represented by separate upper and lower characters in the strip.</summary>
     public const int Height = 8;
 
+    /// <summary>The bytes one eight-by-eight character occupies at four planar bits a pixel.</summary>
+    public const int CharacterByteCount = 32;
+
     /// <summary>First page size, 512 bytes, containing characters 0..15.</summary>
-    public const int FirstByteCount = 16 * 32;
+    public const int FirstByteCount = 16 * CharacterByteCount;
     /// <summary>The first page's first OBJ character, 480, where the two timer-number pages start before the escape text.</summary>
     public const int FirstCharacter = 480;
 
     /// <summary>Second page size, 288 bytes, containing the remaining characters 16..24.</summary>
-    public const int SecondByteCount = 9 * 32;
+    public const int SecondByteCount = 9 * CharacterByteCount;
     /// <summary>The second page's first OBJ character, after the first page's sixteen.</summary>
-    public const int SecondCharacter = FirstCharacter + FirstByteCount / 32;
+    public const int SecondCharacter = FirstCharacter + FirstByteCount / CharacterByteCount;
 
     /// <summary>Complete planar strip size, 800 bytes, preserving the sixteen-character and nine-character page boundary.</summary>
     public const int TotalByteCount = FirstByteCount + SecondByteCount;

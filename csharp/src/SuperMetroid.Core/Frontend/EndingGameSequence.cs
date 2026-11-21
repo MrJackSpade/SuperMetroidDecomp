@@ -94,8 +94,8 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
     {
         EndingCreditsPhase previousEndingPhase = session.ActiveEndingCredits.Phase;
         session.ActiveEndingCredits.Step();
-        if (previousEndingPhase != EndingCreditsPhase.SeeYouNextMission &&
-            session.ActiveEndingCredits.Phase == EndingCreditsPhase.SeeYouNextMission)
+        if (!EndingCreditsPhaseGroups.FinalMessage.Contains(previousEndingPhase) &&
+            EndingCreditsPhaseGroups.FinalMessage.Contains(session.ActiveEndingCredits.Phase))
         {
             session.saves.CompleteGame();
             session.RaiseSavesChanged();

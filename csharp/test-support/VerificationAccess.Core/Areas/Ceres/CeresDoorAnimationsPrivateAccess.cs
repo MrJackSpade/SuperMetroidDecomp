@@ -11,10 +11,10 @@ internal static class CeresDoorAnimationsPrivateAccess
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Areas.Ceres.CeresDoorAnimations)
     {
-        /// <summary>The private property <c>StartingAt</c>, reached by name.</summary>
-        internal static global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>> StartingAt
+        /// <summary>The private property <c>StartingAtBySide</c>, reached by name.</summary>
+        internal static global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Spatial.HorizontalDirection, global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>>> StartingAtBySide
         {
-            get => PrivateState.StaticGet<global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>>>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresDoorAnimations), "StartingAt");
+            get => PrivateState.StaticGet<global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Spatial.HorizontalDirection, global::System.Collections.Generic.Dictionary<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment, global::SuperMetroid.Core.Animation.Animation<global::SuperMetroid.Core.Areas.Ceres.CeresDoorSegment>>>>(typeof(global::SuperMetroid.Core.Areas.Ceres.CeresDoorAnimations), "StartingAtBySide");
         }
     }
 }

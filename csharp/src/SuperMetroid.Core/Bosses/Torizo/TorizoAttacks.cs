@@ -310,7 +310,7 @@ internal sealed class TorizoAttacks
             bool collided = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
             if (projectile.Velocity.Y.IsNegative || !collided)
             {
-                EnemyProjectile? firstPlace = projectiles.LatestInPlace(0);
+                EnemyProjectile? firstPlace = projectiles.LatestInFirstPlace;
                 SignedEightEight acceleration = FirstPlaceFallAcceleration.Of(
                     firstPlace is { IsActive: true },
                     firstPlace is { IsActive: true, Kind: RoomEnemyProjectileKind.BombTorizoStatueBreaking } ? StatueFragments.Of(firstPlace).Acceleration : null);
@@ -842,8 +842,8 @@ internal sealed class TorizoAttacks
 
 
         projectile.Position = projectile.Position.WithWhole(request.RoomObjectBlock.ToRoomPixels() + definition.Offset);
-        projectile.Velocity = projectile.Velocity.WithY(definition.InitialFallSpeed);
-        TorizoProjectiles.StatueFragments.Start(projectile, new BombTorizoStatueFragmentState(definition.Acceleration));
+        projectile.Velocity = projectile.Velocity.WithY(BombTorizoStatueFragmentDefinitions.InitialFallSpeed);
+        TorizoProjectiles.StatueFragments.Start(projectile, new BombTorizoStatueFragmentState(BombTorizoStatueFragmentDefinitions.Acceleration));
     }
 
     /// <summary>Whether a projectile has run away: it moves at least <see cref="TorizoMotionDefinitions.RunawaySpeed"/>.</summary>

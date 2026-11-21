@@ -76,9 +76,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         var bodies = new EnemyProjectile[YappingMawAttackDefinitions.TongueLinks];
         for (int link = bodies.Length - 1; link >= 0; link--)
         {
-            EnemyProjectile? body = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.YappingMawBody, EnemyProjectileBehavior.Still, SpriteGraphics.SpawnedBy(occupant, place.Shading), new YappingMawBodyProjectileAnimation(occupant.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
-                ? YappingMawBodyProjectileSegment.FacingDown
-                : YappingMawBodyProjectileSegment.FacingUp));
+            EnemyProjectile? body = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.YappingMawBody, EnemyProjectileBehavior.Still, SpriteGraphics.SpawnedBy(occupant, place.Shading), new YappingMawBodyProjectileAnimation(YappingMawReach.Of(occupant.SpawnSettings<YappingMawSpawnSettings>().Attack).Body));
             if (body is null)
             {
                 throw new InvalidDataException(
@@ -98,16 +96,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
             RootEffectActor = _effectActors.SpawnRoomEffectActor(
                 new(place.Position.X.Whole, place.Position.Y.Whole + (YappingMawAttackDefinitions.RootDistance.Toward(occupant.SpawnSettings<YappingMawSpawnSettings>().Attack.Reversed()))),
-                occupant.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
-                    ? RoomEffectActorKind.YappingMawBaseFacingDown
-                    : RoomEffectActorKind.YappingMawBaseFacingUp,
+                YappingMawReach.Of(occupant.SpawnSettings<YappingMawSpawnSettings>().Attack).Root,
                 SpriteGraphics.SpawnedBy(occupant, place.Shading)),
         };
         place.SetSpeciesState(state);
 
-        state.Playback = EnemyAnimationPlayback.Start(place, YappingMawAnimations.StartingWith(occupant.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
-            ? YappingMawSegment.AttackingDown
-            : YappingMawSegment.AttackingUp));
+        state.Playback = EnemyAnimationPlayback.Start(place, YappingMawAnimations.StartingWith(
+            YappingMawReach.Of(occupant.SpawnSettings<YappingMawSpawnSettings>().Attack).Bite));
     }
 
     /// <summary>What <c>RunYappingMawMain</c> does for each <see cref="YappingMawAction"/> member, each member's own arm.</summary>
@@ -262,14 +257,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // The six retracted animations are not one per aim. The right and left sectors have
         // dedicated art, while every other sector shares its attack direction's animation.
         VerticalDirection reach = occupant.SpawnSettings<YappingMawSpawnSettings>().Attack;
-        if (reach == VerticalDirection.Up)
-        {
-            state.Playback = new(YappingMawAnimations.StartingWith(YappingMawCooldownDefinitions.Upward[state.Aim]), AnimationPlace.StartOfAnimation);
-        }
-        else
-        {
-            state.Playback = new(YappingMawAnimations.StartingWith(YappingMawCooldownDefinitions.Downward[state.Aim]), AnimationPlace.StartOfAnimation);
-        }
+        state.Playback = new(YappingMawAnimations.StartingWith(YappingMawReach.Of(reach).CooldownAfter(state.Aim)), AnimationPlace.StartOfAnimation);
         place.AnimationClock.Restart();
 
         if (state.HasGrabbedSamus &&

@@ -34,7 +34,7 @@ internal static class SamusProjectilePlayback
     internal static SamusProjectileSegmentBeat BeatOf(AnimationPlayback<SamusProjectileSegment> playback)
     {
         if (playback.Place == AnimationPlace.StartOfAnimation)
-            return new(SamusProjectileAnimations.StartingAt.Single(pair => ReferenceEquals(pair.Value, playback.Animation)).Key, 0);
+            return new(playback.Animation.Phases[0].Segment, 0);
         AnimationPhase<SamusProjectileSegment> phase = playback.Animation.Phases[playback.Place.Phase];
         return new(phase.Segment, phase.FirstBeat + Math.Clamp(playback.Place.Beat, 0, phase.BeatCount));
     }

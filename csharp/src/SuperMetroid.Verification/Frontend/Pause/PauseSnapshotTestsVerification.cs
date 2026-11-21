@@ -52,7 +52,7 @@ internal static class PauseSnapshotTestsVerification
             LayeredScene repeated = pause.ComposeScene();
             AssertTrue(packet.SpriteParts().SequenceEqual(repeated.SpriteParts()), "repeat pause capture OAM");
             pages.Add(pause.ScreenMode);
-            levels.Add(packet.Brightness);
+            levels.Add(packet.Brightness.StepsAboveBlack);
             ControllerButton input = frame == 8 ? ControllerButton.R
                 : frame == 80 ? ControllerButton.L : 0;
             pause.Step(input, input);

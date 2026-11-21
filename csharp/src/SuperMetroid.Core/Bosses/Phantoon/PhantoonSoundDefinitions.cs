@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The sounds Phantoon's animation cues play.</summary>
@@ -24,6 +26,16 @@ internal static class PhantoonSoundDefinitions
     /// <summary>The rolling rumble, queued after any other death explosion.</summary>
     internal static readonly SoundEffectId DeathExplosionSound = EnemySound.RollingRumble;
 
+    /// <summary>
+    /// The death explosions whose sound is their own rather than <see cref="DeathExplosionSound"/>, with it: the big
+    /// explosion's.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<DustExplosionAnimation, SoundEffectId> DeathExplosionSounds =
+        new Dictionary<DustExplosionAnimation, SoundEffectId>
+        {
+            [DustExplosionAnimation.BigExplosion] = BigDeathExplosionSound,
+        };
+
     /// <summary>The casual-flame sound's request priority.</summary>
     internal static readonly SoundRequestPriority CasualFlamePriority = SoundRequestPriority.Normal;
 
@@ -33,8 +45,8 @@ internal static class PhantoonSoundDefinitions
     /// </summary>
     internal static IReadOnlyList<SoundEffectId> MaterializationSounds { get; } =
     [
-        EnemySound.PhantoonAppears1,
-        EnemySound.PhantoonAppears2,
-        EnemySound.PhantoonAppears3,
+        EnemySound.PhantoonAppearsMiddle,
+        EnemySound.PhantoonAppearsLow,
+        EnemySound.PhantoonAppearsHigh,
     ];
 }

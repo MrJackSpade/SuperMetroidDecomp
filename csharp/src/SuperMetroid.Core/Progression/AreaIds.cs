@@ -37,4 +37,11 @@ public static class AreaIds
 
     /// <summary>The Zebes area each of the six Zebes areas is; Ceres is none.</summary>
     private static Dictionary<AreaId, ZebesArea> ZebesOf => field ??= ZebesAreas.ToDictionary(entry => entry.Value, entry => entry.Key);
+
+    /// <summary>The definition of <paramref name="area"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is undefined.</exception>
+    internal static AreaDefinition Of(AreaId area) => Ensure.Listed(AreaDefinitions.Areas, area);
+
+    /// <summary>Whether <paramref name="area"/>'s machinery has power, given whether its boss is defeated.</summary>
+    internal static bool HasPower(AreaId area, bool areaBossDefeated) => !Of(area).PoweredFromBossDefeat || areaBossDefeated;
 }

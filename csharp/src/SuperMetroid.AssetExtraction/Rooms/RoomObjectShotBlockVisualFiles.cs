@@ -32,7 +32,7 @@ public static class RoomObjectShotBlockVisualFiles
     /// <summary>Loads the installed shot-block pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectShotBlockVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The published artwork identity of a shot-block draw: its shape and breakup stage, or its restoration (#1994).</summary>

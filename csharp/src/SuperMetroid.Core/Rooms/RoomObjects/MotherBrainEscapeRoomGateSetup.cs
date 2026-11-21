@@ -4,5 +4,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record MotherBrainEscapeRoomGateSetup : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKind.MotherBrainEscapeRoomGate;
+
+    /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpMotherBrainEscapeRoomGate();
 }

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
 
@@ -431,7 +432,7 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     private void HandleLandingGraphics(SamusState samus)
     {
-        SamusGround ground = samus.StandingGround;
+        RoomGround ground = samus.StandingGround;
         if (IsWet(samus, ground.Wetness))
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
         else if (ground.DryLandingsRaiseDust)
@@ -441,19 +442,19 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Whether the ground of each wetness is wet under Samus.</summary>
-    private IdentityTable<SamusGroundWetness, Func<SamusState, bool>> WetnessTests => field ??= new(new Dictionary<SamusGroundWetness, Func<SamusState, bool>>
+    private IdentityTable<RoomGroundWetness, Func<SamusState, bool>> WetnessTests => field ??= new(new Dictionary<RoomGroundWetness, Func<SamusState, bool>>
     {
-        [SamusGroundWetness.Dry] = samus => false,
-        [SamusGroundWetness.Wet] = samus => true,
-        [SamusGroundWetness.WetWhileRaining] = samus => FxType == RoomFxType.Rain,
-        [SamusGroundWetness.WetBelowWaterline] = samus => samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY,
+        [RoomGroundWetness.Dry] = samus => false,
+        [RoomGroundWetness.Wet] = samus => true,
+        [RoomGroundWetness.WetWhileRaining] = samus => FxType == RoomFxType.Rain,
+        [RoomGroundWetness.WetBelowWaterline] = samus => samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY,
     });
 
     /// <summary>
     /// Whether ground of <paramref name="wetness"/> is wet where Samus stands: the Landing Site only while it rains, which
     /// is not a generic water test, and the Wrecked Ship entrance at and below its waterline.
     /// </summary>
-    private bool IsWet(SamusState samus, SamusGroundWetness wetness) => WetnessTests[wetness](samus);
+    private bool IsWet(SamusState samus, RoomGroundWetness wetness) => WetnessTests[wetness](samus);
 
     /// <summary>
     /// Starts the landing's pair of dust or splash particles when Samus's last occupied pixel is above active liquid; the

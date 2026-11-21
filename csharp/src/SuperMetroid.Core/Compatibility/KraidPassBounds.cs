@@ -95,9 +95,9 @@ public struct KraidPassBounds
     /// <summary>Leaves the bounds a mouth hit that does no damage leaves, with <see cref="LeftAfterDud"/> as the left bound.</summary>
     /// <param name="dudFlashPlace">The place the dud flash the hit spawned took, or null when it took none.</param>
     /// <param name="shot">The projectile's position in room pixels.</param>
-    public void LeaveAfterDud(int? dudFlashPlace, Position16<RoomPixels> shot)
+    public void LeaveAfterDud(EffectActorPlaces.TakenPlace? dudFlashPlace, Position16<RoomPixels> shot)
     {
-        Bottom = dudFlashPlace is { } place ? Ensure.AtLeastZero(place) * BottomPerDudFlashPlace : shot.X;
+        Bottom = dudFlashPlace is { } place ? place.Number * BottomPerDudFlashPlace : shot.X;
         _top = shot.Y;
         _left = LeftAfterDud;
     }

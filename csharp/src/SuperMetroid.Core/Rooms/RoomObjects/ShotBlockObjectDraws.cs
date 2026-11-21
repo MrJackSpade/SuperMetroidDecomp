@@ -23,17 +23,17 @@ internal static class ShotBlockObjectDraws
         BreakupFamily.Of(new BreakupDraw(shape, stage));
 
     /// <summary>The draw that restores a broken shot block of <paramref name="shape"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="shape"/> is a single block, which has no restoration draw.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="shape"/> has no blocks linked to its parent to rebuild, as a single block has none.</exception>
     internal static RoomObjectFrameDraw<RestorationDraw> Restoration(BlockArrangement shape) =>
-        RestorationFamily.Of(new RestorationDraw(shape != BlockArrangement.Single ? shape : throw new ArgumentOutOfRangeException(nameof(shape))));
+        RestorationFamily.Of(new RestorationDraw(Restored.ContainsKey(shape) ? shape : throw new ArgumentOutOfRangeException(nameof(shape))));
 
     /// <summary>Every block a breakup draw of each arrangement opens: all of them air.</summary>
     private static readonly Dictionary<BlockArrangement, RoomBlockShape> BrokenUp = BlockArrangementDefinitions.Children.ToDictionary(pair => pair.Key,
         pair => new RoomBlockShape([new(Offset16<RoomBlocks>.Zero, RoomCollisionType.Air), .. pair.Value.Select(child => new RoomBlockShapeCell(child, RoomCollisionType.Air))]));
 
-    /// <summary>The blocks a restoration of each arrangement rebuilds: a shootable parent with its other blocks linked to it.</summary>
+    /// <summary>The blocks a restoration of each arrangement with linked blocks rebuilds: a shootable parent with its other blocks linked to it.</summary>
     private static readonly Dictionary<BlockArrangement, RoomBlockShape> Restored = BlockArrangementDefinitions.Children
-        .Where(pair => pair.Key != BlockArrangement.Single)
+        .Where(pair => pair.Value.Any())
         .ToDictionary(pair => pair.Key, pair => RoomBlockShapes.Linked(RoomCollisionType.ShootableBlock, pair.Value));
 
     /// <summary>

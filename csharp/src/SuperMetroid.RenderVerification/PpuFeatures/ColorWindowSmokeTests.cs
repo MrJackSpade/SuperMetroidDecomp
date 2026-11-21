@@ -104,7 +104,7 @@ internal static class ColorWindowSmokeTests
                 new SampledScrollWave(offset, [.. Enumerable.Range(0, 16).Select(sample => 7 * sample)], 0, 0, 224));
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
-                new DisplayLayer[] { background, math }, 15));
+                new DisplayLayer[] { background, math }, DisplayBrightness.Full));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: BG color math {count}, {operation}, height {height}, first {first}, offset {offset}");
         }
@@ -117,7 +117,7 @@ internal static class ColorWindowSmokeTests
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,
-                    new ScreenTintLayer(new FadeLevelColour(1, 2, 3).ToColour()), new AddedPicturedPlaneLayer(subscreen, coverage) }, 13));
+                    new ScreenTintLayer(new FadeLevelColour(1, 2, 3).ToColour()), new AddedPicturedPlaneLayer(subscreen, coverage) }, DisplayBrightness.StepsAbove(13)));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: glow {count}, over a plane {masked}, geometry {width}x{height}");
         }
@@ -127,7 +127,7 @@ internal static class ColorWindowSmokeTests
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,
-                    global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rendering.MessageBoxLayer>([typeof(global::SuperMetroid.Core.Assets.SpriteSheetFrame), typeof(int)], new object?[] { SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundsFixtures.SeededMessagePicture(random, palette, rows), radius }) }, 13));
+                    global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rendering.MessageBoxLayer>([typeof(global::SuperMetroid.Core.Assets.SpriteSheetFrame), typeof(int)], new object?[] { SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundsFixtures.SeededMessagePicture(random, palette, rows), radius }) }, DisplayBrightness.StepsAbove(13)));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: message {count}, rows {rows}, radius {radius}");
         }
@@ -138,7 +138,7 @@ internal static class ColorWindowSmokeTests
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,
-                    windows, new ScreenTintLayer(new FadeLevelColour(1, 2, 3).ToColour()), windows }, DisplayBrightness.Combine(13, 11)));
+                    windows, new ScreenTintLayer(new FadeLevelColour(1, 2, 3).ToColour()), windows }, DisplayBrightness.Combine(DisplayBrightness.StepsAbove(13), DisplayBrightness.StepsAbove(11))));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: color-window sample {count}");
         }

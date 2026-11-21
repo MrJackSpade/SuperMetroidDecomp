@@ -162,7 +162,7 @@ internal sealed class DraygonCombat
         // His shots always meet his frames' hitboxes, which name the dud shot or his own, checked as his collision loads.
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            if (c.HitboxShot == EnemyReaction.DudShot)
+            if (c.HitboxShot.IsDud)
             {
                 // Body, claws, and shell use the shared common touch; only the first
                 // eye rectangle of the two eye-showing body frames reaches Draygon's damage reaction.

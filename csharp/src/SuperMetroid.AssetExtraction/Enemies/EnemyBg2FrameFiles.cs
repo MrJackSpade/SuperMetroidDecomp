@@ -86,7 +86,7 @@ internal static class EnemyBg2FrameFiles
                             $"{family} BG2 stream ${bank:X2}:{stream:X4} crosses its tilemap row.");
                     var tiles = new RoomBackgroundTilemapCell[count];
                     for (int tile = 0; tile < count; tile++)
-                        tiles[tile] = BackgroundTileCells.Of(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4 + tile * 2)));
+                        tiles[tile] = RoomBackgroundTilemapCell.Of(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4 + tile * 2)));
                     writes.Add(new EnemyBg2WriteDocument
                     {
                         X = x,

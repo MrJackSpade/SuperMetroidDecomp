@@ -201,16 +201,7 @@ internal sealed class MotherBrainAttacks
 
     /// <summary>Identifies Samus movement types considered airborne by the attack chooser.</summary>
     private static bool IsMotherBrainAirAttackMovement(SamusMovementType movementType) =>
-        movementType is
-            SamusMovementType.NormalJumping or
-            SamusMovementType.SpinJumping or
-            SamusMovementType.Falling or
-            SamusMovementType.MorphBallFalling or
-            SamusMovementType.GlitchBallKnockback or
-            SamusMovementType.CompactAirborne or
-            SamusMovementType.SpringBallInAir or
-            SamusMovementType.SpringBallFalling or
-            SamusMovementType.WallJumping;
+        MotherBrainAttackDefinitions.AirborneMovements.Contains(movementType);
 
     /// <summary>Decides bomb walking, including its immediate posture decision.</summary>
     internal void DecideMotherBrainBombWalking(MotherBrainEnemyState state)

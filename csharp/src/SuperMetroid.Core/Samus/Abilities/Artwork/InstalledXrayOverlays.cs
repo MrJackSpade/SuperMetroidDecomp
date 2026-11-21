@@ -16,8 +16,8 @@ public sealed class InstalledXrayOverlays
     private readonly Dictionary<InWorldCollectibleKind, RoomBlockAppearance> tankBlocks;
     /// <summary>Installed room-specific X-ray block lists keyed by overlay.</summary>
     /// <remarks>
-    /// Of all the game's room states only Bomb Torizo's selects a special X-ray overlay. It reveals three
-    /// blocks, block 82 at column fifteen, rows ten through twelve, and no fourth.
+    /// Of all the game's room states only Bomb Torizo's selects a special X-ray overlay. It reveals the three
+    /// blocks where the animals break out of the wall, and no fourth.
     /// Each overlay reveals the blocks its installation lists, wherever they lie; loading rejects a missing or
     /// duplicate overlay.
     /// </remarks>

@@ -1,13 +1,7 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Ending;
-using SuperMetroid.Core.Frontend.FileSelect;
-using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Frontend.Options;
-using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.Core.Frontend.CeresCinematics;
 
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend;
@@ -29,7 +23,7 @@ internal sealed class FrontendDisplay
     /// <summary>The frame as its scene composed it, at the scene's own brightness; black until a scene publishes.</summary>
     private DisplayPacket composedDisplay;
     /// <summary>The screen brightness the session set on <see cref="composedDisplay"/>, or null while it has set none.</summary>
-    private int? screenBrightness;
+    private DisplayBrightness? screenBrightness;
     /// <summary>The published frame: <see cref="composedDisplay"/> shown at the brightness the session set.</summary>
     private DisplayPacket publishedDisplay;
 
@@ -76,29 +70,14 @@ internal sealed class FrontendDisplay
     /// <summary>Ends a capture, whether or not the frame completed.</summary>
     internal void EndCapture() => capturing = false;
 
-    /// <summary>Publishes the title scene's composed frame.</summary>
-    internal void PublishMenu(TitleSequenceState scene) => Compose(new(frameNumber, scene.ComposeScene()));
-
-    /// <summary>Publishes the file-select menu's composed frame.</summary>
-    internal void PublishMenu(FileSelectMenuState scene) => Compose(new(frameNumber, scene.ComposeScene()));
-
-    /// <summary>Publishes the game options menu's composed frame.</summary>
-    internal void PublishMenu(GameOptionsMenuState scene) => Compose(new(frameNumber, scene.ComposeScene()));
-
-    /// <summary>Publishes the paused room and menu composition without advancing the scene.</summary>
-    internal void PublishMenu(PauseMenuState scene) => Compose(new(frameNumber, scene.ComposeScene()));
-
-    /// <summary>Publishes the current game-over menu composition.</summary>
-    internal void PublishMenu(GameOverMenuState scene) => Compose(new(frameNumber, scene.ComposeScene()));
-
-    /// <summary>Publishes the Ceres destruction cinematic's composed frame.</summary>
-    internal void PublishCeresDestruction(CeresDestructionCinematicState scene) => Compose(new(frameNumber, scene.ComposeScene()));
+    /// <summary>
+    /// Publishes <paramref name="scene"/>'s composed frame (#2557): the title's, a menu's, the file-select map's or the Ceres
+    /// destruction's, composed as the screen stands without advancing it.
+    /// </summary>
+    internal void Publish(IComposedFrontendScene<DisplayScene> scene) => Compose(new(frameNumber, Ensure.NotNull(scene).ComposeScene()));
 
     /// <summary>Publishes the ending credits presentation owned by the active scene.</summary>
     internal void PublishEnding(EndingCreditsState scene) => Compose(new(frameNumber, EndingCreditsPresentation.ComposeScene(scene)));
-
-    /// <summary>Publishes the file-select map after its selection and animation state updates.</summary>
-    internal void PublishFileMap(FileSelectMapMenuState scene) => Compose(new(frameNumber, scene.ComposeScene()));
 
     /// <summary>Publishes the intro cinematic's composed frame, which every intro update must provide.</summary>
     internal void PublishIntro(IntroCinematicState scene) => Compose(new(frameNumber, scene.ComposeScene()
@@ -122,11 +101,10 @@ internal sealed class FrontendDisplay
     /// its scene's own brightness combined with this one (<see cref="DisplayBrightness.Combine"/>), until the next scene
     /// publishes.
     /// </summary>
-    /// <param name="brightness">The screen brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The brightness is below black or above full.</exception>
-    internal void SetBrightness(int brightness)
+    /// <param name="brightness">The screen brightness.</param>
+    internal void SetBrightness(DisplayBrightness brightness)
     {
-        screenBrightness = DisplayBrightness.Require(brightness);
+        screenBrightness = brightness;
         publishedDisplay = Shown(publishedDisplay.FrameNumber);
     }
 
@@ -141,7 +119,7 @@ internal sealed class FrontendDisplay
     private DisplayPacket Shown(int number)
     {
         DisplayPacket frame = composedDisplay;
-        int brightness = screenBrightness is { } level ? DisplayBrightness.Combine(frame.Brightness, level) : frame.Brightness;
+        DisplayBrightness brightness = screenBrightness is { } level ? DisplayBrightness.Combine(frame.Brightness, level) : frame.Brightness;
         return new(number, frame.Scene.AtBrightness(brightness));
     }
 }

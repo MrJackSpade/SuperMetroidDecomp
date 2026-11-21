@@ -41,7 +41,7 @@ public static class RoomObjectKraidVisualFiles
     /// <summary>Loads the installed Kraid room pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectKraidVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Gets the stable artwork identifier of a Kraid room draw: a crumble stage's, or a picture or clear's.</summary>

@@ -60,7 +60,7 @@ public static class XrayRevealMap
                         CopyBlock(place, replacement);
                     continue;
                 }
-                if (reveal.Shape == XrayRevealShape.CopyBrinstar && area != AreaId.Brinstar)
+                if (!XrayRevealShapes.RevealsIn(reveal.Shape, area))
                     continue;
                 CopyBlock(place, shown.TopLeft);
                 if (shown.TopRight is { } topRight)
@@ -86,10 +86,9 @@ public static class XrayRevealMap
             RoomBlockCell cell = foreground[block];
             return new RevealedBlock(cell.Picture, Mirrored(cell.Flips));
         }
-        // A reveal block is placed as it is defined; its number is validated as a room block. Only blocks inside the
-        // revealed area are shown.
-        void CopyBlock(Position16<RoomBlocks> place, int blockNumber) =>
-            result.Show(place, new RevealedBlock(RoomCellPicture.OfBlock(blockNumber), RevealedBlockArrangement.AsDefined));
+        // A reveal block is placed as it is defined. Only blocks inside the revealed area are shown.
+        void CopyBlock(Position16<RoomBlocks> place, RoomCellPicture picture) =>
+            result.Show(place, new RevealedBlock(picture, RevealedBlockArrangement.AsDefined));
     }
 
     /// <summary>The next place to the right, where a wide or square reveal's right half lies.</summary>

@@ -235,7 +235,7 @@ internal sealed class RoomLoader
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
         SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, SamusAnimationFrames.ZebesAppearance,
             timer: SavedGameAppearanceDefinitions.FirstFrameTimer);
-        _player.IntroducedSamus.Ground = SamusGround.Of(room.Definition);
+        _player.IntroducedSamus.Ground = room.Definition.Ground;
         ColourEffectId loadAppearance =
             _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
                 ? SavedGameAppearanceDefinitions.GravitySuitGlow
@@ -307,7 +307,7 @@ internal sealed class RoomLoader
         // Initialization faces Samus forward in the Power Suit.
         SamusState samus = InitializeSamus();
         samus.PlaceInPose(SamusPoseId.ForwardFacingPowerSuitPose);
-        samus.CopyInventoryFrom(carried);
+        samus.Inventory = carried.Inventory;
         _player.Samus = samus;
         _assists.CarryLoadoutGrant(carried, samus);
 
@@ -339,7 +339,7 @@ internal sealed class RoomLoader
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        samus.Ground = SamusGround.Of(room.Definition);
+        samus.Ground = room.Definition.Ground;
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(samus);
         _player.GroundedSamusMovementEnabled = false;
     }
@@ -549,7 +549,7 @@ internal sealed class RoomLoader
                     $"The door scroll finished before the loader initialized the arriving elevator in place {placement.Elevator.Ordinal}.");
             }
         }
-        _room.LoadedScope.Enemies.LoaderHooks.CompleteLoaderTimeCameraReads(loaderProgress.HasInitializedEnemyPlace, camera.PixelPosition);
+        _room.LoadedScope.Enemies.LoaderHooks.CompleteLoaderTimeCameraReads(loaderProgress.InitializedPlaces(), camera.PixelPosition);
         if (completed && _room.LoadedScope.Enemies.LoaderHooks.HasDeferredLoaderTimeCameraReads)
             throw new InvalidDataException("The door scroll finished before the loader initialized every enemy whose setup reads its camera.");
         samus.Position = state.SamusPosition;
@@ -659,7 +659,7 @@ internal sealed class RoomLoader
 
         // A door that exchanges explored maps stores the live map as the departed area's,
         // then, with the destination's definition loaded, loads the live map from the entered area's.
-        if (ExploredMapExchangeDoorDefinitions.Doors.Contains(door))
+        if (door.ExchangesExploredMaps)
         {
             _system.StoredExploredMaps.StoreLiveMap(_room.LoadedRoom.Area);
             _system.StoredExploredMaps.LoadLiveMap(room.Area);
@@ -697,7 +697,7 @@ internal sealed class RoomLoader
 
         // The door loader sets no Samus radius; the next unlocked input mode's radius update
         // does, so an elevator rider keeps the boarding pose's radius through the door.
-        samus.Ground = SamusGround.Of(room.Definition);
+        samus.Ground = room.Definition.Ground;
         _player.GroundedSamusMovementEnabled = true;
     }
 
@@ -851,7 +851,7 @@ internal sealed class RoomLoader
         var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _roomObjectVisuals, new CollectibleBlockPairs(),
             new RoomObjectPlaces(),
             new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft),
-            _audioRequests);
+            new RoomObjectOutputs(_audioRequests, new RoomObjectThrownProjectileSpawners(roomObjectServices, roomObjectServices)));
         scope.RoomObjects = roomObjects;
         var areaServices = new RoomEnemyRuntimeServices(_system, destinationCamera.Scrolls, _player, roomObjects, _display, progress);
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);
@@ -1095,7 +1095,7 @@ internal sealed class RoomLoader
 
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);
-        _player.Samus.Ground = SamusGround.Of(room.Definition);
+        _player.Samus.Ground = room.Definition.Ground;
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(_player.Samus);
 
         // The Ceres elevator's arrival, built with the room, owns its own state from the first draw, the concealer over the
@@ -1125,7 +1125,7 @@ internal sealed class RoomLoader
     {
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("A door began with no room loaded.");
         // The elevator shaft's screen is its turning floor, which the door's scroll keeps showing: none of its blocks (#1647).
-        if (scope.Room.State.TurningFloor == RoomTurningFloor.ElevatorShaft)
+        if (scope.Room.State.TurningFloor.HidesLevelBlocks)
             return RoomBlockPictureTable.NoneDrawn(scope.BlockPictures.Sheet);
         return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null,
             new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, scope.Looks), []);

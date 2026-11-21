@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.AssetExtraction.Video;
@@ -432,7 +433,7 @@ internal static class RidleyFullMovieVerification
         foreach (AreaId samusArea in new[] { AreaId.Ceres, AreaId.Norfair, AreaId.Tourian })
         {
             var samus = runtime.Player.IntroducedSamus;
-            samus.Ground = SamusGround.Of(RoomDefinitions.FirstIn(samusArea));
+            samus.Ground = RoomDefinitions.FirstIn(samusArea).Ground;
             runtime.Enemies.RidleyProjectiles.SpawnRidleyFireball(runtime.Enemies.Places.InUpdateOrder[0],
                 (runtime.Enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.")).Flight, afterburns: 0);
             var fireball = runtime.Enemies.Projectiles.SpawnedInPlace(slotIndex--);
@@ -707,7 +708,7 @@ internal static class RidleyFullMovieVerification
             pause.mapHighlight.Shading, "the first stable pause step shows the highlight cycle's frame one");
         RgbColor[] animated = PauseShownColours.Of(pause, maps);
         game.Session.Enter(PauseStep.FadingOut);
-        game.Session.BeginPauseFade(15);
+        game.Session.BeginPauseFade(DisplayBrightness.Full);
         fadeFrames = 0;
         while (game.IsAt(PauseStep.FadingOut) && fadeFrames++ < 32)
         {

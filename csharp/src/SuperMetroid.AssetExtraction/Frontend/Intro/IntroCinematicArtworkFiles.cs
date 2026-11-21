@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Intro;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
@@ -72,7 +73,7 @@ public static class IntroCinematicArtworkFiles
     private static readonly string[] LayoutFiles =
     [
         IntroCinematicArtworkFormat.PortraitTilemapFileName, IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
-        .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount).Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
+        .. IntroCinematicArtworkFormat.ScenePagesInTransferOrder.Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
         IntroFinalLineTilemapFormat.FileName, IntroEyeTilemapFormat.FileName, ZebesRevealArtworkFormat.MapFileName,
         CeresFlightArtworkFileFormat.MapFileName, CeresDestructionMapFormat.FileName,
     ];
@@ -127,27 +128,49 @@ public static class IntroCinematicArtworkFiles
         if (backgroundPages.Length != IntroCinematicArtworkFormat.BackgroundPageCount *
             IntroCinematicArtworkFormat.BackgroundPageByteCount)
             throw new InvalidDataException("Opening cinematic BG tilemap has the wrong number of pages.");
-        for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
-            WritePage(IntroCinematicArtworkFormat.BackgroundPageFileName(page),
+        foreach ((IntroScenePage scene, int page) in IntroCinematicArtworkFormat.BackgroundPageOf)
+            WritePage(IntroCinematicArtworkFormat.BackgroundPageFileName(scene),
                 backgroundPages.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount,
                     IntroCinematicArtworkFormat.BackgroundPageByteCount));
         WriteFinalLine();
         WriteEyeFrames();
-        WriteCaretSprites();
-        WriteNextPageArrowSprites();
-        WriteMotherBrainSprites();
-        WriteMotherBrainExplosionSprites();
-        WriteRinkaSprites();
-        WriteEggEffectSprites();
-        WriteDiscoveryActorSprites();
-        WriteScientistSprites();
+        WriteSprites(IntroCaretSpriteFormat.FileName, json => IntroCaretSpritePresentation.Write(json,
+            new IntroCaretSpriteDocument { Version = IntroCaretSpriteVersion.Current.Revision, Frames = Frames(IntroCaretSpriteDefinitions.Frames) }));
+        WriteSprites(IntroNextPageArrowSpriteFormat.FileName, json => IntroNextPageArrowSpritePresentation.Write(json,
+            new IntroNextPageArrowSpriteDocument { Version = IntroNextPageArrowSpriteFormat.Version, Frames = Frames(IntroNextPageArrowSpriteDefinitions.Frames) }));
+        WriteSprites(IntroMotherBrainSpriteFormat.FileName, json => IntroMotherBrainSpritePresentation.Write(json,
+            new IntroMotherBrainSpriteDocument
+            {
+                Version = IntroMotherBrainSpriteFormat.Version,
+                Frames = FramesOfParts(IntroMotherBrainSpriteDefinitions.Frames, IntroMotherBrainSpriteDefinitions.StockPartCount),
+            }));
+        WriteSprites(IntroMotherBrainExplosionSpriteFormat.FileName, json => IntroMotherBrainExplosionSpritePresentation.Write(json,
+            new IntroMotherBrainExplosionSpriteDocument
+            {
+                Version = IntroMotherBrainExplosionSpriteFormat.Version,
+                Frames = Frames(IntroMotherBrainExplosionSpriteDefinitions.Frames),
+            }));
+        WriteSprites(IntroRinkaSpriteFormat.FileName, json => IntroRinkaSpritePresentation.Write(json,
+            new IntroRinkaSpriteDocument
+            {
+                Version = IntroRinkaSpriteFormat.Version,
+                Frames = FramesOfParts(IntroRinkaSpriteDefinitions.Frames, IntroRinkaSpriteDefinitions.StockPartCount),
+            }));
+        WriteSprites(IntroEggEffectSpriteFormat.FileName, json => IntroEggEffectSpritePresentation.Write(json,
+            new IntroEggEffectSpriteDocument
+            {
+                Version = IntroEggEffectSpriteFormat.Version,
+                Frames = FramesOfParts(IntroEggEffectSpriteDefinitions.Frames, IntroEggEffectSpriteDefinitions.StockPartCount),
+            }));
+        WriteSprites(IntroDiscoveryActorSpriteFormat.FileName, json => IntroDiscoveryActorSpritePresentation.Write(json,
+            new IntroDiscoveryActorSpriteDocument { Version = IntroDiscoveryActorSpriteFormat.Version, Frames = Frames(IntroDiscoveryActorSpriteDefinitions.Frames) }));
+        WriteSprites(IntroScientistSpriteFormat.FileName, json => IntroScientistSpritePresentation.Write(json,
+            new IntroScientistSpriteDocument { Version = IntroScientistSpriteFormat.Version, Frames = Frames(IntroScientistSpriteDefinitions.Frames) }));
         IntroCinematicPalette opening = WritePalette();
         CeresFlightPalette? flight = null;
         foreach ((string name, byte[] file) in CeresFlightArtworkExtractor.Extract(bus))
         {
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(file);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
+            WriteFile(name, file);
             if (name == CeresFlightPaletteFormat.FileName)
                 flight = CeresFlightPaletteFile.Read(new MemoryStream(file, writable: false));
         }
@@ -156,9 +179,7 @@ public static class IntroCinematicArtworkFiles
             flight ?? throw new InvalidDataException("The Ceres flight extraction wrote no palette.")));
         foreach ((string name, byte[] file) in CeresDestructionArtworkExtractor.Extract(bus))
         {
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(file);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
+            WriteFile(name, file);
         }
 
         var manifest = new IntroCinematicArtworkManifest(FormatVersion, sourceCartridgeSha256, hashes);
@@ -177,9 +198,7 @@ public static class IntroCinematicArtworkFiles
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, indexes, SnesGraphics.DiagnosticPalette(16));
             byte[] encoded = png.ToArray();
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+            WriteFile(name, encoded);
         }
 
         void WritePage(string name, ReadOnlySpan<byte> native)
@@ -187,9 +206,7 @@ public static class IntroCinematicArtworkFiles
             if (native.Length != IntroCinematicArtworkFormat.BackgroundPageByteCount)
                 throw new InvalidDataException($"Intro tilemap {name} must contain one $0800-byte page.");
             byte[] encoded = RoomBackgroundTilemapExtractor.Encode(native);
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+            WriteFile(name, encoded);
         }
 
         void WriteFile(string name, byte[] encoded)
@@ -235,16 +252,7 @@ public static class IntroCinematicArtworkFiles
             for (int index = 0; index < cells.Length; index++)
             {
                 int source = IntroCinematicSourceDefinitions.FinalTextLine + index * sizeof(ushort);
-                var word = new SnesBgTilemapWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(source));
-                cells[index] = new RoomBackgroundTilemapCell
-                {
-                    TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
-                    TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
-                    Palette = word.PaletteIndex,
-                    Priority = word.HasPriority,
-                    FlipX = word.FlipHorizontally,
-                    FlipY = word.FlipVertically,
-                };
+                cells[index] = RoomBackgroundTilemapCell.Of(CartridgeImportSource.Require(bus).ReadCartridgeWord(source));
             }
             using var json = new MemoryStream();
             IntroFinalLineTilemap.Write(json, new IntroFinalLineTilemapDocument
@@ -254,18 +262,17 @@ public static class IntroCinematicArtworkFiles
             });
             byte[] encoded = json.ToArray();
             string name = IntroFinalLineTilemapFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+            WriteFile(name, encoded);
         }
 
         void WriteEyeFrames()
         {
             var frames = new IntroEyeTilemapFrame[IntroEyeTilemapFormat.FrameCount];
-            for (int frame = 0; frame < frames.Length; frame++)
+            for (int place = 0; place < frames.Length; place++)
             {
+                IntroEyeFrame frame = IntroEyeTilemapFormat.Eyes[place];
                 int pointer = FrontendSourceDefinitions.IntroEyeFrameRecords +
-                    frame * FrontendSourceDefinitions.IntroEyeFrameRecordStride;
+                    Ensure.Listed(FrontendSourceDefinitions.IntroEyeFrameRecordOf, frame) * FrontendSourceDefinitions.IntroEyeFrameRecordStride;
                 int source = (int)SnesAddress.InBank(IntroCinematicSourceDefinitions.SpritemapBank, pointer);
                 int function = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
                 if (function != IntroCinematicSourceDefinitions.PortraitTilemapDrawFunction ||
@@ -276,18 +283,9 @@ public static class IntroCinematicArtworkFiles
                 for (int cellIndex = 0; cellIndex < cells.Length; cellIndex++)
                 {
                     int wordSource = source + 4 + cellIndex * sizeof(ushort);
-                    var word = new SnesBgTilemapWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(wordSource));
-                    cells[cellIndex] = new RoomBackgroundTilemapCell
-                    {
-                        TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
-                        TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
-                        Palette = word.PaletteIndex,
-                        Priority = word.HasPriority,
-                        FlipX = word.FlipHorizontally,
-                        FlipY = word.FlipVertically,
-                    };
+                    cells[cellIndex] = RoomBackgroundTilemapCell.Of(CartridgeImportSource.Require(bus).ReadCartridgeWord(wordSource));
                 }
-                frames[frame] = new IntroEyeTilemapFrame
+                frames[place] = new IntroEyeTilemapFrame
                 {
                     Id = IntroEyeTilemapFormat.FrameId(frame),
                     Cells = cells,
@@ -301,168 +299,26 @@ public static class IntroCinematicArtworkFiles
             });
             byte[] encoded = json.ToArray();
             string name = IntroEyeTilemapFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+            WriteFile(name, encoded);
         }
 
-        void WriteCaretSprites()
+        // A sprite family's document as <paramref name="write"/> serializes it.
+        void WriteSprites(string name, Action<Stream> write)
         {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
             using var json = new MemoryStream();
-            IntroCaretSpritePresentation.Write(json, new IntroCaretSpriteDocument
-            {
-                Version = IntroCaretSpriteVersion.Current.Revision,
-                Frames = frames,
-            });
-            byte[] encoded = json.ToArray();
-            string name = IntroCaretSpriteFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+            write(json);
+            WriteFile(name, json.ToArray());
         }
 
-        void WriteNextPageArrowSprites()
-        {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in IntroNextPageArrowSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
-            using var json = new MemoryStream();
-            IntroNextPageArrowSpritePresentation.Write(json, new IntroNextPageArrowSpriteDocument
-            {
-                Version = IntroNextPageArrowSpriteFormat.Version,
-                Frames = frames,
-            });
-            WriteFile(IntroNextPageArrowSpriteFormat.FileName, json.ToArray());
-        }
+        // Each of a sprite family's definitions' frames, each read with the stock part count it names.
+        Dictionary<string, SpriteVisualPart[]> Frames(IEnumerable<CinematicSpriteFrameDefinition> definitions) =>
+            definitions.ToDictionary(definition => definition.Name, definition => IntroCinematicSpriteFrameExtractor.Extract(bus,
+                CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name), StringComparer.Ordinal);
 
-        void WriteMotherBrainSprites()
-        {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in
-                IntroMotherBrainSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), IntroMotherBrainSpriteDefinitions.StockPartCount,
-                    definition.Name));
-            using var json = new MemoryStream();
-            IntroMotherBrainSpritePresentation.Write(json, new IntroMotherBrainSpriteDocument
-            {
-                Version = IntroMotherBrainSpriteFormat.Version,
-                Frames = frames,
-            });
-            byte[] encoded = json.ToArray();
-            string name = IntroMotherBrainSpriteFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
-        }
-
-        void WriteMotherBrainExplosionSprites()
-        {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in
-                IntroMotherBrainExplosionSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
-            using var json = new MemoryStream();
-            IntroMotherBrainExplosionSpritePresentation.Write(json,
-                new IntroMotherBrainExplosionSpriteDocument
-                {
-                    Version = IntroMotherBrainExplosionSpriteFormat.Version,
-                    Frames = frames,
-                });
-            byte[] encoded = json.ToArray();
-            string name = IntroMotherBrainExplosionSpriteFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
-        }
-
-        void WriteRinkaSprites()
-        {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), IntroRinkaSpriteDefinitions.StockPartCount,
-                    definition.Name));
-            using var json = new MemoryStream();
-            IntroRinkaSpritePresentation.Write(json, new IntroRinkaSpriteDocument
-            {
-                Version = IntroRinkaSpriteFormat.Version,
-                Frames = frames,
-            });
-            byte[] encoded = json.ToArray();
-            string name = IntroRinkaSpriteFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
-        }
-
-        void WriteEggEffectSprites()
-        {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in
-                IntroEggEffectSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), IntroEggEffectSpriteDefinitions.StockPartCount,
-                    definition.Name));
-            using var json = new MemoryStream();
-            IntroEggEffectSpritePresentation.Write(json, new IntroEggEffectSpriteDocument
-            {
-                Version = IntroEggEffectSpriteFormat.Version,
-                Frames = frames,
-            });
-            byte[] encoded = json.ToArray();
-            string name = IntroEggEffectSpriteFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
-        }
-
-        void WriteDiscoveryActorSprites()
-        {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in
-                IntroDiscoveryActorSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
-            using var json = new MemoryStream();
-            IntroDiscoveryActorSpritePresentation.Write(json,
-                new IntroDiscoveryActorSpriteDocument
-                {
-                    Version = IntroDiscoveryActorSpriteFormat.Version,
-                    Frames = frames,
-                });
-            byte[] encoded = json.ToArray();
-            string name = IntroDiscoveryActorSpriteFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
-        }
-
-        void WriteScientistSprites()
-        {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (CinematicSpriteFrameDefinition definition in
-                IntroScientistSpriteDefinitions.Frames)
-                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
-            using var json = new MemoryStream();
-            IntroScientistSpritePresentation.Write(json, new IntroScientistSpriteDocument
-            {
-                Version = IntroScientistSpriteFormat.Version,
-                Frames = frames,
-            });
-            byte[] encoded = json.ToArray();
-            string name = IntroScientistSpriteFormat.FileName;
-            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(encoded);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
-        }
+        // Each of a sprite family's definitions' frames, all read with the family's own stock part count.
+        Dictionary<string, SpriteVisualPart[]> FramesOfParts(IEnumerable<CinematicSpriteFrameDefinition> definitions, int stockParts) =>
+            definitions.ToDictionary(definition => definition.Name, definition => IntroCinematicSpriteFrameExtractor.Extract(bus,
+                CinematicSpritemapSources.Of(definition.Pose), stockParts, definition.Name), StringComparer.Ordinal);
     }
 
     /// <summary>
@@ -517,7 +373,7 @@ public static class IntroCinematicArtworkFiles
     private static IntroCinematicLayouts ReadLayouts(string importData)
     {
         return new IntroCinematicLayouts(
-            [.. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
+            [.. IntroCinematicArtworkFormat.ScenePagesInTransferOrder
                 .Select(page => Page(IntroCinematicArtworkFormat.BackgroundPageFileName(page), IntroCinematicArtworkFormat.BackgroundPageByteCount))],
             Page(IntroCinematicArtworkFormat.PortraitTilemapFileName, IntroCinematicArtworkFormat.BackgroundPageByteCount),
             Page(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName, IntroCinematicArtworkFormat.BackgroundPageByteCount),
@@ -734,7 +590,7 @@ public static class IntroCinematicArtworkFiles
         IntroEggEffectSpriteFormat.FileName,
         IntroDiscoveryActorSpriteFormat.FileName,
         IntroScientistSpriteFormat.FileName,
-        .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
+        .. IntroCinematicArtworkFormat.ScenePagesInTransferOrder
             .Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
         IntroCinematicPaletteFile.FileName,
         IntroBackdropFiles.FileName,

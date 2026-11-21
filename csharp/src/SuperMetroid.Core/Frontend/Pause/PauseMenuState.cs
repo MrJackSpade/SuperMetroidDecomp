@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// The pause menu owns what its screens show; the game keeps the pause's steps, and Samus keeps her equipment, so an
 /// equipment-screen press changes Samus's equipment directly, as movement, drawing and saving see it.
 /// </remarks>
-internal sealed class PauseMenuState : IMenuFrontendScreen
+internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
@@ -85,7 +85,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// </summary>
     private readonly ScreenFade transitionFade = new(DisplayBrightness.Full);
     /// <summary>Current page-transition brightness, from black to full intensity.</summary>
-    private int TransitionBrightness => transitionFade.Level;
+    private DisplayBrightness TransitionBrightness => transitionFade.Level;
     /// <summary>The equipment control the cursor rests on (#1772); its category is the column the cursor is in.</summary>
     private PauseEquipmentControl SelectedControl { get; set; } = PauseEquipmentControls.ReserveMode;
     /// <summary>The map page's scroll, framed from the visible area cells when the map page is set up.</summary>
@@ -307,14 +307,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             SelectFirstCollectedEquipment();
             ResetItemSelectorAnimation();
             Transition = PauseMenuTransition.MapToEquipmentFadeIn;
-            transitionFade.Restart(0, PauseFadeTiming.WaitBeforeEachStep);
+            transitionFade.Restart(DisplayBrightness.Black, PauseFadeTiming.WaitBeforeEachStep);
         }
         else if (transition == PauseMenuTransition.EquipmentToMapLoad)
         {
             ScreenMode = PauseScreenMode.Map;
             LoadMapPage();
             Transition = PauseMenuTransition.EquipmentToMapFadeIn;
-            transitionFade.Restart(0, PauseFadeTiming.WaitBeforeEachStep);
+            transitionFade.Restart(DisplayBrightness.Black, PauseFadeTiming.WaitBeforeEachStep);
         }
         else
         {
@@ -399,10 +399,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         itemSelector.Show(selectors.Cycling, selectors.InitialDurationTicks);
     }
 
+    /// <summary>Whether the equipment page offers a selectable item: Samus holds a reserve tank, an item or a beam.</summary>
+    private bool OffersSelectableItem =>
+        samus.MaxReserveEnergy != 0 || samus.CollectedItems != SamusEquipmentFlags.None || samus.CollectedBeams != SamusBeamFlags.None;
+
     /// <summary>Advances the equipment selector only while inventory offers a selectable item.</summary>
     private void StepItemSelectorAnimation()
     {
-        if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == SamusEquipmentFlags.None && samus.CollectedBeams == SamusBeamFlags.None)
+        if (!OffersSelectableItem)
             return;
 
         // The equipment selector's animation holds each of its looks for that look's own hold.
@@ -412,7 +416,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Draws the selected equipment item's authored sprite.</summary>
     private void DrawEquipmentItemSelector()
     {
-        if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == SamusEquipmentFlags.None && samus.CollectedBeams == SamusBeamFlags.None)
+        if (!OffersSelectableItem)
             return;
 
         var selector = screenContent.PauseSelectors;
@@ -518,7 +522,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Walks <paramref name="column"/> from the control at <paramref name="start"/> to its end in <paramref name="direction"/>.</summary>
     private bool TrySelectEquipmentFrom(ImmutableArray<PauseUpgradeControl> column, int start, ColumnSearch direction)
     {
-        if (column == PauseEquipmentControls.Beams && samus.HyperBeamEnabled)
+        PauseEquipmentCategory columnCategory = column[0].Category;
+        if (PauseEquipmentControls.HyperBeamClosedColumns.Contains(columnCategory) && samus.HyperBeamEnabled)
             return false;
         int step = direction switch
         {
@@ -533,7 +538,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 // The suit search down the column checks for its last control only AFTER an unsuccessful probe.
                 // Thus directly entering the final suit control can succeed, but searching down from an earlier
                 // missing upgrade must not discover it.
-                if (column == PauseEquipmentControls.Suits && direction == ColumnSearch.Down && place + step >= column.Length - 1)
+                if (PauseEquipmentControls.DirectOnlyLastControlColumns.Contains(columnCategory) && direction == ColumnSearch.Down &&
+                    place + step >= column.Length - 1)
                     return false;
                 continue;
             }

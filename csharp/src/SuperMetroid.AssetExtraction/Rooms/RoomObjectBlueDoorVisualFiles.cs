@@ -7,6 +7,15 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>The installed pictures of the sixteen blue-door cap frames (#1557), and the published names that key them.</summary>
 public static class RoomObjectBlueDoorVisualFiles
 {
+    /// <summary>
+    /// The looks that show another look's artwork, with the look whose artwork each shows: the closed cap drawn solid shows
+    /// the closed cap's, so it shares that frame's name.
+    /// </summary>
+    private static readonly Dictionary<DoorCapLook, DoorCapLook> SharedPictures = new Dictionary<DoorCapLook, DoorCapLook>
+    {
+        [DoorCapLook.ClosedSolid] = DoorCapLook.Closed,
+    };
+
     /// <summary>Editable blue-door cap and shared clear-frame JSON filename.</summary>
     private const string VisualFileName = "blue-doors.json";
 
@@ -21,21 +30,39 @@ public static class RoomObjectBlueDoorVisualFiles
     public static void Extract(ISnesAddressSpace bus, string directory) =>
         RoomObjectFrameImageFiles.Extract(bus, directory, Family);
 
-    /// <summary>Loads the installed blue-door cap pictures as the player left them, without the cartridge.</summary>
+    /// <summary>
+    /// Loads the installed blue-door cap pictures as the player left them, without the cartridge, with each facing's closed
+    /// cap drawn solid showing that facing's closed cap.
+    /// </summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectBlueDoorVisuals Load(string directory) =>
-        new(RoomObjectFrameImageFiles.Load(directory, Family));
+    public static InstalledRoomObjectPictures Load(string directory) =>
+        new(WithClosedSolidCaps(RoomObjectFrameImageFiles.Load(directory, Family)));
+
+    /// <summary>
+    /// The installed caps' pictures and, under each facing's closed cap drawn solid, the picture of that facing's closed
+    /// cap, which it shows (#1627).
+    /// </summary>
+    private static RoomObjectFrameImages<RoomObjectDraw> WithClosedSolidCaps(RoomObjectFrameImages<RoomObjectDraw> caps)
+    {
+        var pictures = new Dictionary<RoomObjectDraw, RoomObjectFrameImage>(caps.All);
+        foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
+        {
+            RoomObjectDraw solid = BlueDoorCaps.ClosedSolid(orientation);
+            pictures.Add(solid, caps.Image(BlueDoorCaps.VisualSource(solid)));
+        }
+        return new RoomObjectFrameImages<RoomObjectDraw>(pictures);
+    }
 
     /// <summary>Sixteen original artwork identities; each facing's closed cap drawn solid shows its closed cap's.</summary>
     private static IEnumerable<RoomObjectDrawLists.DrawList> Editable
     {
         get
         {
-            for (int orientation = 0; orientation < 4; orientation++)
+            foreach (ColoredDoorOrientation orientation in DoorCapOrientations.InTableOrder)
                 foreach (DoorCapLook look in DoorCaps.OpeningLooks)
                 {
-                    yield return DrawListOf(BlueDoorCaps.Family.Of(new BlueDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), look)));
+                    yield return DrawListOf(BlueDoorCaps.Family.Of(new BlueDoorCaps.Draw(orientation, look)));
                 }
         }
     }
@@ -59,8 +86,8 @@ public static class RoomObjectBlueDoorVisualFiles
         if (!RoomObjectDrawIdentity.TryFrame<BlueDoorCaps.Draw>(request, out var draw))
             throw new InvalidDataException($"Blue-door draw {request} has no visual ID.");
         string direction = DoorCapOrientations.VisualName(draw.Orientation);
-        // The closed cap drawn solid shows the closed cap's artwork, so it shares that frame's name.
-        DoorCapLook shown = draw.Look == DoorCapLook.ClosedSolid ? DoorCapLook.Closed : draw.Look;
+        DoorCapLook shown = SharedPictures.TryGetValue(draw.Look, out DoorCapLook picture) ? picture : draw.Look;
         return $"{direction}-{DoorCapLookNames.VisualName(shown)}";
     }
+
 }

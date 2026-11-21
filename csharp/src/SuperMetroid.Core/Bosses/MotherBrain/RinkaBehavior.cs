@@ -147,11 +147,11 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// loader has reached, against that update's camera position.
     /// </summary>
     public void CompleteLoaderTimeCameraReads(
-        Func<int, bool> loaderInitializedPlace,
+        Func<RoomEnemyPlace, bool> loaderInitializedPlace,
         Position16<RoomPixels> camera)
     {
         Ensure.NotNull(loaderInitializedPlace);
-        while (_deferredRinkaSpawns.Count != 0 && loaderInitializedPlace(_deferredRinkaSpawns[0].Place.Ordinal))
+        while (_deferredRinkaSpawns.Count != 0 && loaderInitializedPlace(_deferredRinkaSpawns[0].Place))
         {
             DeferredRinkaSpawn rinka = _deferredRinkaSpawns[0];
             _deferredRinkaSpawns.RemoveAt(0);

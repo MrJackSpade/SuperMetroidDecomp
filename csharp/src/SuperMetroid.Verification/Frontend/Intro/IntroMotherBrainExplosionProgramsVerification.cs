@@ -10,8 +10,8 @@ internal static class IntroMotherBrainExplosionProgramsVerification
     /// <summary>Checks twelve named explosion frames, their native pointers and part counts, and lookup bounds.</summary>
     internal static void VerifyIntroMotherBrainExplosionFrameCatalog(ISnesAddressSpace rom)
     {
-        string[] names = ["small-explosion-0", "small-explosion-1", "small-explosion-2", "small-explosion-3", "small-explosion-4", "small-explosion-5",
-            "big-explosion-0", "big-explosion-1", "big-explosion-2", "big-explosion-3", "big-explosion-4", "big-explosion-5"];
+        string[] names = ["small-explosion-spark", "small-explosion-flare", "small-explosion-fireball", "small-explosion-hollowing", "small-explosion-ring", "small-explosion-fading-ring",
+            "big-explosion-spark", "big-explosion-flare", "big-explosion-fireball", "big-explosion-bursting", "big-explosion-spiked-ring", "big-explosion-scattered-smoke"];
         var frames = IntroMotherBrainExplosionSpriteDefinitions.Frames;
         AssertEqual(12, frames.Count, "original explosion frame count");
         for (int index = 0; index < frames.Count; index++)

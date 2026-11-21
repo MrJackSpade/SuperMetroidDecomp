@@ -11,18 +11,9 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal static class SporeSpawnCeilingObjectDrawDefinitions
 {
     /// <summary>The opened ceiling: the two-by-two square right of and below the ceiling's top-left block, every block open.</summary>
-    private static readonly RoomBlockShape OpenedCeiling = new(
-    [
-        new(new(0, 0), RoomCollisionType.Air), new(new(1, 0), RoomCollisionType.Air),
-        new(new(0, 1), RoomCollisionType.Air), new(new(1, 1), RoomCollisionType.Air),
-    ]);
+    private static readonly RoomBlockShape OpenedCeiling = RoomBlockShapes.Rectangle(new(2, 2), RoomCollisionType.Air);
 
-    /// <summary>The block shape each of the four ceiling frames draws.</summary>
-    internal static readonly Dictionary<SporeSpawnCeilingDraw, RoomBlockShape> Shapes = new()
-    {
-        [SporeSpawnCeilingDraw.Clear] = OpenedCeiling,
-        [SporeSpawnCeilingDraw.CeilingCracked] = OpenedCeiling,
-        [SporeSpawnCeilingDraw.CeilingCrumbling] = OpenedCeiling,
-        [SporeSpawnCeilingDraw.CeilingCrumbled] = OpenedCeiling,
-    };
+    /// <summary>The block shape each of the four ceiling frames draws: every one opens the same ceiling.</summary>
+    internal static readonly Dictionary<SporeSpawnCeilingDraw, RoomBlockShape> Shapes =
+        Enum.GetValues<SporeSpawnCeilingDraw>().ToDictionary(draw => draw, _ => OpenedCeiling);
 }

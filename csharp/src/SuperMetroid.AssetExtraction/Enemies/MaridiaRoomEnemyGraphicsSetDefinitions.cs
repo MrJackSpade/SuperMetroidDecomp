@@ -4,6 +4,18 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>The graphics sets of the Maridia room-header region, in table order.</summary>
 internal static class MaridiaRoomEnemyGraphicsSetDefinitions
 {
+    /// <summary>The members of every set here that loads Owtches, Choots and Skulteras, in record order.</summary>
+    private static readonly RoomEnemyGraphicsSetMember[] OwtchChootAndSkultera =
+    [
+        new(EnemyDefinitionId.Owtch), new(EnemyDefinitionId.Choot), new(EnemyDefinitionId.Skultera),
+    ];
+
+    /// <summary>The members of every set here that loads Cacatacs and Zoas, in record order.</summary>
+    private static readonly RoomEnemyGraphicsSetMember[] CacatacAndZoa =
+    [
+        new(EnemyDefinitionId.Cacatac), new(EnemyDefinitionId.Zoa),
+    ];
+
     /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetMembers[] Build() =>
     [
@@ -95,11 +107,7 @@ internal static class MaridiaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Owtch),
             new(EnemyDefinitionId.MaridiaFly),
         ]),
-        new(RoomEnemyGraphicsSetDefinitions.PseudoPlasmaSpark, [
-            new(EnemyDefinitionId.Owtch),
-            new(EnemyDefinitionId.Choot),
-            new(EnemyDefinitionId.Skultera),
-        ]),
+        new(RoomEnemyGraphicsSetDefinitions.PseudoPlasmaSpark, OwtchChootAndSkultera),
         new(RoomEnemyGraphicsSetDefinitions.WestSandHallTunnel, [
             new(EnemyDefinitionId.Sciser),
         ]),
@@ -112,11 +120,7 @@ internal static class MaridiaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Boyon),
             new(EnemyDefinitionId.Choot),
         ]),
-        new(RoomEnemyGraphicsSetDefinitions.PlasmaSpark, [
-            new(EnemyDefinitionId.Owtch),
-            new(EnemyDefinitionId.Choot),
-            new(EnemyDefinitionId.Skultera),
-        ]),
+        new(RoomEnemyGraphicsSetDefinitions.PlasmaSpark, OwtchChootAndSkultera),
         new(RoomEnemyGraphicsSetDefinitions.Toilet, [
             new(EnemyDefinitionId.Mochtroid),
             new(EnemyDefinitionId.Puyo),
@@ -187,14 +191,8 @@ internal static class MaridiaRoomEnemyGraphicsSetDefinitions
         new(RoomEnemyGraphicsSetDefinitions.WestSandHole, [
             new(EnemyDefinitionId.Boulder),
         ]),
-        new(RoomEnemyGraphicsSetDefinitions.WestCactusAlley, [
-            new(EnemyDefinitionId.Cacatac),
-            new(EnemyDefinitionId.Zoa),
-        ]),
-        new(RoomEnemyGraphicsSetDefinitions.EastCactusAlley, [
-            new(EnemyDefinitionId.Cacatac),
-            new(EnemyDefinitionId.Zoa),
-        ]),
+        new(RoomEnemyGraphicsSetDefinitions.WestCactusAlley, CacatacAndZoa),
+        new(RoomEnemyGraphicsSetDefinitions.EastCactusAlley, CacatacAndZoa),
         new(RoomEnemyGraphicsSetDefinitions.FishTank, [
             new(EnemyDefinitionId.Skultera),
             new(EnemyDefinitionId.PirateMagentaWalking),

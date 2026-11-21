@@ -55,7 +55,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         AnimationPlayback<DeadTorizoSegment> playback = EnemyAnimationPlayback.Start(place, DeadTorizoAnimations.StartingWith(Corpses.DeadTorizoSegment.Stationary));
 
-        place.SetSpeciesState(new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), DeadTorizoPhase.Wait)
+        place.SetSpeciesState(new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), CorpsePhase.Waiting)
         {
             Playback = playback,
             FallSpeed = DeadTorizoCorpseDefinitions.StartingFallSpeed,
@@ -63,27 +63,26 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <c>RunDeadTorizoMain</c> does for each <see cref="DeadTorizoPhase"/> member, each member's own arm.</summary>
-    private IdentityTable<DeadTorizoPhase, Action<RoomEnemyPlace, SamusState, DeadTorizoEnemyState>> RunDeadTorizoMainForDeadTorizoPhase => field ??= new(new Dictionary<DeadTorizoPhase, Action<RoomEnemyPlace, SamusState, DeadTorizoEnemyState>>
+    private IdentityTable<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTorizoEnemyState>> RunDeadTorizoMainForDeadTorizoPhase => field ??= new(new Dictionary<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTorizoEnemyState>>
     {
-        [DeadTorizoPhase.Wait] = (place, samus, state) =>
-        {
-            if (samus.Kinematics.DidCollideWithSolidEnemy(place) == true)
-                state.Phase = DeadTorizoPhase.PreRot;
-        },
-        [DeadTorizoPhase.PreRot] = (place, samus, state) =>
-        {
-            if (state.PreRotDelay.Step())
-            {
-                place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-                state.Phase = DeadTorizoPhase.Rotting;
-                RunDeadTorizoRotting(place, state);
-            }
-        },
-        [DeadTorizoPhase.Rotting] = (place, samus, state) => RunDeadTorizoRotting(place, state),
-        [DeadTorizoPhase.Finished] = (place, samus, state) =>
+        [CorpsePhase.Waiting] = WaitToRot,
+        [CorpsePhase.PreRotDelay] = WaitToRot,
+        [CorpsePhase.Rotting] = (place, samus, state) => RunDeadTorizoRotting(place, state),
+        [CorpsePhase.Finished] = (place, samus, state) =>
         {
         },
     });
+
+    /// <summary>
+    /// Waits for Samus's touch and then the delay before the corpse rots; the update its delay runs out on, the corpse
+    /// already rots.
+    /// </summary>
+    private void WaitToRot(RoomEnemyPlace place, SamusState samus, DeadTorizoEnemyState state)
+    {
+        state.Phase = CorpseRotWait.Step(state.Phase, place, samus, state.PreRotDelay);
+        if (state.Phase == CorpsePhase.Rotting)
+            RunDeadTorizoRotting(place, state);
+    }
 
     /// <summary>Runs the dead Torizo's main AI.</summary>
     private void RunDeadTorizoMain(RoomEnemyPlace place, SamusState samus)
@@ -109,7 +108,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SandForming.Step();
         bool stillRotting = state.Rot.Step(state.Rows.MoveRow, _ => FinishDeadTorizoCorpseRow());
         if (!stillRotting)
-            state.Phase = DeadTorizoPhase.Finished;
+            state.Phase = CorpsePhase.Finished;
     }
 
     /// <summary>The rest of the corpse's shot and touch reactions.</summary>
@@ -117,7 +116,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         DeadTorizoEnemyState state = place.RequireSpeciesState<DeadTorizoEnemyState>();
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-        state.Phase = DeadTorizoPhase.Rotting;
+        state.Phase = CorpsePhase.Rotting;
     }
 
     /// <summary>The corpse's power bomb reaction.</summary>

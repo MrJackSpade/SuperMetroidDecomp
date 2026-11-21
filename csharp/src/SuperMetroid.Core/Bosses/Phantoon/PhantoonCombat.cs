@@ -271,8 +271,7 @@ internal sealed class PhantoonCombat
             int projectileDamage = held.Damage;
             SamusProjectileFamily family = held.Type.Family;
             // Bombs, Power Bombs and the explosions beams and missiles leave behind never hit Phantoon.
-            if (family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
-                SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
+            if (family.IsBombOrExplosion)
                 continue;
 
             if (EnemyCollision.FindFrameHitboxContact(
@@ -291,11 +290,7 @@ internal sealed class PhantoonCombat
                 _earthquake.Start(SuperMissileDefinitions.EnemyHitEarthquake, SuperMissileDefinitions.EarthquakeDuration);
             }
 
-            if (hitboxShot == EnemyReaction.Ignore ||
-                state.Phase == PhantoonPhase.DyingFadeInOut || state.Phase == PhantoonPhase.DyingExplosions ||
-                    state.Phase == PhantoonPhase.BeginFinalWavyDeath || state.Phase == PhantoonPhase.DyingFadeOut ||
-                    state.Phase == PhantoonPhase.AlmostDead || state.Phase == PhantoonPhase.Dead ||
-                    state.Phase == PhantoonPhase.WaitingOnEye)
+            if (hitboxShot == EnemyReaction.Ignore || state.Phase.Hit == PhantoonHitResponse.Passes)
             {
                 projectiles.EnemyImpacts.TouchEnemyWithoutImpact(
                     held,
@@ -347,8 +342,8 @@ internal sealed class PhantoonCombat
         _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
         SamusProjectileFamily family = projectileType.Family;
         PhantoonPhase phase = state.Phase;
-        bool vulnerableWindow = phase == PhantoonPhase.EyeTracksSamus || phase == PhantoonPhase.TrackSamusDuringFlameRain;
-        bool swooping = phase == PhantoonPhase.Swooping;
+        bool vulnerableWindow = phase.Hit == PhantoonHitResponse.OpensVulnerableWindow;
+        bool swooping = phase.Hit == PhantoonHitResponse.Swooping;
 
         if (vulnerableWindow || swooping)
         {

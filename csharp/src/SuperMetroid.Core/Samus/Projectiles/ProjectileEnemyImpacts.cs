@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -69,7 +69,7 @@ internal sealed class ProjectileEnemyImpacts
             // Reflection deletes the projectile in the place the Super Missile names as its link
             // (UnlinkedSuperMissileLink) before repurposing the owner; it does not broadly delete
             // unrelated Super Missiles.
-            if (shot.KindStateAs<SuperMissileShotState>().LinkPlace is { } linkPlace && linkPlace != shot.Place &&
+            if (shot.KindStateAs<SuperMissileShotState>().LinkChainPosition is { } linkPlace && linkPlace != shot.Place &&
                 _pool.Shots[linkPlace].IsActive)
                 _animation.ClearProjectile(_pool.Shots[linkPlace]);
         }
@@ -198,7 +198,7 @@ internal sealed class ProjectileEnemyImpacts
         if (!held.HasEnemyCollisionPayload)
             return false;
 
-        if (shot.Behavior is SpecialAttackParticleBehavior)
+        if (shot.Behavior is { EndsItselfAfterEnemyHit: true })
         {
             // Enemy collision only marks the direction. These particles own
             // hit deletion (and Spazer's paired deletion) in their next update;

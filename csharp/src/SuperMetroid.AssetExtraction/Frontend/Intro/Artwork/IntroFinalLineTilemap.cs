@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core;
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
@@ -33,15 +32,8 @@ public sealed class IntroFinalLineTilemap
         var tiles = new BackgroundTile[IntroFinalLineTilemapFormat.CellCount];
         for (int index = 0; index < tiles.Length; index++)
         {
-            RoomBackgroundTilemapCell? cell = document.Cells[index];
-            if (cell is null ||
-                (uint)cell.TileColumn >= RoomBackgroundTilemapFormat.TileColumns ||
-                (uint)cell.TileRow >= RoomBackgroundTilemapFormat.TileRows ||
-                (uint)cell.Palette >= RoomBackgroundTilemapFormat.PaletteCount)
-                throw new InvalidDataException($"Final-line map cell {index} has an invalid tile or palette.");
-            tiles[index] = new BackgroundTile(
-                cell.TileRow * RoomBackgroundTilemapFormat.TileColumns + cell.TileColumn,
-                cell.Palette, cell.FlipX, cell.FlipY, cell.Priority);
+            tiles[index] = document.Cells[index]?.Placement()
+                ?? throw new InvalidDataException($"Final-line map cell {index} has an invalid tile or palette.");
         }
         return new IntroFinalLineTilemap(tiles);
     }

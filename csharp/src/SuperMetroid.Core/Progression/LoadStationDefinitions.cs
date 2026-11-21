@@ -129,13 +129,5 @@ public static class LoadStationDefinitions
     /// The stations Samus uses, which the used-station record keeps: every station but the arrival on Zebes, where only
     /// the gunship's landing loads her.
     /// </summary>
-    public static IReadOnlyList<LoadStation> Usable { get; } =
-    [
-        Gunship, CrateriaSave, ForgottenHighwayElevator, RedBrinstarElevator, BlueBrinstarElevator, GreenBrinstarElevator,
-        StatuesElevator, BigPinkSave, GreenBrinstarSave, EtecoonSave, WarehouseSave,
-        RedBrinstarSave, GreenBrinstarMainShaftElevator, MorphBallElevator, CaterpillarElevator, WarehouseEntranceElevator, PostCrocomireSave,
-        BubbleMountainSave, FrogSave, CrocomireSave, LowerNorfairElevatorSave, LowerNorfairSave, BusinessCenterElevator,
-        LowerNorfairElevator, MainHallElevator, WreckedShipSave, GlassTunnelSave, ForgottenHighwaySave, AqueductSave,
-        DraygonSave, MaridiaElevator, MotherBrainSave, UpperTourianSave, TourianFirstElevator, CeresElevator,
-    ];
+    public static IReadOnlyList<LoadStation> Usable { get; } = [.. All.Except([ZebesArrival])];
 }

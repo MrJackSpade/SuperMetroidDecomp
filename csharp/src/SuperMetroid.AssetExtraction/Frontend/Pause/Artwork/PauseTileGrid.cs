@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
@@ -14,7 +13,7 @@ internal static class PauseTileGrid
         {
             var cell = cells[index];
             if (cell is null || (uint)cell.TileColumn >= PauseBackdropDefinitions.AtlasColumns ||
-                (uint)cell.TileRow >= PauseBackdropDefinitions.AtlasRows || (uint)cell.Palette >= MapPresentationFormat.PaletteCount ||
+                (uint)cell.TileRow >= PauseBackdropDefinitions.AtlasRows || (uint)cell.Palette >= BackgroundTile.ColourVariants ||
                 !Enum.IsDefined(cell.Atlas))
                 throw new InvalidDataException($"Pause artwork {name} cell {index} has an invalid atlas, coordinate or palette.");
             int character = cell.TileRow * PauseBackdropDefinitions.AtlasColumns + cell.TileColumn;

@@ -353,4 +353,12 @@ internal static class SamusGroundedPoseTransitions
         if (refreshRadius)
             SamusPoseMetadata.RefreshCollisionRadii(samus);
     }
+
+    /// <summary>Whether <paramref name="pose"/> is the aim-up wall stop facing <paramref name="facing"/>.</summary>
+    private static bool IsWallStopFacing(SamusPoseId pose, SamusFacingDirection facing) =>
+        SamusPoseTraits.IsIn(pose, SamusPoseFamily.AimUpWallStop) && SamusPoseMetadata.ReadFacingDirection(pose) == facing;
+
+    /// <summary>Whether <paramref name="pose"/> is the normal run facing <paramref name="facing"/>.</summary>
+    private static bool IsNormalRunFacing(SamusPoseId pose, SamusFacingDirection facing) =>
+        SamusPoseTraits.IsIn(pose, SamusPoseFamily.NormalRun) && SamusPoseMetadata.ReadFacingDirection(pose) == facing;
 }

@@ -133,7 +133,7 @@ internal sealed class SamusPoseMovementRun(SamusState samus, SamusTerrain terrai
         // The morph transitions' own step, the Draygon-held stand-up's hold, otherwise the crouch and stand transitions'.
         if (SamusPoseMetadata.IsMorphTransitionPose(Samus.Pose))
             frame.Record(SamusMorphBallMovement.StepTransition(terrain, Samus, frameCounter));
-        else if (Samus.Pose == SamusPoseId.DraygonHeldStandingUpLeftPose)
+        else if (SamusPoseTraits.IsIn(Samus.Pose, SamusPoseFamily.HeldInPlaceStandUp))
             HoldWhereInstalled();
         else
             frame.Record(SamusPostureMovement.StepCrouchStandTransition(terrain, Samus, frameCounter));

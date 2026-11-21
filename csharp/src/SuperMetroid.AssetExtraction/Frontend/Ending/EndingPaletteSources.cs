@@ -28,19 +28,22 @@ internal static class EndingPaletteSources
     };
 
     /// <summary>
-    /// The last colour of crossfade step <paramref name="step"/>'s background (palette 0) or sprite (palette 1) palette:
+    /// The last colour of crossfade step <paramref name="step"/>'s background or sprite palette (<paramref name="layer"/>):
     /// for steps 0..15 the background traverses palettes $10..$1 while the sprite traverses $1..$10, and $8B:E58A copies
     /// each backwards from its last colour. Independently checked against all 32 native words for #1165.
     /// </summary>
-    public static SnesAddress LogoCrossfadeSource(int step, int palette)
+    internal static SnesAddress LogoCrossfadeSource(int step, EndingLogoLayer layer)
     {
         if ((uint)step >= EndingLogoDefinitions.CrossfadeSteps)
             throw new ArgumentOutOfRangeException(nameof(step));
-        return palette switch
+        return layer switch
         {
-            0 => EndingSourceDefinitions.Palettes.LogoCrossfadeFirstBackgroundEnd.AddWithinBank(-step * PaletteBytes),
-            1 => EndingSourceDefinitions.Palettes.LogoCrossfadeFirstSpriteEnd.AddWithinBank(step * PaletteBytes),
-            _ => throw new ArgumentOutOfRangeException(nameof(palette)),
+            EndingLogoLayer.Background => EndingSourceDefinitions.Palettes.LogoCrossfadeFirstBackgroundEnd.AddWithinBank(-step * PaletteBytes),
+            EndingLogoLayer.Sprites => EndingSourceDefinitions.Palettes.LogoCrossfadeFirstSpriteEnd.AddWithinBank(step * PaletteBytes),
+            _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Undefined ending logo layer."),
         };
     }
+
+    /// <summary>The logo's layers in the order the installed crossfade lists each step's palettes: the background's, then the sprites'.</summary>
+    internal static IReadOnlyList<EndingLogoLayer> CrossfadeLayers { get; } = [EndingLogoLayer.Background, EndingLogoLayer.Sprites];
 }

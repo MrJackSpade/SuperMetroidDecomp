@@ -33,7 +33,7 @@ public static class RoomObjectColoredDoorVisualFiles
     /// <summary>Loads the installed coloured-door cap pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectColoredDoorVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates yellow, green, and red cap frames in their authored order.</summary>
@@ -81,8 +81,8 @@ public static class RoomObjectColoredDoorVisualFiles
     private static IEnumerable<RoomObjectDraw> Draws()
     {
         foreach (ColoredDoorColor color in Colors)
-            for (int orientation = 0; orientation < 4; orientation++)
+            foreach (ColoredDoorOrientation orientation in DoorCapOrientations.InTableOrder)
                 foreach (DoorCapLook look in DoorCaps.OpeningLooks)
-                    yield return ColoredDoorCaps.Family.Of(new ColoredDoorCaps.Draw(color, DoorCapOrientations.FromTableIndex(orientation), look));
+                    yield return ColoredDoorCaps.Family.Of(new ColoredDoorCaps.Draw(color, orientation, look));
     }
 }

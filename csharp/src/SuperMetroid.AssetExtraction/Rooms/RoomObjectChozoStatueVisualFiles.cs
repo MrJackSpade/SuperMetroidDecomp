@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Chozo;
@@ -9,6 +10,22 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>The installed pictures of the three Chozo statue terrain frames (#1557), and the published names that key them.</summary>
 public static class RoomObjectChozoStatueVisualFiles
 {
+    /// <summary>
+    /// The strips both slope-access frames are written as: the ledge, the fill five rows below it, and the step below the
+    /// fill's sixth block, one row at a time.
+    /// </summary>
+    private static readonly RoomObjectStripRuns SlopeAccessStrips =
+        new([new(0, 0), new(0, 5), new(5, 6), new(5, 7), new(5, 8)], [14, 9, 2, 1, 1]);
+
+    /// <summary>Each statue frame's strips, where each starts and how many blocks long: the cleared hand is written as its one block.</summary>
+    private static readonly Dictionary<ChozoStatueDraw, RoomObjectStripRuns> Strips =
+        new Dictionary<ChozoStatueDraw, RoomObjectStripRuns>
+        {
+            [ChozoStatueDraw.ClearSlopeAccess] = SlopeAccessStrips,
+            [ChozoStatueDraw.BlockSlopeAccess] = SlopeAccessStrips,
+            [ChozoStatueDraw.LowerNorfairClearedHand] = new([new(0, 0)], [1]),
+        };
+
     /// <summary>JSON filename for the cleared Chozo hand and Wrecked Ship slope-access appearances.</summary>
     private const string VisualFileName = "chozo-statues.json";
 
@@ -26,7 +43,7 @@ public static class RoomObjectChozoStatueVisualFiles
     /// <summary>Loads the installed Chozo statue pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectChozoStatueVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates the three supported physical draw identities for artwork export.</summary>
@@ -67,15 +84,7 @@ public static class RoomObjectChozoStatueVisualFiles
             return false;
         }
         RoomBlockShape shape = described;
-        // The cleared hand is written as its one block. Both slope-access frames are written as the ledge, the fill five
-        // rows below it, and the step below the fill's sixth block, one row at a time.
-        Offset16<RoomBlocks>[] handStarts = [new(0, 0)];
-        int[] handCounts = [1];
-        Offset16<RoomBlocks>[] accessStarts = [new(0, 0), new(0, 5), new(5, 6), new(5, 7), new(5, 8)];
-        int[] accessCounts = [14, 9, 2, 1, 1];
-        bool hand = RoomObjectDrawIdentity.FrameOf<ChozoStatueDraw>(request, "Chozo statue") == ChozoStatueDraw.LowerNorfairClearedHand;
-        Offset16<RoomBlocks>[] starts = hand ? handStarts : accessStarts;
-        int[] counts = hand ? handCounts : accessCounts;
+        (Offset16<RoomBlocks>[] starts, int[] counts) = Ensure.Listed(Strips, RoomObjectDrawIdentity.FrameOf<ChozoStatueDraw>(request, "Chozo statue"));
         list = RoomObjectDrawListExport.Strips(request, starts.Length, run => counts[run],
             (run, cell) => shape.CollisionAt(starts[run] + new Offset16<RoomBlocks>(cell, 0)), run => starts[run]);
         return true;

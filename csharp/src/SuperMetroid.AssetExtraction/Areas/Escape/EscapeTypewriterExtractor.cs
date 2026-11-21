@@ -12,9 +12,6 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 /// <summary>Extracts safe text and placement from the two native escape typewriter streams.</summary>
 public static class EscapeTypewriterExtractor
 {
-    /// <summary>$A6:C2D6: the control word that sets the character delay from the word that follows.</summary>
-    private const int DelayCommand = 1;
-
     /// <summary>Imports the Ceres and Zebes escape-warning text and line destinations from their native typewriter streams.</summary>
     /// <param name="bus">Non-null cartridge address space supplying the two warning programs.</param>
     /// <returns>New UTF-8 JSON bytes containing ordered lines of supported text and the pixel of the layer each starts at.</returns>
@@ -47,7 +44,7 @@ public static class EscapeTypewriterExtractor
             EscapeTypewriterMessageId.Zebes => (int)EscapeSourceDefinitions.ZebesWarningText,
             _ => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
         };
-        if (CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor) != DelayCommand ||
+        if (CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor) != EscapeTypewriterControlWords.Delay ||
             CartridgeImportSource.Require(bus).ReadCartridgeWord((cursor + 2)) != EscapeTypewriterDefinitions.CharacterDelayFrames)
         {
             throw new InvalidDataException($"Escape typewriter program {id} has an unexpected delay header.");
@@ -56,8 +53,8 @@ public static class EscapeTypewriterExtractor
         var lines = new List<EscapeTypewriterLineDocument>();
         for (int lineIndex = 0; lineIndex < 16; lineIndex++)
         {
-            var command = (EscapeTypewriterCommand)CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor);
-            if (!Enum.IsDefined(command))
+            if (!EscapeTypewriterControlWords.TryDecode(CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor),
+                    out EscapeTypewriterCommand command))
                 throw new InvalidDataException($"Escape typewriter program {id} expected a destination at ${cursor:X6}.");
             switch (command)
             {
@@ -74,7 +71,7 @@ public static class EscapeTypewriterExtractor
             while (true)
             {
                 // Either control word ends the line's characters.
-                if (Enum.IsDefined((EscapeTypewriterCommand)CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor))) break;
+                if (EscapeTypewriterControlWords.TryDecode(CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor), out _)) break;
                 char character = (char)bus.ReadCartridgeByte(cursor++);
                 if (character is not (' ' or '!' or >= 'A' and <= 'Z'))
                     throw new InvalidDataException(

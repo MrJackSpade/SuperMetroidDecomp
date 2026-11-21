@@ -11,13 +11,12 @@ public abstract record DemoRecordingEnd
     /// <summary>The demo's input ends: the demo releases every button.</summary>
     public static DemoRecordingEnd Stops { get; } = new Stop();
 
-    /// <summary>Plays on from input <paramref name="input"/> again, until the owner switches the recording.</summary>
-    public static DemoRecordingEnd LoopsFrom(int input) => new Loop(Ensure.AtLeastZero(input));
+    /// <summary>Holds the recording's last input, playing it again and again, until the owner switches the recording.</summary>
+    public static DemoRecordingEnd HoldsLastInput { get; } = new HoldLastInput();
 
     /// <summary>The demo's input ends.</summary>
     public sealed record Stop : DemoRecordingEnd;
 
-    /// <summary>The recording plays on from <paramref name="Input"/>.</summary>
-    /// <param name="Input">The input it plays on from.</param>
-    public sealed record Loop(int Input) : DemoRecordingEnd;
+    /// <summary>The recording plays its last input again and again.</summary>
+    public sealed record HoldLastInput : DemoRecordingEnd;
 }

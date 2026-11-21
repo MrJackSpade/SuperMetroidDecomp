@@ -22,7 +22,7 @@ public sealed class EnemyProjectile
     /// <param name="animation">The animation it plays from its first pass (#2553): every spawn starts one.</param>
     internal EnemyProjectile(int place, EnemyProjectileHandOver left, RoomEnemyProjectileKind kind, EnemyProjectileAnimation animation)
     {
-        Place = Ensure.BetweenInclusive(0, EnemyProjectileEngine.PlaceCount - 1, place);
+        Place = Ensure.BetweenInclusive(0, EnemyProjectilePlaces.Capacity - 1, place);
         Position = FixedPosition<RoomPixels>.FromWhole(left.Position);
         Velocity = left.Velocity;
         Vacate();
@@ -98,6 +98,11 @@ public sealed class EnemyProjectile
     /// <summary>The frame the projectile shows: the blank frame from its spawn until its animation shows one, none once it is gone.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>
+    /// Where the frame the projectile shows is drawn from its place (#2557): at the place itself, unless its animation moves
+    /// one picture about as it plays (the save-station electricity's band on its sweep).
+    /// </summary>
+    public Offset16<RoomPixels> FramePlacement { get; internal set; }
+    /// <summary>
     /// How the projectile moves itself on each pass, before its animation advances (#1843): one of the motions its
     /// behaviour owns (<see cref="EnemyProjectileMotionBehavior{TMotion}"/>), held through that behaviour (#2571), or null
     /// while it holds still. Its behaviour starts it at spawn and changes it; a shot that destroys the projectile stops it.
@@ -117,8 +122,7 @@ public sealed class EnemyProjectile
     /// projectile shows, draws from the room's shared sheet in its standard colours; any other frame with
     /// <see cref="Graphics"/>.
     /// </summary>
-    public SpriteGraphics ShownGraphics => Frame is { } frame && EnemyProjectileRoomPictureDefinitions.RoomPictures.Contains(frame)
-        ? SpriteGraphics.SharedStandard : Graphics;
+    public SpriteGraphics ShownGraphics => Frame is { } frame && frame.IsRoomPicture ? SpriteGraphics.SharedStandard : Graphics;
     /// <summary>Gets the collision half-extents in pixels, from the projectile's definition.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
 

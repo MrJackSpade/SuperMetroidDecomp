@@ -175,11 +175,9 @@ public static class SamusKnockbackMovement
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(SamusPoseMetadata.ReadMovementType(samus));
         var requestedX = SamusHorizontalDisplacement.Toward(
             samus.KnockbackXDirection == KnockbackHorizontalDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
         // Knockback moves Samus as her ordinary sideways movement does: hitting a wall ends her horizontal momentum
         // before the vertical pass, so the next frame does not carry her on from the wall.
-        if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
+        _ = SamusTerrainMoves.MoveStoppingAtWalls(terrain, samus, requestedX);
 
         BlockMoveResult vertical = knockback.Direction is SamusKnockbackDirection.UpLeft or SamusKnockbackDirection.UpRight
             ? MoveWithSharedVerticalSpeedCalculation(terrain, samus, frameCounter)
@@ -328,9 +326,6 @@ public static class SamusKnockbackMovement
     {
         // Any external Y displacement takes priority over the normal total-X-plus-one
         // slope-following probe, as in every no-speed vertical move; a downward knockback takes the exact same step.
-        SignedSixteenSixteen requested = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
-            samus.Kinematics,
-            samus.HorizontalSpeed);
-        return SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        return SamusTerrainMoves.ProbeGroundWithoutSpeed(terrain, samus, frameCounter);
     }
 }

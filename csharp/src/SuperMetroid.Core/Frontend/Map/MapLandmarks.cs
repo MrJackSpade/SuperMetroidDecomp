@@ -10,6 +10,9 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// </summary>
 public static class MapLandmarks
 {
+    /// <summary>Whether <paramref name="area"/>'s map shows the gunship, where it landed.</summary>
+    public static bool ShowsGunship(AreaId area) => MapLandmarkDefinitions.GunshipAreas.Contains(area);
+
     /// <summary>The boss markers of each area.</summary>
     private static IdentityTable<AreaId, ImmutableArray<MapBossMarker>> BossMarkersByArea => field ??= new(new Dictionary<AreaId, ImmutableArray<MapBossMarker>>
     {

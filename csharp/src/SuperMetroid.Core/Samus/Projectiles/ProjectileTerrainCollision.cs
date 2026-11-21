@@ -415,14 +415,14 @@ internal sealed class ProjectileTerrainCollision
     }
 
     /// <summary>
-    /// Publishes the projectile type to the room object occupying a resident-trigger block; a block no object occupies
-    /// hears nothing (<see cref="ProjectileTriggerObjects.TryNotifyResidentProjectileHit"/>).
+    /// Publishes the projectile type to the room object occupying a resident-trigger block. A block no object holds any
+    /// more (the already-broken n00b tube's origin) takes the hit and nothing happens.
     /// </summary>
     private static void NotifyResidentProjectileHit(
         ISamusRoomObjects roomObjects,
         RoomCollisionBlock block,
         SamusProjectileType projectileType) =>
-        _ = roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType));
+        roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType));
 
     /// <summary>
     /// The horizontal velocity a shot fired straight left starts its first block scan with: the smallest leftward

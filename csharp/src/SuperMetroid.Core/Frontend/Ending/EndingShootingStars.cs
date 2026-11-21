@@ -41,7 +41,7 @@ internal sealed class EndingShootingStars
             }
             else
             {
-                int multiplier = star.Look is EndingShootingStarLook.LeadIn or EndingShootingStarLook.FaintSpeck ? 1 : 2;
+                int multiplier = EndingShootingStarDefinitions.SteadyLooks.Contains(star.Look) ? 1 : 2;
                 star.Velocity += star.Definition.Acceleration * multiplier;
                 star.Position += star.Velocity.ToDisplacement();
             }

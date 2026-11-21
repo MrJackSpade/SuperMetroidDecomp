@@ -16,37 +16,22 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
     private readonly CeresDoorBehavior _doors = Ensure.NotNull(doors);
 
     /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([ EnemyDefinitionId.CeresDoor, EnemyDefinitionId.CeresRidleyRoomDoor, EnemyDefinitionId.CeresElevatorRoomWall, EnemyDefinitionId.CeresGetawayChamberWall, ], Create);
-
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId actor = Ensure.NotNull(occupant).DefinitionId;
-        if (actor == EnemyDefinitionId.CeresDoor)
+    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
         {
-            return EnemyOccupant.Of(new CeresDoorEntity(_doors, occupant, place, common, occupant.SpawnSettings<CeresDoorSpawnSettings>().Facing switch
+            [EnemyDefinitionId.CeresDoor] = (occupant, place, common) =>
             {
-                HorizontalDirection.Right => CeresDoorSegment.DoorFacingRight,
-                HorizontalDirection.Left => CeresDoorSegment.DoorFacingLeft,
-                var other => throw new InvalidDataException($"No Ceres door faces {other}."),
-            }));
-        }
-        if (actor == EnemyDefinitionId.CeresRidleyRoomDoor)
-            return EnemyOccupant.Of(new CeresRidleyRoomDoorEntity(_doors, occupant, place, common));
-        if (actor == EnemyDefinitionId.CeresElevatorRoomWall)
-            return EnemyOccupant.Of(new CeresElevatorRoomWallEntity(_doors, occupant, place, common));
-        if (actor == EnemyDefinitionId.CeresGetawayChamberWall)
-        {
-            return EnemyOccupant.Of(new CeresGetawayChamberWallEntity(_doors, occupant, place, common, occupant.SpawnSettings<CeresGetawayChamberWallSpawnSettings>().Side switch
-            {
+                HorizontalDirection facing = occupant.SpawnSettings<CeresDoorSpawnSettings>().Facing;
+                if (facing is not (HorizontalDirection.Right or HorizontalDirection.Left))
+                    throw new InvalidDataException($"No Ceres door faces {facing}.");
+                return EnemyOccupant.Of(new CeresDoorEntity(_doors, occupant, place, common, facing));
+            },
+            [EnemyDefinitionId.CeresRidleyRoomDoor] = (occupant, place, common) => EnemyOccupant.Of(new CeresRidleyRoomDoorEntity(_doors, occupant, place, common)),
+            [EnemyDefinitionId.CeresElevatorRoomWall] = (occupant, place, common) => EnemyOccupant.Of(new CeresElevatorRoomWallEntity(_doors, occupant, place, common)),
+            [EnemyDefinitionId.CeresGetawayChamberWall] = (occupant, place, common) => EnemyOccupant.Of(new CeresGetawayChamberWallEntity(_doors, occupant, place, common, occupant.SpawnSettings<CeresGetawayChamberWallSpawnSettings>().Side switch
+                {
                 HorizontalDirection.Left => CeresDoorSegment.GetawayChamberLeftWall,
                 HorizontalDirection.Right => CeresDoorSegment.GetawayChamberRightWall,
                 var other => throw new InvalidDataException($"No getaway chamber wall stands on side {other}."),
-            }));
-        }
-        throw new InvalidDataException($"{actor} is no Ceres door or wall.");
-    }
+                })),
+        };
 }

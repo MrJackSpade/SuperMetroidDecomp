@@ -71,7 +71,7 @@ public sealed class SamusShinesparkState
     private AnimationPlayback<SamusGlowSegment> ShineGlow { get; set; } = ShineGlowStart;
 
     /// <summary>The shine's glow before its first shade.</summary>
-    private static AnimationPlayback<SamusGlowSegment> ShineGlowStart => SamusGlowPlay.Before(SamusGlowSegment.StoredShinePower);
+    private static AnimationPlayback<SamusGlowSegment> ShineGlowStart => SamusGlowPlay.Before(SamusGlowSegment.In(SamusGlow.StoredShine, SamusSuit.Power));
 
     /// <summary>
     /// The updates the windup still waits for a direction: <see cref="ShinesparkDefinitions.WindupFrames"/> when it
@@ -399,9 +399,8 @@ public sealed class SamusShinesparkState
         }
 
         SamusSuit suit = equippedItems.ShownSuit();
-        SamusGlowSegment glow = colouring == SamusSpecialColouringKind.SpeedBoosterShine
-            ? SamusGlowAnimationDefinitions.StoredShine[suit]
-            : SamusGlowAnimationDefinitions.ActiveShinespark[suit];
+        SamusGlowSegment glow = SamusGlowSegment.In(
+            colouring == SamusSpecialColouringKind.SpeedBoosterShine ? SamusGlow.StoredShine : SamusGlow.ActiveShinespark, suit);
         AnimationPlayback<SamusGlowSegment> playback = ShineGlow;
         SamusGlowPlay.ShowNextShade(glow, ref playback, colours);
         ShineGlow = playback;

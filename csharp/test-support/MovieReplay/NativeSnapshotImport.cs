@@ -330,7 +330,7 @@ internal static class NativeSnapshotImport
             initialObjects[index].Delete();
         }
         // Every place takes the snapshot's projectile, or, for a free one, what it holds for the room's next spawn there.
-        for (int place = 0; place < EnemyProjectileEngine.PlaceCount; place++)
+        for (int place = 0; place < SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity; place++)
             ImportNativeEnemyProjectile(runtime.Enemies, place, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));

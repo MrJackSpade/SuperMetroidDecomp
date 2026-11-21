@@ -32,12 +32,6 @@ internal sealed class NoobTubeProjectileAnimation
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>>> StartingAt => NoobTubeProjectileAnimations.StartingAt;
 
-    /// <summary>The segment <paramref name="started"/> starts at: a shard's flight, or the segment the crack's or a bubble's is keyed by.</summary>
-    private protected override NoobTubeProjectileSegment SegmentStartedAt(Animation<NoobTubeProjectileSegment> started) =>
-        NoobTubeProjectileAnimations.ShardAnimations.Values.Any(shard => ReferenceEquals(shard, started))
-            ? started.Phases[0].Segment
-            : base.SegmentStartedAt(started);
-
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(NoobTubeProjectileFrame frame) =>
         ShowsMirroredFrame && frame.Mirrored is { } mirrored ? mirrored : frame.Shown;

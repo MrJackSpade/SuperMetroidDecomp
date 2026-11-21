@@ -61,7 +61,6 @@ public sealed class FirefleaFxState
     /// </summary>
     private static RgbColor Shade(FirefleaFlashShade flash, FirefleaDarkness darkness)
     {
-        int level = flash.Level + darkness.Level;
-        return new FadeLevelColour(level, level, level).ToColour();
+        return FadeLevelColour.Grey(flash.Level + darkness.Level).ToColour();
     }
 }

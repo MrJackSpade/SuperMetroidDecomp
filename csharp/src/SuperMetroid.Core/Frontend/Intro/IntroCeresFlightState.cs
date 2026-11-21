@@ -53,7 +53,7 @@ internal sealed class IntroCeresFlightState
     /// The screen's brightness: held black until music is ready, then fully lit, and lowered a level at the fade-out's pace
     /// in the final fade, stopping at black.
     /// </summary>
-    private readonly ScreenFade fade = new(0);
+    private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>The rear view's five station, asteroid, vortex and star actors, in spawn order, created when the camera switches to it.</summary>
     internal IReadOnlyList<CeresRearViewActor> RearViewActors { get; private set; } = [];
     /// <summary>

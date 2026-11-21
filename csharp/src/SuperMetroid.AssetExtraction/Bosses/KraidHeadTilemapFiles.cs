@@ -22,7 +22,7 @@ internal static class KraidHeadTilemapFiles
             Version = KraidHeadTilemapFormat.Version,
             Width = KraidHeadTilemapFormat.Width,
             Height = KraidHeadTilemapFormat.Height,
-            Cells = [.. tiles.Select(tile => BackgroundTileCells.Of(tile))],
+            Cells = [.. tiles.Select(tile => RoomBackgroundTilemapCell.Of(tile))],
         }, JsonOptions);
         return json;
     }

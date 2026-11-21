@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Progression;
 
@@ -23,14 +23,15 @@ internal sealed class ProjectileTriggerObjects
     /// grapple beam's touch (<see cref="BlockStrike.GrappleTouch"/>) lands as a beam.
     /// </summary>
     /// <remarks>
-    /// A hit on a block no active place lies at changes nothing (#2553). The game's generic trigger ($84:C7E2) then finds
-    /// no object and leaves only the carry of its last compare, against the first room-object slot's stored block, and every
-    /// caller discards that carry: the shot, bomb and grapple reactions ($94:9E55-9EA5, $94:9D71-9DA3) set the shootable
-    /// block's collision and clear shootable air's after the spawn whatever the setup returned, and the trigger deletes
-    /// itself ($84:C840). The block's own collision decides whether the strike stops, as it does with an object there.
+    /// A hit on a block no active place lies at changes nothing (#2553): a resident-trigger block can outlive its object, as
+    /// the n00b tube's setup writes its origin before the already-broken tube deletes itself. The game's generic trigger
+    /// ($84:C7E2) then finds no object and leaves only the carry of its last compare, against the first room-object slot's
+    /// stored block, and every caller discards that carry: the shot, bomb and grapple reactions ($94:9E55-9EA5,
+    /// $94:9D71-9DA3) set the shootable block's collision and clear shootable air's after the spawn whatever the setup
+    /// returned, and the trigger deletes itself ($84:C840). The block's own collision decides whether the strike stops, as
+    /// it does with an object there.
     /// </remarks>
-    /// <returns>Whether an active place lies at <paramref name="block"/>, which no gameplay reaction reads.</returns>
-    public bool TryNotifyResidentProjectileHit(
+    public void NotifyResidentProjectileHit(
         Position16<RoomBlocks> block,
         BlockStrike strike)
     {
@@ -44,9 +45,7 @@ internal sealed class ProjectileTriggerObjects
             // object, which takes it all the same, so a place later in the order never sees it.
             if (place.Behaviour is IShootableRoomObject shootable)
                 shootable.Strike(new ResidentObjectProjectileHit(strike.Family));
-            return true;
+            return;
         }
-
-        return false;
     }
 }

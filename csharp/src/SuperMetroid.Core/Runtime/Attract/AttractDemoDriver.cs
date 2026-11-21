@@ -124,7 +124,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        samus.Ground = SamusGround.Of(room.Definition);
+        samus.Ground = room.Definition.Ground;
         _player.GroundedSamusMovementEnabled = true;
         _attractSession.Input = new AttractDemoInput(scene);
     }

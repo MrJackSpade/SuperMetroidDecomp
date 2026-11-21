@@ -275,7 +275,7 @@ public abstract class RoomSetupBehavior
     {
         /// <inheritdoc/>
         internal override void StartWithRoomEnemies(RoomSetupEnemiesLoaded loaded) =>
-            Ensure.NotNull(loaded).Enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile();
+            Ensure.NotNull(loaded).Enemies.LoaderHooks.HoldPrePhantoonRoomProjectilePlace();
     }
 
     /// <summary>

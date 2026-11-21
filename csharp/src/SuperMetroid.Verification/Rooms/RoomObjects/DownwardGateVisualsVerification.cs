@@ -17,7 +17,7 @@ internal static class DownwardGateVisualsVerification
     /// <summary>Checks the stock column tile through actual PLM drawing and later camera streaming, and catalog rejections.</summary>
     internal static void VerifyDownwardGateVisuals()
     {
-        InstalledRoomObjectDownwardGateVisuals stock = InstalledRoomObjectDownwardGateVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.DownwardGate;
         // The synthetic population's header begins at the opening list, which
         // selects the sixth resident column frame before its gate pre-instruction.
         RoomObjectDraw sixthColumn = NativeObjectDraws.At<DownwardGateDraw>(0xa55d);

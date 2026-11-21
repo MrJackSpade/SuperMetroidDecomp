@@ -6,10 +6,11 @@ namespace SuperMetroid.Core.Rooms;
 public static class XrayBlockRevealRules
 {
     /// <summary>
-    /// Whether X-ray reveals <paramref name="room"/>'s blocks while <paramref name="boss"/> is loaded: not in the rooms
-    /// X-ray excludes, nor while a boss whose background X-ray preserves is loaded (<see cref="XrayBlockRevealDefinitions"/>).
+    /// Whether X-ray reveals <paramref name="room"/>'s blocks while <paramref name="boss"/> is loaded: not in a room that
+    /// X-ray reveals no blocks in (<see cref="RoomDefinition.XrayRevealsNoBlocks"/>), nor while a boss whose fight keeps
+    /// the room's background is loaded (<see cref="AreaBossDefinition.XrayKeepsBackground"/>).
     /// </summary>
     public static bool RevealsBlocks(RoomDefinition room, AreaBoss? boss) =>
-        !XrayBlockRevealDefinitions.ExcludedRooms.Contains(Ensure.NotNull(room)) &&
-        !(boss is { } loaded && XrayBlockRevealDefinitions.BossesPreservingBackground.Contains(loaded));
+        !Ensure.NotNull(room).XrayRevealsNoBlocks &&
+        !(boss is { } loaded && Ensure.Listed(AreaBossDefinitions.Bosses, loaded).XrayKeepsBackground);
 }

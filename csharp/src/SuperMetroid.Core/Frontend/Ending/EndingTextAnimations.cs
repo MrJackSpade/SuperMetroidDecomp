@@ -41,22 +41,25 @@ internal static class EndingTextAnimations
             [T.ClearTime] =
             [
                 .. Typing(T.ClearTime),
-                B.Raise(K.SpawnHoursTens),
-                B.Show(Whole(T.ClearTime), D.ClearTimeColumnUpdates),
-                B.Raise(K.SpawnHoursUnits),
-                B.Show(Whole(T.ClearTime), D.ClearTimeColumnUpdates),
-                B.Raise(K.SpawnColon),
-                B.Show(Whole(T.ClearTime), D.ClearTimeColumnUpdates),
-                B.Raise(K.SpawnMinutesTens),
-                B.Show(Whole(T.ClearTime), D.ClearTimeColumnUpdates),
-                B.Raise(K.SpawnMinutesUnits),
-                B.Show(Whole(T.ClearTime), D.ClearTimeShownUpdates),
+                .. ClearTimeColumnsSpawning(),
                 B.Raise(K.TransitionToCredits),
                 B.Hold(Whole(T.ClearTime)),
             ],
         };
         return new(segments, plays => segments.Keys.ToDictionary(text => text, text => plays.Through(text, AnimationEnd.Holds)));
     }
+
+    /// <summary>
+    /// CLEAR TIME spawning the clear time's columns one by one (<see cref="D.ClearTimeColumns"/>): each column's spawn, then the
+    /// whole of CLEAR TIME for <see cref="D.ClearTimeColumnUpdates"/>, after the last column for
+    /// <see cref="D.ClearTimeShownUpdates"/>, as the whole clear time shows.
+    /// </summary>
+    private static IEnumerable<AnimationBeat<EndingTextTyping, EndingSceneCue>> ClearTimeColumnsSpawning() =>
+        D.ClearTimeColumns.SelectMany((column, place) => new[]
+        {
+            B.Raise(column),
+            B.Show(Whole(T.ClearTime), place + 1 == D.ClearTimeColumns.Count ? D.ClearTimeShownUpdates : D.ClearTimeColumnUpdates),
+        });
 
     /// <summary><paramref name="text"/> typed in full.</summary>
     private static EndingTextTyping Whole(EndingTypedText text) => new(text, Letters(text));

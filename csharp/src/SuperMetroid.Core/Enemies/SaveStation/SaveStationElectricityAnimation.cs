@@ -4,16 +4,21 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.SaveStation;
 
-/// <summary>The save-station electricity's typed animation: its discharge (#2061).</summary>
+/// <summary>
+/// The save-station electricity's typed animation: its discharge (#2061), each frame the place its one band picture is drawn at
+/// (#2557).
+/// </summary>
 internal sealed class SaveStationElectricityAnimation()
-    : EnemyProjectileFrameAnimation<SaveStationElectricitySegment, EnemyProjectileCommonCue>(SaveStationElectricityAnimations.Discharge, EnemyProjectileCueRunners.Common<SaveStationElectricitySegment>())
+    : EnemyProjectileTypedAnimation<SaveStationElectricitySegment, Offset16<RoomPixels>, EnemyProjectileCommonCue>(SaveStationElectricityAnimations.Discharge, EnemyProjectileCueRunners.Common<SaveStationElectricitySegment>())
 {
-    /// <summary>The segment the discharge starts at: its cycle.</summary>
-    private protected override SaveStationElectricitySegment SegmentStartedAt(Animation<SaveStationElectricitySegment> started) =>
-        Ensure.NotNull(started).Phases[0].Segment;
+    /// <summary>The electricity shows its band wherever its sweep places it.</summary>
+    private protected override EnemyProjectileFrameId Present(Offset16<RoomPixels> frame) => EnemyProjectileFrameId.SaveStationElectricityBand;
+
+    /// <summary>The band is drawn where the sweep's frame places it.</summary>
+    private protected override Offset16<RoomPixels> Placement(Offset16<RoomPixels> frame) => frame;
 
     /// <inheritdoc/>
-    private protected override IUnpausedAnimationPlay<SaveStationElectricitySegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SaveStationElectricityAnimations.Segments;
+    private protected override IUnpausedAnimationPlay<SaveStationElectricitySegment, Offset16<RoomPixels>, EnemyProjectileCommonCue> Segments => SaveStationElectricityAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IEnumerable<KeyValuePair<SaveStationElectricitySegment, Animation<SaveStationElectricitySegment>>> StartingAt => SaveStationElectricityAnimations.StartingAt;

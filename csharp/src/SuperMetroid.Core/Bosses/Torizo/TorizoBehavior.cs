@@ -141,7 +141,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Golden Torizo's main behaviour counts consecutive space-jump poses for its anti-stall leap
         // decision, then runs the same main phases as Bomb Torizo.
-        if (samus.Pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose)
+        if (SamusPoseMetadata.IsSpaceJumpPose(samus.Pose))
             state.CountSamusSpaceJumpFrame();
         else
             state.SamusSpaceJumpFrames = 0;
@@ -445,19 +445,20 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return TorizoAnimations.ContinueWith(choice.Target);
             return state.Variant.WalkOnFromLanding(choice.Alternate);
         },
-        [TorizoChoiceKind.BombAttack] = static (choice, state, inputs) =>
-        {
-            bool chooseFirst = inputs.Samus.Missiles < TorizoDecisionDefinitions.BombFirstAttackMissiles ||
-                TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
-            return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
-        },
-        [TorizoChoiceKind.GoldenAttack] = static (choice, state, inputs) =>
-        {
-            bool chooseFirst = inputs.Samus.Missiles < TorizoDecisionDefinitions.GoldenFirstAttackMissiles ||
-                TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
-            return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
-        },
+        [TorizoChoiceKind.BombAttack] = ChooseTorizoAttack,
+        [TorizoChoiceKind.GoldenAttack] = ChooseTorizoAttack,
     });
+
+    /// <summary>
+    /// A Torizo's attack choice: the first attack while Samus carries fewer missiles than the variant's threshold or while
+    /// the first-attack phase lasts, the alternate otherwise.
+    /// </summary>
+    private static AnimationContinuation<TorizoBodySegment>? ChooseTorizoAttack(TorizoCue.Choice choice, TorizoEnemyState state, TorizoCueInputs inputs)
+    {
+        bool chooseFirst = inputs.Samus.Missiles < state.Variant.FirstAttackMissiles ||
+            TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
+        return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
+    }
 
     /// <summary>What <c>ApplyTorizoCue</c> comes to for each <see cref="TorizoInterruptKind"/> member, each member's own arm.</summary>
     private IdentityTable<TorizoInterruptKind, Func<RoomEnemyPlace, TorizoCue.Interrupt, TorizoEnemyState, TorizoCueInputs, AnimationPlayback<TorizoBodySegment>, AnimationContinuation<TorizoBodySegment>?>> ApplyTorizoCueForTorizoInterruptKind => field ??= new(new Dictionary<TorizoInterruptKind, Func<RoomEnemyPlace, TorizoCue.Interrupt, TorizoEnemyState, TorizoCueInputs, AnimationPlayback<TorizoBodySegment>, AnimationContinuation<TorizoBodySegment>?>>

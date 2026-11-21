@@ -89,10 +89,10 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
         else if (Phase is MotherBrainGlassPhase.Shattering)
         {
             _owner.SetGlassDestroyed();
-            context.RoomObjects.DeleteObject(place);
+            LeaveRoom(place, context);
         }
         else if (Phase is MotherBrainGlassPhase.Resolved)
-            context.RoomObjects.DeleteObject(place);
+            LeaveRoom(place, context);
     }
 
     /// <summary>
@@ -121,5 +121,12 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
         context.Draw(place, MotherBrainGlassDraws.Family, image);
         _holdBeforeNextStep.LastFor(updates);
         Phase = phase;
+    }
+
+    /// <summary>The glass leaves the room: its owner forgets its place before the place is freed.</summary>
+    private void LeaveRoom(RoomObjectPlace place, RoomObjectStepContext context)
+    {
+        _owner.ForgetGlass(place);
+        context.RoomObjects.DeleteObject(place);
     }
 }

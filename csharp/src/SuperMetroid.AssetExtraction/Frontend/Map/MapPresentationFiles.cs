@@ -115,7 +115,7 @@ public static class MapPresentationFiles
     {
         // The manifest is import data (#1693): the game reads the documents it binds by name, and opens no manifest.
         using var installed = InstalledMapReader.Open(directory, importData: null);
-        return new InstalledAreaMapPresentation(new InstalledScreenContent(ReadGame(installed)));
+        return new InstalledAreaMapPresentation(ReadGame(installed));
     }
 
     /// <summary>
@@ -130,7 +130,7 @@ public static class MapPresentationFiles
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
         using var installed = InstalledMapReader.Open(directory, importData);
-        InstalledScreenContentParts game = ReadGame(installed);
+        InstalledScreenContent game = ReadGame(installed);
         var characters = new ImportPresentationCharacters(
             new MapCharacterArtwork(
                 Page(MapTileAtlasFormat.FileName, "map tile atlas", s => MapTileCharacters.Read(s)),
@@ -190,7 +190,7 @@ public static class MapPresentationFiles
                 Document(EndingTextDefinitions.ArtworkFileName, "ending text", s => EndingTextPresentation.Load(s))),
             Document(CreditsPresentationDefinitions.FileName, "staff credits", s => CreditsPresentation.Load(s)));
         installed.RequireAllManifestFilesRead();
-        return new ImportAreaMapPresentation(new InstalledScreenContent(game), characters, colours, documents);
+        return new ImportAreaMapPresentation(game, characters, colours, documents);
 
         // The import's colours and characters are not part of the presentation's identity: the game reads none of them,
         // and the sheets composed from them carry their own.
@@ -213,7 +213,7 @@ public static class MapPresentationFiles
     /// Reads what the game binds: the areas, the presentation resources and the scene colours, framing each into the
     /// presentation's identity in a fixed order.
     /// </summary>
-    private static InstalledScreenContentParts ReadGame(InstalledMapReader installed)
+    private static InstalledScreenContent ReadGame(InstalledMapReader installed)
     {
         Dictionary<AreaId, HashSet<int>> stationCells = installed.ReadStationCells();
         var areas = new Dictionary<AreaId, IAreaMapView>();
@@ -263,7 +263,7 @@ public static class MapPresentationFiles
         MotherBrainRainbowBeamColours motherBrainBeam = Resource(MotherBrainBeamColourFile.FileName, "Mother Brain beam colours", s => MotherBrainBeamColourFile.Read(s));
         InstalledPowerBombGlowColors powerBombGlowColors = Resource(PowerBombGlowColorFile.FileName, "Power Bomb glow colours", s => PowerBombGlowColorFile.Read(s));
         CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays = Resource(CeresRidleyGetawayBoostDelayFormat.FileName, "Ceres Ridley getaway boost delays", s => CeresRidleyGetawayBoostDelayFiles.Read(s));
-        return new InstalledScreenContentParts { ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()),
+        return new InstalledScreenContent { ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()),
             Maps = new AreaMapPresentation(areas, cycle, labels, stations, landmarks, saveMarkers, arrows), Backdrops = sceneColours.Menus, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, EscapeTimer = escapeTimer, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, EndingText = endingText, TitleBackdrop = sceneColours.TitleBackdrop, TitleGradient = titleGradient, MotherBrainRainbowBeamColours = motherBrainBeam, CeresHaze = sceneColours.CeresHaze, PowerBombGlowColors = powerBombGlowColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays };
 
         T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>

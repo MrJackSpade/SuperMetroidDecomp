@@ -61,6 +61,9 @@ internal class EnemyProjectileBehavior
     /// <param name="projectile">A projectile this behaviour is bound to.</param>
     internal virtual bool IsHidden(EnemyProjectile projectile) => false;
 
+    /// <summary>Whether a projectile of the kind shows the glow its thrower shows, as Magdollite lava does.</summary>
+    internal virtual bool ShowsThrowersGlow => false;
+
     /// <summary>
     /// Moves the projectile one projectile pass by its motion, before its animation advances (#1843): the motion moves it
     /// through the behaviour that owns it. A projectile that holds still does not move itself: it holds still while its

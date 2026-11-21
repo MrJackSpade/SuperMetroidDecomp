@@ -37,33 +37,13 @@ public static class GameOverPresentationExtractor
 
         var cells = new MapPresentationCell[tilemap.Length];
         for (int index = 0; index < tilemap.Length; index++)
-        {
-            var word = new SnesBgTilemapWord(tilemap[index]);
-            cells[index] = new()
-            {
-                TileColumn = word.CharacterIndex % MapTileAtlasFormat.TileColumns,
-                TileRow = word.CharacterIndex / MapTileAtlasFormat.TileColumns,
-                Palette = word.PaletteIndex,
-                Priority = word.HasPriority,
-                FlipX = word.FlipHorizontally,
-                FlipY = word.FlipVertically,
-            };
-        }
+            cells[index] = MapPresentationCell.Of(BackgroundTileWords.ToTile(tilemap[index]), MapTileAtlasFormat.TileColumns);
 
-        var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
-        {
-            [GameOverPresentationNames.BabyFrameName(GameOverBabyFrame.Closed)] =
-                MenuSpriteExtractor.Read(bus,
-                    GameOverBabyAnimationDefinitions.Spritemaps.Word(GameOverBabyFrame.Closed)),
-            [GameOverPresentationNames.BabyFrameName(GameOverBabyFrame.Middle)] =
-                MenuSpriteExtractor.Read(bus,
-                    GameOverBabyAnimationDefinitions.Spritemaps.Word(GameOverBabyFrame.Middle)),
-            [GameOverPresentationNames.BabyFrameName(GameOverBabyFrame.Open)] =
-                MenuSpriteExtractor.Read(bus,
-                    GameOverBabyAnimationDefinitions.Spritemaps.Word(GameOverBabyFrame.Open)),
-            [GameOverPresentationDefinitions.EggFrame] =
-                MenuSpriteExtractor.Read(bus, GameOverSourceDefinitions.EggSpritemap),
-        };
+        var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+        foreach (GameOverBabyFrame frame in GameOverSheetComposer.BabyFrames)
+            sprites.Add(GameOverPresentationNames.BabyFrameName(frame),
+                MenuSpriteExtractor.Read(bus, GameOverBabyAnimationDefinitions.Spritemaps.Word(frame)));
+        sprites.Add(GameOverPresentationDefinitions.EggFrame, MenuSpriteExtractor.Read(bus, GameOverSourceDefinitions.EggSpritemap));
         foreach (MenuMissileFrame frame in MenuMissileAnimationDefinitions.Roll)
         {
             sprites.Add(MenuMissileFrames.Name(frame),

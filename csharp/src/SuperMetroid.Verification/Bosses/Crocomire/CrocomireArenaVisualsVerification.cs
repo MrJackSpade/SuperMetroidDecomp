@@ -12,7 +12,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>Checks editable Crocomire bridge and invisible-wall draw art through stock extraction and production PLMs.</summary>
 internal static class CrocomireArenaVisualsVerification
@@ -30,7 +29,7 @@ internal static class CrocomireArenaVisualsVerification
             GameInstallation installation = copy.Installation;
             RoomObjectCrocomireVisualFilesConstants.ValidateStock(
                 installation.RoomObjectCrocomireVisualDirectory);
-            InstalledRoomObjectCrocomireVisuals stock =
+            InstalledRoomObjectPictures stock =
                 installation.LoadRoomObjectCrocomireVisuals();
             VerifyCrocomireStockMapping(rom, stock);
             VerifyCrocomireVisualDraw(CrocomireArenaMutation.ClearBridge,
@@ -51,7 +50,7 @@ internal static class CrocomireArenaVisualsVerification
     /// <summary>Runs one arena mutation and checks its collision word, immediate BG1 update, and ROM-free visual source.</summary>
     private static void VerifyCrocomireVisualDraw(CrocomireArenaMutation mutation,
         Offset16<RoomBlocks> blockOffset, RoomTerrainBlock physical, RoomBlockAppearance visual,
-        InstalledRoomObjectCrocomireVisuals visuals)
+        InstalledRoomObjectPictures visuals)
     {
         const int width = 32;
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), width * 16).ToArray();

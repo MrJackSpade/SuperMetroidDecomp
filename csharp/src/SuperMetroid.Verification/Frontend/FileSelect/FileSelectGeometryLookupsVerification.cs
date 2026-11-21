@@ -34,31 +34,31 @@ internal static class FileSelectGeometryLookupsVerification
     /// <summary>Compares six main-menu cursor rows with native records and extracted positions.</summary>
     private static void VerifyFileSelectMainCursorY(ISnesAddressSpace rom, FileSelectPresentation presentation)
     {
-        AssertEqual(6, FileSelectCursorPositions.MainSelectionCount, "main selection count");
+        AssertEqual(6, FileSelectCursorPositionsConstants.MainSelectionCount, "main selection count");
         for (int row = 0; row < 6; row++)
         {
             ushort expected = ReadVerificationWord(rom, 0x81a312 + row * 4);
-            AssertEqual(expected, FileSelectCursorPositions.MainSelectionY(row), $"main cursor Y {row}");
+            AssertEqual(expected, FileSelectCursorPositions.MainSelectionY(FileSelectItemRows.MainWithData[row]), $"main cursor Y {row}");
             AssertEqual(expected, presentation.CursorPosition(FileSelectCursorPage.Main, FileSelectItemRows.MainWithData[row]).Y,
                 $"extracted main cursor Y {row}");
         }
-        Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.MainSelectionY, 6));
+        Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.MainSelectionY, [(FileSelectItem)99]));
     }
 
     /// <summary>Compares four data-menu cursor rows from both native views with extracted positions.</summary>
     private static void VerifyFileSelectDataCursorY(ISnesAddressSpace rom, FileSelectPresentation presentation)
     {
-        AssertEqual(4, FileSelectCursorPositions.DataSelectionCount, "data selection count");
-        AssertEqual(FileSelectCursorPositions.DataSelectionCount, FileSelectItemRows.Data.Count, "the data pages show one row per cursor anchor");
+        AssertEqual(4, FileSelectCursorPositionsConstants.DataSelectionCount, "data selection count");
+        AssertEqual(FileSelectCursorPositionsConstants.DataSelectionCount, FileSelectItemRows.Data.Count, "the data pages show one row per cursor anchor");
         foreach (int address in new[] { 0x819772, 0x819c03 })
         for (int row = 0; row < 4; row++)
         {
             ushort expected = ReadVerificationWord(rom, address + row * 2);
-            AssertEqual(expected, FileSelectCursorPositions.DataSelectionY(row), $"data cursor {address:X6}/{row}");
+            AssertEqual(expected, FileSelectCursorPositions.DataSelectionY(FileSelectItemRows.Data[row]), $"data cursor {address:X6}/{row}");
             AssertEqual(expected, presentation.CursorPosition(FileSelectCursorPage.DataManagement, FileSelectItemRows.Data[row]).Y,
                 $"extracted data cursor {address:X6}/{row}");
         }
-        Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.DataSelectionY, 4));
+        Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.DataSelectionY, [FileSelectItem.Copy, FileSelectItem.Clear, (FileSelectItem)99]));
     }
 
     /// <summary>Compares three helmet anchors with native immediate operands and extracted artwork positions.</summary>
@@ -72,20 +72,20 @@ internal static class FileSelectGeometryLookupsVerification
             AssertEqual((byte)0xa9, FileSelectHelmetYRomByte(rom, instruction), "helmet LDA immediate opcode");
             AssertEqual((byte)0x8d, FileSelectHelmetYRomByte(rom, instruction + 3), "helmet STA absolute opcode");
             ushort expected = ReadVerificationWord(rom, instruction + 1);
-            AssertEqual(expected, FileSelectCursorPositions.HelmetY(slot), $"helmet Y {slot}");
+            AssertEqual(expected, FileSelectCursorPositions.HelmetY(FileSelectCursorPositions.Slots[slot]), $"helmet Y {slot}");
             AssertEqual(expected, document.HelmetAnchors[slot].Y, $"extracted helmet Y {slot}");
         }
-        Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.HelmetY, 3));
+        Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.HelmetY, [(SuperMetroid.Core.Saves.SaveSlot)99]));
     }
 
     /// <summary>Reads a native helmet placement opcode as the cartridge comparison oracle.</summary>
     private static byte FileSelectHelmetYRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks that each indexed geometry lookup rejects values outside its native row count.</summary>
-    private static void VerifyFileSelectGeometryBounds(Func<int, int> lookup, int count)
+    private static void VerifyFileSelectGeometryBounds<TRow>(Func<TRow, int> lookup, TRow[] notOnThePage)
     {
-        foreach (int index in new[] { int.MinValue, -1, count, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => lookup(index), $"unsupported geometry index {index}");
+        foreach (TRow row in notOnThePage)
+            AssertThrows<ArgumentOutOfRangeException>(() => lookup(row), $"unsupported geometry row {row}");
     }
 
     /// <summary>Runs the file-select cursor and helmet geometry checks.</summary>

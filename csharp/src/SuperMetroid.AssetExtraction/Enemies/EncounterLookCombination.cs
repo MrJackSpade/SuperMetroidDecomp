@@ -14,11 +14,11 @@ internal sealed class EncounterLookCombination : IEquatable<EncounterLookCombina
     private readonly ImmutableArray<ComposedEncounter> encounters;
 
     /// <summary>The look of each part's encounter shown, in the same order.</summary>
-    private readonly ImmutableArray<int> looks;
+    private readonly ImmutableArray<ComposedLook> looks;
 
     /// <summary>The looks <paramref name="combination"/> names of the encounters of <paramref name="parts"/>.</summary>
     /// <exception cref="ArgumentException">There is not one look for each part.</exception>
-    internal EncounterLookCombination(IReadOnlyList<SetCharacters.FrameLookPart> parts, int[] combination)
+    internal EncounterLookCombination(IReadOnlyList<SetCharacters.FrameLookPart> parts, ComposedLook[] combination)
     {
         Ensure.NotNull(parts);
         Ensure.NotNull(combination);
@@ -41,7 +41,7 @@ internal sealed class EncounterLookCombination : IEquatable<EncounterLookCombina
         var hash = new HashCode();
         foreach (ComposedEncounter encounter in encounters)
             hash.Add(encounter);
-        foreach (int look in looks)
+        foreach (ComposedLook look in looks)
             hash.Add(look);
         return hash.ToHashCode();
     }

@@ -147,7 +147,6 @@ internal static class AudioClipExporter
         Dictionary<string, SoundEffectProgramScan> scans,
         SoundEffectKey key)
     {
-        int libraryIndex = SoundLibraryNumbers.DriverIndex(key.Library);
         AudioSoundEffectMetadata effect = catalog.SoundLibraries
             .Single(library => library.Library == SoundLibraryNumbers.Number(key.Library))
             .Effects.Single(candidate => candidate.Command == key.Command);
@@ -157,7 +156,7 @@ internal static class AudioClipExporter
                 scans[program].UnmappedSources(catalog.GetInstrumentBank(bank), catalog.GetSampleBank(bank)).Any()))
             throw new InvalidDataException($"{sound} plays a sample the shared sounds do not hold.");
 
-        SoundEffectClipPolicy policy = Policy(libraryIndex, key.Command, effect.Configuration);
+        SoundEffectClipPolicy policy = Policy(key.Library, key.Command, effect.Policy);
         bool loops = effect.ChannelPrograms.Any(program => scans[program].RepeatsForever);
         if (loops)
         {
@@ -180,12 +179,13 @@ internal static class AudioClipExporter
     /// configuration from each possible priority and low-health mode shows whether it sets them or
     /// keeps them, and the rejection rule shows which states it ignores.
     /// </summary>
-    internal static SoundEffectClipPolicy Policy(int libraryIndex, int command, int configuration)
+    internal static SoundEffectClipPolicy Policy(SoundEffectLibrary soundLibrary, int command, string policyKey)
     {
+        int libraryIndex = SoundLibraryNumbers.DriverIndex(soundLibrary);
         ManagedSpcSoundLibrary Configure(int priority, int mode)
         {
             var library = new ManagedSpcSoundLibrary { Priority = priority, Mode = mode };
-            SpcSoundLibraries.ConfigureSoundLibrary(libraryIndex, library, configuration);
+            SpcSoundLibraries.ConfigureSoundLibrary(soundLibrary, library, policyKey);
             return library;
         }
 
@@ -196,14 +196,14 @@ internal static class AudioClipExporter
             (0, 0) => SoundEffectPriorityEffect.Low,
             (1, 1) => SoundEffectPriorityEffect.High,
             (0, 1) => SoundEffectPriorityEffect.Unchanged,
-            _ => throw new InvalidDataException($"Configuration {configuration} sets priority {fromLow.Priority}/{fromHigh.Priority}."),
+            _ => throw new InvalidDataException($"Policy {policyKey} sets priority {fromLow.Priority}/{fromHigh.Priority}."),
         };
         LowHealthModeEffect mode = new LowHealthPriorityPair(fromLow.Mode, fromHigh.Mode) switch
         {
             (0, SpcDriverDefinitions.SoundEffects.LowHealthMode) => LowHealthModeEffect.Unchanged,
             (0, 0) => LowHealthModeEffect.Clear,
             (SpcDriverDefinitions.SoundEffects.LowHealthMode, SpcDriverDefinitions.SoundEffects.LowHealthMode) => LowHealthModeEffect.Enter,
-            _ => throw new InvalidDataException($"Configuration {configuration} sets low-health mode {fromLow.Mode}/{fromHigh.Mode}."),
+            _ => throw new InvalidDataException($"Policy {policyKey} sets low-health mode {fromLow.Mode}/{fromHigh.Mode}."),
         };
         // The voices the configuration sets up stay the driver's: the render plays them, and the clips carry the result
         // (#1749).
@@ -211,7 +211,7 @@ internal static class AudioClipExporter
             priority,
             mode,
             IgnoresPriority: !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 1, mode: 0),
-            IgnoresLowHealthMode: libraryIndex == 2 && !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 0, mode: SpcDriverDefinitions.SoundEffects.LowHealthMode));
+            IgnoresLowHealthMode: SpcSoundEffectTables.HasLowHealthMode(libraryIndex) && !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 0, mode: SpcDriverDefinitions.SoundEffects.LowHealthMode));
     }
 
     /// <summary>

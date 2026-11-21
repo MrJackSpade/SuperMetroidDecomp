@@ -23,7 +23,7 @@ public static class RoomObjectSpeedBoosterVisualFiles
     /// <summary>Loads the installed Speed Booster reveal pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectSpeedBoosterVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The artwork identity of the bomb reveal of one Speed Booster block.</summary>

@@ -24,7 +24,7 @@ public static class RoomObjectGreyDoorVisualFiles
     /// <summary>Loads the installed grey-door cap pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectGreyDoorVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates all twenty authored cap records for artwork import and export.</summary>
@@ -64,10 +64,10 @@ public static class RoomObjectGreyDoorVisualFiles
     /// <summary>The four cleared openings, then each facing's grey cap closed and sliding aside.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()
     {
-        for (int orientation = 0; orientation < 4; orientation++)
-            yield return GreyDoorCaps.Family.Of(GreyDoorCaps.Draw.ClearedOf(DoorCapOrientations.FromTableIndex(orientation)));
-        for (int orientation = 0; orientation < 4; orientation++)
+        foreach (ColoredDoorOrientation orientation in DoorCapOrientations.InTableOrder)
+            yield return GreyDoorCaps.Family.Of(GreyDoorCaps.Draw.ClearedOf(orientation));
+        foreach (ColoredDoorOrientation orientation in DoorCapOrientations.InTableOrder)
             foreach (DoorCapLook look in DoorCaps.OpeningLooks)
-                yield return GreyDoorCaps.Family.Of(new GreyDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), look));
+                yield return GreyDoorCaps.Family.Of(new GreyDoorCaps.Draw(orientation, look));
     }
 }

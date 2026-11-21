@@ -4,7 +4,6 @@ using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
 using static SuperMetroid.TestSupport.MovieReplay.RidleySamusDrawReference;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -131,7 +130,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             : throw new InvalidOperationException("Verification requires the installation's Samus body artwork.");
         SamusBodyComposition? Drawn() => samus.Presentation.DrawnFrame is { } picture
             ? SamusBodyCompositions.Of(picture.Pose, SamusAnimationNumbers.Number(picture.Pose, picture.PictureFrame), BodyArtwork()) : null;
-        int SpritemapIndex(SamusBodyHalfFrame? drawn) => SamusSpritemapNative.Index(BodyArtwork().Spritemaps, drawn);
+        int SpritemapIndex(SamusBodyHalfFrame? drawn) => SamusSpritemapNative.Index(drawn);
         BodyRecordResult BodyRecord() =>
             new BodyRecordResult(SpritemapIndex(Drawn()?.Top), SpritemapIndex(Drawn()?.Bottom),
                 unchecked((ushort)samus.Presentation.DrawOrigin.X), unchecked((ushort)samus.Presentation.DrawOrigin.Y));
@@ -249,9 +248,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                         .Where(draw => draw.Source.Kind == SpriteSourceKind.SamusArmCannon)];
                     VerificationAssertions.AssertEqual(cannon.SpriteWritten ? 1 : 0, covers.Length, $"update {frame}: cannon draw count");
                     if (cannon.SpriteWritten && cannon.TileUploadQueued)
-                        VerificationAssertions.AssertEqual(ArmCannonTileSources.CoverTileDmaSources.IndexOf(cannon.TileSource),
-                            SheetFrameSources.CharacterDraw(covers[0]).Artwork.Id.Variant,
-                            $"update {frame}: cannon draw binds the reference cover tile");
+                        VerificationAssertions.AssertEqual(SuperMetroid.AssetExtraction.Artwork.SpriteArtworkKind.SamusArmCannonCover,
+                            SheetFrameSources.CharacterDraw(covers[0]).Artwork.Id.Kind,
+                            $"update {frame}: cannon draw binds a cover tile");
                 }
                 // The recorded cover flags are a byte each; the drawing mode is compared as the draw order it selects.
                 ushort recordedCannonFlags = W(NativeSnapshotMemory.CannonFlags);
@@ -812,7 +811,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 {
                     ushort recordedVariable = W(NativeSnapshotMemory.ProjectileVariable + index);
                     MissileShotState missile = projectile.KindStateAs<MissileShotState>();
-                    int? linkPlace = (missile as SuperMissileShotState)?.LinkPlace;
+                    int? linkPlace = (missile as SuperMissileShotState)?.LinkChainPosition;
                     if (!SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.RecordsIgnitionStage(recordedVariable, missile.Ignition) ||
                         (projectile.HeldShot().Type.Family == SamusProjectileFamily.SuperMissile &&
                         linkPlace != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileLinkSlot(recordedVariable)))
@@ -831,7 +830,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 CheckValue(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), nativeSpritemap == 0 ? 0 : global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(nativeSpritemap));
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
-            for (int place = 0; place < SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine.PlaceCount; place++)
+            for (int place = 0; place < SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity; place++)
             {
                 int index = place * 2;
                 string owner = $"Enemy projectile {place}";
@@ -920,7 +919,6 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.EnemyDeathExplosion:
                     case RoomEnemyProjectileKind.EnemyDeathPickup:
                         break;
-                    case RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace:
                     case RoomEnemyProjectileKind.YappingMawBody:
                     case RoomEnemyProjectileKind.SkreeMetareeParticle:
                     case RoomEnemyProjectileKind.CrocomireProjectile:

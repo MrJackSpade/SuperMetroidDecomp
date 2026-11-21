@@ -142,13 +142,6 @@ public sealed class SamusProjectile
         : held.KindState is { } kind ? kind.ReplacedByBeam(ReflectionHeadStart)
         : new BeamFiredOverLastShot.ReplacedShot.Beam(BeamFuse.UpdatesLeft);
 
-    /// <summary>
-    /// The head start a reflection gives a missile toward the speed it re-ignites at: what that speed exceeds a fired
-    /// missile's by.
-    /// </summary>
-    private static SignedEightEight ReflectionHeadStart =>
-        SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed - SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
-
     /// <summary>The state the kind of the projectile holding the place keeps, which must be a <typeparamref name="TState"/>.</summary>
     /// <exception cref="InvalidOperationException">No projectile holds the place, or the one holding it keeps no such state.</exception>
     internal TState KindStateAs<TState>() where TState : SamusShotKindState => Occupant switch

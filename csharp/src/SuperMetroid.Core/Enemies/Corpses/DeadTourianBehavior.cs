@@ -44,7 +44,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The species whose corpse <paramref name="definitionId"/> places.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="definitionId"/> is not a Tourian corpse.</exception>
-    internal static DeadTourianCorpseSpecies SpeciesOf(EnemyDefinitionId definitionId) =>
+    private static DeadTourianCorpseSpecies SpeciesOf(EnemyDefinitionId definitionId) =>
         DeadTourianCorpseSpeciesDefinitions.Species.TryGetValue(definitionId, out DeadTourianCorpseSpecies species)
             ? species
             : throw new ArgumentOutOfRangeException(nameof(definitionId));
@@ -59,7 +59,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Dead {species} placement names a corpse that is not one of its species'.");
         }
-        var state = new DeadTourianCorpseEnemyState(new CorpseRotSchedule(definition.RowCount), DeadTourianCorpsePhase.Waiting);
+        var state = new DeadTourianCorpseEnemyState(new CorpseRotSchedule(definition.RowCount), CorpsePhase.Waiting);
         place.SetSpeciesState(state);
 
         place.Shading = TourianCorpseShades.InDrainedColours;
@@ -67,24 +67,17 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <c>RunDeadTourianCorpseMain</c> does for each <see cref="DeadTourianCorpsePhase"/> member, each member's own arm.</summary>
-    private IdentityTable<DeadTourianCorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTourianCorpseEnemyState>> RunDeadTourianCorpseMainForDeadTourianCorpsePhase => field ??= new(new Dictionary<DeadTourianCorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTourianCorpseEnemyState>>
+    private IdentityTable<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTourianCorpseEnemyState>> RunDeadTourianCorpseMainForDeadTourianCorpsePhase => field ??= new(new Dictionary<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTourianCorpseEnemyState>>
     {
-        [DeadTourianCorpsePhase.Waiting] = (place, samus, state) =>
-        {
-            if (samus.Kinematics.DidCollideWithSolidEnemy(place) == true)
-                state.Phase = DeadTourianCorpsePhase.PreRotDelay;
-        },
-        [DeadTourianCorpsePhase.PreRotDelay] = (place, samus, state) =>
-        {
-            if (state.PreRotDelay.Step())
-            {
-                state.Phase = DeadTourianCorpsePhase.Rotting;
-                place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-            }
-        },
-        [DeadTourianCorpsePhase.Rotting] = (place, samus, state) => RunDeadTourianCorpseRotting(place, state),
-        [DeadTourianCorpsePhase.Finished] = (place, samus, state) => { },
+        [CorpsePhase.Waiting] = WaitToRot,
+        [CorpsePhase.PreRotDelay] = WaitToRot,
+        [CorpsePhase.Rotting] = (place, samus, state) => RunDeadTourianCorpseRotting(place, state),
+        [CorpsePhase.Finished] = (place, samus, state) => { },
     });
+
+    /// <summary>Waits for Samus's touch and then the delay before the corpse rots.</summary>
+    private static void WaitToRot(RoomEnemyPlace place, SamusState samus, DeadTourianCorpseEnemyState state) =>
+        state.Phase = CorpseRotWait.Step(state.Phase, place, samus, state.PreRotDelay);
 
     /// <summary>Runs the shared corpse behaviour: Samus touching it starts its wait before rotting (<see cref="CorpseRotScheduleDefinitions.PreRotDelayUpdates"/>), then the corpse rots until its last row has fallen.</summary>
     private void RunDeadTourianCorpseMain(RoomEnemyPlace place, SamusState samus)
@@ -97,7 +90,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void TriggerDeadTourianCorpseRotting(RoomEnemyPlace place)
     {
         DeadTourianCorpseEnemyState state = place.RequireSpeciesState<DeadTourianCorpseEnemyState>();
-        state.Phase = DeadTourianCorpsePhase.Rotting;
+        state.Phase = CorpsePhase.Rotting;
         place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
     }
@@ -120,7 +113,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Rows.MoveRow,
             _ => FinishDeadTourianCorpseRow(place));
         if (!stillRotting)
-            state.Phase = DeadTourianCorpsePhase.Finished;
+            state.Phase = CorpsePhase.Finished;
     }
 
     /// <summary>The rows <paramref name="place"/>'s frames show: its corpse's own, as its rot has left them (#1539).</summary>

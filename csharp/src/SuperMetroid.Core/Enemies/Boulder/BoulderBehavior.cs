@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -35,14 +35,6 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>What <c>InitializeBoulder</c> does for each <see cref="BoulderRoll"/> member, each member's own arm.</summary>
-    private static IdentityTable<BoulderRoll, Action<BoulderEnemyState>> InitializeBoulderForBoulderRoll => field ??= new(new Dictionary<BoulderRoll, Action<BoulderEnemyState>>
-    {
-        [BoulderRoll.Right] = static state => state.Playback = new(BoulderAnimations.StartingWith(BoulderSegment.Right), AnimationPlace.StartOfAnimation),
-        [BoulderRoll.Left] = static state => state.Playback = new(BoulderAnimations.StartingWith(BoulderSegment.Left), AnimationPlace.StartOfAnimation),
-        [BoulderRoll.LeftBreakingOnImpact] = static state => state.Playback = new(BoulderAnimations.StartingWith(BoulderSegment.Left), AnimationPlace.StartOfAnimation),
-    });
-
     /// <summary>Reads the spawn settings as direction, trigger windows and how it starts.</summary>
     internal static void InitializeBoulder(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
@@ -56,7 +48,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         int initialYOffset = settings.Start.InitialLift;
         place.Position = place.Position.WithWholeY(state.RestingY - initialYOffset);
 
-        InitializeBoulderForBoulderRoll[settings.Roll](state);
+        state.Playback = new(BoulderAnimations.StartingWith(Ensure.Listed(BoulderRollDefinitions.Rolls, settings.Roll).Segment),
+            AnimationPlace.StartOfAnimation);
         state.VerticalCompensation = BoulderMotionDefinitions.RollingGroundReach;
     }
 
@@ -93,7 +86,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         int deltaX = samus.Position.X.Whole - place.Position.X.Whole;
-        bool enteredHorizontalWindow = settings.Roll != BoulderRoll.Right
+        bool enteredHorizontalWindow = BoulderRollDefinitions.Rolls[settings.Roll].Direction == HorizontalDirection.Left
             ? deltaX < 0 && -deltaX <= settings.TriggerReach
             : deltaX >= 0 && deltaX < settings.TriggerReach;
         if (!enteredHorizontalWindow)
@@ -151,7 +144,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))
         {
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.BoulderImpactSound, priority: SoundRequestPriority.Normal);
-            if (occupant.SpawnSettings<BoulderSpawnSettings>().Roll == BoulderRoll.LeftBreakingOnImpact)
+            if (BoulderRollDefinitions.Rolls[occupant.SpawnSettings<BoulderSpawnSettings>().Roll].BreaksOnImpact)
             {
                 place.Presence = place.Presence.With(EnemyPresence.Deleted);
                 _projectiles.SpawnDustOrExplosion(
@@ -223,7 +216,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Reads the quadratic speed sample and signs it toward the roll its spawn settings name.</summary>
     private static SignedSixteenSixteen ReadBoulderHorizontalDisplacement(RoomEnemyOccupant occupant, BoulderEnemyState state) =>
-        state.TravelCurvePlace.Speed.Toward(occupant.SpawnSettings<BoulderSpawnSettings>().Roll != BoulderRoll.Right ? HorizontalDirection.Left : HorizontalDirection.Right);
+        state.TravelCurvePlace.Speed.Toward(BoulderRollDefinitions.Rolls[occupant.SpawnSettings<BoulderSpawnSettings>().Roll].Direction);
 
     /// <summary>Moves the boulder vertically by its place's speed on the quadratic speed curve, toward <paramref name="direction"/>.</summary>
     private static void AddBoulderVerticalVelocity(RoomEnemyPlace place, QuadraticSpeedCurvePlace accumulator, VerticalDirection direction)

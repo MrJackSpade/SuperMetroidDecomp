@@ -51,69 +51,47 @@ internal sealed class AmmoLoanGuard
     /// <summary>The rounds one update lent the Samus it began with.</summary>
     private sealed class AmmoLoan
     {
-        /// <summary>Remembers which counters received a temporary one-unit loan.</summary>
-        [IndependentFlag("Each ammunition type is lent a round independently of the others.")]
-        private AmmoLoan(
-            SamusState samus,
-            bool missilesBuffered,
-            bool superMissilesBuffered,
-            bool powerBombsBuffered)
+        /// <summary>
+        /// The ammunition counts the guard keeps from zero, in the order it prepares and returns them (#2557): missiles, Super
+        /// Missiles and Power Bombs, each lent a round independently of the others.
+        /// </summary>
+        private static readonly AmmoCount[] Counts =
+        [
+            new(samus => samus.Missiles, samus => samus.MaxMissiles, (samus, count) => samus.Missiles = count),
+            new(samus => samus.SuperMissiles, samus => samus.MaxSuperMissiles, (samus, count) => samus.SuperMissiles = count),
+            new(samus => samus.PowerBombs, samus => samus.MaxPowerBombs, (samus, count) => samus.PowerBombs = count),
+        ];
+
+        /// <summary>Remembers the counts that received a temporary one-unit loan.</summary>
+        private AmmoLoan(SamusState samus, IReadOnlySet<AmmoCount> lent)
         {
             Samus = samus;
-            MissilesBuffered = missilesBuffered;
-            SuperMissilesBuffered = superMissilesBuffered;
-            PowerBombsBuffered = powerBombsBuffered;
+            Lent = lent;
         }
 
         /// <summary>The Samus whose ammunition was prepared.</summary>
         private SamusState Samus { get; }
-        /// <summary>Whether missiles began at one and were raised to two for this frame.</summary>
-        private bool MissilesBuffered { get; }
-        /// <summary>Whether super missiles began at one and were raised to two for this frame.</summary>
-        private bool SuperMissilesBuffered { get; }
-        /// <summary>Whether power bombs began at one and were raised to two for this frame.</summary>
-        private bool PowerBombsBuffered { get; }
+        /// <summary>The counts that began at one and were raised to two for this update.</summary>
+        private IReadOnlySet<AmmoCount> Lent { get; }
 
         /// <summary>Raises each unlocked count of zero to one and lends a round to each unlocked count of one.</summary>
         internal static AmmoLoan Lend(SamusState samus)
         {
-            bool missilesBuffered = PrepareCounter(
-                samus.Missiles,
-                samus.MaxMissiles,
-                out int preparedMissiles);
-            samus.Missiles = preparedMissiles;
-            bool superMissilesBuffered = PrepareCounter(
-                samus.SuperMissiles,
-                samus.MaxSuperMissiles,
-                out int preparedSuperMissiles);
-            samus.SuperMissiles = preparedSuperMissiles;
-            bool powerBombsBuffered = PrepareCounter(
-                samus.PowerBombs,
-                samus.MaxPowerBombs,
-                out int preparedPowerBombs);
-            samus.PowerBombs = preparedPowerBombs;
-            return new AmmoLoan(
-                samus,
-                missilesBuffered,
-                superMissilesBuffered,
-                powerBombsBuffered);
+            var lent = new HashSet<AmmoCount>();
+            foreach (AmmoCount count in Counts)
+            {
+                if (PrepareCounter(count.Current(samus), count.Maximum(samus), out int prepared))
+                    lent.Add(count);
+                count.Set(samus, prepared);
+            }
+            return new AmmoLoan(samus, lent);
         }
 
         /// <summary>Takes each lent round back and applies the unlocked one-unit floor.</summary>
         internal void Return()
         {
-            Samus.Missiles = CompleteCounter(
-                Samus.Missiles,
-                Samus.MaxMissiles,
-                MissilesBuffered);
-            Samus.SuperMissiles = CompleteCounter(
-                Samus.SuperMissiles,
-                Samus.MaxSuperMissiles,
-                SuperMissilesBuffered);
-            Samus.PowerBombs = CompleteCounter(
-                Samus.PowerBombs,
-                Samus.MaxPowerBombs,
-                PowerBombsBuffered);
+            foreach (AmmoCount count in Counts)
+                count.Set(Samus, CompleteCounter(count.Current(Samus), count.Maximum(Samus), Lent.Contains(count)));
         }
 
         /// <summary>Raises unlocked zero to one or lends a unit to an unlocked count of one.</summary>
@@ -149,5 +127,11 @@ internal sealed class AmmoLoanGuard
             // the final-shot case: the game consumed the borrowed unit during this frame.
             return current <= 1 ? 1 : current - 1;
         }
+
+        /// <summary>One ammunition count on a Samus: how many she carries, her maximum, and how a count is written.</summary>
+        /// <param name="Current">The count she carries.</param>
+        /// <param name="Maximum">Her maximum, zero while the ammunition is locked.</param>
+        /// <param name="Set">Writes the count she carries.</param>
+        private sealed record AmmoCount(Func<SamusState, int> Current, Func<SamusState, int> Maximum, Action<SamusState, int> Set);
     }
 }

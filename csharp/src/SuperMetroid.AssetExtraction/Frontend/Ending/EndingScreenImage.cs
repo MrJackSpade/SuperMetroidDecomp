@@ -37,9 +37,12 @@ internal static class EndingScreenImage
                 ExecutePostShotPart(vram, part.Part, artwork);
                 break;
             case EndingRewardCharactersTransfer reward:
-                ReadOnlySpan<byte> rewardCharacters = reward.Reward == EndingReward.Suitless
-                    ? Objects(artwork).SuitlessSamus.Characters.Span
-                    : Objects(artwork).WaitingSamus.Characters.Span;
+                ReadOnlySpan<byte> rewardCharacters = EndingRewardDefinitions.Rewards[reward.Reward].Dress switch
+                {
+                    EndingRewardDress.Suitless => Objects(artwork).SuitlessSamus.Characters.Span,
+                    EndingRewardDress.Suited => Objects(artwork).WaitingSamus.Characters.Span,
+                    _ => throw new InvalidDataException($"Undefined {nameof(EndingRewardDress)} for {reward.Reward}."),
+                };
                 ending.RewardCharacters.Load(rewardCharacters[..EndingArtworkExtentDefinitions.FloorBytes]);
                 break;
             default:
@@ -77,8 +80,8 @@ internal static class EndingScreenImage
         ending.WaitingCharacters.Load(waiting[..EndingTransferExtentDefinitions.WaitingCharacterBytes]);
         ending.PostCreditsObjects.Load(objects.ShootingScreen.Characters.Span[..EndingTransferExtentDefinitions.ShootingCharacterBytes]);
         ending.WaitingTilemap.Load(MapBytes(objects.WaitingTilemap).AsSpan(0, EndingTransferExtentDefinitions.WaitingTilemapBytes));
-        ending.PostCreditsFragmentA.Load(objects.PostCreditsFragmentA.Characters.Span[..EndingTransferExtentDefinitions.PostCreditsFragmentABytes]);
-        ending.PostCreditsFragmentB.Load(MapBytes(objects.PostCreditsFragmentB).AsSpan(0, EndingTransferExtentDefinitions.ObjectFragmentBytes));
+        ending.TransformationCharacters.Load(objects.TransformationCharacters.Characters.Span[..EndingTransferExtentDefinitions.TransformationCharacterBytes]);
+        ending.TransformationMap.Load(MapBytes(objects.TransformationMap).AsSpan(0, EndingTransferExtentDefinitions.ObjectFragmentBytes));
     }
 
     /// <summary>One post-shot subtitle, logo-tile or logo-map part at its native word.</summary>
@@ -91,7 +94,7 @@ internal static class EndingScreenImage
             EndingPostShotUploadSource.LogoTiles => Objects(artwork).PostShotLogoTiles.Characters.Span.Slice(
                 transfer.Offset, length),
             EndingPostShotUploadSource.LogoMap => MapBytes(Objects(artwork).PostShotLogoMap).AsSpan(0, length),
-            _ => throw new InvalidOperationException($"Undefined {nameof(EndingPostShotUploadSource)} {(int)transfer.Source}."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(EndingPostShotUploadSource)} {transfer.Source}."),
         };
         vram.LoadBytes(EndingVramDestinations.PostShotWordOf(transfer) * sizeof(ushort), bytes);
     }

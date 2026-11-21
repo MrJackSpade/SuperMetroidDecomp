@@ -186,8 +186,9 @@ internal static void VerifyRoomEnemyLoading()
     // The import decodes the +$0E cry byte to its library-two sound rather than retaining the word.
     AssertEqual<SoundEffectId?>(EnemySound.Squeaks, definition.HurtSoundEffect, "definition hurt cry offset $0E");
     AssertEqual(GrappleEnemyReaction.Cancel, definition.GrappleResponse, "definition grapple response offset $1A");
-    // Offset $28 names the species' own Power Bomb routine, which a definition leaves to the species (#1759).
-    AssertEqual<EnemyReaction?>(null, definition.PowerBombReaction,
+    // Offset $28 names the species' own Power Bomb routine, which a definition leaves to the species (#1759): it names the
+    // common Power Bomb reaction, the name that replaced the absent shared reaction (#2558, ffb4de5282).
+    AssertEqual(EnemyReaction.CommonPowerBomb, definition.PowerBombReaction,
         "definition power-bomb reaction offset $28 names no shared reaction");
     // The tile word is the import's to read (#1513): its low fifteen bits are the tile set's size, bit 15 set or not. The
     // fixture's identities are no members, so the headers are read at the pointers the fixture seeded them at.
@@ -395,8 +396,6 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     SeedEnemyDefinitionWord(bus, definitionPointer, 14, 0x003e);
     SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xe49f);
     SeedEnemyDefinitionWord(bus, definitionPointer, 24, 0xe4da);
-    SeedEnemyDefinitionWord(bus, definitionPointer, 48, 0x8023);
-    SeedEnemyDefinitionWord(bus, definitionPointer, 50, 0x802d);
     SeedEnemyDefinitionWord(bus, definitionPointer, 60, vulnerabilityPointer);
 
     // Native speed parameter 16 gives +/-1.0000 pixels per frame. Keep that
@@ -1289,15 +1288,15 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
             WriteTestByte(bus, cursor++, checked((byte)character));
     }
 
-    Word(checked((ushort)EscapeTypewriterExtractor.DelayCommand));
+    Word(EscapeTypewriterControlWords.Delay);
     Word(EscapeTypewriterDefinitions.CharacterDelayFrames);
-    Word((ushort)EscapeTypewriterCommand.LineStart);
+    Word(checked((ushort)EscapeTypewriterControlWordsConstants.Word(EscapeTypewriterCommand.LineStart)));
     Word(0x4905);
     Text("TIME BOMB SET!");
-    Word((ushort)EscapeTypewriterCommand.LineStart);
+    Word(checked((ushort)EscapeTypewriterControlWordsConstants.Word(EscapeTypewriterCommand.LineStart)));
     Word(0x4945);
     Text("ESCAPE IMMEDIATELY!");
-    Word((ushort)EscapeTypewriterCommand.End);
+    Word(checked((ushort)EscapeTypewriterControlWordsConstants.Word(EscapeTypewriterCommand.End)));
 }
 
 /// <summary>Seeds Ripper's literal four-frame right- and left-facing bank-$A2 instruction lists.</summary>
@@ -1374,12 +1373,24 @@ static ReadCeresRidleyFixtureArtworkResult ReadCeresRidleyFixtureArtwork(TestAdd
     return new ReadCeresRidleyFixtureArtworkResult(paletteWords, planar);
 }
 
-/// <summary>Writes one complete fixture header while keeping pointer-bearing fields valid.</summary>
+/// <summary>
+/// Writes one complete fixture header while keeping pointer-bearing fields valid. A retail enemy's touch and shot words
+/// (bytes 48 and 50) are its retail header's, so the verification header decode yields the reactions its compiled
+/// definition names: a seed-pattern word names a routine of the species' own, which contradicts a definition naming one
+/// of the engine's shared reactions (#2591). A fixture-only identity keeps the seed pattern there, a routine of its own
+/// that decodes to the blank definition's own reactions.
+/// </summary>
 internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionId definitionPointer, EnemyDefinitionFields fields)
 {
     int address = 0xa00000 | TestAddressSpace.FixtureHeaderPointer(definitionPointer);
     for (int offset = 0; offset < 64; offset += 2)
         WriteTestWord(bus, address + offset, unchecked((ushort)(fields.FieldSeed + offset)));
+    if (Enum.IsDefined(definitionPointer))
+    {
+        RoomEnemyNativeWords retail = RoomEnemyDefinitionNative.Of(definitionPointer);
+        WriteTestWord(bus, address + 48, retail.TouchAiPointer);
+        WriteTestWord(bus, address + 50, retail.ShotAiPointer);
+    }
     WriteTestWord(bus, address + 14, fields.HurtSound);
 
     WriteTestWord(bus, address, fields.TileDataSize);

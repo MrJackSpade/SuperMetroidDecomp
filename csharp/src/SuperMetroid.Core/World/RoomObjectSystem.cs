@@ -137,16 +137,21 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     /// </param>
     /// <param name="places">The room's own room-object places, created with the system by its builder so each room starts with every place free.</param>
     /// <param name="shotCapClosing">Whether a blue cap a shot opened closes behind Samus, composed by the system's builder.</param>
-    /// <param name="audioRequests">The update's audio requests of the runtime, which the room objects' sounds and music join (#2057).</param>
+    /// <param name="outputs">
+    /// Where the room objects' step sends what it makes: the update's audio requests, which their sounds and music join
+    /// (#2057), and the room's enemy projectiles, among which the projectiles they throw spawn.
+    /// </param>
     internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectVisuals visuals,
         CollectibleBlockPairs collectibleBlockPairs, RoomObjectPlaces places, ShotOpenedCapClosing<LockedDoor> shotCapClosing,
-        GameplayAudioRequests audioRequests)
+        RoomObjectOutputs outputs)
     {
         Ensure.NotNull(room);
         Ensure.NotNull(services);
+        Ensure.NotNull(outputs);
+        RoomObjectThrownProjectileSpawners thrown = outputs.Thrown;
         Events = services.Events;
         Places = new RoomObjectPlaceList(places);
-        Sounds = new RoomObjectSoundQueue(audioRequests);
+        Sounds = new RoomObjectSoundQueue(outputs.AudioRequests);
         Drawing = new RoomObjectBlockDrawing(visuals);
         ProjectileTriggers = new ProjectileTriggerObjects(Places);
         BreakableTerrain = new EnemyBreakableTerrainObjects(Places);
@@ -160,10 +165,10 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
         SpeedBoosterEscape = new SpeedBoosterEscapeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake);
         ChozoStatue = new ChozoStatueObjects(room.System, room.Area, services.Enemies, services.RoomFx, Places);
         DraygonCannons = new DraygonCannonObjects(services.Enemies);
-        BombTorizoHand = new BombTorizoHandObjects(services.Samus, Sounds);
+        BombTorizoHand = new BombTorizoHandObjects(services.Samus, Sounds, thrown.StatueFragments);
         NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies);
         Gates = new GateObjects(services.Samus, Places, Sounds);
-        MotherBrainGlass = new MotherBrainGlassObjects(services.Bosses, services.Events, Sounds);
+        MotherBrainGlass = new MotherBrainGlassObjects(services.Bosses, services.Events, Sounds, thrown.GlassShards);
         Stations = new StationObjects(room.System, services.Samus, Drawing, Places, Sounds);
         CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, Places, collectibleBlockPairs, Sounds);
         EyeDoors = new EyeDoorObjects(room.System, services.Samus, services.Enemies, Sounds);
@@ -209,15 +214,8 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
         return outcome;
     }
 
-    /// <summary>
-    /// The object at <paramref name="place"/> leaves the room, freeing its place; when it is Mother Brain's glass, the
-    /// glass's place is first forgotten.
-    /// </summary>
-    internal void DeleteObject(RoomObjectPlace place)
-    {
-        MotherBrainGlass.OnObjectDeleted(place);
-        place.Delete();
-    }
+    /// <summary>The object at <paramref name="place"/> leaves the room, freeing its place.</summary>
+
 
     /// <inheritdoc/>
     BlockReactionObjects IRoomObjects.BlockReactions => BlockReactions;
@@ -247,7 +245,7 @@ public sealed class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     GreyDoorObjects IRoomObjects.GreyDoors => GreyDoors;
 
     /// <inheritdoc/>
-    void IRoomObjects.DeleteObject(RoomObjectPlace place) => DeleteObject(place);
+    void IRoomObjects.DeleteObject(RoomObjectPlace place) => Ensure.NotNull(place).Delete();
 
     /// <inheritdoc/>
     BlockReactionObjects ISamusRoomObjects.BlockReactions => BlockReactions;

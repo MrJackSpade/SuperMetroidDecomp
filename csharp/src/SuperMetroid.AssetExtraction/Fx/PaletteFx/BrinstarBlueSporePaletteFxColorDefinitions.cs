@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 public static class BrinstarBlueSporePaletteFxColorDefinitions
 {
     /// <summary>The ordinary Brinstar entry without a boss-death pre-instruction.</summary>
-    private static readonly BrinstarBlueSporePaletteFxColorDefinition Standard =
+    internal static readonly BrinstarBlueSporePaletteFxColorDefinition Standard =
         new()
         {
             Owner = BrinstarBlueSporePaletteOwner.StandardRooms,

@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// Runs the title's scenes in order, showing the installed pictures, colours and gradient.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-public sealed class TitleSequenceState : IFrontendScreen
+public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene<FloorScene>
 {
     /// <inheritdoc/>
     void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)
@@ -86,9 +86,9 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>The floor's zoom, animated from the close-up scene to the floor's own size.</summary>
     private TitleFloorZoom Zoom { get; set; }
     /// <summary>The title's screen brightness and the cadence of its fades; the skip's and the fade-in's step every update.</summary>
-    private readonly ScreenFade fade = new(0);
+    private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>Current screen brightness applied after composing title layers.</summary>
-    private int Brightness => fade.Level;
+    private DisplayBrightness Brightness => fade.Level;
     /// <summary>The Baby Metroid's pulse on the floor (#2359).</summary>
     private readonly AnimationPlayer<TitleBabySegment, TitleBabyPose, NoAnimationCue> baby = TitleBabyAnimation.Start();
     /// <summary>The pose of the Baby Metroid's pulse the floor shows.</summary>
@@ -209,7 +209,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             titleBackdrop,
             spriteSheets);
         title.EnterImmediateTitleScreen();
-        title.fade.Restart(0, 0);
+        title.fade.Restart(DisplayBrightness.Black, 0);
         title.Phase = TitleSequencePhase.TitleScreenFadeIn;
         return title;
     }

@@ -26,8 +26,12 @@ internal static class SaveStationElectricityNativeListAddresses
     /// <summary>The native entry of <paramref name="program"/>.</summary>
     internal static ushort Entry(SaveStationElectricitySegment program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
-    /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SaveStationElectricityAnimations.Segments, SaveStationElectricityAnimations.StartingAt, EnemyProjectileProgramFrameOperands.KeyOf, NativeEnemyProjectileCommonCues.Rules,
+    /// <summary>
+    /// The family's typed programs beside their native lists: each of the sweep's frames, a place the band is drawn at (#2557),
+    /// is read as the native operand that draws the band there.
+    /// </summary>
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SaveStationElectricityAnimations.Segments, SaveStationElectricityAnimations.StartingAt,
+        placement => EnemyProjectileProgramFrameOperands.KeyOf(SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId.SaveStationElectricityBand, placement), NativeEnemyProjectileCommonCues.Rules,
         countedEntries: [new NativeCountedEntry<SaveStationElectricitySegment>("the discharge", SaveStationElectricityAnimations.Discharge, DischargeStart)],
         onlyRunOnInto: new HashSet<SaveStationElectricitySegment> { SaveStationElectricitySegment.Deletion });
 }

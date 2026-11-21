@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 public sealed class RoomLevelPlane
 {
     /// <summary>Pixels along each side of a level block.</summary>
-    public const int BlockPixels = 16;
+    public const int BlockPixels = RoomGridConversions.BlockPixels;
 
     /// <summary>What each block shows, row by row.</summary>
     private readonly RoomBlockAppearance[] blocks;

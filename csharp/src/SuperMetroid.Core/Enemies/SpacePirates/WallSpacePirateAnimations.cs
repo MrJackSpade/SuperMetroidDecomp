@@ -15,19 +15,7 @@ internal static class WallSpacePirateAnimations
     internal static AnimationSegments<WallSpacePirateSegment, EnemyFrameId, WallSpacePirateCue> Segments { get; } = new(
         new Dictionary<WallSpacePirateSegment, AnimationBeat<EnemyFrameId, WallSpacePirateCue>[]>
     {
-        [P.FireAndJumpLeft] =
-        [
-            Cue(new WallSpacePirateCue.Begin(WallSpacePirateAction.Attacking)),
-            Show(EnemyFrameId.WallPirateOnRightWallClawsTogether, 9),
-            Show(EnemyFrameId.WallPirateOnRightWallClawsSpread, 15),
-            Cue(new WallSpacePirateCue.FireLaser(HorizontalDirection.Left)),
-            Wait(32),
-            Cue(new WallSpacePirateCue.PrepareJump(HorizontalDirection.Left)),
-            Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.WallJumping, HorizontalDirection.Left)),
-            Cue(new WallSpacePirateCue.Signal(K.PlayJumpSound)),
-            Show(EnemyFrameId.WallPirateReachingForLeftWall, 10),
-            Hold(EnemyFrameId.WallPirateCurledLeapingLeft),
-        ],
+        [P.FireAndJumpLeft] = FireAndJump(EnemyFrameId.WallPirateOnRightWallClawsTogether, EnemyFrameId.WallPirateOnRightWallClawsSpread, 15, HorizontalDirection.Left, EnemyFrameId.WallPirateReachingForLeftWall, EnemyFrameId.WallPirateCurledLeapingLeft),
         [P.LandedOnLeftWall] =
         [
             Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Left)),
@@ -47,19 +35,7 @@ internal static class WallSpacePirateAnimations
             Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Left)),
         ],
         [P.ClimbingDownLeftWall] = Climbing(WallSpacePirateClimbPoses.LeftWall, ClimbStepPixels),
-        [P.FireAndJumpRight] =
-        [
-            Cue(new WallSpacePirateCue.Begin(WallSpacePirateAction.Attacking)),
-            Show(EnemyFrameId.WallPirateOnLeftWallClawsTogether, 9),
-            Show(EnemyFrameId.WallPirateOnLeftWallClawsSpread, 1),
-            Cue(new WallSpacePirateCue.FireLaser(HorizontalDirection.Right)),
-            Wait(32),
-            Cue(new WallSpacePirateCue.PrepareJump(HorizontalDirection.Right)),
-            Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.WallJumping, HorizontalDirection.Right)),
-            Cue(new WallSpacePirateCue.Signal(K.PlayJumpSound)),
-            Show(EnemyFrameId.WallPirateReachingForRightWall, 10),
-            Hold(EnemyFrameId.WallPirateCurledLeapingRight),
-        ],
+        [P.FireAndJumpRight] = FireAndJump(EnemyFrameId.WallPirateOnLeftWallClawsTogether, EnemyFrameId.WallPirateOnLeftWallClawsSpread, 1, HorizontalDirection.Right, EnemyFrameId.WallPirateReachingForRightWall, EnemyFrameId.WallPirateCurledLeapingRight),
         [P.LandedOnRightWall] =
         [
             Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.Climbing, HorizontalDirection.Right)),
@@ -132,6 +108,21 @@ internal static class WallSpacePirateAnimations
         Show(poses.KneesTucked, 5),
         Cue(new WallSpacePirateCue.Climb(poses.Wall, climbPixels)),
         Show(poses.KneesBending, 8),
+    ];
+
+    /// <summary>A wall pirate's laser and leap over its wall's poses, <paramref name="clawsTogether"/>, <paramref name="clawsSpread"/>, <paramref name="spreadUpdates"/>, <paramref name="facing"/>, <paramref name="reaching"/>, <paramref name="curledLeaping"/>: it fires and jumps <paramref name="facing"/>, away from its wall.</summary>
+    private static AnimationBeat<EnemyFrameId, WallSpacePirateCue>[] FireAndJump(EnemyFrameId clawsTogether, EnemyFrameId clawsSpread, int spreadUpdates, HorizontalDirection facing, EnemyFrameId reaching, EnemyFrameId curledLeaping) =>
+    [
+        Cue(new WallSpacePirateCue.Begin(WallSpacePirateAction.Attacking)),
+        Show(clawsTogether, 9),
+        Show(clawsSpread, spreadUpdates),
+        Cue(new WallSpacePirateCue.FireLaser(facing)),
+        Wait(32),
+        Cue(new WallSpacePirateCue.PrepareJump(facing)),
+        Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.WallJumping, facing)),
+        Cue(new WallSpacePirateCue.Signal(K.PlayJumpSound)),
+        Show(reaching, 10),
+        Hold(curledLeaping),
     ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>

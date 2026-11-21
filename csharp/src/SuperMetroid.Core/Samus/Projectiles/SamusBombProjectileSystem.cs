@@ -705,12 +705,7 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType != RoomCollisionType.Slope)
         {
-            return block.CollisionType is not (
-                RoomCollisionType.Air or
-                RoomCollisionType.SpikeAir or
-                RoomCollisionType.SpecialAir or
-                RoomCollisionType.UnrevealedAir or
-                RoomCollisionType.BombableAir);
+            return !RoomCollisionTypes.Of(block.CollisionType).BombsPass;
         }
 
         if (!block.Behavior.Slope.IsNonSquare)
@@ -847,8 +842,8 @@ public sealed class SamusBombProjectileSystem
         // intact n00b tube is such a block, a solid block its intact picture makes shootable.
         if (type == StandingCollisionType.SolidBlock && block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
-            // A block no object occupies hears nothing (ProjectileTriggerObjects.TryNotifyResidentProjectileHit).
-            _ = terrain.RoomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType));
+            // A block no object occupies hears nothing (ProjectileTriggerObjects.NotifyResidentProjectileHit).
+            terrain.RoomObjects.ProjectileTriggers.NotifyResidentProjectileHit(block.At, BlockStrike.By(projectileType));
             return;
         }
 

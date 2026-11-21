@@ -116,17 +116,17 @@ public static class BeamFiredOverLastShot
             public IgnitedMissile(SignedEightEight ignitionSpeed, int? linkPlace)
             {
                 IgnitionSpeed = ignitionSpeed;
-                LinkPlace = linkPlace is { } place ? Ensure.AtLeastZero(place) : null;
+                LinkChainPosition = linkPlace is { } place ? Ensure.AtLeastZero(place) : null;
             }
 
             /// <summary>The speed it ignited at.</summary>
             public SignedEightEight IgnitionSpeed { get; }
 
             /// <summary>The place an ignited Super Missile names as its link, or null for a missile or a Super Missile naming none.</summary>
-            public int? LinkPlace { get; }
+            public int? LinkChainPosition { get; }
 
             /// <inheritdoc/>
-            internal override int FuseLeft => LinkPlace is { } linkPlace
+            internal override int FuseLeft => LinkChainPosition is { } linkPlace
                 ? LinkedSuperMissileCount(IgnitionSpeed, linkPlace).InTwoHundredFiftySixthsOfPixel
                 : IgnitionSpeed.InTwoHundredFiftySixthsOfPixel;
         }

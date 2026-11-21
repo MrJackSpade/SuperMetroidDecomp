@@ -41,7 +41,7 @@ public sealed record GameplayShading
     public PictureShading Of(GameplayPictures pictures)
     {
         PictureShading own = shadings[pictures];
-        return Fade is not { } fade || fade.SparesHud && pictures is GameplayPictures.Hud or GameplayPictures.EscapeTimer
+        return Fade is not { } fade || fade.SparesHud && GameplayPictureDefinitions.SparedByHudSparingFade.Contains(pictures)
             ? own : own.With(fade.Effect);
     }
 
@@ -65,13 +65,15 @@ public sealed record GameplayShading
     }
 
     /// <summary>
-    /// The shading an escape timer draw that names <paramref name="shading"/> shows: its own, then its pictures' group's
-    /// shades and effects, the display's fade among them unless it spares the HUD (#1512).
+    /// The shading a draw of <paramref name="pictures"/>, whose draws show their group's shading over their own
+    /// (<see cref="SpriteSourceKindDefinitions.GroupShaded"/>), shows when it names <paramref name="shading"/>: its own,
+    /// then the group's shades and effects, the display's fade among them unless it spares the group, as it spares the HUD's
+    /// escape timer (#1512).
     /// </summary>
-    public PictureShading OfEscapeTimer(PictureShading shading)
+    public PictureShading OfGroupShaded(PictureShading shading, GameplayPictures pictures)
     {
         Ensure.NotNull(shading);
-        PictureShading group = Of(GameplayPictures.EscapeTimer);
+        PictureShading group = Of(pictures);
         PictureShading shown = shading;
         foreach (PictureShade shade in group.Shades)
             shown = shown.With(shade);

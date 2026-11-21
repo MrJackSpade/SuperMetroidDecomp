@@ -12,10 +12,10 @@ internal static class LookupElevatubeStockVerification
 {
     /// <summary>Compares the stock and installed pictures with the cartridge, then the import and its rejections.</summary>
     internal static void VerifyElevatubeStockMapping(CartridgeImportAddressSpace rom,
-        InstalledRoomObjectMaridiaElevatubeVisuals installed)
+        InstalledRoomObjectPictures installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9367, "elevatube-block")];
-        foreach (InstalledRoomObjectMaridiaElevatubeVisuals pictures in new[] { InstalledRoomObjectMaridiaElevatubeVisuals.Stock(), installed })
+        foreach (InstalledRoomObjectPictures pictures in new[] { RoomObjectPicturesStock.MaridiaElevatube, installed })
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectMaridiaElevatubeVisualFiles.Family, frames, WrittenCells(RoomObjectMaridiaElevatubeVisualFiles.Family));
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (pointer != 0x9367)

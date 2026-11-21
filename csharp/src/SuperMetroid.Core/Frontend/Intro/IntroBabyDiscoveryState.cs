@@ -33,8 +33,13 @@ internal sealed class IntroBabyDiscoveryState
     private readonly ShellFragmentFallPastCurve shellFallPastCurve;
     /// <summary>The egg actor whose animation controls the hatch sequence.</summary>
     private readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> egg;
-    /// <summary>What the egg waits for: Samus's approach, then nothing while it hatches, then page three's cross-fade.</summary>
+    /// <summary>What the egg waits for: Samus's approach, then nothing while it hatches, then the cross-fade back to the narration.</summary>
     private MetroidEggBehavior eggBehavior = MetroidEggBehavior.WaitsForSamus;
+    /// <summary>
+    /// Whether the egg's shell has burst: set by the hatching's cue that spawns the shell pieces, on the update the egg
+    /// first shows its sagging dome, from which the confused Baby rises.
+    /// </summary>
+    private bool eggShellBurst;
     /// <summary>How the confused baby moves: waiting for the hatch, rising out of the egg, idling, then dancing.</summary>
     private ConfusedBabyMotion babyMotion = ConfusedBabyMotion.WaitingForHatch;
     /// <summary>The baby actor that waits for the egg's completed frame before moving.</summary>
@@ -146,8 +151,8 @@ internal sealed class IntroBabyDiscoveryState
             eggBehavior = MetroidEggBehavior.Hatches;
         }
 
-        // The egg is gone from the update page three's crossfade reaches its final update. The egg's animation starts the wait
-        // after starting page three.
+        // The egg is gone from the update the crossfade back to the narration reaches its final update. The egg's animation
+        // starts the wait after starting that page.
         if (eggBehavior == MetroidEggBehavior.WaitsForCrossFadeEnd && crossfadeFinishing)
         {
             egg.Delete();
@@ -228,6 +233,7 @@ internal sealed class IntroBabyDiscoveryState
     {
         [IntroDiscoveryCue.SpawnShellPieces] = () =>
         {
+            eggShellBurst = true;
             // The six pieces of the shell spawn in their spawn order, which is the order they update and draw in.
             foreach (IntroEggShellFragment fragment in IntroEggEffectDefinitions.ShellFragments)
                 eggParticles.Add(new IntroEggParticle(fragment, shellFallPastCurve));
@@ -237,7 +243,7 @@ internal sealed class IntroBabyDiscoveryState
         },
         [IntroDiscoveryCue.StartNextPage] = () =>
         {
-            // This cue switches the outer cinematic phase to page three. The state
+            // This cue switches the outer cinematic phase to the narration page after the discovery. The state
             // owner performs the colour transition; the actor merely reports the request.
             NextPageRequested = true;
         },
@@ -259,9 +265,8 @@ internal sealed class IntroBabyDiscoveryState
     {
         [ConfusedBabyMotion.WaitingForHatch] = crossfadeFinishing =>
         {
-            // The confused baby starts rising on the update the egg first shows its burst shell, after this
-            // update's egg step.
-            if (egg.Shown is { } eggPose && IntroEggPoses.BurstShell.Contains(eggPose))
+            // The confused baby starts rising on the update the egg's shell bursts, after this update's egg step.
+            if (eggShellBurst)
             {
                 babyMotion = ConfusedBabyMotion.Rising;
                 BabyVelocity = BabyVelocity.WithY(default);
@@ -310,7 +315,7 @@ internal sealed class IntroBabyDiscoveryState
             // The hatched baby publishes the first confused cry at the same equality edge
             // that creates the four egg-slime drops.
             audio.QueueSound(
-                IntroCinematicDefinitions.Sounds.BabyCry1,
+                IntroCinematicDefinitions.Sounds.BabyHighCry,
                 priority: IntroCinematicDefinitions.Sounds.SoundPriority);
         }
 
@@ -349,7 +354,7 @@ internal sealed class IntroBabyDiscoveryState
             // The dancing baby cries when its count of frames danced reaches its cry cadence's places.
             if (IntroCadenceDefinitions.BabyCriesInDance.IsDue(BabyCryingDance.Age))
                 audio.QueueSound(
-                    IntroCinematicDefinitions.Sounds.BabyCry1,
+                    IntroCinematicDefinitions.Sounds.BabyHighCry,
                     priority: IntroCinematicDefinitions.Sounds.SoundPriority);
         }
 

@@ -11,6 +11,18 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// </summary>
 internal static class OumAnimations
 {
+    /// <summary>An Oum facing left's roll: its vent open and each eighth of a turn round from it.</summary>
+    private static readonly EnemyFrameId[] LeftTurns = [EnemyFrameId.OumFacingLeftVentOpen, EnemyFrameId.OumFacingLeftTurned45, EnemyFrameId.OumFacingLeftTurned90, EnemyFrameId.OumFacingLeftTurned135, EnemyFrameId.OumFacingLeftTurned180, EnemyFrameId.OumFacingLeftTurned225, EnemyFrameId.OumFacingLeftTurned270, EnemyFrameId.OumFacingLeftTurned315];
+
+    /// <summary>An Oum facing right's roll: its vent open and each eighth of a turn round from it.</summary>
+    private static readonly EnemyFrameId[] RightTurns = [EnemyFrameId.OumFacingRightVentOpen, EnemyFrameId.OumFacingRightTurned45, EnemyFrameId.OumFacingRightTurned90, EnemyFrameId.OumFacingRightTurned135, EnemyFrameId.OumFacingRightTurned180, EnemyFrameId.OumFacingRightTurned225, EnemyFrameId.OumFacingRightTurned270, EnemyFrameId.OumFacingRightTurned315];
+
+    /// <summary>An Oum facing left's attack poses: resting, its vent opening, and its jet flaring, short, medium, long and longest.</summary>
+    private static readonly EnemyFrameId[] LeftJet = [EnemyFrameId.OumFacingLeftTurned0, EnemyFrameId.OumFacingLeftVentOpening, EnemyFrameId.OumFacingLeftJetFlaring, EnemyFrameId.OumFacingLeftJetShort, EnemyFrameId.OumFacingLeftJetMedium, EnemyFrameId.OumFacingLeftJetLong, EnemyFrameId.OumFacingLeftJetLongest];
+
+    /// <summary>An Oum facing right's attack poses: resting, its vent opening, and its jet flaring, short, medium, long and longest.</summary>
+    private static readonly EnemyFrameId[] RightJet = [EnemyFrameId.OumFacingRightTurned0, EnemyFrameId.OumFacingRightVentOpening, EnemyFrameId.OumFacingRightJetFlaring, EnemyFrameId.OumFacingRightJetShort, EnemyFrameId.OumFacingRightJetMedium, EnemyFrameId.OumFacingRightJetLong, EnemyFrameId.OumFacingRightJetLongest];
+
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<OumSegment, EnemyFrameId, OumCue> Segments { get; } = new(
         new Dictionary<OumSegment, AnimationBeat<EnemyFrameId, OumCue>[]>
@@ -19,98 +31,16 @@ internal static class OumAnimations
         [
             Hold(EnemyFrameId.OumFacingLeftTurned0),
         ],
-        [P.FacingLeftAttacking] =
-        [
-            Show(EnemyFrameId.OumFacingLeftTurned0, 16),
-            Show(EnemyFrameId.OumFacingLeftVentOpening, 16),
-            Cue(new(K.PlaySplash)),
-            Show(EnemyFrameId.OumFacingLeftVentOpen, 16),
-            Show(EnemyFrameId.OumFacingLeftJetFlaring, 2),
-            Show(EnemyFrameId.OumFacingLeftJetShort, 3),
-            Show(EnemyFrameId.OumFacingLeftJetMedium, 4),
-            Show(EnemyFrameId.OumFacingLeftJetLong, 2),
-            Show(EnemyFrameId.OumFacingLeftJetLongest, 3),
-            Show(EnemyFrameId.OumFacingLeftJetLong, 1),
-            Show(EnemyFrameId.OumFacingLeftJetMedium, 3),
-            Show(EnemyFrameId.OumFacingLeftJetShort, 2),
-            Show(EnemyFrameId.OumFacingLeftJetFlaring, 1),
-            Show(EnemyFrameId.OumFacingLeftVentOpen, 18),
-            Cue(new(K.FinishAttack)),
-        ],
-        [P.FacingLeftRollingForwards] =
-        [
-            Show(EnemyFrameId.OumFacingLeftVentOpen, 7),
-            Cue(new(K.AllowAttackRotation)),
-            Show(EnemyFrameId.OumFacingLeftTurned45, 7),
-            Cue(new(K.DisallowAttackRotation)),
-            Show(EnemyFrameId.OumFacingLeftTurned90, 7),
-            Show(EnemyFrameId.OumFacingLeftTurned135, 7),
-            Show(EnemyFrameId.OumFacingLeftTurned180, 7),
-            Show(EnemyFrameId.OumFacingLeftTurned225, 7),
-            Show(EnemyFrameId.OumFacingLeftTurned270, 7),
-            Show(EnemyFrameId.OumFacingLeftTurned315, 7),
-        ],
-        [P.FacingLeftRollingBackwards] =
-        [
-            Show(EnemyFrameId.OumFacingLeftTurned315, 7),
-            Show(EnemyFrameId.OumFacingLeftTurned270, 7),
-            Show(EnemyFrameId.OumFacingLeftTurned225, 7),
-            Show(EnemyFrameId.OumFacingLeftTurned180, 7),
-            Show(EnemyFrameId.OumFacingLeftTurned135, 7),
-            Show(EnemyFrameId.OumFacingLeftTurned90, 7),
-            Show(EnemyFrameId.OumFacingLeftTurned45, 7),
-            Cue(new(K.AllowAttackRotation)),
-            Show(EnemyFrameId.OumFacingLeftVentOpen, 7),
-            Cue(new(K.DisallowAttackRotation)),
-        ],
+        [P.FacingLeftAttacking] = Attacking(LeftTurns, LeftJet, splashBeforeVentOpens: [Splash], splashAsVentOpens: []),
+        [P.FacingLeftRollingForwards] = Roll(LeftTurns, windowAfter: 0),
+        [P.FacingLeftRollingBackwards] = Roll([.. Enumerable.Reverse(LeftTurns)], windowAfter: LeftTurns.Length - 2),
         [P.FacingRightIdle] =
         [
             Hold(EnemyFrameId.OumFacingRightTurned0),
         ],
-        [P.FacingRightAttacking] =
-        [
-            Show(EnemyFrameId.OumFacingRightTurned0, 16),
-            Show(EnemyFrameId.OumFacingRightVentOpening, 16),
-            Show(EnemyFrameId.OumFacingRightVentOpen, 16),
-            Cue(new(K.PlaySplash)),
-            Show(EnemyFrameId.OumFacingRightJetFlaring, 2),
-            Show(EnemyFrameId.OumFacingRightJetShort, 3),
-            Show(EnemyFrameId.OumFacingRightJetMedium, 4),
-            Show(EnemyFrameId.OumFacingRightJetLong, 2),
-            Show(EnemyFrameId.OumFacingRightJetLongest, 3),
-            Show(EnemyFrameId.OumFacingRightJetLong, 1),
-            Show(EnemyFrameId.OumFacingRightJetMedium, 3),
-            Show(EnemyFrameId.OumFacingRightJetShort, 2),
-            Show(EnemyFrameId.OumFacingRightJetFlaring, 1),
-            Show(EnemyFrameId.OumFacingRightVentOpen, 18),
-            Cue(new(K.FinishAttack)),
-        ],
-        [P.FacingRightRollingForwards] =
-        [
-            Show(EnemyFrameId.OumFacingRightVentOpen, 7),
-            Cue(new(K.AllowAttackRotation)),
-            Show(EnemyFrameId.OumFacingRightTurned45, 7),
-            Cue(new(K.DisallowAttackRotation)),
-            Show(EnemyFrameId.OumFacingRightTurned90, 7),
-            Show(EnemyFrameId.OumFacingRightTurned135, 7),
-            Show(EnemyFrameId.OumFacingRightTurned180, 7),
-            Show(EnemyFrameId.OumFacingRightTurned225, 7),
-            Show(EnemyFrameId.OumFacingRightTurned270, 7),
-            Show(EnemyFrameId.OumFacingRightTurned315, 7),
-        ],
-        [P.FacingRightRollingBackwards] =
-        [
-            Show(EnemyFrameId.OumFacingRightTurned315, 7),
-            Show(EnemyFrameId.OumFacingRightTurned270, 7),
-            Show(EnemyFrameId.OumFacingRightTurned225, 7),
-            Show(EnemyFrameId.OumFacingRightTurned180, 7),
-            Show(EnemyFrameId.OumFacingRightTurned135, 7),
-            Show(EnemyFrameId.OumFacingRightTurned90, 7),
-            Show(EnemyFrameId.OumFacingRightTurned45, 7),
-            Cue(new(K.AllowAttackRotation)),
-            Show(EnemyFrameId.OumFacingRightVentOpen, 7),
-            Cue(new(K.DisallowAttackRotation)),
-        ],
+        [P.FacingRightAttacking] = Attacking(RightTurns, RightJet, splashBeforeVentOpens: [], splashAsVentOpens: [Splash]),
+        [P.FacingRightRollingForwards] = Roll(RightTurns, windowAfter: 0),
+        [P.FacingRightRollingBackwards] = Roll([.. Enumerable.Reverse(RightTurns)], windowAfter: RightTurns.Length - 2),
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
@@ -128,6 +58,48 @@ internal static class OumAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<OumSegment> StartingWith(OumSegment segment) => StartingAt[segment];
+
+    /// <summary>
+    /// A roll through <paramref name="turns"/> in play order, seven updates a pose: an attack may turn it only between the pose
+    /// at <paramref name="windowAfter"/> and the next.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, OumCue>[] Roll(EnemyFrameId[] turns, int windowAfter) =>
+    [
+        .. turns[..(windowAfter + 1)].Select(pose => Show(pose, 7)),
+        Cue(new(K.AllowAttackRotation)),
+        Show(turns[windowAfter + 1], 7),
+        Cue(new(K.DisallowAttackRotation)),
+        .. turns[(windowAfter + 2)..].Select(pose => Show(pose, 7)),
+    ];
+
+    /// <summary>
+    /// An attack over a facing's <paramref name="turns"/> and <paramref name="jet"/> poses: the Oum's vent opens, its jet flares
+    /// out and back and its vent stays open before the attack finishes; its splash plays before its vent opens
+    /// (<paramref name="splashBeforeVentOpens"/>) or as it opens (<paramref name="splashAsVentOpens"/>), as its facing's attack does.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, OumCue>[] Attacking(EnemyFrameId[] turns, EnemyFrameId[] jet,
+        AnimationBeat<EnemyFrameId, OumCue>[] splashBeforeVentOpens, AnimationBeat<EnemyFrameId, OumCue>[] splashAsVentOpens) =>
+    [
+        Show(jet[0], 16),
+        Show(jet[1], 16),
+        .. splashBeforeVentOpens,
+        Show(turns[0], 16),
+        .. splashAsVentOpens,
+        Show(jet[2], 2),
+        Show(jet[3], 3),
+        Show(jet[4], 4),
+        Show(jet[5], 2),
+        Show(jet[6], 3),
+        Show(jet[5], 1),
+        Show(jet[4], 3),
+        Show(jet[3], 2),
+        Show(jet[2], 1),
+        Show(turns[0], 18),
+        Cue(new(K.FinishAttack)),
+    ];
+
+    /// <summary>An attack's splash.</summary>
+    private static AnimationBeat<EnemyFrameId, OumCue> Splash => Cue(new(K.PlaySplash));
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, OumCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, OumCue>.Frame(frame, duration);

@@ -67,7 +67,7 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
     /// <param name="context">The bomb contact.</param>
     public override bool TryReplaceCommonBombDamage(EnemyBombContext context)
     {
-        if (context.SelectedShot != EnemyReaction.DudShot)
+        if (!context.SelectedShot.IsDud)
             return base.TryReplaceCommonBombDamage(context);
         Species.Combat.CreateBombDudShot(context);
         return true;
@@ -76,7 +76,7 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
     /// <summary>The body's own stages around common bomb damage, for a bomb that selects its shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == DraygonReactions.Shot ? OwnBombReaction : base.CommonBombDamageReaction(context);
+        DraygonReactions.WithOwnBombStages.Contains(context.SelectedShot) ? OwnBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The body's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
     public override EnemyPowerBombReaction PowerBombReaction =>
@@ -87,5 +87,5 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
 
     /// <summary>The body's shot reaction and its dud shot, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == DraygonReactions.Shot || reaction == EnemyReaction.DudShot;
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => DraygonReactions.PrivateShots.Contains(reaction);
 }

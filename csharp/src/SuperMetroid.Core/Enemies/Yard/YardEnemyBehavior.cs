@@ -140,10 +140,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new YardEnemyState(YardMovement.HoldingStill)
         {
-            // The population entry selects the initial animations and velocity signs, but
-            // does not set the live direction. Only the direction cue does. A
-            // first-frame hide can bypass it and keeps the first direction.
-            Direction = YardDirection.OnLeftWallMovingUp,
+            Direction = YardDirectionDefinitions.BeforeFirstDirectionCue,
             Behavior = YardBehavior.NormalCrawling,
             CrawlSpeed = settings.CrawlSpeed,
         };
@@ -185,7 +182,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // A super-missile earthquake drops an attached/hiding Yard, but cannot restart one
         // that is already falling, kicked, or shot through the air.
-        if (state.Behavior is not (YardBehavior.Dropped or YardBehavior.Kicked or YardBehavior.BeamLaunched) &&
+        if (!YardBehaviorDefinitions.Behaviors[state.Behavior].Airborne &&
             _earthquake.IsShakingWith(SuperMissileDefinitions.WallImpactEarthquake, SuperMissileDefinitions.EarthquakeDuration))
         {
             DropYard(place, state);
@@ -203,7 +200,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardEnemyState state,
         SamusState samus)
     {
-        if (state.Behavior is YardBehavior.AggressiveCrawling or YardBehavior.Dropped or YardBehavior.Kicked or YardBehavior.BeamLaunched)
+        if (!YardBehaviorDefinitions.Behaviors[state.Behavior].WatchesSamus)
             return;
 
         bool withinVerticalBand = place.Position.Y.Whole - samus.Position.Y.Whole >= -YardMotionDefinitions.HidingReachAbove;
@@ -250,7 +247,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            solid = state.Behavior is not (YardBehavior.Dropped or YardBehavior.BeamLaunched);
+            solid = YardBehaviorDefinitions.Behaviors[state.Behavior].Solid;
         }
 
         place.Contact = solid
@@ -574,7 +571,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         // deliberately do nothing on overlap. Every other route enters normal enemy touch,
         // restores the population's idle speed, optionally turns, then resumes normal crawling.
         if (state.Movement == YardMovement.HoldingStill ||
-            state.Behavior is YardBehavior.Dropped or YardBehavior.Kicked)
+            !YardBehaviorDefinitions.Behaviors[state.Behavior].TakesHits)
         {
             return;
         }
@@ -607,7 +604,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardEnemyState state,
         SamusState samus)
     {
-        if (state.Behavior is not (YardBehavior.Dropped or YardBehavior.Kicked))
+        if (YardBehaviorDefinitions.Behaviors[state.Behavior].TakesHits)
             ShootYardIntoAir(place, state, samus);
         _audio.QueueEnemySound(YardBounceSound, priority: SoundRequestPriority.Low);
     }

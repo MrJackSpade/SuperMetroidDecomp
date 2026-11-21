@@ -29,9 +29,8 @@ public static class GrappleSwingFrameFile
         {
             using var parsed = JsonDocument.Parse(json);
             if (parsed.RootElement.ValueKind != JsonValueKind.Object) throw new InvalidDataException("Grapple swing frames require an object.");
-            var names = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var property in parsed.RootElement.EnumerateObject())
-                if (!names.Add(property.Name)) throw new InvalidDataException("Duplicate Grapple swing-frame property.");
+            JsonAssetDocument.RejectDuplicateProperties(parsed.RootElement, StringComparer.Ordinal,
+                _ => new InvalidDataException("Duplicate Grapple swing-frame property."), DuplicatePropertyScope.OutsideArrays);
             document = parsed.RootElement.Deserialize<GrappleSwingFrameDocument>(Options)
                 ?? throw new InvalidDataException("Missing Grapple swing frames.");
         }

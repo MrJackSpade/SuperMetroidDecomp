@@ -29,9 +29,13 @@ internal static class EnemyProjectileSlotFrameAccess
             : EnemyProjectileFrames.IsComposition(frame) ? EnemyProjectileFrames.Composition(frame)
             : EnemyProjectileSpritemapDefinitions.BlankSpritemap;
 
-        /// <summary>The bank-$86 operand storing the program frame the slot shows, zero when it shows a composition or nothing.</summary>
+        /// <summary>
+        /// The bank-$86 operand showing the program frame the slot shows where it draws it (#2557): the frame's own operand at
+        /// the slot's place, or the one operand that moves its picture to its placement; zero when it shows a composition or
+        /// nothing.
+        /// </summary>
         internal ushort PresentationOperandAddress => self.Frame is { } frame && !EnemyProjectileFrames.IsComposition(frame)
-            ? EnemyProjectileProgramFrameSources.Operand(frame)
+            ? EnemyProjectileProgramFrameOperands.KeyOf(frame, self.FramePlacement)
             : (ushort)0;
     }
 }

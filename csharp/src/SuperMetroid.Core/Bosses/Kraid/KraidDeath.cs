@@ -67,7 +67,7 @@ internal sealed class KraidDeath
         [KraidDeathPhase.FadeOut] = (body, state, cameraX, samus) =>
         {
             _head.AdvanceKraidHeadAnimation(state);
-            if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToBlack))
+            if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropSettledColours.Black))
             {
                 state.BodyState.DeathPhase = KraidDeathPhase.ShowBody;
                 state.ShowBody();
@@ -104,7 +104,7 @@ internal sealed class KraidDeath
         },
         [KraidDeathPhase.FadeInBackground] = (body, state, cameraX, samus) =>
         {
-            if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToKraidColours))
+            if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropSettledColours.KraidColours))
                 return;
             _access.RequestKraidMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
             _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);

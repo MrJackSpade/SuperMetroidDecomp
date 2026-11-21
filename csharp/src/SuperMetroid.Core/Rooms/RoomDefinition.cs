@@ -10,32 +10,24 @@ namespace SuperMetroid.Core.Rooms;
 /// never by a number.
 /// </summary>
 /// <remarks>
-/// Only the catalog builds a room (<see cref="RoomDefinitions"/>, #2553): the constructor is the catalog's, and no member
-/// can be changed by a copy, so every room is one of <see cref="RoomDefinitions.All"/> or equal to one, and each room's
-/// state choice is total (<see cref="World.RoomStates.RoomStateSelection"/>).
+/// Only the catalog builds a room (<see cref="RoomDefinitions"/>, #2553): the constructor and the setters of the members a
+/// room may name besides its place are the catalog's, so every room is one of <see cref="RoomDefinitions.All"/> or equal to
+/// one, and each room's state choice is total (<see cref="World.RoomStates.RoomStateSelection"/>).
 /// </remarks>
 public sealed record RoomDefinition
 {
-    /// <summary>Builds one of the catalog's rooms.</summary>
+    /// <summary>Builds one of the catalog's rooms, on its area's ground until the catalog names another.</summary>
     /// <param name="name">The room's name.</param>
     /// <param name="area">The room's area.</param>
     /// <param name="mapPosition">The area-map cell of the room's top-left screen.</param>
     /// <param name="size">The room's size in scroll screens.</param>
-    /// <param name="fallingCameraOffset">How many pixels above Samus the camera aims its top while she moves any way but up.</param>
-    /// <param name="risingCameraOffset">How many pixels above Samus the camera aims its top while she moves up.</param>
-    /// <param name="doorTransition">How door transitions into or out of this room draw the screen.</param>
-    /// <param name="xrayHidesBackground">Whether the X-ray, keeping the room's backgrounds, also hides its background layer.</param>
-    internal RoomDefinition(string name, AreaId area, Position16<MapTiles> mapPosition, Extent16<RoomScreens> size,
-        int fallingCameraOffset, int risingCameraOffset, RoomDoorTransitionStyle doorTransition, bool xrayHidesBackground = false)
+    internal RoomDefinition(string name, AreaId area, Position16<MapTiles> mapPosition, Extent16<RoomScreens> size)
     {
         Name = name;
         Area = area;
         MapPosition = mapPosition;
         Size = size;
-        FallingCameraOffset = fallingCameraOffset;
-        RisingCameraOffset = risingCameraOffset;
-        DoorTransition = doorTransition;
-        XrayHidesBackground = xrayHidesBackground;
+        Ground = Ensure.Listed(RoomGroundDefinitions.AreaGrounds, area);
     }
 
     /// <summary>The room's name.</summary>
@@ -51,24 +43,33 @@ public sealed record RoomDefinition
     /// <summary>The room's size in scroll screens.</summary>
     public Extent16<RoomScreens> Size { get; }
 
-    /// <summary>
-    /// How many pixels above Samus the camera aims its top while she moves any way but up, leading the view below her as she
-    /// falls (#2482); zero or more.
-    /// </summary>
-    public int FallingCameraOffset { get; }
+    /// <summary>How far above Samus the camera aims its top as she falls and as she rises (#2482); the standard lead unless the room names its own (#2557).</summary>
+    public RoomCameraLead CameraLead { get; internal init; } = RoomCameraLeads.Standard;
 
-    /// <summary>
-    /// How many pixels above Samus the camera aims its top while she moves up, leading the view above her as she rises
-    /// (#2482); zero or more.
-    /// </summary>
-    public int RisingCameraOffset { get; }
-
-    /// <summary>How door transitions into or out of this room draw the screen.</summary>
-    public RoomDoorTransitionStyle DoorTransition { get; }
+    /// <summary>How door transitions into or out of this room draw the screen; the whole screen unless the room says otherwise (#2557).</summary>
+    public RoomDoorTransitionStyle DoorTransition { get; internal init; } = RoomDoorTransitionStyle.Standard;
 
     /// <summary>
     /// Whether the X-ray, where it keeps the room's backgrounds rather than revealing its blocks, also hides the room's
     /// background layer; only the Glass Tunnel does.
     /// </summary>
-    public bool XrayHidesBackground { get; }
+    public bool XrayHidesBackground { get; internal init; }
+
+    /// <summary>
+    /// Whether X-ray never reveals the room's blocks, whatever boss is loaded (#2485): only the Statues room and the Glass
+    /// Tunnel.
+    /// </summary>
+    public bool XrayRevealsNoBlocks { get; internal init; }
+
+    /// <summary>
+    /// Whether the room's quakes are silent (#1415): entering it silences quake sounds as its room effect loads, and every
+    /// other room keeps them.
+    /// </summary>
+    public bool QuakesAreSilent { get; internal init; }
+
+    /// <summary>
+    /// The ground Samus's running footsteps and landings go by in the room (#2416): its area's
+    /// (<see cref="RoomGroundDefinitions.AreaGrounds"/>) unless the room declares its own.
+    /// </summary>
+    internal RoomGround Ground { get; init; }
 }

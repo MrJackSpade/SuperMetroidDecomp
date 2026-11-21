@@ -26,7 +26,7 @@ internal static class LookupBlueCapVerification
         string[] ids = ["left-closed","left-ajar","left-half-open","left-nearly-open","right-closed","right-ajar","right-half-open","right-nearly-open","up-closed","up-ajar","up-half-open","up-nearly-open","down-closed","down-ajar","down-half-open","down-nearly-open","left-closed","right-closed","up-closed","down-closed"];
         var exported = BlueDoorObjectDrawDefinitionsTooling.All.ToArray();
         AssertEqual(20, exported.Length, "Blue cap export count");
-        InstalledRoomObjectBlueDoorVisuals? pictures = field == 2 ? InstalledRoomObjectBlueDoorVisuals.Stock() : null;
+        InstalledRoomObjectPictures? pictures = field == 2 ? RoomObjectPicturesStock.BlueDoor : null;
         AssertTrue(RoomObjectBlueDoorVisualFiles.Editable.Select(frame => RoomObjectDrawAddressCodec.Of(frame.Draw)).SequenceEqual(pointers.Take(16)), "Blue cap editable identity domain and order");
         if (field == 0)
         {

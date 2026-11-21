@@ -10,20 +10,12 @@ internal static class SamusComboMechanics
     /// Wave, Ice, Spazer or Plasma equipped alone has one.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination pairs Spazer with Plasma, which cannot be equipped.</exception>
-    internal static SamusComboKind? ComboKind(SamusBeamCombination beam) => beam switch
+    internal static SamusComboKind? ComboKind(SamusBeamCombination beam)
     {
-        SamusBeamCombination.Wave => SamusComboKind.Wave,
-        SamusBeamCombination.Ice => SamusComboKind.Ice,
-        SamusBeamCombination.Spazer => SamusComboKind.Spazer,
-        SamusBeamCombination.Plasma => SamusComboKind.Plasma,
-        SamusBeamCombination.Power or SamusBeamCombination.IceWave or SamusBeamCombination.SpazerWave or
-            SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.PlasmaWave or
-            SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave => null,
-        SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
-            SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
-            throw new ArgumentOutOfRangeException(nameof(beam), beam, "Spazer and Plasma cannot be equipped together."),
-        _ => throw new ArgumentOutOfRangeException(nameof(beam), beam, "Undefined beam combination."),
-    };
+        if (beam.PairsSpazerWithPlasma)
+            throw new ArgumentOutOfRangeException(nameof(beam), beam, "Spazer and Plasma cannot be equipped together.");
+        return SamusComboDefinitions.KindsOfSingleBeams.TryGetValue(beam.Components, out SamusComboKind kind) ? kind : null;
+    }
 
     /// <summary>
     /// The special beam attacks' cost in Power Bombs: one Power Bomb for Wave, Ice,

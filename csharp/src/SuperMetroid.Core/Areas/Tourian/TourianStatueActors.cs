@@ -26,7 +26,7 @@ internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, 
     public void SpawnDescentDust() => Unlock.SpawnTourianDescentDust();
 
     /// <inheritdoc/>
-    public void ShowStatueLook(PictureShade look) => statue.ShowStatueLook(look);
+    public void ShowStatueLook(PictureShade look, bool drawnInRoomBackground) => statue.ShowStatueLook(look, drawnInRoomBackground);
 
     /// <inheritdoc/>
     public IGlowingEnemy SpriteStatueGreyOut(TourianSpriteStatue sprite) => new TourianSpriteStatueGreyOut(statue, sprite);

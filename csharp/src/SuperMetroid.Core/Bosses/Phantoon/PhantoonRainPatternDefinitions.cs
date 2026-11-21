@@ -4,25 +4,25 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public static class PhantoonRainPatternDefinitions
 {
     /// <summary>He reappears at the room's centre.</summary>
-    public static PhantoonRainPattern Centre { get; } = new(1, new(128, 96), PhantoonFlameSpawns.RainColumn(5));
+    public static PhantoonRainPattern Centre { get; } = new(1, new(128, 96));
 
     /// <summary>He reappears high, right of centre.</summary>
-    public static PhantoonRainPattern UpperRight { get; } = new(71, new(168, 64), PhantoonFlameSpawns.RainColumn(7));
+    public static PhantoonRainPattern UpperRight { get; } = new(71, new(168, 64));
 
     /// <summary>He reappears at the room's right.</summary>
-    public static PhantoonRainPattern Right { get; } = new(PhantoonPathDefinitions.RightAppearance, PhantoonPathDefinitions.RightAppearancePosition, PhantoonFlameSpawns.RainColumn(0));
+    public static PhantoonRainPattern Right { get; } = new(PhantoonPathDefinitions.RightAppearance, PhantoonPathDefinitions.RightAppearancePosition);
 
     /// <summary>He reappears low, right of centre.</summary>
-    public static PhantoonRainPattern LowerRight { get; } = new(201, new(168, 128), PhantoonFlameSpawns.RainColumn(7));
+    public static PhantoonRainPattern LowerRight { get; } = new(201, new(168, 128));
 
     /// <summary>He reappears high, left of centre.</summary>
-    public static PhantoonRainPattern UpperLeft { get; } = new(334, new(88, 64), PhantoonFlameSpawns.RainColumn(3));
+    public static PhantoonRainPattern UpperLeft { get; } = new(334, new(88, 64));
 
     /// <summary>He reappears at the room's left.</summary>
-    public static PhantoonRainPattern Left { get; } = new(PhantoonPathDefinitions.LeftAppearance, PhantoonPathDefinitions.LeftAppearancePosition, PhantoonFlameSpawns.RainColumn(1));
+    public static PhantoonRainPattern Left { get; } = new(PhantoonPathDefinitions.LeftAppearance, PhantoonPathDefinitions.LeftAppearancePosition);
 
     /// <summary>He reappears low, left of centre.</summary>
-    public static PhantoonRainPattern LowerLeft { get; } = new(465, new(88, 128), PhantoonFlameSpawns.RainColumn(3));
+    public static PhantoonRainPattern LowerLeft { get; } = new(465, new(88, 128));
 
     /// <summary>
     /// The pattern a later rain chooses by its random draw (#2510): the centre, upper right, right, lower right, centre again,

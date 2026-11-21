@@ -11,19 +11,9 @@ public abstract record RoomObjectProjectileRequest
     /// <param name="roomObjectBlock">The block of the room object that threw the projectile.</param>
     private protected RoomObjectProjectileRequest(Position16<RoomBlocks> roomObjectBlock) => RoomObjectBlock = roomObjectBlock;
 
-    /// <summary>Carries out the reaction <paramref name="reactions"/> has to this room object projectile request, through the case it is.</summary>
-    /// <param name="reactions">What its owner does on each case.</param>
-    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
-    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
-    internal abstract void React<TContext>(RoomObjectProjectileRequestReactions<TContext> reactions, TContext context);
-
-
     /// <summary>The block of the room object that threw the projectile, which the projectile's place is relative to.</summary>
     public Position16<RoomBlocks> RoomObjectBlock { get; }
-}
 
-/// <summary>What the owner of a <see cref="RoomObjectProjectileRequest"/> does on each of its cases (#2553).</summary>
-/// <param name="MotherBrainGlassProjectileRequest">Reacts to a <see cref="Bosses.MotherBrain.MotherBrainGlassProjectileRequest"/>.</param>
-/// <param name="BombTorizoStatueProjectileRequest">Reacts to a <see cref="Bosses.Torizo.BombTorizoStatueProjectileRequest"/>.</param>
-/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record RoomObjectProjectileRequestReactions<TContext>(Action<Bosses.MotherBrain.MotherBrainGlassProjectileRequest, TContext> MotherBrainGlassProjectileRequest, Action<Bosses.Torizo.BombTorizoStatueProjectileRequest, TContext> BombTorizoStatueProjectileRequest);
+    /// <summary>Spawns the projectile among the room's enemy projectiles, through the spawner its thrower gave it.</summary>
+    internal abstract void Spawn();
+}

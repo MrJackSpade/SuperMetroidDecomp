@@ -22,7 +22,7 @@ internal static class RidleyFadeAnimations
             [RidleyFadeSegment.BodyFadingIn] =
             [
                 .. Shown(RidleyFadeDefinitions.BodyFade.Images.SkipLast(1), RidleyShadeDefinitions.BodyFadeShadeUpdates),
-                new AnimationBeat<RidleyFadeImage, NoAnimationCue>.HeldFrame(RidleyFadeDefinitions.BodyFade.Images[^1]),
+                new AnimationBeat<RidleyFadeImage, NoAnimationCue>.HeldFrame(RidleyFadeDefinitions.BodyFade.End),
             ],
             [RidleyFadeSegment.ArenaRevealing] =
                 [.. Shown(RidleyFadeDefinitions.ArenaReveal.Images, NorfairRidleyRevealDefinitions.RevealStepUpdates)],

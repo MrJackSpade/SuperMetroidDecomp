@@ -171,7 +171,7 @@ internal static void VerifySamusHorizontalSpeed()
     {
         Pose = SamusPoseId.MovingRightNormalPose,
         // She runs in a room, whose footsteps her stride's foot contacts raise: a dry one, the Landing Site without its rain.
-        Ground = SamusGround.Of(RoomDefinitions.LandingSite),
+        Ground = RoomDefinitions.LandingSite.Ground,
     };
     SamusPresentation.InitializeAnimation(dashAnimation);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
@@ -332,35 +332,35 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(SpeedEchoPhase.CapturingSecond, booster.SpeedEchoPhase, "speed echo advances to the second echo");
     AssertTrue(booster.CaptureSpeedEchoPosition(8, new(105, 82)), "speed echo captures the second echo");
     AssertEqual(SpeedEchoPhase.CapturingFirst, booster.SpeedEchoPhase, "speed echo alternation wraps after the second echo");
-    AssertEqual(101, booster.FirstSpeedEchoPosition!.Value.X, "first speed echo X snapshot");
-    AssertEqual(105, booster.SecondSpeedEchoPosition!.Value.X, "second speed echo X snapshot");
+    AssertEqual(101, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position!.Value.X, "first speed echo X snapshot");
+    AssertEqual(105, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position!.Value.X, "second speed echo X snapshot");
 
     booster.CancelRunningMomentum(SamusFacingDirection.Right);
     AssertTrue(booster.SuitShade.IsDue,
         "CancelSpeedBoost publishes normal-suit palette restoration");
     AssertEqual(SpeedEchoPhase.Departing, booster.SpeedEchoPhase,
         "right-facing cancellation enters high-bit echo departure");
-    AssertEqual(8, booster.FirstSpeedEchoHorizontalSpeed,
+    AssertEqual(8, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].DepartureSpeed,
         "right-facing first departure speed is positive eight");
-    AssertEqual(8, booster.SecondSpeedEchoHorizontalSpeed,
+    AssertEqual(8, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].DepartureSpeed,
         "right-facing second departure speed is positive eight");
 
     // `$90:87D3-$90:884B` advances the second echo, then the first echo as an actual draw side effect.
     // Both stored bodies trail a rightward-running Samus, so +8 approaches X=120 while Y
     // independently approaches 90 by two. Crossing clears an echo before it can emit OAM.
     booster.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(120, 90));
-    AssertTrue(booster.SecondSpeedEchoPosition is not null,
+    AssertTrue(booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position is not null,
         "right departure the second echo remains before crossing");
-    AssertEqual(113, booster.SecondSpeedEchoPosition!.Value.X,
+    AssertEqual(113, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position!.Value.X,
         "right departure the second echo advances positive eight");
-    AssertEqual(84, booster.SecondSpeedEchoPosition!.Value.Y,
+    AssertEqual(84, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position!.Value.Y,
         "right departure the second echo approaches Samus Y by two");
     booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90));
-    AssertTrue(booster.FirstSpeedEchoPosition is not null,
+    AssertTrue(booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position is not null,
         "right departure the first echo remains before crossing");
-    AssertEqual(109, booster.FirstSpeedEchoPosition!.Value.X,
+    AssertEqual(109, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position!.Value.X,
         "right departure the first echo advances positive eight");
-    AssertEqual(83, booster.FirstSpeedEchoPosition!.Value.Y,
+    AssertEqual(83, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position!.Value.Y,
         "right departure the first echo approaches Samus Y by two");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(SpeedEchoPhase.Departing, booster.SpeedEchoPhase,
@@ -369,21 +369,21 @@ internal static void VerifySamusHorizontalSpeed()
     // Samus_CancelSpeedBoost is called every applicable standing/turn frame. Its BMI guard
     // must preserve an already-running departure even if the new pose faces the other way.
     booster.CancelRunningMomentum(SamusFacingDirection.Left);
-    AssertEqual(8, booster.FirstSpeedEchoHorizontalSpeed,
+    AssertEqual(8, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].DepartureSpeed,
         "repeated cancellation cannot reverse an active departure");
     booster.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(120, 90));
-    AssertTrue(booster.SecondSpeedEchoPosition is null,
+    AssertTrue(booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position is null,
         "right departure the second echo clears on crossing");
-    AssertTrue(booster.SecondSpeedEchoPosition is null,
+    AssertTrue(booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position is null,
         "crossed the second echo holds no echo");
     booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90));
-    AssertTrue(booster.FirstSpeedEchoPosition is not null,
+    AssertTrue(booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position is not null,
         "right departure the first echo remains one more frame");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(SpeedEchoPhase.Departing, booster.SpeedEchoPhase,
         "one surviving departure keeps high-bit index");
     booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90));
-    AssertTrue(booster.FirstSpeedEchoPosition is null,
+    AssertTrue(booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position is null,
         "right departure the first echo eventually crosses");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(SpeedEchoPhase.CapturingFirst, booster.SpeedEchoPhase,
@@ -395,27 +395,27 @@ internal static void VerifySamusHorizontalSpeed()
     AssertTrue(leftDeparture.CaptureSpeedEchoPosition(0, new(150, 90)), "left departure captures its first echo");
     AssertTrue(leftDeparture.CaptureSpeedEchoPosition(4, new(154, 94)), "left departure captures its second echo");
     leftDeparture.CancelRunningMomentum(SamusFacingDirection.Left);
-    AssertEqual(-8, leftDeparture.FirstSpeedEchoHorizontalSpeed,
+    AssertEqual(-8, leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].DepartureSpeed,
         "left-facing first departure speed is negative eight");
-    AssertEqual(-8, leftDeparture.SecondSpeedEchoHorizontalSpeed,
+    AssertEqual(-8, leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].DepartureSpeed,
         "left-facing second departure speed is negative eight");
     leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(140, 100));
-    AssertTrue(leftDeparture.SecondSpeedEchoPosition is not null,
+    AssertTrue(leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position is not null,
         "left departure the second echo remains before crossing");
-    AssertEqual(146, leftDeparture.SecondSpeedEchoPosition!.Value.X,
+    AssertEqual(146, leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position!.Value.X,
         "left departure the second echo advances negative eight");
-    AssertEqual(96, leftDeparture.SecondSpeedEchoPosition!.Value.Y,
+    AssertEqual(96, leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position!.Value.Y,
         "left departure the second echo approaches Samus Y by two");
     leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(140, 100));
-    AssertTrue(leftDeparture.FirstSpeedEchoPosition is not null,
+    AssertTrue(leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position is not null,
         "left departure the first echo remains before crossing");
-    AssertEqual(142, leftDeparture.FirstSpeedEchoPosition!.Value.X,
+    AssertEqual(142, leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position!.Value.X,
         "left departure the first echo advances negative eight");
     leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(140, 100));
-    AssertTrue(leftDeparture.SecondSpeedEchoPosition is null,
+    AssertTrue(leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position is null,
         "left departure the second echo clears after passing Samus");
     leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(140, 100));
-    AssertTrue(leftDeparture.FirstSpeedEchoPosition is null,
+    AssertTrue(leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position is null,
         "left departure the first echo clears after passing Samus");
     leftDeparture.FinishDepartingSpeedEchoFrame();
     AssertEqual(SpeedEchoPhase.CapturingFirst, leftDeparture.SpeedEchoPhase,

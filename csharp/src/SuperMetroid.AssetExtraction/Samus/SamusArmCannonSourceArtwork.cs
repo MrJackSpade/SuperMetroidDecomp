@@ -1,10 +1,10 @@
+using System.Collections.Frozen;
+using SuperMetroid.Core.Samus.Projectiles;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Assets;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -18,22 +18,19 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 public sealed class SamusArmCannonSourceArtwork
 {
-    /// <summary>Tile-source slots: one row per native aim direction, each holding every cover-art frame slot.</summary>
-    private static readonly FixedGridShape CoverTileShape =
-        new(SamusProjectileDirectionCodec.Count, OpeningFrames);
-    /// <summary>Cover frames that show a tile: every frame but the closed one.</summary>
-    private const int OpeningFrames = SamusArmCannonArtworkFormat.FramesPerDirection - 1;
-    /// <summary>Each native aim direction's installed cover appearance.</summary>
-    private readonly SpritePart[] attributes;
-    /// <summary>Each native aim direction's installed cover tile for opening frames one through three.</summary>
-    private readonly int[][] openingTiles;
+    /// <summary>Each aim's cover appearance.</summary>
+    private readonly FrozenDictionary<SamusProjectileDirection, SpritePart> appearances;
+    /// <summary>Each aim's cover orientation, whose pictures its opening shows.</summary>
+    private readonly FrozenDictionary<SamusProjectileDirection, SamusArmCannonCoverOrientation> orientations;
 
-    /// <summary>Holds the complete descriptors, cover appearances and cover tiles.</summary>
-    private SamusArmCannonSourceArtwork(SamusArmCannonDescriptors descriptors, SpritePart[] attributes, int[][] coverTiles)
+    /// <summary>Holds the complete descriptors, cover appearances and cover orientations.</summary>
+    private SamusArmCannonSourceArtwork(SamusArmCannonDescriptors descriptors,
+        IReadOnlyDictionary<SamusProjectileDirection, SpritePart> appearances,
+        IReadOnlyDictionary<SamusProjectileDirection, SamusArmCannonCoverOrientation> orientations)
     {
         Descriptors = descriptors;
-        this.attributes = [.. attributes];
-        openingTiles = [.. coverTiles.Select(row => row.ToArray())];
+        this.appearances = appearances.ToFrozenDictionary();
+        this.orientations = orientations.ToFrozenDictionary();
     }
 
     /// <summary>Each pose's drawing descriptor within the extracted drawing window, which only the import decodes.</summary>
@@ -43,26 +40,27 @@ public sealed class SamusArmCannonSourceArtwork
     public InstalledSamusArmCannonArtwork Gameplay => Descriptors.Gameplay;
 
     /// <summary>SHA-256 of selected cannon placement, cover appearances and tile selectors; the characters are import data (#1636).</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-v5", content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-v6", content =>
     {
         foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses) content.Append("pose descriptor", PoseDescriptor(pose));
         Span<byte> selectedDrawing = stackalloc byte[SamusArmCannonArtworkFormat.DrawingDataByteCount];
         for (int index = 0; index < selectedDrawing.Length; index++)
             selectedDrawing[index] = ReadDrawingByte(index);
         content.Append("drawing data", selectedDrawing);
-        for (int direction = 0; direction < SamusProjectileDirectionCodec.Count; direction++)
+        foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
             CoverAppearance(direction).AppendIdentity(content);
-        for (int direction = 0; direction < SamusProjectileDirectionCodec.Count; direction++)
-            for (int frame = 1; frame <= OpeningFrames; frame++)
-                content.Append("cover tile", OpeningTile(direction, frame));
+        foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
+            content.AppendName("cover orientation", SamusArmCannonCoverOrientationKeys.Installed.Of(orientations[direction]));
     });
 
-    /// <summary>Validated document tables: the drawing descriptors, the cover appearances and the cover tiles.</summary>
-    internal sealed record DescriptorTables(SamusArmCannonDescriptors Descriptors, SpritePart[] Attributes, int[][] CoverTiles);
+    /// <summary>Validated document tables: the drawing descriptors, each aim's cover appearance and its cover orientation.</summary>
+    internal sealed record DescriptorTables(SamusArmCannonDescriptors Descriptors,
+        IReadOnlyDictionary<SamusProjectileDirection, SpritePart> Appearances,
+        IReadOnlyDictionary<SamusProjectileDirection, SamusArmCannonCoverOrientation> Orientations);
 
     /// <summary>The artwork of validated document tables.</summary>
     internal static SamusArmCannonSourceArtwork FromPlacement(DescriptorTables placement) =>
-        new(placement.Descriptors, placement.Attributes, placement.CoverTiles);
+        new(placement.Descriptors, placement.Appearances, placement.Orientations);
 
     /// <summary>
     /// The placements the installation holds (#1638): each pose's drawing order and directions, and its cover's displacement
@@ -76,27 +74,22 @@ public sealed class SamusArmCannonSourceArtwork
         SamusArmCannonArtworkDocument document;
         document = JsonAssetDocument.Read<SamusArmCannonArtworkDocument>(json, Options, "arm-cannon artwork");
         if (document.Version != SamusArmCannonArtworkFormat.Version ||
-            document.CoverAppearances is null ||
-            document.CoverAppearances.Length != SamusProjectileDirectionCodec.Count ||
-            !CoverTileShape.HasRows(document.CoverTiles))
+            document.CoverAppearances is null || document.CoverOrientations is null)
             throw new InvalidDataException("Arm-cannon artwork has an invalid version or table geometry.");
 
         SamusArmCannonDescriptors descriptors = SamusArmCannonDescriptors.Create(document.PoseDescriptors, document.DrawingData);
-        SpritePart[] attributes = document.CoverAppearances.Select((value, index) =>
-            RequireAppearance(value, $"cover appearance {index}")).ToArray();
-        int[][] coverTiles = new int[document.CoverTiles.Length][];
-        for (int direction = 0; direction < coverTiles.Length; direction++)
+        var appearances = new Dictionary<SamusProjectileDirection, SpritePart>();
+        var orientations = new Dictionary<SamusProjectileDirection, SamusArmCannonCoverOrientation>();
+        foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
         {
-            int[]? row = document.CoverTiles[direction];
-            if (!CoverTileShape.HasColumns(row))
-                throw new InvalidDataException(
-                    $"Arm-cannon direction {direction} needs three opening cover tiles.");
-            if (row.Any(tile => (uint)tile >= SamusArmCannonArtworkFormat.CoverTileCount))
-                throw new InvalidDataException(
-                    $"Arm-cannon direction {direction} selects a missing tile.");
-            coverTiles[direction] = [.. row];
+            appearances.Add(direction, RequireAppearance(document.CoverAppearances.GetValueOrDefault(direction), $"cover appearance {direction}"));
+            if (!document.CoverOrientations.TryGetValue(direction, out SamusArmCannonCoverOrientation orientation))
+                throw new InvalidDataException($"Arm-cannon direction {direction} names no cover orientation.");
+            orientations.Add(direction, orientation);
         }
-        return new DescriptorTables(descriptors, attributes, coverTiles);
+        if (document.CoverAppearances.Count != appearances.Count || document.CoverOrientations.Count != orientations.Count)
+            throw new InvalidDataException("Arm-cannon artwork names a cover for an aim that has none.");
+        return new DescriptorTables(descriptors, appearances, orientations);
     }
 
     /// <summary>Serializes the extracted document as indented camel-case UTF-8 JSON for the import data's <c>samus-arm-cannon-artwork.json</c>; table bounds and selector validation occur when it is loaded, not here.</summary>
@@ -115,21 +108,20 @@ public sealed class SamusArmCannonSourceArtwork
     /// <exception cref="InvalidDataException">The offset lies outside the extracted drawing window.</exception>
     private byte ReadDrawingByte(int offset) => Descriptors.ReadDrawingByte(offset);
 
-    /// <summary>Gets the installed cover's character, palette, depth, and mirroring for native direction 0–9.</summary>
-    public SpritePart CoverAppearance(int direction) => (uint)direction < (uint)attributes.Length
-        ? attributes[direction]
-        : throw new ArgumentOutOfRangeException(nameof(direction));
+    /// <summary>Gets the installed cover's character, palette, depth, and mirroring for aim <paramref name="direction"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is no aim.</exception>
+    public SpritePart CoverAppearance(SamusProjectileDirection direction) => appearances.TryGetValue(direction, out SpritePart appearance)
+        ? appearance
+        : throw new ArgumentOutOfRangeException(nameof(direction), direction, "No cover is drawn for the aim.");
 
-    /// <summary>The installed cover tile native direction 0–9 shows at opening picture <paramref name="frame"/>.</summary>
-    public int CoverTileIndex(int direction, SamusArmCannonCoverFrame frame)
-    {
-        if ((uint)direction >= SamusProjectileDirectionCodec.Count)
-            throw new ArgumentOutOfRangeException(nameof(direction));
-        return OpeningTile(direction, SamusArmCannonCoverFrameCodec.CartridgeFrame(frame));
-    }
-
-    /// <summary>The installed cover tile <paramref name="direction"/> shows at opening frame 1–3.</summary>
-    private int OpeningTile(int direction, int frame) => openingTiles[direction][frame - 1];
+    /// <summary>The cover picture aim <paramref name="direction"/> shows at opening frame <paramref name="frame"/> (#2556).</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is no aim or <paramref name="frame"/> no cover picture.</exception>
+    internal SamusArmCannonCoverTile CoverTile(SamusProjectileDirection direction, SamusArmCannonCoverFrame frame) =>
+        !SamusArmCannonCoverFrameCodec.InOpeningOrder.Contains(frame)
+            ? throw new ArgumentOutOfRangeException(nameof(frame), frame, "The cover shows no such picture.")
+            : orientations.TryGetValue(direction, out SamusArmCannonCoverOrientation orientation)
+                ? new SamusArmCannonCoverTile(orientation, frame)
+                : throw new ArgumentOutOfRangeException(nameof(direction), direction, "No cover is drawn for the aim.");
 
     /// <summary>Requires an authored cover appearance to be one small piece at the cover's origin.</summary>
     private static SpritePart RequireAppearance(SpriteVisualPart? value, string name) =>
@@ -143,6 +135,6 @@ public sealed class SamusArmCannonSourceArtwork
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
-        Converters = { new SamusPoseIdJsonConverter() },
+        Converters = { new SamusPoseIdJsonConverter(), new SamusProjectileDirectionJsonConverter(), new SamusArmCannonCoverOrientationJsonConverter() },
     };
 }

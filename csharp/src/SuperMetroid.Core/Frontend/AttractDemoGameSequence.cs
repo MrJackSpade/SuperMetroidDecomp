@@ -127,7 +127,7 @@ internal sealed class AttractDemoGameSequence(FrontendSession session) : IGamePh
                 session.Artwork.SpriteSheets));
         }
         session.Enter(TitleStep.Showing);
-        session.display.PublishMenu(session.ActiveTitle);
+        session.display.Publish(session.ActiveTitle);
     }
 
     /// <summary>Starts the transition out of a completed or cancelled demo scene.</summary>

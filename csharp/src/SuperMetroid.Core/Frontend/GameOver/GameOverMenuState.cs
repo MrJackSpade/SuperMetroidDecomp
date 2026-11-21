@@ -10,7 +10,7 @@ using SuperMetroid.Core.Frontend.GameOver.Artwork;
 namespace SuperMetroid.Core.Frontend.GameOver;
 
 /// <summary>The game-over prompt.</summary>
-public sealed class GameOverMenuState : IMenuFrontendScreen
+public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
@@ -30,7 +30,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// <summary>Detects newly pressed answer-navigation and confirmation buttons.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>The screen's brightness, stepped one level on every fade update; the menu opens black.</summary>
-    private readonly ScreenFade fade = new(0);
+    private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>The selection missile's frame cycle, shared by the Yes and No positions.</summary>
     private readonly MenuMissileAnimation missile;
     /// <summary>
@@ -125,7 +125,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
             baby.Show(GameOverBabyAnimation.Playing);
             StepBabyMetroid();
             SelectedItem = YesNoChoice.Yes;
-            fade.Show(0);
+            fade.Show(DisplayBrightness.Black);
             // Unblank, then wait out one update before advancing the step.
             phaseAfterDisplayFrame = GameOverMenuPhase.WaitForInitialMusic;
         },
@@ -239,10 +239,14 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         audio.QueueSound(CrySound(sound), priority: GameOverMenuDefinitions.SoundPriority);
 
     /// <summary>The sound of one of the Baby's cries.</summary>
-    private static SoundEffectId CrySound(GameOverBabySound sound) =>
-        sound == GameOverBabySound.FirstCry ? GameOverMenuDefinitions.FirstCry
-        : sound == GameOverBabySound.SecondCry ? GameOverMenuDefinitions.SecondCry
-        // The remaining member, GameOverBabySound.ThirdCry.
-        : GameOverMenuDefinitions.ThirdCry;
+    private static SoundEffectId CrySound(GameOverBabySound sound) => CrySounds[sound];
+
+    /// <summary>The sound of each of the Baby's cries.</summary>
+    private static IdentityTable<GameOverBabySound, SoundEffectId> CrySounds { get; } = new(new Dictionary<GameOverBabySound, SoundEffectId>
+    {
+        [GameOverBabySound.HighCry] = GameOverMenuDefinitions.HighCry,
+        [GameOverBabySound.HitchedCry] = GameOverMenuDefinitions.HitchedCry,
+        [GameOverBabySound.LowCry] = GameOverMenuDefinitions.LowCry,
+    });
 
 }

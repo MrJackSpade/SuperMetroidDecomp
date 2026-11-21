@@ -13,7 +13,7 @@ internal static class LookupColoredDoorStockVerification
 {
     /// <summary>Compares each four-cell colored-door frame's picture with the cartridge, then the import and its rejections.</summary>
     internal static void VerifyColoredDoorStockMapping(CartridgeImportAddressSpace rom,
-        InstalledRoomObjectColoredDoorVisuals installed)
+        InstalledRoomObjectPictures installed)
     {
         LookupColoredCapFamily[] families = [
             new LookupColoredCapFamily(0xa767,"yellow-left"),new LookupColoredCapFamily(0xa797,"yellow-right"),new LookupColoredCapFamily(0xa7c7,"yellow-up"),new LookupColoredCapFamily(0xa7f7,"yellow-down"),
@@ -21,7 +21,7 @@ internal static class LookupColoredDoorStockVerification
             new LookupColoredCapFamily(0xa8e7,"red-left"),new LookupColoredCapFamily(0xa917,"red-right"),new LookupColoredCapFamily(0xa947,"red-up"),new LookupColoredCapFamily(0xa977,"red-down")];
         var frames = families.SelectMany(family => new[] { "closed", "ajar", "half-open", "nearly-open" }.Select((look, frame) =>
             new LookupEscapeGateStockFrame(Pointer:(ushort)(family.First + 12 * frame), Id:$"{family.Name}-{look}"))).ToArray();
-        foreach (InstalledRoomObjectColoredDoorVisuals pictures in new[] { InstalledRoomObjectColoredDoorVisuals.Stock(), installed })
+        foreach (InstalledRoomObjectPictures pictures in new[] { RoomObjectPicturesStock.ColoredDoor, installed })
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectColoredDoorVisualFiles.Family, frames, 192);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (frames.All(frame => frame.Pointer != raw))

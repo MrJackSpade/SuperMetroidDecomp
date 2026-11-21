@@ -6,16 +6,12 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonCannonObjectsConstants
 {
     /// <summary>
-    /// The wall each cannon kind faces out from and whether it starts destroyed, which its placements carry (#2400), as the
-    /// population generator decodes them: the live right, destroyed right and live left cannon. No other kind is a cannon.
+    /// The wall each cannon kind faces out from and whether it starts destroyed, which its placements carry (#2400), read
+    /// from Core's table of the kind each cannon setup places (#2557): the live right, destroyed right and live left cannon.
+    /// No other kind is a cannon.
     /// </summary>
     internal static IReadOnlyDictionary<RoomObjectKind, (DraygonCannonOrientation Orientation, DraygonCannonStart Start)> CannonKinds { get; } =
-        new Dictionary<RoomObjectKind, (DraygonCannonOrientation Orientation, DraygonCannonStart Start)>
-        {
-            [RoomObjectKind.DraygonCannonFacingRight] = (DraygonCannonOrientation.Right, DraygonCannonStart.Whole),
-            [RoomObjectKind.DraygonCannonFacingRightDestroyed] = (DraygonCannonOrientation.Right, DraygonCannonStart.Destroyed),
-            [RoomObjectKind.DraygonCannonFacingLeft] = (DraygonCannonOrientation.Left, DraygonCannonStart.Whole),
-        };
+        RoomObjectKindDefinitions.DraygonCannons.ToDictionary(pair => pair.Value, pair => (pair.Key.Orientation, pair.Key.Start));
 
     /// <summary>Whether <paramref name="kind"/> is one of the room's wall cannons: the live right, destroyed right or live left cannon.</summary>
     internal static bool IsDraygonCannonKind(RoomObjectKind kind) => CannonKinds.ContainsKey(kind);

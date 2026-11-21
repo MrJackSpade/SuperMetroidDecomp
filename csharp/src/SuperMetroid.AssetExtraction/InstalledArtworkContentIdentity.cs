@@ -285,8 +285,8 @@ internal static class InstalledArtworkContentIdentity
                 content.AppendName("kind", pair.Key.Type.ToString());
                 content.AppendName("reaction", pair.Key.Reaction?.ToString() ?? string.Empty);
                 content.Append("blocks", visual.InReadingOrder.Count);
-                foreach (int block in visual.InReadingOrder)
-                    content.Append("block", block);
+                foreach (SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture block in visual.InReadingOrder)
+                    content.Append("block", block.Block);
             }
             content.Append("overlays", Convert.FromHexString(reveals.Overlays.ContentIdentity));
         });

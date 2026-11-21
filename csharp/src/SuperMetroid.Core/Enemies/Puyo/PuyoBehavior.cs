@@ -10,8 +10,7 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>Whether a hop is one of the three ordinary hops that proximity and chance choose between.</summary>
-    private static bool IsNormalHop(PuyoHopType type) =>
-        type is PuyoHopType.NormalSmall or PuyoHopType.NormalBig or PuyoHopType.NormalLong;
+    private static bool IsNormalHop(PuyoHopType type) => PuyoHopDefinitions.NormalHops.Contains(type);
 
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Puyo], Create);
@@ -311,44 +310,13 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Selects the rising/falling one-frame pose for the current curve place.</summary>
     private static void SetPuyoAirborneAnimation(RoomEnemyPlace place, PuyoEnemyState state, VerticalDirection heading)
     {
-        PuyoSegment segment;
-        if (heading == VerticalDirection.Up)
-        {
-            if (state.Direction == HorizontalDirection.Right)
-            {
-                segment = state.YSpeedCurvePlace >=
-                        state.InitialYSpeedCurvePlaceThreeQuarters
-                    ? PuyoSegment.TiltedFarRight
-                    : state.YSpeedCurvePlace >= state.InitialYSpeedCurvePlaceHalf
-                        ? PuyoSegment.TiltedRight
-                        : PuyoSegment.Upright;
-            }
-            else
-            {
-                segment = state.YSpeedCurvePlace >=
-                        state.InitialYSpeedCurvePlaceThreeQuarters
-                    ? PuyoSegment.TiltedFarLeft
-                    : state.YSpeedCurvePlace >= state.InitialYSpeedCurvePlaceHalf
-                        ? PuyoSegment.TiltedLeft
-                        : PuyoSegment.Upright;
-            }
-        }
-        else if (state.Direction == HorizontalDirection.Right)
-        {
-            segment = state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceHalf
-                ? PuyoSegment.Upright
-                : state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceThreeQuarters
-                    ? PuyoSegment.TiltedLeft
-                    : PuyoSegment.TiltedFarLeft;
-        }
-        else
-        {
-            segment = state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceHalf
-                ? PuyoSegment.Upright
-                : state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceThreeQuarters
-                    ? PuyoSegment.TiltedRight
-                    : PuyoSegment.TiltedFarRight;
-        }
+        // A rising Puyo leans the way it hops and a falling one the other way, further the further its fall curve has run.
+        bool leansRight = (heading == VerticalDirection.Up) == (state.Direction == HorizontalDirection.Right);
+        PuyoSegment segment = state.YSpeedCurvePlace >= state.InitialYSpeedCurvePlaceThreeQuarters
+            ? leansRight ? PuyoSegment.TiltedFarRight : PuyoSegment.TiltedFarLeft
+            : state.YSpeedCurvePlace >= state.InitialYSpeedCurvePlaceHalf
+                ? leansRight ? PuyoSegment.TiltedRight : PuyoSegment.TiltedLeft
+                : PuyoSegment.Upright;
 
         SetPuyoAnimation(place, state, segment);
     }

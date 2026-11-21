@@ -378,9 +378,8 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void DrainBabyMetroidVictim(RoomEnemyPlace place, BabyMetroidEnemyState state)
     {
         RoomEnemyPlace victim = RequireBabyMetroidVictim(place);
-        int shakeIndex = MotherBrainCadenceDefinitions.BabyMetroidShakeStep.Of(place.FrameCounter);
-        place.Position = place.Position.WithWhole(
-            victim.Position.Whole + MotherBrainShakeDefinitions.Offsets[shakeIndex] + BabyMetroidFightDefinitions.LatchOffset);
+        place.Position = place.Position.WithWhole(victim.Position.Whole
+            + MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.BabyMetroidShakeStep, place.FrameCounter) + BabyMetroidFightDefinitions.LatchOffset);
         if (state.SidehopperDrain.StepRunsOut())
         {
             state.Action = BabyMetroidAction.ActivateSidehopperCorpse;
@@ -462,9 +461,9 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (SamusSpeedMagnitude.WholePixelsReach(fallSpeed, BabyMetroidFightDefinitions.DrainFallSpeedLimit))
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(fallSpeed.WithWholePixelsOf(BabyMetroidFightDefinitions.DrainFallSpeed));
 
-        int shakeIndex = MotherBrainCadenceDefinitions.BabyMetroidShakeStep.Of(place.FrameCounter);
-        place.Position = place.Position.WithWhole(
-            samus.Position.Whole + MotherBrainShakeDefinitions.Offsets[shakeIndex] + new Offset16<RoomPixels>(rightOfShake, BabyMetroidFightDefinitions.DrainAboveSamus));
+        place.Position = place.Position.WithWhole(samus.Position.Whole
+            + MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.BabyMetroidShakeStep, place.FrameCounter)
+            + new Offset16<RoomPixels>(rightOfShake, BabyMetroidFightDefinitions.DrainAboveSamus));
 
         // The drain takes less energy with Varia than without, leaving Samus at least one.
         int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? BabyMetroidFightDefinitions.DrainWithVaria : BabyMetroidFightDefinitions.DrainWithoutVaria;
@@ -709,7 +708,7 @@ internal sealed class BabyMetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Requires the Baby Metroid's victim: the enemy placed directly after it (<see cref="BabyMetroidVictim"/>).</summary>
     private RoomEnemyPlace RequireBabyMetroidVictim(RoomEnemyPlace place)
     {
-        RoomEnemyPlace victim = BabyMetroidVictim.Of(_places.InUpdateOrder, place.Ordinal);
+        RoomEnemyPlace victim = BabyMetroidVictim.Of(_places.InUpdateOrder, place);
         if (victim.IsFree)
             throw new InvalidDataException("The Baby Metroid's victim, the enemy placed after it, is missing.");
         return victim;

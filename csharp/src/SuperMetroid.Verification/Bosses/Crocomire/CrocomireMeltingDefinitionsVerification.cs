@@ -132,7 +132,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     /// <summary>Compares all 49 extraction erase steps with an independently calculated bitplane silhouette.</summary>
     internal static void VerifyCrocomireMeltingProductionSequence(CartridgeImportAddressSpace rom)
     {
-        var image = Enumerable.Repeat((byte)0xff, CrocomireMeltingArtworkFormat.SecondByteCount).ToArray();
+        var image = Enumerable.Repeat((byte)0xff, CrocomireMeltingArtworkFormat.BareSkullByteCount).ToArray();
         var expected = (byte[])image.Clone();
         for (int step = 0; step < CrocomireMeltingDefinitions.ColumnCount; step++)
         {

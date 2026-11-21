@@ -32,13 +32,17 @@ public sealed class ProjectileObjectPages
     }
 
 
+    /// <summary>A projectile page, distinguished by the beam combination it is composed for.</summary>
+    /// <param name="Beam">The beam combination.</param>
+    private sealed record BeamPageVariant(SamusBeamCombination Beam) : SpriteArtworkVariant;
+
     /// <summary>The page bound for a beam combination.</summary>
     public SpriteArtwork For(SamusBeamCombination beam) => pages.GetOrAdd(beam, Compose);
 
     /// <summary>Places the combination's beam characters and both trail sheets over the base page.</summary>
     private SpriteArtwork Compose(SamusBeamCombination beam)
     {
-        var id = new SpriteArtworkId(SpriteArtworkKind.ProjectileObjects, beam.TableIndex);
+        var id = new SpriteArtworkId(SpriteArtworkKind.ProjectileObjects, new BeamPageVariant(beam));
         SpriteArtwork page = ObjCharacterPage.With(id, basePage, beams.Resolve(beam).Span,
             ProjectileObjectPageDefinitions.BeamFirstCharacter);
         page = ObjCharacterPage.With(id, page, trails.IceAndWave.Span, ProjectileObjectPageDefinitions.IceWaveTrailFirstCharacter);

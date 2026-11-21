@@ -66,7 +66,7 @@ internal static class EndingCreditsPresentation
                     EndingTurningFloor view = ending.Stage.Floor;
                     layers.Add(new TurningFloorLayer(FloorView.Turned(view.Angle, view.Zoom,
                         CurrentFloorCenter(ending.Phase),
-                        view.Position.Whole, FloorRepeatsBeyondEdges(ending) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
+                        view.Position.Whole, FloorRepeatsBeyondEdges(ending.Phase) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
                         floor, ShowsAtmosphere(ending.Phase) ? FloorColorBlend.AddForeground : FloorColorBlend.None));
                 }
         }
@@ -124,16 +124,14 @@ internal static class EndingCreditsPresentation
     /// Whether the floor repeats beyond its edges (#1674): from the escape's setup through the planet's explosion and the
     /// music waits after it, until the gunship's planet escape shows nothing beyond its floor's edges.
     /// </summary>
-    [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "The ending is read only through the narrower capability interface SME6332 asks this parameter to take.")]
-    private static bool FloorRepeatsBeyondEdges(IEndingActorScene ending) => EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(ending.Phase);
+    private static bool FloorRepeatsBeyondEdges(EndingCreditsPhase phase) => EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(phase);
 
     /// <summary>Whether the current explosion music wait renders a white screen.</summary>
-    internal static bool ExplosionWhiteout(IEndingActorScene ending) => (ending.Phase == EndingCreditsPhase.WaitForPlanetEscapeMusic || ending.Phase == EndingCreditsPhase.WaitForPlanetEscapeMusicQueue);
+    internal static bool ExplosionWhiteout(IEndingActorScene ending) => EndingCreditsPhaseGroups.Whiteout.Contains(ending.Phase);
     /// <summary>Whether the planet escape shows the gunship flying away, the planet's afterglow and the starfields behind it.</summary>
     private static bool UsesFlyawayFloorPriority(EndingCreditsPhase phase) => EndingCreditsPhaseGroups.PlanetEscape.Contains(phase);
     /// <summary>Whether the current ending phase draws its actors and stars at all.</summary>
-    private static bool ShowsSprites(EndingCreditsState ending) => !ExplosionWhiteout(ending) && ending.Phase != EndingCreditsPhase.PostCreditsCopyright
-        && ending.Phase != EndingCreditsPhase.PostCreditsWaitingSamus && ending.Phase != EndingCreditsPhase.PostCreditsBlank;
+    private static bool ShowsSprites(EndingCreditsState ending) => !ExplosionWhiteout(ending) && !EndingCreditsPhaseGroups.HidingSprites.Contains(ending.Phase);
 
     /// <summary>The floor point the floor turns about, shared by atmospheric scenes and changed for flyaway.</summary>
     private static Offset16<FloorPixels> CurrentFloorCenter(EndingCreditsPhase phase) => EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(phase)
@@ -141,20 +139,17 @@ internal static class EndingCreditsPresentation
         : EndingMotionDefinitions.FloorCenter;
 
     /// <summary>Whether the phase shows the post-credits background; the armored reward shows sprites alone.</summary>
-    private static bool PostCreditsBackgroundEnabled(EndingCreditsState ending) => ending.Phase != EndingCreditsPhase.PostCreditsBlank
-        && ending.Phase != EndingCreditsPhase.PostCreditsFadeIn
-        && ending.Phase != EndingCreditsPhase.PostCreditsGesture
-        && ending.Phase != EndingCreditsPhase.PostCreditsJump
-        && !(ending.Phase == EndingCreditsPhase.PostCreditsReward && ending.Stage.EndingReward == EndingReward.Armored);
+    private static bool PostCreditsBackgroundEnabled(EndingCreditsState ending) => !EndingCreditsPhaseGroups.HidingPostCreditsBackground.Contains(ending.Phase)
+        && !(EndingCreditsPhaseGroups.RewardReveal.Contains(ending.Phase) && !EndingRewardCast.CrossfadesReveal(ending.Stage.EndingReward));
     /// <summary>Whether to show the waiting scene's background.</summary>
     private static bool UsesWaitingBackground(EndingCreditsPhase phase) => !EndingCreditsPhaseGroups.FromWaitingSamus.Contains(phase)
-        || phase == EndingCreditsPhase.PostCreditsReward;
+        || EndingCreditsPhaseGroups.RewardReveal.Contains(phase);
     /// <summary>
     /// Whether the scene's sprites glow over the background and the sky: during the explosion's crossfade, the shooting
     /// stars and an unarmoured reward.
     /// </summary>
-    private static bool RewardSpritesGlow(EndingCreditsState ending) => (ending.Phase == EndingCreditsPhase.FadeInZebesExplosion || ending.Phase == EndingCreditsPhase.ZebesExplosionCrossfade || ending.Phase == EndingCreditsPhase.PostCreditsShootingStars)
-        || (ending.Phase == EndingCreditsPhase.PostCreditsReward && ending.Stage.EndingReward != EndingReward.Armored);
+    private static bool RewardSpritesGlow(EndingCreditsState ending) => EndingCreditsPhaseGroups.GlowingSprites.Contains(ending.Phase)
+        || (EndingCreditsPhaseGroups.RewardReveal.Contains(ending.Phase) && EndingRewardCast.CrossfadesReveal(ending.Stage.EndingReward));
 
     /// <summary>The post-credits background: the waiting backdrop, or the post-credits text, each one unscrolled screen.</summary>
     private static PicturedPlaneLayer PostCreditsLayer(EndingCreditsState ending) =>

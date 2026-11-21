@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -24,7 +25,7 @@ public static class EnemyExtendedFrameDocuments
             document.Frames.Count != EnemyExtendedFrameDefinitions.ExpectedFrameCount)
             throw new InvalidDataException(
                 "Extended enemy compositions require the current version and every named frame.");
-        EnemyExtendedFrameSequence expected = EnemyExtendedFrameDefinitions.Frames;
+        ImmutableArray<EnemyFrameName> expected = EnemyExtendedFrameDefinitions.Frames;
 
         var frames = new Dictionary<EnemyFrameId, EnemyExtendedDrawComponent[]>();
         foreach (EnemyFrameName definition in expected)

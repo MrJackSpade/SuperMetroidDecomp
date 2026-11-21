@@ -7,48 +7,27 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 internal static class EndingRewardCast
 {
-    /// <summary>The idle of each reward.</summary>
-    private static IdentityTable<EndingReward, IReadOnlyList<EndingSpriteDefinition>> IdleByReward => field ??= new(new Dictionary<EndingReward, IReadOnlyList<EndingSpriteDefinition>>
-    {
-        [EndingReward.Suitless] = EndingActorDefinitions.SuitlessRewardIdle,
-        [EndingReward.Helmetless] = EndingActorDefinitions.HelmetlessRewardIdle,
-        [EndingReward.Armored] = EndingActorDefinitions.ArmoredRewardIdle,
-    });
+    /// <summary>
+    /// Whether <paramref name="reward"/>'s reveal crossfades the waiting backdrop into its colours: the background stays
+    /// shown and the sprites glow over it while it does.
+    /// </summary>
+    /// <exception cref="KeyNotFoundException">The reward is undefined.</exception>
+    internal static bool CrossfadesReveal(EndingReward reward) => EndingRewardDefinitions.Rewards[reward].RevealFades.Count > 0;
 
     /// <summary>The idle actors the credits' end spawns for <paramref name="reward"/>, in spawn order.</summary>
-    internal static IReadOnlyList<EndingSpriteDefinition> Idle(EndingReward reward) => IdleByReward[reward];
-
-    /// <summary>The gesture of each reward.</summary>
-    private static IdentityTable<EndingReward, IReadOnlyList<EndingRewardActor>> GestureByReward => field ??= new(new Dictionary<EndingReward, IReadOnlyList<EndingRewardActor>>
-    {
-        [EndingReward.Suitless] = [EndingRewardActor.SuitlessUpper, EndingRewardActor.SuitlessLower],
-        [EndingReward.Helmetless] = [EndingRewardActor.HelmetlessHead, EndingRewardActor.SuitedBody, EndingRewardActor.SuitedArm],
-        [EndingReward.Armored] = [EndingRewardActor.HelmetedHead, EndingRewardActor.SuitedBody, EndingRewardActor.SuitedArm],
-    });
+    /// <exception cref="KeyNotFoundException">The reward is undefined.</exception>
+    internal static IReadOnlyList<EndingSpriteDefinition> Idle(EndingReward reward) => EndingRewardDefinitions.Rewards[reward].Idle;
 
     /// <summary>The gesture actors <paramref name="reward"/> spawns, in the order they spawn, step and draw: the suited
     /// head first, then body and arm.</summary>
-    internal static IReadOnlyList<EndingRewardActor> Gesture(EndingReward reward) => GestureByReward[reward];
-
-    /// <summary>The jump head of each reward.</summary>
-    private static IdentityTable<EndingReward, EndingRewardActor?> JumpHeadByReward => field ??= new(new Dictionary<EndingReward, EndingRewardActor?>
-    {
-        [EndingReward.Suitless] = null,
-        [EndingReward.Helmetless] = EndingRewardActor.JumpHelmetlessHead,
-        [EndingReward.Armored] = EndingRewardActor.JumpHelmetedHead,
-    });
+    /// <exception cref="KeyNotFoundException">The reward is undefined.</exception>
+    internal static IReadOnlyList<EndingRewardActor> Gesture(EndingReward reward) => EndingRewardDefinitions.Rewards[reward].Gesture;
 
     /// <summary>The jump's head actor for <paramref name="reward"/>: none for the suitless reward, whose body carries its head.</summary>
-    internal static EndingRewardActor? JumpHead(EndingReward reward) => JumpHeadByReward[reward];
-
-    /// <summary>The jump body of each reward.</summary>
-    private static IdentityTable<EndingReward, EndingRewardActor> JumpBodyByReward => field ??= new(new Dictionary<EndingReward, EndingRewardActor>
-    {
-        [EndingReward.Suitless] = EndingRewardActor.JumpSuitlessBody,
-        [EndingReward.Helmetless] = EndingRewardActor.JumpSuitedBody,
-        [EndingReward.Armored] = EndingRewardActor.JumpSuitedBody,
-    });
+    /// <exception cref="KeyNotFoundException">The reward is undefined.</exception>
+    internal static EndingRewardActor? JumpHead(EndingReward reward) => EndingRewardDefinitions.Rewards[reward].JumpHead?.Actor;
 
     /// <summary>The jump's body actor for <paramref name="reward"/>.</summary>
-    internal static EndingRewardActor JumpBody(EndingReward reward) => JumpBodyByReward[reward];
+    /// <exception cref="KeyNotFoundException">The reward is undefined.</exception>
+    internal static EndingRewardActor JumpBody(EndingReward reward) => EndingRewardDefinitions.Rewards[reward].JumpBody;
 }

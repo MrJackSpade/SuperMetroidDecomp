@@ -23,9 +23,8 @@ internal static class FileSelectPresentationVerification
         var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame with
         {
-            Health = 45,
-            MaxHealth = 99,
             GameTime = new SuperMetroid.Core.Progression.GameClockReading(frames: 0, seconds: 0, minutes: 34, hours: 12),
+            Inventory = SaveSnapshotFixtures.NewGame.Inventory with { Health = 45, MaxHealth = 99 },
         });
         saveRam.SelectSlot(SaveSlot.A);
 

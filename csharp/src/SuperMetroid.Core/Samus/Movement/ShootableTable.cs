@@ -37,9 +37,9 @@ internal static class ShootableTable
                 _ = terrain.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(terrain.Level, block.At, shot, strike, solidBlock);
         return reaction switch
         {
-            // A block no object occupies hears nothing (ProjectileTriggerObjects.TryNotifyResidentProjectileHit).
+            // A block no object occupies hears nothing (ProjectileTriggerObjects.NotifyResidentProjectileHit).
             ShootableReaction.ResidentObjectTrigger => static (terrain, block, strike, _) =>
-                _ = terrain.RoomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, strike),
+                terrain.RoomObjects.ProjectileTriggers.NotifyResidentProjectileHit(block.At, strike),
             ShootableReaction.CollectibleTrigger => static (terrain, block, _, _) =>
                 terrain.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At),
             ShootableReaction.AnimalEscape => static (terrain, block, strike, _) =>

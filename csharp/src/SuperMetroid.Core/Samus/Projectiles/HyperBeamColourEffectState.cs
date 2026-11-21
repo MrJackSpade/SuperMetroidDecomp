@@ -19,7 +19,7 @@ public sealed class HyperBeamColourEffectState
     /// shown until the effect's first update (<see cref="Step"/>), which shows the cycle's first shade.
     /// </summary>
     private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Cycle { get; } =
-        SamusGlowPlay.Starting(SamusGlowSegment.HyperBeamCycle);
+        SamusGlowPlay.Starting(SamusGlowSegment.Of(SamusGlow.HyperBeamCycle));
 
     /// <summary>
     /// Runs one update of the Hyper Beam's colour effect: once the shade shown has held its updates, the next shade is laid

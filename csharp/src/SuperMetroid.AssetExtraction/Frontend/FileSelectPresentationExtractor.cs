@@ -141,39 +141,27 @@ public static class FileSelectPresentationExtractor
         FileSelectSourcePresentation.Write(output, new()
         {
             Version = FileSelectPresentationFormat.Version,
-            MainSlots =
-            [
-                Slot(FileSelectNativeLayout.MainSlotDestination(0, FileSelectSlotField.Energy),
-                    FileSelectNativeLayout.MainSlotDestination(0, FileSelectSlotField.TimeValue)),
-                Slot(FileSelectNativeLayout.MainSlotDestination(1, FileSelectSlotField.Energy),
-                    FileSelectNativeLayout.MainSlotDestination(1, FileSelectSlotField.TimeValue)),
-                Slot(FileSelectNativeLayout.MainSlotDestination(2, FileSelectSlotField.Energy),
-                    FileSelectNativeLayout.MainSlotDestination(2, FileSelectSlotField.TimeValue)),
-            ],
-            DataSlots =
-            [
-                Slot(FileSelectNativeLayout.DataSlotDestination(0, FileSelectSlotField.Energy),
-                    FileSelectNativeLayout.DataSlotDestination(0, FileSelectSlotField.TimeValue)),
-                Slot(FileSelectNativeLayout.DataSlotDestination(1, FileSelectSlotField.Energy),
-                    FileSelectNativeLayout.DataSlotDestination(1, FileSelectSlotField.TimeValue)),
-                Slot(FileSelectNativeLayout.DataSlotDestination(2, FileSelectSlotField.Energy),
-                    FileSelectNativeLayout.DataSlotDestination(2, FileSelectSlotField.TimeValue)),
-            ],
+            MainSlots = [.. Enumerable.Range(0, FileSelectCursorPositions.SaveSlotCount).Select(slot =>
+                Slot(FileSelectNativeLayout.MainSlotDestination(slot, FileSelectSlotField.Energy),
+                    FileSelectNativeLayout.MainSlotDestination(slot, FileSelectSlotField.TimeValue)))],
+            DataSlots = [.. Enumerable.Range(0, FileSelectCursorPositions.SaveSlotCount).Select(slot =>
+                Slot(FileSelectNativeLayout.DataSlotDestination(slot, FileSelectSlotField.Energy),
+                    FileSelectNativeLayout.DataSlotDestination(slot, FileSelectSlotField.TimeValue)))],
             BorderAnchors = new(StringComparer.Ordinal)
             {
                 [FileSelectPresentationFormat.BorderName(FileSelectBorder.Main)] = FileSelectNativeLayout.NormalBorderAnchor,
                 [FileSelectPresentationFormat.BorderName(FileSelectBorder.Copy)] = FileSelectNativeLayout.CopyBorderAnchor,
                 [FileSelectPresentationFormat.BorderName(FileSelectBorder.Clear)] = FileSelectNativeLayout.ClearBorderAnchor,
             },
-            MainCursorAnchors = Enumerable.Range(0, FileSelectCursorPositions.MainSelectionCount)
+            MainCursorAnchors = FileSelectItemRows.MainWithData
                 .Select(FileSelectCursorPositions.MainSelectionY)
                 .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.MainCursorX, y)).ToArray(),
-            DataCursorAnchors = Enumerable.Range(0, FileSelectCursorPositions.DataSelectionCount)
+            DataCursorAnchors = FileSelectItemRows.Data
                 .Select(FileSelectCursorPositions.DataSelectionY)
                 .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.DataCursorX, y)).ToArray(),
             ConfirmationCursorAnchors =
                 [FileSelectCursorPositions.ConfirmationYesAnchor, FileSelectCursorPositions.ConfirmationNoAnchor],
-            HelmetAnchors = Enumerable.Range(0, FileSelectCursorPositions.SaveSlotCount)
+            HelmetAnchors = FileSelectCursorPositions.Slots
                 .Select(FileSelectCursorPositions.HelmetY)
                 .Select(y => new Offset16<ScreenPixels>(FileSelectCursorPositions.HelmetX, y)).ToArray(),
             DynamicAnchors = new(StringComparer.Ordinal)
@@ -196,12 +184,7 @@ public static class FileSelectPresentationExtractor
         void AddMainStatic(ushort[] page, bool includeDataCommands)
         {
             Apply(page, Patch(FileSelectTilemapSourceDefinitions.SamusData), FileSelectNativeLayout.SamusDataDestination);
-            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(0)), FileSelectNativeLayout.MainSlotDestination(0, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.MainSlotDestination(0, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(1)), FileSelectNativeLayout.MainSlotDestination(1, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.MainSlotDestination(1, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(2)), FileSelectNativeLayout.MainSlotDestination(2, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.MainSlotDestination(2, FileSelectSlotField.TimeLabel));
+            AddSlotLabels(page, FileSelectNativeLayout.MainSlotDestination);
             if (includeDataCommands)
             {
                 Apply(page, Patch(FileSelectTilemapSourceDefinitions.DataCopy), FileSelectNativeLayout.DataCopyDestination);
@@ -218,13 +201,18 @@ public static class FileSelectPresentationExtractor
             Apply(page, Patch(mode), modeDestination);
             Apply(page, Patch(prompt), promptDestination);
             Apply(page, Patch(FileSelectTilemapSourceDefinitions.Exit), FileSelectNativeLayout.ExitDestination);
-            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(0)), FileSelectNativeLayout.DataSlotDestination(0, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.DataSlotDestination(0, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(1)), FileSelectNativeLayout.DataSlotDestination(1, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.DataSlotDestination(1, FileSelectSlotField.TimeLabel));
-            Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(2)), FileSelectNativeLayout.DataSlotDestination(2, FileSelectSlotField.Label));
-            Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), FileSelectNativeLayout.DataSlotDestination(2, FileSelectSlotField.TimeLabel));
+            AddSlotLabels(page, FileSelectNativeLayout.DataSlotDestination);
             return page;
+        }
+
+        // Overlay each save slot's label and time label where <paramref name="destination"/> places the slot's fields.
+        void AddSlotLabels(ushort[] page, Func<int, FileSelectSlotField, int> destination)
+        {
+            for (int slot = 0; slot < FileSelectCursorPositions.SaveSlotCount; slot++)
+            {
+                Apply(page, Patch(FileSelectTilemapFormat.SlotLabel(slot)), destination(slot, FileSelectSlotField.Label));
+                Apply(page, Patch(FileSelectTilemapSourceDefinitions.Time), destination(slot, FileSelectSlotField.TimeLabel));
+            }
         }
 
         // Overlay the shared question and YES/NO choices on a copy or clear page.
@@ -247,15 +235,17 @@ public static class FileSelectPresentationExtractor
         {
             int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             address = FileSelectTilemapFormat.Bank | (SnesAddressMath.OffsetInBank(address + 2));
-            // A word that is neither control is a cell.
-            switch ((FileSelectTextControl)word)
+            if (FileSelectTextControls.Of(word) is { } control)
             {
-                case FileSelectTextControl.End:
-                    return new(cells.ToArray());
-                case FileSelectTextControl.NextRow:
-                    x = 0;
-                    y++;
-                    continue;
+                switch (control)
+                {
+                    case FileSelectTextControl.End:
+                        return new(cells.ToArray());
+                    case FileSelectTextControl.NextRow:
+                        x = 0;
+                        y++;
+                        continue;
+                }
             }
             cells.Add(new(new(checked((short)(x++)), checked((short)y)), new SnesBgTilemapWord(checked((ushort)word))));
         }
@@ -323,19 +313,8 @@ public static class FileSelectPresentationExtractor
     }
 
     /// <summary>Splits one SNES BG tile word into atlas position, palette, priority, and flip fields.</summary>
-    private static MapPresentationCell Cell(int raw)
-    {
-        var word = new SnesBgTilemapWord(checked((ushort)raw));
-        return new()
-        {
-            TileColumn = word.CharacterIndex % FileSelectPresentationFormat.CharacterColumns,
-            TileRow = word.CharacterIndex / FileSelectPresentationFormat.CharacterColumns,
-            Palette = word.PaletteIndex,
-            Priority = word.HasPriority,
-            FlipX = word.FlipHorizontally,
-            FlipY = word.FlipVertically,
-        };
-    }
+    private static MapPresentationCell Cell(int raw) =>
+        MapPresentationCell.Of(BackgroundTileWords.ToTile(checked((ushort)raw)), FileSelectPresentationFormat.CharacterColumns);
 
     /// <summary>Maps a tilemap byte offset to column and row within the file-select page width.</summary>
     private static Position16<CharacterCells> Point(int byteOffset)

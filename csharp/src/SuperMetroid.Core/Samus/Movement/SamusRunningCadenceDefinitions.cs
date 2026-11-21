@@ -1,3 +1,4 @@
+using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Running cadence and boost-stage timing: gameplay rules, not editable art.</summary>
@@ -15,11 +16,11 @@ internal static class SamusRunningCadenceDefinitions
     internal static IReadOnlyDictionary<SamusRunningCadence, SamusRunningCadenceTiming> Timings { get; } =
         new Dictionary<SamusRunningCadence, SamusRunningCadenceTiming>
         {
-            [SamusRunningCadence.Ordinary] = new([2, 2, 2, 2, 2, 2, 2, 2, 2, 2], Boost: null),
-            [SamusRunningCadence.BoostStage0] = new([3, 3, 3, 3, 3, 3, 3, 3, 3, 3], new(Stage: 0, CountdownAfterAdvance: 1)),
+            [SamusRunningCadence.Ordinary] = new([.. Repeated(2, 10)], Boost: null),
+            [SamusRunningCadence.BoostStage0] = new([.. Repeated(3, 10)], new(Stage: 0, CountdownAfterAdvance: 1)),
             [SamusRunningCadence.BoostStage1] = new([2, 3, 2, 3, 2, 3, 2, 3, 2, 3], new(Stage: 1, CountdownAfterAdvance: 1)),
-            [SamusRunningCadence.BoostStage2] = new([2, 2, 2, 2, 2, 2, 2, 2, 2, 2], new(Stage: 2, CountdownAfterAdvance: 1)),
+            [SamusRunningCadence.BoostStage2] = new([.. Repeated(2, 10)], new(Stage: 2, CountdownAfterAdvance: 1)),
             [SamusRunningCadence.BoostStage3] = new([1, 2, 1, 2, 1, 2, 1, 2, 1, 2], new(Stage: 3, CountdownAfterAdvance: 1)),
-            [SamusRunningCadence.BoostStage4] = new([1, 1, 1, 1, 1, 1, 1, 1, 1, 1], new(Stage: 4, CountdownAfterAdvance: 2)),
+            [SamusRunningCadence.BoostStage4] = new([.. Repeated(1, 10)], new(Stage: 4, CountdownAfterAdvance: 2)),
         };
 }

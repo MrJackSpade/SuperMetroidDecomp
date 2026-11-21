@@ -88,15 +88,15 @@ public sealed class InstalledXrayReveals
     /// <summary>Rejects a negative reveal block, as an appearance of it would; the tileset's sheet bounds the rest (#2100).</summary>
     private static void ValidateBlocks(XrayRevealVisualBlocks visual)
     {
-        foreach (int block in visual.InReadingOrder)
-            _ = RoomBlockAppearance.Of(block);
+        foreach (Rooms.Backgrounds.RoomCellPicture block in visual.InReadingOrder)
+            _ = RoomBlockAppearance.Of(block.Block);
     }
 
     /// <summary>Whether this reveal shape carries authored visual blocks.</summary>
     /// <remarks>
     /// The game has seven reachable revealed-block shapes. Five copy one, Brinstar-only one, wide, tall and square
-    /// blocks; the other two traverse vertical and horizontal extensions instead. A shape is drawable exactly when it is
-    /// one of those five copy shapes.
+    /// blocks; the other two traverse vertical and horizontal extensions instead. A shape is drawable exactly when it
+    /// copies blocks of its own (<see cref="XrayRevealShapeDefinitions"/>).
     /// </remarks>
     public static bool IsDrawable(XrayRevealShape shape) => IsDrawable(shape, out _);
 

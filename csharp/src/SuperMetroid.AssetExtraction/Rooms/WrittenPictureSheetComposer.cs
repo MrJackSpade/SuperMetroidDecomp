@@ -190,8 +190,13 @@ internal static class WrittenPictureSheetComposer
         ];
     }
 
-    /// <summary>The name of the part holding shelf <paramref name="shelf"/> of the HUD's images.</summary>
-    private static string HudShelfName(int shelf) => $"HudShelf{shelf}";
+    /// <summary>
+    /// The name of the part holding shelf <paramref name="shelf"/> of <paramref name="hud"/>'s images, named for the first
+    /// image it holds (#2556), which no other shelf holds.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The shelf holds no image.</exception>
+    private static string HudShelfName(HudSheetLayout hud, int shelf) =>
+        $"HudImagesFrom.{(hud.Placements.FirstOrDefault(placed => placed.Shelf == shelf) ?? throw new InvalidOperationException($"HUD shelf {shelf} holds no image.")).Image.Image.FrameName}";
 
     /// <summary>Each shelf of <paramref name="hud"/>'s images as a fixed part: each image's tiles at its place on the shelf.</summary>
     private static IEnumerable<WrittenSubject> HudShelves(HudSheetLayout hud)
@@ -211,13 +216,13 @@ internal static class WrittenPictureSheetComposer
                         new SnesBgTilemapWord(BackgroundTileWords.ToWord(image.Tiles[row * image.Size.X + column]))));
                 }
             }
-            yield return new WrittenSubject(HudShelfName(shelf), [.. words]);
+            yield return new WrittenSubject(HudShelfName(hud, shelf), [.. words]);
         }
     }
 
     /// <summary>The frame of each of <paramref name="hud"/>'s images, within its shelf's part.</summary>
     private static IEnumerable<PartFrame> HudFrames(HudSheetLayout hud) =>
-        hud.Placements.Select(placed => new PartFrame(placed.Image.Image.FrameName, HudShelfName(placed.Shelf),
+        hud.Placements.Select(placed => new PartFrame(placed.Image.Image.FrameName, HudShelfName(hud, placed.Shelf),
             HudImageSheet.Pixels(placed.Cell), HudImageSheet.Pixels(placed.Image.Size)));
 
     /// <summary>
@@ -338,7 +343,7 @@ internal static class WrittenPictureSheetComposer
         {
             ReadOnlySpan<byte> character = bytes[word.Shown.Artwork].Span.Slice(word.Shown.WordOffset * sizeof(ushort), characterWords * sizeof(ushort));
             int left = corner.X, top = corner.Y;
-            if (kind == SpriteImageColours.TwoBppBackground)
+            if (Ensure.Listed(SpriteImageColourDefinitions.Colourings, kind).TwoBitCharacters)
                 canvas.PaintTwoBppTile(left, top, word.Word, character, colours);
             else
                 canvas.PaintTile(left, top, word.Word, character, colours);
@@ -361,7 +366,7 @@ internal static class WrittenPictureSheetComposer
     internal static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, Position16<ImagePixels> corner, Extent16<ImagePixels> size, SpriteImageColours kind)
     {
         Ensure.NotNull(canvas);
-        int rowColours = kind == SpriteImageColours.TwoBppBackground ? 4 : 16;
+        int rowColours = Ensure.Listed(SpriteImageColourDefinitions.Colourings, kind).SetColours;
         ImageColourGroups coloured = ImageColourGroups.None;
         for (int y = 0; y < size.Y; y++)
         for (int x = 0; x < size.X; x++)

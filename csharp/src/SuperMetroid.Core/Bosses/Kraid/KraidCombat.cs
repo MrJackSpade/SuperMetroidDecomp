@@ -294,7 +294,19 @@ internal sealed class KraidCombat
 
         // Kraid's foot art is replaceable, but each pose still places two physical components against one shared hitbox
         // list, moved with the pose's step.
-        foreach (KraidCollisionComponent component in footComponents)
+        return FindComponentReaction(enemy, footComponents, probe);
+    }
+
+    /// <summary>
+    /// The reaction of the first hitbox of <paramref name="components"/>, placed from <paramref name="enemy"/>'s position,
+    /// that <paramref name="probe"/> overlaps, in the components' and their hitboxes' order (#2557): struck with that
+    /// reaction, or missed.
+    /// The arm and the foot are searched alike.
+    /// </summary>
+    private static EnemyHitboxContact FindComponentReaction(
+        RoomEnemyPlace enemy, IEnumerable<KraidCollisionComponent> components, EnemyHitboxProbe probe)
+    {
+        foreach (KraidCollisionComponent component in components)
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
@@ -324,22 +336,7 @@ internal sealed class KraidCombat
         // Kraid's arm art is editable, but the frame
         // also carries a separate, ordered list of physical components.
         // Read those components from the immutable definition catalog.
-        foreach (KraidCollisionComponent component in kraidComponents)
-        {
-            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
-            {
-                if (!probe.Overlaps(
-                        componentOrigin.X + hitbox.Left,
-                        componentOrigin.Y + hitbox.Top,
-                        componentOrigin.X + hitbox.Right,
-                        componentOrigin.Y + hitbox.Bottom))
-                    continue;
-
-                return EnemyHitboxContact.Struck(probe.SelectsShot ? hitbox.Shot : hitbox.Touch);
-            }
-        }
-        return EnemyHitboxContact.Missed;
+        return FindComponentReaction(enemy, kraidComponents, probe);
     }
 
     /// <summary>

@@ -137,7 +137,7 @@ internal sealed class SamusPresentation
         // The animation keeps the neutral jump's second frame alive in chunks of its rise extension while Samus is
         // still rising. This is intentionally tested before the decrement and applies only when the
         // timer's last update remains; release or the apex turns her downward and lets it expire.
-        if (samus.Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
+        if (SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.NeutralJump) &&
             !samus.Kinematics.VerticalVelocity.IsFalling &&
             samus.AnimationIsOn(SamusAnimationFrames.NeutralJumpRise) &&
             samus.AnimationFrameTimer.IsAt(1))
@@ -297,10 +297,8 @@ internal sealed class SamusPresentation
         {
             // A jump the pose input already selected survives the turn's final frame; checking held Jump instead
             // would accept inputs the pose input never matched.
-            if (!context.Samus.Control.InputLocked && !context.DemoPoseInput && context.ProspectiveInputPose is
-                SamusPoseId.NeutralJumpTransitionRightPose or
-                SamusPoseId.NeutralJumpTransitionLeftPose or
-                SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
+            if (!context.Samus.Control.InputLocked && !context.DemoPoseInput && context.ProspectiveInputPose is { } selectedJump &&
+                SamusPoseTraits.IsIn(selectedJump, SamusPoseFamily.JumpLaunch))
                 return false;
             if (!context.Samus.Control.InputLocked && !context.DemoPoseInput) context.Samus.InputSnapshot.AutoJump.Install();
             // The transition neither selects a new delay nor advances the shown frame; the pose transitions that
@@ -461,11 +459,11 @@ internal sealed class SamusPresentation
             return;
         DrawActiveSpeedBoosterEcho(samus,
             sprites,
-            samus.HorizontalSpeed.FirstSpeedEchoPosition,
+            samus.HorizontalSpeed.SpeedEchoes[SpeedEcho.First].Position,
             cameraPosition);
         DrawActiveSpeedBoosterEcho(samus,
             sprites,
-            samus.HorizontalSpeed.SecondSpeedEchoPosition,
+            samus.HorizontalSpeed.SpeedEchoes[SpeedEcho.Second].Position,
             cameraPosition);
     }
 

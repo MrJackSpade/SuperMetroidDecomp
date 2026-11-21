@@ -18,7 +18,7 @@ public readonly record struct ListStep<T>
     }
 
     /// <summary>The entry's place in its list, counting from zero.</summary>
-    public int Place { get; }
+    private int Place { get; }
 
     /// <summary>The entry.</summary>
     public T Entry => _list[Place];

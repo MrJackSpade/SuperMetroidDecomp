@@ -16,5 +16,13 @@ internal static class EnemyProjectileEngineAccess
         internal void AdvanceEnemyProjectileAnimations(EnemyProjectile projectile, SamusState samus, Position16<RoomPixels> camera,
             SuperMetroid.Core.Compatibility.ShortFrameCount shortCounter) =>
             engine.AdvanceEnemyProjectileAnimations(projectile, samus, camera, shortCounter, InstalledFixtures.CreateBombSystem());
+
+        /// <summary>
+        /// Whether the pre-Phantoon room's setup holds <paramref name="place"/> (#2556): no projectile is live there, yet a
+        /// spawn may not take it.
+        /// </summary>
+        internal bool HoldsForPrePhantoonRoom(int place) =>
+            engine.LatestInPlace(place) is not { IsActive: true } &&
+            !PrivateState.Invoke<EnemyProjectileEngine, bool>(engine, "IsFree", [typeof(int)], place);
     }
 }

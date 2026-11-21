@@ -76,7 +76,7 @@ internal sealed class BeamChargeState
     internal void PlayChargePulse(SamusChargeKind kind, SamusSuit suit, SamusColours colours)
     {
         AnimationPlace place = ChargePulse;
-        SamusGlowPlay.ShowNextShade(SamusGlowAnimationDefinitions.ChargePulses[kind][suit], ref place, colours);
+        SamusGlowPlay.ShowNextShade(SamusGlowSegment.In(SamusGlowAnimationDefinitions.ChargePulses[kind], suit), ref place, colours);
         ChargePulse = place;
     }
 

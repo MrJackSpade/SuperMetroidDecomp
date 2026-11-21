@@ -37,7 +37,7 @@ internal static class EndingTypewriterAnimations
         };
         beats.AddRange(Enumerable.Range(1, characters).Select(typed =>
             new AnimationBeat<EndingTypewriterTyping, EndingTypewriterCue>.Frame(new(typed), EndingTypewriterDefinitions.CharacterDelayFrames)));
-        if (sequence == EndingTextSequence.ItemPercentage)
+        if (EndingTextSequenceDefinitions.HoldingPercentage.Contains(sequence))
         {
             beats.Add(new AnimationBeat<EndingTypewriterTyping, EndingTypewriterCue>.Event(EndingTypewriterCue.ShowPercentage));
             beats.Add(new AnimationBeat<EndingTypewriterTyping, EndingTypewriterCue>.Pause(EndingTypewriterDefinitions.PercentageHoldFrames));

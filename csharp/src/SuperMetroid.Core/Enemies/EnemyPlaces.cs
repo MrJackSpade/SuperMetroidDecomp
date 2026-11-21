@@ -36,5 +36,5 @@ internal sealed class EnemyPlaces
 
     /// <summary>Extends <see cref="EnemyCount"/> to cover <paramref name="spawned"/>'s place.</summary>
     internal void CoverSpawn(RoomEnemyPlace spawned) =>
-        EnemyCount = Math.Max(EnemyCount, Ensure.NotNull(spawned).Ordinal + 1);
+        EnemyCount = Math.Max(EnemyCount, EnemyCompositeListing.PlacesThrough(spawned));
 }

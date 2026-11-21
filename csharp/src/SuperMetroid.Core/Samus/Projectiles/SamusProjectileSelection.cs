@@ -30,8 +30,11 @@ internal static class SamusProjectileSelection
             ? MurderBeamAnimations.Animation(direction)
             : SamusProjectileKinds.Animation(BeamShot(beams, charged), direction);
 
-    /// <summary>Whether a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, is the Murder Beam's.</summary>
-    internal static bool IsMurderBeam(SamusBeamCombination beams, bool charged) => charged && beams == MurderBeam;
+    /// <summary>
+    /// Whether a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, is the Murder Beam's: the charged
+    /// shot of every beam at once.
+    /// </summary>
+    internal static bool IsMurderBeam(SamusBeamCombination beams, bool charged) => charged && beams.HoldsEveryBeam;
 
     /// <summary>The kind a fired missile is: a Super Missile when <paramref name="super"/>, else a missile.</summary>
     internal static SamusProjectileKind Missile(bool super) => super ? SamusProjectileKind.SuperMissile : SamusProjectileKind.Missile;

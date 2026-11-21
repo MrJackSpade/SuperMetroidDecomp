@@ -2,30 +2,24 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// Ranking predicates over the game's projectile family order (<see cref="SamusProjectileFamilyDefinitions.Order"/>).
-/// The game's ordered family comparisons ("explosions and later", "bombs and later") are these predicates; a family's
-/// value is never compared.
+/// The properties of a projectile family the game tests (<see cref="SamusProjectileFamilyDefinitions.Roles"/>, #2556): its
+/// ordered family comparisons ("explosions and later", "bombs and later") are these predicates; no family is ranked.
 /// </summary>
 public static class SamusProjectileFamilies
 {
-    /// <summary>The ranking predicates of a family.</summary>
+    /// <summary>The properties of a family.</summary>
     extension(SamusProjectileFamily family)
     {
-        /// <summary>The family's position in the game's family order.</summary>
-        private int Rank => Array.IndexOf(SamusProjectileFamilyDefinitions.Order, family) is var rank and >= 0
-            ? rank
-            : throw new ArgumentOutOfRangeException(nameof(family), family, "Undefined projectile family.");
+        /// <summary>What the family is to the rules that test it.</summary>
+        private SamusProjectileFamilyRole Role => Ensure.Listed(SamusProjectileFamilyDefinitions.Roles, family);
 
-        /// <summary>Whether the family ranks at or after <paramref name="threshold"/>.</summary>
-        public bool IsAtOrAfter(SamusProjectileFamily threshold) => family.Rank >= threshold.Rank;
+        /// <summary>Whether the family is an explosion a shot left behind.</summary>
+        public bool IsExplosion => family.Role == SamusProjectileFamilyRole.Explosion;
 
-        /// <summary>Whether the family is an explosion a shot left behind: the families ranked from the beam explosion on.</summary>
-        public bool IsExplosion => family.IsAtOrAfter(SamusProjectileFamily.BeamExplosion);
-
-        /// <summary>Whether the family is a bomb or an explosion: the families ranked from the Power Bomb on.</summary>
-        public bool IsBombOrExplosion => family.IsAtOrAfter(SamusProjectileFamily.PowerBomb);
+        /// <summary>Whether the family is a bomb or an explosion.</summary>
+        public bool IsBombOrExplosion => family.Role != SamusProjectileFamilyRole.FiredShot;
 
         /// <summary>Whether the family is a fired shot: a beam, missile or Super Missile.</summary>
-        public bool IsBeamOrMissile => !family.IsBombOrExplosion;
+        public bool IsBeamOrMissile => family.Role == SamusProjectileFamilyRole.FiredShot;
     }
 }

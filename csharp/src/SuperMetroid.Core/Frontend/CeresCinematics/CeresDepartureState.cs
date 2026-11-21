@@ -34,7 +34,7 @@ public sealed class CeresDepartureState
     private readonly ScreenFade fade = new(DisplayBrightness.Full);
 
     /// <summary>The screen's brightness during the blackout, from full down to black.</summary>
-    public int Brightness => fade.Level;
+    public DisplayBrightness Brightness => fade.Level;
 
     /// <summary>
     /// Takes the departure's step after the main gameplay update: the elevator hold's decrement, whose last update begins

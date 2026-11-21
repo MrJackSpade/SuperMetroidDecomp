@@ -26,8 +26,8 @@ internal sealed class EndingRewardJump
     /// <summary>The landing animation's cue that turns Samus's body to <see cref="ShootingColouring"/> and requests the shot.</summary>
     internal const EndingRewardJumpCue ShootCue = EndingRewardJumpCue.Shoot;
 
-    /// <summary>Selects the armored head offsets used during the launch animation.</summary>
-    private readonly bool helmeted;
+    /// <summary>The suited reward's head and the places its launch animation readies and launches it at.</summary>
+    private readonly EndingRewardJumpHead? jumpHead;
     /// <summary>Body actor whose vertical position controls the fall and landing.</summary>
     private readonly CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> body;
     /// <summary>Separate head actor present for the two suited ending rewards.</summary>
@@ -46,9 +46,9 @@ internal sealed class EndingRewardJump
     /// <summary>Spawns the body and, for suited rewards, its helmeted or helmetless head actor.</summary>
     public EndingRewardJump(EndingReward reward)
     {
-        helmeted = reward == EndingReward.Armored;
-        if (EndingRewardCast.JumpHead(reward) is { } headActor)
-            head = Spawn(headActor);
+        jumpHead = EndingRewardDefinitions.Rewards[reward].JumpHead;
+        if (jumpHead is { } suitedHead)
+            head = Spawn(suitedHead.Actor);
         body = Spawn(EndingRewardCast.JumpBody(reward));
     }
 
@@ -126,12 +126,12 @@ internal sealed class EndingRewardJump
         },
         [EndingRewardJumpCue.PrepareHead] = () =>
         {
-            RequireHead().ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadReadied : EndingRewardJumpDefinitions.HelmetlessHeadReadied;
+            RequireHead().ScreenPlace = RequireJumpHead().Readied;
             return false;
         },
         [EndingRewardJumpCue.LaunchHead] = () =>
         {
-            RequireHead().ScreenPlace = helmeted ? EndingRewardJumpDefinitions.HelmetedHeadLaunched : EndingRewardJumpDefinitions.HelmetlessHeadLaunched;
+            RequireHead().ScreenPlace = RequireJumpHead().Launched;
             return false;
         },
         [ShootCue] = () =>
@@ -154,6 +154,9 @@ internal sealed class EndingRewardJump
 
     /// <summary>Requires a suited jump's head actor when a head-specific cue runs.</summary>
     private CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
+
+    /// <summary>Requires a suited jump's head places when a head-specific cue runs.</summary>
+    private EndingRewardJumpHead RequireJumpHead() => jumpHead ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
     /// <summary>Creates a jump actor from its catalogued initial position, colouring, and animations.</summary>
     private static CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> Spawn(EndingRewardActor definition)
     {

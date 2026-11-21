@@ -110,7 +110,7 @@ public sealed class DemoInputState
 
     /// <summary>
     /// Plays the input <paramref name="position"/> names, or ends the recording as it says once its inputs have run out:
-    /// a signalling recording runs its owner's end routine first; then a loop plays its loop input at once, and a stop
+    /// a signalling recording runs its owner's end routine first; then a held last input plays again at once, and a stop
     /// ends the input.
     /// </summary>
     private void PlayNextInput(DemoPlaybackPosition position)
@@ -119,12 +119,12 @@ public sealed class DemoInputState
         if (position.NextInput >= recording.Inputs.Count)
         {
             position.Ends();
-            if (recording.End is not DemoRecordingEnd.Loop loop)
+            if (recording.End is not DemoRecordingEnd.HoldLastInput)
             {
                 EndInput();
                 return;
             }
-            position = position with { NextInput = loop.Input };
+            position = position with { NextInput = recording.Inputs.Count - 1 };
         }
 
         DemoInput input = recording.Inputs[position.NextInput];

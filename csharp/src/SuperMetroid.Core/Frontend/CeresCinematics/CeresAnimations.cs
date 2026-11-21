@@ -24,8 +24,8 @@ internal static class CeresAnimations
             [A.SmallAsteroid] = [B.Hold(S.SmallAsteroid)],
             [A.Vortex] =
             [
-                B.Show(S.VortexFirst, 1),
-                B.Show(S.VortexSecond, 1),
+                B.Show(S.VortexBrightSparks, 1),
+                B.Show(S.VortexFaintSparks, 1),
             ],
             [A.DestructionLargeAsteroid] = [B.Hold(S.StationUnderAttackLargeAsteroid)],
             [A.SmallExplosion] = SmallExplosionBurst(),

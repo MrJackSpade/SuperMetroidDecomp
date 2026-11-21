@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.Escape;
 
@@ -20,13 +21,13 @@ internal static class EscapeTimerCadenceDefinitions
     /// </summary>
     internal static readonly ImmutableArray<int> CentisecondsRemoved =
     [
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, .. Repeated(2, 3), 1, 2, 2,
         1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, .. Repeated(2, 3), 1, 2, 2,
         1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, .. Repeated(2, 3), 1, 2, 2,
         1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, .. Repeated(2, 3), 1, 2, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, .. Repeated(2, 3), 1, 2, 2,
     ];
 }

@@ -12,11 +12,11 @@ internal sealed class ChootEntity(RoomEnemyOccupant occupant, RoomEnemyPlace pla
     internal ChootSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal ChootEnemyState State { get; } = ChootBehavior.InitializeChoot(settings, place);
+    private readonly ChootEnemyState state = ChootBehavior.InitializeChoot(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => ChootBehavior.RunChootMainAi(Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => ChootBehavior.RunChootMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ChootBehavior.AdvanceChootTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ChootBehavior.AdvanceChootTypedAnimation(Place, state);
 }

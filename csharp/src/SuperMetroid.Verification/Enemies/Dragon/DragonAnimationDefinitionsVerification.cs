@@ -120,7 +120,8 @@ internal static class DragonAnimationDefinitionsVerification
 
         PlaceDragon(enemies, body, wing);
         DragonEnemyState bodyState = (enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[0]."));
-        DragonWingState wingState = (enemies.DragonWingStates[1] ?? throw new InvalidOperationException("Verification requires enemies.DragonWingStates[1]."));
+        // The body's state holds the wing's, which the body's steps start the wing's animations on.
+        DragonWingState wingState = bodyState.WingState;
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Position = new(new(unchecked((ushort)(body.Position.X.Whole + (facingLeft ? -0x10 : 0x10))), 0), new(0, 0)),
@@ -167,7 +168,7 @@ internal static class DragonAnimationDefinitionsVerification
         body.Bind(EnemyDefinitionId.Dragon, body.KeptDefinition);
         wing.Bind(EnemyDefinitionId.Dragon, wing.KeptDefinition);
         enemies.DragonBehavior.InitializeDragonBody(body);
-        DragonBehavior.InitializeDragonWing(wing, wing.RequireSpeciesState<DragonWingState>());
+        DragonBehavior.InitializeDragonWing(wing, new DragonWingState());
     }
 
     /// <summary>Starts with nondefault instruction values so an omitted install remains observable.</summary>

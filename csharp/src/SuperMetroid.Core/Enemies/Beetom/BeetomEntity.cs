@@ -10,19 +10,19 @@ internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemyOccupant occ
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' BeetomShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnBeetomShotReaction => field ??= BeetomBehavior.BeetomShotReaction(State);
+    private EnemyShotReaction OwnBeetomShotReaction => field ??= BeetomBehavior.BeetomShotReaction(state);
 
     /// <summary>The species' BeetomBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyBombReaction OwnBeetomBombReaction => field ??= BeetomBehavior.BeetomBombReaction(State);
+    private EnemyBombReaction OwnBeetomBombReaction => field ??= BeetomBehavior.BeetomBombReaction(state);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal BeetomEnemyState State { get; } = species.InitializeBeetom(place, Ensure.NotNull(surroundings).Samus, surroundings.ControllerInput);
+    private readonly BeetomEnemyState state = species.InitializeBeetom(place, Ensure.NotNull(surroundings).Samus, surroundings.ControllerInput);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBeetomMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBeetomMainAi(Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BeetomBehavior.AdvanceBeetomTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BeetomBehavior.AdvanceBeetomTypedAnimation(Place, state);
 
     /// <summary>Whether the Beetom's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == BeetomReactions.Touch || base.ReactsToTouch;
@@ -32,7 +32,7 @@ internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemyOccupant occ
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == BeetomReactions.Touch)
-            species.ReactToBeetomTouch(context, State);
+            species.ReactToBeetomTouch(context, state);
         else
             base.ReactToTouch(context);
     }

@@ -21,9 +21,6 @@ internal static class PolypBehaviorVerification
         place.Bind(EnemyDefinitionId.Polyp, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         enemies.PolypBehavior.InitializePolyp(place);
-        AssertEqual(new AnimationPlayback<PolypSegment>(PolypAnimations.StartingWith(PolypSegment.Stationary), AnimationPlace.StartOfAnimation),
-            (enemies.Places.InUpdateOrder[0].EntityState<PolypEntity, PolypEnemyState>() ?? throw new InvalidOperationException("The Polyp has no state.")).Playback,
-            "real Polyp initializer starts the stationary program");
         // A still picture is held (#2276): it is new on the update it shows and stays without showing anew.
         ushort frame = PolypAnimationsConstants.Spritemaps(PolypSegment.Stationary).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame], [1]),

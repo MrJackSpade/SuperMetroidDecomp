@@ -19,9 +19,7 @@ internal static class ChootOwnedStateVerification
         place.Bind(EnemyDefinitionId.Choot, place.KeptDefinition);
         place.Position = place.Position.WithWhole(new(0x0100, 0x0200));
         place.SetSpawnParameter1(EnemyDefinitionId.Choot, 2);
-        ChootBehavior.InitializeChoot(place.HeldOccupant().SpawnSettings<ChootSpawnSettings>(), place);
-        ChootEnemyState state = enemies.ChootStates[0]
-            ?? throw new InvalidOperationException("The initialized Choot has no state.");
+        ChootEnemyState state = ChootBehavior.InitializeChoot(place.HeldOccupant().SpawnSettings<ChootSpawnSettings>(), place);
 
         int initial = state.InitialYSpeedCurvePlace.WholeMarks;
         AssertTrue(initial > 0 && initial % 2 == 0, "the ascent starts at a positive even record index");

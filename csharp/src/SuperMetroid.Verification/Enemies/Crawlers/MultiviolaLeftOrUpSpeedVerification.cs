@@ -52,7 +52,7 @@ internal static class MultiviolaLeftOrUpSpeedVerification
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(Centre, Centre));
             // The enemy is set up as its room's population sets it up: its species builds its entity, whose setup builds its state.
             place.SetUpAsPlaced();
-            enemies.MultiviolaBehavior.RunMultiviolaMainAi(place.HeldOccupant().SpawnSettings<MultiviolaSpawnSettings>(), place, place.RequireSpeciesState<MultiviolaEnemyState>(), frame);
+            place.RunMainAi(frame);
 
             // The original turns an axis left when the heading a quarter turn on lies in the turn's first half, and up
             // when the heading lies in its second half.

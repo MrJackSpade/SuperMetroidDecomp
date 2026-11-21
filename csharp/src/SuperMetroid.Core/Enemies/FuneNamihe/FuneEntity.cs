@@ -13,11 +13,11 @@ internal sealed class FuneEntity(FuneNamiheBehavior species, RoomEnemyOccupant o
     internal FuneSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal FuneEnemyState State { get; } = FuneNamiheBehavior.InitializeFune(settings, settings, place);
+    private readonly FuneEnemyState state = FuneNamiheBehavior.InitializeFune(settings, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => FuneNamiheBehavior.RunFuneMain(Settings, Settings, Place, State);
+    public void RunMainAi(IEnemyAiFrame frame) => FuneNamiheBehavior.RunFuneMain(Settings, Settings, Place, state);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<FuneEnemyState>(Occupant, Settings, Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<FuneEnemyState>(Occupant, Settings, Place, state);
 }

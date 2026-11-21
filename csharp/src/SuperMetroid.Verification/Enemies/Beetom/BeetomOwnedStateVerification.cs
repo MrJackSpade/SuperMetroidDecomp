@@ -34,24 +34,18 @@ internal static class BeetomOwnedStateVerification
         enemies.VerificationServices().SeedRandom = _ => { };
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Beetom, place.KeptDefinition);
-        enemies.BeetomBehavior.InitializeBeetom(place, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), 0);
-        BeetomEnemyState state = enemies.BeetomStates[0]
-            ?? throw new InvalidOperationException("The initialized Beetom has no state.");
+        BeetomEnemyState state = enemies.BeetomBehavior.InitializeBeetom(place, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), 0);
         state.Facing = HorizontalDirection.Right;
         place.Clear();
-        AssertEqual<BeetomEnemyState?>(null, enemies.BeetomStates[0], "a kill takes the Beetom's state with it");
 
         // The next Beetom set up in the slot inherits the facing its predecessor left; a Beetom in another slot does not.
         place.Bind(EnemyDefinitionId.Beetom, place.KeptDefinition);
-        enemies.BeetomBehavior.InitializeBeetom(place, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), 0);
-        BeetomEnemyState successor = Ensure.NotNull(enemies.BeetomStates[0]);
+        BeetomEnemyState successor = enemies.BeetomBehavior.InitializeBeetom(place, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), 0);
         AssertTrue(!ReferenceEquals(state, successor), "re-initialization sets up a new Beetom");
         AssertEqual(HorizontalDirection.Right, successor.Facing, "a new Beetom inherits the facing the slot's previous Beetom left");
         RoomEnemyPlace otherPlace = enemies.Places.InUpdateOrder[1];
         otherPlace.Bind(EnemyDefinitionId.Beetom, otherPlace.KeptDefinition);
-        enemies.BeetomBehavior.InitializeBeetom(otherPlace, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), 0);
-        BeetomEnemyState first = enemies.BeetomStates[1]
-            ?? throw new InvalidOperationException("The other slot's Beetom has no state.");
+        BeetomEnemyState first = enemies.BeetomBehavior.InitializeBeetom(otherPlace, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), 0);
         AssertEqual(HorizontalDirection.Left, first.Facing, "a slot's first Beetom faces left");
         Console.WriteLine("Beetom owned state: the apex underflow, the falling cap and the inherited facing match.");
     }

@@ -15,7 +15,7 @@ internal static class BullMovementDefinitionsVerification
     internal static void VerifyCompiledBullMovement(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Action<RoomEnemyPlace> initialize = fixturePlace => enemies.BullBehavior.InitializeBull(fixturePlace.HeldOccupant().SpawnSettings<BullSpawnSettings>(), fixturePlace);
+        Func<RoomEnemyPlace, BullEnemyState> initialize = fixturePlace => enemies.BullBehavior.InitializeBull(fixturePlace.HeldOccupant().SpawnSettings<BullSpawnSettings>(), fixturePlace);
         var place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Bull, place.KeptDefinition);
         for (ushort interval = 0; interval < 13; interval++)
@@ -23,8 +23,7 @@ internal static class BullMovementDefinitionsVerification
         {
             place.SetSpawnParameter1(EnemyDefinitionId.Bull, interval);
             place.SetSpawnParameter2(EnemyDefinitionId.Bull, speed);
-            initialize(place); // No loaded cartridge bus; exercises the real initializer.
-            var state = enemies.BullStates[0] ?? throw new InvalidOperationException("Verification requires state.");
+            var state = initialize(place); // No loaded cartridge bus; exercises the real initializer.
             BullSpeedIntervals intervals = place.HeldOccupant().SpawnSettings<BullSpawnSettings>().Intervals;
             AssertEqual(rom.ReadCartridgeWord((0xa8d895 + interval * 4)), intervals.Acceleration, "Bull compiled acceleration");
             AssertEqual(intervals.Acceleration, state.AccelerationIntervalTimer.UpdatesLeft, "Bull live timer initialization");

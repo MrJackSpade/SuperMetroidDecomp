@@ -61,14 +61,12 @@ internal static class ChootPatternDefinitionsVerification
             foreach (byte loopCount in new byte[] { 0, 1, 2, 3 })
             {
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-                var initialize = new Action<RoomEnemyPlace>(fixturePlace => ChootBehavior.InitializeChoot(fixturePlace.HeldOccupant().SpawnSettings<ChootSpawnSettings>(), fixturePlace));
+                var initialize = new Func<RoomEnemyPlace, ChootEnemyState>(fixturePlace => ChootBehavior.InitializeChoot(fixturePlace.HeldOccupant().SpawnSettings<ChootSpawnSettings>(), fixturePlace));
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
                 place.Bind(EnemyDefinitionId.Choot, place.KeptDefinition);
                 place.Position = place.Position.WithWhole(new(0x3456, 0x789a));
                 place.SetSpawnParameter1(EnemyDefinitionId.Choot, (ushort)((patternIndex << 8) | loopCount));
-                initialize(place);
-
-                ChootEnemyState state = (enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0]."));
+                ChootEnemyState state = initialize(place);
                 ushort jumpHeight = unchecked((ushort)(
                     loopCount * (LittleEndianBytes.LowByte(loopYDistance))));
                 AssertEqual(fallingPath, place.HeldOccupant().SpawnSettings<ChootSpawnSettings>().FallingPath,
@@ -81,13 +79,12 @@ internal static class ChootPatternDefinitionsVerification
             }
 
             var fallEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var initializeFall = new Action<RoomEnemyPlace>(fixturePlace => ChootBehavior.InitializeChoot(fixturePlace.HeldOccupant().SpawnSettings<ChootSpawnSettings>(), fixturePlace));
+            var initializeFall = new Func<RoomEnemyPlace, ChootEnemyState>(fixturePlace => ChootBehavior.InitializeChoot(fixturePlace.HeldOccupant().SpawnSettings<ChootSpawnSettings>(), fixturePlace));
             RoomEnemyPlace fallPlace = fallEnemies.Places.InUpdateOrder[0];
             fallPlace.Bind(EnemyDefinitionId.Choot, fallPlace.KeptDefinition);
             fallPlace.Position = new(new(0x3456, 0x1111), new(0x789a, 0x2222));
             fallPlace.SetSpawnParameter1(EnemyDefinitionId.Choot, (ushort)((patternIndex << 8) | 2));
-            initializeFall(fallPlace);
-            ChootEnemyState fallState = (fallEnemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires fallEnemies.ChootStates[0]."));
+            ChootEnemyState fallState = initializeFall(fallPlace);
             fallState.FallingOrigin = new(0x4000, 0x5000);
             fallState.FallingLoop = ChootFallLoop.Starting(fallingPath);
             fallState.FallingPatternLoopCounter = 2;

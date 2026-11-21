@@ -22,8 +22,6 @@ internal static class FirefleaBehaviorVerification
         place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
         place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
         FirefleaBehavior.InitializeFireflea(place.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>(), place);
-        AssertEqual(new AnimationPlayback<FirefleaSegment>(FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<FirefleaEntity, FirefleaEnemyState>() ?? throw new InvalidOperationException("The Fireflea has no state.")).Playback,
-            "Fireflea initializer animation");
         place.AnimationClock.StepOnNextUpdate();
         AssertEqual(EnemyInstructionRunner.ExpectedAnimationLoop(FirefleaAnimations.Segments, FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), FirefleaFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.AnimationLoopUpdates(FirefleaAnimations.Segments, FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat))),
@@ -50,14 +48,15 @@ internal static class FirefleaBehaviorVerification
             place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
             place.Position = place.Position.WithWhole(new(128, 100));
-            FirefleaBehavior.InitializeFireflea(place.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>(), place);
-            BobbingFirefleaState state = place.RequireSpeciesState<FirefleaEnemyState>().Flight as BobbingFirefleaState
+            // The Fireflea's setup builds the state its main AI moves.
+            FirefleaEnemyState fireflea = FirefleaBehavior.InitializeFireflea(place.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>(), place);
+            BobbingFirefleaState state = fireflea.Flight as BobbingFirefleaState
                 ?? throw new InvalidOperationException("Verification requires a bobbing Fireflea.");
             AssertEqual(92, state.MinimumY, "the upper extent is the spawn Y minus the radius");
             AssertEqual(108, state.MaximumY, "the lower extent is the spawn Y plus the radius");
             place.Position = place.Position.WithWholeY(y);
 
-            FirefleaBehavior.RunFirefleaMainAi(place.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>(), place, place.RequireSpeciesState<FirefleaEnemyState>());
+            FirefleaBehavior.RunFirefleaMainAi(place.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>(), place, fireflea);
 
             AssertEqual(expectedDirection, state.Direction, $"Fireflea at Y {y} keeps or reverses its way");
         }

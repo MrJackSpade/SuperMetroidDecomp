@@ -17,12 +17,12 @@ internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemyOccupant occup
     internal BoyonSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal BoyonEnemyState State { get; } = BoyonBehavior.InitializeBoyon(place);
+    private readonly BoyonEnemyState state = BoyonBehavior.InitializeBoyon(place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        BoyonBehavior.RunBoyonMain(Settings, Place, State, frame.Samus);
+        BoyonBehavior.RunBoyonMain(Settings, Place, state, frame.Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBoyonAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBoyonAnimation(Place, state);
 }

@@ -4,6 +4,8 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Polyp;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Checks the Polyp state the species owns: its initial behaviour.</summary>
 internal static class PolypOwnedStateVerification
@@ -18,9 +20,15 @@ internal static class PolypOwnedStateVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Polyp, place.KeptDefinition);
         enemies.PolypBehavior.InitializePolyp(place);
-        PolypEnemyState state = place.RequireSpeciesState<PolypEnemyState>();
-        AssertEqual<PolypAction?>(PolypAction.WaitingForSamus, state.Action, "a new Polyp waits for Samus");
-        AssertEqual(0, state.CooldownTimer.UpdatesLeft, "a new Polyp has no cooldown");
+        // A new Polyp waits for Samus with no cooldown: Samus beside it sets it shooting, which it signals for one update
+        // and then launches its rock.
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        samus.Position = place.Position;
+        int Rocks() => enemies.Projectiles.EnemyProjectiles.Count(rock => rock.IsActive && rock.Kind == RoomEnemyProjectileKind.PolypRock);
+        place.RunMainAi(samus);
+        AssertEqual(0, Rocks(), "a new Polyp waits for Samus, and signals for one update before it shoots");
+        place.RunMainAi(samus);
+        AssertEqual(1, Rocks(), "a new Polyp has no cooldown, so it launches its rock on the next update");
         Console.WriteLine("Polyp owned state: the initial behaviour matches.");
     }
 

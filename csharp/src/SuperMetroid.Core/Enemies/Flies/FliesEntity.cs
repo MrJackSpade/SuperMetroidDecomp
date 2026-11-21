@@ -9,11 +9,11 @@ internal sealed class FliesEntity(FliesBehavior species, RoomEnemyOccupant occup
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal FlyEnemyState State { get; } = FliesBehavior.InitializeFly(place);
+    private readonly FlyEnemyState state = FliesBehavior.InitializeFly(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunFliesMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunFliesMainAi(Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => FliesBehavior.AdvanceFliesTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => FliesBehavior.AdvanceFliesTypedAnimation(Place, state);
 }

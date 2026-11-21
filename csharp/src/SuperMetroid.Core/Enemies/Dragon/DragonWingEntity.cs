@@ -15,8 +15,8 @@ internal sealed class DragonWingEntity(DragonBehavior species, RoomEnemyOccupant
     : DragonPartEntity(species, occupant, place, common), IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal DragonWingState State { get; } = DragonBehavior.InitializeDragonWing(place, state);
+    private readonly DragonWingState ownState = DragonBehavior.InitializeDragonWing(place, state);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DragonBehavior.AdvanceDragonWingTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DragonBehavior.AdvanceDragonWingTypedAnimation(Place, ownState);
 }

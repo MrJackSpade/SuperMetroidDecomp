@@ -165,7 +165,7 @@ public sealed class ManagedSnesDsp
                 voice.DecayRate = SnesDspTables.RatePeriod(
                     ((value & SnesDspRegisterLayout.Fields.AdsrDecayMask) >>
                         SnesDspRegisterLayout.Fields.AdsrDecayShift) * 2 + 16);
-                voice.Source = (value & SnesDspRegisterLayout.Fields.AdsrEnabled) == 0 ? EnvelopeSource.Gain : EnvelopeSource.Adsr;
+                voice.Envelope = (value & SnesDspRegisterLayout.Fields.AdsrEnabled) == 0 ? EnvelopeSource.Gain : EnvelopeSource.Adsr;
                 break;
             case DspVoiceRegister.Adsr2:
                 voice.SustainRate = SnesDspTables.RatePeriod(
@@ -329,7 +329,7 @@ public sealed class ManagedSnesDsp
         voice.PitchCounter = 0;
         voice.RateCounter = 0;
         voice.Gain = 0;
-        voice.AdsrState = voice.Source == EnvelopeSource.Gain ? EnvelopeState.Gain : EnvelopeState.Attack;
+        voice.AdsrState = voice.Envelope == EnvelopeSource.Gain ? EnvelopeState.Gain : EnvelopeState.Attack;
     }
 
     /// <summary>Advances one voice's pitch, decoded window, interpolation, and envelope output.</summary>
@@ -372,7 +372,7 @@ public sealed class ManagedSnesDsp
             voice.AdsrState = EnvelopeState.Release;
             voice.Gain = 0;
         }
-        bool direct = voice.AdsrState != EnvelopeState.Release && voice.Source == EnvelopeSource.Gain && voice.GainForm == GainForm.Direct;
+        bool direct = voice.AdsrState != EnvelopeState.Release && voice.Envelope == EnvelopeSource.Gain && voice.GainForm == GainForm.Direct;
         ushort rate = voice.AdsrState == EnvelopeState.Release
             ? (ushort)0
             : voice.RateOf(voice.AdsrState);
@@ -747,7 +747,7 @@ public sealed class ManagedSnesDsp
         /// <summary>Gain threshold at which decay changes to sustain.</summary>
         public int SustainLevel;
         /// <summary>Which envelope the voice runs at key-on, from ADSR1 (#2560).</summary>
-        public EnvelopeSource Source;
+        public EnvelopeSource Envelope;
         /// <summary>The stepped GAIN mode the GAIN register last selected; kept while the register holds a direct level.</summary>
         public SteppedGainMode GainMode;
         /// <summary>Whether the GAIN register holds a direct level or a stepped mode (#2560).</summary>
@@ -796,7 +796,7 @@ public sealed class ManagedSnesDsp
             RateCounter = 0;
             AdsrState = EnvelopeState.Attack;
             SustainLevel = 0;
-            Source = EnvelopeSource.Adsr;
+            Envelope = EnvelopeSource.Adsr;
             GainMode = SteppedGainMode.LinearDecrease;
             GainForm = GainForm.Stepped;
             GainValue = Gain = 0;

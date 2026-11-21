@@ -52,7 +52,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         enemies.HoldCeresRidley(enemies.Places.InUpdateOrder[0], new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres()));
         RoomEnemyPlace door = enemies.Places.InUpdateOrder[1];
         door.BindCeresDoorOrWall(EnemyDefinitionId.CeresRidleyRoomDoor, EnemySpawnSettings.None);
-        door.SetSpeciesState(new CeresDoorAnimationState { Look = CeresRidleyRoomDoorLook.Overlay });
+        door.SetSpeciesState(new CeresDoorAnimationState { Facing = HorizontalDirection.Right, Look = CeresRidleyRoomDoorLook.Overlay });
         enemies.CeresDoorBehavior.AttachRidleyRoomDoor(door, door.RequireSpeciesState<CeresDoorAnimationState>());
         door.Position = door.Position.WithWhole(new(100, 80));
         // The door's overlay shows from his room's sheets.

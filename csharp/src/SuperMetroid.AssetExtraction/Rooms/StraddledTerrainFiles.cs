@@ -150,14 +150,12 @@ public static class StraddledTerrainFiles
         Ensure.NotNull(document);
         if (document.Version != StraddledTerrainFormat.Version)
             throw new InvalidDataException("Straddled-terrain file has an unsupported version.");
-        IReadOnlyList<StraddledTerrainDocument.Tail?> tailClasses = Require(document.Tails, "tails");
         var tailsByName = new Dictionary<string, StraddledTerrainTail>(StringComparer.Ordinal);
-        // Each block number's tail class, null until a class claims it.
-        var claimedBy = new StraddledTerrainTail?[BlockCount];
-        foreach (StraddledTerrainDocument.Tail? entry in tailClasses)
+        // Each block number's tail class, once a class claims it.
+        var claimedBy = new Dictionary<int, StraddledTerrainTail>();
+        foreach (StraddledTerrainDocument.Tail tailClass in document.Tails)
         {
-            StraddledTerrainDocument.Tail tailClass = Require(entry, "tail class");
-            var tail = new StraddledTerrainTail(Require(tailClass.Name, "tail class name"));
+            var tail = new StraddledTerrainTail(tailClass.Name);
             if (!tailsByName.TryAdd(tail.Name, tail))
                 throw new InvalidDataException($"Straddled-terrain file names two tail classes {tail.Name}.");
             foreach (int block in Blocks(tailClass.Blocks, $"tail class {tail.Name}"))
@@ -166,16 +164,17 @@ public static class StraddledTerrainFiles
                     throw new InvalidDataException($"Straddled-terrain block {block} lies in two tail classes.");
             }
         }
-        StraddledTerrainTail[] tailOf = [.. claimedBy.Select(tail => tail ?? throw new InvalidDataException("Straddled-terrain tail classes must hold every block number."))];
+        if (claimedBy.Count != BlockCount)
+            throw new InvalidDataException("Straddled-terrain tail classes must hold every block number.");
+        StraddledTerrainTail[] tailOf = [.. Enumerable.Range(0, BlockCount).Select(block => claimedBy[block])];
 
         var leads = new Dictionary<RoomTerrainBlock, StraddledTerrainLead<RoomTerrainBlock>>();
         var tails = new Dictionary<RoomTerrainBlock, StraddledTerrainTail>();
-        foreach (StraddledTerrainDocument.Lead? entry in Require(document.Leads, "leads"))
+        foreach (StraddledTerrainDocument.Lead leadClass in document.Leads)
         {
-            StraddledTerrainDocument.Lead leadClass = Require(entry, "lead class");
             RoomCollisionType kind = Named(KindsByName, leadClass.Collision);
             BlockMirroring mirroring = Named(MirroringsByName, leadClass.Mirroring);
-            IReadOnlyDictionary<string, StraddledTerrainDocument.Outcome> straddles = Require(leadClass.Straddles, "straddles of a lead class");
+            IReadOnlyDictionary<string, StraddledTerrainDocument.Outcome> straddles = leadClass.Straddles;
             if (straddles.Count != tailsByName.Count || tailsByName.Keys.Any(name => !straddles.ContainsKey(name)))
                 throw new InvalidDataException($"Straddled-terrain lead class of {leadClass.Collision} {leadClass.Mirroring} blocks must make terrain with exactly each tail class.");
             var lead = new StraddledTerrainLead<RoomTerrainBlock>(tailsByName.ToDictionary(pair => pair.Value, pair => Terrain(straddles[pair.Key])));

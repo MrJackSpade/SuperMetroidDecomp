@@ -39,7 +39,7 @@ internal sealed record RoomEnemyGraphicsSetMember
     }
 
     /// <summary>The sprite palette row the record loads its colours into, which the import colours the member's sheets in (#1512).</summary>
-    internal int PaletteRow => source is EnemySource enemy ? enemy.Enemy : null;
+    internal int PaletteRow { get; }
 
     /// <summary>What the record loads: an enemy's artwork, or artwork for no enemy (#2560).</summary>
     private RoomEnemyGraphicsSetSource Source { get; }

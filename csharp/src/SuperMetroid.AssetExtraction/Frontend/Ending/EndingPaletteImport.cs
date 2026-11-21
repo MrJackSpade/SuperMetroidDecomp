@@ -55,7 +55,7 @@ internal static class EndingPaletteImport
     private static byte[] ReadNativePalette(ISnesAddressSpace bus, EndingPaletteId id, int count) =>
         Ensure.Listed(EndingPaletteDefinitions.Palettes, id).Kind == EndingPaletteKind.LogoCrossfade
             ? ReadNativeCrossfade(bus, count)
-            : RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), EndingPaletteSources.Source(id), count * sizeof(ushort));
+            : RomDataReader.ReadFixedBank(bus, EndingPaletteSources.Source(id), count * sizeof(ushort));
 
     /// <summary>
     /// $8B:E58A copies each logo fade palette backwards from its selected $8C pointer.

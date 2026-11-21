@@ -537,7 +537,7 @@ internal static void VerifySamusStoredShineAndShinespark()
             "an empty shot pool releases both echoes");
         SuperMetroid.Core.Samus.Projectiles.SamusProjectile echoShot = samus.Shinespark.FirstReleasedEcho.Shot!;
         echoShot.KindStateAs<ShinesparkEchoShotState>().Radius = 65528;
-        shots.Shinespark.StepShinesparkEcho(samus, echoShot, echoShot.KindStateAs<ShinesparkEchoShotState>(), new Position16<RoomPixels>(0, 0));
+        shots.Shinespark.StepShinesparkEcho(samus, echoShot.HeldShot(), echoShot.KindStateAs<ShinesparkEchoShotState>(), new Position16<RoomPixels>(0, 0));
         AssertTrue(samus.Shinespark.FirstReleasedEcho.ShownPosition is not null, "an echo a whole number of lookups out stays inside the viewport");
         AssertEqual(65536, echoShot.KindStateAs<ShinesparkEchoShotState>().Radius, "a departing echo's radius grows by eight past 65535");
         AssertEqual(samus.Position.Whole, samus.Shinespark.FirstReleasedEcho.ShownPosition!.Value, "a radius of whole lookups places the echo on Samus");

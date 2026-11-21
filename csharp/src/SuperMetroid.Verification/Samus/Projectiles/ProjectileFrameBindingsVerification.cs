@@ -54,7 +54,7 @@ internal static class ProjectileFrameBindingsVerification
             bool still = SamusProjectileProgramAddresses.ShowsStillPicture(pointer);
             AssertTrue(Word(0) is > 0 and < 0x8000,
                 "native inventory contains timed records");
-            shots.Animation.AdvanceProjectileAnimation(installedShot, installedShot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
+            shots.Animation.AdvanceProjectileAnimation(installedShot.HeldShot(), installedShot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
             AssertEqual(false, !installedShot.IsActive,
                 "installed projectile frame survives");
             AssertEqual<int>(ProjectileSpriteNative.FirstStored(Word(2)), installedShot.SpritemapPointer,

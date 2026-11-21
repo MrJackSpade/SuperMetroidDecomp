@@ -50,7 +50,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
             Palettes = palettes,
             Spritemaps = new EnemySpritemapCatalog([], []),
             ExtendedFrames = new EnemyExtendedFrameCatalog([], []),
-            GunshipLiftoff = new GunshipLiftoffArtworkCatalog([.. GunshipLiftoffTransferDefinitions.Frames.Select(_ => sheet(GunshipLiftoffCharacterDefinitions.ByteCount))]),
+            GunshipLiftoff = new GunshipLiftoffArtworkCatalog(GunshipLiftoffTransferDefinitions.Frames.ToDictionary(frame => frame.Asset, _ => sheet(GunshipLiftoffCharacterDefinitions.ByteCount))),
             ProjectileSpritemaps = new EnemyProjectileSpritemapCatalog([], [], []),
             MagdollitePaletteCycle = new MagdollitePaletteCycle(new InstalledColourRows(
                 Rows(SuperMetroid.Core.Enemies.Magdollite.MagdolliteGlowAnimations.Cycle.Count, MagdollitePaletteCycle.AnimatedColorCount),

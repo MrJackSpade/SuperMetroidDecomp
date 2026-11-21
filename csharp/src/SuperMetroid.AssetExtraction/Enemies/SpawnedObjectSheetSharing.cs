@@ -51,7 +51,7 @@ internal static class SpawnedObjectSheetSharing
         }
         // Each common picture joins the first common sheet whose colouring agrees with its own, or starts the next.
         var common = new List<PictureSheetPlan>();
-        var commonSheetOf = new Dictionary<HeldPicture, int>(ReferenceEqualityComparer.Instance);
+        var commonSheetOf = new Dictionary<HeldPicture, PictureSheetPlan>(ReferenceEqualityComparer.Instance);
         foreach (HeldPicture picture in pictures.Where(picture => picture.IsCommon))
         {
             PictureSheetPlan? sheet = common.FirstOrDefault(plan => plan.TryTake(picture));
@@ -89,7 +89,7 @@ internal static class SpawnedObjectSheetSharing
         {
             shares[sheet] = new SpawnedSheetShare(own[sheet] is { } plan ? installedOf[plan] : null,
                 held[sheet].Where(frame => frame.Value.IsCommon)
-                    .ToDictionary(frame => frame.Key, frame => commonSheetOf[frame.Value], StringComparer.Ordinal));
+                    .ToDictionary(frame => frame.Key, frame => installedOf[commonSheetOf[frame.Value]], StringComparer.Ordinal));
         }
         return new SharedSpawnedSheets(shares);
     }

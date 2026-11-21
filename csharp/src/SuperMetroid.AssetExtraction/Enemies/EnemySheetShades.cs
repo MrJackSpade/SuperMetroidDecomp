@@ -308,10 +308,10 @@ internal sealed class EnemySheetShades
         OwnRowShading gunshipGlow = (_, _, first) =>
             // The gunship's pieces show its lights' glow, which its placement starts, over their own row (#1733).
             PaletteFxSpriteShades.Of(GunshipLightDefinitions.Glow, ColourEffectColours.GunshipGlow,
-                first, (inputs.Maps ?? throw Missing("gunship glow colours")).RoomPaletteFx);
+                first, inputs.Maps.RoomPaletteFx);
         OwnRowShading ridleyEncounter = (_, _, _) =>
             // The Ridley encounters' colour loads over Ridley's, the doors', the container's and the Baby's rows (#1512).
-            SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps?.CeresRidleyColors, inputs.Bosses);
+            SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps.CeresRidleyColors, inputs.Bosses);
         OwnRowShading motherBrainEncounter = (enemy, row, _) =>
         {
             // Mother Brain's encounter's colour loads over her brain's, attack's, legs' and the Baby's rows (#1512).
@@ -326,7 +326,7 @@ internal sealed class EnemySheetShades
             [EnemyDefinitionId.WorkRobot] = (_, _, first) => WorkRobotGlow(first),
             // The first escape room's shutters show the escape's red flash over their own row.
             [EnemyDefinitionId.ShutterDestroyable] = (_, _, first) => PaletteFxSpriteShades.Of(ColourEffectId.TourianShutterRedFlashing,
-                ColourEffectColours.TourianShutters, first, (inputs.Maps ?? throw Missing("Tourian shutter flash colours")).RoomPaletteFx),
+                ColourEffectColours.TourianShutters, first, inputs.Maps.RoomPaletteFx),
             [EnemyDefinitionId.ShipTop] = gunshipGlow,
             [EnemyDefinitionId.ShipBottomEntrance] = gunshipGlow,
             [EnemyDefinitionId.Coven] = (_, _, first) => GhostFadeSteps().Select(step => SheetShade.Run(step.Shade, first, step.Colours)),
@@ -365,7 +365,7 @@ internal sealed class EnemySheetShades
     /// <summary>Dachora's colours over its row from <paramref name="first"/>: its default colouring and each frame of its speed and shine.</summary>
     private List<SheetShade> DachoraColours(int first)
     {
-        DachoraColorCatalog dachora = inputs.Enemies.DachoraColors ?? throw Missing("Dachora colours");
+        DachoraColorCatalog dachora = inputs.Enemies.DachoraColors;
         var shades = new List<SheetShade>
         {
             SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Default, 0), first, Frame(LoadedSetColours.RowColours, colour => dachora.Resolve(DachoraColourPhase.Default, 0, colour))),
@@ -382,7 +382,7 @@ internal sealed class EnemySheetShades
     /// <summary>The face blocks' glow over their row from <paramref name="first"/>: one shade a level.</summary>
     private IEnumerable<SheetShade> FaceBlockGlow(int first)
     {
-        EnemyAuxiliaryColorCatalog auxiliary = inputs.Enemies.AuxiliaryColors ?? throw Missing("face-block glow colours");
+        EnemyAuxiliaryColorCatalog auxiliary = inputs.Enemies.AuxiliaryColors;
         // The cartridge's colour records are the glow's steps in the order the glow shows them. The steps that show
         // one level show it in one colouring, so each level installs one shade (#2477).
         return [.. FaceBlockGlowAnimations.Levels.Select(level =>
@@ -392,7 +392,7 @@ internal sealed class EnemySheetShades
     /// <summary>The Magdollites' glow over their row from <paramref name="first"/>: one shade a glow frame.</summary>
     private List<SheetShade> MagdolliteGlow(int first)
     {
-        MagdollitePaletteCycle cycle = inputs.Enemies.MagdollitePaletteCycle ?? throw Missing("Magdollite glow colours");
+        MagdollitePaletteCycle cycle = inputs.Enemies.MagdollitePaletteCycle;
         // The cartridge's glow colour rows are the glow's frames in the order the glow shows them; each frame installs
         // one shade named by the frame (#2474).
         var shades = new List<SheetShade>();
@@ -408,7 +408,7 @@ internal sealed class EnemySheetShades
     /// <summary>The Work Robots' glow over their row from <paramref name="first"/>: one shade a place.</summary>
     private IEnumerable<SheetShade> WorkRobotGlow(int first)
     {
-        WorkRobotPaletteCycle cycle = inputs.Enemies.WorkRobotPaletteCycle ?? throw Missing("Work Robot glow colours");
+        WorkRobotPaletteCycle cycle = inputs.Enemies.WorkRobotPaletteCycle;
         // The cartridge's colour records are the glow's steps in the order the glow shows them. The steps that show
         // one place show it in one colouring, so each place installs one shade (#2393).
         return [.. WorkRobotGlowAnimations.Places.Select(place => cycle.GlowShade(place, first))];
@@ -416,8 +416,8 @@ internal sealed class EnemySheetShades
 
     /// <summary>A Torizo's colourings over its own rows (#1512), with <paramref name="belly"/>, its belly's glow.</summary>
     private IEnumerable<SheetShade> TorizoColourings(ColourEffectId belly) =>
-        SuperMetroid.AssetExtraction.Bosses.TorizoSheetShades.Of(inputs.Enemies.AuxiliaryColors ?? throw Missing("Golden Torizo health colours"),
-            (inputs.Maps ?? throw Missing("Torizo belly glow colours")).RoomPaletteFx, belly);
+        SuperMetroid.AssetExtraction.Bosses.TorizoSheetShades.Of(inputs.Enemies.AuxiliaryColors,
+            inputs.Maps.RoomPaletteFx, belly);
 
     /// <summary>
     /// The Baby Metroid's victim's colours over its row from <paramref name="first"/>: the encounter's entry colours before

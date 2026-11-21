@@ -26,7 +26,7 @@ internal static class PlatformOwnedStateVerification
         place.SetSpawnParameter2(EnemyDefinitionId.Tripper, LittleEndianBytes.Word(speedRecord, accelerationCap));
         place.SetSpawnSettings(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>() with { Movement = HorizontalDirection.Left });
         place.Position = place.Position.WithWholeY(256);
-        PlatformsBehavior.InitializePlatform(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>(), place);
+        PlatformsBehavior.InitializePlatform(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>(), place, EnemyDefinitionId.Tripper);
         PlatformEnemyState state = enemies.PlatformStates[0]
             ?? throw new InvalidOperationException("The initialized Tripper has no platform state.");
 

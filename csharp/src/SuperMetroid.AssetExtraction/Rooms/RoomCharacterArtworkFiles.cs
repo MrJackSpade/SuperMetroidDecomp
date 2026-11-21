@@ -149,7 +149,7 @@ public static class RoomCharacterArtworkFiles
         {
             /// <inheritdoc/>
             internal override int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets) =>
-                RomDataReader.Decompress(CartridgeImportSource.Require(bus), RoomTilesetSourceDefinitions.CreCharacters).Length;
+                RomDataReader.Decompress(bus, RoomTilesetSourceDefinitions.CreCharacters).Length;
         }
 
         /// <summary>A character set's sheet, which the cartridge stores compressed.</summary>
@@ -158,7 +158,7 @@ public static class RoomCharacterArtworkFiles
         {
             /// <inheritdoc/>
             internal override int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets) =>
-                RomDataReader.Decompress(CartridgeImportSource.Require(bus), Ensure.NotNull(tilesets).Characters[Set]).Length;
+                RomDataReader.Decompress(bus, Ensure.NotNull(tilesets).Characters[Set]).Length;
         }
 
         /// <summary>A character set's sheet the cartridge stores uncompressed, at its fixed length.</summary>

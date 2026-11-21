@@ -1469,8 +1469,9 @@ internal static class LookupStream1Verification
             ushort duration = Word(0x930000 | pointer);
             // A record storing a composition again, byte for byte, shows that composition (#2295).
             ushort sprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(Word(0x930000 | (pointer + 2)));
-            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
-            shots.Animation.AdvanceProjectileAnimation(slot, slot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
+            var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+            slot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
+            shots.Animation.AdvanceProjectileAnimation(slot.HeldShot(), slot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
             AssertTrue(slot.IsActive, "Actual native timed frame survives");
             // A list repeating one still picture is held: no timer, the place at the list's end (#2347).
             bool still = SamusProjectileProgramAddresses.ShowsStillPicture(pointer);
@@ -1620,7 +1621,7 @@ internal static class LookupStream1Verification
                         trail = pointer; pointer += 8;
                     }
                 }
-                shots.Animation.AdvanceProjectileAnimation(slot, slot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
+                shots.Animation.AdvanceProjectileAnimation(slot.HeldShot(), slot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
                 AssertEqual(deleted, !slot.IsActive, "Exact native projectile deletion tick");
                 if (bombPlays)
                 {

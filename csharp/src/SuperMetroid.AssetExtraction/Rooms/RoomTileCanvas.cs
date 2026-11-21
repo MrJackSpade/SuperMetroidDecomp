@@ -278,7 +278,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 case SplitFrame { Corner: var corner }:
                     SeparateParts(part.Frame, corner, size.X, twoBit, pixels, inks);
                     installed.Add(part.Name, part.Frame);
-                    installed.Add(inFront, part.Frame with { Corner = both.InFrontCorner });
+                    installed.Add(inFront, part.Frame with { Corner = corner });
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined installation of frame {part.Name}: {part.Installation}.");

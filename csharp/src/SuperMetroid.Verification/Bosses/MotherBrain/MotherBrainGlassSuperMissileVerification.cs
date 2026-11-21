@@ -45,9 +45,9 @@ internal static class MotherBrainGlassSuperMissileVerification
         for (int slot = 0; slot < pair.Length; slot++)
         {
             var shot = shots.Shots[slot];
-            SamusProjectileOccupant held = shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300); shot.Direction = SamusProjectileDirection.Left;
-            shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(pair[slot].Radius, pair[slot].Radius);
-            shot.Animation = SamusProjectileProgramAddresses.PlayerAt(pair[slot].List);
+            SamusProjectileOccupant held = shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300); held.Direction = SamusProjectileDirection.Left;
+            held.Position = shot.Position.WithWhole(new(128, 128)); held.Radius = new(pair[slot].Radius, pair[slot].Radius);
+            held.Animation = SamusProjectileProgramAddresses.PlayerAt(pair[slot].List);
             // The owner names its link's place, the link the place every link names, as firing installs them.
             if (pair[slot].IsLink)
                 held.Install(SamusShotBehaviors.SuperMissileLink, new SuperMissileShotState(new SamusMissileIgnition.Pending(), SuperMetroid.Core.Compatibility.UnlinkedSuperMissileLink.Place));

@@ -64,7 +64,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             place.SetSpawnParameter2(EnemyDefinitionId.Tripper, 0x0101);
             place.SetSpawnSettings(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>() with { Movement = testCase.Direction });
             place.Position = place.Position.WithWholeY(0x0100);
-            PlatformsBehavior.InitializePlatform(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>(), place);
+            PlatformsBehavior.InitializePlatform(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>(), place, EnemyDefinitionId.Tripper);
 
             PlatformEnemyState state = (enemies.PlatformStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PlatformStates[0]."));
             PlatformSegment expectedInitial = testCase.IsKamer

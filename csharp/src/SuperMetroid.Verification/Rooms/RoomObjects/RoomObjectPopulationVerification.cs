@@ -1313,7 +1313,7 @@ internal static class RoomObjectPopulationVerification
         var native = new SuperMetroid.TestSupport.MovieReplay.Verification.NativeEnemyProjectileListReader(
             SaveStationElectricityNativeListAddresses.DischargeStart, electricity.FrameHold.RawValue);
         enemies.StepEnemyProjectiles(level, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-        native.Step(CartridgeImportSource.Require(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom()));
+        native.Step(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom());
         AssertEqual(EnemyProjectileFrameId.SaveStationElectricityBand, electricity.Frame, "save electricity shows its band through its typed program");
         AssertEqual(EnemyProjectileProgramFrameOperands.OwnOperand(native.Operand), electricity.PresentationOperandAddress,
             "save electricity's first update shows the band where the cartridge's first discharge operand draws it");

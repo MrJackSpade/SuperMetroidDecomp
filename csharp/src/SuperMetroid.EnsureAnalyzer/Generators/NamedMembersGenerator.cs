@@ -46,8 +46,9 @@ public sealed class NamedMembersGenerator : IIncrementalGenerator
                     output.ReportDiagnostic(Diagnostic.Create(Shape, declaration.GetLocation(), method.Name));
                     continue;
                 }
-                INamedTypeSymbol[] owners = [.. attribute.ConstructorArguments.SelectMany(argument => argument.Kind == TypedConstantKind.Array
-                    ? argument.Values : [argument]).Select(argument => argument.Value).OfType<INamedTypeSymbol>()];
+                INamedTypeSymbol[] owners = attribute.ConstructorArguments
+                    .SelectMany(argument => argument.Kind == TypedConstantKind.Array ? argument.Values.AsEnumerable() : new[] { argument })
+                    .Select(argument => argument.Value).OfType<INamedTypeSymbol>().ToArray();
                 output.AddSource($"{method.ContainingType.ToDisplayString()}.{method.Name}.g.cs", Emit(method, compilation, value, owners));
             }
         });
@@ -55,9 +56,9 @@ public sealed class NamedMembersGenerator : IIncrementalGenerator
 
     /// <summary>The <c>T</c> of a <c>(T Value, string Owner, string Name)[]</c>, or none for any other type.</summary>
     private static ITypeSymbol? ValueType(ITypeSymbol returned) =>
-        returned is IArrayTypeSymbol { Rank: 1, ElementType: INamedTypeSymbol { IsTupleType: true, TupleElements: [var first, var owner, var name] } } &&
-        owner.Type.SpecialType == SpecialType.System_String && name.Type.SpecialType == SpecialType.System_String
-            ? first.Type
+        returned is IArrayTypeSymbol { Rank: 1, ElementType: INamedTypeSymbol { IsTupleType: true, TupleElements: { Length: 3 } elements } } &&
+        elements[1].Type.SpecialType == SpecialType.System_String && elements[2].Type.SpecialType == SpecialType.System_String
+            ? elements[0].Type
             : null;
 
     private static string Emit(IMethodSymbol method, Compilation compilation, ITypeSymbol value, INamedTypeSymbol[] owners)

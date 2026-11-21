@@ -1,4 +1,11 @@
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies.FuneNamihe;
+using SuperMetroid.Core.Enemies.Hibashi;
+using SuperMetroid.Core.Enemies.Magdollite;
+using SuperMetroid.Core.Enemies.MorphBallEye;
+using SuperMetroid.Core.Enemies.PipeBugs;
+using SuperMetroid.Core.Enemies.Powamp;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -31,14 +38,21 @@ internal static class RoomEnemySlotSpawnWords
         }
         RoomEnemyPlacement current = populated.LastSpawn;
         Position16<RoomPixels> position = RoomEnemyPopulationRecordCodec.PositionWordsOf(current.Placing);
-        Type kind = KindOf(EnemySpawnSettingsCodec.Decode(species, blank, position).GetType());
-        PopulationWords words = KindOf(current.SpawnSettings.GetType()) == kind
+        PopulationWords words = SameKind(EnemySpawnSettingsCodec.Decode(species, blank, position), current.SpawnSettings)
             ? EnemySpawnSettingsCodec.Encode(species, current.SpawnSettings)
             : blank;
         place.SetSpawnSettings(EnemySpawnSettingsCodec.Decode(species, change(words), position));
     }
 
-    /// <summary>The kind of settings <paramref name="settings"/> is: its own type, or the settings its species' parts share.</summary>
-    private static Type KindOf(Type settings) =>
-        settings.BaseType is { } shared && shared != typeof(EnemySpawnSettings) && shared.IsAbstract ? shared : settings;
+    /// <summary>
+    /// Whether two settings are of one kind: the settings a species' parts share (#2474), or otherwise the same settings type.
+    /// </summary>
+    private static bool SameKind(EnemySpawnSettings left, EnemySpawnSettings right) => (left, right) switch
+    {
+        (RinkaSpawnSettings, RinkaSpawnSettings) or (FuneNamiheSpawnSettings, FuneNamiheSpawnSettings)
+            or (HibashiSpawnSettings, HibashiSpawnSettings) or (MagdolliteSpawnSettings, MagdolliteSpawnSettings)
+            or (MorphBallEyeSpawnSettings, MorphBallEyeSpawnSettings) or (NorfairPipeBugSpawnSettings, NorfairPipeBugSpawnSettings)
+            or (PowampSpawnSettings, PowampSpawnSettings) => true,
+        _ => left.GetType() == right.GetType(),
+    };
 }

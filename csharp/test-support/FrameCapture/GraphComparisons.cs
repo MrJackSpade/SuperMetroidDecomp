@@ -64,8 +64,6 @@ internal sealed class GraphComparisons : IStateGraphRegistry
         Scalar<float>();
         Scalar<double>();
         Scalar<decimal>();
-        Scalar<nint>();
-        Scalar<nuint>();
         Scalar<DateTime>();
         Scalar<TimeSpan>();
         Scalar<Guid>();

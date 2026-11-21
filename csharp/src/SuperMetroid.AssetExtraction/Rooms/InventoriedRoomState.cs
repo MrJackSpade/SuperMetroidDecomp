@@ -112,8 +112,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
             (SpeedBoosterBlocks.TryResolve(block.Behavior, out _) ||
                 (block.Behavior.Special is { } special &&
                     BombSpecialBlockReactions.ChangeFor(special) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
-        (IsReactingSpecialAir(block) &&
-            SpecialAirReactions.CollisionOf(block.Behavior.SpecialAir).IsSpeedBlock));
+        (KindOf(block) is RoomBlockKind.SpecialAir { Reaction: var air } && SpecialAirReactions.CollisionOf(air).IsSpeedBlock));
 
     /// <summary>Whether the state's terrain holds a Grapple block that breaks under the beam.</summary>
     internal bool HoldsBreakableGrappleBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.GrappleBlock &&
@@ -140,19 +139,19 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         Terrain.Contains(new(EscapeAnimalWallDefinitions.OriginCollisionType, EscapeAnimalWallDefinitions.ReactionBehavior));
 
     /// <summary>Whether the state's terrain holds a special-air block whose inside reaction is a Brinstar plant that bites Samus.</summary>
-    internal bool HoldsSamusEaterPlants => Terrain.Any(block => IsReactingSpecialAir(block) &&
-        SpecialAirReactions.InsideOf(block.Behavior.SpecialAir).Plant is not null);
+    internal bool HoldsSamusEaterPlants => Terrain.Any(block =>
+        KindOf(block) is RoomBlockKind.SpecialAir { Reaction: var air } && SpecialAirReactions.InsideOf(air).Plant is not null);
 
     /// <summary>
-    /// Whether <paramref name="block"/> is a special-air block with a reaction: a reaction that is the same in every area
-    /// (the conveyors, the scroll trigger, passing through) means nothing to the area's own reactions.
+    /// The kind <paramref name="block"/> collides as with the reaction it carries, or none for a block of a reacting kind
+    /// whose behaviour gives it no reaction, which reacts to nothing.
     /// </summary>
-    private static bool IsReactingSpecialAir(RoomTerrainReaction block) =>
-        block.Collision == RoomCollisionType.SpecialAir && block.Behavior.SpecialAir is not null;
+    private static RoomBlockKind? KindOf(RoomTerrainReaction block) =>
+        RoomBlockKind.TryOf(block.Collision, block.Behavior, out RoomBlockKind? kind) ? kind : null;
 
     /// <summary>Whether the state's terrain holds a spike block an enemy breaks.</summary>
-    internal bool HoldsEnemyBreakableBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.SpikeBlock &&
-        block.Behavior.Spike is not null && EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior));
+    internal bool HoldsEnemyBreakableBlocks => Terrain.Any(block =>
+        KindOf(block) is RoomBlockKind.SpikeBlock { Reaction: var spike } && EnemyBreakableTerrain.IsEnemyBreakable(spike));
 
     /// <summary>
     /// Whether the state's terrain holds a block whose reaction breaks it up, or a Wave shot's straddled read sets one off:

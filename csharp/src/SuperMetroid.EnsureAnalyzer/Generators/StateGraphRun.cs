@@ -260,6 +260,10 @@ internal sealed partial class StateGraphRun
         internal ITypeSymbol? InlineElement { get; init; }
         /// <summary>For each primary constructor parameter, the expression reading what keeps its value, or null.</summary>
         internal List<string?> Arguments { get; init; } = null!;
+        /// <summary>The own fields the primary constructor sets to exactly an argument, which its restore order does not write again.</summary>
+        internal HashSet<string> Exact { get; } = new(StringComparer.Ordinal);
+        /// <summary>The own fields the level's own restore reads after its constructor: every one but those set exactly by an argument.</summary>
+        internal List<Member> Restored => [.. Own.Where(member => !Exact.Contains(member.Name))];
         internal bool IsStruct => Type.TypeKind == TypeKind.Struct;
         internal bool IsSealed => IsStruct || Type.IsSealed;
         internal string Access => IsSealed ? "private" : "protected";
@@ -339,7 +343,9 @@ internal sealed partial class StateGraphRun
         {
             foreach (IParameterSymbol parameter in primary.Parameters)
             {
-                string? argument = MapArgument(type, parameter, own);
+                string? argument = MapArgument(type, parameter, own, out string? exact);
+                if (exact is not null)
+                    level.Exact.Add(exact);
                 // A parameter nothing in the type refers to changes nothing it builds, so its restore passes the default.
                 if (argument is null && IsReferenced(type, parameter))
                     output.ReportDiagnostic(Diagnostic.Create(UnmappedParameter, parameter.Locations.FirstOrDefault() ?? type.Locations.FirstOrDefault(),
@@ -390,18 +396,26 @@ internal sealed partial class StateGraphRun
     /// <summary>The types of the primary constructor parameters a source type captures; none for any other type.</summary>
     internal IReadOnlyList<ITypeSymbol> CapturedTypes(INamedTypeSymbol type)
     {
-        type = type.OriginalDefinition;
-        if (capturedTypes.TryGetValue(type, out List<ITypeSymbol>? known))
-            return known;
-        var found = new List<ITypeSymbol>();
-        if (!type.IsRecord && SymbolEqualityComparer.Default.Equals(type.ContainingAssembly, compilation.Assembly) &&
-            PrimaryConstructor(type) is { } primary && type.DeclaringSyntaxReferences.All(reference => reference.GetSyntax() is TypeDeclarationSyntax))
-            found.AddRange(CapturedParameters(type, primary).Select(parameter => parameter.Type));
-        capturedTypes[type] = found;
-        return found;
+        INamedTypeSymbol definition = type.OriginalDefinition;
+        if (!capturedTypes.TryGetValue(definition, out List<IParameterSymbol>? captured))
+        {
+            captured = [];
+            if (!definition.IsRecord && SymbolEqualityComparer.Default.Equals(definition.ContainingAssembly, compilation.Assembly) &&
+                PrimaryConstructor(definition) is { } primary && definition.DeclaringSyntaxReferences.All(reference => reference.GetSyntax() is TypeDeclarationSyntax))
+                captured.AddRange(CapturedParameters(definition, primary));
+            capturedTypes[definition] = captured;
+        }
+        if (captured.Count == 0 || SymbolEqualityComparer.Default.Equals(type, definition))
+            return [.. captured.Select(parameter => parameter.Type)];
+        // A construction's parameters are declared with its type arguments in place of the definition's parameters.
+        IMethodSymbol? constructed = type.InstanceConstructors.FirstOrDefault(constructor =>
+            SymbolEqualityComparer.Default.Equals(constructor.OriginalDefinition, PrimaryConstructor(definition)));
+        return constructed is null
+            ? [.. captured.Select(parameter => parameter.Type)]
+            : [.. constructed.Parameters.Where(parameter => captured.Any(original => original.Name == parameter.Name)).Select(parameter => parameter.Type)];
     }
 
-    private readonly Dictionary<INamedTypeSymbol, List<ITypeSymbol>> capturedTypes = new(SymbolEqualityComparer.Default);
+    private readonly Dictionary<INamedTypeSymbol, List<IParameterSymbol>> capturedTypes = new(SymbolEqualityComparer.Default);
 
     private static bool IsInPropertyInitializer(SyntaxNode node) =>
         node.Ancestors().Any(ancestor => ancestor is EqualsValueClauseSyntax { Parent: PropertyDeclarationSyntax });
@@ -410,8 +424,13 @@ internal sealed partial class StateGraphRun
     /// The expression reading what keeps a primary constructor parameter's value: a record's member of its name, the
     /// captured parameter, a member whose initializer refers to it, or what the base it is passed to keeps of it.
     /// </summary>
-    private string? MapArgument(INamedTypeSymbol type, IParameterSymbol parameter, List<Member> own)
+    /// <param name="type">The type.</param>
+    /// <param name="parameter">The primary constructor's parameter.</param>
+    /// <param name="own">The type's own fields.</param>
+    /// <param name="exact">Receives the name of the type's own field the primary constructor sets to exactly the argument, when one does.</param>
+    private string? MapArgument(INamedTypeSymbol type, IParameterSymbol parameter, List<Member> own, out string? exact)
     {
+        exact = null;
         if (type.IsRecord)
         {
             for (INamedTypeSymbol? current = type; current is not null; current = current.BaseType)
@@ -419,11 +438,19 @@ internal sealed partial class StateGraphRun
                 ISymbol? named = current.GetMembers(parameter.Name).FirstOrDefault(member => member is IPropertySymbol { IsStatic: false } or IFieldSymbol { IsStatic: false });
                 if (named is not null && (SymbolEqualityComparer.Default.Equals(current, type) || named.DeclaredAccessibility != Accessibility.Private) &&
                     Converts(named is IPropertySymbol property ? property.Type : ((IFieldSymbol)named).Type, parameter.Type))
+                {
+                    // A positional property the record declares for the parameter is set to exactly the argument.
+                    if (SymbolEqualityComparer.Default.Equals(current, type) && named is IPropertySymbol { IsImplicitlyDeclared: true })
+                        exact = parameter.Name;
                     return "this.@" + parameter.Name;
+                }
             }
         }
         if (own.Any(member => member.Kind == MemberKind.Captured && member.Name == parameter.Name))
+        {
+            exact = parameter.Name;
             return "@" + parameter.Name;
+        }
         // A member made from the parameter: the simplest initializer first (the parameter itself, then a call on it).
         (string Name, int Rank)? best = null;
         foreach (SyntaxReference reference in type.DeclaringSyntaxReferences)
@@ -452,7 +479,11 @@ internal sealed partial class StateGraphRun
             }
         }
         if (best is not null)
+        {
+            if (best.Value.Rank == 0)
+                exact = best.Value.Name;
             return "this.@" + best.Value.Name;
+        }
         // A parameter passed on to the base's primary constructor is kept by what the base keeps of it.
         if (type.BaseType is { } baseType && IsNode(baseType) && PrimaryConstructor(baseType.OriginalDefinition) is { } basePrimary &&
             BaseArguments(type) is { } baseArguments)

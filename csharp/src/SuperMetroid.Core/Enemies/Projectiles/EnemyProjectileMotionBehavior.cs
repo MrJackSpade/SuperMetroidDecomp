@@ -15,7 +15,10 @@ internal abstract partial class EnemyProjectileMotionBehavior<TMotion> : EnemyPr
     /// a projectile holds a motion only while something moves it, as <see cref="EnemyProjectile.Motion"/> holds none for
     /// every family, so one that holds none is moved by nothing (#2558).
     /// </summary>
-    private readonly Func<RoomEnemyProjectileKind, TMotion?> _startingMotionOf;
+    private readonly TMotion? _initial;
+
+    /// <summary>Each kind's own starting motion, or none when every kind starts with <see cref="_initial"/>.</summary>
+    private readonly IReadOnlyDictionary<RoomEnemyProjectileKind, TMotion?>? _startingMotions;
 
     /// <summary>Each of this behaviour's motions a projectile has moved by, created once.</summary>
     private readonly Dictionary<TMotion, EnemyProjectileFamilyMotion<TMotion>> _motions = [];
@@ -28,7 +31,7 @@ internal abstract partial class EnemyProjectileMotionBehavior<TMotion> : EnemyPr
         TMotion? initial = null,
         Func<EnemyProjectileAnimation>? shot = null,
         Func<EnemyProjectileAnimation>? touch = null)
-        : base(shot, touch) => _startingMotionOf = _ => initial;
+        : base(shot, touch) => _initial = initial;
 
     /// <summary>
     /// Kinds that start in the motions <paramref name="startingMotions"/> names for each, and react to shots and touch by
@@ -45,17 +48,16 @@ internal abstract partial class EnemyProjectileMotionBehavior<TMotion> : EnemyPr
         Func<EnemyProjectileAnimation>? touch = null)
         : base(shot, touch)
     {
-        Ensure.NotNull(startingMotions);
-        _startingMotionOf = kind => startingMotions.TryGetValue(kind, out TMotion? starting)
-            ? starting
-            : throw new InvalidOperationException($"{GetType().Name} is not bound to enemy projectile {kind}.");
+        _startingMotions = Ensure.NotNull(startingMotions);
     }
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">This behaviour does not name the motion <paramref name="kind"/> starts with.</exception>
     internal sealed override EnemyProjectileMotion? InitialMotion(RoomEnemyProjectileKind kind)
     {
-        TMotion? motion = _startingMotionOf(kind);
+        TMotion? motion = _startingMotions is null ? _initial
+            : _startingMotions.TryGetValue(kind, out TMotion? starting) ? starting
+            : throw new InvalidOperationException($"{GetType().Name} is not bound to enemy projectile {kind}.");
         return motion is { } moving ? Moving(moving) : null;
     }
 

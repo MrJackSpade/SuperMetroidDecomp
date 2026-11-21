@@ -16,7 +16,7 @@ internal sealed class DefinitionExposure
     private readonly IReadOnlyList<DefinitionCatalog> catalogs;
 
     /// <summary>The declared types reached, each with its test and the catalogs reaching it.</summary>
-    private readonly List<(Func<object, bool> Probe, ulong[] Reaching)> declared = [];
+    private readonly List<(Func<int, object, bool> Probe, int Index, ulong[] Reaching)> declared = [];
 
     /// <summary>The catalogs that may hold an object of every type.</summary>
     private readonly ulong[] universal;
@@ -33,35 +33,71 @@ internal sealed class DefinitionExposure
         this.catalogs = catalogs;
         int words = (catalogs.Count + WordBits - 1) / WordBits;
         universal = new ulong[words];
-        var reaching = new Dictionary<string, ulong[]>(StringComparer.Ordinal);
-        var pending = new Stack<string>();
-        var visited = new HashSet<string>(StringComparer.Ordinal);
+        // Each declared type is numbered once, with what it holds as numbers, so each catalog's walk compares numbers.
+        var numbers = new Dictionary<string, int>(StringComparer.Ordinal);
+        var keys = new List<string>();
+        int Number(string key)
+        {
+            if (numbers.TryGetValue(key, out int number))
+                return number;
+            numbers.Add(key, keys.Count);
+            keys.Add(key);
+            return keys.Count - 1;
+        }
+        var held = new List<int[]?>();
+        var anything = new List<bool>();
+        int[] Held(int number)
+        {
+            while (held.Count <= number)
+            {
+                held.Add(null);
+                anything.Add(false);
+            }
+            if (held[number] is { } known)
+                return known;
+            if (!types.DeclaredHolds.TryGetValue(keys[number], out (bool Anything, IReadOnlyList<string> Held) holds))
+                throw new InvalidOperationException($"The definition catalogs reach the declared type {keys[number]}, but no registration says what it holds.");
+            int[] next = [.. holds.Held.Select(Number)];
+            while (held.Count < keys.Count)
+            {
+                held.Add(null);
+                anything.Add(false);
+            }
+            held[number] = next;
+            anything[number] = holds.Anything;
+            return next;
+        }
+        var reaching = new List<ulong[]?>();
+        var visited = new List<int>();
+        var pending = new Stack<int>();
         for (int catalog = 0; catalog < catalogs.Count; catalog++)
         {
             pending.Clear();
-            visited.Clear();
             foreach (Core.StateGraphCatalogMember member in catalogs[catalog].Members)
-                pending.Push(member.Declared);
+                pending.Push(Number(member.Declared));
             while (pending.Count > 0)
             {
-                string key = pending.Pop();
-                if (!visited.Add(key))
+                int number = pending.Pop();
+                while (visited.Count < keys.Count)
+                {
+                    visited.Add(0);
+                    reaching.Add(null);
+                }
+                if (visited[number] == catalog + 1)
                     continue;
-                if (!types.DeclaredHolds.TryGetValue(key, out (bool Anything, IReadOnlyList<string> Held) holds))
-                    throw new InvalidOperationException($"The definition catalogs reach the declared type {key}, but no registration says what it holds.");
-                if (!reaching.TryGetValue(key, out ulong[]? set))
-                    reaching.Add(key, set = new ulong[words]);
-                set[catalog / WordBits] |= 1UL << (catalog % WordBits);
-                if (holds.Anything)
+                visited[number] = catalog + 1;
+                int[] next = Held(number);
+                (reaching[number] ??= new ulong[words])[catalog / WordBits] |= 1UL << (catalog % WordBits);
+                if (anything[number])
                     universal[catalog / WordBits] |= 1UL << (catalog % WordBits);
-                foreach (string next in holds.Held)
-                    pending.Push(next);
+                foreach (int further in next)
+                    pending.Push(further);
             }
         }
-        foreach ((string key, ulong[] set) in reaching)
+        for (int number = 0; number < reaching.Count; number++)
         {
-            if (types.DeclaredProbes.TryGetValue(key, out Func<object, bool>? probe))
-                declared.Add((probe, set));
+            if (reaching[number] is { } set && types.DeclaredProbes.TryGetValue(keys[number], out (Func<int, object, bool> Probe, int Index) test))
+                declared.Add((test.Probe, test.Index, set));
         }
     }
 
@@ -75,9 +111,9 @@ internal sealed class DefinitionExposure
         if (found.TryGetValue(type, out DefinitionCatalog[]? known))
             return known;
         ulong[] set = [.. universal];
-        foreach ((Func<object, bool> probe, ulong[] reaching) in declared)
+        foreach ((Func<int, object, bool> probe, int index, ulong[] reaching) in declared)
         {
-            if (!probe(value))
+            if (!probe(index, value))
                 continue;
             for (int word = 0; word < set.Length; word++)
                 set[word] |= reaching[word];

@@ -46,6 +46,9 @@ internal sealed partial record RoomEnemySpeciesDependencies
     /// <summary>The enemies' contact with Samus and her weapons.</summary>
     public required EnemyCollision Collision { get; init; }
 
+    /// <summary>The collision as the species' shared responses resolve it at use (#1759).</summary>
+    internal EnemyCollision CurrentCollision() => Collision;
+
     /// <summary>The enemies' deaths and the drops they leave.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 

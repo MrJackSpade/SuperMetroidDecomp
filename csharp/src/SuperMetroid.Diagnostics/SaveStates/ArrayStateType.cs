@@ -6,8 +6,8 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 
 /// <summary>
 /// An array of <typeparamref name="T"/>: a scalar's or a packed pixel's elements as their raw bytes (#1403, #1633), an
-/// array of the game's value type whose fields are all scalars or enums as one packed run (#1696), any other array element
-/// by element.
+/// array of the game's value type whose fields are scalars, enums, such value types or objects as one packed run (#1696,
+/// #2609), the objects held as places in the run's table of them, any other array element by element.
 /// </summary>
 /// <typeparam name="T">The element type.</typeparam>
 internal sealed class ArrayStateType<T>(StateGraphTypes types) : StateGraphType(typeof(T[]), types)
@@ -46,14 +46,17 @@ internal sealed class ArrayStateType<T>(StateGraphTypes types) : StateGraphType(
             writer.Output.Write(array.Length);
             writer.Output.Write(node.PackedSchema!);
             var tables = new PackedEnumTables(Types);
+            var objects = new PackedObjects();
+            // Each run has its own buffer: an object in its table can hold runs of its own, written while this one is.
             using var values = new MemoryStream();
             using (var packed = new BinaryWriter(values, System.Text.Encoding.UTF8, leaveOpen: true))
             {
-                var packedWriter = new PackedWriter(packed, Types, tables);
+                var packedWriter = new PackedWriter(packed, Types, tables, objects);
                 foreach (T element in array)
                     node.WriteTyped(packedWriter, element);
             }
             tables.Write(writer.Output);
+            objects.Write(writer);
             writer.Output.Write(checked((int)values.Length));
             writer.Output.Write(values.GetBuffer(), 0, (int)values.Length);
             return;
@@ -72,9 +75,8 @@ internal sealed class ArrayStateType<T>(StateGraphTypes types) : StateGraphType(
     {
         var array = new T[reader.ReadLength("array")];
         reader.Register(referenceId, array);
-        switch (kind)
+        if (kind == PayloadKind.PrimitiveArray && Raw)
         {
-            case PayloadKind.PrimitiveArray when Raw:
             {
                 Span<byte> bytes = Bytes(array);
                 int stored = reader.ReadLength("array byte");
@@ -83,7 +85,9 @@ internal sealed class ArrayStateType<T>(StateGraphTypes types) : StateGraphType(
                 reader.Input.BaseStream.ReadExactly(bytes);
                 return array;
             }
-            case PayloadKind.PackedArray when Packed() is { } node:
+        }
+        if (kind == PayloadKind.PackedArray && Packed() is { } node)
+        {
             {
                 string schema = reader.Input.ReadString();
                 if (schema != node.PackedSchema)
@@ -92,27 +96,27 @@ internal sealed class ArrayStateType<T>(StateGraphTypes types) : StateGraphType(
                         $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: the state packs {Name} as {schema}; this build packs it as {node.PackedSchema}.");
                 }
                 PackedEnumTables tables = PackedEnumTables.Read(reader);
+                PackedObjects objects = PackedObjects.Read(reader);
                 int byteCount = reader.ReadLength("packed element byte");
                 byte[] bytes = reader.Input.ReadBytes(byteCount);
                 if (bytes.Length != byteCount)
                     throw new EndOfStreamException($"Debugger state ended inside the packed elements of {Name}.");
                 using var values = new BinaryReader(new MemoryStream(bytes, writable: false), System.Text.Encoding.UTF8);
-                var packedReader = new PackedReader(values, Types, tables);
+                var packedReader = new PackedReader(values, Types, tables, objects);
                 for (int index = 0; index < array.Length; index++)
                     array[index] = node.Create(packedReader);
                 if (values.BaseStream.Position != byteCount)
                     throw new InvalidDataException($"The packed elements of the saved {Name} hold {byteCount} bytes; its {array.Length} elements read {values.BaseStream.Position}.");
                 return array;
             }
-            case PayloadKind.Array:
-                if (StructElements)
-                    reader.InStructElementsDo(() => ReadElements(reader, array));
-                else
-                    ReadElements(reader, array);
-                return array;
-            default:
-                throw UnexpectedKind(kind);
         }
+        if (kind != PayloadKind.Array)
+            throw UnexpectedKind(kind);
+        if (StructElements)
+            reader.InStructElementsDo(() => ReadElements(reader, array));
+        else
+            ReadElements(reader, array);
+        return array;
     }
 
     private static void ReadElements(GraphReader reader, T[] array)

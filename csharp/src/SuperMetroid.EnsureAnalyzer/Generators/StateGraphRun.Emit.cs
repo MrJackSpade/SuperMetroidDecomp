@@ -32,7 +32,13 @@ internal sealed partial class StateGraphRun
         for (INamedTypeSymbol? current = type; current is not null; current = current.ContainingType)
             chain.Insert(0, current);
         foreach (INamedTypeSymbol level in chain)
-            code.Append(Declaration(level)).AppendLine().AppendLine("{");
+        {
+            code.Append(Declaration(level));
+            // A generic type's constructions may be made where no declaration names them, so each object registers its own.
+            if (SymbolEqualityComparer.Default.Equals(level, type) && LevelOf(type) is not null && IsGenericContext(type))
+                code.Append($" : {Core}IStateGraphNode");
+            code.AppendLine().AppendLine("{");
+        }
         EmitMembers(type, code);
         foreach (INamedTypeSymbol _ in chain)
             code.AppendLine("}");
@@ -79,11 +85,19 @@ internal sealed partial class StateGraphRun
             if (level.Primary is not null)
                 foreach (IParameterSymbol parameter in level.Primary.Parameters)
                     Codecs(parameter.Type, seen, registration);
+            // A generic base's construction registers what its own fields are declared with in this construction.
+            if (level.Base is not null)
+                Codecs(level.Base, seen, registration);
         }
         else
         {
             registration.Add($"__registry.Name(typeof({self}), {NameExpression(type)});");
         }
+        // What static fields hold is walked when a definition catalog or a bound fixture reaches it.
+        var staticSeen = new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
+        foreach (IFieldSymbol field in type.GetMembers().OfType<IFieldSymbol>())
+            if (field.IsStatic && !field.IsConst && field.Type.TypeKind is not (TypeKind.Pointer or TypeKind.FunctionPointer))
+                Codecs(field.Type, staticSeen, registration);
         foreach (INamedTypeSymbol nested in type.GetTypeMembers())
         {
             if (covered.Contains(nested) && nested.TypeParameters.Length == 0)
@@ -91,6 +105,8 @@ internal sealed partial class StateGraphRun
         }
         if (extraRegistrations.TryGetValue(type, out List<string>? extra))
             registration.AddRange(extra);
+        if (level is not null && IsGenericContext(type))
+            code.AppendLine($"    void {Core}IStateGraphNode.Describe({Registry} __registry) => __StateRegister(__registry);");
         code.AppendLine($"    internal static void __StateRegister({Registry} __registry)");
         code.AppendLine("    {");
         code.AppendLine($"        if (!__registry.Begin(typeof({self}))) return;");
@@ -146,7 +162,7 @@ internal sealed partial class StateGraphRun
             }
             code.AppendLine($"        this.__StateWriteOwn_{s}(__writer);");
             foreach (Level inherited in Inherited(level))
-                code.AppendLine($"        this.__StateWriteOwn_{inherited.Suffix}(__writer);");
+                code.AppendLine($"        this.__StateWriteOwnAll_{inherited.Suffix}(__writer);");
         }
         else
         {
@@ -170,14 +186,21 @@ internal sealed partial class StateGraphRun
         }
         else
         {
-            code.AppendLine($"        __writer.Fields({level.Own.Count});");
-            for (int index = 0; index < level.Own.Count; index++)
-            {
-                code.AppendLine($"        __writer.Field(__StateField_{s}_{index});");
-                code.AppendLine("        " + WriteValue(level.Own[index].Type, level.Own[index].Expression));
-            }
+            WriteMembers(level, code, all: false);
         }
         code.AppendLine("    }");
+
+        // Every one of the level's own fields, which a derived primary constructor's restore order writes.
+        if (!level.IsSealed)
+        {
+            code.AppendLine($"    {access} void __StateWriteOwnAll_{s}({Writer} __writer)");
+            code.AppendLine("    {");
+            if (level.InlineLength > 0)
+                code.AppendLine($"        this.__StateWriteOwn_{s}(__writer);");
+            else
+                WriteMembers(level, code, all: true);
+            code.AppendLine("    }");
+        }
 
         // The level's own fields that can reach another object.
         code.AppendLine($"    {access} void __StateVisitOwn_{s}({Visitor} __visitor)");
@@ -268,10 +291,12 @@ internal sealed partial class StateGraphRun
         }
         else
         {
-            code.AppendLine($"        __reader.Fields({level.Own.Count});");
+            code.AppendLine($"        __reader.Fields({level.Restored.Count});");
             for (int index = 0; index < level.Own.Count; index++)
             {
                 Member member = level.Own[index];
+                if (level.Exact.Contains(member.Name))
+                    continue;
                 code.AppendLine($"        __reader.Field(__StateField_{s}_{index});");
                 // A captured parameter is set by the primary constructor's argument; its value is read past.
                 code.AppendLine(member.Kind == MemberKind.Captured
@@ -285,6 +310,20 @@ internal sealed partial class StateGraphRun
                 code.AppendLine($"        this.__StateRestoreOwn_{inherited.Suffix}(__reader);");
         }
         code.AppendLine("    }");
+    }
+
+    /// <summary>Writes the level's own fields: all of them, or all but those its primary constructor sets exactly.</summary>
+    private static void WriteMembers(Level level, StringBuilder code, bool all)
+    {
+        int count = all ? level.Own.Count : level.Restored.Count;
+        code.AppendLine($"        __writer.Fields({count});");
+        for (int index = 0; index < level.Own.Count; index++)
+        {
+            if (!all && level.Exact.Contains(level.Own[index].Name))
+                continue;
+            code.AppendLine($"        __writer.Field(__StateField_{level.Suffix}_{index});");
+            code.AppendLine("        " + WriteValue(level.Own[index].Type, level.Own[index].Expression));
+        }
     }
 
     private static string EscapedName(INamedTypeSymbol type) =>
@@ -390,7 +429,7 @@ internal sealed partial class StateGraphRun
                 schema.Append('(').Append(level.Primary.Parameters[index].Name).Append("):").Append(argument).Append(';');
             }
         }
-        foreach (Member member in level.Own)
+        foreach (Member member in level.Restored)
         {
             if (PackedType(member.Type, visiting) is not { } packed)
                 return null;
@@ -406,6 +445,11 @@ internal sealed partial class StateGraphRun
             return type.ToDisplayString();
         if (type.TypeKind == TypeKind.Enum)
             return Declared((INamedTypeSymbol)type);
+        // A reference is held as its place in the run's table of the objects its elements hold (#2609).
+        // Only a class, array or delegate field: one declared as an interface or object could hold a boxed value instead.
+        if (type.TypeKind is TypeKind.Class or TypeKind.Array or TypeKind.Delegate &&
+            type.SpecialType is not (SpecialType.System_Object or SpecialType.System_ValueType or SpecialType.System_Enum))
+            return "&" + type.ToDisplayString();
         if (type is not INamedTypeSymbol { TypeKind: TypeKind.Struct } named || named.IsGenericType && named.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T)
             return null;
         if (named.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
@@ -428,6 +472,8 @@ internal sealed partial class StateGraphRun
                 Codecs(array.ElementType, seen, lines);
                 if (array.Rank == 1)
                     lines.Add($"__registry.Array<{Code(array.ElementType)}>();");
+                else if (array.Rank == 2)
+                    lines.Add($"__registry.Grid<{Code(array.ElementType)}>();");
                 return;
             case INamedTypeSymbol named:
                 if (named.TypeKind == TypeKind.Enum)
@@ -440,7 +486,10 @@ internal sealed partial class StateGraphRun
                     foreach (ITypeSymbol argument in container.TypeArguments)
                         Codecs(argument, seen, lines);
                 if (!named.IsGenericType || named.IsUnboundGenericType)
+                {
+                    Unheld(named, lines);
                     return;
+                }
                 string arguments = string.Join(", ", named.TypeArguments.Select(Code));
                 string? kind = named.OriginalDefinition.ToDisplayString() switch
                 {
@@ -457,6 +506,9 @@ internal sealed partial class StateGraphRun
                     "System.Collections.Frozen.FrozenSet<T>" => "FrozenSet",
                     "System.Collections.ObjectModel.ReadOnlyCollection<T>" => "ReadOnlyCollection",
                     "System.Lazy<T>" => "Lazy",
+                    "System.Runtime.CompilerServices.ConditionalWeakTable<TKey, TValue>" => "Unheld",
+                    "System.ReadOnlyMemory<T>" => "ReadOnlyMemory",
+                    "System.Collections.Generic.IComparer<T>" or "System.Collections.Generic.IEqualityComparer<T>" => "Comparer",
                     "System.Collections.Generic.KeyValuePair<TKey, TValue>" => "KeyValuePair",
                     "System.Collections.Generic.IReadOnlyList<T>" or "System.Collections.Generic.IList<T>" or
                         "System.Collections.Generic.ICollection<T>" or "System.Collections.Generic.IReadOnlyCollection<T>" or
@@ -465,6 +517,13 @@ internal sealed partial class StateGraphRun
                     "System.Collections.Generic.IReadOnlySet<T>" or "System.Collections.Generic.ISet<T>" => "Set",
                     _ => null,
                 };
+                if (kind == "Unheld")
+                {
+                    lines.Add($"__registry.Unheld<{Code(named)}>();");
+                    return;
+                }
+                if (kind == "ReadOnlyMemory")
+                    lines.Add($"__registry.Array<{arguments}>();");
                 if (kind is not null)
                 {
                     lines.Add($"__registry.{kind}<{arguments}>();");
@@ -472,10 +531,25 @@ internal sealed partial class StateGraphRun
                 }
                 if (named.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T && named.TypeKind is TypeKind.Class or TypeKind.Struct && HasMembers(named))
                     lines.Add($"{Code(named)}.__StateRegister(__registry);");
+                else
+                    Unheld(named, lines);
                 return;
             default:
                 return;
         }
+    }
+
+    /// <summary>
+    /// Registers another assembly's class no registration names, such as a serializer's options a definition keeps: a
+    /// state reaches nothing through it and refuses to hold it.
+    /// </summary>
+    private void Unheld(INamedTypeSymbol named, List<string> lines)
+    {
+        if (named.TypeKind == TypeKind.Class && !named.IsStatic && !IsGenericContext(named) &&
+            named.SpecialType is SpecialType.None && named.ToDisplayString() is not ("System.Type" or "System.Exception") &&
+            !named.IsUnboundGenericType && !HasMembers(named) &&
+            !SymbolEqualityComparer.Default.Equals(named.ContainingAssembly, compilation.Assembly))
+            lines.Add($"__registry.Unheld<{Code(named)}>();");
     }
 
     // ---------------------------------------------------------------- delegates

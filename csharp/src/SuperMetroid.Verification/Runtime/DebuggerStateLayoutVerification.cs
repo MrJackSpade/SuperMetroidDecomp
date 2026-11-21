@@ -354,6 +354,7 @@ internal static partial class DebuggerStateLayoutVerification
     /// <summary>Serializes a fixture object through the production debugger graph format.</summary>
     private static byte[] SerializeDebuggerGraph(object root)
     {
+        GraphDigestVerification.DeclareDefinitionIndex();
         using var stream = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(stream, root);
         return stream.ToArray();

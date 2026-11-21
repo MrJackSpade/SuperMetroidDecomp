@@ -43,6 +43,14 @@ public interface IStateGraphRegistry
     /// <typeparam name="T">The element type.</typeparam>
     void Array<T>();
 
+    /// <summary>Registers grids of <typeparamref name="T"/>: arrays of two dimensions.</summary>
+    /// <typeparam name="T">The element type.</typeparam>
+    void Grid<T>();
+
+    /// <summary>Registers read-only views of a run of <typeparamref name="T"/>, held as the array they view and where.</summary>
+    /// <typeparam name="T">The element type.</typeparam>
+    void ReadOnlyMemory<T>();
+
     /// <summary>Registers lists of <typeparamref name="T"/>.</summary>
     /// <typeparam name="T">The element type.</typeparam>
     void List<T>();
@@ -95,6 +103,20 @@ public interface IStateGraphRegistry
     /// <typeparam name="T">The element type.</typeparam>
     void ReadOnlyCollection<T>();
 
+    /// <summary>
+    /// Registers a framework object a snapshot never holds, such as a cache a definition keeps beside its data: it reaches
+    /// nothing a snapshot names, and a snapshot of a game holding one is refused.
+    /// </summary>
+    /// <typeparam name="T">The object's type.</typeparam>
+    void Unheld<T>() where T : class;
+
+    /// <summary>
+    /// Registers the framework's comparers of <typeparamref name="T"/> a field declared as a comparer may hold, such as one
+    /// made from a comparison: a snapshot never holds one, and it reaches nothing a snapshot names.
+    /// </summary>
+    /// <typeparam name="T">The type compared.</typeparam>
+    void Comparer<T>();
+
     /// <summary>Registers lazily loaded parts of <typeparamref name="T"/>.</summary>
     /// <typeparam name="T">The value type.</typeparam>
     void Lazy<T>();
@@ -136,12 +158,12 @@ public interface IStateGraphRegistry
     void Catalog(StateGraphName type, IReadOnlyList<StateGraphCatalogMember> members);
 
     /// <summary>
-    /// Registers a type a location the catalogs' members reach is declared with (#1716), named by
-    /// <paramref name="key"/>, with the test of whether an object is of it.
+    /// Registers types the locations the catalogs' members reach are declared with (#1716), each named by its key, with the
+    /// test of whether an object is of the type at a place among them.
     /// </summary>
-    /// <param name="key">The declared type's name.</param>
-    /// <param name="probe">Whether an object is of the declared type.</param>
-    void Declared(string key, Func<object, bool> probe);
+    /// <param name="keys">The declared types' names.</param>
+    /// <param name="probe">Whether an object is of the declared type at a place among <paramref name="keys"/>.</param>
+    void DeclaredTypes(IReadOnlyList<string> keys, Func<int, object, bool> probe);
 
     /// <summary>
     /// Registers what a location declared with the type <paramref name="key"/> names holds (#1716): the declared types of

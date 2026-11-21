@@ -69,6 +69,36 @@ internal sealed class StateGraphExposure(StateGraphRun run)
             run.AddAssemblyRegistration($"__registry.Holds({StateGraphRun.Literal(Key(type))}, {(HoldsAnything(type) ? "true" : "false")}, new string[] {{ {heldKeys} }});");
             Probe(type);
         }
+        // Each context's tests are one switch, compiled once, rather than a delegate per declared type.
+        const int ChunkKeys = 300;
+        foreach ((INamedTypeSymbol? context, List<(string Key, string Tested)> tests) in probes)
+        {
+            for (int start = 0; start < tests.Count; start += ChunkKeys)
+            {
+                List<(string Key, string Tested)> chunk = [.. tests.Skip(start).Take(ChunkKeys)];
+                string keys = string.Join(", ", chunk.Select(test => StateGraphRun.Literal(test.Key)));
+                string arms = string.Concat(chunk.Select((test, index) => $"{index} => __value is {test.Tested}, "));
+                string line = $"__registry.DeclaredTypes(new string[] {{ {keys} }}, static (__index, __value) => __index switch {{ {arms}_ => false }});";
+                if (context is null)
+                    run.AddAssemblyRegistration(line);
+                else
+                    run.AddRegistration(context, line);
+            }
+        }
+    }
+
+    /// <summary>Each context's declared-type tests, in the order the walk numbered the types.</summary>
+    private readonly List<(INamedTypeSymbol? Context, List<(string Key, string Tested)> Tests)> probes = [];
+
+    /// <summary>The tests to emit in <paramref name="context"/>.</summary>
+    private List<(string Key, string Tested)> TestsIn(INamedTypeSymbol? context)
+    {
+        foreach ((INamedTypeSymbol? existing, List<(string Key, string Tested)> tests) in probes)
+            if (SymbolEqualityComparer.Default.Equals(existing, context))
+                return tests;
+        var added = new List<(string Key, string Tested)>();
+        probes.Add((context, added));
+        return added;
     }
 
     /// <summary>Registers the test of whether an object is of a declared type, where every type it names is accessible.</summary>
@@ -88,11 +118,7 @@ internal sealed class StateGraphExposure(StateGraphRun run)
                 return;
             }
         }
-        string line = $"__registry.Declared({StateGraphRun.Literal(Key(type))}, static __value => __value is {StateGraphRun.Code(tested)});";
-        if (context is null)
-            run.AddAssemblyRegistration(line);
-        else
-            run.AddRegistration(context, line);
+        TestsIn(context).Add((Key(type), StateGraphRun.Code(tested)));
     }
 
     /// <summary>Whether <paramref name="outer"/> is <paramref name="inner"/> or contains it.</summary>
@@ -306,7 +332,19 @@ internal sealed class StateGraphExposure(StateGraphRun run)
     {
         var constructions = new List<INamedTypeSymbol>();
         if (definition.TypeParameters.Length == 0)
+        {
+            // A type nested in a generic type takes its container's type parameters: it is constructed with its container.
+            if (definition.ContainingType is { IsGenericType: true } container)
+            {
+                INamedTypeSymbol outer = container.OriginalDefinition;
+                var outerArguments = new ITypeSymbol?[outer.TypeParameters.Length];
+                if (Unify(declaredBase, type, outer, outerArguments) && outerArguments.All(argument => argument is not null) &&
+                    outer.Construct([.. outerArguments.Select(argument => argument!)]).GetTypeMembers(definition.Name, 0).FirstOrDefault() is { } nested &&
+                    Assignable(nested, type))
+                    constructions.Add(nested);
+            }
             return constructions;
+        }
         var arguments = new ITypeSymbol?[definition.TypeParameters.Length];
         if (!Unify(declaredBase, type, definition, arguments))
             return constructions;

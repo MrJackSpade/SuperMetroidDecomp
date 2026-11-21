@@ -6,7 +6,8 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// <param name="input">The run's values.</param>
 /// <param name="types">The registry.</param>
 /// <param name="tables">The run's enum tables.</param>
-internal sealed class PackedReader(BinaryReader input, StateGraphTypes types, PackedEnumTables tables) : IStateGraphReader
+/// <param name="objects">The run's table of the objects its elements hold.</param>
+internal sealed class PackedReader(BinaryReader input, StateGraphTypes types, PackedEnumTables tables, PackedObjects objects) : IStateGraphReader
 {
     /// <summary>The run's values.</summary>
     internal BinaryReader Input { get; } = input;
@@ -29,6 +30,17 @@ internal sealed class PackedReader(BinaryReader input, StateGraphTypes types, Pa
     /// <inheritdoc/>
     public T Read<T>()
     {
+        if (!typeof(T).IsValueType)
+        {
+            int place = Input.Read7BitEncodedInt();
+            object? held = place == 0 ? null : objects.At(place - 1);
+            if (held is T typed)
+                return typed;
+            if (held is null)
+                return default!;
+            throw new InvalidDataException(
+                $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: a packed run holds a {held.GetType().FullName} where this build stores {typeof(T).FullName}.");
+        }
         if (!Input.ReadBoolean())
             return default(T) is null ? default! : throw new InvalidDataException($"A packed run holds no value where this build stores {typeof(T).FullName}.");
         Type stored = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);

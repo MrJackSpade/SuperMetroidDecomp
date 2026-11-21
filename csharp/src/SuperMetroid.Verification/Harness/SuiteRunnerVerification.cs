@@ -52,6 +52,11 @@ internal static class SuiteRunnerVerification
                 break;
             case NamedVerifierInput.Prepared:
                 throw new ArgumentException($"{name} needs {verifier.RequiredInputs} prepared inputs; run its parent flag.");
+            case NamedVerifierInput.None:
+            case NamedVerifierInput.Installation:
+                break;
+            default:
+                throw new InvalidOperationException($"{name} needs an input no case handles: {verifier.Input}.");
         }
         return () =>
         {

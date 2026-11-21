@@ -10,7 +10,8 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// <param name="output">The run's values.</param>
 /// <param name="types">The registry.</param>
 /// <param name="tables">The run's enum tables.</param>
-internal sealed class PackedWriter(BinaryWriter output, StateGraphTypes types, PackedEnumTables tables) : IStateGraphWriter
+/// <param name="objects">The run's table of the objects its elements hold.</param>
+internal sealed class PackedWriter(BinaryWriter output, StateGraphTypes types, PackedEnumTables tables, PackedObjects objects) : IStateGraphWriter
 {
     /// <summary>The run's values.</summary>
     internal BinaryWriter Output { get; } = output;
@@ -25,12 +26,24 @@ internal sealed class PackedWriter(BinaryWriter output, StateGraphTypes types, P
     {
     }
 
-    /// <summary>Writes a value a field of a packed value type holds: none, or a scalar, an enum member or a value type.</summary>
+    /// <summary>
+    /// Writes a value a field of a packed value type holds: an object as one more than its place in the run's table, none
+    /// as zero; a value type, which is never none but in a nullable field, as whether it is there, then its packed value.
+    /// </summary>
     public void Write(object? value)
     {
-        Output.Write(value is not null);
-        if (value is not null)
-            types.For(value).WritePacked(this, value);
+        if (value is null)
+        {
+            Output.Write7BitEncodedInt(0);
+            return;
+        }
+        if (!value.GetType().IsValueType)
+        {
+            Output.Write7BitEncodedInt(objects.Place(value) + 1);
+            return;
+        }
+        Output.Write(true);
+        types.For(value).WritePacked(this, value);
     }
 
     /// <inheritdoc/>

@@ -559,7 +559,15 @@ internal static class InstalledFixtures
 
     /// <summary>The bound content, gathered once so every graph names it by the same paths.</summary>
     private static readonly Lazy<object[]> boundContent = new(() =>
-        [RepositoryInstallation.ArtworkLoader, samusOverreads, enemyOverreads, bossAndIntroOverreads, roomAssets,
-            roomCharacters, blockCompositions, maps, enemyArtwork, projectiles, samusBody, introArtwork, enemySheets, spriteSheets,
-            standardObjects, bossBodySheets, importProjectiles]);
+        [Bound(RepositoryInstallation.ArtworkLoader), Bound(samusOverreads), Bound(enemyOverreads), Bound(bossAndIntroOverreads),
+            Bound(roomAssets), Bound(roomCharacters), Bound(blockCompositions), Bound(maps), Bound(enemyArtwork), Bound(projectiles),
+            Bound(samusBody), Bound(introArtwork), Bound(enemySheets), Bound(spriteSheets), Bound(standardObjects),
+            Bound(bossBodySheets), Bound(importProjectiles)]);
+
+    /// <summary>A bound catalog's loader, whose lazily loaded type a debugger state learns to walk (#2602).</summary>
+    private static Lazy<T> Bound<T>(Lazy<T> loader)
+    {
+        SuperMetroid.Diagnostics.SaveStates.StateGraphTypes.Shared.Add(static registry => registry.Lazy<T>());
+        return loader;
+    }
 }

@@ -324,6 +324,19 @@ internal static class GraphDigestVerification
         definitionsDeclared = true;
     }
 
+    /// <summary>
+    /// Declares the process's definition index as a shared fixture unless it was before, for a check that captures through
+    /// the serializer directly rather than through <see cref="Bound"/>.
+    /// </summary>
+    internal static void DeclareDefinitionIndex()
+    {
+        lock (boundGraphs)
+        {
+            if (!definitionsDeclared)
+                DeclareDefinitions();
+        }
+    }
+
     /// <summary>Whether the process's definition index was declared as a shared fixture.</summary>
     private static bool definitionsDeclared;
 

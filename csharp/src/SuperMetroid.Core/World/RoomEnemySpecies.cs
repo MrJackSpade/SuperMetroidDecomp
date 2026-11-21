@@ -310,7 +310,7 @@ internal sealed partial class RoomEnemySpecies
         // The registry is the species above that create their own entities, with the owners that create entities but keep no
         // room or frame state (#2557): the Ceres doors' and the Ridleys' factories, the steam vents, the gunship, the Baby's
         // cutscene, the n00b tube and the turning floor's elevator door.
-        Registry = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(() => enemies.Collision), [
+        Registry = EnemySpeciesRegistry.ForRoom(new EnemyCommonParticipation(enemies.CurrentCollision), [
             .. FrameParticipants.OfType<IEnemyEntityFactory>(),
             new CeresDoorFactory(ceresDoorBehavior), steamVents, gunshipBehavior, babyMetroidCutsceneBehavior, noobTubeBehavior,
             new RidleyEntityFactory(norfairRidleyBehavior, ceresRidleyBehavior, RidleyEncounter),

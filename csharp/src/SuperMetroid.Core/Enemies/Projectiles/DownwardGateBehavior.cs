@@ -130,7 +130,7 @@ internal sealed class DownwardGateBehavior
             ApplyDownwardGateCueForDownwardGateProjectileCueKind[signal.Kind](context.Owner, context.Projectile);
         });
 
-    /// <summary>What <see cref="ApplyDownwardGateCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Projectile">The <c>projectile</c> <see cref="ApplyDownwardGateCue"/> was handed.</param>
     /// <param name="Owner">The <c>owner</c> <c>ApplyDownwardGateCue</c> was handed.</param>
     private readonly record struct ApplyDownwardGateCueContext(EnemyProjectile Projectile, GateBehavior Owner);

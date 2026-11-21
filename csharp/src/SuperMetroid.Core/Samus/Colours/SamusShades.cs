@@ -81,7 +81,7 @@ public static class SamusShades
         });
 
     /// <summary>
-    /// The combination whose shade each beam combination shows. A combination the cartridge authors a shade for, and the
+    /// The combination whose shade each beam combination shows. A combination the game authors a shade for, and the
     /// SpaceTime beam with its defined black (#1318), shows its own. Spazer with Plasma, the Chainsaw beam (Spazer, Plasma
     /// and Wave, #1736) and the Murder beam (Spazer, Plasma, Ice and Wave), which the pause screen's category glitch
     /// equips, read their colours past the end of the cartridge's beam shade table, which authors none for Spazer with

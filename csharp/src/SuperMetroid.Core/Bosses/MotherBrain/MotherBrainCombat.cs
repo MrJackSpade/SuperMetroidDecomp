@@ -53,7 +53,7 @@ internal sealed class MotherBrainCombat
         ResolveMotherBrainHeadNormalBomb(state, c.Occupant, c.PlacedBomb);
 
     /// <summary>
-    /// The body's shot response for each combat phase: the struck rectangle's own reaction, as the cartridge runs the
+    /// The body's shot response for each combat phase: the struck rectangle's own reaction, as the game runs the
     /// rectangle's shot routine for the body. Her brain's rectangle, which the body shows before its first animation
     /// (#2220), runs the head's reaction on the body; every body rectangle's is the dud shot.
     /// </summary>

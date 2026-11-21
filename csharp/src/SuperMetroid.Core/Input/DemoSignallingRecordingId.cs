@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// The intro's recordings that signal their owner as they end (#2553): the scene that loads one gives it the routine its
+/// The intro's recordings that signal their owner as they end (#2553): the scene that loads one gives it the action its
 /// signal runs. The title's demonstrations play only <see cref="DemoInputRecordingId"/> recordings, which never signal.
 /// </summary>
 public enum DemoSignallingRecordingId

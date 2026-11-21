@@ -68,7 +68,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             },
             Signal: static (signal, context) => context.Owner.KiHunterSignals[signal.Kind](context.Place));
 
-    /// <summary>What <see cref="ApplyKiHunterCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <see cref="ApplyKiHunterCue"/> was handed.</param>
     /// <param name="Owner">The <see cref="KiHunterBehavior"/> reacting.</param>
@@ -746,7 +746,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunCueForKiHunterAcidSpitCueKind[signal.Kind](context.Projectile);
             });
 
-        /// <summary>What <see cref="RunCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+        /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
         /// <param name="Projectile">The <c>projectile</c> <see cref="RunCue"/> works with.</param>
         /// <param name="Owner">The <see cref="AcidBehavior"/> reacting.</param>
         private readonly record struct RunCueContext(EnemyProjectile Projectile, AcidBehavior Owner);

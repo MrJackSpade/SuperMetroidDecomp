@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// The pose whose height the balloon sits at: the latest its animation has shown, or, before it shows one, the start's.
 /// </param>
 /// <remarks>
-/// The game keeps the balloon's place in its animation instead and reads the pose from it ($A8:C234, $A8:C57D); every place
+/// The game keeps the balloon's place in its animation instead and reads the pose from it; every place
 /// a played animation holds reads one of the three poses. A start's place before its first frame is not one the death
 /// reads: the balloon plays before its body in the enemy pass, so its first frame shows before the body's next update,
 /// a frozen balloon shares its body's freeze and thaws as the body's next update begins, and every Powamp is processed

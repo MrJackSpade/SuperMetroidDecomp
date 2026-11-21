@@ -73,7 +73,7 @@ internal sealed class IntroRinkaSystem
 
     /// <summary>
     /// Spawns the Rinkas of <paramref name="pair"/>, in launch order, after the Rinkas already live, as the spawner's
-    /// instructions spawn each pair whatever else the flashback is showing ($8B:BA21).
+    /// instructions spawn each pair whatever else the flashback is showing.
     /// </summary>
     private void Spawn(IReadOnlyList<IntroRinkaLaunch> pair)
     {

@@ -25,7 +25,7 @@ internal sealed class ScrollObjects
 
     /// <summary>
     /// Binds every scroll-trigger block of the loaded room to its trigger, once the room's objects are set up. The game's
-    /// touch ($84:B393) searches the room objects for the block and never returns when none holds it, so a level whose
+    /// touch searches the room objects for the block and never returns when none holds it, so a level whose
     /// scroll-trigger block has no trigger is rejected here, when the room loads, rather than met in play: no retail level
     /// authors such a block, and an edited installation's is invalid data.
     /// </summary>

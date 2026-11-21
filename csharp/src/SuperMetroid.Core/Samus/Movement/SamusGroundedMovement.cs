@@ -153,7 +153,7 @@ public static class SamusGroundedMovement
     /// The latter is misleading for the aimed crouching turns: crouched entry leaves no vertical
     /// direction, so the game runs its no-speed grounding probe rather than airborne gravity.
     /// </summary>
-    /// <param name="movement">The turn on the ground the movement dispatch selected, whose movement type the turn reads.</param>
+    /// <param name="movement">The turn on the ground her pose selected, whose movement type the turn reads.</param>
     /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="samus">Samus, turning.</param>
     /// <param name="frameCounter">The update's frame counter, whose parity picks the scan's column order.</param>

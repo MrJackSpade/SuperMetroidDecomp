@@ -560,7 +560,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             context.Owner.ApplyBotwoonHeadCueForBotwoonHeadCueKind[signal.Kind](context.State);
         });
 
-    /// <summary>What <see cref="ApplyBotwoonHeadCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Head">The <c>head</c> <see cref="ApplyBotwoonHeadCue"/> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyBotwoonHeadCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="BotwoonBehavior"/> reacting.</param>

@@ -596,7 +596,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             return context.Owner.ApplyTorizoCueForTorizoCueKind[signal.Kind](context.Occupant, context.Torizo, context.State, context.Inputs);
         });
 
-    /// <summary>What <see cref="ApplyTorizoCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Torizo">The <c>torizo</c> <see cref="ApplyTorizoCue"/> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyTorizoCue</c> was handed.</param>

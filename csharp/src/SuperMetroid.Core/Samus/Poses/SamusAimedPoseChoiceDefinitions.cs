@@ -46,7 +46,7 @@ internal static class SamusAimedPoseChoiceDefinitions
 
     /// <summary>
     /// The turn a standing or running pose takes, by the direction it aims, over all ten: a straight-down aim turns as the
-    /// diagonal-down aim facing its way does, as the cartridge's turning table gives it.
+    /// diagonal-down aim facing its way does, as the game's turning table gives it.
     /// </summary>
     internal static IdentityTable<Shot, SamusPoseId> StandingTurns { get; } = new(new Dictionary<Shot, SamusPoseId>
     {
@@ -64,7 +64,7 @@ internal static class SamusAimedPoseChoiceDefinitions
 
     /// <summary>
     /// The turn a crouching pose takes, by the direction it aims, over all ten: a straight-down aim turns as the
-    /// diagonal-down aim facing its way does, as the cartridge's turning table gives it.
+    /// diagonal-down aim facing its way does, as the game's turning table gives it.
     /// </summary>
     internal static IdentityTable<Shot, SamusPoseId> CrouchingTurns { get; } = new(new Dictionary<Shot, SamusPoseId>
     {
@@ -113,7 +113,7 @@ internal static class SamusAimedPoseChoiceDefinitions
     });
 
     /// <summary>
-    /// The landing a jump or fall that can shoot takes, by the direction it aims, over all ten as the cartridge's landing
+    /// The landing a jump or fall that can shoot takes, by the direction it aims, over all ten as the game's landing
     /// table gives them: a straight-down aim lands in the normal landing facing its way, Shoot held or not. Compact
     /// straight-down poses land through the compact landing, which needs the room's blocks, and takes the same poses.
     /// </summary>

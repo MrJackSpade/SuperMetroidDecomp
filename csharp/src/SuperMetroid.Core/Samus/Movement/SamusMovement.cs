@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// The movement the pose movement dispatch selects for Samus's pose by its movement type (#2553), handed to the step that
+/// The movement Samus's pose selects by its movement type (#2553), handed to the step that
 /// serves it. Each movement is its own type, so a step is handed only a movement it serves and reads the movement type
 /// from it, never checking Samus's pose again for a selection the dispatch already made.
 /// </summary>

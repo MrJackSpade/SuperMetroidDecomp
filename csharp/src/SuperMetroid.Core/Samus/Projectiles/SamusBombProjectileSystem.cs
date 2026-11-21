@@ -789,7 +789,7 @@ public sealed class SamusBombProjectileSystem
             // The game walks the cross by the blocks' places in the level data, so a member past a row's
             // end is the next row's first block and one before a row's start the row above's last (RoomReadingOrder),
             // which a bomb at a room's open side edge reaches (#2553). A member before the room's first block or past its
-            // last row would read outside the level data, which no modelled state holds; the cross takes the blocks inside
+            // last row would read outside the level data, which no state holds; the cross takes the blocks inside
             // the room alone.
             if (RoomReadingOrder.Step(center, member, terrain.Level.Size.X) is { } block && block.Y < terrain.Level.Size.Y)
                 ReactToBombedBlock(terrain, block, placed.Type);
@@ -906,7 +906,7 @@ public sealed class SamusBombProjectileSystem
             ?? throw new InvalidOperationException("An inactive bomb has no animation to play.");
         if (SamusProjectilePlayback.StepToNewFrame(animation) is { } frame)
         {
-            // A bomb shows each frame its animation reaches, as the game's instruction list does.
+            // A bomb shows each frame its animation reaches, as the game's animation does.
             bomb.Sprite = _artwork.ProjectileFrames.Resolve(frame);
             bomb.Radius = SamusProjectileFrameDefinitions.Radius(frame);
             return;

@@ -463,7 +463,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             context.Owner.ApplySporeSpawnCueForSporeSpawnCueKind[signal.Kind](context.Body, context.State, context.Samus);
         });
 
-    /// <summary>What <see cref="ApplySporeSpawnCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Body">The <c>body</c> <see cref="ApplySporeSpawnCue"/> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplySporeSpawnCue</c> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplySporeSpawnCue</c> was handed.</param>

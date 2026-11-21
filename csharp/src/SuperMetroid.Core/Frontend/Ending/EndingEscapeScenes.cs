@@ -100,7 +100,7 @@ internal sealed class EndingEscapeScenes
         [EndingSceneCue.WaitForFlyaway] = (wrapper, cue) =>
         {
             // The right-hand stars wait for the flyaway to carry them away: the cue moves the actor raising it into the
-            // waiting starfield motion, as the cartridge's instruction sets its function; the stars have not moved before.
+            // waiting starfield motion, as the game's animation sets it; the stars have not moved before.
             wrapper.Motion = EndingFlyawayStarsMotion.WaitingFromSpawn();
         },
         [EndingSceneCue.FadeExplosionColours] = (wrapper, cue) =>

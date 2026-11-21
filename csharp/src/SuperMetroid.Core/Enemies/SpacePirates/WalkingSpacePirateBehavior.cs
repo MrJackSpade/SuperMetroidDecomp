@@ -89,10 +89,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 walker.Heading = begin.Heading;
                 return null;
             },
-            // The walking pirates' one signal chooses their movement.
             Signal: static (_, context) => SelectWalkingSpacePirateMovement(context.Place, context.Samus));
 
-    /// <summary>What <see cref="ApplyWalkingSpacePirateCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <see cref="ApplyWalkingSpacePirateCue"/> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplyWalkingSpacePirateCue</c> was handed.</param>

@@ -21,7 +21,7 @@ public static class SamusMorphBallMovement
     /// Executes <see cref="SamusMovementType.MorphBallGround"/> or <see cref="SamusMovementType.SpringBallGround"/>
     /// movement, the one <paramref name="movement"/> is.
     /// </summary>
-    /// <param name="movement">The grounded ball's movement the movement dispatch selected, whose movement type it reads.</param>
+    /// <param name="movement">The grounded ball's movement her pose selected, whose movement type it reads.</param>
     /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="samus">Samus, a grounded ball.</param>
     /// <param name="frameCounter">The update's frame counter, whose parity picks the scan's column order.</param>
@@ -94,7 +94,7 @@ public static class SamusMorphBallMovement
     /// Executes <see cref="SamusMovementType.MorphBallFalling"/> or <see cref="SamusMovementType.SpringBallFalling"/>
     /// movement, the one <paramref name="movement"/> is.
     /// </summary>
-    /// <param name="movement">The falling ball's movement the movement dispatch selected, whose movement type it reads.</param>
+    /// <param name="movement">The falling ball's movement her pose selected, whose movement type it reads.</param>
     /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="samus">Samus, a falling ball.</param>
     /// <param name="controllerInput">The update's held input.</param>
@@ -188,7 +188,7 @@ public static class SamusMorphBallMovement
     }
 
     /// <summary>Executes <see cref="SamusMovementType.SpringBallInAir"/> movement, which only the rising Spring Ball jump poses move by.</summary>
-    /// <param name="movement">The Spring Ball jump's movement the movement dispatch selected, whose movement type it reads.</param>
+    /// <param name="movement">The Spring Ball jump's movement her pose selected, whose movement type it reads.</param>
     /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="samus">Samus, a rising Spring Ball.</param>
     /// <param name="controllerInput">The update's held input.</param>

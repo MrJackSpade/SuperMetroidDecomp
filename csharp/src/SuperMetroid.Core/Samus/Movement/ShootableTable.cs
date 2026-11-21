@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
 /// The game's one shootable reaction table, which a bomb and the grapple beam read in shootable air and shootable blocks
-/// alike ($94:9E55, $94:9E73, #2553): each reaction sets off its own room object, the gate triggers, blue door caps,
+/// alike (#2553): each reaction sets off its own room object, the gate triggers, blue door caps,
 /// resident and item triggers and the escape animals' wall theirs, and every other reaction its shot block.
 /// </summary>
 internal static class ShootableTable

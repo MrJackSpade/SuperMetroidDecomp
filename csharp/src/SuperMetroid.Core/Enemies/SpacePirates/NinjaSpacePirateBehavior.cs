@@ -509,7 +509,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         },
         Signal: static (signal, context) => context.Owner.NinjaSignals[signal.Kind](context.Place, context.State, context.Samus));
 
-    /// <summary>What <see cref="ApplyNinjaSpacePirateCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <see cref="ApplyNinjaSpacePirateCue"/> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyNinjaSpacePirateCue</c> works with.</param>

@@ -273,7 +273,7 @@ internal sealed class TorizoAttacks
                 return ApplyTorizoProjectileCueCasesForTorizoProjectileCueKind[signal.Kind](context);
             });
 
-        /// <summary>What <see cref="ApplyTorizoProjectileCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+        /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
         /// <param name="Audio">The <c>audio</c> <see cref="ApplyTorizoProjectileCue"/> was handed.</param>
         /// <param name="Projectiles">The <c>projectiles</c> <c>ApplyTorizoProjectileCue</c> was handed.</param>
         /// <param name="Projectile">The <c>projectile</c> <c>ApplyTorizoProjectileCue</c> was handed.</param>

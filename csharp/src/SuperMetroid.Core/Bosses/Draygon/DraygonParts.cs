@@ -192,7 +192,7 @@ internal sealed class DraygonParts
         TailWhipHit: static (_, context) => context.Owner.ApplyDraygonTailWhipHit(context.State, context.Samus),
         SpawnGoop: static (goop, context) => context.Owner.SpawnDraygonGoop(context.State, goop.Direction));
 
-    /// <summary>What <see cref="ApplyDraygonCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="State">The <c>state</c> <see cref="ApplyDraygonCue"/> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplyDraygonCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="DraygonParts"/> reacting.</param>

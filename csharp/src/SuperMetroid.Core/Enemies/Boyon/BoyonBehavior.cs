@@ -174,7 +174,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The bounce cue: request the bounce sound, all its instruction does. The bouncing animation that raises it starts only
+    /// The bounce cue: request the bounce sound, all the cue does. The bouncing animation that raises it starts only
     /// as the Boyon starts bouncing, so the arc it permits is already under way (#2432).
     /// </summary>
     private void PlayBoyonBounceSound() =>

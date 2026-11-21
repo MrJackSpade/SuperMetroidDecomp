@@ -55,7 +55,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             },
             Signal: static (signal, context) => context.Owner.AlcoonSignals[signal.Kind](context.Place, context.State, context.Level));
 
-    /// <summary>What <see cref="ApplyAlcoonCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <see cref="ApplyAlcoonCue"/> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyAlcoonCue</c> was handed.</param>

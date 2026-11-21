@@ -254,7 +254,7 @@ internal sealed class MotherBrainProjectiles
                 context.Owner.ApplyMotherBrainEffectCueForMotherBrainEffectCueKind[signal.Kind](context.Projectile);
             });
 
-        /// <summary>What <see cref="ApplyMotherBrainEffectCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+        /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
         /// <param name="Projectile">The <c>projectile</c> <see cref="ApplyMotherBrainEffectCue"/> was handed.</param>
         /// <param name="Owner">The <see cref="MotherBrainProjectileBehavior"/> reacting.</param>
         private readonly record struct ApplyMotherBrainEffectCueContext(EnemyProjectile Projectile, MotherBrainProjectileBehavior Owner);

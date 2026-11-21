@@ -232,7 +232,7 @@ internal sealed class CrocomireFight
         },
         Signal: static (signal, context) => context.Owner.ApplyCrocomireBodySignal(context.State, context.Samus, context.Level, signal.Kind));
 
-    /// <summary>What <see cref="ApplyCrocomireBodyCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="State">The Crocomire encounter whose body runs the animation.</param>
     /// <param name="Body">The <c>body</c> <see cref="ApplyCrocomireBodyCue"/> works with.</param>
     /// <param name="CameraX">The camera's X, which the on-screen movement tests use.</param>

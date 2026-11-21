@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Input;
 /// The playback holds only the recording: where it is, how long the current input lasts and the actions it presses in
 /// the player's place. Its owner may switch it to another recording before a step while <see cref="IsPlaying"/> (the
 /// diagonal shinespark's demonstration continues into its second recording on its first step that plays), and then
-/// steps it; a signalling recording, which only the intro plays, runs the routine its owner loaded it with as it ends
+/// steps it; a signalling recording, which only the intro plays, runs the action its owner loaded it with as it ends
 /// (an intro scene ends on it). The playback's own frame
 /// hold gates the recording, so each input lasts exactly as long as its recorded input.
 /// </remarks>
@@ -72,7 +72,7 @@ public sealed class DemoInputState
 
     /// <summary>
     /// Loads the signalling <paramref name="recording"/> as <see cref="Load(DemoInputRecordingId)"/> loads any: its signal
-    /// runs the owner's end routine, <paramref name="signalled"/>, as its inputs run out, before its input ends.
+    /// runs the owner's end action, <paramref name="signalled"/>, as its inputs run out, before its input ends.
     /// </summary>
     public void Load(DemoSignallingRecordingId recording, Action signalled) =>
         Start(DemoPlaybackPosition.Start(recording, signalled));
@@ -86,7 +86,7 @@ public sealed class DemoInputState
 
     /// <summary>
     /// Plays one step of the recording and presses the resulting actions in the player's place; a signalling recording's
-    /// signal runs the routine its owner loaded it with.
+    /// signal runs the action its owner loaded it with.
     /// </summary>
     public void Step()
     {
@@ -110,7 +110,7 @@ public sealed class DemoInputState
 
     /// <summary>
     /// Plays the input <paramref name="position"/> names, or ends the recording as it says once its inputs have run out:
-    /// a signalling recording runs its owner's end routine first; then a held last input plays again at once, and a stop
+    /// a signalling recording runs its owner's end action first; then a held last input plays again at once, and a stop
     /// ends the input.
     /// </summary>
     private void PlayNextInput(DemoPlaybackPosition position)

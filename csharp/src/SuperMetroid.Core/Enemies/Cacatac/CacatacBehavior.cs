@@ -54,7 +54,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             context.Owner.ApplyCacatacCueForCacatacCueKind[signal.Kind](context.State);
         });
 
-    /// <summary>What <see cref="ApplyCacatacCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <see cref="ApplyCacatacCue"/> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyCacatacCue</c> was handed.</param>

@@ -29,7 +29,7 @@ public static class RoomStateSelection
     /// <summary>The state choice of <paramref name="room"/>, one of the game's rooms as every room is.</summary>
     internal static RoomStateChoice ChoiceFor(RoomDefinition room) => Choices[room];
 
-    /// <summary>The compiled state choices, checked to name every catalog room and no other.</summary>
+    /// <summary>The state choices, checked to name every catalog room and no other.</summary>
     /// <exception cref="InvalidOperationException">The choices name another set of rooms than the catalog's.</exception>
     private static Dictionary<RoomDefinition, RoomStateChoice> CheckedChoices()
     {

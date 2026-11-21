@@ -605,7 +605,7 @@ internal sealed class EnemyDeathsAndDrops
             return null;
         },
         // The explosions' animations raise the cue, which reads the explosion its place last held, as the game's
-        // instruction reads the place's explosion variables.
+        // death cue reads the place's explosion.
         [EnemyDeathAndDropCueKind.BecomePickup] = (projectile, samus) => ConvertEnemyDeathExplosionToPickup(projectile, samus),
         [EnemyDeathAndDropCueKind.RespawnEnemy] = (projectile, samus) =>
         {

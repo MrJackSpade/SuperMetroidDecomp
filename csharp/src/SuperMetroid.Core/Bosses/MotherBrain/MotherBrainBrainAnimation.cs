@@ -79,6 +79,5 @@ public sealed class MotherBrainBrainAnimation
         },
         Paused: static (paused, owner) => owner.Clock.Pause(paused.Duration),
         Held: static (_, owner) => owner.Clock.Stop(),
-        // An ended animation takes no further step; her brain keeps the picture it showed last.
         Ended: static (_, owner) => owner.Clock.Stop());
 }

@@ -24,7 +24,7 @@ public sealed class DraygonHealthBand
 
     /// <summary>
     /// The band Draygon is in at <paramref name="health"/>: the first, highest first, whose least health his health reaches,
-    /// as the cartridge's threshold search ($A5:9701) finds it, so any health at or above the highest band's least is in
+    /// as the game's threshold search finds it, so any health at or above the highest band's least is in
     /// that band.
     /// </summary>
     internal static DraygonHealthBand Of(int health) =>

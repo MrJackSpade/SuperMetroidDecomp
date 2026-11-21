@@ -363,7 +363,7 @@ internal static class SamusPosturePoseTransitions
     /// rolling animation exactly as the morph-ball pose setup requests.
     /// </summary>
     /// <remarks>
-    /// Its callers change between stable ball poses, which all share one animation, so the change keeps the frame and timer
+    /// It changes between stable ball poses, which all share one animation, so the change keeps the frame and timer
     /// running.
     /// </remarks>
     public static void ApplyMorphBallPoseChange(SamusState samus, SamusPoseId targetPose)

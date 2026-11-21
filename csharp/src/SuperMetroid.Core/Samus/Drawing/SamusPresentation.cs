@@ -106,7 +106,7 @@ internal sealed class SamusPresentation
     /// same update.
     /// </summary>
     /// <remarks>
-    /// The swing puts her animation on the picture's frame whatever her pose, as the cartridge's swing writes its frame:
+    /// The swing puts her animation on the picture's frame whatever her pose, as the game's swing sets its frame:
     /// a connection's pose that an animation or hurt transition suppressed leaves the swing running in another pose
     /// (<see cref="World.SamusPoseTransitionPhase"/>), whose animation then reads the frame.
     /// </remarks>

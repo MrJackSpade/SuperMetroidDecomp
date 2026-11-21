@@ -74,7 +74,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
             });
 
-    /// <summary>What <see cref="ApplyFakeKraidCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <see cref="ApplyFakeKraidCue"/> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplyFakeKraidCue</c> was handed.</param>

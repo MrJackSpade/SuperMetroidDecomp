@@ -137,7 +137,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The wind-up's finishing cue (#2450): the dive is ready, and the Skree starts it on its next update. The cue moves the
-    /// Skree into its ready phase as the cartridge's instruction sets the attack-ready flag, and the ready phase's step
+    /// Skree into its ready phase as the game's animation sets the attack-ready flag, and the ready phase's step
     /// consumes it, launching the dive.
     /// </summary>
     private static void ReadySkreeAttack(SkreeEnemyState state) => state.Action = SkreeAction.AttackReady;

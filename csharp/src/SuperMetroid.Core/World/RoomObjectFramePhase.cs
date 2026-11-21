@@ -154,9 +154,6 @@ internal sealed class RoomObjectFramePhase
         /// <inheritdoc/>
         public void ShowEquippedBeamColours() => SamusProjectileSystem.ShowBeamShade(phase._player.Colours, samus.EquippedBeams);
 
-        // Each below opens as its box opens: the step's first, or the next once the box before it has closed and resolved
-        // what waited on it, so no box is open and nothing waits.
-
         /// <inheritdoc/>
         /// <remarks>A second suit's box closes into its own transformation, which restarts the first's, as the game's does.</remarks>
         public void AwaitSuitTransformation(SamusSuitPickupKind suit) =>

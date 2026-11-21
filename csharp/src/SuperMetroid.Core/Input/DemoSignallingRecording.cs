@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Input;
 
 /// <summary>
 /// A recording that signals its owner as it ends (#1300, #2553): its inputs play as any recording's do, then its signal
-/// runs the routine its owner loaded it with, then its input ends.
+/// runs the action its owner loaded it with, then its input ends.
 /// </summary>
 public sealed record DemoSignallingRecording
 {
@@ -19,6 +19,6 @@ public sealed record DemoSignallingRecording
     /// <summary>The inputs, which stop once played: the signal comes just before they stop.</summary>
     public DemoRecording Recording { get; }
 
-    /// <summary>What the recording signals as it ends: the routine its owner runs.</summary>
+    /// <summary>What the recording signals as it ends: the action its owner runs.</summary>
     public DemoInputCue Signal { get; }
 }

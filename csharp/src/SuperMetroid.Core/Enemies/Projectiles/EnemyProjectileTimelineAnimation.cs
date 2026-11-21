@@ -81,7 +81,7 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
     /// <summary>
     /// What <c>NextFrame</c> makes of each outcome of a projectile animation, which never pauses, built once (#2553): a frame
     /// shows for its duration or for good, a rest holds the timeline, and the animation's end deletes the projectile, as the
-    /// cartridge's projectile instruction list deletes it at its end ($86:8154).
+    /// game's projectile animation deletes it at its end.
     /// </summary>
     private static UnpausedAnimationShownCases<TSegment, TFrame, EnemyProjectileTimelineAnimation<TSegment, TFrame, TEvent>, EnemyProjectileFrameStep> NextFrameCases { get; } = new(
         Frame: static (shownFrame, timeline) => new EnemyProjectileFrameStep.Show(timeline.Present(shownFrame.Shown), shownFrame.Duration, timeline.Placement(shownFrame.Shown)),

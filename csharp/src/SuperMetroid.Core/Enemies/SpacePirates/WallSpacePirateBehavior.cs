@@ -246,14 +246,13 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             context.State.Wall = begin.Wall;
             return null;
         },
-        // The wall pirates' one signal plays their jump's sound.
         Signal: static (_, context) =>
         {
             context.Owner.Walking.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);
             return null;
         });
 
-    /// <summary>What <see cref="ApplyWallSpacePirateCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <see cref="ApplyWallSpacePirateCue"/> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyWallSpacePirateCue</c> works with.</param>

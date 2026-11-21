@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// Where a demo's playback stands (#1600, #2553): the recording, the input it plays next, and the routine it runs as its
+/// Where a demo's playback stands (#1600, #2553): the recording, the input it plays next, and the action it runs as its
 /// inputs run out (a signalling recording's owner's, or none).
 /// </summary>
 public readonly record struct DemoPlaybackPosition
@@ -9,7 +9,7 @@ public readonly record struct DemoPlaybackPosition
     /// <summary>A value of its parts; only its own operations make one.</summary>
     /// <param name="recording">The recording playing.</param>
     /// <param name="nextInput">The input it plays when the current one runs out; past the last, the recording ends.</param>
-    /// <param name="ends">The routine the recording runs as its inputs run out, before it ends as it says.</param>
+    /// <param name="ends">The action the recording runs as its inputs run out, before it ends as it says.</param>
     private DemoPlaybackPosition(DemoRecording recording, int nextInput, Action ends)
     {
         Recording = recording;
@@ -20,7 +20,7 @@ public readonly record struct DemoPlaybackPosition
     /// <summary>The recording playing.</summary>
     public DemoRecording Recording { get; }
 
-    /// <summary>The routine the recording runs as its inputs run out, before it ends as it says.</summary>
+    /// <summary>The action the recording runs as its inputs run out, before it ends as it says.</summary>
     public Action Ends { get; }
 
     /// <summary>The input it plays when the current one runs out; past the last, the recording ends.</summary>

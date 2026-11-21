@@ -23,7 +23,7 @@ internal abstract record KraidBackdropShown
     /// <typeparam name="TContext">What either reaction reads besides the colours.</typeparam>
     /// <param name="settled">Reacts to settled colours.</param>
     /// <param name="fading">Reacts to a fade.</param>
-    /// <param name="context">What either reaction reads besides the colours, handed to it so neither is built per call.</param>
+    /// <param name="context">What either reaction reads besides the colours, handed to it so both are built once.</param>
     internal abstract void React<TContext>(Action<Settled, TContext> settled, Action<Fading, TContext> fading, TContext context);
 
     /// <summary>

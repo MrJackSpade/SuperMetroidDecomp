@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// The five X-ray reveal shapes that copy blocks (#2553): each shows the blocks it copies, as its visual lays them out; the
+/// The five X-ray reveal shapes that copy blocks (#2553): each shows the blocks it copies, as its visual places them; the
 /// two extension shapes traverse an extension instead and copy none (<see cref="XrayRevealShape"/>).
 /// </summary>
 public enum XrayRevealCopyShape

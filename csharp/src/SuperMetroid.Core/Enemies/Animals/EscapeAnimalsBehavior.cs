@@ -185,7 +185,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             return ApplyEscapeEtecoonCueForEscapeEtecoonCueKind[signal.Kind](context.State);
         });
 
-    /// <summary>What <see cref="ApplyEscapeEtecoonCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Samus">The <c>samus</c> <see cref="ApplyEscapeEtecoonCue"/> was handed.</param>
     /// <param name="Place">The <c>place</c> <c>ApplyEscapeEtecoonCue</c> was handed.</param>
     /// <param name="State">The <c>state</c> <c>ApplyEscapeEtecoonCue</c> was handed.</param>
@@ -214,7 +214,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             return null;
         });
 
-    /// <summary>What <see cref="ApplyEscapeDachoraCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Samus">The <c>samus</c> <see cref="ApplyEscapeDachoraCue"/> was handed.</param>
     /// <param name="Place">The <c>place</c> <c>ApplyEscapeDachoraCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="EscapeAnimalsBehavior"/> reacting.</param>

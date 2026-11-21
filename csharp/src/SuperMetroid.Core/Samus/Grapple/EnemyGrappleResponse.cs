@@ -25,7 +25,7 @@ public abstract record EnemyGrappleResponse
 
     /// <summary>
     /// The enemy has no reaction of the beam's own to the grapple beam (#2283, #2558): the elevator, whose grapple behaviour is
-    /// its main behaviour. The beam meets it as the cartridge's endpoint test does ($A0:9E9A): the enemy is held grappled,
+    /// its main behaviour. The beam meets it as the game's endpoint test does: the enemy is held grappled,
     /// and the beam, finding none of the shared grapple behaviours, reads it as it reads an enemy with no interaction; the
     /// held enemy's own behaviour carries on, and nothing releases it.
     /// </summary>

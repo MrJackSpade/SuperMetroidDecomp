@@ -90,7 +90,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             },
             Signal: static (signal, context) => context.Owner.YardSignals[signal.Kind](context.State, context.Playing));
 
-    /// <summary>What <see cref="ApplyYardCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Place">The Yard.</param>
     /// <param name="State">The Yard's state.</param>
     /// <param name="Playing">Where the play stands just past the cue.</param>

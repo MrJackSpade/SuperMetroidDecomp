@@ -158,7 +158,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The launch crouch's finishing cue (#2439): the attack is ready, and the Metaree launches it on its next update. The
-    /// cue moves the Metaree into its ready phase as the cartridge's instruction sets the attack-ready flag, and the ready
+    /// cue moves the Metaree into its ready phase as the game's animation sets the attack-ready flag, and the ready
     /// phase's step consumes it, launching the attack.
     /// </summary>
     private static void ReadyMetareeAttack(MetareeEnemyState state) => state.Action = MetareeAction.AttackReady;

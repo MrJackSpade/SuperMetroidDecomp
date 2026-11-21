@@ -539,7 +539,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory, I
             context.Owner.ApplyMagdolliteCueForMagdolliteCueKind[signal.Kind](context.Occupant, context.Place, context.State);
         });
 
-    /// <summary>What <see cref="ApplyMagdolliteCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The <c>place</c> <see cref="ApplyMagdolliteCue"/> was handed.</param>
     /// <param name="Camera">The <c>camera</c> <c>ApplyMagdolliteCue</c> was handed.</param>

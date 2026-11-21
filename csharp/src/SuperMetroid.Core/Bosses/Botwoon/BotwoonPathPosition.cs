@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// </summary>
 internal sealed class BotwoonPathPosition
 {
-    /// <summary>Stands at <paramref name="step"/> of <paramref name="path"/>, which the caller has placed in range.</summary>
+    /// <summary>Stands at <paramref name="step"/> of <paramref name="path"/>, which lies in range.</summary>
     private BotwoonPathPosition(BotwoonPathDefinition path, int step)
     {
         Path = path;

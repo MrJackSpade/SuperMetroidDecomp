@@ -62,7 +62,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
             });
 
-    /// <summary>What <see cref="ApplyMamaTurtleCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Place">The <c>place</c> <see cref="ApplyMamaTurtleCue"/> was handed.</param>
     /// <param name="Owner">The <see cref="MamaTurtleBehavior"/> reacting.</param>
     private readonly record struct ApplyMamaTurtleCueContext(RoomEnemyPlace Place, MamaTurtleBehavior Owner);

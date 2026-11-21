@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Checks, once as a species' compiled collision loads, that its hitboxes name only the touch and shot reactions its
+/// Checks, once as a species' collision loads, that its hitboxes name only the touch and shot reactions its
 /// handlers answer (#2553), so a handler distinguishes those reactions alone and has no arm for another.
 /// </summary>
 internal static class EnemyHitboxReactionCheck

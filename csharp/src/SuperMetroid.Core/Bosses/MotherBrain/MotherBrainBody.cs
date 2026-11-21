@@ -203,7 +203,7 @@ internal sealed class MotherBrainBody
             context.Owner.ApplyMotherBrainBodyCueForMotherBrainBodyCueKind[signal.Kind](context.State, context.Samus);
         });
 
-    /// <summary>What <see cref="ApplyMotherBrainBodyCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="State">The <c>state</c> <see cref="ApplyMotherBrainBodyCue"/> was handed.</param>
     /// <param name="Samus">The <c>samus</c> <c>ApplyMotherBrainBodyCue</c> was handed.</param>
     /// <param name="Owner">The <see cref="MotherBrainBody"/> reacting.</param>

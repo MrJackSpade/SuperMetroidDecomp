@@ -121,7 +121,7 @@ internal sealed class RidleyBodyAnimation
             return context.Animation.ApplyCueForRidleyBodyCueKind[signal.Kind](context.Place, context.Samus, context.Owner, context.Flight);
         });
 
-    /// <summary>What <see cref="ApplyCue"/>'s cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Place">Ridley's body.</param>
     /// <param name="Flight">The <c>flight</c> <see cref="ApplyCue"/> works with.</param>
     /// <param name="Ridley">Ridley's encounter.</param>

@@ -18,7 +18,7 @@ public static class SamusPostureMovement
     /// Runs crouching movement for the poses of the crouching movement type, the crouch family unaimed or aimed and the
     /// X-ray scope's crouching poses alike: as the game's crouching movement does, it reads only the way the pose faces.
     /// </summary>
-    /// <param name="movement">The crouch the movement dispatch selected.</param>
+    /// <param name="movement">The crouch her pose selected.</param>
     /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="samus">Samus, crouching.</param>
     /// <param name="frameCounter">The update's frame counter, whose parity picks the scan's column order.</param>

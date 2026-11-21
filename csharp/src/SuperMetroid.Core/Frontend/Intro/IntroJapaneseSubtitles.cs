@@ -22,7 +22,7 @@ internal sealed class IntroJapaneseSubtitles
 
     /// <summary>
     /// The subtitle showing, the page it belongs to and what it does on its next update, or null while none is showing: one
-    /// slot, so no two subtitles show at once (#2553).
+    /// at a time, so no two subtitles show at once (#2553).
     /// </summary>
     private ShowingSubtitle? showing;
 

@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// </summary>
 public static class BotwoonHealthBandDefinitions
 {
-    // Declared from his last band up: each band is built with the band he shows after it.
     /// <summary>Botwoon below an eighth of his health, his last colours.</summary>
     private static BotwoonHealthBand BelowEighth { get; } = new(375, "below-eighth", null);
 

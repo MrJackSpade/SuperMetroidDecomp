@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// What firing a beam shot does once its muzzle collision has run (#1923, #2553): it installs the behaviour the shot runs
+/// What firing a beam shot does once its muzzle collision has run (#1923, #2553): it gives the shot the behaviour it runs
 /// (<see cref="SamusShotBehavior"/>), or, for a Spazer and Plasma shot whose effect lies outside the emulation scope limit,
 /// refuses the shot (<see cref="ShotRefusedWhenFired"/>, #1500).
 /// </summary>

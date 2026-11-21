@@ -27,12 +27,13 @@ $fixtures = Join-Path $PSScriptRoot 'fixtures'
 $GeneratedFiles = @('.editorconfig', 'Directory.Build.props')
 
 function Get-FixtureFiles([string]$Root) {
-    # Every file under $Root as a sorted list of forward-slash relative paths, less build output and generated files.
+    # Every file under $Root as a sorted list of forward-slash relative paths, less build output (any project's bin/
+    # and obj/, a fixture may hold several projects) and generated files.
     $prefix = [IO.Path]::GetFullPath($Root).TrimEnd('\', '/') + [IO.Path]::DirectorySeparatorChar
     $files = foreach ($file in Get-ChildItem -LiteralPath $Root -Recurse -File -Force) {
         $relative = $file.FullName.Substring($prefix.Length).Replace('\', '/')
-        $first = $relative.Split('/')[0]
-        if ($first -in @('bin', 'obj') -or $GeneratedFiles -contains $relative) { continue }
+        $segments = $relative.Split('/')
+        if (($segments | Where-Object { $_ -in @('bin', 'obj') }) -or $GeneratedFiles -contains $relative) { continue }
         $relative
     }
     return @($files | Sort-Object { $_ } -CaseSensitive)

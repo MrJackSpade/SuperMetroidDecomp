@@ -361,7 +361,7 @@ public static class XrayRevealVisualFiles
     {
         /// <summary>The document of <paramref name="appearance"/>.</summary>
         internal static AppearanceDocument Of(RoomBlockAppearance appearance) =>
-            new(appearance.ShowsNothing ? null : appearance.Block, appearance.Mirroring);
+            new(appearance.Shows == RoomBlockShown.Nothing ? null : appearance.Block, appearance.Mirroring);
 
         /// <summary>The appearance the document names.</summary>
         /// <exception cref="ArgumentOutOfRangeException">The block is negative, or the mirroring is not the two reflections.</exception>

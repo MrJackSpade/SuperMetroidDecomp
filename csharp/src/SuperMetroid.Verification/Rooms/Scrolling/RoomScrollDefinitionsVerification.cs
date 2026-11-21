@@ -58,7 +58,7 @@ internal static class RoomScrollDefinitionsVerification
                 // The table's fifty bytes are compared as the cells the camera reads them as: the room's own screens
                 // the catalog authors, then the installed cells the load writes past them (#2356).
                 expected = RoomScrollStates.FromStorageBytes(native);
-                RoomScrollDefinition layout = RoomScrollDefinitions.Get(scrollPointer);
+                var layout = AssertIs<RoomScrollDefinition.ExplicitLayout>(RoomScrollDefinitions.Get(scrollPointer), $"scroll table $8F:{scrollPointer:X4}");
                 AssertEqual(header.Size.X * header.Size.Y, layout.Cells.Count,
                     $"compiled explicit scroll table $8F:{scrollPointer:X4} authors the room's own screens");
                 AssertTrue(expected.SequenceEqual([.. layout.Cells, .. pastScreens.After(layout.Name)]),

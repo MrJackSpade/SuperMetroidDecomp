@@ -65,7 +65,7 @@ public static class RoomObjectSetupBlockFiles
         foreach (RoomObjectSetupBlock block in EntryOrder)
         {
             RoomBlockAppearance shown = Picture(bus, block);
-            entries.Add(new BlockEntry(Id(block), shown.ShowsNothing ? null : shown.Block, shown.Mirroring));
+            entries.Add(new BlockEntry(Id(block), shown.Shows == RoomBlockShown.Nothing ? null : shown.Block, shown.Mirroring));
         }
         Directory.CreateDirectory(directory);
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(new BlockDocument(FormatVersion, entries.ToArray()), JsonOptions);

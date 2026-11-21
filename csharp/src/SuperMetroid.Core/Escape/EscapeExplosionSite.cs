@@ -34,7 +34,7 @@ public abstract class EscapeExplosionSite
 
     /// <summary>Whether an explosion placed over <paramref name="block"/> of <paramref name="level"/> goes off.</summary>
     internal bool GoesOffOver(RoomLevelData level, Position16<RoomBlocks> block) =>
-        !OnlyOverScenery || !Ensure.NotNull(level).GetObjectCollisionBlock(block).Terrain.Appearance.ShowsNothing;
+        !OnlyOverScenery || Ensure.NotNull(level).GetObjectCollisionBlock(block).Terrain.Appearance.Shows != RoomBlockShown.Nothing;
 
     /// <summary>The kind an explosion over <paramref name="block"/> shows when its random draw leaves the kind open.</summary>
     internal RoomEffectActorKind KindLeftOpen(Position16<RoomBlocks> block) =>

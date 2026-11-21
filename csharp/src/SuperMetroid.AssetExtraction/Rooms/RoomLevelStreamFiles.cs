@@ -301,10 +301,10 @@ public static class RoomLevelStreamFiles
     /// <exception cref="InvalidDataException">The appearance is terrain beyond the room, which no installed level holds.</exception>
     private static void WriteAppearance(BinaryWriter writer, RoomBlockAppearance appearance)
     {
-        if (appearance.IsBeyondRoom)
+        if (appearance.Shows == RoomBlockShown.BeyondRoom)
             throw new InvalidDataException("An installed level holds no terrain beyond the room: the game fills that space itself.");
-        writer.Write(ShownCodes[appearance.ShowsNothing ? Shown.Nothing : Shown.Block]);
-        if (appearance.ShowsBlock)
+        writer.Write(ShownCodes[appearance.Shows == RoomBlockShown.Nothing ? Shown.Nothing : Shown.Block]);
+        if (appearance.Shows == RoomBlockShown.Block)
             writer.Write(checked((ushort)appearance.Block));
         writer.Write(checked((byte)MirroringCodes.IndexOf(appearance.Mirroring)));
     }

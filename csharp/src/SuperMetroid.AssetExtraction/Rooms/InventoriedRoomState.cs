@@ -219,14 +219,14 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         var placed = new HashSet<int>();
         foreach (RoomBlockAppearance block in level.Foreground.Span)
         {
-            if (block.ShowsBlock)
+            if (block.Shows == RoomBlockShown.Block)
                 placed.Add(block.Block);
         }
         if (state.BackgroundScrollModes.Source == RoomBackgroundSource.Level)
         {
             foreach (RoomBlockAppearance block in level.Background.Span)
             {
-                if (block.ShowsBlock)
+                if (block.Shows == RoomBlockShown.Block)
                     placed.Add(block.Block);
             }
         }

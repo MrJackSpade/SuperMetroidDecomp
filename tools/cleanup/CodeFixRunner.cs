@@ -1502,14 +1502,12 @@ internal sealed class SolutionFixer
             : throw Defect($"{provider.GetType().Name} produced {applies.Count} solution changes for {rule} in {Relative(document.FilePath!)}; expected one.");
     }
 
-    /// <summary>The code fix providers for a rule, from the fixer assemblies of the given source that the project
-    /// references.</summary>
+    /// <summary>The code fix providers for a rule, from the fixer assemblies of the given source the project's fixes
+    /// load (<see cref="FixerAssemblies"/>).</summary>
     private List<CodeFixProvider> FixersFor(Project project, FixerSource source, string rule)
     {
         var providers = new List<CodeFixProvider>();
-        foreach (string path in project.AnalyzerReferences.Select(r => r.FullPath)
-                     .Where(p => p is not null && IsFixerAssembly(Path.GetFileName(p), source))
-                     .Select(p => p!))
+        foreach (string path in FixerAssemblies(project, source))
         {
             List<CodeFixProvider>? loaded;
             // Files are planned on several threads at once; each fixer assembly is loaded once.
@@ -1521,6 +1519,28 @@ internal sealed class SolutionFixer
             providers.AddRange(loaded.Where(provider => provider.FixableDiagnosticIds.Contains(rule)));
         }
         return providers;
+    }
+
+    /// <summary>
+    /// The fixer assemblies of a source whose providers fix a project's findings: those it references. A project that
+    /// builds the repository analyzer itself (SuperMetroid.EnsureAnalyzer, its code fixes and EnsureVerification,
+    /// csharp/Directory.Build.targets) cannot reference the repository's fixes, while the code-style analyzers still
+    /// report there the rules those fixes are for (IDE0051 in the code fixes, #2599): it takes the one build of them the
+    /// rest of the solution references. A fixer works on the document it is given, whoever references it.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The project references none and the solution not exactly one.</exception>
+    private static List<string> FixerAssemblies(Project project, FixerSource source)
+    {
+        static List<string> Referenced(Project project, FixerSource source) => [.. project.AnalyzerReferences.Select(r => r.FullPath)
+            .Where(p => p is not null && IsFixerAssembly(Path.GetFileName(p), source)).Select(p => p!)];
+        var referenced = Referenced(project, source);
+        if (referenced.Count > 0 || source != FixerSource.Repository)
+            return referenced;
+        var solutionWide = project.Solution.Projects.SelectMany(other => Referenced(other, source))
+            .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        return solutionWide.Count == 1 ? solutionWide
+            : throw new InvalidOperationException($"{project.Name} references no {RepositoryFixes}, and the solution references " +
+                $"{solutionWide.Count} builds of it; expected one.");
     }
 
     /// <summary>Whether an analyzer reference's file name is a fixer assembly of the given source.</summary>

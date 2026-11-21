@@ -609,7 +609,7 @@ internal static class LookupStream3Verification
             {
                 byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.ControllerEnglish);
                 byte[] expected = (byte[])actual.Clone();
-                Position16<CharacterCells> point = document.ControllerLabelAnchors[action];
+                Position16<CharacterCells> point = document.ControllerLabelAnchors[GameOptionsPageRows.ControllerActions[action].ToString()];
                 for (int cell = 0; cell < 6; cell++)
                 {
                     MapPresentationCell source = document.ControllerLabels[GameOptionsNames.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButtons[button])][cell];

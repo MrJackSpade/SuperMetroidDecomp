@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
@@ -38,17 +39,16 @@ public static class GameOptionsPresentationExtractor
             pages.Add(GameOptionsNames.PageName(screen), Page(GameOptionsSourceDefinitions.Pages[screen]));
 
         var labels = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal);
-        for (int index = 0; index < GameOptionsPresentationDefinitions.ControllerLabelButtons.Count; index++)
+        foreach (ControllerButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
         {
-            labels.Add(GameOptionsNames.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButtons[index]), Cells(
+            labels.Add(GameOptionsNames.ControllerLabelName(button), Cells(
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                    GameOptionsSourceDefinitions.MenuBank | GameOptionsSourceDefinitions.ControllerLabelSources[index],
+                    GameOptionsSourceDefinitions.MenuBank | GameOptionsSourceDefinitions.ControllerLabelSources[button],
                     GameOptionsPageDefinitions.ControllerLabelCellCount * sizeof(ushort))));
         }
 
-        Position16<CharacterCells>[] controllerAnchors = GameOptionsPageRows.ControllerActions
-            .Select(GameOptionsPageCells.ControllerLabelAnchor)
-            .ToArray();
+        Dictionary<string, Position16<CharacterCells>> controllerAnchors = GameOptionsPageRows.ControllerActions
+            .ToDictionary(action => action.ToString(), GameOptionsPageCells.ControllerLabelAnchor, StringComparer.Ordinal);
         GameOptionsLanguageRegionDocument[] languageRegions =
             GameOptionsPageCells.LanguagePaletteRegions
                 .Select(region => new GameOptionsLanguageRegionDocument

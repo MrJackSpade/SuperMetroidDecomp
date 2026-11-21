@@ -36,8 +36,17 @@ internal static class GameOptionsSourceDefinitions
     /// ControllerButton_TilemapPointers at $82:F647: the bank-$82 label of each assignable button, X, A, B, Select, Y, L
     /// and R, each a 3-by-2 tilemap twelve bytes after the last.
     /// </summary>
-    internal static ReadOnlyCollection<ushort> ControllerLabelSources { get; } =
-        new List<ushort> { 0xf659, 0xf665, 0xf671, 0xf67d, 0xf689, 0xf695, 0xf6a1 }.AsReadOnly();
+    internal static FrozenDictionary<SuperMetroid.Core.Input.ControllerButton, ushort> ControllerLabelSources { get; } =
+        new Dictionary<SuperMetroid.Core.Input.ControllerButton, ushort>
+        {
+            [SuperMetroid.Core.Input.ControllerButton.X] = 0xf659,
+            [SuperMetroid.Core.Input.ControllerButton.A] = 0xf665,
+            [SuperMetroid.Core.Input.ControllerButton.B] = 0xf671,
+            [SuperMetroid.Core.Input.ControllerButton.Select] = 0xf67d,
+            [SuperMetroid.Core.Input.ControllerButton.Y] = 0xf689,
+            [SuperMetroid.Core.Input.ControllerButton.L] = 0xf695,
+            [SuperMetroid.Core.Input.ControllerButton.R] = 0xf6a1,
+        }.ToFrozenDictionary();
 
     /// <summary>The menu spritemap ordinal of each page's heading, as the instruction lists at $82:F47E/F48E/F49E select them.</summary>
     internal static readonly FrozenDictionary<GameOptionsPage, ushort> HeadingSpritemaps =

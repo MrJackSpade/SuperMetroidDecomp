@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 public static class GameOptionsPresentationFormat
 {
     /// <summary>Supported options-menu presentation JSON schema version: 2 holds no hidden cursor anchor (#1775).</summary>
-    public const int Version = 2;
+    public const int Version = 3;
     /// <summary>Extracted JSON filename for options artwork, highlight regions, sprite compositions, and anchors.</summary>
     public const string FileName = "options-menu.json";
     /// <summary>Import-data filename of the extracted options document: its pages, labels, compositions and layout (#1638).</summary>

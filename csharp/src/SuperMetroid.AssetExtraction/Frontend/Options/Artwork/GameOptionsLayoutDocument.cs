@@ -22,9 +22,9 @@ public record GameOptionsLayoutDocument
     /// <summary>Seven named assignable-button glyph patches, each containing six row-major cells forming a 3-by-2 tile rectangle.</summary>
     [JsonPropertyOrder(3)]
     public required Dictionary<string, MapPresentationCell[]> ControllerLabels { get; init; }
-    /// <summary>Seven controller-action glyph origins in action order, in tile units; each 3-by-2 label must fit the page.</summary>
+    /// <summary>Each of the seven controller actions' glyph origin, keyed by the action, in tile units; each 3-by-2 label must fit the page.</summary>
     [JsonPropertyOrder(4)]
-    public required Position16<CharacterCells>[] ControllerLabelAnchors { get; init; }
+    public required Dictionary<string, Position16<CharacterCells>> ControllerLabelAnchors { get; init; }
     /// <summary>Four nonempty, mutually disjoint primary-page cell regions whose palettes reflect the selected language.</summary>
     [JsonPropertyOrder(5)]
     public required GameOptionsLanguageRegionDocument[] LanguageRegions { get; init; }

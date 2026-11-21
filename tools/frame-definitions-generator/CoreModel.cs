@@ -90,6 +90,7 @@ internal sealed class CoreModel
         RoomEnemyPlace = SingleType("RoomEnemyPlace");
         RoomEnemyOccupant = SingleType("RoomEnemyOccupant");
         AnimationSegmentPlay = SingleType("AnimationSegmentPlay", arity: 5);
+        IdentityTable = SingleType("IdentityTable", arity: 2);
         _entity = SingleType("IEnemyEntity");
         INamedTypeSymbol factory = SingleType("IEnemyEntityFactory");
         INamedTypeSymbol timelineAnimation = SingleType("EnemyProjectileTimelineAnimation", arity: 3);
@@ -177,6 +178,9 @@ internal sealed class CoreModel
     /// </summary>
     public INamedTypeSymbol AnimationSegmentPlay { get; }
 
+    /// <summary>The table holding a value for every member of an identity, which Core dispatches through (#2553).</summary>
+    public INamedTypeSymbol IdentityTable { get; }
+
     /// <summary>Whether <paramref name="type"/> is a family's segments: a pausing or an unpausing family's (#2553).</summary>
     public bool IsAnimationSegmentsType(INamedTypeSymbol type) => DerivesFrom(type, AnimationSegmentPlay);
 
@@ -220,6 +224,11 @@ internal sealed class CoreModel
 
     /// <summary>The programs motion handlers restart only the objects of some kinds in, read once (#1854, #1843).</summary>
     public KindRestarts KindRestarts => _kindRestarts ??= new KindRestarts(this);
+
+    /// <summary>Core's dispatch through identity tables, each entry running only for its key (#2553).</summary>
+    public IdentityTableDispatch Dispatch => _tableDispatch ??= new IdentityTableDispatch(this);
+
+    private IdentityTableDispatch? _tableDispatch;
 
     private KindRestarts? _kindRestarts;
 

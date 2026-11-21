@@ -812,31 +812,12 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                     .Where(member => member.ContainingType.TypeKind == TypeKind.Enum).Select(member => CueKey(member.OriginalDefinition)).Distinct()];
                 if (cues.Length == 0)
                     continue;
-                foreach (IdentifierNameSyntax name in section.Statements.SelectMany(statement => statement.DescendantNodesAndSelf()).OfType<IdentifierNameSyntax>())
-                {
-                    if (name.Ancestors().Any(node => IsTest(node, name)) || semantic.GetSymbolInfo(name).Symbol is not IFieldSymbol field)
-                        continue;
-                    // A constant naming a program is that program (#2167: Torizo's death explosion continues in DeathSmoke).
-                    IFieldSymbol? program = SymbolEqualityComparer.Default.Equals(field.ContainingType, segmentType) ? field
-                        : NamedProgram(field, segmentType) is { } constant ? constant.Program : null;
-                    if (program is null)
-                        continue;
-                    named.Add(name);
-                    if (!SymbolEqualityComparer.Default.Equals(field, program))
-                    {
-                        if (!constantReads.TryGetValue(field.OriginalDefinition, out HashSet<IdentifierNameSyntax>? reads))
-                            constantReads.Add(field.OriginalDefinition, reads = []);
-                        reads.Add(name);
-                    }
-                    foreach (string cue in cues)
-                    {
-                        if (!starts.TryGetValue(cue, out HashSet<string>? programs))
-                            starts.Add(cue, programs = new HashSet<string>(StringComparer.Ordinal));
-                        programs.Add(program.Name);
-                    }
-                }
+                Section(cues, section.Statements.SelectMany(statement => statement.DescendantNodesAndSelf()), semantic);
             }
         }
+        // An identity table of cases indexed with the cue, or its kind, runs each entry for its key's cue alone (#2553).
+        foreach (IdentityTableEntry entry in model.Dispatch.CueEntries(cueType))
+            Section([CueKey(entry.Key)], entry.Value.DescendantNodesAndSelf(), entry.Semantic);
         // A constant only these cases read names its program for them alone: its own initializer starts nothing elsewhere.
         foreach ((IFieldSymbol constant, HashSet<IdentifierNameSyntax> reads) in constantReads)
         {
@@ -844,6 +825,35 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 named.Add(initializer.Name);
         }
         return (starts, named);
+
+        // The programs the code of a case running only for the cues it names (a switch section or an identity table's entry)
+        // names are entered by the segments publishing those cues.
+        void Section(string[] cues, IEnumerable<SyntaxNode> code, SemanticModel semantic)
+        {
+            foreach (IdentifierNameSyntax name in code.OfType<IdentifierNameSyntax>())
+            {
+                if (name.Ancestors().Any(node => IsTest(node, name)) || semantic.GetSymbolInfo(name).Symbol is not IFieldSymbol field)
+                    continue;
+                // A constant naming a program is that program (#2167: Torizo's death explosion continues in DeathSmoke).
+                IFieldSymbol? program = SymbolEqualityComparer.Default.Equals(field.ContainingType, segmentType) ? field
+                    : NamedProgram(field, segmentType) is { } constant ? constant.Program : null;
+                if (program is null)
+                    continue;
+                named.Add(name);
+                if (!SymbolEqualityComparer.Default.Equals(field, program))
+                {
+                    if (!constantReads.TryGetValue(field.OriginalDefinition, out HashSet<IdentifierNameSyntax>? reads))
+                        constantReads.Add(field.OriginalDefinition, reads = []);
+                    reads.Add(name);
+                }
+                foreach (string cue in cues)
+                {
+                    if (!starts.TryGetValue(cue, out HashSet<string>? programs))
+                        starts.Add(cue, programs = new HashSet<string>(StringComparer.Ordinal));
+                    programs.Add(program.Name);
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -1083,6 +1093,8 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                     case SimpleNameSyntax name when semantic.GetSymbolInfo(name).Symbol is { } symbol:
                         if (symbol is IMethodSymbol method)
                             Enter(method);
+                        else if (symbol is IPropertySymbol or IFieldSymbol && HoldsCode(symbol))
+                            EnterMember(symbol);
                         else if (symbol is IFieldSymbol kind && SymbolEqualityComparer.Default.Equals(kind.ContainingType, model.RoomEnemyProjectileKind)
                                  && model.StartedFamily(kind) is { } typedFamily && !name.Ancestors().Any(ancestor => IsTest(ancestor, name)))
                             Started(spawned.Of(semantic, name), typedFamily, model.StartedPrograms(kind));
@@ -1121,6 +1133,21 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             foreach (SyntaxReference reference in definition.DeclaringSyntaxReferences)
                 pending.Push(reference.GetSyntax());
         }
+
+        // So is the code a property or field holds (#2553): the cases an identity table or a cue's case record runs.
+        void EnterMember(ISymbol member)
+        {
+            ISymbol definition = member.OriginalDefinition;
+            if (definition.ContainingType is not { } owner || model.IsTable(owner) || !visited.Add(definition))
+                return;
+            foreach (SyntaxReference reference in definition.DeclaringSyntaxReferences)
+                pending.Push(reference.GetSyntax());
+        }
+
+        // A Core property or field whose declaration holds a lambda holds code its readers run.
+        bool HoldsCode(ISymbol member) =>
+            model.IsSource(member.OriginalDefinition)
+            && member.OriginalDefinition.DeclaringSyntaxReferences.Any(reference => reference.GetSyntax().DescendantNodes().OfType<AnonymousFunctionExpressionSyntax>().Any());
     }
 
     /// <summary>Whether <paramref name="node"/>, an ancestor of <paramref name="name"/>, only tests or annotates with it: an attribute, a case or pattern, an equality.</summary>

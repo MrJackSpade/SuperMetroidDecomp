@@ -54,6 +54,7 @@ public abstract record RoomBlockKind
     /// <summary>Empty air.</summary>
     public sealed record Air : RoomBlockKind
     {
+        /// <summary>Only <see cref="Instance"/> is made.</summary>
         private Air()
         {
         }
@@ -68,6 +69,7 @@ public abstract record RoomBlockKind
     /// <summary>A slope, whose geometry the block's behaviour selects.</summary>
     public sealed record Slope : RoomBlockKind
     {
+        /// <summary>Only <see cref="Instance"/> is made.</summary>
         private Slope()
         {
         }
@@ -82,6 +84,7 @@ public abstract record RoomBlockKind
     /// <summary>A horizontal extension, colliding as the block its behaviour's displacement names.</summary>
     public sealed record HorizontalExtension : RoomBlockKind
     {
+        /// <summary>Only <see cref="Instance"/> is made.</summary>
         private HorizontalExtension()
         {
         }
@@ -96,6 +99,7 @@ public abstract record RoomBlockKind
     /// <summary>A vertical extension, colliding as the block its behaviour's displacement names.</summary>
     public sealed record VerticalExtension : RoomBlockKind
     {
+        /// <summary>Only <see cref="Instance"/> is made.</summary>
         private VerticalExtension()
         {
         }
@@ -110,6 +114,7 @@ public abstract record RoomBlockKind
     /// <summary>Air that reacts to nothing and that the X-ray scope does not reveal.</summary>
     public sealed record UnrevealedAir : RoomBlockKind
     {
+        /// <summary>Only <see cref="Instance"/> is made.</summary>
         private UnrevealedAir()
         {
         }
@@ -124,6 +129,7 @@ public abstract record RoomBlockKind
     /// <summary>An ordinary solid block.</summary>
     public sealed record SolidBlock : RoomBlockKind
     {
+        /// <summary>Only <see cref="Instance"/> is made.</summary>
         private SolidBlock()
         {
         }
@@ -138,6 +144,7 @@ public abstract record RoomBlockKind
     /// <summary>A door block.</summary>
     public sealed record DoorBlock : RoomBlockKind
     {
+        /// <summary>Only <see cref="Instance"/> is made.</summary>
         private DoorBlock()
         {
         }

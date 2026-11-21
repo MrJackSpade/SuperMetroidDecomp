@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// One reaction of one of the reaction families (#1722, #2571): what a reacting collision kind reads from its block's
 /// behaviour, typed by its family. A reaction carries its family, its installed key and the behaviour that holds it, so
 /// nothing recovers a family from an untyped enum. Two reactions are equal exactly when they are the same family's same
-/// reaction. A reader of one family matches that family's reaction (<see cref="RoomCollisionBlock.Reaction"/>), which a
+/// reaction. A reader of one family matches that family's reaction (<see cref="RoomCollisionBlock.Kind"/>), which a
 /// block of the family always carries.
 /// </summary>
 public abstract record BlockReaction

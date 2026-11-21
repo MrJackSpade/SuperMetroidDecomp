@@ -934,10 +934,14 @@ public sealed class SamusBombProjectileSystem
             case RoomBlockKind.ShootableAir { Reaction: var passing } when passing.SetsOffOnlyInSolidBlocks:
                 return;
             case RoomBlockKind.ShootableAir { Reaction: var shootableAir }:
-                SpawnBombedShotBlock(level, block, shootableAir, roomObjects, projectileType, solidBlock: false);
+                RequireBombedShotReaction(block, shootableAir);
+                roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
+                    level, block.At, block.Behavior, BlockStrike.By(projectileType), solidBlock: false);
                 return;
             case RoomBlockKind.ShootableBlock { Reaction: var shootableBlock }:
-                SpawnBombedShotBlock(level, block, shootableBlock, roomObjects, projectileType, solidBlock: true);
+                RequireBombedShotReaction(block, shootableBlock);
+                roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
+                    level, block.At, block.Behavior, BlockStrike.By(projectileType), solidBlock: true);
                 return;
 
             case RoomBlockKind.SpecialBlock { Reaction: var special }:
@@ -958,21 +962,11 @@ public sealed class SamusBombProjectileSystem
         }
     }
 
-    /// <summary>Sets off the ordinary shot-block reaction a bombed shootable block or shootable air holds.</summary>
-    /// <param name="level">The room's level.</param>
+    /// <summary>Refuses a bombed shootable block or shootable air whose reaction is none a bomb sets off.</summary>
     /// <param name="block">The bombed block.</param>
     /// <param name="reaction">Its shootable reaction.</param>
-    /// <param name="roomObjects">The room's room objects.</param>
-    /// <param name="projectileType">The bombing projectile's type.</param>
-    /// <param name="solidBlock">Whether the block is a shootable block rather than shootable air.</param>
     /// <exception cref="InvalidDataException">The reaction is none a bomb sets off.</exception>
-    private static void SpawnBombedShotBlock(
-        RoomLevelData level,
-        RoomCollisionBlock block,
-        ShootableReaction reaction,
-        ISamusRoomObjects roomObjects,
-        SamusProjectileType projectileType,
-        bool solidBlock)
+    private static void RequireBombedShotReaction(RoomCollisionBlock block, ShootableReaction reaction)
     {
         if (reaction is not (ShootableReaction.NothingWhenSolid or ShootableReaction.AnimalEscape or
                 ShootableReaction.CollisionProbe) &&
@@ -982,12 +976,6 @@ public sealed class SamusBombProjectileSystem
                 $"Shootable block {block.Position} has behaviour ({block.Behavior}) with no " +
                 "reaction a bomb sets off.");
         }
-        roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
-            level,
-            block.At,
-            block.Behavior,
-            BlockStrike.By(projectileType),
-            solidBlock);
     }
 
     /// <summary>

@@ -664,7 +664,7 @@ internal static class LookupStream5Verification
             void Draw(MapSpriteId id, int x, int y, MapSpriteColouring colouring) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, Offset16<ScreenPixels>.Wrapped(x - 7, y - 9), MapSpriteScreen.FileSelect, colouring);
         }
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.BossMarkers((AreaId)7), "Invalid boss area");
-        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.Elevators(AreaId.Ceres), "Ceres has no elevator labels");
+        AssertEqual(0, MapLandmarks.Elevators(AreaId.Ceres).Length, "Ceres has no elevator labels");
         AssertEqual(8, bossSlots, "Eight native boss slots including three unused");
         AssertEqual(17, elevatorSlots, "Seventeen native destination labels");
         Console.WriteLine("Map landmark cases: eight native boss slots, seventeen destinations, extraction/schema, 23 ordered IDs, bounds and 28 stock ordered OAM/state cases pass.");
@@ -1503,7 +1503,7 @@ internal static class LookupStream5Verification
         for (int variant = 0; variant < steamVariants.Length; variant++)
         {
             var actual = CeresSteamInitializations.Initialization(steamVariants[variant]);
-            AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, actual.Animation), "Ceres steam original instruction dispatch");
+            AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.EntriesOf(actual.Way), CeresSteamSegment.Dormant), "Ceres steam original instruction dispatch");
             AssertEqual(ReadVerificationWord(rom, 0xa6f001 + 2 * variant), CeresNativeWords.SteamActionWord(actual.Action), "Ceres steam original function dispatch");
         }
         MagdolliteRiseStage stage = MagdolliteRiseStage.Setup;

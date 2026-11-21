@@ -1,6 +1,7 @@
 using P = SuperMetroid.Core.Enemies.Boulder.BoulderSegment;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
+using Beats = SuperMetroid.Core.Animation.AnimationBeats<SuperMetroid.Core.Enemies.Artwork.EnemyFrameId, SuperMetroid.Core.Animation.NoAnimationCue>;
 
 namespace SuperMetroid.Core.Enemies.Boulder;
 
@@ -10,44 +11,25 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// </summary>
 internal static class BoulderAnimations
 {
-    /// <summary>Every segment's beats.</summary>
+    /// <summary>The updates each of the Boulder's turned frames shows for.</summary>
+    private const int TurnUpdates = 8;
+
+    /// <summary>The Boulder rolling left, an eighth of a turn a frame.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] RollingLeft { get; } = Beats.Steady(TurnUpdates,
+        EnemyFrameId.BoulderTurned0, EnemyFrameId.BoulderTurned45, EnemyFrameId.BoulderTurned90, EnemyFrameId.BoulderTurned135,
+        EnemyFrameId.BoulderTurned180, EnemyFrameId.BoulderTurned225, EnemyFrameId.BoulderTurned270, EnemyFrameId.BoulderTurned315);
+
+    /// <summary>Every segment's beats: rolling right turns the left roll the other way round.</summary>
     internal static AnimationSegments<BoulderSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<BoulderSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
-        [P.Left] =
-        [
-            Show(EnemyFrameId.BoulderTurned0, 8),
-            Show(EnemyFrameId.BoulderTurned45, 8),
-            Show(EnemyFrameId.BoulderTurned90, 8),
-            Show(EnemyFrameId.BoulderTurned135, 8),
-            Show(EnemyFrameId.BoulderTurned180, 8),
-            Show(EnemyFrameId.BoulderTurned225, 8),
-            Show(EnemyFrameId.BoulderTurned270, 8),
-            Show(EnemyFrameId.BoulderTurned315, 8),
-        ],
-        [P.Right] =
-        [
-            Show(EnemyFrameId.BoulderTurned0, 8),
-            Show(EnemyFrameId.BoulderTurned315, 8),
-            Show(EnemyFrameId.BoulderTurned270, 8),
-            Show(EnemyFrameId.BoulderTurned225, 8),
-            Show(EnemyFrameId.BoulderTurned180, 8),
-            Show(EnemyFrameId.BoulderTurned135, 8),
-            Show(EnemyFrameId.BoulderTurned90, 8),
-            Show(EnemyFrameId.BoulderTurned45, 8),
-        ],
+        [P.Left] = RollingLeft,
+        [P.Right] = Beats.OtherWayRound(RollingLeft),
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<BoulderSegment, Animation<BoulderSegment>> StartingAt { get; } = new Dictionary<BoulderSegment, Animation<BoulderSegment>>
-    {
-        [P.Left] = Animation<BoulderSegment>.Looping([Segments.Whole(P.Left)]),
-        [P.Right] = Animation<BoulderSegment>.Looping([Segments.Whole(P.Right)]),
-    };
+    private static Dictionary<BoulderSegment, Animation<BoulderSegment>> StartingAt { get; } = Segments.EachLooping(P.Left, P.Right);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BoulderSegment> StartingWith(BoulderSegment segment) => StartingAt[segment];
-
-    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

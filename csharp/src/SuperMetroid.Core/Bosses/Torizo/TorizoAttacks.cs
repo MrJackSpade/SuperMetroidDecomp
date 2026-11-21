@@ -821,8 +821,8 @@ internal sealed class TorizoAttacks
 
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectiles, definition.Animation));
         projectile.Position = projectile.Position.WithWhole(request.RoomObjectBlock.ToRoomPixels() + definition.Offset);
-        projectile.Velocity = projectile.Velocity.WithY(definition.InitialFallSpeed);
-        TorizoProjectiles.StatueFragments.Start(projectile, new BombTorizoStatueFragmentState(definition.Acceleration));
+        projectile.Velocity = projectile.Velocity.WithY(BombTorizoStatueFragmentDefinitions.InitialFallSpeed);
+        TorizoProjectiles.StatueFragments.Start(projectile, new BombTorizoStatueFragmentState(BombTorizoStatueFragmentDefinitions.Acceleration));
     }
 
     /// <summary>Whether a projectile has run away: it moves at least <see cref="TorizoMotionDefinitions.RunawaySpeed"/>.</summary>

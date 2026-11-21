@@ -266,7 +266,7 @@ internal sealed class SamusFramePhases
         // has power.
         if (!_freeze.TimeIsFrozen && !frame.InputHandlingLocked(samus))
             SamusInsideBlockReactions.PrepareFrame(room.LevelData, samus,
-                room.Room.Area != AreaId.WreckedShip || _system.HasDefeatedAnyOf(room.Room.Area, DefeatedBosses.AreaBoss),
+                AreaIds.HasPower(room.Room.Area, _system.HasDefeatedAnyOf(room.Room.Area, DefeatedBosses.AreaBoss)),
                 room.RoomObjects);
 
         // The input phase order is cooldown -> movement-type HUD projectile producer ->
@@ -823,7 +823,7 @@ internal sealed class SamusFramePhases
     {
         if (SamusPoseMetadata.IsMorphTransitionPose(move.Samus.Pose))
             move.Frame.Record(SamusMorphBallMovement.StepTransition(move.Level, move.Samus, _clock.Counter, move.RoomObjects));
-        else if (move.Samus.Pose == SamusPoseId.DraygonHeldStandingUpLeftPose)
+        else if (SamusPoseTraits.IsIn(move.Samus.Pose, SamusPoseFamily.HeldInPlaceStandUp))
             HoldWhereInstalled(move);
         else
             move.Frame.Record(SamusPostureMovement.StepCrouchStandTransition(move.Level, move.Samus, _clock.Counter, move.RoomObjects));

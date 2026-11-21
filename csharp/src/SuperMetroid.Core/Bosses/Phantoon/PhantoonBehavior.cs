@@ -13,24 +13,25 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-        [EnemyDefinitionId.PhantoonBody, EnemyDefinitionId.PhantoonEye, EnemyDefinitionId.PhantoonMouth, EnemyDefinitionId.PhantoonTentacles];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <summary>Phantoon's body, eye, tentacles or mouth (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Phantoon definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.PhantoonBody)
-            return EnemyOccupant.Of(new PhantoonBodyEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.PhantoonEye)
-            return EnemyOccupant.Of(new PhantoonEyeEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.PhantoonTentacles)
-            return EnemyOccupant.Of(new PhantoonTentaclesEntity(this, occupant, place, common, _bossArtwork));
-        if (definition == EnemyDefinitionId.PhantoonMouth)
-            return EnemyOccupant.Of(new PhantoonMouthEntity(this, occupant, place, common, _bossArtwork));
-        throw new InvalidOperationException($"The Phantoon species creates no {occupant.DefinitionId}.");
-    }
+    /// <exception cref="KeyNotFoundException">The place holds no Phantoon definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
+
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<PhantoonBehavior>> PartFactories =
+        new()
+        {
+            [EnemyDefinitionId.PhantoonBody] = static (species, occupant, place, common) => EnemyOccupant.Of(new PhantoonBodyEntity(species, occupant, place, common, species._bossArtwork)),
+            [EnemyDefinitionId.PhantoonEye] = static (species, occupant, place, common) => EnemyOccupant.Of(new PhantoonEyeEntity(species, occupant, place, common, species._bossArtwork)),
+            [EnemyDefinitionId.PhantoonMouth] = static (species, occupant, place, common) => EnemyOccupant.Of(new PhantoonMouthEntity(species, occupant, place, common, species._bossArtwork)),
+            [EnemyDefinitionId.PhantoonTentacles] = static (species, occupant, place, common) => EnemyOccupant.Of(new PhantoonTentaclesEntity(species, occupant, place, common, species._bossArtwork)),
+        };
 
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -168,12 +169,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // The three drawing parts follow the body to its new place, except on the update the almost-dead phase runs.
         if (phase == PhantoonPhase.AlmostDead)
             return;
-        state.Mouth.Position = state.Mouth.Position.WithWholeX(body.Position.X.Whole);
-        state.Tentacles.Position = state.Tentacles.Position.WithWholeX(body.Position.X.Whole);
-        state.Eye.Position = state.Eye.Position.WithWholeX(body.Position.X.Whole);
-        state.Mouth.Position = state.Mouth.Position.WithWholeY(body.Position.Y.Whole);
-        state.Tentacles.Position = state.Tentacles.Position.WithWholeY(body.Position.Y.Whole);
-        state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
+        foreach (PhantoonPart part in state.CarriedParts)
+            part.Place.Position = part.Place.Position.WithWhole(body.Position.Whole);
     }
 
 

@@ -47,14 +47,13 @@ internal static class SamusBodyCompositions
         // complete curled body. Frame zero and frames from eleven draw the split bottom. The Space Jump and Screw Attack
         // poses always draw the bottom half.
         bool ordinarySpinBottom = movementType != SamusMovementType.SpinJumping ||
-            pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose or
-                SamusPoseId.ScrewAttackRightPose or SamusPoseId.ScrewAttackLeftPose ||
+            SamusPoseMetadata.IsSpaceJumpPose(pose) || SamusPoseMetadata.IsScrewAttackPose(pose) ||
             animationFrame == 0 || animationFrame >= 11;
 
         // The death-sequence body is the knockback movement's only exception: its first three frames' top halves are the
         // complete body. All other knockback poses and later frames keep an ordinary lower half.
         bool knockbackBottom = movementType != SamusMovementType.Knockback ||
-            pose is not (SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose) ||
+            !SamusPoseTraits.IsIn(pose, SamusPoseFamily.DeathSequence) ||
             animationFrame >= 3;
 
         // The posture-transition draw is a pose-and-frame dispatcher, not one rule for the whole movement type. The
@@ -62,8 +61,7 @@ internal static class SamusBodyCompositions
         // top halves are the complete curling body. The other posture transitions are never given to Samus, so no frame
         // of theirs is drawn.
         bool transitionBottom = movementType != SamusMovementType.PostureTransition ||
-            pose is not (SamusPoseId.MorphingTransitionRightPose or SamusPoseId.MorphingTransitionLeftPose or
-                SamusPoseId.UnmorphingTransitionRightPose or SamusPoseId.UnmorphingTransitionLeftPose);
+            !SamusPoseMetadata.IsMorphTransitionPose(pose);
 
         bool wallJumpBottom = movementType != SamusMovementType.WallJumping ||
             animationFrame < 3 || animationFrame >= 13;
@@ -72,8 +70,8 @@ internal static class SamusBodyCompositions
         // The draw suppresses the lower half for vertical shinesparks and for the drained crouch's frames zero and one.
         // Every other special-movement pose draws it.
         bool specialMovementBottom = movementType != SamusMovementType.Special ||
-            (pose is not (SamusPoseId.ShinesparkVerticalRightPose or SamusPoseId.ShinesparkVerticalLeftPose) &&
-             (pose is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose) ||
+            (!SamusPoseTraits.IsIn(pose, SamusPoseFamily.ShinesparkVertical) &&
+             (!SamusPoseTraits.IsIn(pose, SamusPoseFamily.DrainedCrouch) ||
               animationFrame >= 2));
         return movementType is not (
             SamusMovementType.MorphBallGround or
@@ -100,7 +98,7 @@ internal static class SamusBodyCompositions
     /// (owner ruling on #1513).
     /// </remarks>
     private static Offset16<ScreenPixels>? ChestCover(SamusPoseId pose, int animationFrame, SamusBodySources artwork) =>
-        pose == SamusPoseId.ForwardFacingPowerSuitPose
+        SamusPoseTraits.IsIn(pose, SamusPoseFamily.ChestCovered)
             ? Offset16<ScreenPixels>.Of(SamusBodyPlacementSourceDefinitions.ChestCoverFromWorldPoint.X,
                 artwork.Gameplay.OriginRise(pose, SamusAnimationLayout.FrameAt(SamusAnimationDelays.AnimationForPose(pose), animationFrame)) +
                 SamusBodyPlacementSourceDefinitions.ChestCoverFromWorldPoint.Y)

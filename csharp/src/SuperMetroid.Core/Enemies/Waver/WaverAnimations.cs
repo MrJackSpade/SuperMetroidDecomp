@@ -23,22 +23,8 @@ internal static class WaverAnimations
         [
             Hold(EnemyFrameId.WaverLevelFacingRight),
         ],
-        [P.SpinningFacingLeft] =
-        [
-            Show(EnemyFrameId.WaverRollingFacingLeftEdgeOn, 8),
-            Show(EnemyFrameId.WaverRollingFacingLeftTilted, 8),
-            Show(EnemyFrameId.WaverRollingFacingLeftUnderside, 8),
-            Show(EnemyFrameId.WaverRollingFacingLeftTurningBack, 8),
-            Cue(new(K.FinishSpin)),
-        ],
-        [P.SpinningFacingRight] =
-        [
-            Show(EnemyFrameId.WaverRollingFacingRightEdgeOn, 8),
-            Show(EnemyFrameId.WaverRollingFacingRightTilted, 8),
-            Show(EnemyFrameId.WaverRollingFacingRightUnderside, 8),
-            Show(EnemyFrameId.WaverRollingFacingRightTurningBack, 8),
-            Cue(new(K.FinishSpin)),
-        ],
+        [P.SpinningFacingLeft] = Spinning(EnemyFrameId.WaverRollingFacingLeftEdgeOn, EnemyFrameId.WaverRollingFacingLeftTilted, EnemyFrameId.WaverRollingFacingLeftUnderside, EnemyFrameId.WaverRollingFacingLeftTurningBack),
+        [P.SpinningFacingRight] = Spinning(EnemyFrameId.WaverRollingFacingRightEdgeOn, EnemyFrameId.WaverRollingFacingRightTilted, EnemyFrameId.WaverRollingFacingRightUnderside, EnemyFrameId.WaverRollingFacingRightTurningBack),
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
@@ -52,6 +38,16 @@ internal static class WaverAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<WaverSegment> StartingWith(WaverSegment segment) => StartingAt[segment];
+
+    /// <summary>A Waver's spin over a facing's poses, <paramref name="edgeOn"/>, <paramref name="tilted"/>, <paramref name="underside"/>, <paramref name="turningBack"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, WaverCue>[] Spinning(EnemyFrameId edgeOn, EnemyFrameId tilted, EnemyFrameId underside, EnemyFrameId turningBack) =>
+    [
+        Show(edgeOn, 8),
+        Show(tilted, 8),
+        Show(underside, 8),
+        Show(turningBack, 8),
+        Cue(new(K.FinishSpin)),
+    ];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, WaverCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, WaverCue>.Frame(frame, duration);

@@ -8,30 +8,16 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
 
     /// <summary>Each record writes sixteen live colours.</summary>
     private const int ColorsPerFrame = 16;
-    /// <summary>The Power-suit definition's program.</summary>
-    private static readonly SamusLoadingSuitPaletteFxColorDefinition Power =
-        new()
-        {
-            Owner = SamusLoadingSuitPaletteFxProgramOwner.PowerSuit,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.SamusLoadingPowerSuit, ColorsPerFrame),
-        };
-    /// <summary>The Varia-suit definition's program.</summary>
-    private static readonly SamusLoadingSuitPaletteFxColorDefinition Varia =
-        new()
-        {
-            Owner = SamusLoadingSuitPaletteFxProgramOwner.VariaSuit,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.SamusLoadingVariaSuit, ColorsPerFrame),
-        };
-    /// <summary>The Gravity-suit definition's program.</summary>
-    private static readonly SamusLoadingSuitPaletteFxColorDefinition Gravity =
-        new()
-        {
-            Owner = SamusLoadingSuitPaletteFxProgramOwner.GravitySuit,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.SamusLoadingGravitySuit, ColorsPerFrame),
-        };
+    /// <summary>The power, Varia, and gravity programs in definition order, each the suit's loading effect's colours.</summary>
+    public static IReadOnlyList<SamusLoadingSuitPaletteFxColorDefinition> All { get; } =
+    [
+        Suit(SamusLoadingSuitPaletteFxProgramOwner.PowerSuit, ColourEffectId.SamusLoadingPowerSuit),
+        Suit(SamusLoadingSuitPaletteFxProgramOwner.VariaSuit, ColourEffectId.SamusLoadingVariaSuit),
+        Suit(SamusLoadingSuitPaletteFxProgramOwner.GravitySuit, ColourEffectId.SamusLoadingGravitySuit),
+    ];
 
-    /// <summary>The power, Varia, and gravity programs in definition order.</summary>
-
-    public static IReadOnlyList<SamusLoadingSuitPaletteFxColorDefinition> All { get; } = [Power, Varia, Gravity];
+    /// <summary>The program <paramref name="owner"/> loads: the colours <paramref name="effect"/> writes.</summary>
+    private static SamusLoadingSuitPaletteFxColorDefinition Suit(SamusLoadingSuitPaletteFxProgramOwner owner, ColourEffectId effect) =>
+        new() { Owner = owner, ColorFrames = PaletteFxColorFrames.Of(effect, ColorsPerFrame) };
 
 }

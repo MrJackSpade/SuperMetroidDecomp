@@ -20,8 +20,11 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// validity and displayed energy/time are read from the saves themselves
 /// rather than from separately authored metadata.
 /// </remarks>
-public sealed class FileSelectMenuState : IMenuFrontendScreen
+public sealed class FileSelectMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
+    /// <summary>The buttons that confirm a choice throughout the menu: Start or A.</summary>
+    private const ControllerButton ConfirmButtons = ControllerButton.Start | ControllerButton.A;
+
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
     public void BindSpriteSheets(InstalledSpriteSheets sheets)
@@ -178,7 +181,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             case FileSelectPhase.TurnSelectedHelmet:
                 selectedHelmet.Step();
                 // Start/A ends the turn early; otherwise it ends once its last picture has shown for its whole hold.
-                if ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None || selectedHelmet.HasFinished)
+                if ((pressed & ConfirmButtons) != ControllerButton.None || selectedHelmet.HasFinished)
                     Phase = FileSelectPhase.FadeOutToOptions;
                 break;
 
@@ -226,13 +229,13 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             // The selected helmet keeps its last turned picture, the completed (or Start-shortened) turn, through the
             // fade out.
-            FileSelectHelmetFrame frame = FileSelectItemRows.ForSaveSlot(slot) == SelectedItem && Phase is
-                    FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
+            FileSelectHelmetFrame frame = FileSelectItemRows.ForSaveSlot(slot) == SelectedItem &&
+                    FileSelectPhaseDefinitions.SelectedHelmetTurnPhases.Contains(Phase)
                 ? HelmetAnimationFrame
                 : FileSelectHelmetFrame.TurnedAway;
             presentation.DrawHelmet(sprites, sheet, frame, slot);
         }
-        if (Phase == FileSelectPhase.CopyConfirm)
+        if (FileSelectPhaseDefinitions.CopyArrowPhases.Contains(Phase))
         {
             (FileCopyArrowShape shape, int y) = FileCopyArrows.Select(ChosenSource, ChosenTarget);
             sprites.AddImage(sheet.Frame(FileCopyArrowDefinitions.FrameName(shape)),
@@ -300,13 +303,10 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private bool IsMainPagePhase => ShownBorder == FileSelectBorder.Main;
 
     /// <summary>Suppresses cursor animation before the initialized main page begins fading in.</summary>
-    private bool IsEntryPhase => Phase is FileSelectPhase.EnterBlankScreen or
-        FileSelectPhase.EnterBlankScreenAfterFrameWait or FileSelectPhase.BlackHold or
-        FileSelectPhase.InitializeMain or FileSelectPhase.InitializeMainAfterFrameWait;
+    private bool IsEntryPhase => FileSelectPhaseDefinitions.EntryPhases.Contains(Phase);
 
     /// <summary>Hides the selection missile during entry and on completed data-operation pages.</summary>
-    private bool ShouldDrawSelectionMissile => !IsEntryPhase && Phase is not
-        FileSelectPhase.CopyCompleted and not FileSelectPhase.ClearCompleted;
+    private bool ShouldDrawSelectionMissile => !IsEntryPhase && !FileSelectPhaseDefinitions.CompletedOperationPhases.Contains(Phase);
 
     /// <summary>Handles slot selection, hidden data-management rows, and options or title handoffs.</summary>
     private void StepMainMenu(ControllerButton pressed)
@@ -329,7 +329,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             Phase = FileSelectPhase.FadeOutToTitle;
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
+        if ((pressed & ConfirmButtons) == ControllerButton.None)
             return;
 
         if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out _))
@@ -364,19 +364,20 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Swaps main and data pages only once the screen is black, then enters the saved phase after fade-in.</summary>
     private void StepDataManagementFade()
     {
-        if (Phase is FileSelectPhase.FadeOutToCopy or FileSelectPhase.FadeOutToClear or FileSelectPhase.FadeOutToMain)
+        bool toDataManagement = FileSelectPhaseDefinitions.DataManagementFadeOuts.TryGetValue(Phase, out FileSelectDataMode mode);
+        if (toDataManagement || FileSelectPhaseDefinitions.MainPageFadeOuts.Contains(Phase))
         {
             if (!screenFade.Darken())
                 return;
 
-            if (Phase == FileSelectPhase.FadeOutToMain)
+            if (toDataManagement)
             {
-                ShowMainPage();
-                phaseAfterFadeIn = FileSelectPhase.Main;
+                InitializeDataManagementScreen(mode);
             }
             else
             {
-                InitializeDataManagementScreen(Phase == FileSelectPhase.FadeOutToCopy ? FileSelectDataMode.Copy : FileSelectDataMode.Clear);
+                ShowMainPage();
+                phaseAfterFadeIn = FileSelectPhase.Main;
             }
             Phase = FileSelectPhase.FadeInFromDataManagement;
             return;
@@ -459,13 +460,13 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             submenuSelection, SaveSlots.All.Where(slot => saveSlots[slot] is not null).ToHashSet(), pressed));
 
         if ((pressed & ControllerButton.B) != ControllerButton.None ||
-            ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None && submenuSelection == FileSelectItem.Exit))
+            ((pressed & ConfirmButtons) != ControllerButton.None && submenuSelection == FileSelectItem.Exit))
         {
             QueueCursorSound();
             Phase = FileSelectPhase.FadeOutToMain;
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
+        if ((pressed & ConfirmButtons) == ControllerButton.None)
             return;
 
         QueueCursorSound();
@@ -497,7 +498,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             Phase = FileSelectPhase.CopySelectSource;
             return;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
+        if ((pressed & ConfirmButtons) == ControllerButton.None)
             return;
         QueueCursorSound();
         if (submenuSelection == FileSelectItem.Exit)
@@ -537,7 +538,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             ReturnFromConfirmation(mode);
             return FileSelectSaveChange.None;
         }
-        if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
+        if ((pressed & ConfirmButtons) == ControllerButton.None)
             return FileSelectSaveChange.None;
 
         audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
@@ -604,7 +605,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     {
         if (IsMainPagePhase)
             return presentation.CursorPosition(FileSelectCursorPage.Main, SelectedItem);
-        return Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm
+        return FileSelectPhaseDefinitions.ConfirmationPhases.Contains(Phase)
             ? presentation.CursorPosition(confirmationSelection)
             : presentation.CursorPosition(FileSelectCursorPage.DataManagement, submenuSelection);
     }

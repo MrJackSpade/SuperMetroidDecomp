@@ -74,8 +74,8 @@ internal static class RoomLiquidDecisionsVerification
             GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(snapshot, 0) is not null,
             $"{context} vertical heat haze");
 
-        int scale = Bit(RoomFxNativeSources.SmallTideOption) ? LiquidTideDefinitions.SmallTidePeakPixels
-            : Bit(RoomFxNativeSources.LargeTideOption) ? LiquidTideDefinitions.LargeTidePeakPixels
+        int scale = Bit(RoomFxNativeSources.SmallTideOption) ? LiquidTideDefinitions.Motions[LiquidTide.Small].PeakPixels
+            : Bit(RoomFxNativeSources.LargeTideOption) ? LiquidTideDefinitions.Motions[LiquidTide.Large].PeakPixels
             : 0;
         // A new effect's tide stands at its phase zero.
         fx.StepTideForCheck();

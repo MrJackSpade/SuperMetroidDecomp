@@ -181,8 +181,8 @@ internal static class SamusGroundedPoseTransitions
     {
         // A moonwalk stops in either wall pose; any other source stops only in the one it faces.
         HorizontalDirection? route = SamusPoseMetadata.FacingIn(targetPose,
-            pose => SamusPoseMetadata.IsRightFacingRanIntoWallPose(pose) || pose == SamusPoseId.StandingAimUpRightPose,
-            pose => SamusPoseMetadata.IsLeftFacingRanIntoWallPose(pose) || pose == SamusPoseId.StandingAimUpLeftPose);
+            pose => SamusPoseMetadata.IsRightFacingRanIntoWallPose(pose) || IsWallStopFacing(pose, SamusFacingDirection.Right),
+            pose => SamusPoseMetadata.IsLeftFacingRanIntoWallPose(pose) || IsWallStopFacing(pose, SamusFacingDirection.Left));
         bool admitted = route is { } facing && (SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) ||
             FacingInAny(samus.Pose, StandingFacing, RunningFacing, RanIntoWallFacing, LandingFacing) == facing);
         if (!admitted)
@@ -229,7 +229,7 @@ internal static class SamusGroundedPoseTransitions
 
         HorizontalDirection? sourceVisual = MoonwalkFacing(samus.Pose);
         bool sameVisualFamily = SamusPoseMetadata.SameFacing(sourceVisual, targetVisual);
-        bool exitsToForwardRun = sourceVisual is { } facing && targetPose == ForwardRunPose(facing);
+        bool exitsToForwardRun = sourceVisual is { } facing && IsNormalRunFacing(targetPose, FacingOf(facing));
         bool exitsToStandingFallback = SamusPoseMetadata.SameFacing(sourceVisual, StandingFacing(targetPose));
         if ((!entering || !moonwalkEnabled) && !sameVisualFamily &&
             !exitsToForwardRun && !exitsToStandingFallback)
@@ -311,7 +311,7 @@ internal static class SamusGroundedPoseTransitions
     public static void StartRunning(SamusState samus, SamusPoseId targetPose)
     {
         if (FacingInAny(samus.Pose, StandingFacing, LandingFacing, RanIntoWallFacing) is not { } facing ||
-            targetPose != ForwardRunPose(facing))
+            !IsNormalRunFacing(targetPose, FacingOf(facing)))
         {
             throw new InvalidOperationException(
                 $"Running start {samus.Pose} -> {targetPose} is not one the game makes.");
@@ -348,21 +348,17 @@ internal static class SamusGroundedPoseTransitions
             ? SamusTransitionShot.FromPose(samus)
             : null;
 
-        // The way the turn turns her: from the way an admitted source faces, to the turn the target names.
+        // The way the turn turns her: from the way an admitted source faces, by the plain turn the target names.
         HorizontalDirection? source = FacingInAny(samus.Pose, StandingFacing, RunningFacing, MoonwalkFacing, RanIntoWallFacing,
             CrouchingFacing, LandingFacing);
+        bool plainTurn = SamusPoseTraits.IsIn(targetPose, wasCrouching ? SamusPoseFamily.PlainCrouchingTurn : SamusPoseFamily.PlainGroundTurn);
         HorizontalDirection? turn = source switch
         {
-            HorizontalDirection.Right when targetPose == (wasCrouching
-                ? SamusPoseId.TurningRightToLeftCrouchingPose
-                : SamusPoseId.TurningRightToLeftPose) => HorizontalDirection.Left,
-            HorizontalDirection.Left when targetPose == (wasCrouching
-                ? SamusPoseId.TurningLeftToRightCrouchingPose
-                : SamusPoseId.TurningLeftToRightPose) => HorizontalDirection.Right,
+            HorizontalDirection.Right when plainTurn && SamusPoseMetadata.IsRightToLeftGroundTurnPose(targetPose) => HorizontalDirection.Left,
+            HorizontalDirection.Left when plainTurn && SamusPoseMetadata.IsLeftToRightGroundTurnPose(targetPose) => HorizontalDirection.Right,
             _ => null,
         };
-        bool leavesForwardView = wasForwardFacing &&
-            targetPose is SamusPoseId.TurningRightToLeftPose or SamusPoseId.TurningLeftToRightPose;
+        bool leavesForwardView = wasForwardFacing && SamusPoseTraits.IsIn(targetPose, SamusPoseFamily.PlainGroundTurn);
         if (turn is null && !leavesForwardView)
         {
             throw new InvalidOperationException(
@@ -513,8 +509,16 @@ internal static class SamusGroundedPoseTransitions
         return null;
     }
 
-    /// <summary>The forward run facing <paramref name="facing"/>.</summary>
-    private static SamusPoseId ForwardRunPose(HorizontalDirection facing) => facing == HorizontalDirection.Right
-        ? SamusPoseId.MovingRightNormalPose
-        : SamusPoseId.MovingLeftNormalPose;
+    /// <summary>The pose facing <paramref name="facing"/>.</summary>
+    private static SamusFacingDirection FacingOf(HorizontalDirection facing) => facing == HorizontalDirection.Right
+        ? SamusFacingDirection.Right
+        : SamusFacingDirection.Left;
+
+    /// <summary>Whether <paramref name="pose"/> is the aim-up wall stop facing <paramref name="facing"/>.</summary>
+    private static bool IsWallStopFacing(SamusPoseId pose, SamusFacingDirection facing) =>
+        SamusPoseTraits.IsIn(pose, SamusPoseFamily.AimUpWallStop) && SamusPoseMetadata.ReadFacingDirection(pose) == facing;
+
+    /// <summary>Whether <paramref name="pose"/> is the normal run facing <paramref name="facing"/>.</summary>
+    private static bool IsNormalRunFacing(SamusPoseId pose, SamusFacingDirection facing) =>
+        SamusPoseTraits.IsIn(pose, SamusPoseFamily.NormalRun) && SamusPoseMetadata.ReadFacingDirection(pose) == facing;
 }

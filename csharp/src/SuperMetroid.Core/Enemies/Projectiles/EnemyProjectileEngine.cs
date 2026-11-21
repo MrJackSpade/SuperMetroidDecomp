@@ -153,8 +153,8 @@ internal sealed class EnemyProjectileEngine
                     continue;
 
                 SamusProjectileType shotType = held.Type;
-                if (shotType.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
-                    SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
+                // Bombs and the explosions shots leave behind strike no enemy projectile.
+                if (shotType.Family.IsBombOrExplosion)
                     continue;
 
                 if (!ShotAndProjectileSquares.Meet(shot.Position.Whole, enemyProjectile.Position.Whole))
@@ -326,7 +326,7 @@ internal sealed class EnemyProjectileEngine
                 continue;
 
             // Every placement is published wherever it lies; the display clips it to the view (#1520).
-            Offset16<ScreenPixels> screen = (projectile.Position.Whole + shake).RelativeToCamera(camera);
+            Offset16<ScreenPixels> screen = (projectile.Position.Whole + projectile.FramePlacement + shake).RelativeToCamera(camera);
 
             _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile),
                 EnemySheetDefinitions.ProjectileFrameName(frame), screen, projectile.ShownGraphics);

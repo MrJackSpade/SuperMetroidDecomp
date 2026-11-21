@@ -188,7 +188,7 @@ internal sealed class KraidRise
                 return;
 
             case KraidGrowthPhase.FadeInRoomBackground:
-                if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToKraidColours))
+                if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropSettledColours.KraidColours))
                     return;
                 FinishKraidGrowth(body, state);
                 return;

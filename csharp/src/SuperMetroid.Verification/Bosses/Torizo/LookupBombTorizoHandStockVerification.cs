@@ -5,7 +5,6 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;
 
@@ -14,10 +13,10 @@ internal static class LookupBombTorizoHandStockVerification
 {
     /// <summary>Compares both frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections.</summary>
     internal static void VerifyBombTorizoHandStockMapping(CartridgeImportAddressSpace rom,
-        InstalledRoomObjectBombTorizoHandVisuals installed)
+        InstalledRoomObjectPictures installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9877,"intact"),new LookupEscapeGateStockFrame(0x989d,"cleared")];
-        foreach (InstalledRoomObjectBombTorizoHandVisuals pictures in new[] { InstalledRoomObjectBombTorizoHandVisuals.Stock(), installed })
+        foreach (InstalledRoomObjectPictures pictures in new[] { RoomObjectPicturesStock.BombTorizoHand, installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectBombTorizoHandVisualFiles.Family, frames, WrittenCells(RoomObjectBombTorizoHandVisualFiles.Family));
         }

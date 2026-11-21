@@ -22,4 +22,11 @@ public static class AreaIds
 
     /// <summary>Whether <paramref name="area"/> is one of the six Zebes areas.</summary>
     public static bool IsZebes(AreaId area) => area != AreaId.Ceres && All.Contains(area);
+
+    /// <summary>The definition of <paramref name="area"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is undefined.</exception>
+    internal static AreaDefinition Of(AreaId area) => Ensure.Listed(AreaDefinitions.Areas, area);
+
+    /// <summary>Whether <paramref name="area"/>'s machinery has power, given whether its boss is defeated.</summary>
+    internal static bool HasPower(AreaId area, bool areaBossDefeated) => !Of(area).PoweredFromBossDefeat || areaBossDefeated;
 }

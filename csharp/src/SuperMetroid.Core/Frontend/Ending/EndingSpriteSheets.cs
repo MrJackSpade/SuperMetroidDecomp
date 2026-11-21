@@ -20,8 +20,7 @@ internal static class EndingSpriteSheets
     internal const SpriteSheetId FallingSamusAndLogo = SpriteSheetId.EndingShootingSprites;
 
     /// <summary>The sheet of the post-credits Samus an ending of <paramref name="reward"/> shows, until she falls, and of the shooting stars.</summary>
-    internal static SpriteSheetId Reward(EndingReward reward) => reward == EndingReward.Suitless
-        ? SpriteSheetId.EndingSuitlessRewardSprites : SpriteSheetId.EndingSuitedRewardSprites;
+    internal static SpriteSheetId Reward(EndingReward reward) => EndingRewardDefinitions.Rewards[reward].Sheet;
 
     /// <summary>
     /// The sheet the frames of <paramref name="family"/> lie on in an ending of <paramref name="reward"/>; the reward's

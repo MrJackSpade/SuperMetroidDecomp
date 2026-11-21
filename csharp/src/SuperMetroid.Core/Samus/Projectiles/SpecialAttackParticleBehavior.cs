@@ -16,4 +16,7 @@ internal abstract class SpecialAttackParticleBehavior : SamusShotBehavior
     /// <summary>Runs the particle's update and returns the sound it makes, if any.</summary>
     /// <param name="update">What the shot update hands every behaviour.</param>
     private protected abstract SoundEffectId? Step(SamusShotUpdate update);
+
+    /// <inheritdoc/>
+    internal sealed override bool EndsItselfAfterEnemyHit => true;
 }

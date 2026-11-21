@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -14,7 +15,7 @@ internal static class EnemyExtendedFrames
     /// frame draws nothing, so it has no components and needs no stored frame.
     /// </summary>
     private static ReadOnlyMemory<EnemyExtendedDrawComponent>? ComponentsOf(EnemyExtendedFrameCatalog catalog, EnemyFrameId frame) =>
-        frame == EnemyFrameId.PointAtOrigin ? ReadOnlyMemory<EnemyExtendedDrawComponent>.Empty
+        CommonEnemyEmptyFrames.IsEmpty(frame) ? ReadOnlyMemory<EnemyExtendedDrawComponent>.Empty
         : catalog.selection.Frames.TryGetValue(frame, out EnemyExtendedDrawComponent[]? components) ? new ReadOnlyMemory<EnemyExtendedDrawComponent>(components)
         : null;
 

@@ -124,7 +124,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <param name="explosions">Where the room's escape explosions go off, or null for a room that sets off none.</param>
     internal void ComposeSkyMain(ScrollingSky sky, EscapeExplosionSite? explosions)
     {
-        bool bands = Room.State.Fx?.Select(Door)?.Type == RoomFxType.ScrollingSky || _setupSpawnedSkyBands;
+        bool bands = Room.State.Fx?.Select(Door) is { } effect && RoomFxTypes.Of(effect.Type).SpawnsSkyBands || _setupSpawnedSkyBands;
         var state = new ScrollingSkyState(sky, bands);
         ScrollingSky = state;
         Main = new ScrollingSkyMain(state, explosions);

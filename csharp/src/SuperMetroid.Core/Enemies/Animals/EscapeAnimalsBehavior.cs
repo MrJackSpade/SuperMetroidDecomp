@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -12,19 +12,23 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.EtecoonEscape, EnemyDefinitionId.DachoraEscape];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <summary>An escaping Etecoon, or the escaping Dachora (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no escape animals definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.EtecoonEscape)
-            return EnemyOccupant.Of(new EscapeEtecoonEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.DachoraEscape)
-            return EnemyOccupant.WithoutMainAi(new EscapeDachoraEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The escape animals species creates no {occupant.DefinitionId}.");
-    }
+    /// <exception cref="KeyNotFoundException">The place holds no escape animals definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
+
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<EscapeAnimalsBehavior>> PartFactories =
+        new()
+        {
+            [EnemyDefinitionId.EtecoonEscape] = static (species, occupant, place, common) => EnemyOccupant.Of(new EscapeEtecoonEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.DachoraEscape] = static (species, occupant, place, common) => EnemyOccupant.WithoutMainAi(new EscapeDachoraEntity(species, occupant, place, common)),
+        };
 
     /// <summary>Provides room events and live Samus state used by both escape-animal branches.</summary>
     private readonly EnemyRoomBinding _room;

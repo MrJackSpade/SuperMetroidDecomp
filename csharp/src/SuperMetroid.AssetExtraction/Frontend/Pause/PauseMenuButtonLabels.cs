@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
@@ -13,7 +14,7 @@ internal static class PauseMenuButtonLabels
         get
         {
             foreach (PauseButtonLabel label in PauseSheetFrameOrder.ButtonLabels)
-            for (int row = 0; row < 2; row++)
+            for (int row = 0; row < PauseFrameDefinitions.ButtonRowCount; row++)
                 yield return ButtonLabelSpan(label, row);
         }
     }
@@ -30,7 +31,7 @@ internal static class PauseMenuButtonLabels
             PauseButtonLabel.Samus => 22,
             _ => throw new ArgumentOutOfRangeException(nameof(label)),
         };
-        if ((uint)row >= 2) throw new ArgumentOutOfRangeException(nameof(row));
-        return new PauseButtonLabelSpan((25 + row) * 32 + column, label == PauseButtonLabel.Exit ? 4 : 5);
+        if ((uint)row >= PauseFrameDefinitions.ButtonRowCount) throw new ArgumentOutOfRangeException(nameof(row));
+        return new PauseButtonLabelSpan((PauseFrameDefinitions.ButtonRowsFirstRow + row) * PauseBackdropDefinitions.Columns + column, label == PauseButtonLabel.Exit ? 4 : 5);
     }
 }

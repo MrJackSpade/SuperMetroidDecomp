@@ -121,7 +121,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         CyclingSequence<int>.StartOf(RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays);
 
     /// <summary>
-    /// Whether the room's quakes are silent (<see cref="RoomEarthquakeDefinitions.SoundSuppressedRooms"/>): rising lava or
+    /// Whether the room's quakes are silent (<see cref="RoomDefinition.QuakesAreSilent"/>): rising lava or
     /// acid and the Tourian statues shake such a room without their quake sound.
     /// </summary>
     internal bool QuakeSoundsSilenced { get; private set; }
@@ -171,9 +171,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private bool IsRenderable => ShowsOnOverlay(Type);
 
     /// <summary>Whether a room of effect <paramref name="type"/> shows the effect's liquid or atmosphere on the effect overlay.</summary>
-    public static bool ShowsOnOverlay(RoomFxType type) => type is
-        RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water or RoomFxType.TourianEntranceStatue or
-        RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
+    public static bool ShowsOnOverlay(RoomFxType type) => RoomFxTypes.Of(type).Overlay != RoomFxOverlayMotion.None;
 
     /// <summary>
     /// The live liquid surface's room line after rising and tide processing, or null while the liquid has no surface
@@ -224,7 +222,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private void SelectEffect(RoomFxLoadSource source)
     {
-        QuakeSoundsSilenced = source.Room is { } room && RoomEarthquakeDefinitions.SoundSuppressedRooms.Contains(room);
+        QuakeSoundsSilenced = source.Room is { QuakesAreSilent: true };
         if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
             return;
 
@@ -242,7 +240,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         effectOverlayAnimation = BlockAnimationLoops.OnEffectOverlay(Type) is { } overlayAnimation ? BlockAnimationLoops.Start(overlayAnimation) : null;
         Tint = definition.Tint;
 
-        if (Type == RoomFxType.Fireflea)
+        if (RoomFxTypes.Of(Type).DarkensWithFirefleas)
             Fireflea = new FirefleaFxState();
         if (!IsRenderable)
             return;
@@ -253,13 +251,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             waterOverlayWave = WaveCycle.StartingAt(0);
             waterBackgroundWave = WaveCycle.StartingAt(0);
         }
-        else if (Type is RoomFxType.Lava or RoomFxType.Acid)
+        else if (RoomFxTypes.IsLavaOrAcid(Type))
         {
             // Lava and acid start their heat haze where the room's load leaves it: the game's first haze step set its
             // first phase and started its wait, so the first phase moves on sooner than the later ones.
             lavaAcidHaze = LavaAcidWaveDefinitions.HazeStart;
         }
-        else if (Type == RoomFxType.Rain)
+        else if (RoomFxTypes.Of(Type).Overlay == RoomFxOverlayMotion.Rain)
         {
             rainWind = new(AtmosphereDrift.RainHorizontalVelocity(AtmosphereDriftDefinitions.RainWindDraw.Choose(source.RandomNumber)),
                 SignedEightEight.Zero);
@@ -270,8 +268,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// True for the liquids whose surface motion step moves the surface: lava and
     /// acid and water. That motion belongs to the liquid's motion pass.
     /// </summary>
-    public bool HasMovingLiquid =>
-        Type is RoomFxType.Lava or RoomFxType.Acid || RoomFxTypes.UsesWater(Type);
+    public bool HasMovingLiquid => RoomFxTypes.ShowsLiquid(Type);
 
     /// <summary>
     /// Loads the effect's liquid level and target: a named surface keeps the fraction the surface had, or a room load's half
@@ -319,7 +316,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Ensure.NotNull(system);
         if (!HasMovingLiquid || Motion.IsStopped)
             return;
-        bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
+        bool lavaOrAcid = RoomFxTypes.IsLavaOrAcid(Type);
         SustainedEarthquake = null;
         if (!Motion.IsMoving)
         {
@@ -349,7 +346,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private void QueueLavaAmbientSound(int random)
     {
-        if (Type != RoomFxType.Lava || Surface is not >= 0)
+        if (!RoomFxTypes.Of(Type).BubblesAmbiently || Surface is not >= 0)
             return;
         lavaBubbling = lavaBubbling.Run(out bool bubbles);
         if (bubbles)
@@ -380,7 +377,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (Motion.IsStopped && HasMovingLiquid)
             return;
 
-        if (Type is RoomFxType.Lava or RoomFxType.Acid)
+        if (RoomFxTypes.IsLavaOrAcid(Type))
         {
             StepLavaAcid(frame.Camera);
             return;
@@ -392,7 +389,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
         }
 
-        if (Type == RoomFxType.Rain)
+        if (RoomFxTypes.Of(Type).Overlay == RoomFxOverlayMotion.Rain)
         {
             Offset16<OverlayPixels> cameraDelta = previousCamera.AsOverlayScroll() - frame.Camera.AsOverlayScroll();
             Scroll = Position16<OverlayPixels>.Zero + cameraDelta + drift.Whole;
@@ -402,7 +399,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
         }
 
-        if (Type == RoomFxType.Spores)
+        if (RoomFxTypes.Of(Type).Overlay == RoomFxOverlayMotion.Spores)
         {
             // Spores sample each signed running sum before adding its velocity.
             // Unlike rain, spores are anchored to the current camera, not its delta.
@@ -589,7 +586,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// statue's FX starts only the water surface's motion; its second motion moves the statue vertically instead of
     /// installing the ordinary background X wave.
     /// </summary>
-    private bool RunsWaterBackgroundWave => Type == RoomFxType.Water && Liquid is RoomWater { BackgroundWave: true };
+    private bool RunsWaterBackgroundWave => RoomFxTypes.Of(Type).WavesBackground && Liquid is RoomWater { BackgroundWave: true };
 
     /// <summary>Advances rise and tide state before publishing the current liquid surface.</summary>
     private void AdvanceLiquidMotion(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
@@ -677,7 +674,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     {
         // Water's phases only wait/move. Lava and acid's
         // parallel phases additionally request sound and a global earthquake.
-        if (Type is not (RoomFxType.Lava or RoomFxType.Acid))
+        if (!RoomFxTypes.IsLavaOrAcid(Type))
             return;
         HandleEarthquakeSoundEffect(randomNumber, earthquakeSoundDelay);
         SustainedEarthquake = RoomEarthquakeDefinitions.RisingLiquidShake;
@@ -751,32 +748,19 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private void StepLiquidTide()
     {
-        int peakPixels;
-        RotationAngle positiveDelta;
-        RotationAngle negativeDelta;
-        switch (Liquid?.Tide ?? LiquidTide.None)
+        LiquidTide tide = Liquid?.Tide ?? LiquidTide.None;
+        if (tide == LiquidTide.None)
         {
-            case LiquidTide.Small:
-                peakPixels = LiquidTideDefinitions.SmallTidePeakPixels;
-                positiveDelta = LiquidTideDefinitions.SmallTidePositivePhaseDelta;
-                negativeDelta = LiquidTideDefinitions.SmallTideNegativePhaseDelta;
-                break;
-            case LiquidTide.Large:
-                peakPixels = LiquidTideDefinitions.LargeTidePeakPixels;
-                positiveDelta = LiquidTideDefinitions.LargeTidePositivePhaseDelta;
-                negativeDelta = LiquidTideDefinitions.LargeTideNegativePhaseDelta;
-                break;
-            case LiquidTide.None:
-                TideOffset = SignedSixteenSixteen.Zero;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined liquid tide {Liquid?.Tide}.");
+            TideOffset = SignedSixteenSixteen.Zero;
+            return;
         }
+        // Each moving tide's reach and pace are its motion (#2557); a tide the catalog does not list fails loudly.
+        LiquidTideMotion motion = Ensure.Listed(LiquidTideDefinitions.Motions, tide);
 
         // The tide follows the negative cosine of its phase, not the sine: the sine a quarter turn behind it. A crest's
         // height is positive, so the offset lies above the base line exactly while the wave is negative.
-        TideOffset = Trigonometry.SineDisplacement((TidePhase - RotationAngle.QuarterTurn).ToTrigonometryAngle(), peakPixels);
-        AdvanceTidePhase(TideOffset.IsNegative ? negativeDelta : positiveDelta);
+        TideOffset = Trigonometry.SineDisplacement((TidePhase - RotationAngle.QuarterTurn).ToTrigonometryAngle(), motion.PeakPixels);
+        AdvanceTidePhase(TideOffset.IsNegative ? motion.AbovePhaseDelta : motion.AtOrBelowPhaseDelta);
     }
 
     /// <summary>Turns the tide phase on by <paramref name="delta"/>, continuing round past a full turn.</summary>

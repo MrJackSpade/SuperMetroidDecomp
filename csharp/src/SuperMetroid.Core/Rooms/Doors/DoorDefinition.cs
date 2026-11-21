@@ -23,4 +23,12 @@ public sealed record DoorDefinition(
     Position16<RoomBlocks>? RoomObjectBlock,
     Position16<RoomScreens> DestinationScreen,
     DoorSamusSpeed SamusSpeed,
-    DoorSetup Setup);
+    DoorSetup Setup)
+{
+    /// <summary>
+    /// Whether passing the door exchanges explored maps (#1500): the live explored map becomes the map of the area Samus
+    /// leaves, then loads from the stored map of the area she enters. The doors between areas do, elevators among them,
+    /// except the escape's door from the Climb down into Tourian's fourth escape room, which leaves the live map as it is.
+    /// </summary>
+    public bool ExchangesExploredMaps { get; init; }
+}

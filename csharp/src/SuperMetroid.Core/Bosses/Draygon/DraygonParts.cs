@@ -226,14 +226,15 @@ internal sealed class DraygonParts
     private void TrackSamusWithDraygonEye(DraygonEnemyState state, SamusState samus, HorizontalDirection facing)
     {
         RoomEnemyPlace eye = state.Eye;
+        // The eye's mouth, toward his facing, is where its bubble rises and where its gaze starts.
+        Offset16<RoomPixels> mouth = TowardFacing(new(DraygonEyeEffects.HorizontalOffset, DraygonEyeEffects.VerticalOffset), facing);
         // The eye breathes its bubble on its cadence whether or not its gaze turns,
         // as one of the room's dust and explosion effects.
         if (DraygonCadenceDefinitions.EyeBreathBubble.IsDue(eye.FrameCounter))
             _projectiles.SpawnDustOrExplosion(
-                new(OffRoomPlaces.Place(eye.Position.X.Whole + (DraygonEyeEffects.HorizontalOffset.Toward(facing))), OffRoomPlaces.Place(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
+                new(OffRoomPlaces.Place(eye.Position.X.Whole + mouth.X), OffRoomPlaces.Place(eye.Position.Y.Whole + mouth.Y)),
                 DraygonEyeEffects.DustVariant);
-        Position16<RoomPixels> gaze = eye.Position.Whole +
-            TowardFacing(new(DraygonEyeEffects.HorizontalOffset, DraygonEyeEffects.VerticalOffset), facing);
+        Position16<RoomPixels> gaze = eye.Position.Whole + mouth;
         TrigonometryAngle aim = EnemyMath.CalculateAimAngle(samus.Position.Whole - gaze);
         DraygonEyeState eyeState = state.EyeTracking;
         if (aim == eyeState.LookAngle)
@@ -242,24 +243,8 @@ internal sealed class DraygonParts
         eyeState.LookAngle = aim;
         // The straight direction nearest the aim, up, right, down or left, chooses the look.
         CompassDirection direction = aim.NearestStraightDirection();
-        DraygonSegment look = direction switch
-        {
-            CompassDirection.Up => facing == HorizontalDirection.Right
-                ? DraygonSegment.EyeFacingRightLookingUp
-                : DraygonSegment.EyeFacingLeftLookingUp,
-            CompassDirection.Right => facing == HorizontalDirection.Right
-                ? DraygonSegment.EyeFacingRightLookingRight
-                : DraygonSegment.EyeFacingLeftLookingRight,
-            CompassDirection.Down => facing == HorizontalDirection.Right
-                ? DraygonSegment.EyeFacingRightLookingDown
-                : DraygonSegment.EyeFacingLeftLookingDown,
-            CompassDirection.Left => facing == HorizontalDirection.Right
-                ? DraygonSegment.EyeFacingRightLookingLeft
-                : DraygonSegment.EyeFacingLeftLookingLeft,
-            CompassDirection.UpRight or CompassDirection.DownRight or CompassDirection.DownLeft or CompassDirection.UpLeft =>
-                throw new InvalidOperationException($"Draygon's eye aim {aim} is nearest the diagonal {direction}."),
-            _ => throw new InvalidOperationException($"Draygon's eye aim {aim} is nearest no straight direction."),
-        };
+        if (!DraygonAnimations.EyeLooks.TryGetValue(new(facing, direction), out DraygonSegment look))
+            throw new InvalidOperationException($"Draygon's eye aim {aim} is nearest {direction}, which is no straight direction.");
         state.EyePart.StartAnimation(look);
     }
 

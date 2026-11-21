@@ -351,12 +351,7 @@ internal static class EnemyDefinitionFrameDefinitions
     ];
 
     /// <summary>The frames <c>Bosses/MotherBrain/BabyMetroidCutsceneBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] BabyMetroidCutscene =
-    [
-        EnemyFrameId.BabyMetroidNucleiBright,
-        EnemyFrameId.BabyMetroidNucleiGlowing,
-        EnemyFrameId.BabyMetroidNucleiDark,
-    ];
+    private static readonly EnemyFrameId[] BabyMetroidCutscene = BabyMetroid;
 
     /// <summary>The frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> shows for <c>MotherBrainBody</c>.</summary>
     private static readonly EnemyFrameId[] MotherBrainBodyFrames =
@@ -1949,13 +1944,7 @@ internal static class EnemyDefinitionFrameDefinitions
     ];
 
     /// <summary>The frames <c>Enemies/Shutters/ShuttersBehavior.cs</c> shows for <c>Kamer</c>.</summary>
-    private static readonly EnemyFrameId[] KamerFrames =
-    [
-        EnemyFrameId.PlatformLightDark,
-        EnemyFrameId.PlatformLightDim,
-        EnemyFrameId.PlatformLightLit,
-        EnemyFrameId.PlatformLightBright,
-    ];
+    private static readonly EnemyFrameId[] KamerFrames = SuspensorPlatformFrames;
 
     /// <summary>The frames <c>Enemies/Shutters/ShuttersBehavior.cs</c> shows for <c>ShutterDestroyable</c>, <c>ShutterShootable</c>.</summary>
     private static readonly EnemyFrameId[] ShutterDestroyableFrames =

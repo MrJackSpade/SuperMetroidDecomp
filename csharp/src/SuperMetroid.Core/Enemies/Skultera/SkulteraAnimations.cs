@@ -11,46 +11,17 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// </summary>
 internal static class SkulteraAnimations
 {
+    /// <summary>The updates each of a turn's poses shows, from its first to its last: slow at either end, quick through the middle.</summary>
+    private static readonly int[] TurnPoseUpdates = [13, 10, 8, 6, 6, 8, 10, 13];
+
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<SkulteraSegment, EnemyFrameId, SkulteraCue> Segments { get; } = new(
         new Dictionary<SkulteraSegment, AnimationBeat<EnemyFrameId, SkulteraCue>[]>
     {
-        [P.SwimmingLeft] =
-        [
-            Show(EnemyFrameId.SkulteraSwimmingLeftTailStraight, 14),
-            Show(EnemyFrameId.SkulteraSwimmingLeftTailWaving, 14),
-            Show(EnemyFrameId.SkulteraSwimmingLeftTailFlicking, 14),
-        ],
-        [P.TurningRight] =
-        [
-            Show(EnemyFrameId.SkulteraTurningRightBy22, 13),
-            Show(EnemyFrameId.SkulteraTurningRightBy45, 10),
-            Show(EnemyFrameId.SkulteraTurningRightBy67, 8),
-            Show(EnemyFrameId.SkulteraTurningRightBy90, 6),
-            Show(EnemyFrameId.SkulteraTurningRightBy112, 6),
-            Show(EnemyFrameId.SkulteraTurningRightBy135, 8),
-            Show(EnemyFrameId.SkulteraTurningRightBy157, 10),
-            Show(EnemyFrameId.SkulteraTurningRightBy180, 13),
-            Cue(new(K.FinishTurn)),
-        ],
-        [P.SwimmingRight] =
-        [
-            Show(EnemyFrameId.SkulteraSwimmingRightTailStraight, 14),
-            Show(EnemyFrameId.SkulteraSwimmingRightTailWaving, 14),
-            Show(EnemyFrameId.SkulteraSwimmingRightTailFlicking, 14),
-        ],
-        [P.TurningLeft] =
-        [
-            Show(EnemyFrameId.SkulteraTurningLeftBy22, 13),
-            Show(EnemyFrameId.SkulteraTurningLeftBy45, 10),
-            Show(EnemyFrameId.SkulteraTurningLeftBy67, 8),
-            Show(EnemyFrameId.SkulteraTurningLeftBy90, 6),
-            Show(EnemyFrameId.SkulteraTurningLeftBy112, 6),
-            Show(EnemyFrameId.SkulteraTurningLeftBy135, 8),
-            Show(EnemyFrameId.SkulteraTurningLeftBy157, 10),
-            Show(EnemyFrameId.SkulteraTurningLeftBy180, 13),
-            Cue(new(K.FinishTurn)),
-        ],
+        [P.SwimmingLeft] = Swimming(EnemyFrameId.SkulteraSwimmingLeftTailStraight, EnemyFrameId.SkulteraSwimmingLeftTailWaving, EnemyFrameId.SkulteraSwimmingLeftTailFlicking),
+        [P.TurningRight] = Turning(EnemyFrameId.SkulteraTurningRightBy22, EnemyFrameId.SkulteraTurningRightBy45, EnemyFrameId.SkulteraTurningRightBy67, EnemyFrameId.SkulteraTurningRightBy90, EnemyFrameId.SkulteraTurningRightBy112, EnemyFrameId.SkulteraTurningRightBy135, EnemyFrameId.SkulteraTurningRightBy157, EnemyFrameId.SkulteraTurningRightBy180),
+        [P.SwimmingRight] = Swimming(EnemyFrameId.SkulteraSwimmingRightTailStraight, EnemyFrameId.SkulteraSwimmingRightTailWaving, EnemyFrameId.SkulteraSwimmingRightTailFlicking),
+        [P.TurningLeft] = Turning(EnemyFrameId.SkulteraTurningLeftBy22, EnemyFrameId.SkulteraTurningLeftBy45, EnemyFrameId.SkulteraTurningLeftBy67, EnemyFrameId.SkulteraTurningLeftBy90, EnemyFrameId.SkulteraTurningLeftBy112, EnemyFrameId.SkulteraTurningLeftBy135, EnemyFrameId.SkulteraTurningLeftBy157, EnemyFrameId.SkulteraTurningLeftBy180),
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
@@ -64,6 +35,18 @@ internal static class SkulteraAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<SkulteraSegment> StartingWith(SkulteraSegment segment) => StartingAt[segment];
+
+    /// <summary>A Skultera swimming over a side's poses, <paramref name="tailStraight"/>, <paramref name="tailWaving"/>, <paramref name="tailFlicking"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, SkulteraCue>[] Swimming(EnemyFrameId tailStraight, EnemyFrameId tailWaving, EnemyFrameId tailFlicking) =>
+    [
+        Show(tailStraight, 14),
+        Show(tailWaving, 14),
+        Show(tailFlicking, 14),
+    ];
+
+    /// <summary>A Skultera turning over a side's <paramref name="poses"/>, turned by 22 degrees through to 180, each as <see cref="TurnPoseUpdates"/> paces it.</summary>
+    private static AnimationBeat<EnemyFrameId, SkulteraCue>[] Turning(params EnemyFrameId[] poses) =>
+        [.. poses.Zip(TurnPoseUpdates, Show), Cue(new(K.FinishTurn))];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, SkulteraCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, SkulteraCue>.Frame(frame, duration);

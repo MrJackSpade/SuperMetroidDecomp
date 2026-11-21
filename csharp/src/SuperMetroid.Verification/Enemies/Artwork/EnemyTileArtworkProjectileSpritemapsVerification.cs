@@ -6,7 +6,6 @@ using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.FallingSparks;
-using SuperMetroid.Core.Enemies.SaveStation;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.MovieReplay;
@@ -237,7 +236,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             ShownFamily("Ceres falling debris", RoomEnemyProjectileKind.CeresFallingDebris,
                 CeresFallingDebrisVisualDefinitions.Frames.Select(debris => CeresFallingDebrisVisualDefinitions.ShownProjectileFrames[debris])),
-            ShownFamily("save-station electricity", RoomEnemyProjectileKind.SaveStationElectricity, SaveStationElectricityAnimations.Segments.Frames),
+            ShownFamily("save-station electricity", RoomEnemyProjectileKind.SaveStationElectricity, [EnemyProjectileFrameId.SaveStationElectricityBand]),
             ShownFamily("gunship dust", RoomEnemyProjectileKind.GunshipLiftoffDustCloud, GunshipDustAnimations.Segments.Frames),
             ShownFamily("falling spark", RoomEnemyProjectileKind.FallingSpark, FallingSparkAnimations.Segments.Frames),
             ShownFamily("Magdollite lava", RoomEnemyProjectileKind.LavaThrownByMagdollite, MagdolliteLavaAnimations.Segments.Frames),

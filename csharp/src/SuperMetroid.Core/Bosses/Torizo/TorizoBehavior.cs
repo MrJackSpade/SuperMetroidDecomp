@@ -15,19 +15,23 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PartFactories.Keys];
 
     /// <summary>Bomb Torizo or Golden Torizo (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Torizo definition.</exception>
-    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    {
-        EnemyDefinitionId definition = Ensure.NotNull(occupant).DefinitionId;
-        if (definition == EnemyDefinitionId.BombTorizo)
-            return EnemyOccupant.FromSurroundings(new BombTorizoEntity(this, occupant, place, common));
-        if (definition == EnemyDefinitionId.GoldenTorizo)
-            return EnemyOccupant.FromSurroundings(new GoldenTorizoEntity(this, occupant, place, common));
-        throw new InvalidOperationException($"The Torizo species creates no {occupant.DefinitionId}.");
-    }
+    /// <exception cref="KeyNotFoundException">The place holds no Torizo definition.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        PartFactories[Ensure.NotNull(occupant).DefinitionId](this, occupant, place, common);
+
+    /// <summary>
+    /// The factory of each part the species creates, by the definition that places it: the species serves these
+    /// definitions, and each builds its own part from the species it is given.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, EnemyPartFactory<TorizoBehavior>> PartFactories =
+        new()
+        {
+            [EnemyDefinitionId.BombTorizo] = static (species, occupant, place, common) => EnemyOccupant.FromSurroundings(new BombTorizoEntity(species, occupant, place, common)),
+            [EnemyDefinitionId.GoldenTorizo] = static (species, occupant, place, common) => EnemyOccupant.FromSurroundings(new GoldenTorizoEntity(species, occupant, place, common)),
+        };
 
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
@@ -156,7 +160,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Golden Torizo's main behaviour counts consecutive space-jump poses for its anti-stall leap
         // decision, then runs the same main phases as Bomb Torizo.
-        if (samus.Pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose)
+        if (SamusPoseMetadata.IsSpaceJumpPose(samus.Pose))
             state.CountSamusSpaceJumpFrame();
         else
             state.SamusSpaceJumpFrames = 0;
@@ -398,9 +402,9 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     inputs.Samus,
                     TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
 
-            case TorizoCue.Choice { Kind: TorizoChoiceKind.BombAttack } choice:
+            case TorizoCue.Choice { Kind: TorizoChoiceKind.BombAttack or TorizoChoiceKind.GoldenAttack } choice:
             {
-                bool chooseFirst = inputs.Samus.Missiles < TorizoDecisionDefinitions.BombFirstAttackMissiles ||
+                bool chooseFirst = inputs.Samus.Missiles < state.Variant.FirstAttackMissiles ||
                     TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
                 return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
             }
@@ -535,13 +539,6 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     state,
                     inputs.Samus,
                     TorizoBranches.Target(branch.Kind, TorizoFacing.Posture(torizo)));
-
-            case TorizoCue.Choice { Kind: TorizoChoiceKind.GoldenAttack } choice:
-            {
-                bool chooseFirst = inputs.Samus.Missiles < TorizoDecisionDefinitions.GoldenFirstAttackMissiles ||
-                    TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
-                return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
-            }
 
             case TorizoCue.ShowArtwork showArtwork:
                 ShowTorizoArtwork(state, showArtwork.Look);

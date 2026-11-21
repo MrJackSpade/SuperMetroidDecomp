@@ -6,6 +6,10 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <summary>Kraid's typed rock animations (#641, #1600, #1817).</summary>
 internal static class KraidRockAnimations
 {
+    /// <summary>The spat rock's flare burst pictures (#2557).</summary>
+    private static FlareBurst Burst { get; } = new(EnemyProjectileFrameId.KraidRockSpark, EnemyProjectileFrameId.KraidRockFlareBall, EnemyProjectileFrameId.KraidRockFlareRingCored,
+        EnemyProjectileFrameId.KraidRockFlareRing, EnemyProjectileFrameId.KraidRockFlareRingFading);
+
     /// <summary>
     /// Each rock segment's beats: the shared and right rising rocks hold their still pose for good (#1627); the spat rock's burst stops its flight, shows the rock breaking apart, then deletes itself.
     /// </summary>
@@ -17,11 +21,7 @@ internal static class KraidRockAnimations
             [KraidRockSegment.SpitRockShot] =
             [
                 new Beat.Event(KraidRockCue.StopFlyingFromNextPass),
-                new Beat.Frame(EnemyProjectileFrameId.KraidRockSpark, 4),
-                new Beat.Frame(EnemyProjectileFrameId.KraidRockFlareBall, 4),
-                new Beat.Frame(EnemyProjectileFrameId.KraidRockFlareRingCored, 4),
-                new Beat.Frame(EnemyProjectileFrameId.KraidRockFlareRing, 4),
-                new Beat.Frame(EnemyProjectileFrameId.KraidRockFlareRingFading, 4),
+                .. FlareBurst.Steady<KraidRockCue>(Burst, 4),
                 new Beat.Event(KraidRockCue.Delete),
             ],
         });

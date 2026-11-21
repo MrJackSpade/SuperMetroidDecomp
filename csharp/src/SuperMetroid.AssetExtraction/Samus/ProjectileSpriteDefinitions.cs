@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Artwork;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -172,10 +173,8 @@ public static class ProjectileSpriteDefinitions
         ChargedSpazerLeftSplitting,
         .. Poses(ProjectileSpriteGroup.ChargedSpazer, "Right.Parting", "Right.Spreading", "Right.NearlySpread", "Right.Spread"),
         new(ProjectileSpriteGroup.ChargedPower, "Left"),
-        ChargedPowerUpLeft, ChargedPowerUpLeft, ChargedPowerUpLeft, ChargedPowerUpLeft, ChargedPowerUpLeft, ChargedPowerUpLeft,
-        ChargedPowerUpLeft,
-        ChargedPowerOrb, ChargedPowerOrb, ChargedPowerOrb, ChargedPowerOrb,
-        ChargedPowerOrb, ChargedPowerOrb, ChargedPowerOrb, ChargedPowerOrb,
+        .. Repeated(ChargedPowerUpLeft, 7),
+        .. Repeated(ChargedPowerOrb, 8),
         ChargedWaveCoreStarburst, ChargedWaveCore, ChargedWaveCoreStarburst, ChargedWaveCore,
         PowerLeft, PowerUpLeft, PowerUp, PowerUpRight,
         PowerLeft, new(ProjectileSpriteGroup.SpazerStartup, "Left.Long"),

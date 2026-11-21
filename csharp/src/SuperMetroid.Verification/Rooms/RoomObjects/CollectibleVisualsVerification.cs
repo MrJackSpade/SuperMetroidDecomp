@@ -26,7 +26,7 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleDrawCollision), () => VerifyCollectibleDrawCollision(rom));
         Suite(nameof(VerifyCollectibleDrawVisuals), () => VerifyCollectibleDrawVisuals(rom));
         Suite(nameof(VerifyCollectibleDrawIdentity), () => VerifyCollectibleDrawIdentity(rom));
-        InstalledRoomObjectCollectibleVisuals stock = InstalledRoomObjectCollectibleVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.Collectible;
 
         Suite(nameof(VerifyCollectibleOrbSelector), () => VerifyCollectibleOrbSelector(rom));
         Suite(nameof(VerifyCollectibleRevealSelector), () => VerifyCollectibleRevealSelector(rom));
@@ -34,7 +34,7 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleDynamicSelector), () => VerifyCollectibleDynamicSelector(rom));
 
         CollectibleVisualsRenderResult Render(
-            InstalledRoomObjectCollectibleVisuals visuals)
+            InstalledRoomObjectPictures visuals)
         {
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);

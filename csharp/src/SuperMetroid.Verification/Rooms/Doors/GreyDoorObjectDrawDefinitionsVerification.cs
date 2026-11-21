@@ -34,7 +34,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
 
         RoomObjectDrawLists.DrawList[] lists =
             RoomObjectGreyDoorVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        InstalledRoomObjectGreyDoorVisuals stock = InstalledRoomObjectGreyDoorVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.GreyDoor;
         AssertEqual("grey-right-closed", RoomObjectGreyDoorVisualFiles.VisualId(NativeObjectDraws.At<GreyDoorCaps.Draw>(0xa6d7)),
             "the grey right cap's first frame is the draw the cartridge stores at $A6D7");
         AssertEqual(RoomLevelWordCodec.Decode(ReadWord(rom, 0x840000 | (0xa6d7 + 2))).Appearance,

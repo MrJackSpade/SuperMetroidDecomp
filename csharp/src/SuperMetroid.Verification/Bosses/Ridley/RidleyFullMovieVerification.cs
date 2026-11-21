@@ -433,7 +433,7 @@ internal static class RidleyFullMovieVerification
         foreach (AreaId samusArea in new[] { AreaId.Ceres, AreaId.Norfair, AreaId.Tourian })
         {
             var samus = runtime.Player.IntroducedSamus;
-            samus.Ground = SamusGround.Of(RoomDefinitions.FirstIn(samusArea));
+            samus.Ground = RoomDefinitions.FirstIn(samusArea).Ground;
             runtime.Enemies.RidleyProjectiles.SpawnRidleyFireball(runtime.Enemies.Places.InUpdateOrder[0],
                 (runtime.Enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.")).Flight, afterburns: 0);
             var fireball = runtime.Enemies.Projectiles.SpawnedInPlace(slotIndex--);

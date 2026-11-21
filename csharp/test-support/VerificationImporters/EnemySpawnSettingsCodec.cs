@@ -97,7 +97,7 @@ internal static class EnemySpawnSettingsCodec
 
     /// <summary>The count a falling tube's population entry loads its fall wait with: the main tube's wait less its last update, zero for the others.</summary>
     private static int MotherBrainTubeFallWaitCount(MotherBrainTubePiece piece) =>
-        piece == MotherBrainTubePiece.Main ? MotherBrainFallingTubePopulationDefinitions.MainFallWaitUpdates - 1 : 0;
+        MotherBrainFallingTubePopulationDefinitions.Bodies[piece].FallWaitUpdates is int wait ? wait - 1 : 0;
 
     private static RinkaSpawnSettings DecodeRinka(PopulationWords words, Position16<RoomPixels> position)
     {

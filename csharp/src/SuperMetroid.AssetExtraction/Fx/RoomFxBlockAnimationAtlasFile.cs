@@ -29,28 +29,19 @@ public static class RoomFxBlockAnimationAtlasFile
     private static IEnumerable<RoomFxAtlasSegment> EnumerateSegments()
     {
         int total = 0;
-        foreach (BlockAnimation definition in RoomFxBlockAnimationLoops.All)
-            if (definition is not (BlockAnimation.Spores or BlockAnimation.HorizontalSpikes))
-                foreach (var segment in Frames(definition))
-                {
-                    total += segment.ByteCount;
-                    yield return segment;
-                }
-        BlockAnimation treadmill = BlockAnimation.WreckedShipTreadmillRightwards;
-        for (int frame = 0; frame < RoomFxBlockAnimationAtlasFormat.TreadmillFrameCount; frame++)
-        {
-            total += RoomFxBlockAnimationLoops.TreadmillFrameByteCount;
-            yield return new RoomFxAtlasSegment.Image(treadmill.TreadmillImage(frame), RoomFxBlockAnimationLoops.TreadmillFrameByteCount);
-        }
-        var statues = new RoomFxAtlasSegment.TourianStatueStrip();
-        total += statues.ByteCount;
-        yield return statues;
-        foreach (var segment in Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.Spores)))
-        {
-            total += segment.ByteCount;
-            yield return segment;
-        }
-        foreach (var segment in Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.HorizontalSpikes)))
+        IEnumerable<RoomFxAtlasSegment>[] strip =
+        [
+            Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.MaridiaSandCeiling)),
+            Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.MaridiaSandFalling)),
+            Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.Lava)),
+            Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.Acid)),
+            Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.Rain)),
+            Treadmill(BlockAnimation.WreckedShipTreadmillRightwards),
+            [new RoomFxAtlasSegment.TourianStatueStrip()],
+            Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.Spores)),
+            Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.HorizontalSpikes)),
+        ];
+        foreach (RoomFxAtlasSegment segment in strip.SelectMany(part => part))
         {
             total += segment.ByteCount;
             yield return segment;
@@ -61,5 +52,10 @@ public static class RoomFxBlockAnimationAtlasFile
         // Each distinct picture once: the last spike step reuses a picture already present in the strip.
         static IEnumerable<RoomFxAtlasSegment> Frames(BlockAnimation definition) =>
             definition.Images.Select(image => new RoomFxAtlasSegment.Image(image, definition.PictureByteCount));
+
+        // The treadmill's frames, each its own picture.
+        static IEnumerable<RoomFxAtlasSegment> Treadmill(BlockAnimation treadmill) =>
+            Enumerable.Range(0, RoomFxBlockAnimationAtlasFormat.TreadmillFrameCount).Select(frame =>
+                new RoomFxAtlasSegment.Image(treadmill.TreadmillImage(frame), RoomFxBlockAnimationLoops.TreadmillFrameByteCount));
     }
 }

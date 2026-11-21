@@ -61,21 +61,21 @@ internal sealed class TitleGameSequence(FrontendSession session) : IGamePhase
         session.ForgetQueuedAudio();
         session.ForgetSpacetimeRestart();
         session.Enter(TitleStep.Showing);
-        session.display.PublishMenu(session.ActiveTitle);
+        session.display.Publish(session.ActiveTitle);
     }
 
     /// <summary>One update of the title, which leaves for the save slots or an attract demo once it asks to.</summary>
     private void ShowTitle(ControllerButton controllerInput)
     {
         session.ActiveTitle.Step(controllerInput);
-        session.display.PublishMenu(session.ActiveTitle);
+        session.display.Publish(session.ActiveTitle);
         if (session.ActiveTitle.Outcome == TitleSequenceOutcome.FileSelect)
         {
             // The title enters file select only after the slow fade reaches black.
             session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.ScreenContent,
                 session.Artwork.SpriteSheets));
             session.Enter(FileSelectStep.SaveSlots);
-            session.display.PublishMenu(session.ActiveFileSelect);
+            session.display.Publish(session.ActiveFileSelect);
         }
         else if (session.ActiveTitle.Outcome == TitleSequenceOutcome.Demo)
         {

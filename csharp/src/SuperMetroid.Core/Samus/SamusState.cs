@@ -167,11 +167,11 @@ public sealed class SamusState
     /// The ground her footstep and landing effects go by (#2416): every room load sets its room's, and a scene that
     /// loads no room sets its own; null until either does.
     /// </summary>
-    internal SamusGround? Ground { get; set; }
+    internal RoomGround? Ground { get; set; }
 
     /// <summary>The ground her footstep and landing effects go by, once a room or a scene has set it.</summary>
     /// <exception cref="InvalidOperationException">Nothing has set her ground yet.</exception>
-    internal SamusGround StandingGround => Ground ?? throw new InvalidOperationException("Samus's ground is read before any room or scene has set it.");
+    internal RoomGround StandingGround => Ground ?? throw new InvalidOperationException("Samus's ground is read before any room or scene has set it.");
 
     /// <summary>
     /// Stored-shine colouring countdown and the shinespark's hold on her movement.
@@ -902,27 +902,30 @@ public sealed class SamusState
     public SamusHealthWarningState HealthWarning => field ??= new();
 
     /// <summary>
-    /// Copies the inventory and energy from <paramref name="source"/>: what Samus keeps when she is set up again. A Samus
-    /// created fresh and given these values is the same player set up again.
+    /// What Samus carries, read or replaced whole (#2557): what a save keeps of her, and what she keeps when she is set up
+    /// again. A Samus created fresh and given it is the same player set up again.
     /// </summary>
-    internal void CopyInventoryFrom(SamusState source)
+    internal SamusInventory Inventory
     {
-        Ensure.NotNull(source);
-        EquippedItems = source.EquippedItems;
-        CollectedItems = source.CollectedItems;
-        EquippedBeams = source.EquippedBeams;
-        CollectedBeams = source.CollectedBeams;
-        ReserveTankMode = source.ReserveTankMode;
-        Health = source.Health;
-        MaxHealth = source.MaxHealth;
-        Missiles = source.Missiles;
-        MaxMissiles = source.MaxMissiles;
-        SuperMissiles = source.SuperMissiles;
-        MaxSuperMissiles = source.MaxSuperMissiles;
-        PowerBombs = source.PowerBombs;
-        MaxPowerBombs = source.MaxPowerBombs;
-        MaxReserveEnergy = source.MaxReserveEnergy;
-        ReserveEnergy = source.ReserveEnergy;
+        get => new(EquippedItems, CollectedItems, EquippedBeams, CollectedBeams, ReserveTankMode, Health, MaxHealth, Missiles, MaxMissiles, SuperMissiles, MaxSuperMissiles, PowerBombs, MaxPowerBombs, MaxReserveEnergy, ReserveEnergy);
+        set
+        {
+            EquippedItems = value.EquippedItems;
+            CollectedItems = value.CollectedItems;
+            EquippedBeams = value.EquippedBeams;
+            CollectedBeams = value.CollectedBeams;
+            ReserveTankMode = value.ReserveMode;
+            Health = value.Health;
+            MaxHealth = value.MaxHealth;
+            Missiles = value.Missiles;
+            MaxMissiles = value.MaxMissiles;
+            SuperMissiles = value.SuperMissiles;
+            MaxSuperMissiles = value.MaxSuperMissiles;
+            PowerBombs = value.PowerBombs;
+            MaxPowerBombs = value.MaxPowerBombs;
+            MaxReserveEnergy = value.MaxReserveEnergy;
+            ReserveEnergy = value.ReserveEnergy;
+        }
     }
 
     /// <summary>

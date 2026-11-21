@@ -20,11 +20,15 @@ internal sealed class BombTorizoHandObjects
     /// <summary>The place the hand holds in the room's update order, which it frees as it leaves.</summary>
     private RoomObjectPlace? _handPlace;
 
-    /// <summary>Connects the statue hand to Samus and to the room objects' audio requests.</summary>
-    internal BombTorizoHandObjects(IRoomSamusAccess samus, RoomObjectSoundQueue sounds)
+    /// <summary>The room's enemy projectiles, among which the hand's fragments spawn.</summary>
+    private readonly IBombTorizoStatueFragmentSpawner _fragments;
+
+    /// <summary>Connects the statue hand to Samus, to the room objects' audio requests and to the room's enemy projectiles.</summary>
+    internal BombTorizoHandObjects(IRoomSamusAccess samus, RoomObjectSoundQueue sounds, IBombTorizoStatueFragmentSpawner fragments)
     {
         _samus = samus;
         _sounds = Ensure.NotNull(sounds);
+        _fragments = Ensure.NotNull(fragments);
     }
     /// <summary>The room objects' audio requests, which the hand's music joins.</summary>
     private readonly RoomObjectSoundQueue _sounds;
@@ -59,8 +63,8 @@ internal sealed class BombTorizoHandObjects
     internal bool SamusHasBombs() =>
         _samus.Current.CollectedItems.HasAny(SamusEquipmentFlags.Bombs);
     /// <summary>Throws statue fragment <paramref name="fragment"/> from the hand's block into the step's <paramref name="outcome"/>.</summary>
-    internal static void ThrowFragment(RoomObjectPlace place, BombTorizoStatueFragment fragment, RoomObjectStepOutcome outcome) =>
-        Ensure.NotNull(outcome).Threw(new BombTorizoStatueProjectileRequest(fragment, Ensure.NotNull(place).Block));
+    internal void ThrowFragment(RoomObjectPlace place, BombTorizoStatueFragment fragment, RoomObjectStepOutcome outcome) =>
+        Ensure.NotNull(outcome).Threw(new BombTorizoStatueProjectileRequest(fragment, Ensure.NotNull(place).Block, _fragments));
 
     /// <summary>
     /// Queues the Torizo's awakening music now, after the shortest wait a queued song takes.

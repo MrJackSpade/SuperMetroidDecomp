@@ -567,7 +567,7 @@ internal sealed class SuperMetroidRuntime
         // this frame so its first displacement is visible immediately.
         if (room.FxOverlay.SustainedEarthquake is { } risingLiquidShake)
             room.Enemies.Earthquake.Sustain(risingLiquidShake);
-        if (room.FxOverlay.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid)
+        if (RoomFxTypes.ShowsLiquid(room.FxOverlay.Type))
             samus.LiquidPhysics.ConfigureFor(room.FxOverlay);
     }
 
@@ -882,7 +882,7 @@ internal sealed class SuperMetroidRuntime
                !PowerBombExplosionActive &&
                !samus.Xray.TimeIsFrozen &&
                !DoorEntered &&
-               Room.ActiveRoom.Area != AreaId.Ceres &&
+               AreaIds.Of(Room.ActiveRoom.Area).AllowsPausing &&
                PlayerActions.NewlyPressed.HasAny(GameplayAction.Start);
     }
 

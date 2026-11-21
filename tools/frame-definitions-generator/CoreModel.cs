@@ -12,9 +12,13 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// <param name="Definitions">The EnemyDefinitionId member names it serves, in declaration order.</param>
 /// <param name="PartsTable">The parts table its definitions come from, when they come from one.</param>
 /// <param name="Parts">The part the parts table maps each definition to, when its entry names an enum member.</param>
+/// <param name="PartEntries">
+/// The value the parts table's entry holds for each definition (a part, or the factory building the definition's entity),
+/// which a lookup of the definition's entry runs alone.
+/// </param>
 internal sealed record Behaviour(
     INamedTypeSymbol Type, string Family, string Path, IReadOnlyList<string> Definitions, ISymbol? PartsTable,
-    IReadOnlyDictionary<string, IFieldSymbol> Parts);
+    IReadOnlyDictionary<string, IFieldSymbol> Parts, IReadOnlyDictionary<string, ExpressionSyntax> PartEntries);
 
 /// <summary>
 /// The semantic facts the generator reads from SuperMetroid.Core: its types, the enemy behaviours and the definitions
@@ -853,6 +857,7 @@ internal sealed class CoreModel
         SemanticModel model = ModelOf(collection.SyntaxTree);
         var names = new List<string>();
         var parts = new Dictionary<string, IFieldSymbol>(StringComparer.Ordinal);
+        var entries = new Dictionary<string, ExpressionSyntax>(StringComparer.Ordinal);
         ISymbol? partsTable = null;
         foreach (CollectionElementSyntax element in collection.Elements)
         {
@@ -866,9 +871,10 @@ internal sealed class CoreModel
                     if (partsTable is not null)
                         throw new InvalidDataException($"{type.ToDisplayString()}.Definitions spreads more than one parts table.");
                     partsTable = tableSymbol?.OriginalDefinition;
-                    foreach ((string key, IFieldSymbol? part) in PartsTableKeys(tableSymbol, type))
+                    foreach ((string key, IFieldSymbol? part, ExpressionSyntax value) in PartsTableKeys(tableSymbol, type))
                     {
                         names.Add(key);
+                        entries.Add(key, value);
                         if (part is not null)
                             parts.Add(key, part);
                     }
@@ -880,7 +886,7 @@ internal sealed class CoreModel
         if (names.Count == 0)
             throw new InvalidDataException($"{type.ToDisplayString()} declares no definitions.");
         string family = Regex.Replace(type.Name, "(Behavior|Factory)$", "");
-        return new Behaviour(type, family, RelativePath(collection.SyntaxTree), names, partsTable, parts);
+        return new Behaviour(type, family, RelativePath(collection.SyntaxTree), names, partsTable, parts, entries);
     }
 
     /// <summary>The EnemyDefinitionId member <paramref name="expression"/> names.</summary>
@@ -890,8 +896,11 @@ internal sealed class CoreModel
             ? field.Name
             : throw new InvalidDataException($"{owner.ToDisplayString()}: {expression} is not an EnemyDefinitionId member.");
 
-    /// <summary>The definitions keying a parts table, in its initializer's order, each with the enum member its entry maps it to.</summary>
-    private List<(string Key, IFieldSymbol? Part)> PartsTableKeys(ISymbol? table, INamedTypeSymbol owner)
+    /// <summary>
+    /// The definitions keying a parts table, in its initializer's order, each with its entry's value and the enum member
+    /// that value names, when it names one.
+    /// </summary>
+    private List<(string Key, IFieldSymbol? Part, ExpressionSyntax Value)> PartsTableKeys(ISymbol? table, INamedTypeSymbol owner)
     {
         ExpressionSyntax? value = table switch
         {
@@ -904,7 +913,7 @@ internal sealed class CoreModel
         if (value is not BaseObjectCreationExpressionSyntax { Initializer: { } initializer })
             throw new InvalidDataException($"{owner.ToDisplayString()}: the parts table {table?.ToDisplayString() ?? "(unresolved)"} is not a dictionary initializer.");
         SemanticModel model = ModelOf(initializer.SyntaxTree);
-        var keys = new List<(string, IFieldSymbol?)>();
+        var keys = new List<(string, IFieldSymbol?, ExpressionSyntax)>();
         foreach (ExpressionSyntax entry in initializer.Expressions)
         {
             if (entry is not AssignmentExpressionSyntax { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [var key] }, Right: var part })
@@ -912,7 +921,7 @@ internal sealed class CoreModel
             IFieldSymbol? partMember = model.GetSymbolInfo(part).Symbol is IFieldSymbol { ContainingType.TypeKind: TypeKind.Enum } member
                 ? member.OriginalDefinition
                 : null;
-            keys.Add((DefinitionName(model, key.Expression, owner), partMember));
+            keys.Add((DefinitionName(model, key.Expression, owner), partMember, part));
         }
         return keys.Count > 0 ? keys : throw new InvalidDataException($"{owner.ToDisplayString()}: the parts table {table!.ToDisplayString()} has no entries.");
     }

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
 
@@ -402,7 +403,7 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     private void HandleLandingGraphics(SamusState samus)
     {
-        SamusGround ground = samus.StandingGround;
+        RoomGround ground = samus.StandingGround;
         if (IsWet(samus, ground.Wetness))
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
         else if (ground.DryLandingsRaiseDust)
@@ -415,12 +416,12 @@ public sealed class SamusLiquidPhysicsState
     /// Whether ground of <paramref name="wetness"/> is wet where Samus stands: the Landing Site only while it rains, which
     /// is not a generic water test, and the Wrecked Ship entrance at and below its waterline.
     /// </summary>
-    private bool IsWet(SamusState samus, SamusGroundWetness wetness) => wetness switch
+    private bool IsWet(SamusState samus, RoomGroundWetness wetness) => wetness switch
     {
-        SamusGroundWetness.Dry => false,
-        SamusGroundWetness.Wet => true,
-        SamusGroundWetness.WetWhileRaining => FxType == RoomFxType.Rain,
-        SamusGroundWetness.WetBelowWaterline => samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY,
+        RoomGroundWetness.Dry => false,
+        RoomGroundWetness.Wet => true,
+        RoomGroundWetness.WetWhileRaining => FxType == RoomFxType.Rain,
+        RoomGroundWetness.WetBelowWaterline => samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY,
         _ => throw new InvalidOperationException($"Undefined ground wetness {wetness}."),
     };
 

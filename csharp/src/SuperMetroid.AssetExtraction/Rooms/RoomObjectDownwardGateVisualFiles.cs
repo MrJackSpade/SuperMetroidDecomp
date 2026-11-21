@@ -43,7 +43,7 @@ public static class RoomObjectDownwardGateVisualFiles
     /// <summary>Loads the installed downward-gate pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectDownwardGateVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates the column open, lowering and closed, followed by four left/right trigger color pairs.</summary>

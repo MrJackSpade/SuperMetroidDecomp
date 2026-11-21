@@ -28,7 +28,7 @@ internal static class NativeObjectDraws
             .Concat([BotwoonWallObjectDrawDefinitions.Clear])
             .Concat(Enum.GetValues<ChozoStatueDraw>().Select(ChozoStatueDraws.Family.Of))
             .Concat(RoomObjectLinkedRestoreVisualFiles.ContactCrumbleRestorations)
-            .Concat(Enum.GetValues<CrocomireArenaDraw>().Select(CrocomireArenaDraws.Family.Of))
+            .Concat(Enum.GetValues<CrocomireArenaMutation>().Select(CrocomireArenaDraws.Family.Of))
             .Concat(Enum.GetValues<DownwardGateDraw>().Select(DownwardGateObjectDraws.Family.Of))
             .Concat(Enum.GetValues<DraygonCannonDraw>().Select(DraygonCannonDraws.Family.Of))
             .Concat(Enum.GetValues<ElevatorPlatformDraw>().Select(ElevatorPlatformDraws.Family.Of))

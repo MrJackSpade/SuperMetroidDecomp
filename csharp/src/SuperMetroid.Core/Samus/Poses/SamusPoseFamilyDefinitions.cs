@@ -90,4 +90,469 @@ internal static class SamusPoseFamilyDefinitions
         [SamusPoseId.StandingTransitionAimDiagonalDownRightPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
         [SamusPoseId.StandingTransitionAimDiagonalDownLeftPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
     };
+
+    /// <summary>Each damage boost, with the family of jumps it turns into: the left-named boost's left jumps, the right-named's right.</summary>
+    internal static readonly IReadOnlyDictionary<SamusPoseId, SamusPoseFamily> DamageBoostJumps = new Dictionary<SamusPoseId, SamusPoseFamily>
+    {
+        [SamusPoseId.DamageBoostLeftPose] = SamusPoseFamily.DamageBoostJumpLeft,
+        [SamusPoseId.DamageBoostRightPose] = SamusPoseFamily.DamageBoostJumpRight,
+    };
+
+    /// <summary>The poses each family holds (<see cref="SamusPoseFamily"/>).</summary>
+    internal static readonly IReadOnlyDictionary<SamusPoseFamily, SamusPoseId[]> Members = new Dictionary<SamusPoseFamily, SamusPoseId[]>
+    {
+        [SamusPoseFamily.RightFacingStanding] =
+        [
+            SamusPoseId.FacingRightNormalPose,
+            SamusPoseId.StandingAimUpRightPose,
+            SamusPoseId.StandingAimDiagonalUpRightPose,
+            SamusPoseId.StandingAimDiagonalDownRightPose,
+        ],
+        [SamusPoseFamily.ForwardFacing] =
+        [
+            SamusPoseId.ForwardFacingPowerSuitPose,
+            SamusPoseId.ForwardFacingSuitedPose,
+        ],
+        [SamusPoseFamily.GunExtended] =
+        [
+            SamusPoseId.MovingRightGunExtendedPose,
+            SamusPoseId.MovingLeftGunExtendedPose,
+            SamusPoseId.NormalJumpGunExtendedRightPose,
+            SamusPoseId.NormalJumpGunExtendedLeftPose,
+            SamusPoseId.FallingGunExtendedRightPose,
+            SamusPoseId.FallingGunExtendedLeftPose,
+        ],
+        [SamusPoseFamily.MoonwalkingFacingRight] =
+        [
+            SamusPoseId.MoonwalkFacingRightPose,
+            SamusPoseId.MoonwalkAimUpRightPose,
+            SamusPoseId.MoonwalkAimDownRightPose,
+        ],
+        [SamusPoseFamily.RightFacingDraygonGrabbed] =
+        [
+            SamusPoseId.DraygonGrabbedNeutralRightPose,
+            SamusPoseId.DraygonGrabbedAimUpRightPose,
+            SamusPoseId.DraygonGrabbedFiringRightPose,
+            SamusPoseId.DraygonGrabbedAimDownRightPose,
+            SamusPoseId.DraygonGrabbedMovingRightPose,
+        ],
+        [SamusPoseFamily.MoonwalkTurnToSpinJump] =
+        [
+            SamusPoseId.MoonwalkTurnToSpinJumpLeftPose,
+            SamusPoseId.MoonwalkTurnToSpinJumpRightPose,
+            SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose,
+            SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose,
+            SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose,
+            SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose,
+        ],
+        [SamusPoseFamily.MoonwalkTurnToSpinJumpRight] =
+        [
+            SamusPoseId.MoonwalkTurnToSpinJumpRightPose,
+            SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose,
+            SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose,
+        ],
+        [SamusPoseFamily.GroundedAim] =
+        [
+            SamusPoseId.StandingAimUpRightPose,
+            SamusPoseId.StandingAimUpLeftPose,
+            SamusPoseId.StandingAimDiagonalUpRightPose,
+            SamusPoseId.StandingAimDiagonalUpLeftPose,
+            SamusPoseId.StandingAimDiagonalDownRightPose,
+            SamusPoseId.StandingAimDiagonalDownLeftPose,
+            SamusPoseId.RunningAimDiagonalUpRightPose,
+            SamusPoseId.RunningAimDiagonalUpLeftPose,
+            SamusPoseId.RunningAimDiagonalDownRightPose,
+            SamusPoseId.RunningAimDiagonalDownLeftPose,
+            SamusPoseId.CrouchingAimUpRightPose,
+            SamusPoseId.CrouchingAimUpLeftPose,
+            SamusPoseId.CrouchingAimDiagonalUpRightPose,
+            SamusPoseId.CrouchingAimDiagonalUpLeftPose,
+            SamusPoseId.CrouchingAimDiagonalDownRightPose,
+            SamusPoseId.CrouchingAimDiagonalDownLeftPose,
+            SamusPoseId.LandingAimUpRightPose,
+            SamusPoseId.LandingAimUpLeftPose,
+            SamusPoseId.LandingAimDiagonalUpRightPose,
+            SamusPoseId.LandingAimDiagonalUpLeftPose,
+            SamusPoseId.LandingAimDiagonalDownRightPose,
+            SamusPoseId.LandingAimDiagonalDownLeftPose,
+            SamusPoseId.RanIntoWallAimUpRightPose,
+            SamusPoseId.RanIntoWallAimUpLeftPose,
+            SamusPoseId.RanIntoWallAimDownRightPose,
+            SamusPoseId.RanIntoWallAimDownLeftPose,
+        ],
+        [SamusPoseFamily.RightFacingAimedLanding] =
+        [
+            SamusPoseId.LandingAimUpRightPose,
+            SamusPoseId.LandingAimDiagonalUpRightPose,
+            SamusPoseId.LandingAimDiagonalDownRightPose,
+        ],
+        [SamusPoseFamily.RightFacingLanding] =
+        [
+            SamusPoseId.NormalLandingRightPose,
+            SamusPoseId.SpinLandingRightPose,
+            SamusPoseId.FiringLandingRightPose,
+        ],
+        [SamusPoseFamily.RightFacingCrouching] =
+        [
+            SamusPoseId.CrouchingRightPose,
+            SamusPoseId.CrouchingAimUpRightPose,
+            SamusPoseId.CrouchingAimDiagonalUpRightPose,
+            SamusPoseId.CrouchingAimDiagonalDownRightPose,
+        ],
+        [SamusPoseFamily.RightToLeftGroundTurn] =
+        [
+            SamusPoseId.TurningRightToLeftPose,
+            SamusPoseId.TurningRightToLeftAimUpPose,
+            SamusPoseId.TurningRightToLeftAimDiagonalUpPose,
+            SamusPoseId.TurningRightToLeftAimDiagonalDownPose,
+            SamusPoseId.TurningRightToLeftCrouchingPose,
+            SamusPoseId.TurningRightToLeftCrouchingAimUpPose,
+            SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose,
+            SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose,
+        ],
+        [SamusPoseFamily.AimedCrouchingTurn] =
+        [
+            SamusPoseId.TurningRightToLeftCrouchingAimUpPose,
+            SamusPoseId.TurningLeftToRightCrouchingAimUpPose,
+            SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose,
+            SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose,
+            SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose,
+            SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose,
+        ],
+        [SamusPoseFamily.JumpingTurn] =
+        [
+            SamusPoseId.TurningRightToLeftJumpPose,
+            SamusPoseId.TurningLeftToRightJumpPose,
+            SamusPoseId.TurningRightToLeftJumpAimUpPose,
+            SamusPoseId.TurningLeftToRightJumpAimUpPose,
+            SamusPoseId.TurningRightToLeftJumpAimDownPose,
+            SamusPoseId.TurningLeftToRightJumpAimDownPose,
+            SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose,
+            SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose,
+        ],
+        [SamusPoseFamily.FallingTurn] =
+        [
+            SamusPoseId.TurningRightToLeftFallingPose,
+            SamusPoseId.TurningLeftToRightFallingPose,
+            SamusPoseId.TurningRightToLeftFallingAimUpPose,
+            SamusPoseId.TurningLeftToRightFallingAimUpPose,
+            SamusPoseId.TurningRightToLeftFallingAimDownPose,
+            SamusPoseId.TurningLeftToRightFallingAimDownPose,
+            SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose,
+            SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose,
+        ],
+        [SamusPoseFamily.RightToLeftAerialTurn] =
+        [
+            SamusPoseId.TurningRightToLeftJumpPose,
+            SamusPoseId.TurningRightToLeftJumpAimUpPose,
+            SamusPoseId.TurningRightToLeftJumpAimDownPose,
+            SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose,
+            SamusPoseId.TurningRightToLeftFallingPose,
+            SamusPoseId.TurningRightToLeftFallingAimUpPose,
+            SamusPoseId.TurningRightToLeftFallingAimDownPose,
+            SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose,
+        ],
+        [SamusPoseFamily.Drained] =
+        [
+            SamusPoseId.DrainedCrouchingRightPose,
+            SamusPoseId.DrainedCrouchingLeftPose,
+            SamusPoseId.DrainedStandingRightPose,
+            SamusPoseId.DrainedStandingLeftPose,
+        ],
+        [SamusPoseFamily.Knockback] =
+        [
+            SamusPoseId.KnockbackRightPose,
+            SamusPoseId.KnockbackLeftPose,
+        ],
+        [SamusPoseFamily.JumpTransition] =
+        [
+            SamusPoseId.NeutralJumpTransitionRightPose,
+            SamusPoseId.NeutralJumpTransitionLeftPose,
+            SamusPoseId.NormalJumpTransitionAimUpRightPose,
+            SamusPoseId.NormalJumpTransitionAimUpLeftPose,
+            SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose,
+            SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose,
+            SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose,
+            SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose,
+        ],
+        [SamusPoseFamily.StoredShineShinesparkStart] =
+        [
+            SamusPoseId.NeutralJumpRightPose,
+            SamusPoseId.NeutralJumpLeftPose,
+            SamusPoseId.NormalJumpAimUpRightPose,
+            SamusPoseId.NormalJumpAimUpLeftPose,
+            SamusPoseId.NormalJumpAimDiagonalUpRightPose,
+            SamusPoseId.NormalJumpAimDiagonalUpLeftPose,
+        ],
+        [SamusPoseFamily.ScrewAttack] =
+        [
+            SamusPoseId.ScrewAttackRightPose,
+            SamusPoseId.ScrewAttackLeftPose,
+        ],
+        [SamusPoseFamily.SpaceJump] =
+        [
+            SamusPoseId.SpaceJumpRightPose,
+            SamusPoseId.SpaceJumpLeftPose,
+        ],
+        [SamusPoseFamily.CrouchingTransition] =
+        [
+            SamusPoseId.CrouchingTransitionRightPose,
+            SamusPoseId.CrouchingTransitionLeftPose,
+            SamusPoseId.CrouchingTransitionAimUpRightPose,
+            SamusPoseId.CrouchingTransitionAimUpLeftPose,
+            SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose,
+            SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose,
+            SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose,
+            SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose,
+        ],
+        [SamusPoseFamily.StandingTransition] =
+        [
+            SamusPoseId.StandingTransitionRightPose,
+            SamusPoseId.StandingTransitionLeftPose,
+            SamusPoseId.StandingTransitionAimUpRightPose,
+            SamusPoseId.StandingTransitionAimUpLeftPose,
+            SamusPoseId.StandingTransitionAimDiagonalUpRightPose,
+            SamusPoseId.StandingTransitionAimDiagonalUpLeftPose,
+            SamusPoseId.StandingTransitionAimDiagonalDownRightPose,
+            SamusPoseId.StandingTransitionAimDiagonalDownLeftPose,
+        ],
+        [SamusPoseFamily.GroundedMorphBall] =
+        [
+            SamusPoseId.MorphBallGroundRightPose,
+            SamusPoseId.MorphBallGroundLeftPose,
+            SamusPoseId.MorphBallMovingRightPose,
+            SamusPoseId.MorphBallMovingLeftPose,
+        ],
+        [SamusPoseFamily.AirborneMorphBall] =
+        [
+            SamusPoseId.MorphBallFallingRightPose,
+            SamusPoseId.MorphBallFallingLeftPose,
+        ],
+        [SamusPoseFamily.GroundedSpringBall] =
+        [
+            SamusPoseId.SpringBallGroundRightPose,
+            SamusPoseId.SpringBallGroundLeftPose,
+            SamusPoseId.SpringBallMovingRightPose,
+            SamusPoseId.SpringBallMovingLeftPose,
+        ],
+        [SamusPoseFamily.AirborneSpringBall] =
+        [
+            SamusPoseId.SpringBallFallingRightPose,
+            SamusPoseId.SpringBallFallingLeftPose,
+            SamusPoseId.SpringBallJumpRightPose,
+            SamusPoseId.SpringBallJumpLeftPose,
+        ],
+        [SamusPoseFamily.MorphTransition] =
+        [
+            SamusPoseId.MorphingTransitionRightPose,
+            SamusPoseId.MorphingTransitionLeftPose,
+            SamusPoseId.UnmorphingTransitionRightPose,
+            SamusPoseId.UnmorphingTransitionLeftPose,
+        ],
+        [SamusPoseFamily.AimedAerial] =
+        [
+            SamusPoseId.NormalJumpAimUpRightPose,
+            SamusPoseId.NormalJumpAimUpLeftPose,
+            SamusPoseId.NormalJumpTransitionAimUpRightPose,
+            SamusPoseId.NormalJumpTransitionAimUpLeftPose,
+            SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose,
+            SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose,
+            SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose,
+            SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose,
+            SamusPoseId.NormalJumpAimDiagonalUpRightPose,
+            SamusPoseId.NormalJumpAimDiagonalUpLeftPose,
+            SamusPoseId.NormalJumpAimDiagonalDownRightPose,
+            SamusPoseId.NormalJumpAimDiagonalDownLeftPose,
+            SamusPoseId.FallingAimUpRightPose,
+            SamusPoseId.FallingAimUpLeftPose,
+            SamusPoseId.FallingAimDiagonalUpRightPose,
+            SamusPoseId.FallingAimDiagonalUpLeftPose,
+            SamusPoseId.FallingAimDiagonalDownRightPose,
+            SamusPoseId.FallingAimDiagonalDownLeftPose,
+            SamusPoseId.NormalJumpAimDownRightPose,
+            SamusPoseId.NormalJumpAimDownLeftPose,
+            SamusPoseId.FallingAimDownRightPose,
+            SamusPoseId.FallingAimDownLeftPose,
+        ],
+        [SamusPoseFamily.ForwardMovingNormalJump] =
+        [
+            SamusPoseId.NormalJumpForwardRightPose,
+            SamusPoseId.NormalJumpForwardLeftPose,
+        ],
+        [SamusPoseFamily.CompactAerial] =
+        [
+            SamusPoseId.NormalJumpAimDownRightPose,
+            SamusPoseId.NormalJumpAimDownLeftPose,
+            SamusPoseId.FallingAimDownRightPose,
+            SamusPoseId.FallingAimDownLeftPose,
+        ],
+        [SamusPoseFamily.DrainedCrouch] =
+        [
+            SamusPoseId.DrainedCrouchingRightPose,
+            SamusPoseId.DrainedCrouchingLeftPose,
+        ],
+        [SamusPoseFamily.DrainedStanding] =
+        [
+            SamusPoseId.DrainedStandingRightPose,
+            SamusPoseId.DrainedStandingLeftPose,
+        ],
+        [SamusPoseFamily.DeathSequence] =
+        [
+            SamusPoseId.DeathSequenceRightPose,
+            SamusPoseId.DeathSequenceLeftPose,
+        ],
+        [SamusPoseFamily.ShinesparkVertical] =
+        [
+            SamusPoseId.ShinesparkVerticalRightPose,
+            SamusPoseId.ShinesparkVerticalLeftPose,
+        ],
+        [SamusPoseFamily.ShinesparkWindup] =
+        [
+            SamusPoseId.ShinesparkWindupRightPose,
+            SamusPoseId.ShinesparkWindupLeftPose,
+        ],
+        [SamusPoseFamily.ChestCovered] =
+        [
+            SamusPoseId.ForwardFacingPowerSuitPose,
+        ],
+        [SamusPoseFamily.FramesSelectedDirectly] =
+        [
+            SamusPoseId.XrayingStandingRightPose,
+            SamusPoseId.XrayingStandingLeftPose,
+            SamusPoseId.XrayingCrouchingRightPose,
+            SamusPoseId.XrayingCrouchingLeftPose,
+            SamusPoseId.GrappleSwingRightPose,
+            SamusPoseId.GrappleSwingLeftPose,
+            SamusPoseId.CrystalFlashRightPose,
+            SamusPoseId.CrystalFlashLeftPose,
+            SamusPoseId.ForwardFacingPowerSuitPose,
+            SamusPoseId.ForwardFacingSuitedPose,
+        ],
+        [SamusPoseFamily.TorizoSitDownBall] =
+        [
+            SamusPoseId.MorphBallGroundRightPose,
+            SamusPoseId.MorphBallMovingRightPose,
+            SamusPoseId.MorphBallMovingLeftPose,
+            SamusPoseId.SpringBallGroundRightPose,
+            SamusPoseId.SpringBallGroundLeftPose,
+            SamusPoseId.SpringBallMovingRightPose,
+            SamusPoseId.SpringBallMovingLeftPose,
+        ],
+        [SamusPoseFamily.JumpLaunch] =
+        [
+            SamusPoseId.NeutralJumpTransitionRightPose,
+            SamusPoseId.NeutralJumpTransitionLeftPose,
+            SamusPoseId.SpinJumpRightPose,
+            SamusPoseId.SpinJumpLeftPose,
+        ],
+        [SamusPoseFamily.NeutralJumpTransition] =
+        [
+            SamusPoseId.NeutralJumpTransitionRightPose,
+            SamusPoseId.NeutralJumpTransitionLeftPose,
+        ],
+        [SamusPoseFamily.NormalRun] =
+        [
+            SamusPoseId.MovingRightNormalPose,
+            SamusPoseId.MovingLeftNormalPose,
+        ],
+        [SamusPoseFamily.AimUpWallStop] =
+        [
+            SamusPoseId.StandingAimUpRightPose,
+            SamusPoseId.StandingAimUpLeftPose,
+        ],
+        [SamusPoseFamily.PlainGroundTurn] =
+        [
+            SamusPoseId.TurningRightToLeftPose,
+            SamusPoseId.TurningLeftToRightPose,
+        ],
+        [SamusPoseFamily.PlainCrouchingTurn] =
+        [
+            SamusPoseId.TurningRightToLeftCrouchingPose,
+            SamusPoseId.TurningLeftToRightCrouchingPose,
+        ],
+        [SamusPoseFamily.HeldInPlaceStandUp] =
+        [
+            SamusPoseId.DraygonHeldStandingUpLeftPose,
+        ],
+        [SamusPoseFamily.SpringBallJump] =
+        [
+            SamusPoseId.SpringBallJumpRightPose,
+            SamusPoseId.SpringBallJumpLeftPose,
+        ],
+        [SamusPoseFamily.PlainCrouching] =
+        [
+            SamusPoseId.CrouchingRightPose,
+            SamusPoseId.CrouchingLeftPose,
+        ],
+        [SamusPoseFamily.GrappleWallContact] =
+        [
+            SamusPoseId.GrappleWallContactLeftPose,
+            SamusPoseId.GrappleWallContactRightPose,
+        ],
+        [SamusPoseFamily.MoonwalkAimUp] =
+        [
+            SamusPoseId.MoonwalkAimUpLeftPose,
+            SamusPoseId.MoonwalkAimUpRightPose,
+        ],
+        [SamusPoseFamily.StationaryBall] =
+        [
+            SamusPoseId.MorphBallGroundRightPose,
+            SamusPoseId.MorphBallGroundLeftPose,
+            SamusPoseId.SpringBallGroundRightPose,
+            SamusPoseId.SpringBallGroundLeftPose,
+        ],
+        [SamusPoseFamily.ChozoHandBall] =
+        [
+            SamusPoseId.MorphBallGroundRightPose,
+            SamusPoseId.SpringBallGroundRightPose,
+            SamusPoseId.SpringBallGroundLeftPose,
+        ],
+        [SamusPoseFamily.DamageBoostJumpLeft] =
+        [
+            SamusPoseId.NeutralJumpLeftPose,
+            SamusPoseId.NormalJumpForwardLeftPose,
+        ],
+        [SamusPoseFamily.DamageBoostJumpRight] =
+        [
+            SamusPoseId.NeutralJumpRightPose,
+            SamusPoseId.NormalJumpForwardRightPose,
+        ],
+        [SamusPoseFamily.PlainFallingOnly] =
+        [
+            SamusPoseId.FallingRightPose,
+            SamusPoseId.FallingLeftPose,
+        ],
+        [SamusPoseFamily.GenericSpinJump] =
+        [
+            SamusPoseId.SpinJumpRightPose,
+            SamusPoseId.SpinJumpLeftPose,
+        ],
+        [SamusPoseFamily.NeutralJump] =
+        [
+            SamusPoseId.NeutralJumpRightPose,
+            SamusPoseId.NeutralJumpLeftPose,
+        ],
+        [SamusPoseFamily.NeutralStanding] =
+        [
+            SamusPoseId.FacingRightNormalPose,
+            SamusPoseId.FacingLeftNormalPose,
+        ],
+        [SamusPoseFamily.PlainFalling] =
+        [
+            SamusPoseId.FallingRightPose,
+            SamusPoseId.FallingLeftPose,
+            SamusPoseId.FallingGunExtendedRightPose,
+            SamusPoseId.FallingGunExtendedLeftPose,
+        ],
+        [SamusPoseFamily.GrappleSwing] =
+        [
+            SamusPoseId.GrappleSwingRightPose,
+            SamusPoseId.GrappleSwingLeftPose,
+        ],
+        [SamusPoseFamily.DraygonGrabbedMoving] =
+        [
+            SamusPoseId.DraygonGrabbedMovingLeftPose,
+            SamusPoseId.DraygonGrabbedMovingRightPose,
+        ],
+    };
 }

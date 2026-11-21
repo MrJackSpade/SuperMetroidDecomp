@@ -60,7 +60,7 @@ internal static class SamusEaterObjectDefinitionsVerification
     /// </summary>
     internal static void VerifySamusEaterChewTimeline()
     {
-        InstalledRoomObjectSamusEaterVisuals pictures = InstalledRoomObjectSamusEaterVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.SamusEater;
         foreach ((SamusEaterObjectDefinition definition, _) in Plants)
         {
             const int size = 8;

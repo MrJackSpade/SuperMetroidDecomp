@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 public sealed class DeadTorizoEnemyState
 {
     /// <summary>Captures the corpse's own rot schedule and its first phase.</summary>
-    internal DeadTorizoEnemyState(CorpseRotSchedule rot, DeadTorizoPhase phase)
+    internal DeadTorizoEnemyState(CorpseRotSchedule rot, CorpsePhase phase)
     {
         Phase = phase;
         Rot = Ensure.NotNull(rot);
@@ -36,7 +36,7 @@ public sealed class DeadTorizoEnemyState
         UpdateCountdown.Lasting(DeadTorizoCorpseDefinitions.SandLines * DeadTorizoCorpseDefinitions.RotUpdatesPerSandLine);
 
     /// <summary>The corpse phase.</summary>
-    internal DeadTorizoPhase Phase { get; set; }
+    internal CorpsePhase Phase { get; set; }
 
     /// <summary>
     /// How fast the rotting corpse sinks, downward positive: rotting increases it by

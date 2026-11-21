@@ -67,5 +67,5 @@ internal static class MotherBrainGlassShardDefinitions
     };
 
     /// <summary>Every emitter sits two blocks below the glass's origin block.</summary>
-    internal const int EmitterY = 2 * 16;
+    internal const int EmitterY = 2 * RoomGridConversions.BlockPixels;
 }

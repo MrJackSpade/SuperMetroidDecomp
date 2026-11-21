@@ -1213,7 +1213,7 @@ internal static void VerifySamusAtmosphericEffects()
         Pose = SamusPoseId.MovingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
         // A dry room: the Landing Site without its rain.
-        Ground = SamusGround.Of(RoomDefinitions.LandingSite),
+        Ground = RoomDefinitions.LandingSite.Ground,
     };
     SamusPoseMetadata.RefreshCollisionRadii(runner);
     SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
@@ -1265,7 +1265,7 @@ internal static void VerifySamusAtmosphericEffects()
     WritePoseDefinition(bus, 0x19, [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
     SamusPoseMetadata.RefreshCollisionRadii(landing);
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(4, 1));
-    landing.Ground = SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Norfair));
+    landing.Ground = RoomDefinitions.FirstIn(AreaId.Norfair).Ground;
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.SpinJumping, previousPose: SamusPoseId.SpinJumpRightPose,
@@ -1348,7 +1348,7 @@ internal static void VerifySamusAtmosphericEffects()
     // Ceres shows no landing effect, which ends the bubbles' wait as the original game's deletion of the landing's
     // effects did; particles already shown run out on their own. Zero vertical speed returns even earlier and therefore
     // ends nothing.
-    landing.Ground = SamusGround.Of(RoomDefinitions.FirstIn(AreaId.Ceres));
+    landing.Ground = RoomDefinitions.FirstIn(AreaId.Ceres).Ground;
     global::SuperMetroid.Core.PrivateState.Set(landing.LiquidPhysics, "Surface", global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None);
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(landing.Kinematics.VerticalVelocity.Speed.WithWhole(1));
     int beforeCeres = landingParticles.Count;
@@ -1367,7 +1367,7 @@ internal static void VerifySamusAtmosphericEffects()
     // Crateria reads its literal inline room byte. Landing Site flag one requires exact FX
     // type `$000A`; with a dry surface it creates surface splashes at +4/-3 and bottom-4.
     SeedLandingSiteInlineRoomByte(bus);
-    landing.Ground = SamusGround.Of(RoomDefinitions.LandingSite);
+    landing.Ground = RoomDefinitions.LandingSite.Ground;
     PrivateState.Set(landing.LiquidPhysics, nameof(SamusLiquidPhysicsState.FxType), RoomFxType.Rain);
     global::SuperMetroid.Core.PrivateState.Set(landing.LiquidPhysics, "Surface", global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None);
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(landing.Kinematics.VerticalVelocity.Speed.WithFraction(1));

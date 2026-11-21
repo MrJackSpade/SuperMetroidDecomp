@@ -13,11 +13,11 @@ public sealed class SkyTilemap
     /// <summary>Tile columns in a row; the sky repeats every 256 pixels across.</summary>
     public const int Columns = 32;
 
-    /// <summary>Rows over the 2048-pixel span the chunk positions cover before they repeat.</summary>
-    private const int Rows = 256;
+    /// <summary>Rows in one chunk: the rows of one tilemap page.</summary>
+    private const int RowsPerChunk = RoomSkyTilemapFormat.RowsPerPage;
 
-    /// <summary>Rows in one chunk: the 32 rows of one tilemap page.</summary>
-    private const int RowsPerChunk = 32;
+    /// <summary>Rows over the 2048-pixel span the chunk positions cover before they repeat: every chunk's rows.</summary>
+    private const int Rows = ScrollingSkyChunks.ChunkCount * RowsPerChunk;
 
     /// <summary>The tiles of every row, row-major.</summary>
     private readonly BackgroundTile[] tiles = new BackgroundTile[Rows * Columns];

@@ -570,6 +570,9 @@ public static class LegacyGameSaveJson
     /// <summary>The name schema four gave the event schema five names <see cref="StoryEvent.BabyMetroidEncounterMusicSkipped"/>.</summary>
     private const string BabyMetroidEncounterMusicSkippedSchemaFourName = "Unused14";
 
+    /// <summary>The name schema five and every later schema save the Baby Metroid's skipped encounter music by, its installed key.</summary>
+    private const string BabyMetroidEncounterMusicSkippedSavedName = "ShitroidEncounterMusicSkipped";
+
     /// <summary>
     /// The name schema five and every later schema give that event, its installed key, which renaming the member left as it
     /// was (#2552).

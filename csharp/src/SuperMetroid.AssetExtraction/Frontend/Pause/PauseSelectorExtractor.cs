@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 public static class PauseSelectorExtractor
 {
     /// <summary>The visual animation role of each equipment category; suit/miscellaneous items and boots share Equipment.</summary>
-    private static readonly IReadOnlyDictionary<PauseEquipmentCategory, string> Groups = new Dictionary<PauseEquipmentCategory, string>
+    private static readonly Dictionary<PauseEquipmentCategory, string> Groups = new()
     {
         [PauseEquipmentCategory.Reserves] = "Reserve",
         [PauseEquipmentCategory.Beams] = "Beam",
@@ -52,7 +52,8 @@ public static class PauseSelectorExtractor
             if (duration == byte.MaxValue) break;
             if (i >= PauseSelectorFormat.MaximumPhases || bus.ReadCartridgeByte(animation + i * 3 + 2) != 0)
                 throw new InvalidDataException("Unexpected native selector frame offset or missing terminator.");
-            phases.Add(new() { DurationTicks = duration, Reserve = "Reserve", Beam = "Beam", Equipment = "Equipment" });
+            phases.Add(new() { DurationTicks = duration, Reserve = Groups[PauseEquipmentCategory.Reserves], Beam = Groups[PauseEquipmentCategory.Beams],
+                Equipment = Groups[PauseEquipmentCategory.Suits] });
         }
         var palette = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseSelectorPalette));
         if (palette.Raw != palette.PaletteBits) throw new InvalidDataException("Invalid native selector palette word.");

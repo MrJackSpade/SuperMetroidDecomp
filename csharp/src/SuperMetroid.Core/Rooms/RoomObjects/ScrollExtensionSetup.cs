@@ -7,5 +7,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record ScrollExtensionSetup(ScrollExtension Extension) : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKindDefinitions.ScrollExtensions[Extension];
+
+    /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpScrollExtension(Extension);
 }

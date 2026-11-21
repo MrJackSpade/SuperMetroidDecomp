@@ -4,5 +4,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record EscapeRoomHeldPlaceSetup : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKind.EscapeRoomHeldPlace;
+
+    /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpEscapeRoomHeldPlace();
 }

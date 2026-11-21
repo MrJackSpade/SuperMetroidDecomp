@@ -31,35 +31,42 @@ internal static class DraygonCannonAnimationDefinitions
     internal static AnimationSegments<S, DraygonCannonDraw, NoAnimationCue> Segments { get; } = new(
         new Dictionary<S, AnimationBeat<DraygonCannonDraw, NoAnimationCue>[]>
         {
-            [S.RightShield] = [Show(D.RightShield, ShieldDuration)],
-            [S.RightHitFlash] = [Show(D.RightShield, FlashShieldDuration), Show(D.RightShieldFlash, FlashWhiteDuration)],
-            [S.RightSparks] =
-            [
-                Show(D.RightSparksFlaring, SparkDuration), Show(D.RightSparksSpreading, SparkDuration),
-                Show(D.RightSparksReceding, SparkDuration), Show(D.RightSparksFlat, SparkDuration),
-            ],
-            [S.LeftShield] = [Show(D.LeftShield, ShieldDuration)],
-            [S.LeftHitFlash] = [Show(D.LeftShield, FlashShieldDuration), Show(D.LeftShieldFlash, FlashWhiteDuration)],
-            [S.LeftSparks] =
-            [
-                Show(D.LeftSparksFlaring, SparkDuration), Show(D.LeftSparksSpreading, SparkDuration),
-                Show(D.LeftSparksReceding, SparkDuration), Show(D.LeftSparksFlat, SparkDuration),
-            ],
+            [S.RightShield] = Shield(D.RightShield),
+            [S.RightHitFlash] = HitFlash(D.RightShield, D.RightShieldFlash),
+            [S.RightSparks] = Sparks(D.RightSparksFlaring, D.RightSparksSpreading, D.RightSparksReceding, D.RightSparksFlat),
+            [S.LeftShield] = Shield(D.LeftShield),
+            [S.LeftHitFlash] = HitFlash(D.LeftShield, D.LeftShieldFlash),
+            [S.LeftSparks] = Sparks(D.LeftSparksFlaring, D.LeftSparksSpreading, D.LeftSparksReceding, D.LeftSparksFlat),
         });
 
     /// <summary>What each facing's cannon shows.</summary>
     internal static IReadOnlyDictionary<DraygonCannonOrientation, DraygonCannonLook> Looks { get; } =
         new Dictionary<DraygonCannonOrientation, DraygonCannonLook>
         {
-            [DraygonCannonOrientation.Right] = new(
-                new([Segments.Whole(S.RightShield)], AnimationEnd.Holds),
-                new([Segments.Repeated(S.RightHitFlash, Flashes)], AnimationEnd.Stops),
-                Animation<S>.Looping([Segments.Whole(S.RightSparks)])),
-            [DraygonCannonOrientation.Left] = new(
-                new([Segments.Whole(S.LeftShield)], AnimationEnd.Holds),
-                new([Segments.Repeated(S.LeftHitFlash, Flashes)], AnimationEnd.Stops),
-                Animation<S>.Looping([Segments.Whole(S.LeftSparks)])),
+            [DraygonCannonOrientation.Right] = Look(S.RightShield, S.RightHitFlash, S.RightSparks),
+            [DraygonCannonOrientation.Left] = Look(S.LeftShield, S.LeftHitFlash, S.LeftSparks),
         };
+
+    /// <summary>A facing's shield, held (#2557).</summary>
+    private static AnimationBeat<DraygonCannonDraw, NoAnimationCue>[] Shield(DraygonCannonDraw shield) => [Show(shield, ShieldDuration)];
+
+    /// <summary>One flash of a facing's shield as a hit lands: the shield, then the shield flashing white (#2557).</summary>
+    private static AnimationBeat<DraygonCannonDraw, NoAnimationCue>[] HitFlash(DraygonCannonDraw shield, DraygonCannonDraw flash) =>
+        [Show(shield, FlashShieldDuration), Show(flash, FlashWhiteDuration)];
+
+    /// <summary>A facing's destroyed cannon's sparks, each stage for <see cref="SparkDuration"/> (#2557).</summary>
+    private static AnimationBeat<DraygonCannonDraw, NoAnimationCue>[] Sparks(
+        DraygonCannonDraw flaring, DraygonCannonDraw spreading, DraygonCannonDraw receding, DraygonCannonDraw flat) =>
+        [Show(flaring, SparkDuration), Show(spreading, SparkDuration), Show(receding, SparkDuration), Show(flat, SparkDuration)];
+
+    /// <summary>
+    /// What a facing's cannon shows (#2557): its shield held, the hit flash played <see cref="Flashes"/> times, and its sparks
+    /// looping once destroyed.
+    /// </summary>
+    private static DraygonCannonLook Look(S shield, S hitFlash, S sparks) => new(
+        new([Segments.Whole(shield)], AnimationEnd.Holds),
+        new([Segments.Repeated(hitFlash, Flashes)], AnimationEnd.Stops),
+        Animation<S>.Looping([Segments.Whole(sparks)]));
 
     /// <summary>Shows <paramref name="draw"/> for <paramref name="updates"/> updates.</summary>
     private static AnimationBeat<DraygonCannonDraw, NoAnimationCue> Show(DraygonCannonDraw draw, int updates) =>

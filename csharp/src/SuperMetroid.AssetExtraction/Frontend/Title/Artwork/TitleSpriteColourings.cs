@@ -11,11 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 internal static class TitleSpriteColourings
 {
     /// <summary>The title's four cards.</summary>
-    private static readonly TitleTextSequenceDefinition[] Cards =
-    [
-        TitleSequenceDefinitions.TextSequences.Year, TitleSequenceDefinitions.TextSequences.Nintendo,
-        TitleSequenceDefinitions.TextSequences.Presents, TitleSequenceDefinitions.TextSequences.MetroidThree,
-    ];
+    private static IReadOnlyList<TitleTextSequenceDefinition> Cards => TitleSequenceDefinitions.TextSequences.All;
 
     /// <summary>The colouring the title draws <paramref name="sprite"/> in.</summary>
     /// <exception cref="InvalidDataException">The title never draws the composition.</exception>

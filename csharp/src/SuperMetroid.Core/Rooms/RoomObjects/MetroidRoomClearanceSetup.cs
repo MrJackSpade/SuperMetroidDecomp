@@ -5,5 +5,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record MetroidRoomClearanceSetup(WatchedMetroidRoom Watches) : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKind.MetroidRoomClearance;
+
+    /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpMetroidRoomClearance(Watches);
 }

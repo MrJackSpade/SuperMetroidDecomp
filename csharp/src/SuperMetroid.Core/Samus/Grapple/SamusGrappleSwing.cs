@@ -515,14 +515,10 @@ public static class SamusGrappleSwing
             return;
 
         // The swing's own selection: the turret spike, which the ground collision treats as light, costs nothing here.
-        int damage = block == SwingSpikeBlock.Solid
-            ? reaction == SpikeReaction.HeavySpike ? SpikeHazardDefinitions.HeavySpikeDamage
-                : reaction == SpikeReaction.LightSpike ? SpikeHazardDefinitions.LightSpikeDamage
-                : 0
-            : reaction == SpikeReaction.DamagingSpikeAir
-                ? SpikeHazardDefinitions.LightSpikeDamage
-                : 0;
-        if (damage == 0)
+        IReadOnlyDictionary<SpikeReaction, int> damages = block == SwingSpikeBlock.Solid
+            ? SamusGrappleSpikeDefinitions.SolidBlockSwingDamage
+            : SamusGrappleSpikeDefinitions.PlainBlockSwingDamage;
+        if (reaction is not { } spike || !damages.TryGetValue(spike, out int damage))
             return;
 
         samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(damage));

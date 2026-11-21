@@ -805,8 +805,8 @@ internal sealed class EnemyCollision
         // reaches this step only with an initially zero clock.
         if (enemy.Freeze.IsOver)
             _audio.QueueEnemySound(RoomSound.EnemyFrozen, priority: SoundRequestPriority.Low);
-        enemy.Freeze.Restart(roomArea == AreaId.Norfair
-            ? EnemyCollisionDefinitions.NorfairFreezeUpdates
+        enemy.Freeze.Restart(EnemyCollisionDefinitions.FreezeUpdatesByArea.TryGetValue(roomArea, out int areaFreeze)
+            ? areaFreeze
             : EnemyCollisionDefinitions.FreezeUpdates);
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Frozen;
         enemy.Invincibility.Restart(EnemyCollisionDefinitions.FreezeInvincibilityUpdates);

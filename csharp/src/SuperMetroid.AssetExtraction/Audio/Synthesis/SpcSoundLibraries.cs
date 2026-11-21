@@ -1,4 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Compatibility;
 
 using SuperMetroid.Core.Audio;
@@ -96,13 +96,17 @@ internal sealed class SpcSoundLibraries
     /// blocks everything except its clearing request, and each library has requests exempt from
     /// priority. The offline clip exporter (#1305) reads its policy from this rule.
     /// </summary>
-    internal static bool RejectsRequest(int libraryIndex, int command, int priority, SoundLibraryMode mode) => libraryIndex switch
+    internal static bool RejectsRequest(int libraryIndex, int command, int priority, SoundLibraryMode mode)
     {
-        0 => command != 1 && command != 2 && priority != 0,
-        1 => command != 0x71 && command != 0x7e && priority != 0, // cartridge-encoding: allow(HardwareValue) - retail SFX2 cancellation overrides
-        2 => command != 1 && (mode == SoundLibraryMode.LowHealth || command != 2 && priority != 0),
-        _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
-    };
+        bool lowHealth = SpcSoundEffectTables.HasLowHealthMode(libraryIndex) && mode == SoundLibraryMode.LowHealth;
+        return SpcSoundEffectTables.Admission(libraryIndex, command) switch
+        {
+            SpcSoundRequestAdmission.Clearing => false,
+            SpcSoundRequestAdmission.PriorityExempt => lowHealth,
+            SpcSoundRequestAdmission.ByPriority => lowHealth || priority != 0,
+            _ => throw new ArgumentOutOfRangeException(nameof(command)),
+        };
+    }
 
     /// <summary>Applies native allocation-policy writes for a validated sound library.</summary>
     /// <remarks>#1165 original-handler proof covers all policy cases. Mode is unchanged

@@ -4,5 +4,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed record NoobTubeSetup : RoomObjectPlacementSetup
 {
     /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKind.NoobTube;
+
+    /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpNoobTube();
 }

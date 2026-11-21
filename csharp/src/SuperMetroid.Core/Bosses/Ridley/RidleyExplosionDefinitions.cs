@@ -66,9 +66,9 @@ internal static class RidleyExplosionDefinitions
         new Dictionary<RidleyExplosionPart, RidleyExplosionBodyPartDefinition>
         {
             [RidleyExplosionPart.Wings] = new(new(0, 0), EnemyFrameId.RidleyWingFacingLeftRaised, EnemyFrameId.RidleyWingFacingRightRaised),
-            [RidleyExplosionPart.Legs] = new(new(15, 22), EnemyFrameId.RidleyBreakupLegsLeft, EnemyFrameId.RidleyBreakupLegsRight),
-            [RidleyExplosionPart.OpenHeadAndNeck] = new(new(-3, -24), EnemyFrameId.RidleyBreakupOpenHeadAndNeckLeft, EnemyFrameId.RidleyBreakupOpenHeadAndNeckRight),
-            [RidleyExplosionPart.Torso] = new(new(16, 0), EnemyFrameId.RidleyBreakupTorsoLeft, EnemyFrameId.RidleyBreakupTorsoRight),
+            [RidleyExplosionPart.Legs] = new(RidleyCollisionDefinitions.LeftLegsOrigin, EnemyFrameId.RidleyBreakupLegsLeft, EnemyFrameId.RidleyBreakupLegsRight),
+            [RidleyExplosionPart.OpenHeadAndNeck] = new(RidleyCollisionDefinitions.LeftHeadOrigin, EnemyFrameId.RidleyBreakupOpenHeadAndNeckLeft, EnemyFrameId.RidleyBreakupOpenHeadAndNeckRight),
+            [RidleyExplosionPart.Torso] = new(RidleyCollisionDefinitions.LeftTorsoOrigin, EnemyFrameId.RidleyBreakupTorsoLeft, EnemyFrameId.RidleyBreakupTorsoRight),
             [RidleyExplosionPart.Claw] = new(new(8, 7), EnemyFrameId.RidleyBreakupClawLeft, EnemyFrameId.RidleyBreakupClawRight),
         }.ToFrozenDictionary();
 

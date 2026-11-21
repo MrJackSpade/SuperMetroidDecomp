@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 public static class InsideBlockTopSample
 {
     /// <summary>Pixels along a block's side.</summary>
-    private const int BlockPixels = 16;
+    private const int BlockPixels = RoomGridConversions.BlockPixels;
 
     /// <summary>
     /// Whether the top point is sampled for a body whose top, bottom and centre lie at the room pixel rows given, each

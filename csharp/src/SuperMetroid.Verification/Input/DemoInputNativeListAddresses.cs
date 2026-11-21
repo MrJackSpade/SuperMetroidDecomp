@@ -91,19 +91,40 @@ internal static class DemoInputNativeListAddresses
         new(DemoInputRecordingId.IntroBabyDiscoveryStopAndLook, 5, 0x8641),
     ];
 
+    /// <summary>
+    /// The typed inputs that each play a run of identical consecutive native records (#2557), and how many records each
+    /// stands for; every other input stands for one. The recording oracle checks each run against bank $91.
+    /// </summary>
+    internal static DemoInputNativeRun[] Runs => [
+        new(DemoInputRecordingId.AttractLowerNorfairEntrance, 55, 2),
+        new(DemoInputRecordingId.AttractPreSporeSpawnHall, 8, 2),
+        new(DemoInputRecordingId.AttractPreSporeSpawnHall, 28, 2),
+        new(DemoInputRecordingId.IntroMotherBrainFlashback, 5, 2),
+    ];
+
+    /// <summary>How many native records the typed input <paramref name="input"/> of <paramref name="recording"/> stands for.</summary>
+    internal static int RecordsOf(DemoInputRecordingId recording, int input) =>
+        Runs.Where(run => run.Recording == recording && run.Input == input).Select(run => run.Records).DefaultIfEmpty(1).Single();
+
+    /// <summary>How many native records the typed inputs of <paramref name="recording"/> before <paramref name="input"/> stand for.</summary>
+    private static int RecordsBefore(DemoInputRecordingId recording, int input) =>
+        Enumerable.Range(0, input).Sum(earlier => RecordsOf(recording, earlier));
+
     /// <summary>The native list entry of <paramref name="recording"/>.</summary>
     internal static ushort Entry(DemoInputRecordingId recording) => Entries.Single(entry => entry.Program == recording).Entry;
 
     /// <summary>
-    /// The native instruction pointer a playback position stands for: its recording's entry plus six bytes for each input
-    /// played, counted from the loop's own list once the position is at or past an authored loop's first input.
+    /// The native instruction pointer a playback position stands for: its recording's entry plus six bytes for each native
+    /// record the inputs played stand for (<see cref="RecordsOf"/>), counted from the loop's own list once the position is
+    /// at or past an authored loop's first input.
     /// </summary>
     internal static ushort Address(DemoPlaybackPosition position)
     {
         DemoInputNativeLoopEntry? loop = LoopEntries.Where(entry => entry.Recording == position.Recording).Cast<DemoInputNativeLoopEntry?>().SingleOrDefault();
+        int records = RecordsBefore(position.Recording, position.NextInput);
         return loop is { } authored && position.NextInput >= authored.FirstRecord
-            ? (ushort)(authored.Entry + (position.NextInput - authored.FirstRecord) * DemoInputListWords.InputRecordBytes)
-            : (ushort)(Entry(position.Recording) + position.NextInput * DemoInputListWords.InputRecordBytes);
+            ? (ushort)(authored.Entry + (records - RecordsBefore(position.Recording, authored.FirstRecord)) * DemoInputListWords.InputRecordBytes)
+            : (ushort)(Entry(position.Recording) + records * DemoInputListWords.InputRecordBytes);
     }
 
     /// <summary>The native pre-instruction word of an object whose owner watches for nothing: the return-only routine.</summary>

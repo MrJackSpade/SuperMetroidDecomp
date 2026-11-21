@@ -77,34 +77,19 @@ internal static class PhantoonAnimations
     /// the closing eye closes and holds closed, the tentacles sway for good, and the flame-spitting mouth runs on into its
     /// initial pose and holds it.
     /// </summary>
-    private static Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>> StartingAt { get; } = new Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>>
+    private static Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>> StartingAt { get; } = Segments.Starts(Segments.StartsEnding(new Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>>
     {
-        [P.InvulnerableBody] = Held(P.InvulnerableBody),
-        [P.FullHitboxBody] = Held(P.FullHitboxBody),
-        [P.EyeHitboxBody] = Held(P.EyeHitboxBody),
-        [P.EyeOpen] = Held(P.EyeOpen),
-        [P.EyeClosed] = Held(P.EyeClosed),
         [P.EyeCloseAndPickNewPattern] = HeldAfter(P.EyeCloseAndPickNewPattern, P.EyeClosed),
         [P.EyeClose] = HeldAfter(P.EyeClose, P.EyeClosed),
-        [P.EyeballCentered] = Held(P.EyeballCentered),
-        [P.EyeLookingUp] = Held(P.EyeLookingUp),
-        [P.EyeLookingUpRight] = Held(P.EyeLookingUpRight),
-        [P.EyeLookingRight] = Held(P.EyeLookingRight),
-        [P.EyeLookingDownRight] = Held(P.EyeLookingDownRight),
-        [P.EyeLookingDown] = Held(P.EyeLookingDown),
-        [P.EyeLookingDownLeft] = Held(P.EyeLookingDownLeft),
-        [P.EyeLookingLeft] = Held(P.EyeLookingLeft),
-        [P.EyeLookingUpLeft] = Held(P.EyeLookingUpLeft),
-        [P.Tentacles] = Animation<PhantoonPartSegment>.Looping([Segments.Whole(P.Tentacles)]),
         [P.MouthSpawnFlame] = HeldAfter(P.MouthSpawnFlame, P.MouthInitial),
-        [P.MouthInitial] = Held(P.MouthInitial),
-    };
+    }, AnimationEnd.Holds,
+        P.InvulnerableBody, P.FullHitboxBody, P.EyeHitboxBody, P.EyeOpen, P.EyeClosed, P.EyeballCentered,
+        P.EyeLookingUp, P.EyeLookingUpRight, P.EyeLookingRight, P.EyeLookingDownRight, P.EyeLookingDown,
+        P.EyeLookingDownLeft, P.EyeLookingLeft, P.EyeLookingUpLeft, P.MouthInitial),
+        P.Tentacles);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PhantoonPartSegment> StartingWith(PhantoonPartSegment segment) => StartingAt[segment];
-
-    /// <summary>Plays <paramref name="segment"/> once and holds its last frame.</summary>
-    private static Animation<PhantoonPartSegment> Held(PhantoonPartSegment segment) => new([Segments.Whole(segment)], AnimationEnd.Holds);
 
     /// <summary>Plays <paramref name="first"/>, then <paramref name="then"/>, and holds the last frame.</summary>
     private static Animation<PhantoonPartSegment> HeldAfter(PhantoonPartSegment first, PhantoonPartSegment then) =>

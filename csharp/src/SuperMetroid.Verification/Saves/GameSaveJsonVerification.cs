@@ -90,9 +90,9 @@ internal static class GameSaveJsonVerification
         SuperMetroidSaveSlot restoredSlot = restored.ReadSlot(SaveSlot.B) ??
             throw new InvalidOperationException("JSON round trip lost slot 1.");
         AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.RedBrinstarSave, restoredSlot.Checkpoint), "JSON checkpoint station");
-        AssertEqual(94, restoredSlot.Health, "JSON health");
-        AssertEqual(15, restoredSlot.MaxMissiles, "JSON missile capacity");
-        AssertTrue(restoredSlot.CollectedItems.HasAll(
+        AssertEqual(94, restoredSlot.Inventory.Health, "JSON health");
+        AssertEqual(15, restoredSlot.Inventory.MaxMissiles, "JSON missile capacity");
+        AssertTrue(restoredSlot.Inventory.CollectedItems.HasAll(
             SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.VariaSuit),
             "JSON collected equipment flags");
         SuperMetroidSaveSlot savedSlot = saveRam.ReadSlot(SaveSlot.B) ?? throw new InvalidOperationException("The saved slot 1 failed.");
@@ -101,7 +101,7 @@ internal static class GameSaveJsonVerification
         AssertTrue(restoredSlot.Progression.Events.Members.SequenceEqual([StoryEvent.ZebesAwake]),
             "JSON keeps the story events by name");
         AssertEqual(bindings, restoredSlot.ControllerBindings, "JSON controller bindings");
-        AssertEqual(ReserveTankMode.Auto, restoredSlot.ReserveMode, "JSON reserve-tank mode");
+        AssertEqual(ReserveTankMode.Auto, restoredSlot.Inventory.ReserveMode, "JSON reserve-tank mode");
         AssertEqual(HudItem.SuperMissile, restoredSlot.HudItem, "JSON HUD selection");
         AssertEqual(time, restoredSlot.GameTime, "JSON game time");
 
@@ -234,12 +234,13 @@ internal static class GameSaveJsonVerification
         var store = new SaveSlotStore(maps);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
         var system = new SharedGameState(new SharedRandom());
-        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system,
-            SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.DraygonSave)) with
+        SuperMetroidSaveSnapshot captured = SuperMetroidSaveSnapshot.Capture(samus, system,
+            SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.DraygonSave));
+        SuperMetroidSaveSnapshot snapshot = captured with
         {
             StartupRoute = SaveStartupRoute.CeresDestruction,
             HudItem = HudItem.XRay,
-            ReserveMode = ReserveTankMode.Manual,
+            Inventory = captured.Inventory with { ReserveMode = ReserveTankMode.Manual },
         };
         store.SaveSlot(SaveSlot.A, snapshot);
         byte[] sram = SaveRamCodec.Encode(store, maps);

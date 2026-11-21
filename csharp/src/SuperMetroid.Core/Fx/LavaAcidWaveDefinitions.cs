@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -21,7 +22,7 @@ public static class LavaAcidWaveDefinitions
     public static FrozenDictionary<HeatHazeDirection, ImmutableArray<int>> HazeWaveforms { get; } =
         new Dictionary<HeatHazeDirection, ImmutableArray<int>>
     {
-        [HeatHazeDirection.Horizontal] = [0, 0, 1, 1, 1, 1, 0, 0, -1, -1, -1, -1, 0, 0, 0, 0],
+        [HeatHazeDirection.Horizontal] = [0, 0, .. Repeated(1, 4), 0, 0, .. Repeated(-1, 4), .. Repeated(0, 4)],
         [HeatHazeDirection.Vertical] = [0, 1, 1, 0, 0, -1, -1, 0, 0, 1, 1, 0, 0, -1, -1, 0],
     }.ToFrozenDictionary();
 

@@ -10,7 +10,7 @@ using SuperMetroid.Core.Frontend.GameOver.Artwork;
 namespace SuperMetroid.Core.Frontend.GameOver;
 
 /// <summary>The game-over prompt.</summary>
-public sealed class GameOverMenuState : IMenuFrontendScreen
+public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]

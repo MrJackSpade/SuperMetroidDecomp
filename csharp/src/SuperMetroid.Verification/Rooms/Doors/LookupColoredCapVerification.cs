@@ -30,7 +30,7 @@ internal static class LookupColoredCapVerification
         string[] ids = families.SelectMany(family => new[] { "closed", "ajar", "half-open", "nearly-open" }.Select(look => $"{family.Name}-{look}")).ToArray();
         var exported = RoomObjectColoredDoorVisualFiles.All.ToArray();
         AssertEqual(48, exported.Length, "Colored cap export count");
-        InstalledRoomObjectColoredDoorVisuals? pictures = field == 2 ? InstalledRoomObjectColoredDoorVisuals.Stock() : null;
+        InstalledRoomObjectPictures? pictures = field == 2 ? RoomObjectPicturesStock.ColoredDoor : null;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)

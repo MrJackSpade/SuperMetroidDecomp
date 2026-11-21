@@ -46,14 +46,27 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
     private protected abstract IReadOnlyDictionary<TSegment, Animation<TSegment>> StartingAt { get; }
 
     /// <summary>
-    /// The segment <paramref name="started"/>, one of the family's animations, starts at: its key in <see cref="StartingAt"/>.
-    /// A family whose owners start some animations by their own identity (the n00b tube's shards, #2044) names theirs.
+    /// The segment <paramref name="started"/>, one of the animations the family's owners start, starts at: an animation of
+    /// <see cref="StartingAt"/> at its key, and one an owner builds for itself, which the table does not key (the n00b
+    /// tube's shard flights, #2044, Torizo's forming drools, the Tourian Chozo's dust, a death's run, the save station's
+    /// electricity), at its first phase's segment.
     /// </summary>
-    private protected virtual TSegment SegmentStartedAt(Animation<TSegment> started) =>
-        StartingAt.Single(pair => ReferenceEquals(pair.Value, started)).Key;
+    private protected TSegment SegmentStartedAt(Animation<TSegment> started)
+    {
+        Ensure.NotNull(started);
+        return StartingAt.Values.Any(keyed => ReferenceEquals(keyed, started))
+            ? StartingAt.Single(pair => ReferenceEquals(pair.Value, started)).Key
+            : started.Phases[0].Segment;
+    }
 
     /// <summary>The projectile frame <paramref name="frame"/> shows.</summary>
     private protected abstract EnemyProjectileFrameId Present(TFrame frame);
+
+    /// <summary>
+    /// Where <paramref name="frame"/>'s picture is drawn from the projectile's place (#2557): at the place itself, unless the
+    /// family moves one picture about as it plays (the save-station electricity's band on its sweep).
+    /// </summary>
+    private protected virtual Offset16<RoomPixels> Placement(TFrame frame) => Offset16<RoomPixels>.Zero;
 
     /// <summary>Plays the animation on to its next frame.</summary>
     private protected sealed override EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context)
@@ -65,9 +78,9 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
         switch (shown)
         {
             case AnimationShown<TSegment, TFrame>.Frame shownFrame:
-                return new EnemyProjectileFrameStep.Show(Present(shownFrame.Shown), shownFrame.Duration);
+                return new EnemyProjectileFrameStep.Show(Present(shownFrame.Shown), shownFrame.Duration, Placement(shownFrame.Shown));
             case AnimationShown<TSegment, TFrame>.HeldFrame held:
-                return new EnemyProjectileFrameStep.ShowForGood(Present(held.Shown));
+                return new EnemyProjectileFrameStep.ShowForGood(Present(held.Shown), Placement(held.Shown));
             case AnimationShown<TSegment, TFrame>.Held:
                 return EnemyProjectileFrameStep.Rests;
             case AnimationShown<TSegment, TFrame>.Hidden hidden:

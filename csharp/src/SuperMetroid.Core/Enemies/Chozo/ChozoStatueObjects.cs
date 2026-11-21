@@ -48,22 +48,17 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     {
         Ensure.NotNull(level);
         RoomBlockBehavior behavior = level.GetCollisionBlock(block).Behavior;
-        // The touched block names the statue whose hand it is, if any (#2560).
-        ChozoStatueSite? hand =
-            _area == AreaId.WreckedShip && behavior == ChozoStatueRoomDefinitions.WreckedShipHandBehavior ? ChozoStatueSite.WreckedShip
-            : _area == AreaId.Norfair && behavior == ChozoStatueRoomDefinitions.LowerNorfairHandBehavior ? ChozoStatueSite.LowerNorfair
-            : null;
-        if (hand is not { } statue) return;
+        if (ChozoStatueSiteDefinitions.Sites.Values.SingleOrDefault(site => site.Area == _area && site.HandBehavior == behavior) is not { } site)
+            return;
         // The hand block is solid whether or not the touch is admitted. Samus morphed facing left is not admitted; only
         // these three poses are.
-        bool eligible = movingDown && collisionPose is
-            (SamusPoseId.MorphBallGroundRightPose or
-             SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose);
-        // The Wrecked Ship statue admits Samus once its area's boss is defeated, the Lower Norfair one once she has the
-        // Space Jump.
-        eligible &= statue == ChozoStatueSite.WreckedShip
-            ? _system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaBoss)
-            : samus.CollectedItems.HasAny(SamusEquipmentFlags.SpaceJump);
+        bool eligible = movingDown && SamusPoseTraits.IsIn(collisionPose, SamusPoseFamily.ChozoHandBall);
+        eligible &= site.Admission switch
+        {
+            ChozoHandAdmission.AreaBossDefeated => _system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaBoss),
+            ChozoHandAdmission.SpaceJumpCollected => samus.CollectedItems.HasAny(SamusEquipmentFlags.SpaceJump),
+            _ => throw new InvalidOperationException($"Undefined {nameof(ChozoHandAdmission)} {site.Admission}."),
+        };
         // The check holds a place of its own while it runs, so the statue's objects it spawns take the places after it.
         if (_places.Spawn() is not { } check)
             return;

@@ -14,34 +14,31 @@ internal static class CeresSteamNativeListAddresses
     /// <summary>The lists' bank.</summary>
     internal const byte Bank = 0xa6;
 
-    /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<CeresSteamSegment>[] Entries =
+    /// <summary>Each way a vent blows, with its typed programs' native entry points in authored order.</summary>
+    internal static readonly (string Name, CeresSteamWay Way, NativeProgramEntry<CeresSteamSegment>[] Entries)[] Ways =
     [
-        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.UpDormant, 0xf04d),
-        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.UpResting, 0xf059),
-        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.UpPuffing, 0xf061),
-        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.LeftDormant, 0xf081),
-        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.LeftResting, 0xf08d),
-        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.LeftPuffing, 0xf095),
-        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.DownDormant, 0xf0b5),
-        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.DownResting, 0xf0c1),
-        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.DownPuffing, 0xf0c9),
-        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.RightDormant, 0xf0e9),
-        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.RightResting, 0xf0f5),
-        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.RightPuffing, 0xf0fd),
+        ("up", CeresSteamWay.Up, Programs(0xf04d, 0xf059, 0xf061)),
+        ("left", CeresSteamWay.Left, Programs(0xf081, 0xf08d, 0xf095)),
+        ("down", CeresSteamWay.Down, Programs(0xf0b5, 0xf0c1, 0xf0c9)),
+        ("right", CeresSteamWay.Right, Programs(0xf0e9, 0xf0f5, 0xf0fd)),
     ];
 
     /// <summary>
     /// The rests between puffs, which no owner starts and no cue branches to: a dormant or puffing vent's animation only
     /// runs on into them (#2096).
     /// </summary>
-    internal static readonly IReadOnlySet<CeresSteamSegment> OnlyRunOnInto = new HashSet<CeresSteamSegment>
-    {
-        CeresSteamSegment.UpResting,
-        CeresSteamSegment.LeftResting,
-        CeresSteamSegment.DownResting,
-        CeresSteamSegment.RightResting,
-    };
+    internal static readonly IReadOnlySet<CeresSteamSegment> OnlyRunOnInto = new HashSet<CeresSteamSegment> { CeresSteamSegment.Resting };
+
+    /// <summary>The native entry points of the way whose vent animation is <paramref name="way"/>.</summary>
+    internal static NativeProgramEntry<CeresSteamSegment>[] EntriesOf(CeresSteamWay way) => Ways.Single(listed => listed.Way == way).Entries;
+
+    /// <summary>One way's dormant, resting and puffing programs' entry points.</summary>
+    private static NativeProgramEntry<CeresSteamSegment>[] Programs(ushort dormant, ushort resting, ushort puffing) =>
+    [
+        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.Dormant, dormant),
+        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.Resting, resting),
+        new NativeProgramEntry<CeresSteamSegment>(CeresSteamSegment.Puffing, puffing),
+    ];
 
     /// <summary>
     /// The frame record each dormant list shows after hiding its vent (#2480): the port's owner takes the vent over there,

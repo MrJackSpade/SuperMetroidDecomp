@@ -26,7 +26,7 @@ internal static class LookupGreyCapVerification
         string[] ids = ["clear-left","clear-right","clear-up","clear-down","grey-left-closed","grey-left-ajar","grey-left-half-open","grey-left-nearly-open","grey-right-closed","grey-right-ajar","grey-right-half-open","grey-right-nearly-open","grey-up-closed","grey-up-ajar","grey-up-half-open","grey-up-nearly-open","grey-down-closed","grey-down-ajar","grey-down-half-open","grey-down-nearly-open"];
         var exported = RoomObjectGreyDoorVisualFiles.All.ToArray();
         AssertEqual(20, exported.Length, "Grey cap export count");
-        InstalledRoomObjectGreyDoorVisuals? pictures = field == 2 ? InstalledRoomObjectGreyDoorVisuals.Stock() : null;
+        InstalledRoomObjectPictures? pictures = field == 2 ? RoomObjectPicturesStock.GreyDoor : null;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)

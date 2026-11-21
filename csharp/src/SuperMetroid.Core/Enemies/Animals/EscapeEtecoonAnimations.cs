@@ -34,8 +34,7 @@ internal static class EscapeEtecoonAnimations
         [P.RunningForEscapeStride] = Stride(EtecoonStride.Right, 3),
         [P.Stationary] =
         [
-            Show(EnemyFrameId.EscapeEtecoonLookingRight, 64),
-            Show(EnemyFrameId.EscapeEtecoonTurningLeft, 8),
+            .. LookingRightThenTurningLeft,
             Show(EnemyFrameId.EscapeEtecoonLookingLeft, 64),
             Show(EnemyFrameId.EscapeEtecoonTurningRight, 8),
         ],
@@ -44,12 +43,15 @@ internal static class EscapeEtecoonAnimations
             Cue(new EscapeEtecoonCue.Signal(K.ExpressesGratitude)),
         ],
         [P.ThankingSteps] = SteppingStride(EtecoonStride.Left, 8, -ThankingStepPixels),
-        [P.ThankingLook] =
-        [
-            Show(EnemyFrameId.EscapeEtecoonLookingRight, 64),
-            Show(EnemyFrameId.EscapeEtecoonTurningLeft, 8),
-        ],
+        [P.ThankingLook] = LookingRightThenTurningLeft,
     });
+
+    /// <summary>
+    /// An Etecoon looking right and then turning left, which a stationary Etecoon's look opens with and a thanking one
+    /// plays alone.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, EscapeEtecoonCue>[] LookingRightThenTurningLeft =>
+        [Show(EnemyFrameId.EscapeEtecoonLookingRight, 64), Show(EnemyFrameId.EscapeEtecoonTurningLeft, 8)];
 
     /// <summary>How many times a thanking Etecoon takes its four steps to the left.</summary>
     private const int ThankingStepRuns = 8;

@@ -11,9 +11,8 @@ internal static class MotherBrainFallingTubes
     /// </summary>
     internal static RoomEnemyPlacement Get(MotherBrainTubePiece piece)
     {
-        bool main = piece == MotherBrainTubePiece.Main;
         Position16<RoomPixels> position = Positions[piece];
-        EnemyProcessing processing = main
+        EnemyProcessing processing = MotherBrainFallingTubePopulationDefinitions.Bodies[piece].KeepsUpdatingOffScreen
             ? EnemyProcessing.Animates | EnemyProcessing.OffScreen
             : EnemyProcessing.Animates;
         return new(EnemyDefinitionId.MotherBrainTubes, EnemyPlacing.At(position), EnemyContact.SolidToSamus, processing, EnemyPresence.None,

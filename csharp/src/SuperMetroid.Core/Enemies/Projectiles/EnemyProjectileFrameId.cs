@@ -1435,22 +1435,11 @@ public enum EnemyProjectileFrameId
     DownwardGateThreeBlocksTall,
     /// <summary>A downward gate: four blocks tall.</summary>
     DownwardGateFourBlocksTall,
-    /// <summary>A save station's electricity beginning its sweep down the station: its zigzag band's picture placed 32 pixels above its place.</summary>
-    SaveStationElectricitySweepBeginning,
-    /// <summary>A save station's electricity descending on its sweep: its zigzag band's picture placed 24 pixels above its place.</summary>
-    SaveStationElectricitySweepDescending,
-    /// <summary>A save station's electricity lowering on its sweep: its zigzag band's picture placed 16 pixels above its place.</summary>
-    SaveStationElectricitySweepLowering,
-    /// <summary>A save station's electricity nearing halfway down its sweep: its zigzag band's picture placed 8 pixels above its place.</summary>
-    SaveStationElectricitySweepNearingHalfway,
-    /// <summary>A save station's electricity passing halfway down its sweep: its zigzag band's picture level with its place.</summary>
-    SaveStationElectricitySweepPassingHalfway,
-    /// <summary>A save station's electricity past halfway down its sweep: its zigzag band's picture placed 8 pixels below its place.</summary>
-    SaveStationElectricitySweepPastHalfway,
-    /// <summary>A save station's electricity nearing the end of its sweep: its zigzag band's picture placed 16 pixels below its place.</summary>
-    SaveStationElectricitySweepNearingEnd,
-    /// <summary>A save station's electricity at the end of its sweep: its zigzag band's picture placed 24 pixels below its place.</summary>
-    SaveStationElectricitySweepEnding,
+    /// <summary>
+    /// A save station's electricity: its zigzag band, level with its place; its sweep down the station places the band above
+    /// and below (#2557).
+    /// </summary>
+    SaveStationElectricityBand,
     /// <summary>A Botwoon body segment: facing up and left, its stripes rippled 0 degrees round their cycle.</summary>
     BotwoonBodyUpLeftRipple0,
     /// <summary>A Botwoon body segment: facing up and left, its stripes rippled 90 degrees round their cycle.</summary>

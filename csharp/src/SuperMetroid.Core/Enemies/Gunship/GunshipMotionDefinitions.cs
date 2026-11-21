@@ -1,3 +1,4 @@
+using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>Exact bounded motion policies for the Landing Site gunship.</summary>
@@ -8,7 +9,7 @@ internal static class GunshipMotionDefinitions
     /// How far each of the landing brakes' seventeen updates moves the ship and Samus, in order (<see cref="GunshipLandingBrake"/>):
     /// down a pixel for six updates, still for five, then up a pixel for six.
     /// </summary>
-    internal static readonly int[] LandingBrakeYDeltas = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1];
+    internal static readonly int[] LandingBrakeYDeltas = [.. Repeated(1, 6), .. Repeated(0, 5), .. Repeated(-1, 6)];
 
     /// <summary>
     /// The idle bob's four steps in order (<see cref="GunshipIdleBob"/>), each held for its updates: down a pixel, up, up, then

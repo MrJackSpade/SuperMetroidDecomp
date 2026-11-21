@@ -207,7 +207,7 @@ internal static class AudioClipExporter
             priority,
             mode,
             IgnoresPriority: !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 1, SoundLibraryMode.Normal),
-            IgnoresLowHealthMode: soundLibrary == SoundEffectLibrary.Room && !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 0, SoundLibraryMode.LowHealth));
+            IgnoresLowHealthMode: SpcSoundEffectTables.HasLowHealthMode(libraryIndex) && !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 0, SoundLibraryMode.LowHealth));
     }
 
     /// <summary>

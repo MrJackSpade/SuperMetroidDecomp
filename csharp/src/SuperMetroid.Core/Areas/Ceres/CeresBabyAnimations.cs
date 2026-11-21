@@ -11,14 +11,15 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal static class CeresBabyAnimations
 {
+    /// <summary>How many times the resting loop checks for motion and squishes before the expressive loop.</summary>
+    private const int IdleSquishPlays = 2;
+
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<P, F, CeresBabyCue> Segments { get; } = new(
         new Dictionary<P, AnimationBeat<F, CeresBabyCue>[]>
     {
         [P.IdleSquish] =
         [
-            Cue(new CeresBabyCue.ReactsToMotion()),
-            .. SquishCycle,
             Cue(new CeresBabyCue.ReactsToMotion()),
             .. SquishCycle,
         ],
@@ -41,8 +42,8 @@ internal static class CeresBabyAnimations
     /// </summary>
     private static Dictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
     {
-        [P.IdleSquish] = Animation<P>.Looping([Segments.Whole(P.IdleSquish), Segments.Whole(P.ExpressiveLoop)]),
-        [P.ExpressiveLoop] = Animation<P>.Looping([Segments.Whole(P.ExpressiveLoop), Segments.Whole(P.IdleSquish)]),
+        [P.IdleSquish] = Animation<P>.Looping([Segments.Repeated(P.IdleSquish, IdleSquishPlays), Segments.Whole(P.ExpressiveLoop)]),
+        [P.ExpressiveLoop] = Animation<P>.Looping([Segments.Whole(P.ExpressiveLoop), Segments.Repeated(P.IdleSquish, IdleSquishPlays)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

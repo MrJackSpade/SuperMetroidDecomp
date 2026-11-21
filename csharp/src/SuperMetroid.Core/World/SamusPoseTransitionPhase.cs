@@ -44,7 +44,7 @@ internal sealed class SamusPoseTransitionPhase
     internal void Apply(SamusControlFrame frame, SamusState samus, SamusTerrain terrain)
     {
         if (!_player.GroundedSamusMovementEnabled ||
-            frame.Mode.Movement is SamusMovementMode.Fatal or SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked)
+            !frame.Mode.Movement.AdmitsPoseUpdate)
             return;
 
         // The hit interruption sees the old movement type before the pose update, and its bomb rejection comes before
@@ -84,7 +84,7 @@ internal sealed class SamusPoseTransitionPhase
         // Samus's momentum on this update, as crouching does, unless a launch or the timeout comes first.
         if (!transitionApplied && frame.InputChoseNoPose &&
             _player.ProspectiveSamusPose is null &&
-            frame.PoseAtFrameStart is SamusPoseId.ShinesparkWindupRightPose or SamusPoseId.ShinesparkWindupLeftPose &&
+            SamusPoseTraits.IsIn(frame.PoseAtFrameStart, SamusPoseFamily.ShinesparkWindup) &&
             samus.Shinespark.Phase == ShinesparkPhase.Windup)
             samus.HorizontalSpeed.StopForNoTransition(SamusPoseMetadata.ReadFacingDirection(samus));
 
@@ -135,9 +135,7 @@ internal sealed class SamusPoseTransitionPhase
             SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus,
                 terrain.Level,
                 dropPose, _clock.Counter, terrain.RoomObjects);
-            _player.ClearProspectivePoses();
-            _player.ProspectiveSamusWallCollisionPose = null;
-            transitionApplied = true;
+            transitionApplied = TakeInterruption();
         }
 
         // The grapple release queues its release pose the same way, so the hit interruption
@@ -145,9 +143,7 @@ internal sealed class SamusPoseTransitionPhase
         if (!transitionApplied && frame.GrappleMovement is { PendingReleasePose: SamusPoseId releasePose })
         {
             SamusGrappleMovement.ApplyReleasePose(samus, releasePose);
-            _player.ClearProspectivePoses();
-            _player.ProspectiveSamusWallCollisionPose = null;
-            transitionApplied = true;
+            transitionApplied = TakeInterruption();
         }
 
         // Crash movement queues a transitional pose; it must not replace the
@@ -156,9 +152,7 @@ internal sealed class SamusPoseTransitionPhase
         if (!transitionApplied && frame.ShinesparkMovement is { CrashSequenceFinished: true })
         {
             SamusShinesparkState.ApplyCrashFinishPose(samus);
-            _player.ClearProspectivePoses();
-            _player.ProspectiveSamusWallCollisionPose = null;
-            transitionApplied = true;
+            transitionApplied = TakeInterruption();
         }
 
         // Expiry still permits this frame's movement and animation. Its
@@ -169,9 +163,7 @@ internal sealed class SamusPoseTransitionPhase
         if (hitInterruptionExpiryPending)
         {
             SamusKnockbackMovement.FinishExpiredHitInterruption(samus);
-            _player.ClearProspectivePoses();
-            _player.ProspectiveSamusWallCollisionPose = null;
-            transitionApplied = true;
+            transitionApplied = TakeInterruption();
         }
 
         // The pose interruption runs after Samus's animation and before the pose update. Terrain
@@ -186,9 +178,7 @@ internal sealed class SamusPoseTransitionPhase
                 _freeze.TimeIsFrozen,
                 new KnockbackPoseCollision(terrain, _clock.Counter)))
         {
-            _player.ClearProspectivePoses();
-            _player.ProspectiveSamusWallCollisionPose = null;
-            transitionApplied = true;
+            transitionApplied = TakeInterruption();
         }
 
         // Bomb overlap is published between the input and movement phases, but the game's
@@ -205,9 +195,7 @@ internal sealed class SamusPoseTransitionPhase
                 _playerActions.NewlyPressed,
                 terrain.RoomObjects))
         {
-            _player.ClearProspectivePoses();
-            _player.ProspectiveSamusWallCollisionPose = null;
-            transitionApplied = true;
+            transitionApplied = TakeInterruption();
         }
 
         // The windup's end starts her vertical movement at once; Samus's animation sees the windup body on this update,
@@ -216,16 +204,12 @@ internal sealed class SamusPoseTransitionPhase
             frame.ShinesparkMovement is { PendingLaunchPose: SamusPoseId launchPose })
         {
             SamusShinesparkState.ApplyDirectionalLaunchPose(samus, launchPose);
-            _player.ClearProspectivePoses();
-            _player.ProspectiveSamusWallCollisionPose = null;
-            transitionApplied = true;
+            transitionApplied = TakeInterruption();
         }
 
         if (frame.XrayActivation is { Pose: { } xrayPose } && samus.Xray.CommitActivation(samus, xrayPose, transitionApplied))
         {
-            _player.ClearProspectivePoses();
-            _player.ProspectiveSamusWallCollisionPose = null;
-            transitionApplied = true;
+            transitionApplied = TakeInterruption();
         }
 
         // Grapple connection publishes a pending connection pose.
@@ -239,12 +223,21 @@ internal sealed class SamusPoseTransitionPhase
                     samus,
                     pendingConnection);
             frame.SnapCameraPoint(grapplePrevious);
-            _player.ClearProspectivePoses();
-            _player.ProspectiveSamusWallCollisionPose = null;
-            transitionApplied = true;
+            transitionApplied = TakeInterruption();
         }
 
         return transitionApplied;
+    }
+
+    /// <summary>
+    /// Takes an interruption's transition (#2557): the input phase's prospective poses and the wall-collision pose are
+    /// dropped, as every interruption that wins drops them, and the transition counts as applied.
+    /// </summary>
+    private bool TakeInterruption()
+    {
+        _player.ClearProspectivePoses();
+        _player.ProspectiveSamusWallCollisionPose = null;
+        return true;
     }
 
     /// <summary>

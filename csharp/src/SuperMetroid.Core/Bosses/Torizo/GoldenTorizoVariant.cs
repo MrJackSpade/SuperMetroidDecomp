@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal sealed class GoldenTorizoVariant()
     : TorizoVariant(TorizoInitializationDefinitions.Golden, TorizoWalkerDefinitions.GoldenTorizo, TorizoDeathDefinitions.GoldenTorizoArena,
         EncounterArtwork.GoldenTorizo, TorizoLookKind.GoldenInitial,
-        GoldenTorizoCodeDefinitions.Code)
+        GoldenTorizoCodeDefinitions.Code, TorizoDecisionDefinitions.GoldenFirstAttackMissiles)
 {
     /// <summary>Golden Torizo walks on by the choice's walk.</summary>
     /// <param name="alternate">The choice's walk.</param>

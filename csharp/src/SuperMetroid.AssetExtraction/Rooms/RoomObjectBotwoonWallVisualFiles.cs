@@ -25,7 +25,7 @@ public static class RoomObjectBotwoonWallVisualFiles
     /// <summary>Loads the installed Botwoon wall pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectBotwoonWallVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Assigns the lone wall-clear draw its stable artwork key and rejects other draw identities.</summary>

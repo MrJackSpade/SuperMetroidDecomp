@@ -38,7 +38,7 @@ internal static class RoomObjectFramePresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation compilation = CSharpCompilation.Create("RoomObjectFrameProviderFixture", trees,
-            platforms.Append(typeof(SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectBotwoonWallVisuals).Assembly.Location)
+            platforms.Append(typeof(SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures).Assembly.Location)
                 .Append(typeof(SuperMetroid.AssetExtraction.Rooms.RoomObjectBotwoonWallVisualFiles).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
@@ -53,13 +53,13 @@ internal static class RoomObjectFramePresentationContractChecks
         CSharpCompilation forged = compilation.AddSyntaxTrees(CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Rooms.RoomObjects;
             class FramePictureForger {
-                InstalledRoomObjectBotwoonWallVisuals Forge() => new InstalledRoomObjectBotwoonWallVisuals(null!);
+                InstalledRoomObjectPictures Forge() => new InstalledRoomObjectPictures(null!);
             }
             """, path: "fixture-room-object-frame-forger.cs"));
         (AuditReport revoked, ClosedPresentationAudit? forgedAudit) = Inspect(forged, calls, adapted: true);
         Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 2 && revoked.Consumers.Count == 2,
             "a construction of a family's pictures outside its loader must revoke the composed read (" + revoked.Describe() + ")");
-        string[] expectedRevoked = [ContractTypeNames.MetadataName(typeof(SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectBotwoonWallVisuals)),
+        string[] expectedRevoked = [ContractTypeNames.MetadataName(typeof(SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures)),
             RoomObjectFrameClosedContractDefinitions.Composed.Type];
         string[] actualRevoked = [.. (forgedAudit ?? throw new InvalidOperationException("The adapted inspection has its audit."))
             .InvalidContracts.Where(type => RoomObjectFrameClosedContractDefinitions.All.Any(contract => contract.Type == type)).Order(StringComparer.Ordinal)];

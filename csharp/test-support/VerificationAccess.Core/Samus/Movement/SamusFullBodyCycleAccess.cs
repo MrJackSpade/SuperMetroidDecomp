@@ -13,7 +13,7 @@ internal static class SamusFullBodyCycleAccess
 {
     /// <summary>The Screw Attack glow, whose six shades number the shared steps.</summary>
     private static Animation<SamusGlowSegment> ScrewAttack =>
-        SamusGlowAnimationDefinitions.Animations[SamusGlowSegment.ScrewAttackPower];
+        SamusGlowAnimationDefinitions.Animations[SamusGlowSegment.In(SamusGlow.ScrewAttack, SamusSuit.Power)];
 
     /// <summary>Reads and sets the shared glow.</summary>
     extension(SamusHorizontalSpeedState self)

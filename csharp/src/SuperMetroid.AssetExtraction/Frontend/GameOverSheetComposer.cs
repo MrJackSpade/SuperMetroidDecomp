@@ -17,8 +17,8 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// </summary>
 internal static class GameOverSheetComposer
 {
-    /// <summary>The Baby's frames in the sheet's order (#2567): closed, middle, open.</summary>
-    private static readonly IReadOnlyList<GameOverBabyFrame> BabyFrames = Ensure.EveryMemberOnce<GameOverBabyFrame>(
+    /// <summary>The Baby's frames in the sheet's and the document's order (#2567): closed, middle, open.</summary>
+    internal static readonly IReadOnlyList<GameOverBabyFrame> BabyFrames = Ensure.EveryMemberOnce<GameOverBabyFrame>(
     [
         GameOverBabyFrame.Closed,
         GameOverBabyFrame.Middle,

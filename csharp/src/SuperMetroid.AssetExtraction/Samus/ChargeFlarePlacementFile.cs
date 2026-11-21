@@ -85,15 +85,10 @@ public static class ChargeFlarePlacementFile
         return new(offsets, source);
     }
 
-    /// <summary>Serializes a beam placement document as indented camel-case UTF-8 JSON.</summary>
-    /// <param name="document">Document containing every standing, turning and running direction placement.</param>
+    /// <summary>Serializes a beam or Grapple placement document as indented camel-case UTF-8 JSON.</summary>
+    /// <param name="document">Document containing every placement its flare is drawn at.</param>
     /// <returns>Placement JSON bytes.</returns>
     public static byte[] Write(ChargeFlarePlacementDocument document) => JsonSerializer.SerializeToUtf8Bytes(document, Options);
-
-    /// <summary>Serializes a Grapple placement document as indented camel-case UTF-8 JSON.</summary>
-    /// <param name="document">Document containing every standing and running direction placement.</param>
-    /// <returns>Placement JSON bytes.</returns>
-    public static byte[] WriteGrapple(ChargeFlarePlacementDocument document) => JsonSerializer.SerializeToUtf8Bytes(document, Options);
 
     /// <summary>Rejects duplicate top-level or nested object keys before deserialization can overwrite them.</summary>
     private static void ValidateUnique(JsonElement element) =>

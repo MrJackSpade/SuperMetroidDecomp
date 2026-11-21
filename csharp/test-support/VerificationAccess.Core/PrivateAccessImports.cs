@@ -211,7 +211,6 @@ global using static SuperMetroid.AssetExtraction.Rooms.RoomObjectStationVisualFi
 global using static SuperMetroid.AssetExtraction.Rooms.RoomObjectTourianAccessVisualFilesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.RoomSkyTilemapsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.RoomVisualLayoutFilesPrivateAccess;
-global using static SuperMetroid.AssetExtraction.Rooms.ScrollingSkyChunksPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Rooms.SkyTilemapPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusDeathPalettesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusVisorColorsPrivateAccess;
@@ -252,7 +251,6 @@ global using static SuperMetroid.AssetExtraction.Video.VramDmaDestinationPrivate
 global using static SuperMetroid.AssetExtraction.Video.VramRegionPrivateAccess;
 global using static SuperMetroid.AssetExtraction.World.Artwork.EnemyExtendedFrameDefinitionsPrivateAccess;
 global using static SuperMetroid.Core.Areas.Ceres.CeresBabyAnimationsPrivateAccess;
-global using static SuperMetroid.Core.Areas.Ceres.CeresDoorAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Areas.Ceres.CeresDoorBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Areas.Ceres.CeresElevatorShaftRoomMainStatePrivateAccess;
 global using static SuperMetroid.Core.Areas.Ceres.CeresFallingTilesPrivateAccess;
@@ -339,6 +337,7 @@ global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassObjects
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainMuralRowPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainNeckKinematicsPrivateAccess;
+global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainPainfulWalkingDefinitionsPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectilesMotherBrainProjectileBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainProjectilesPrivateAccess;
 global using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRainbowAndDeathPrivateAccess;
@@ -465,6 +464,7 @@ global using static SuperMetroid.Core.Enemies.Corpses.DeadSidehopperBehaviorPriv
 global using static SuperMetroid.Core.Enemies.Corpses.DeadTorizoAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Corpses.DeadTorizoBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Corpses.DeadTourianAnimationsPrivateAccess;
+global using static SuperMetroid.Core.Enemies.Corpses.DeadTourianBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Crawlers.CrawlerAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Crawlers.CrawlersBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Crawlers.MultiviolaAnimationsPrivateAccess;
@@ -757,6 +757,7 @@ global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTerrainCollisi
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTrailSparkleAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.ProjectileTrailsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystemPrivateAccess;
+global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystemPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileTrailPrivateAccess;
 global using static SuperMetroid.Core.Samus.SamusCeresRidleyEjectionStatePrivateAccess;

@@ -67,29 +67,26 @@ internal static class PhantoonCollisionDefinitions
         Contact(-halfWidth, top, halfWidth - 1, bottom);
     /// <summary>
     /// Each of Phantoon's body pictures' components: the full body, the eye alone and the invulnerable body each have
-    /// one component, and the eye's, tentacles' and mouth's looks none.
+    /// one component; the eye's, tentacles' and mouth's looks are <see cref="PartsWithoutHitboxes"/>.
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, ImmutableArray<EnemyCollisionComponent>> FrameComponents = new()
     {
         [EnemyFrameId.PhantoonInvulnerableBody] = SolidifyingCentreComponents,
         [EnemyFrameId.PhantoonFullHitboxBody] = FullBodyComponents,
         [EnemyFrameId.PhantoonEyeHitboxBody] = EyeOnlyComponents,
-        [EnemyFrameId.PhantoonEyeClosed] = NoComponents,
-        [EnemyFrameId.PhantoonEyeHalfOpen] = NoComponents,
-        [EnemyFrameId.PhantoonEyeballCentered] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingUp] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingDown] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingLeft] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingRight] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingDownLeft] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingDownRight] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingUpLeft] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingUpRight] = NoComponents,
-        [EnemyFrameId.PhantoonTentaclesNarrow] = NoComponents,
-        [EnemyFrameId.PhantoonTentaclesSpreading] = NoComponents,
-        [EnemyFrameId.PhantoonTentaclesSpread] = NoComponents,
-        [EnemyFrameId.PhantoonMouthOpen] = NoComponents,
-        [EnemyFrameId.PhantoonMouthHalfOpen] = NoComponents,
-        [EnemyFrameId.PhantoonMouthNarrow] = NoComponents,
+    };
+
+    /// <summary>
+    /// The looks of his eye, tentacles and mouth, which carry no hitbox: his body's pictures alone hold his components, so
+    /// every one of these has none.
+    /// </summary>
+    internal static readonly IReadOnlySet<EnemyFrameId> PartsWithoutHitboxes = new HashSet<EnemyFrameId>
+    {
+        EnemyFrameId.PhantoonEyeClosed, EnemyFrameId.PhantoonEyeHalfOpen, EnemyFrameId.PhantoonEyeballCentered,
+        EnemyFrameId.PhantoonEyeLookingUp, EnemyFrameId.PhantoonEyeLookingDown, EnemyFrameId.PhantoonEyeLookingLeft,
+        EnemyFrameId.PhantoonEyeLookingRight, EnemyFrameId.PhantoonEyeLookingDownLeft, EnemyFrameId.PhantoonEyeLookingDownRight,
+        EnemyFrameId.PhantoonEyeLookingUpLeft, EnemyFrameId.PhantoonEyeLookingUpRight,
+        EnemyFrameId.PhantoonTentaclesNarrow, EnemyFrameId.PhantoonTentaclesSpreading, EnemyFrameId.PhantoonTentaclesSpread,
+        EnemyFrameId.PhantoonMouthOpen, EnemyFrameId.PhantoonMouthHalfOpen, EnemyFrameId.PhantoonMouthNarrow,
     };
 }

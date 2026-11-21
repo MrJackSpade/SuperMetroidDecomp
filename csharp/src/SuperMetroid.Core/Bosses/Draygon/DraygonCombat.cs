@@ -160,7 +160,7 @@ internal sealed class DraygonCombat
         {
             if (!c.UsesFrameHitboxes)
                 throw new InvalidDataException("Draygon requires his authored extended shot hitboxes.");
-            if (c.HitboxShot == EnemyReaction.DudShot)
+            if (c.HitboxShot.IsDud)
             {
                 // Body, claws, and shell use the shared common touch; only the first
                 // eye rectangle of the two eye-showing body frames reaches Draygon's damage reaction.

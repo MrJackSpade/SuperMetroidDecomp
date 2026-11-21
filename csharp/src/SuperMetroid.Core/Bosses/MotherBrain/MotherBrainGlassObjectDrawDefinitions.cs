@@ -77,11 +77,10 @@ internal static class MotherBrainGlassObjectDrawDefinitions
     ]);
 
     /// <summary>
-    /// The glass starting to shatter: its right column is the shootable glass block over two empty blocks and a horizontal
-    /// extension, its left column a solid block over two empty blocks and a solid foot, and the two middle columns' middle
-    /// blocks are vertical extensions.
+    /// The shattered glass's outer columns, as both shatters leave them: its right column the shootable glass block over two
+    /// empty blocks and a horizontal extension, its left column a solid block over two empty blocks and a solid foot.
     /// </summary>
-    private static readonly RoomBlockShape FirstShatter = new(
+    private static readonly RoomBlockShape ShatteredOuterColumns = new(
     [
         new(new(0, 0), RoomCollisionType.ShootableBlock),
         new(new(0, 1), RoomCollisionType.Air),
@@ -91,26 +90,27 @@ internal static class MotherBrainGlassObjectDrawDefinitions
         new(new(-3, 1), RoomCollisionType.Air),
         new(new(-3, 2), RoomCollisionType.Air),
         new(new(-3, 3), RoomCollisionType.SolidBlock),
+    ]);
+
+    /// <summary>
+    /// The glass starting to shatter: its right column is the shootable glass block over two empty blocks and a horizontal
+    /// extension, its left column a solid block over two empty blocks and a solid foot, and the two middle columns' middle
+    /// blocks are vertical extensions.
+    /// </summary>
+    private static readonly RoomBlockShape FirstShatter = RoomBlockShapes.Joined(ShatteredOuterColumns, new(
+    [
         new(new(-2, 1), RoomCollisionType.VerticalExtension),
         new(new(-2, 2), RoomCollisionType.VerticalExtension),
         new(new(-1, 1), RoomCollisionType.VerticalExtension),
         new(new(-1, 2), RoomCollisionType.VerticalExtension),
-    ]);
+    ]));
 
     /// <summary>
     /// The glass further shattered: its outer columns as at the first shatter, and each middle column a horizontal
     /// extension over three vertical extensions.
     /// </summary>
-    private static readonly RoomBlockShape SecondShatter = new(
+    private static readonly RoomBlockShape SecondShatter = RoomBlockShapes.Joined(ShatteredOuterColumns, new(
     [
-        new(new(0, 0), RoomCollisionType.ShootableBlock),
-        new(new(0, 1), RoomCollisionType.Air),
-        new(new(0, 2), RoomCollisionType.Air),
-        new(new(0, 3), RoomCollisionType.HorizontalExtension),
-        new(new(-3, 0), RoomCollisionType.SolidBlock),
-        new(new(-3, 1), RoomCollisionType.Air),
-        new(new(-3, 2), RoomCollisionType.Air),
-        new(new(-3, 3), RoomCollisionType.SolidBlock),
         new(new(-2, 0), RoomCollisionType.HorizontalExtension),
         new(new(-2, 1), RoomCollisionType.VerticalExtension),
         new(new(-2, 2), RoomCollisionType.VerticalExtension),
@@ -119,20 +119,10 @@ internal static class MotherBrainGlassObjectDrawDefinitions
         new(new(-1, 1), RoomCollisionType.VerticalExtension),
         new(new(-1, 2), RoomCollisionType.VerticalExtension),
         new(new(-1, 3), RoomCollisionType.VerticalExtension),
-    ]);
+    ]));
 
     /// <summary>The glass gone: its whole four-by-four square, from three blocks left of the origin, empty.</summary>
-    private static readonly RoomBlockShape Gone = new(
-    [
-        new(new(0, 0), RoomCollisionType.Air), new(new(0, 1), RoomCollisionType.Air),
-        new(new(0, 2), RoomCollisionType.Air), new(new(0, 3), RoomCollisionType.Air),
-        new(new(-3, 0), RoomCollisionType.Air), new(new(-3, 1), RoomCollisionType.Air),
-        new(new(-3, 2), RoomCollisionType.Air), new(new(-3, 3), RoomCollisionType.Air),
-        new(new(-2, 0), RoomCollisionType.Air), new(new(-2, 1), RoomCollisionType.Air),
-        new(new(-2, 2), RoomCollisionType.Air), new(new(-2, 3), RoomCollisionType.Air),
-        new(new(-1, 0), RoomCollisionType.Air), new(new(-1, 1), RoomCollisionType.Air),
-        new(new(-1, 2), RoomCollisionType.Air), new(new(-1, 3), RoomCollisionType.Air),
-    ]);
+    private static readonly RoomBlockShape Gone = RoomBlockShapes.Rectangle(new(-3, 0), new(4, 4), RoomCollisionType.Air);
 
     /// <summary>The block shape each of the eleven glass frames draws.</summary>
     internal static readonly Dictionary<MotherBrainGlassDraw, RoomBlockShape> Shapes = new()

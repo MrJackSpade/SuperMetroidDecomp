@@ -16,13 +16,13 @@ public static class CeresSteamDefinitions
     internal static readonly IReadOnlyDictionary<CeresSteamVariant, CeresSteamInitialization> Initializations =
         new Dictionary<CeresSteamVariant, CeresSteamInitialization>
         {
-            [CeresSteamVariant.Up] = new(CeresSteamSegment.UpDormant, CeresSteamAction.HoldsItsPlace),
-            [CeresSteamVariant.Left] = new(CeresSteamSegment.LeftDormant, CeresSteamAction.HoldsItsPlace),
-            [CeresSteamVariant.Down] = new(CeresSteamSegment.DownDormant, CeresSteamAction.HoldsItsPlace),
-            [CeresSteamVariant.Right] = new(CeresSteamSegment.RightDormant, CeresSteamAction.HoldsItsPlace),
-            [CeresSteamVariant.RotatingElevatorLeft] = new(CeresSteamSegment.LeftDormant,
+            [CeresSteamVariant.Up] = new(CeresSteamWay.Up, CeresSteamAction.HoldsItsPlace),
+            [CeresSteamVariant.Left] = new(CeresSteamWay.Left, CeresSteamAction.HoldsItsPlace),
+            [CeresSteamVariant.Down] = new(CeresSteamWay.Down, CeresSteamAction.HoldsItsPlace),
+            [CeresSteamVariant.Right] = new(CeresSteamWay.Right, CeresSteamAction.HoldsItsPlace),
+            [CeresSteamVariant.RotatingElevatorLeft] = new(CeresSteamWay.Left,
                 CeresSteamAction.ApplyRotatingElevatorOffset),
-            [CeresSteamVariant.RotatingElevatorRight] = new(CeresSteamSegment.RightDormant,
+            [CeresSteamVariant.RotatingElevatorRight] = new(CeresSteamWay.Right,
                 CeresSteamAction.ApplyRotatingElevatorOffset),
         };
 }

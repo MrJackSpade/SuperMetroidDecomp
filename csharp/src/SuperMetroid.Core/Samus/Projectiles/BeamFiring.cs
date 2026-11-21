@@ -474,7 +474,7 @@ internal sealed class BeamFiring
         // Running and the two moonwalks aiming diagonally up take the running origins; every other pose takes the
         // ordinary ones.
         bool runningOrigin = movementType == SamusMovementType.Running ||
-            samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
+            SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.MoonwalkAimUp);
         var origin = SamusMuzzleOrigins.Read(runningOrigin, projectile.Direction);
         // Samus's centre lies at least 21 pixels from the room's left edge, which every row she reaches closes with terrain
         // or a door, and no muzzle lies more than 19 left of her, so the muzzle lies in the room across. A room open at the

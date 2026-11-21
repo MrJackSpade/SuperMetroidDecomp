@@ -12,14 +12,14 @@ public static class KraidCeilingRockDefinitions
     /// </summary>
     public static IReadOnlyList<KraidCeilingRock> Rocks { get; } =
     [
-        new(104, new(new(6, 18), KraidRoomMutation.CrumbleCeilingInEvenColumn)),
-        new(216, new(new(13, 18), KraidRoomMutation.CrumbleCeilingInOddColumn)),
-        new(40, new(new(2, 18), KraidRoomMutation.CrumbleCeilingAtLeftEdge)),
-        new(168, new(new(10, 18), KraidRoomMutation.CrumbleCeilingInEvenColumn)),
-        new(88, new(new(5, 18), KraidRoomMutation.CrumbleCeilingInOddColumn)),
-        new(200, new(new(12, 18), KraidRoomMutation.CrumbleCeilingInEvenColumn)),
-        new(56, new(new(3, 18), KraidRoomMutation.CrumbleCeilingInOddColumn)),
-        new(184, new(new(11, 18), KraidRoomMutation.CrumbleCeilingInOddColumn)),
-        new(72, new(new(4, 18), KraidRoomMutation.CrumbleCeilingInEvenColumn)),
+        new(new(new(6, 18), KraidRoomMutation.CrumbleCeilingInEvenColumn)),
+        new(new(new(13, 18), KraidRoomMutation.CrumbleCeilingInOddColumn)),
+        new(new(new(2, 18), KraidRoomMutation.CrumbleCeilingAtLeftEdge)),
+        new(new(new(10, 18), KraidRoomMutation.CrumbleCeilingInEvenColumn)),
+        new(new(new(5, 18), KraidRoomMutation.CrumbleCeilingInOddColumn)),
+        new(new(new(12, 18), KraidRoomMutation.CrumbleCeilingInEvenColumn)),
+        new(new(new(3, 18), KraidRoomMutation.CrumbleCeilingInOddColumn)),
+        new(new(new(11, 18), KraidRoomMutation.CrumbleCeilingInOddColumn)),
+        new(new(new(4, 18), KraidRoomMutation.CrumbleCeilingInEvenColumn)),
     ];
 }

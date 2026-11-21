@@ -17,12 +17,17 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Room sound queue receiving the glass-shatter effect.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
-    /// <summary>Binds the glass animation's handling to the room's room-object places, event services, and sound queue.</summary>
-    internal MotherBrainGlassObjects(IDefeatedBossesReader bosses, IStoryEvents events, RoomObjectSoundQueue sounds)
+    /// <summary>The room's enemy projectiles, among which the glass's shards spawn.</summary>
+    private readonly IMotherBrainGlassShardSpawner _shards;
+
+    /// <summary>Binds the glass animation's handling to the room's event services, sound queue and enemy projectiles.</summary>
+    internal MotherBrainGlassObjects(IDefeatedBossesReader bosses, IStoryEvents events, RoomObjectSoundQueue sounds,
+        IMotherBrainGlassShardSpawner shards)
     {
         _bosses = bosses;
         _events = events;
         _sounds = sounds;
+        _shards = Ensure.NotNull(shards);
     }
     /// <summary>The place of the live glass room object, or null after deletion.</summary>
     private RoomObjectPlace? _motherBrainGlassPlace;
@@ -77,7 +82,7 @@ internal sealed class MotherBrainGlassObjects
         // The shards spawn from the glass's block.
         Position16<RoomBlocks> glassBlock = place.Block;
         foreach (MotherBrainGlassShard shard in shards)
-            outcome.Threw(new MotherBrainGlassProjectileRequest(shard, glassBlock));
+            outcome.Threw(new MotherBrainGlassProjectileRequest(shard, glassBlock, _shards));
     }
 
     /// <summary>Sets the glass-destroyed event.</summary>
@@ -99,8 +104,8 @@ internal sealed class MotherBrainGlassObjects
         return false;
     }
 
-    /// <summary>Forgets the glass as it leaves the room, before its place is freed.</summary>
-    internal void OnObjectDeleted(RoomObjectPlace place)
+    /// <summary>Forgets the glass at <paramref name="place"/> as the glass leaves the room, before its place is freed.</summary>
+    internal void ForgetGlass(RoomObjectPlace place)
     {
         Ensure.NotNull(place);
         if (ReferenceEquals(place, _motherBrainGlassPlace))

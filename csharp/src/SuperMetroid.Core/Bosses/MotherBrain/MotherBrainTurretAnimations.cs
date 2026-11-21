@@ -19,30 +19,42 @@ internal static class MotherBrainTurretAnimations
         MotherBrainTurretPose.BulletImpact,
     ];
 
+    /// <summary>The frame the turret shows facing each direction.</summary>
+    private static readonly IReadOnlyDictionary<D, EnemyProjectileFrameId> TurretFrames = new Dictionary<D, EnemyProjectileFrameId>
+    {
+        [D.Left] = EnemyProjectileFrameId.MotherBrainTurretFacingLeft,
+        [D.DownLeft] = EnemyProjectileFrameId.MotherBrainTurretFacingDownLeft,
+        [D.Down] = EnemyProjectileFrameId.MotherBrainTurretFacingDown,
+        [D.DownRight] = EnemyProjectileFrameId.MotherBrainTurretFacingDownRight,
+        [D.Right] = EnemyProjectileFrameId.MotherBrainTurretFacingRight,
+        [D.UpRight] = EnemyProjectileFrameId.MotherBrainTurretFacingUpRight,
+        [D.Up] = EnemyProjectileFrameId.MotherBrainTurretFacingUp,
+        [D.UpLeft] = EnemyProjectileFrameId.MotherBrainTurretFacingUpLeft,
+    };
+
+    /// <summary>The frame a turret's bullet shows flying each direction.</summary>
+    private static readonly IReadOnlyDictionary<D, EnemyProjectileFrameId> BulletFrames = new Dictionary<D, EnemyProjectileFrameId>
+    {
+        [D.Left] = EnemyProjectileFrameId.MotherBrainTurretBulletFacingLeft,
+        [D.DownLeft] = EnemyProjectileFrameId.MotherBrainTurretBulletFacingDownLeft,
+        [D.Down] = EnemyProjectileFrameId.MotherBrainTurretBulletFacingDown,
+        [D.DownRight] = EnemyProjectileFrameId.MotherBrainTurretBulletFacingDownRight,
+        [D.Right] = EnemyProjectileFrameId.MotherBrainTurretBulletFacingRight,
+        [D.UpRight] = EnemyProjectileFrameId.MotherBrainTurretBulletFacingUpRight,
+        [D.Up] = EnemyProjectileFrameId.MotherBrainTurretBulletFacingUp,
+        [D.UpLeft] = EnemyProjectileFrameId.MotherBrainTurretBulletFacingUpLeft,
+    };
+
     /// <summary>
     /// Every turret segment's beats: each turret and bullet pose by the direction it faces holds its frame; the
     /// impact smoke stops flying and shows four eight-update puffs and a 32-update fade, room pictures drawn in
     /// their standard colours (#2260), then deletes itself.
     /// </summary>
     internal static AnimationSegments<MotherBrainTurretPose, EnemyProjectileFrameId, MotherBrainTurretCue> Segments { get; } = new(
-        new Dictionary<MotherBrainTurretPose, Beat[]>
+        new Dictionary<MotherBrainTurretPose, Beat[]>(
+            TurretFrames.Select(facing => KeyValuePair.Create(MotherBrainTurretPose.Turret(facing.Key), new[] { Still(facing.Value) }))
+                .Concat(BulletFrames.Select(facing => KeyValuePair.Create(MotherBrainTurretPose.Bullet(facing.Key), new[] { Still(facing.Value) }))))
     {
-        [MotherBrainTurretPose.Turret(D.Left)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingLeft)],
-        [MotherBrainTurretPose.Turret(D.DownLeft)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingDownLeft)],
-        [MotherBrainTurretPose.Turret(D.Down)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingDown)],
-        [MotherBrainTurretPose.Turret(D.DownRight)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingDownRight)],
-        [MotherBrainTurretPose.Turret(D.Right)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingRight)],
-        [MotherBrainTurretPose.Turret(D.UpRight)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingUpRight)],
-        [MotherBrainTurretPose.Turret(D.Up)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingUp)],
-        [MotherBrainTurretPose.Turret(D.UpLeft)] = [Still(EnemyProjectileFrameId.MotherBrainTurretFacingUpLeft)],
-        [MotherBrainTurretPose.Bullet(D.Left)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingLeft)],
-        [MotherBrainTurretPose.Bullet(D.DownLeft)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingDownLeft)],
-        [MotherBrainTurretPose.Bullet(D.Down)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingDown)],
-        [MotherBrainTurretPose.Bullet(D.DownRight)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingDownRight)],
-        [MotherBrainTurretPose.Bullet(D.Right)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingRight)],
-        [MotherBrainTurretPose.Bullet(D.UpRight)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingUpRight)],
-        [MotherBrainTurretPose.Bullet(D.Up)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingUp)],
-        [MotherBrainTurretPose.Bullet(D.UpLeft)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingUpLeft)],
         [MotherBrainTurretPose.BulletImpact] =
         [
             new Beat.Event(MotherBrainTurretCue.StopMoving),

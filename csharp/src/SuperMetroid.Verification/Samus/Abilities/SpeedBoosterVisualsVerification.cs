@@ -19,7 +19,7 @@ internal static class SpeedBoosterVisualsVerification
     {
         const ushort pointer = 0xa4f3;
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(pointer, "bomb-reveal")];
-        InstalledRoomObjectSpeedBoosterVisuals stock = InstalledRoomObjectSpeedBoosterVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.SpeedBooster;
         AssertPicturedAsNative(rom, stock.Images, RoomObjectSpeedBoosterVisualFiles.Family, frames, WrittenCells(RoomObjectSpeedBoosterVisualFiles.Family));
         for (int address = 0; address <= ushort.MaxValue; address++)
             if (address != pointer)

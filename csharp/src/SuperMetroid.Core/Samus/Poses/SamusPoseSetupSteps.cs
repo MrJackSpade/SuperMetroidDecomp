@@ -256,7 +256,7 @@ internal sealed class SamusPoseSetupSteps
         // installed pose; then the pose update skips the kill. So
         // a spin jump keeps its launch speed only when initialization promotes it
         // to Space Jump or Screw Attack; otherwise the kill clears base/extra speed.
-        if (fallback is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
+        if (fallback is { } spin && SamusPoseTraits.IsIn(spin, SamusPoseFamily.GenericSpinJump))
         {
             SamusPoseId spinFallback = fallback.Value;
             SamusAerialPoseTransitions.ApplySpinJumpDirectionTransition(samus, spinFallback);

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -36,17 +37,13 @@ internal static class SporeSpawnProjectileDefinitions
         new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(0, 2), new(1, 0), new(0, 2),
         new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(0, 2), new(1, 0),
         new(1, 0), new(0, 2), new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0),
-        new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(1, 0),
-        new(0, 2), new(1, 0), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(1, 0),
-        new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0),
-        new(1, 0), new(0, -2), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0),
-        new(0, -2), new(1, 0), new(1, 0), new(0, 0), new(-1, 2), new(-1, 2), new(-1, 2), new(-1, 0),
+        new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), .. Repeated<Offset16<RoomPixels>>(new(1, 0), 3),
+        new(0, 2), .. Repeated<Offset16<RoomPixels>>(new(1, 0), 3), new(0, 2), .. Repeated<Offset16<RoomPixels>>(new(1, 0), 12), new(0, -2), .. Repeated<Offset16<RoomPixels>>(new(1, 0), 6),
+        new(0, -2), new(1, 0), new(1, 0), new(0, 0), .. Repeated<Offset16<RoomPixels>>(new(-1, 2), 3), new(-1, 0),
         new(0, 2), new(-1, 2), new(-1, 2), new(-1, 0), new(0, 2), new(-1, 2), new(-1, 0), new(0, 2),
         new(-1, 0), new(0, 2), new(-1, 0), new(0, 2), new(-1, 0), new(-1, 2), new(-1, 2), new(-1, 0),
         new(0, 2), new(-1, 0), new(-1, 2), new(-1, 0), new(0, 2), new(-1, 0), new(-1, 2), new(-1, 0),
-        new(-1, 0), new(0, 2), new(-1, 0), new(-1, 0), new(0, 2), new(-1, 0), new(-1, 0), new(-1, 0),
-        new(-1, 2), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0),
-        new(-1, 0), new(-1, 0), new(0, -2), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, -2), new(-1, 0),
-        new(-1, 0), new(-1, 0), new(0, -2), new(-1, 0), new(-1, 0), new(-1, -2), new(-1, 0), new(0, 0),
+        new(-1, 0), new(0, 2), new(-1, 0), new(-1, 0), new(0, 2), .. Repeated<Offset16<RoomPixels>>(new(-1, 0), 3),
+        new(-1, 2), .. Repeated<Offset16<RoomPixels>>(new(-1, 0), 9), new(0, -2), .. Repeated<Offset16<RoomPixels>>(new(-1, 0), 3), new(-1, -2), .. Repeated<Offset16<RoomPixels>>(new(-1, 0), 3), new(0, -2), new(-1, 0), new(-1, 0), new(-1, -2), new(-1, 0), new(0, 0),
     ];
 }

@@ -74,6 +74,10 @@ internal static class EnemyEntityStates
             return held28;
         if (entity is global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEntity entity29 && entity29.Encounter is T held29)
             return held29;
+        // Each of Phantoon's places holds its own part of the encounter too, which the replay's view of a cleared Phantoon
+        // and the snapshot import read (#2554).
+        if (entity is global::SuperMetroid.Core.Bosses.Phantoon.PhantoonEntity phantoonPart && phantoonPart.Part is T heldPart)
+            return heldPart;
         if (entity is global::SuperMetroid.Core.Bosses.Ridley.CeresRidleyEntity entity30 && entity30.Encounter is T held30)
             return held30;
         if (entity is global::SuperMetroid.Core.Bosses.Ridley.NorfairRidleyEntity entity31 && entity31.Encounter is T held31)

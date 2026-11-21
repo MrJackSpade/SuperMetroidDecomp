@@ -25,7 +25,7 @@ internal static class RoomFxBlockAnimationArtworkVerification
         var guarded = NewRoomFxArtworkForbiddenBus(rom);
         int frameCount = 0;
         foreach (BlockAnimation definition in
-                 RoomFxBlockAnimationLoops.All)
+                 RoomFxBlockAnimationLoopsConstants.All)
         {
             var state = BlockAnimationLoops.Start(definition);
             for (int frameIndex = 0; frameIndex < definition.Frames.Count; frameIndex++)

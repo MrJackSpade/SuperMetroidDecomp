@@ -27,10 +27,6 @@ internal static class EndingPaletteImport
             ReadOne(bus, EndingPaletteId.LogoInitial), ReadOne(bus, EndingPaletteId.LogoCrossfade));
     }
 
-    /// <summary>The colour count of resource <paramref name="id"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not a defined resource.</exception>
-    private static int ColorCount(EndingPaletteId id) => Ensure.Listed(EndingPaletteDefinitions.Palettes, id).ColorCount;
-
     /// <summary>Decodes resource <paramref name="id"/>: a whole screen's, a run's or the logo crossfade's colours.</summary>
     /// <exception cref="InvalidDataException">A colour has an unrepresentable high bit.</exception>
     private static EndingPalette ReadOne(ISnesAddressSpace bus, EndingPaletteId id)

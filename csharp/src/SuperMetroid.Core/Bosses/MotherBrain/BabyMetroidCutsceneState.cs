@@ -360,23 +360,14 @@ public sealed class BabyMetroidCutsceneState
                         releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(head + dust, Animation: DustExplosionAnimation.SmallDustCloud));
                     Phase = new BabyMetroidCutscenePhase.Flying.MoveToTheCeiling();
                 }
-                continue;
+                // The release's update, its last or not, is one update of the flight to the ceiling: the release's wait
+                // steps once.
+                MoveToTheCeiling(samus, head, cameraPosition);
+                break;
             }
             else if (Phase is BabyMetroidCutscenePhase.Flying.MoveToTheCeiling)
             {
-                Position16<RoomPixels> target = head.WithY(0);
-                GraduallyAccelerateTowardsPoint(
-                    target,
-                    accelerationDivisor: BabyMetroidCutsceneFlightDefinitions.GentleAccelerationDivisor,
-                    BabyMetroidCutsceneFlightDefinitions.ApproachWrongWaySpeed,
-                    cameraPosition);
-                bool ceilingCollision = CollidesWithRectangle(target, BabyMetroidCutsceneFlightDefinitions.TargetReach);
-                if (ceilingCollision)
-                {
-                    samus.Drained.CrouchDrained(samus);
-                    Phase = new BabyMetroidCutscenePhase.Flying.MoveToSamus();
-                    RouteLeg = BabyMetroidRoute.FirstLeg;
-                }
+                MoveToTheCeiling(samus, head, cameraPosition);
                 break;
             }
             else if (Phase is BabyMetroidCutscenePhase.Flying.MoveToSamus)
@@ -816,6 +807,26 @@ public sealed class BabyMetroidCutsceneState
         {
             int distance = Math.Abs(samusPosition - enemyPosition);
             return distance < samusRadius || distance - samusRadius < enemyRadius;
+        }
+    }
+
+    /// <summary>
+    /// One update of the Baby's flight up to the ceiling above Mother Brain's <paramref name="head"/>, through its release
+    /// and after it: it accelerates gently there, and reaching it crouches the drained Samus and starts its route to her.
+    /// </summary>
+    private void MoveToTheCeiling(SamusState samus, Position16<RoomPixels> head, Position16<RoomPixels> cameraPosition)
+    {
+        Position16<RoomPixels> target = head.WithY(0);
+        GraduallyAccelerateTowardsPoint(
+            target,
+            accelerationDivisor: BabyMetroidCutsceneFlightDefinitions.GentleAccelerationDivisor,
+            BabyMetroidCutsceneFlightDefinitions.ApproachWrongWaySpeed,
+            cameraPosition);
+        if (CollidesWithRectangle(target, BabyMetroidCutsceneFlightDefinitions.TargetReach))
+        {
+            samus.Drained.CrouchDrained(samus);
+            Phase = new BabyMetroidCutscenePhase.Flying.MoveToSamus();
+            RouteLeg = BabyMetroidRoute.FirstLeg;
         }
     }
 

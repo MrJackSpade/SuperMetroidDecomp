@@ -668,10 +668,19 @@ SamusTerrain.InRoom(firingLevel, SamusRoomObjectFixtures.Uninstalled), cancelled
     OamBuffer grappleFlareOam = grappleFlareOamFrame.FinalizeAsOam();
     AssertEqual(GrappleFlareStage.JustFired, samus.Grapple.FlareStage,
         "grapple flare moves on only in post-Samus tile pass");
-    AssertEqual(16, samus.Grapple.FlareFrame,
-        "first grapple flare selects shared main frame sixteen");
-    AssertEqual(2, samus.Grapple.FlareAnimationTimer.RawValue,
-        "first grapple flare performs decrement-before-test");
+    AssertEqual(ChargeFlareAnimationDefinitions.CompositionNumbered(ChargeFlareComponent.MainFlare, HorizontalDirection.Right, 16),
+        samus.Grapple.Flare.Composition(HorizontalDirection.Right), "first grapple flare selects shared main frame sixteen");
+    // Decrement before test: the first draw leaves frame sixteen two more updates of the flare's play, and the third shows
+    // the next picture.
+    for (int update = 0; update < 2; update++)
+    {
+        samus.Grapple.Flare.PlayForward();
+        AssertEqual(ChargeFlareAnimationDefinitions.CompositionNumbered(ChargeFlareComponent.MainFlare, HorizontalDirection.Right, 16),
+            samus.Grapple.Flare.Composition(HorizontalDirection.Right), "first grapple flare performs decrement-before-test");
+    }
+    samus.Grapple.Flare.PlayForward();
+    AssertEqual(ChargeFlareAnimationDefinitions.CompositionNumbered(ChargeFlareComponent.MainFlare, HorizontalDirection.Right, 17),
+        samus.Grapple.Flare.Composition(HorizontalDirection.Right), "first grapple flare moves on once its wait runs out");
     var grappleFlare = (SamusColouredDraw)grappleFlareOamFrame.Draws.Single();
     AssertEqual(InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(SuperMetroid.Core.Progression.SamusBeamCombinations.Of(samus.EquippedBeams)))
             .Frame(ProjectileSheetFrames.FlareFrame(
@@ -773,10 +782,12 @@ SamusTerrain.InRoom(firingLevel, SamusRoomObjectFixtures.Uninstalled), cancelled
     AssertEqual(0x0c90, samus.Kinematics.VerticalVelocity.Speed.Fraction, "release pose preserves fractional Y velocity");
     AssertEqual(GrappleFlareStage.None, samus.Grapple.FlareStage,
         "completed grapple release clears the flare");
-    AssertEqual(0, samus.Grapple.FlareFrame,
-        "completed grapple release clears flare frame");
-    AssertEqual(0, samus.Grapple.FlareAnimationTimer.RawValue,
-        "completed grapple release clears flare timer");
+    // A cleared flare shows its first picture with its wait spent: its next update shows the next picture.
+    AssertEqual(ChargeFlareAnimationDefinitions.CompositionNumbered(ChargeFlareComponent.MainFlare, HorizontalDirection.Right, 0),
+        samus.Grapple.Flare.Composition(HorizontalDirection.Right), "completed grapple release clears flare frame");
+    samus.Grapple.Flare.PlayForward();
+    AssertEqual(ChargeFlareAnimationDefinitions.CompositionNumbered(ChargeFlareComponent.MainFlare, HorizontalDirection.Right, 1),
+        samus.Grapple.Flare.Composition(HorizontalDirection.Right), "completed grapple release clears flare timer");
 
     // Angle $40 is exactly rightward; the next sample $41 is (+255,+6).
     // Keep those native values and place terrain at the actual nearest probe.

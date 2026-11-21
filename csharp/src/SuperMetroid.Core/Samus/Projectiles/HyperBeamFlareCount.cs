@@ -24,7 +24,7 @@ internal sealed class HyperBeamFlareCount<TSegment, TPicture> : IHyperBeamFlareC
     }
 
     /// <summary>The play counted backward: the picture it shows and the updates that picture has left.</summary>
-    internal AnimationPlayer<TSegment, TPicture, NoAnimationCue> Player { get; }
+    private AnimationPlayer<TSegment, TPicture, NoAnimationCue> Player { get; }
 
     /// <summary>The composition each of the component's pictures shows in, by Samus's facing.</summary>
     private readonly Func<HorizontalDirection, TPicture, ProjectileSpriteId> composition;

@@ -8,10 +8,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// Charge-flare pictures by their number among a component's pictures, its phases in order, as the original programs and
-/// the flare's selector table count them (#2285, #2396), and a component's play read and set as the original's picture
-/// number and wait (#2553): checks compare the shared player's play with those numbers. Each component's ordinary play
-/// (<see cref="ChargeFlarePlay{TSegment, TPicture}"/>) and the Hyper Beam's count of it
-/// (<see cref="HyperBeamFlareCount{TSegment, TPicture}"/>) keep their player private; these read it by name.
+/// the flare's selector table count them (#2285, #2396), and a charge's or the grapple's flare played to a numbered
+/// picture and wait as the game plays it (#2553): checks compare what the flare shows with those numbers.
 /// </summary>
 internal static class ChargeFlareAnimationsAccess
 {
@@ -47,30 +45,52 @@ internal static class ChargeFlareAnimationsAccess
         ? ChargeFlareAnimationDefinitions.SlowSparksAnimation
         : ChargeFlareAnimationDefinitions.FastSparksAnimation;
 
-    /// <summary>A charge's flare components as the original counts them.</summary>
+    /// <summary>Plays a charge's flare to chosen pictures as the game plays it.</summary>
     extension(BeamChargeState self)
     {
-        /// <summary>Flare <paramref name="component"/> of the charge, read and set as the original counts it.</summary>
-        internal ChargeFlareComponentNative Flare(ChargeFlareComponent component) => new(self, component);
+        /// <summary>
+        /// Starts the charge's flare, as a charge's first update does, and plays each component forward, as each update of a
+        /// charge does, until it shows its picture numbered <paramref name="pictures"/>[place] with
+        /// <paramref name="waits"/>[place] updates of the original's wait left, the components in
+        /// <see cref="ChargeFlareComponent"/> order.
+        /// </summary>
+        internal void PlayFlareTo(IReadOnlyList<int> pictures, IReadOnlyList<int> waits)
+        {
+            self.StartChargeFlare();
+            ChargeFlareComponent[] components = Enum.GetValues<ChargeFlareComponent>();
+            for (int place = 0; place < components.Length; place++)
+            {
+                for (int update = UpdatesTo(components[place], pictures[place], waits[place]); update > 0; update--)
+                    self.PlayFlareForward(components[place]);
+            }
+        }
     }
 
-    /// <summary>The grapple's own flare as the original counts it.</summary>
+    /// <summary>Plays the grapple's own flare to a chosen picture as the game plays it.</summary>
     extension(SamusGrappleState self)
     {
-        /// <summary>The number of the picture the grapple's flare shows among the main flare's pictures; setting it keeps the wait.</summary>
-        internal int FlareFrame
+        /// <summary>
+        /// Starts the grapple's flare at its first picture and plays it forward until it shows the main flare's picture
+        /// numbered <paramref name="number"/> with <paramref name="wait"/> updates of the original's wait left.
+        /// </summary>
+        internal void PlayFlareTo(int number, int wait)
         {
-            get => ChargeFlareNativePlay<MainFlareSegment, MainFlarePicture>.Picture(self.Flare)
-                ?? throw new InvalidOperationException("The grapple's flare plays forward and always shows a picture.");
-            set => ChargeFlareNativePlay<MainFlareSegment, MainFlarePicture>.ShowNative(self.Flare, value,
-                ChargeFlareNativePlay<MainFlareSegment, MainFlarePicture>.Wait(self.Flare));
+            self.Flare.Start();
+            for (int update = UpdatesTo(ChargeFlareComponent.MainFlare, number, wait); update > 0; update--)
+                self.Flare.PlayForward();
         }
+    }
 
-        /// <summary>The grapple flare's wait as the original keeps it; setting it keeps the picture.</summary>
-        internal WrappingCountdown FlareAnimationTimer
-        {
-            get => ChargeFlareNativePlay<MainFlareSegment, MainFlarePicture>.Wait(self.Flare);
-            set => ChargeFlareNativePlay<MainFlareSegment, MainFlarePicture>.ShowNative(self.Flare, self.FlareFrame, value);
-        }
+    /// <summary>
+    /// The updates <paramref name="component"/>, started at its first picture, plays forward before it shows its picture
+    /// numbered <paramref name="number"/> with <paramref name="wait"/> updates of the original's wait left: every update the
+    /// pictures before it show for, then its own less the wait and one.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The component has no picture of that number, or the picture never holds that wait.</exception>
+    private static int UpdatesTo(ChargeFlareComponent component, int number, int wait)
+    {
+        IReadOnlyList<int> durations = ChargeFlareAnimationDefinitions.PictureDurations(component);
+        int held = durations[Ensure.BetweenInclusive(0, durations.Count - 1, number)];
+        return durations.Take(number).Sum() + held - 1 - Ensure.BetweenInclusive(0, held - 1, wait);
     }
 }

@@ -33,13 +33,13 @@ internal sealed class ChargeFlarePlay<TSegment, TPicture> : IChargeFlarePlay
     private readonly AnimationSegments<TSegment, TPicture, NoAnimationCue> segments;
 
     /// <summary>The component's animation, which loops.</summary>
-    internal LoopingAnimation<TSegment> Looping { get; }
+    private LoopingAnimation<TSegment> Looping { get; }
 
     /// <summary>The composition each of the component's pictures shows in, by Samus's facing.</summary>
     private readonly Func<HorizontalDirection, TPicture, ProjectileSpriteId> composition;
 
     /// <summary>The play of the component's animation: the picture it shows and the updates that picture has left.</summary>
-    internal AnimationPlayer<TSegment, TPicture, NoAnimationCue> Player { get; }
+    private AnimationPlayer<TSegment, TPicture, NoAnimationCue> Player { get; }
 
     /// <summary>The picture the component shows: a forward play always shows one.</summary>
     internal TPicture Picture => Player.Showing;

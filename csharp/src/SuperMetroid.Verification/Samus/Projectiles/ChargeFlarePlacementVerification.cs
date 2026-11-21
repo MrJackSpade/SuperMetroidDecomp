@@ -156,8 +156,7 @@ internal static class ChargeFlarePlacementVerification
         {
             var hyperSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             hyperSystem.Charge.SetFlareCount(30);
-            foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-                hyperSystem.Charge.Flare(component).ShowNative(2, hyperSystem.Charge.Flare(component).NativeWait);
+            hyperSystem.Charge.PlayFlareTo([2, 2, 2], [0, 0, 0]);
             if (hyper) subject.EnableHyperBeam();
             original = SpriteFrameBuffer.DrawnOam(frame => hyperSystem.DrawChargeFlare(frame, subject, new(0, 0),
                 hyperSystem.AdvanceChargeFlare(subject), null,
@@ -194,8 +193,9 @@ internal static class ChargeFlarePlacementVerification
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         SamusPresentation.InitializeAnimation(runtime.Player.IntroducedSamus);
         runtime.Projectiles.Charge.SetFlareCount(30);
-        foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-            runtime.Projectiles.Charge.Flare(component).ShowNative(0, WrappingCountdown.Start(100));
+        // Each component's first picture with three updates of its wait left, so both draws, each of which plays the flare
+        // one update on, show it.
+        runtime.Projectiles.Charge.PlayFlareTo([0, 0, 0], [3, 3, 3]);
         game.AdoptRuntime(runtime);
         // The fixture game has no host artwork of its own; adopting the runtime cleared its projectile sheets.
         InstalledFixtures.BindProjectileArtwork(runtime);

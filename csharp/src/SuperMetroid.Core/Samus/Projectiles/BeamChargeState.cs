@@ -76,14 +76,14 @@ internal sealed class BeamChargeState
     internal void RestartChargePulse() => ChargePulse = AnimationPlace.StartOfAnimation;
 
     /// <summary>Each flare component's ordinary animation: the picture it shows and the wait it holds it for.</summary>
-    internal IdentityTable<ChargeFlareComponent, IChargeFlarePlay> Flares { get; } = new(ChargeFlarePlays.Of);
+    private IdentityTable<ChargeFlareComponent, IChargeFlarePlay> Flares { get; } = new(ChargeFlarePlays.Of);
 
     /// <summary>
     /// The Hyper Beam's backward count of each component's pictures (#2553), or none while the ordinary flare plays: a
     /// Hyper Beam shot starts it from the last pictures, the first backward update with the Hyper Beam takes the ordinary
     /// flare over where it stands, and a restart or a clear of the flare ends it.
     /// </summary>
-    internal IdentityTable<ChargeFlareComponent, IHyperBeamFlareCount>? HyperBeamCount { get; private set; }
+    private IdentityTable<ChargeFlareComponent, IHyperBeamFlareCount>? HyperBeamCount { get; set; }
 
     /// <summary>
     /// The composition flare <paramref name="component"/> shows for Samus's facing: the Hyper Beam's count's while it counts,

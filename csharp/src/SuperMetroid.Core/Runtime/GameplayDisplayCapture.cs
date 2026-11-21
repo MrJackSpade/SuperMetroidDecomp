@@ -9,7 +9,6 @@ using SuperMetroid.Core.Gameplay;
 
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.Core.Runtime;
 

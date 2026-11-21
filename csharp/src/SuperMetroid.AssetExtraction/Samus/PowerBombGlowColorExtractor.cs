@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Assets;
+
 using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.AssetExtraction.Samus;

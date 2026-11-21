@@ -22,9 +22,7 @@ using SuperMetroid.AssetExtraction;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
-using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Compatibility;
-namespace SuperMetroid.Verification.Enemies.Artwork;
+using SuperMetroid.Verification.Harness;namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Native colour-write and guarded-source checks for installed Tourian entrance statue colors (#1512).</summary>
 internal static class EnemyTileArtworkTourianStatueColorsVerification

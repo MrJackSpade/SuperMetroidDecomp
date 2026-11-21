@@ -1,6 +1,4 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Ending;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 

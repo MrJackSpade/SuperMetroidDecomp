@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>The three channels of a colour's levels (<see cref="FadeLevelColour"/>), in the order a level-by-level change steps them.</summary>

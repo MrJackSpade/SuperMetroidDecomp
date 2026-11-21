@@ -66,7 +66,7 @@ internal static class EndingCreditsPresentation
                     EndingTurningFloor view = ending.Stage.Floor;
                     layers.Add(new TurningFloorLayer(FloorView.Turned(view.Angle, view.Zoom,
                         CurrentFloorCenter(ending.Phase),
-                        view.Position.Whole, FloorRepeatsBeyondEdges(ending) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
+                        view.Position.Whole, FloorRepeatsBeyondEdges(ending.Phase) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
                         floor, ShowsAtmosphere(ending.Phase) ? FloorColorBlend.AddForeground : FloorColorBlend.None));
                 }
         }
@@ -125,8 +125,7 @@ internal static class EndingCreditsPresentation
     /// Whether the floor repeats beyond its edges (#1674): from the escape's setup through the planet's explosion and the
     /// music waits after it, until the gunship's planet escape shows nothing beyond its floor's edges.
     /// </summary>
-    [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "The ending is read only through the narrower capability interface SME6332 asks this parameter to take.")]
-    private static bool FloorRepeatsBeyondEdges(IEndingActorScene ending) => EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(ending.Phase);
+    private static bool FloorRepeatsBeyondEdges(EndingCreditsPhase phase) => EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(phase);
 
     /// <summary>Whether the current explosion music wait renders a white screen.</summary>
     internal static bool ExplosionWhiteout(IEndingActorScene ending) => EndingCreditsPhaseGroups.Whiteout.Contains(ending.Phase);

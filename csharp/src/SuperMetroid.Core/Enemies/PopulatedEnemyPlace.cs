@@ -32,7 +32,7 @@ public sealed class PopulatedEnemyPlace : EnemyPlaceHistory
     public EnemyPlaceOccupancy Occupancy { get; private set; }
 
     /// <summary>The population entry the place's latest occupant was spawned from.</summary>
-    public RoomEnemyPlacement LastSpawn => Occupancy.LastSpawn;
+    private RoomEnemyPlacement LastSpawn => Occupancy.LastSpawn;
 
     /// <summary>
     /// Whether the place holds no enemy but stays taken until the death explosion of the respawning enemy killed in it

@@ -31,7 +31,7 @@ internal static class ChozoNativeWords
     /// </summary>
     /// <exception cref="InvalidDataException">The word is none of the routines the statue's site runs.</exception>
     internal static ChozoStatuePhase PhaseAt(ushort word, bool wreckedShip) =>
-        word == HandWaitWord(wreckedShip) ? ChozoStatuePhase.AwaitingHand
+        word == HandWaitWord(wreckedShip) ? ChozoStatuePhase.Placed.AfterWaitStarts
         : word is 0 or InitializerFrameRoutineWord ? ChozoStatuePhase.Placed
         : ActivatedFrameRoutineWords.Contains(word) ? ChozoStatuePhase.Activated
         : throw new InvalidDataException($"Recorded Chozo statue routine ${word:X4} is not one its site runs.");

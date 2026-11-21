@@ -76,7 +76,7 @@ internal static class ExtractedInstallationValidationVerification
     {
         Dictionary<string, string> damaged = Snapshot(fixture.ContentDirectory);
         Reject<T>(fixture.Root, failingPath);
-        Assert(GameAssetInstaller.TryOpenExtractedContent(fixture.Root) is null, scenario + ": repair admission rejects");
+        Assert(!GameAssetInstaller.HoldsCurrentExtractedContent(fixture.Root), scenario + ": repair admission rejects");
         Assert(GameAssetInstaller.OpenOrRepair(fixture.Root) is null, scenario + ": missing ROM cannot repair");
         AssertUnchanged(damaged, fixture, scenario);
     }

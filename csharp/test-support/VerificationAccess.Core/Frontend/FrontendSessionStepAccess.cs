@@ -38,8 +38,14 @@ internal static class FrontendSessionStepAccess
         internal SuperMetroid.Core.Runtime.SuperMetroidRuntime GameplayRuntime =>
             self.Runtime ?? throw new InvalidOperationException("The session holds no gameplay runtime.");
 
-        /// <summary>How Ceres's destruction ends.</summary>
+        /// <summary>
+        /// How Ceres's destruction ends, as the phase the game publishes with each frame names it: the destruction with
+        /// Samus aboard names her, the one she escaped does not.
+        /// </summary>
         internal CeresDestructionOutcome CeresDestructionOutcome =>
-            self.RunningPhase is CeresDestructionGameSequence destruction ? destruction.Outcome : CeresDestructionOutcome.SamusEscaped;
+            self.RunningPhase is CeresDestructionGameSequence destruction
+            && destruction.Name.StartsWith("Ceres destruction with Samus:", StringComparison.Ordinal)
+                ? CeresDestructionOutcome.SamusAboard
+                : CeresDestructionOutcome.SamusEscaped;
     }
 }

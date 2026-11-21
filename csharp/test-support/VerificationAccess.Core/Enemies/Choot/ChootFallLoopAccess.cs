@@ -32,9 +32,9 @@ internal static class ChootFallLoopAccess
         return loop is ChootFallLoop.AtSample sample ? sample.Offset : null;
     }
 
-    /// <summary>The updates since <paramref name="loop"/> started.</summary>
+    /// <summary>The offset from the falling origin <paramref name="loop"/> moves its Choot to next.</summary>
     /// <exception cref="InvalidOperationException">The loop is over.</exception>
-    internal static int AgeOf(ChootFallLoop loop) => loop is ChootFallLoop.AtSample at
-        ? at.Age
-        : throw new InvalidOperationException("A Choot's falling loop that is over counts no age.");
+    internal static Offset16<RoomPixels> NextOffsetOf(ChootFallLoop loop) => loop is ChootFallLoop.AtSample at
+        ? at.Offset
+        : throw new InvalidOperationException("A Choot's falling loop that is over moves it to no offset.");
 }

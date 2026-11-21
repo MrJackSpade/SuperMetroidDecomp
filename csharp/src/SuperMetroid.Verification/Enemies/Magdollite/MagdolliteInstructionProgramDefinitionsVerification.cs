@@ -57,7 +57,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place, MagdollitePartState part) =
                 CreateSystem(typeof(MagdolliteHeadState));
             var state = (MagdolliteHeadState)part;
-            state.Playback = new(MagdolliteHeadAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            state.Playback = new(MagdolliteHeadAnimations.StartingAt[program], AnimationPlace.StartOfAnimation);
             place.AnimationClock.Restart();
             RunFrames(enemies, place, 55);
             AssertEqual(program, state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment,
@@ -72,7 +72,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             overlay.ThrowOrigin = place.Position.Whole;
             // The hand waits for the throw it starts (#2439).
             overlay.Action = MagdolliteOverlayAction.WaitingForThrowAnimation;
-            overlay.Playback = new(MagdolliteOverlayAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            overlay.Playback = new(MagdolliteOverlayAnimations.StartingAt[program], AnimationPlace.StartOfAnimation);
             place.AnimationClock.Restart();
             RunFrames(enemies, place, 80);
             AssertEqual(EnemySound.FireSpit, (enemies.Audio.LatestSound ?? throw new InvalidOperationException("Verification requires a pending Magdollite sound.")),
@@ -91,7 +91,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 CreateSystem(typeof(MagdolliteHeadState));
             // The head waits for the submerge it starts (#2439).
             ((MagdolliteHeadState)state).Action = MagdolliteHeadAction.WaitingForAttackAnimation;
-            ((MagdolliteHeadState)state).Playback = new(MagdolliteHeadAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            ((MagdolliteHeadState)state).Playback = new(MagdolliteHeadAnimations.StartingAt[program], AnimationPlace.StartOfAnimation);
             head.AnimationClock.Restart();
             RunFrames(enemies, head, 80);
             AssertEqual(MagdolliteHeadAction.Submerged, ((MagdolliteHeadState)state).Action,
@@ -110,7 +110,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             enemies.Places.InUpdateOrder[2].Presence = enemies.Places.InUpdateOrder[2].Presence.Without(EnemyPresence.Hidden);
             // The head waits for the emergence it starts (#2439).
             ((MagdolliteHeadState)state).Action = MagdolliteHeadAction.WaitingForReturnAnimation;
-            ((MagdolliteHeadState)state).Playback = new(MagdolliteHeadAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            ((MagdolliteHeadState)state).Playback = new(MagdolliteHeadAnimations.StartingAt[program], AnimationPlace.StartOfAnimation);
             head.AnimationClock.Restart();
             RunFrames(enemies, head, 80);
             AssertEqual(MagdolliteHeadAction.Surfaced, ((MagdolliteHeadState)state).Action,
@@ -125,7 +125,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place, MagdollitePartState part) = CreateSystem(typeof(MagdolliteBodyState));
             var state = (MagdolliteBodyState)part;
-            state.Playback = new(MagdolliteBodyAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            state.Playback = new(MagdolliteBodyAnimations.StartingAt[program], AnimationPlace.StartOfAnimation);
             place.AnimationClock.Restart();
             RunFrames(enemies, place, 3);
             AssertHeldAtEnd(state.Playback, program, name);
@@ -135,7 +135,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place, MagdollitePartState part) = CreateSystem(typeof(MagdolliteOverlayState));
             var state = (MagdolliteOverlayState)part;
-            state.Playback = new(MagdolliteOverlayAnimations.StartingWith(MagdolliteOverlaySegment.PillarCap), AnimationPlace.StartOfAnimation);
+            state.Playback = new(MagdolliteOverlayAnimations.StartingAt[MagdolliteOverlaySegment.PillarCap], AnimationPlace.StartOfAnimation);
             place.AnimationClock.Restart();
             RunFrames(enemies, place, 3);
             AssertHeldAtEnd(state.Playback, MagdolliteOverlaySegment.PillarCap, "pillar cap");

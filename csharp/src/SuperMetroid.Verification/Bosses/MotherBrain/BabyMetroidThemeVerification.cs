@@ -21,8 +21,9 @@ internal static class BabyMetroidThemeVerification
         enemies.VerificationServices().ReadRandom = () => 0;
         enemies.VerificationServices().NextRandom = () => 0;
         MotherBrainEnemyState state = MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
-        BabyMetroidCutsceneEntity entity = MotherBrainBabyArrival.BabyOf(MotherBrainBabyArrival.BringInBaby(state, samus));
-        BabyMetroidCutsceneState baby = entity.Baby;
+        MotherBrainRainbowBeamAttackSequence lateFight = MotherBrainBabyArrival.BringInBaby(state, samus);
+        BabyMetroidCutsceneEntity entity = MotherBrainBabyArrival.BabyOf(lateFight);
+        BabyMetroidCutsceneState baby = lateFight.Baby ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");
         global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", BabyMetroidCutscenePhase.FinalCharge);
         global::SuperMetroid.Core.PrivateState.Set(baby, "Health", 0);
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);

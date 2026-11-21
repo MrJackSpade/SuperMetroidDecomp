@@ -214,7 +214,7 @@ internal sealed class EnemyTileArtworkReader
     /// catalog that hold no frames or colour cycles.
     /// </summary>
     /// <exception cref="InvalidDataException">A file is invalid, or the manifest keys a header that is neither.</exception>
-    internal EnemyTileArtworkParts EnemySheets(string importData)
+    private EnemyTileArtworkParts EnemySheets(string importData)
     {
         var sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>();
         var palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>();

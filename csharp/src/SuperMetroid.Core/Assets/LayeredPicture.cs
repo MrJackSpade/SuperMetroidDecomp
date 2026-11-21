@@ -24,7 +24,7 @@ public sealed record LayeredPicture(SpriteSheetFrame? Behind, SpriteSheetFrame? 
 
     /// <summary>The parts' width and height, or null for a picture that shows nothing.</summary>
     /// <exception cref="InvalidDataException">The two parts differ in size.</exception>
-    public Extent16<ImagePixels>? Size
+    private Extent16<ImagePixels>? Size
     {
         get
         {

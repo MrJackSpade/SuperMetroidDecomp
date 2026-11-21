@@ -439,8 +439,8 @@ internal static class FileSelectRoomMapVerification
             var scroll = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, system), new(240, 128));
             AssertEqual(124, scroll.Scroll.X, "room map centers native horizontal bounds");
             AssertEqual(32, scroll.Scroll.Y, "room map rounds the 112px center offset down to a tile boundary");
-            AssertEqual(0, scroll.Limits.Top, "the revealed reach's top is the top row's pixel");
-            AssertEqual(40, scroll.Framing.TopEdge, "room-select up arrow stops 40 pixels down the screen, 64 less its delayed 24");
+            AssertEqual(0, MapScrollLimits.OfRevealedPlane(map, system).Top, "the revealed reach's top is the top row's pixel");
+            AssertEqual(40, MapFramingDefinitions.FileSelect.TopEdge, "room-select up arrow stops 40 pixels down the screen, 64 less its delayed 24");
             for (int frame = 1; frame <= 8; frame++)
             {
                 bool sound = scroll.Step(frame == 1 ? inputs[direction - 1] : ControllerButton.None);
@@ -456,11 +456,11 @@ internal static class FileSelectRoomMapVerification
         var precedence = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, system), new(240, 128));
         precedence.Step((ControllerButton.Up | ControllerButton.Down | ControllerButton.Left | ControllerButton.Right));
         AssertEqual(MapScrollDirection.Left, precedence.StepUnderWay?.Direction, "simultaneous map input uses native arrow order");
-        var empty = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, new SharedGameState(new SharedRandom())), new(216, 48));
-        AssertEqual(208, empty.Limits.Left, "empty map uses retail left default");
-        AssertEqual(224, empty.Limits.Right, "empty map uses retail right default");
-        AssertEqual(8, empty.Limits.Top, "empty map uses retail top default");
-        AssertEqual(88, empty.Limits.Bottom, "empty map uses retail bottom default");
+        MapScrollLimits empty = MapScrollLimits.OfRevealedPlane(map, new SharedGameState(new SharedRandom()));
+        AssertEqual(208, empty.Left, "empty map uses retail left default");
+        AssertEqual(224, empty.Right, "empty map uses retail right default");
+        AssertEqual(8, empty.Top, "empty map uses retail top default");
+        AssertEqual(88, empty.Bottom, "empty map uses retail bottom default");
         // Repeated stepping must stop at the native inequality, not run past the edge.
         for (int frame = 0; frame < 1000; frame++) precedence.Step(ControllerButton.Left);
         AssertTrue(!precedence.CanScroll(MapScrollDirection.Left), "held left stops at map boundary");

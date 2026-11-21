@@ -27,10 +27,10 @@ public sealed class MapScroll
     }
 
     /// <summary>How the screen frames the map.</summary>
-    internal MapFraming Framing { get; }
+    private MapFraming Framing { get; }
 
     /// <summary>How far the map's revealed cells reach.</summary>
-    internal MapScrollLimits Limits { get; }
+    private MapScrollLimits Limits { get; }
 
     /// <summary>The screen's top-left corner as an offset from the map's corner, negative left of or above it.</summary>
     public Offset16<MapPixels> Scroll { get; internal set; }

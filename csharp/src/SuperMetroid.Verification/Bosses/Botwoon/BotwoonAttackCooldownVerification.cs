@@ -126,8 +126,8 @@ internal static class BotwoonAttackCooldownVerification
         new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 
     /// <summary>
-    /// A head in slot zero bound as Botwoon, away from every hole, with its thirteen body segments spawned by the
-    /// production spawner and its health palette complete so the update reads no artwork.
+    /// A head in slot zero bound as Botwoon, away from every hole, set up as the room's spawn sets him up, his thirteen
+    /// body segments with him, and his health palette complete so the update reads no artwork.
     /// </summary>
     private static NewBotwoonHeadResult NewBotwoon()
     {
@@ -136,11 +136,8 @@ internal static class BotwoonAttackCooldownVerification
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.KeptDefinition);
         head.Position = head.Position.WithWhole(new(1000, 1000));
-        var state = new BotwoonEnemyState
-        {
-            HealthBand = BotwoonHealthBandDefinitions.BelowEighth,
-        };
-        state.HoldBody(enemies.BotwoonBehavior.SpawnBotwoonBody(head.HeldOccupant(), head, state));
+        BotwoonEnemyState state = enemies.BotwoonBehavior.InitializeBotwoon(head.HeldOccupant(), head);
+        state.HealthBand = BotwoonHealthBandDefinitions.BelowEighth;
         head.SetSpeciesState(state);
         return new NewBotwoonHeadResult(enemies, head, state);
     }

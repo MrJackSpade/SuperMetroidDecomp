@@ -62,7 +62,7 @@ try
     GameInstallation installed = GameAssetInstaller.Install(input, root);
     Check(File.ReadAllBytes(input).SequenceEqual(headered), "original selected ROM is preserved");
     Check(File.ReadAllBytes(installed.RomPath).SequenceEqual(rom), "installed ROM strips only the copier header");
-    Check(GameAssetInstaller.TryOpenExtractedContent(root) is not null,
+    Check(GameAssetInstaller.HoldsCurrentExtractedContent(root),
         "complete extracted content is recognized with its source-revision receipt");
     InstalledClipAudioLibrary installedClips = installed.LoadAudioClips();
     Console.WriteLine($"PASS installed runtime resources: {installedClips.Manifest.Music.Count} songs and {installedClips.Manifest.SoundEffects.Count} sound effects.");
@@ -89,11 +89,11 @@ try
     // checked on the copy, first with the import's current content and below with its receipt naming another format.
     using var romFree = new PrivateInstallationCopy(root);
     File.Delete(romFree.Installation.RomPath);
-    GameInstallation? romFreeContent = GameAssetInstaller.TryOpenExtractedContent(romFree.Root);
+    GameInstallation? romFreeContent = GameAssetInstaller.OpenOrRepair(romFree.Root);
+    Check(romFreeContent is not null,
+        "normal host startup accepts complete extracted content without a ROM copy");
     Check(romFreeContent is not null && romFreeContent.LoadAudioClips().Manifest.Music.Count > 0,
         "installed presentation assets remain usable without the private ROM copy");
-    Check(GameAssetInstaller.OpenOrRepair(romFree.Root) is not null,
-        "normal host startup accepts complete extracted content without a ROM copy");
     (romFreeContent ?? throw new InvalidOperationException("Complete ROM-free installation was not reopened."))
         .RequireExtractedContent();
     using (var romFreeSession = new SuperMetroid.Diagnostics.Sessions.InstalledGameSession(romFree.Root))
@@ -129,7 +129,7 @@ try
         $"\"FormatVersion\":{GameInstallationLayout.FormatVersion - 1}", StringComparison.Ordinal);
     File.WriteAllText(receipt, outdatedReceipt);
     Check(File.ReadAllText(receipt) != currentReceipt, "the fixture names an outdated format in the receipt");
-    Check(GameAssetInstaller.TryOpenExtractedContent(root) is null,
+    Check(!GameAssetInstaller.HoldsCurrentExtractedContent(root),
         "content extracted for another format is not mistaken for current ROM-free content");
     File.WriteAllText(Path.Combine(romFree.Installation.ContentDirectory, GameInstallationLayout.ReceiptFileName), outdatedReceipt);
     Check(GameAssetInstaller.OpenOrRepair(romFree.Root) is null,

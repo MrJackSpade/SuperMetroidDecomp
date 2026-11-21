@@ -14,7 +14,7 @@ internal static class RoomEnemyPlaceSpawnParameters
     /// </summary>
     internal static RoomEnemyOccupant Bind(this RoomEnemyPlace place, EnemyDefinitionId species, RoomEnemyDefinition definition) =>
         place.BindEntry(place.History is PopulatedEnemyPlace populated
-            ? populated.LastSpawn with { DefinitionId = species }
+            ? populated.Occupancy.LastSpawn with { DefinitionId = species }
             : PlacementFor(species, EnemySpawnSettings.None), definition);
 
     /// <summary>
@@ -25,7 +25,7 @@ internal static class RoomEnemyPlaceSpawnParameters
     internal static RoomEnemyOccupant SetSpawnSettings(this RoomEnemyPlace place, EnemySpawnSettings settings)
     {
         RoomEnemyPlacement entry = place.History is PopulatedEnemyPlace populated
-            ? populated.LastSpawn
+            ? populated.Occupancy.LastSpawn
             : throw new InvalidOperationException($"A check sets the spawn settings of enemy place {place.Ordinal}, where it has bound no enemy.");
         return place.BindEntry(Settled(entry, settings), place.KeptDefinition);
     }
@@ -35,7 +35,7 @@ internal static class RoomEnemyPlaceSpawnParameters
     /// the room origin in a place no enemy has been spawned in.
     /// </summary>
     internal static RoomEnemyOccupant BindPlaced(this RoomEnemyPlace place, EnemyDefinitionId species, EnemySpawnSettings settings) =>
-        place.BindEntry(Settled((place.History is PopulatedEnemyPlace populated ? populated.LastSpawn : PlacementFor(species, settings))
+        place.BindEntry(Settled((place.History is PopulatedEnemyPlace populated ? populated.Occupancy.LastSpawn : PlacementFor(species, settings))
             with { DefinitionId = species }, settings), place.KeptDefinition);
 
     /// <summary>

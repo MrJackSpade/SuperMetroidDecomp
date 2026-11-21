@@ -21,18 +21,22 @@ internal static class EnemyPlaceRegistries
         return registry;
     }
 
-    /// <summary>A registry for fixture places, owning the definitions <paramref name="factories"/> place.</summary>
+    /// <summary>
+    /// A registry for fixture places, owning the definitions <paramref name="factories"/> place, built as a room's registry
+    /// is built (<see cref="EnemySpeciesRegistry.ForRoom"/>) for a room whose scenery lets no other species be built.
+    /// </summary>
     /// <param name="factories">The species' factories.</param>
     /// <returns>The registered registry.</returns>
     internal static EnemySpeciesRegistry Of(params IEnemyEntityFactory[] factories)
     {
-        var registrar = new EnemySpeciesRegistrar();
+        var owned = new EnemySpeciesRegistrar();
         foreach (IEnemyEntityFactory factory in factories)
-            registrar.Add(factory);
-        return Register(new EnemySpeciesRegistry(
+            owned.Add(factory);
+        EnemyDefinitionId[] unbuilt = [.. RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Id)
+            .Where(definition => !owned.Owners.ContainsKey(definition))];
+        return Register(EnemySpeciesRegistry.ForRoom(
             new EnemyCommonParticipation(() => throw new InvalidOperationException("A standalone fixture slot has no enemy system to share reactions with.")),
-            registrar,
-            new EnemyPartOffers()));
+            factories, unbuilt, new EnemyPartOffers()));
     }
 
     /// <summary>The registry <paramref name="place"/> binds its enemies through.</summary>

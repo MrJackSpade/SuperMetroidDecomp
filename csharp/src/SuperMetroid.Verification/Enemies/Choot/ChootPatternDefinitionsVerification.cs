@@ -104,14 +104,14 @@ internal static class ChootPatternDefinitionsVerification
                 AssertEqual(unchecked((ushort)(0x5000 + point.Y)),
                     fallPlace.Position.Y.Whole,
                     $"Choot production fall Y {patternIndex}/{frameIndex}");
-                AssertEqual(frameIndex + 1,
-                    ChootFallLoopAccess.AgeOf(fallState.FallingLoop),
-                    $"Choot production fall cursor {patternIndex}/{frameIndex}");
+                AssertEqual(ChootFallLoopAccess.OffsetAt(fallingPath, frameIndex + 1),
+                    ChootFallLoopAccess.NextOffsetOf(fallState.FallingLoop),
+                    $"Choot production fall moves on to its path's next update {patternIndex}/{frameIndex}");
             }
 
             runFall(fallPlace, fallState);
-            AssertEqual(0, ChootFallLoopAccess.AgeOf(fallState.FallingLoop),
-                $"Choot production loop cursor reset {patternIndex}");
+            AssertEqual(ChootFallLoopAccess.OffsetAt(fallingPath, 0), ChootFallLoopAccess.NextOffsetOf(fallState.FallingLoop),
+                $"Choot production loop starts its path again {patternIndex}");
             AssertEqual(1, fallState.FallingPatternLoopCounter,
                 $"Choot production loop counter {patternIndex}");
             AssertEqual(unchecked((ushort)(0x5000 + loopYDistance)),

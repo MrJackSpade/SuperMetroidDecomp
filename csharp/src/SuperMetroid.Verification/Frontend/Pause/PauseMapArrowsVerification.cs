@@ -26,7 +26,10 @@ internal static class PauseMapArrowsVerification
         var cart = bus;
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(10, 11), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.Secret });
         // The menu frames the map whose every cell the assist reveals; the arrows show by the scroll's distance from its limits.
-        MapScrollLimits limits = pause.ActiveMapScroll.Limits;
+        // The secret assist shows every cell it reveals in an unexplored area without its map, and the page frames those.
+        SuperMetroid.Core.Map.IAreaMapView crateria = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.Get(AreaId.Crateria);
+        MapScrollLimits limits = MapScrollLimits.Scan(cell => SuperMetroid.Core.Map.AreaMapVisibility.IsVisible(
+            false, false, crateria.IsRevealedByMapStation(cell), crateria.IsDiscoverable(cell), global::SuperMetroid.Core.Map.MapRevealMode.Secret));
         int middleX = (limits.Left - 23 + limits.Right - 232) / 2;
         int middleY = (limits.Top - 55 + limits.Bottom - 177) / 2;
         pause.BindFixtureArtwork(RetailPresentationFixture());

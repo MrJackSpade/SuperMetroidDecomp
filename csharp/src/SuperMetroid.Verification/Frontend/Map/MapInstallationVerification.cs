@@ -94,9 +94,9 @@ internal static class MapInstallationVerification
         AssertTrue(GameAssetInstaller.EnsureInstalled(root, mapComponent, CancellationToken.None, new ImmediateInstallProgress(_ =>
             throw new InvalidOperationException("An older installation was extracted again from the copy inside its content."))) is null,
             "an older installation whose cartridge copy lies inside its content is not extracted again from that copy");
-        AssertTrue(GameAssetInstaller.TryOpenExtractedContent(root) is null, "an older installation's content is not current");
+        AssertTrue(!GameAssetInstaller.HoldsCurrentExtractedContent(root), "an older installation's content is not current");
         GameAssetInstaller.Install(sourceRom, root, mapComponent, CancellationToken.None, new ImmediateInstallProgress());
-        AssertTrue(GameAssetInstaller.TryOpenExtractedContent(root) is not null && cartridge.SequenceEqual(File.ReadAllBytes(installation.RomPath)),
+        AssertTrue(GameAssetInstaller.HoldsCurrentExtractedContent(root) && cartridge.SequenceEqual(File.ReadAllBytes(installation.RomPath)),
             "the cartridge the player supplies extracts an older installation again and is kept beside its content");
         CheckContentHoldsNoCartridge("re-extraction of an older installation");
         CheckPreserved();

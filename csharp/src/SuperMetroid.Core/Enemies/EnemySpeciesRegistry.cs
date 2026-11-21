@@ -16,7 +16,7 @@ internal sealed class EnemySpeciesRegistry
     private readonly EnemyPartOffers _offers;
 
     /// <summary>Composes the registry from <paramref name="registrar"/>'s registrations.</summary>
-    internal EnemySpeciesRegistry(EnemyCommonParticipation common, EnemySpeciesRegistrar registrar, EnemyPartOffers offers)
+    private EnemySpeciesRegistry(EnemyCommonParticipation common, EnemySpeciesRegistrar registrar, EnemyPartOffers offers)
     {
         Common = Ensure.NotNull(common);
         _placed = registrar.Placed;

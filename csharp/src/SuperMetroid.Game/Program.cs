@@ -1,5 +1,6 @@
 using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Desktop.Diagnostics;
+using SuperMetroid.Desktop.Setup;
 using SuperMetroid.Desktop.Window;
 using SuperMetroid.Diagnostics.Configuration;
 

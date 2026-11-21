@@ -18,31 +18,42 @@ internal static class DebuggerStateLayoutVerification
 {
     /// <summary>
     /// #1270: debugger states restore only this build's exact layout. A stale field, a type this build
-    /// lacks, or a retyped value is rejected as an unsupported state version instead of being converted.
+    /// lacks, or a retyped value is rejected as an unsupported state version instead of being converted. The grapple state
+    /// holds Samus's installed artwork (#2049), so it is captured and restored bound to the installed content, as a host's
+    /// store binds it, and names that content by path instead of writing all of it (#2609).
     /// </summary>
     internal static void VerifyDebuggerStateRejectsStaleLayouts()
     {
         var state = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { PoseChangeAutoFireTimer = UpdateCountdown.Lasting(7) };
-        byte[] current = SerializeDebuggerGraph(state);
-        AssertEqual(7, DeserializeDebuggerGraph<SamusGrappleState>(current).PoseChangeAutoFireTimer.UpdatesLeft,
+        byte[] current = GraphDigestVerification.SerializeGraph(state);
+        AssertEqual(7, GraphDigestVerification.RestoreGraph<SamusGrappleState>(current).PoseChangeAutoFireTimer.UpdatesLeft,
             "a current-layout graph round-trips");
 
         // Same-length replacements keep every length prefix valid, so only the identity changes.
-        RequireUnsupported<SamusGrappleState>(Replace(current, "<PoseChangeAutoFireTimer>k__BackingField", "<PoseChangeAutoFireTamer>k__BackingField"),
-            "a renamed field");
-        RequireUnsupported<SamusGrappleState>(Replace(current, "SuperMetroid.Core.Samus.Grapple.SamusGrappleState,", "SuperMetroid.Core.Samus.Grapple.SamusGrappleStatf,"),
-            "a type this build does not have");
-        RequireUnsupported<SamusGrappleState>(Replace(current, "System.Int32,", "System.Int64,"), "a retyped field value");
+        const string timerField = "<PoseChangeAutoFireTimer>k__BackingField";
+        RequireUnsupported(Replace(current, timerField, "<PoseChangeAutoFireTamer>k__BackingField"),
+            "a renamed field", RestoreBound<SamusGrappleState>);
+        RequireUnsupported(Replace(current, "SuperMetroid.Core.Samus.Grapple.SamusGrappleState,", "SuperMetroid.Core.Samus.Grapple.SamusGrappleStatf,"),
+            "a type this build does not have", RestoreBound<SamusGrappleState>);
+        RequireUnsupported(Replace(current, "System.Int32,", "System.Int64,", after: timerField),
+            "a retyped field value", RestoreBound<SamusGrappleState>);
         Console.WriteLine("Debugger state layout: current graphs round-trip; renamed fields, missing types and retyped values are rejected.");
 
     }
 
+    /// <summary>Restores <paramref name="graph"/> bound to the installed content, as a host's store does.</summary>
+    private static T RestoreBound<T>(byte[] graph) where T : class => GraphDigestVerification.RestoreGraph<T>(graph);
+
     /// <summary>Requires restoring <paramref name="stale"/> as a <typeparamref name="T"/> to be rejected as an unsupported version.</summary>
-    private static void RequireUnsupported<T>(byte[] stale, string label) where T : class
+    private static void RequireUnsupported<T>(byte[] stale, string label) where T : class =>
+        RequireUnsupported(stale, label, DeserializeDebuggerGraph<T>);
+
+    /// <summary>Requires restoring <paramref name="stale"/> through <paramref name="restore"/> to be rejected as an unsupported version.</summary>
+    private static void RequireUnsupported<T>(byte[] stale, string label, Func<byte[], T> restore) where T : class
     {
         try
         {
-            _ = DeserializeDebuggerGraph<T>(stale);
+            _ = restore(stale);
         }
         catch (InvalidDataException exception) when (
             exception.Message.Contains(DebuggerObjectGraphSerializer.UnsupportedVersion, StringComparison.Ordinal))
@@ -56,15 +67,27 @@ internal static class DebuggerStateLayoutVerification
         throw new InvalidOperationException($"Verification failed: {label} was restored instead of rejected.");
     }
 
-    /// <summary>A copy of <paramref name="graph"/> with the first occurrence of <paramref name="from"/> replaced by the same-length <paramref name="to"/>.</summary>
-    private static byte[] Replace(byte[] graph, string from, string to)
+    /// <summary>
+    /// A copy of <paramref name="graph"/> with the first occurrence of <paramref name="from"/> replaced by the same-length
+    /// <paramref name="to"/>: the first after the first occurrence of <paramref name="after"/> when one is given.
+    /// </summary>
+    private static byte[] Replace(byte[] graph, string from, string to, string? after = null)
     {
         byte[] source = Encoding.UTF8.GetBytes(from), target = Encoding.UTF8.GetBytes(to);
         if (source.Length != target.Length)
             throw new InvalidOperationException("A layout substitution must keep the encoded length.");
-        int index = graph.AsSpan().IndexOf(source);
-        if (index < 0)
-            throw new InvalidOperationException($"The serialized graph does not contain '{from}'.");
+        int start = 0;
+        if (after is not null)
+        {
+            int anchor = graph.AsSpan().IndexOf(Encoding.UTF8.GetBytes(after));
+            if (anchor < 0)
+                throw new InvalidOperationException($"The serialized graph does not contain '{after}'.");
+            start = anchor + Encoding.UTF8.GetByteCount(after);
+        }
+        int found = graph.AsSpan(start).IndexOf(source);
+        if (found < 0)
+            throw new InvalidOperationException($"The serialized graph does not contain '{from}'{(after is null ? "" : $" after '{after}'")}.");
+        int index = start + found;
         byte[] copy = [.. graph];
         target.CopyTo(copy, index);
         return copy;
@@ -244,7 +267,39 @@ internal static class DebuggerStateLayoutVerification
         RequireUnsupported<RoomTerrainBlock[]>(Replace(packed, "LevelData.RoomCollisionType,", "LevelData.RoomCollisionTypf,"),
             "a packed run naming a type this build does not have");
         Console.WriteLine("Debugger state packing: packed runs with renamed fields or missing types are rejected.");
+
+        // #2609: struct elements holding references, as a room's block behaviours hold their kept behaviour, are packed too:
+        // their field is named once in the run's schema, and each object they hold is written once and restored shared.
+        var shared = new HashedOwner("shared");
+        HoldingElement[] holding = [new(shared, 1), new(shared, 2), new(null, 3), new(new HashedOwner("own"), 4)];
+        byte[] held = SerializeDebuggerGraph(holding);
+        AssertEqual(1, Occurrences(held, "<Owner>k__BackingField"), "a run of struct elements holding references names their field once");
+        HoldingElement[] restoredHolding = DeserializeDebuggerGraph<HoldingElement[]>(held);
+        AssertTrue(restoredHolding.Select(element => element.Count).SequenceEqual(holding.Select(element => element.Count)) &&
+            restoredHolding[0].Owner is { Name: "shared" } && ReferenceEquals(restoredHolding[0].Owner, restoredHolding[1].Owner) &&
+            restoredHolding[2].Owner is null && restoredHolding[3].Owner is { Name: "own" } && !ReferenceEquals(restoredHolding[3].Owner, restoredHolding[0].Owner),
+            "a packed run restores the objects its elements held, a shared one shared and none as none");
+        Console.WriteLine("Debugger state packing: struct elements holding references pack, their objects written once each.");
     }
+
+    /// <summary>How many times <paramref name="text"/>'s UTF-8 bytes occur in <paramref name="graph"/>.</summary>
+    private static int Occurrences(byte[] graph, string text)
+    {
+        byte[] sought = Encoding.UTF8.GetBytes(text);
+        int count = 0;
+        for (int start = graph.AsSpan().IndexOf(sought); start >= 0;)
+        {
+            count++;
+            int next = graph.AsSpan(start + sought.Length).IndexOf(sought);
+            start = next < 0 ? -1 : start + sought.Length + next;
+        }
+        return count;
+    }
+
+    /// <summary>A struct element holding a reference and a count, as a room's block behaviour holds its kept behaviour.</summary>
+    /// <param name="Owner">The object it holds, or none.</param>
+    /// <param name="Count">Its count.</param>
+    private readonly record struct HoldingElement(HashedOwner? Owner, int Count);
 
     /// <summary>A key compared by reference identity, whose hash is its object's.</summary>
     /// <param name="name">The name the fixture gives it.</param>

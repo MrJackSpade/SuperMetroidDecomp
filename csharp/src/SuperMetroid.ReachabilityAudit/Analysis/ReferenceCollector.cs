@@ -12,7 +12,8 @@ namespace SuperMetroid.ReachabilityAudit.Analysis;
 /// Records an edge from each declaration to every symbol its body, signature, attributes or
 /// initializers reference, including the compiler's implicit calls (enumerators, awaiters,
 /// deconstruction, collection initializers, user-defined operators and conversions, implicit
-/// indexers and base constructors). nameof and documentation crefs are not references.
+/// indexers and base constructors). nameof and documentation crefs are not references. Storage and expressions that
+/// hold an enum's default reference its zero member (<see cref="EnumDefaults"/>).
 /// </summary>
 internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGraph graph, RootCollector roots,
     JsonSerializationScan json, ReflectionScan reflection, IReadOnlyDictionary<SyntaxTree, Compilation> treeOwners,
@@ -36,6 +37,18 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
     {
         switch (node)
         {
+            // Storage that starts at its type's default holds an enum's zero member without naming it (#2608).
+            case VariableDeclaratorSyntax or PropertyDeclarationSyntax or ParameterSyntax
+                when EnumDefaults.HeldByDeclaration(model, node) is (var storage, var members):
+                string? holder = storage is IParameterSymbol ? OwnerKey(project, model, node) : identity.Key(storage);
+                foreach (var member in members)
+                {
+                    if (identity.Key(member) is not { } memberKey)
+                        continue;
+                    Referenced.Add(memberKey);
+                    graph.Edge(holder, memberKey);
+                }
+                return;
             case ConstructorDeclarationSyntax { Initializer: null } constructor
                 when model.GetDeclaredSymbol(constructor) is { IsStatic: false } declared:
                 // Without an initializer the constructor calls the base parameterless constructor.
@@ -132,6 +145,8 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         AddRecordValueReads(model, expression, info, targets);
         AddWrappedRecordValueReads(expression, info, targets);
         AddEnumNameReads(model, expression, info, targets);
+        // A default, a zero or a new array of an enum is its zero member at run time, though nothing names it (#2608).
+        targets.AddRange(EnumDefaults.HeldByExpression(model, expression, info));
         switch (expression)
         {
             case InitializerExpressionSyntax initializer when initializer.IsKind(SyntaxKind.CollectionInitializerExpression):

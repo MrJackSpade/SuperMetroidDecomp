@@ -311,6 +311,17 @@ internal static class InstalledFixtures
     internal static SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays EnemyFrameDisplays => EnemyTiles.FrameDisplays
         ?? throw new InvalidDataException("The installed enemy artwork holds no enemy frames.");
 
+    /// <summary>
+    /// Every enemy frame's display as the game binds it from the installation's display bindings (#2606), read without the
+    /// import's characters, which <see cref="EnemyFrameDisplays"/> loads with the stock enemy artwork.
+    /// </summary>
+    internal static SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays InstalledEnemyFrameDisplays => installedEnemyFrameDisplays.Value;
+
+    /// <summary>Backing loader for <see cref="InstalledEnemyFrameDisplays"/>.</summary>
+    private static readonly Lazy<SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays> installedEnemyFrameDisplays =
+        Shared<SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays>("installed enemy frame displays", () => EnemyTileArtworkFiles.FrameDisplays(
+            Path.Combine(RepositoryInstallation.Installation.ContentDirectory, GameInstallationLayout.EnemyTileDirectoryName)).Displays());
+
     /// <summary>The installation's complete game artwork as the game binds it, loaded once per process and only read.</summary>
     private static readonly Lazy<SuperMetroid.Core.Frontend.GameArtwork> gameArtwork =
         Shared<SuperMetroid.Core.Frontend.GameArtwork>("game artwork", () => InstalledGameBindings.Artwork(RepositoryInstallation.Installation));
@@ -351,7 +362,8 @@ internal static class InstalledFixtures
 
     /// <summary>Backing loader for <see cref="EnemySheets"/>.</summary>
     private static readonly Lazy<SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets> enemySheets =
-        Shared<SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets>("enemy sheets", () => RepositoryInstallation.Installation.LoadEnemySheets());
+        Shared<SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets>("enemy sheets", () => EnemySheetFiles.Load(
+            Path.Combine(RepositoryInstallation.Installation.ContentDirectory, GameInstallationLayout.EnemySheetDirectoryName)));
 
     /// <summary>
     /// The installation's pre-coloured sprite sheets with <paramref name="reloaded"/> loaded again from its installed files:

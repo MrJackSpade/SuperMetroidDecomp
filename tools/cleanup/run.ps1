@@ -183,8 +183,6 @@ function Invoke-CleanupPass([string]$Of) {
     $outcome = Get-Content -LiteralPath $outcomePath -Raw | ConvertFrom-Json
     $codeFixes = [ordered]@{}
     foreach ($property in $outcome.CodeFixes.PSObject.Properties) { $codeFixes[$property.Name] = [int]$property.Value }
-    $kept = [ordered]@{}
-    foreach ($property in $outcome.Kept.PSObject.Properties) { $kept[$property.Name] = [int]$property.Value }
     $fixedPaths = @($outcome.FixedPaths)
     $prunedPaths = @($outcome.PrunedPaths)
     $prunedSummaries = @($outcome.PrunedSummaries)
@@ -239,10 +237,6 @@ function Invoke-CleanupPass([string]$Of) {
     if ($fixedPaths.Count -gt 0) {
         $body.Add("Code fixes in $($fixedPaths.Count) files:")
         $fixedPaths | ForEach-Object { $body.Add("  $_") }
-    }
-    if ($kept.Count -gt 0) {
-        $body.Add('Left in files compiled by several projects that do not all report them, or by a project that does not compile: ' +
-            (($kept.GetEnumerator() | ForEach-Object { "$($_.Key) $($_.Value)" }) -join ', '))
     }
     if ($prunedPaths.Count -gt 0) {
         $body.Add("Reachability prune ($PruneCategories) in $($prunedPaths.Count) files:")

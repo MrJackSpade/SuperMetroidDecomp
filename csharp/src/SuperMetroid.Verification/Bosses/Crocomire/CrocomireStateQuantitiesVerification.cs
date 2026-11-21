@@ -388,21 +388,17 @@ internal static class CrocomireStateQuantitiesVerification
         AssertEqual(CrocomireDeathStages.Nth<CrocomireDeathStage.Rise>(2), state.DeathStage, "he starts to rise on the pause's 49th update");
     }
 
-    /// <summary>Creates a Crocomire body with its encounter and death state in a fresh enemy system.</summary>
+    /// <summary>
+    /// Creates Crocomire in a fresh enemy system, placed as his room's population places him (<see cref="CrocomirePlacement"/>):
+    /// his setup builds his encounter and death state and attaches the body his sink hides (#1446, #1466, #1515).
+    /// </summary>
     private static NewCrocomireResult NewCrocomire()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Crocomire, body.KeptDefinition);
-        body.Position = body.Position.WithWhole(new(576, 144));
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        var state = new CrocomireEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1]);
-        body.SetSpeciesState(state);
-        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
-        // Crocomire's initialisation attaches the body his sink hides (#1446, #1466, #1515).
-        BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
+        CrocomireEnemyState state = CrocomirePlacement.PlaceCrocomire(enemies, new(576, 144));
         return new NewCrocomireResult(enemies, state);
     }
 

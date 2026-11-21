@@ -55,7 +55,7 @@ internal static class NativeSnapshotMotherBrainImport
         if (MotherBrainNativeListAddresses.DecodeTubeCollapse(W(MotherBrainMemory.BrainSubFunction)) is { } collapse)
             state.TubeCollapse = collapse;
         state.TubeCollapseTimer.SetCartridgeCount(CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
-        PrivateState.Set(state.Bursts, "Place", CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
+        StepBurstsToRecordedPlace(state.Bursts, CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
         state.FakeDeathExplosionTimer.SetCartridgeCount(CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer)));
         // The recorded place is the position the last explosion took, counted in the order the game stepped back through
         // them; the positions are listed in the order they burst, so the next is the one after it there.
@@ -254,11 +254,12 @@ internal static class NativeSnapshotMotherBrainImport
     /// </summary>
     private static void ImportNativeMotherBrainRainbowSequence(MotherBrainRainbowBeamAttackSequence sequence, Func<int, ushort> W)
     {
+        // The beam's width and its sound attempts are read only while its beam holds Samus, and the beam's start sets both
+        // (#2553); the import places no beam, so it refuses a snapshot taken while one holds her and imports neither.
+        if (sequence.RainbowAttack.BeamActive)
+            throw new InvalidDataException("The native snapshot holds Mother Brain's rainbow beam on Samus, which the import does not place.");
         // The cartridge keeps the brain's fall speed in the body's phase timer.
         sequence.State.BrainFallSpeed = new SignedEightEight(W(MotherBrainMemory.BodyFunctionTimer));
-        global::SuperMetroid.Core.PrivateState.Set(sequence.RainbowAttack, "AngularWidth", RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth)));
-        // The cartridge counts the attempts left less one, by sign: six at the start, minus one once they are spent.
-        global::SuperMetroid.Core.PrivateState.Set(sequence.RainbowAttack, "SoundAttempts", UpdateCountdown.For(CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount)) + 1));
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
         sequence.State.HealthColoursEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
@@ -266,8 +267,35 @@ internal static class NativeSnapshotMotherBrainImport
         // Once the sequence runs, the sub-function word holds the bursts' interval; their place was imported with the
         // encounter, whose cycle the sequence shares.
         // The cartridge's interval runs below zero on the update a burst is due: a count at zero or below is due next.
-        PrivateState.SetField(sequence.Encounter.Bursts, "burstWait",
-            UpdateCountdown.For(Math.Max(0, CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction))) + 1));
+        StartBurstInterval(sequence.Encounter.Bursts, Math.Max(0, CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction))) + 1);
+    }
+
+    /// <summary>
+    /// Brings the encounter's burst cycle, fresh from the room's load, to the place the snapshot records the last burst took
+    /// (#2553), as her ascent's dust bursts brought it there: each burst steps the cycle back one place from the last,
+    /// continuing from the list's last place once it passes the first, so a fresh cycle stands at the recorded place after
+    /// as many bursts as that place lies short of the list's length.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The recorded place lies outside her ascent's dust positions.</exception>
+    private static void StepBurstsToRecordedPlace(SuperMetroid.Core.Compatibility.MotherBrainBurstCycle bursts, int place)
+    {
+        IReadOnlyList<Position16<RoomPixels>> dust = MotherBrainAscentDustDefinitions.DustPositions;
+        if (place < 0 || place >= dust.Count)
+            throw new InvalidDataException($"The native snapshot's burst place {place} lies outside Mother Brain's {dust.Count} ascent dust positions.");
+        for (int burst = 0; burst < (dust.Count - place) % dust.Count; burst++)
+            _ = bursts.NextOf(dust);
+    }
+
+    /// <summary>
+    /// Brings the encounter's burst cycle, due at once as the room's load leaves it, to a wait of <paramref name="updates"/>
+    /// before its next burst (#2553), as a burst due now restarts the wait with its interval and the update it falls due on.
+    /// </summary>
+    private static void StartBurstInterval(SuperMetroid.Core.Compatibility.MotherBrainBurstCycle bursts, int updates)
+    {
+        if (updates == 1)
+            return;
+        if (!bursts.IntervalRunsOut(updates - 1))
+            throw new InvalidDataException("Mother Brain's burst cycle is not due at once as the room's load leaves it.");
     }
 
     /// <summary>The phases of her rise from which it has placed her body with her (#1949, #2031).</summary>
@@ -367,10 +395,9 @@ internal static class NativeSnapshotMotherBrainImport
         var screen = new ushort[BossBodySourceDefinitions.ScreenRows * BossBodySourceDefinitions.LayerColumns];
         for (int word = 0; word < screen.Length; word++)
             screen[word] = W(EnemyBg2StagingWram + word * sizeof(ushort));
-        BossBodySheets sheets = global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Artwork.BossArtworkBinding, global::SuperMetroid.Core.Enemies.BossBodies.BossBodySheets>(runtime.BossArtwork, "BodySheets");
         // The installation's frames, which the runtime's installed Mother Brain body sheet is composed from.
         BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
-        BossBodySheet sheet = sheets.Of(BossBodyOwner.MotherBrain);
+        BossBodySheet sheet = runtime.BossArtwork.Body(BossBodyOwner.MotherBrain);
         var image = new BossBodyParts(BossBodyOwner.MotherBrain, showing: null);
         BossBodyFrameSource? staged = BossBodySheetComposer.Frames(bosses, BossBodyOwner.MotherBrain).FirstOrDefault(frame =>
             frame.Cells.All(entry => entry.Key < screen.Length && screen[entry.Key] == entry.Value.PackedWord));

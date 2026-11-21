@@ -333,8 +333,6 @@ internal static class NativeSnapshotImport
         // Every place takes the snapshot's projectile, or, for a free one, what it holds for the room's next spawn there.
         for (int place = 0; place < SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity; place++)
             ImportNativeEnemyProjectile(runtime.Enemies, place, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
-        // This is a one-time initial snapshot import. No native state is fed back during replay.
-        runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
         runtime.Enemies.FrameContext.SeedEnemyPassCount(W(NativeSnapshotMemory.MainEnemyRoutineCount));
         // The liquid's BG3 HDMA object has already run its first pass, so its callback is
         // installed. A live object owns the per-frame liquid motion; once Mother Brain's
@@ -344,14 +342,10 @@ internal static class NativeSnapshotImport
             W(NativeSnapshotMemory.HdmaObjectFrameBehaviors + slot * 2) == NativeSnapshotMemory.AcidHdmaCallback);
         VerificationAssertions.AssertTrue(runtime.RoomFxOverlay.Type is RoomFxType.Lava or RoomFxType.Acid,
             "snapshot import models the lava/acid HDMA objects of its room");
-        runtime.RoomFxOverlay.ImportLiquidMotion(
-            stopped: !lavaAcidObjectLive,
-            tidePhase: RotationAngleConstants.FromRaw(W(NativeSnapshotMemory.TidePhase)),
-            tideOffset: SixteenSixteenWords.ToDisplacement(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction)),
-            baseY: (runtime.RoomFxOverlay.BaseY
-                ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(new PixelFraction(W(NativeSnapshotMemory.LiquidBaseFraction))),
-            // The surface word is a signed line: one a tide carries above the room's top is negative.
-            surface: CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface)));
+        RunLiquidMotionToSnapshot(runtime, W, stopped: !lavaAcidObjectLive);
+        // This is a one-time initial snapshot import. No native state is fed back during replay. The random number is the
+        // recorded one, whatever the liquid's motion passes above stirred it to.
+        runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
         samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
         var kraidHeadCursors = new KraidHeadNativeCursors(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
@@ -458,6 +452,45 @@ internal static class NativeSnapshotImport
         if (game.IsAt(PauseStep.Menu))
             ImportNativePauseMenu(game, runtime, W, memory);
         return new ImportNativeSnapshotResult(bus, runtime, samus, game);
+    }
+
+    /// <summary>
+    /// Brings the room's liquid to the snapshot's motion by running the liquid's own motion passes from the room's load
+    /// (#2553), as the game ran them: the first pass begins its motion, and each later one moves its tide, and its base
+    /// toward any target, until its tide phase, tide offset, base and surface stand where the recorded ones do. Nothing moves
+    /// a stopped liquid's base again, so its fraction is never read and only a moving liquid's is matched. The passes are
+    /// deterministic: a state they come back to without matching the recording is one the game's liquid never reaches from
+    /// the room's load, and the import refuses it. A liquid an enemy stopped stops after its passes, as it stopped after the
+    /// game's.
+    /// </summary>
+    /// <param name="runtime">The runtime whose loaded room's liquid moves.</param>
+    /// <param name="W">Reads a word of the snapshot.</param>
+    /// <param name="stopped">Whether an enemy has ended the liquid's motion.</param>
+    /// <exception cref="InvalidDataException">The liquid's own passes never reach the recorded motion.</exception>
+    private static void RunLiquidMotionToSnapshot(SuperMetroidRuntime runtime, Func<int, ushort> W, bool stopped)
+    {
+        RoomFxOverlayState fx = runtime.RoomFxOverlay;
+        RotationAngle phase = RotationAngleConstants.FromRaw(W(NativeSnapshotMemory.TidePhase));
+        SignedSixteenSixteen offset = SixteenSixteenWords.ToDisplacement(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction));
+        FixedCoordinate baseY = FixedCoordinate.Of(W(NativeSnapshotMemory.LiquidBase), W(NativeSnapshotMemory.LiquidBaseFraction));
+        // The surface word is a signed line: one a tide carries above the room's top is negative.
+        int surface = CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface));
+        bool BaseMatches() => stopped ? fx.BaseY?.Whole == baseY.Whole : fx.BaseY == baseY;
+        bool Matches() => fx.TidePhase == phase && fx.TideOffset == offset && fx.Surface == surface && BaseMatches();
+
+        fx.AdvanceLiquidMotion(runtime.System, timeIsFrozen: false);
+        var passed = new HashSet<(RotationAngle Phase, SignedSixteenSixteen Offset, FixedCoordinate? Base, int? Surface)>();
+        while (!Matches())
+        {
+            if (!passed.Add((fx.TidePhase, fx.TideOffset, fx.BaseY, fx.Surface)))
+            {
+                throw new InvalidDataException(
+                    $"The room's liquid never reaches the snapshot's tide phase {phase}, offset {offset}, base {baseY} and surface {surface} from its load.");
+            }
+            fx.AdvanceLiquidMotion(runtime.System, timeIsFrozen: false);
+        }
+        if (stopped)
+            fx.StopLiquidMotion();
     }
 
     /// <summary>

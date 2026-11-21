@@ -24,13 +24,20 @@ internal static class RoomEffectFixtures
     /// <summary>A room of rain, which holds no liquid.</summary>
     internal static RoomFxOverlayState Rain() => Load(RoomFxType.Rain, surface: null, liquid: null);
 
+    /// <summary>A room of rain, which holds no liquid, its sounds joining <paramref name="sounds"/>.</summary>
+    /// <param name="sounds">The requests the effect's sounds join, which the check reads.</param>
+    internal static RoomFxOverlayState Rain(SuperMetroid.Core.Audio.GameplaySoundRequests sounds) =>
+        Load(RoomFxType.Rain, surface: null, liquid: null, sounds);
+
     /// <summary>
     /// Loads a room effect of <paramref name="type"/> whose liquid, if any, starts at <paramref name="surface"/> and never
     /// moves, blending its overlay by brightening the room where the effect shows on the overlay.
     /// </summary>
-    private static RoomFxOverlayState Load(RoomFxType type, int? surface, RoomLiquid? liquid) =>
+    private static RoomFxOverlayState Load(RoomFxType type, int? surface, RoomLiquid? liquid,
+        SuperMetroid.Core.Audio.GameplaySoundRequests? sounds = null) =>
         RoomFxOverlayState.ForDefinition(new RoomEffectDefinition(LiquidStartLevel: surface, LiquidTargetLevel: null,
             LiquidLevelSpeed: default, LiquidMoveDelay: 0, Type: type, VisorAnimation: RoomVisorAnimation.Steady,
             EffectBlend: RoomFxOverlayState.ShowsOnOverlay(type) ? RoomEffectBlendDefinitions.OverlayBrightens : null,
-            Liquid: liquid, ColourEffects: [], BlockAnimations: [], Tint: RoomEffectTint.None), 0);
+            Liquid: liquid, ColourEffects: [], BlockAnimations: [], Tint: RoomEffectTint.None), 0,
+            sounds ?? SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
 }

@@ -153,10 +153,12 @@ internal static class GameplayDisplayFrameTestsVerification
     /// <summary>Each effect's tint publishes at the accepted frame while the same effect's window table is read live.</summary>
     private static void VerifyFixedColorTiming(SuperMetroidRuntime runtime)
     {
-        // Fireflea darkness: the effect and the shade it publishes. From the first flash shade (level zero), a step at darkness
+        // Fireflea darkness: the effect and the shade it publishes. A Fireflea room's load starts its darkness from the first
+        // flash shade (level zero); the frame boundary before it latched the room before, which has none. A step at darkness
         // offset six shades level eighteen and one at offset two level six.
-        RoomFxType originalFx = runtime.RoomFxOverlay.Type;
-        FirefleaFxState fireflea = runtime.RoomFxOverlay.StartFirefleaDarknessForCheck();
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LowerNorfairFireflea, new Position16<RoomPixels>(0, 0));
+        FirefleaFxState fireflea = runtime.RoomFxOverlay.Fireflea
+            ?? throw new InvalidOperationException("The Lower Norfair Fireflea room's load starts its Fireflea darkness.");
         fireflea.Step(frozen: false, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { 3 }));
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Fireflea darkness waits for the accepted frame");
@@ -169,7 +171,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(6, ((FirefleaDarknessBlend)((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend).Shade.FadeLevels.Red,
             "the next accepted frame publishes the chosen shade");
-        runtime.RoomFxOverlay.EndFirefleaDarknessForCheck(originalFx);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual<LatchedFirefleaDarkness?>(null, runtime.PublishDisplayFrame().OrdinaryLatch.Fireflea,
             "a room whose effect is not Fireflea darkness publishes no Fireflea shade");

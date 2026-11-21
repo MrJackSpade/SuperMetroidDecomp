@@ -16,7 +16,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.Core.Compatibility;
 /// <summary>Checks X-ray color math in a room without a visible room effect.</summary>
 internal static class XrayNoFxDarkeningVerification
@@ -24,25 +24,8 @@ internal static class XrayNoFxDarkeningVerification
     /// <summary>Confirms the fixed colour adds without halving where no effect lies behind, and Fireflea subtraction.</summary>
     internal static void VerifyXrayNoFxDarkening()
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
-        InstalledFixtures.BindGame(game);
-        game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
-        var runtime = game.Session.GameplayRuntime;
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.System.SetEvent(StoryEvent.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
+        SuperMetroidRuntime runtime = XrayWarmingUpIn(RoomDefinitions.Parlor);
         AssertTrue(runtime.RoomFxOverlay.CaptureForDisplay() is null, "fixture has no visible room FX");
-        var samus = runtime.Player.IntroducedSamus;
-        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
-        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
-        AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }), "fixture enters X-ray");
-        // The warm-up's third update shows the blended room with the beam's window still closed, so the selected pixels are
-        // unambiguously outside.
-        PrivateState.Set(samus.Xray, nameof(SamusXrayState.WarmUp), XrayWarmUp.Started.Spend().Spend());
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
         // The room's own foreground is the main screen colour math works on (#1433): it draws from the room's block
         // pictures, so each expectation is derived from the colour the frame shows before blending.
         LayeredScene snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
@@ -57,19 +40,47 @@ internal static class XrayNoFxDarkeningVerification
         foreach (int index in samples)
             AssertEqual(Channels(unblended[index], channel => Math.Min(MaximumChannel, channel + FixedColorChannel)), pixels[index],
                 "the fixed colour adds to the outside-beam foreground without halving");
-        _ = runtime.RoomFxOverlay.StartFirefleaDarknessForCheck();
-        // The X-ray blending branch the FX selects reaches the PPU at the accepted NMI (#1307).
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var fireflea = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
+        // In a Fireflea room, whose load starts its darkness, the X-ray blending branch the darkness selects reaches the PPU
+        // at the accepted NMI (#1307).
+        SuperMetroidRuntime firefleaRoom = XrayWarmingUpIn(RoomDefinitions.LowerNorfairFireflea);
+        AssertTrue(firefleaRoom.RoomFxOverlay.Fireflea is not null, "the Fireflea room's load starts its darkness");
+        var fireflea = GameplayDisplayCapture.Capture(firefleaRoom.PublishDisplayFrame());
         var firefleaMath = (GameplayBlendLayer)fireflea.Layers[0];
         AssertTrue(firefleaMath.OverlayBehind is null && !firefleaMath.BackgroundBehind && firefleaMath.Blend is XrayDimmingBlend { Mode.KeepsDarkness: true },
             "Fireflea retains its shade's subtraction with nothing lying behind");
         RgbaPixel[] darkPixels = DisplayRendering.Render(fireflea);
         RgbaPixel[] firefleaMain = Unblended(fireflea);
-        foreach (int index in samples)
+        foreach (int index in new[] { 80, 120, 180 }.Select(row => FirstLitPixel(firefleaMain, row)))
             AssertEqual(Channels(firefleaMain[index], channel => Math.Max(0, channel - FixedColorChannel)), darkPixels[index],
                 "Fireflea subtracts seven without halving");
         Console.WriteLine("X-ray no-FX capture: fixed-colour addition without an effect behind and Fireflea exception verified.");
+    }
+
+    /// <summary>
+    /// A selected game with Zebes awake and Samus standing in <paramref name="room"/>, her X-ray in the third update of its
+    /// warm-up, which shows the blended room with the beam's window still closed, so every sampled pixel lies outside it;
+    /// the frame boundary has latched it.
+    /// </summary>
+    private static SuperMetroidRuntime XrayWarmingUpIn(RoomDefinition room)
+    {
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps));
+        InstalledFixtures.BindGame(game);
+        game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
+        var runtime = game.Session.GameplayRuntime;
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.System.SetEvent(StoryEvent.ZebesAwake);
+        runtime.LoadCartridgeRoomForDebug(room);
+        var samus = runtime.Player.IntroducedSamus;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
+        samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
+        AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }), "fixture enters X-ray");
+        PrivateState.Set(samus.Xray, nameof(SamusXrayState.WarmUp), XrayWarmUp.Started.Spend().Spend());
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
+        return runtime;
     }
 
     /// <summary>The five-bit fixed colour each channel of the X-ray's fixed-colour operand holds.</summary>

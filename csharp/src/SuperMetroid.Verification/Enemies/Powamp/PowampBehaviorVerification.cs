@@ -30,16 +30,7 @@ internal static class PowampBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // The balloon and its body are placed as their room places them, whose settings name the part each is (#2163).
-        RoomEnemyPlace balloon = enemies.Places.InUpdateOrder[0];
-        balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
-        balloon.Bind(EnemyDefinitionId.Powamp, balloon.KeptDefinition);
-        balloon.Bind(balloon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        PowampBehavior.InitializePowampBalloon(balloon);
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
-        body.BindPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts));
-        body.Bind(EnemyDefinitionId.Powamp, body.KeptDefinition);
-        body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        enemies.PowampBehavior.InitializePowampBody(body);
+        (RoomEnemyPlace balloon, RoomEnemyPlace body) = PowampPairFixtures.PlacePair(enemies);
         AssertStarted(balloon.RequireSpeciesState<PowampBalloonState>(), PowampBalloonSegment.Deflated, "the balloon starts deflated");
         AssertEqual(new AnimationPlayback<PowampBodySegment>(PowampAnimations.BodyStartingAt[PowampBodySegment.BodySlow], AnimationPlace.StartOfAnimation), body.RequireSpeciesState<PowampBodyState>().Playback,
             "the body starts on its slow pulse");

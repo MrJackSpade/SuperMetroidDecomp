@@ -45,12 +45,6 @@ public sealed class SamusDrainedState
     public HyperBeamColourEffectState? HyperBeamColourEffect { get; private set; }
 
     /// <summary>
-    /// Whether the rainbow glow colours Samus, ahead of every other colouring: the rainbow start sets it and the rainbow
-    /// stop clears it during the Baby Metroid's death.
-    /// </summary>
-    public bool RainbowGlowing => rainbowHold is not null;
-
-    /// <summary>
     /// How long the rainbow holds each of its shades while it glows (#2387, #2560): one update as the rainbow starts,
     /// lengthened by the Baby; none while it does not glow. Each shade the rainbow moves on to shows for the hold as it
     /// stands then.

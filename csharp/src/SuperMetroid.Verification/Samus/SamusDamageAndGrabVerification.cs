@@ -802,7 +802,7 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "release clears Y speed");
     AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Fraction, "release clears Y subspeed");
     AssertEqual(SamusVerticalDirection.None, samus.Kinematics.VerticalVelocity.Direction, "release clears Y direction");
-    AssertEqual((SamusBallBounce?)null, samus.MorphBallBounceState, "release clears bounce state");
+    AssertEqual(null, samus.MorphBallBounceState, "release clears bounce state");
     AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode,
         "release clears X acceleration mode");
     AssertEqual(SamusDraygonHoldPhase.ReleasedUnseen, samus.DraygonGrabbed.Phase, "the release waits for Draygon to see it");

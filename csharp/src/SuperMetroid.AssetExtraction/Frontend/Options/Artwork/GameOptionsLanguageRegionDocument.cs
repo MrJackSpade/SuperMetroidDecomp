@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Progression;
 using System.Text.Json.Serialization;
-using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 

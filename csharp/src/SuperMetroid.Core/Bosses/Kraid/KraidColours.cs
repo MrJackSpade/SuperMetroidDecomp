@@ -100,8 +100,15 @@ internal sealed class KraidColours : IGameplayShadingSource
     private sealed record RoomColours() : BodyShown((PictureShade?)null);
 
     /// <summary>A health band's or the hurt flash's shade, on his body and his parts.</summary>
-    /// <param name="Shade">The shade.</param>
-    private sealed record BandShade(PictureShade Shade) : BodyShown(Shade);
+    private sealed record BandShade : BodyShown
+    {
+        /// <summary>Shows <paramref name="shade"/> on his body and his parts.</summary>
+        /// <param name="shade">The band's or hurt flash's shade.</param>
+        public BandShade(PictureShade shade)
+            : base(shade)
+        {
+        }
+    }
 
     /// <summary>His death colours on his body; his parts keep the last shade shown.</summary>
     /// <param name="PartsShade">The shade his parts show.</param>

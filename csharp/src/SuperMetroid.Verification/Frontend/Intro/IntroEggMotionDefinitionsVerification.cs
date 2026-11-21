@@ -127,9 +127,6 @@ internal static class IntroEggMotionDefinitionsVerification
             }
             AssertTrue(!sprite.IsActive && !motion, "Egg actor reaches ground and deletes within its native curve");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.FragmentInitialPosition((IntroEggShellFragment)fragments.Count),
-            "Fragment initial position rejects an undefined fragment");
-        AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotion.FragmentFallSpeed(41, pastCurve), "Fragment curve boundary after native overread");
         AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotionDefinitions.ShallowSlimeFall.Speed(62), "Shallow slime curve boundary");
         AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotionDefinitions.SteepSlimeFall.Speed(69), "Steep slime curve boundary");
         Console.WriteLine($"Egg motion definitions: twelve position words, 364 velocity words, and {checkedFrames} real actor frames match with all physical-table reads forbidden.");

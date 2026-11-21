@@ -24,9 +24,6 @@ public sealed class SamusCeresRidleyEjectionState
     /// <summary>Whether the shove's next update is its first, which sets her hurt pose and picks the side it pushes her to.</summary>
     public bool IsStarting => Phase == Shove.Starting;
 
-    /// <summary>The side the shove pushes Samus toward once it has started; none before it starts or once it has ended.</summary>
-    private HorizontalDirection? PushDirection => Phase is Pushing pushing ? pushing.Side : null;
-
     /// <summary>
     /// Sets Samus to be pushed out of Ceres Ridley's way: the shove takes her movement
     /// from the following gameplay frame.

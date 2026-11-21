@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 

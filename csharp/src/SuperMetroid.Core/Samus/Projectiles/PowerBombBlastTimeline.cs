@@ -2,9 +2,7 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Compatibility;
-namespace SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Assets;namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// A Power Bomb blast's timeline (#2000): its stages, their radii and durations, the radius growth they share, and the

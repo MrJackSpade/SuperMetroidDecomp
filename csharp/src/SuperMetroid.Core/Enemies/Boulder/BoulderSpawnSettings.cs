@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>How close Samus must come before a Boulder starts, how it starts and how it rolls (#1471, #1472, #1519, #2023).</summary>

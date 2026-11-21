@@ -23,9 +23,9 @@ internal static class NuclearWaffleProjectileBehaviorVerification
         owner.SetSpawnParameter1(EnemyDefinitionId.NuclearWaffle, 8193);
         owner.SetSpawnParameter2(EnemyDefinitionId.NuclearWaffle, 8192);
         owner.Position = owner.Position.WithWhole(new(384, 512));
-        enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(owner.HeldOccupant(), owner.HeldOccupant().SpawnSettings<NuclearWaffleSpawnSettings>(), owner);
-        EnemyProjectile[] links = [.. (enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Verification requires the Nuclear Waffle's state."))
-            .ProjectileLinks.Select(link => link.Actor)];
+        // The waffle's setup spawns the four body links its state holds.
+        NuclearWaffleEnemyState waffle = enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(owner.HeldOccupant(), owner.HeldOccupant().SpawnSettings<NuclearWaffleSpawnSettings>(), owner);
+        EnemyProjectile[] links = [.. waffle.ProjectileLinks.Select(link => link.Actor)];
         AssertEqual(4, links.Length, "the initializer spawns four body links");
         foreach (EnemyProjectile link in links)
         {

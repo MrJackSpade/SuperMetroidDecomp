@@ -13,13 +13,13 @@ internal sealed class SparkEntity(SparkBehavior species, RoomEnemyOccupant occup
     internal SparkSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal SparkEnemyState State { get; } = SparkBehavior.InitializeSpark(settings, place);
+    private readonly SparkEnemyState state = SparkBehavior.InitializeSpark(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSparkMainAi(Occupant, Settings, Place, State);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSparkMainAi(Occupant, Settings, Place, state);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SparkBehavior.AdvanceSparkTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SparkBehavior.AdvanceSparkTypedAnimation(Place, state);
 
     /// <summary>The pass-through shot reaction where the Spark's definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == SparkReactions.Shot ? SparkBehavior.PassThroughShot : base.ShotReaction;

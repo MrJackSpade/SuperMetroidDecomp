@@ -87,7 +87,9 @@ internal static class GerutaInstructionProgramDefinitionsVerification
         follower.Bind(EnemyDefinitionId.Geruta, follower.KeptDefinition);
         follower.Bind(follower.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         follower.SetUpAsPlaced();
-        // The follower shows the first picture of the ascending flames its setup started on its next animation step.
+        // The follower shows the first picture of the ascending flames its setup started on its next animation step; the
+        // room spawn primes the instruction timer before the species' setup runs.
+        follower.AnimationClock.StepOnNextUpdate();
         follower.AdvanceAnimation(RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual<EnemyFrameId?>(GerutaAnimations.Segments.FirstFrameShown(GerutaAnimations.StartingWith(GerutaSegment.FlamesAscending)), follower.Frame,
             "Norfair Rio follower initializer selects ascending flames");

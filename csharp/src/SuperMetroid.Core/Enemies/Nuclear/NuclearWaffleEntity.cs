@@ -13,11 +13,11 @@ internal sealed class NuclearWaffleEntity(NuclearWaffleBehavior species, RoomEne
     internal NuclearWaffleSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal NuclearWaffleEnemyState State { get; } = species.InitializeNuclearWaffle(occupant, settings, place);
+    private readonly NuclearWaffleEnemyState state = species.InitializeNuclearWaffle(occupant, settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunNuclearWaffleMainAi(Settings, Place, State);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunNuclearWaffleMainAi(Settings, Place, state);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NuclearWaffleBehavior.AdvanceNuclearWaffleTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NuclearWaffleBehavior.AdvanceNuclearWaffleTypedAnimation(Place, state);
 }

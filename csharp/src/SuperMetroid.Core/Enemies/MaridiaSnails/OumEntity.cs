@@ -9,13 +9,13 @@ internal sealed class OumEntity(OumBehavior species, RoomEnemyOccupant occupant,
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal OumEnemyState State { get; } = OumBehavior.InitializeOum();
+    private readonly OumEnemyState state = OumBehavior.InitializeOum();
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunOumMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunOumMainAi(Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceOumTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceOumTypedAnimation(Place, state);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => OumBehavior.FindHitboxReaction(Place, probe);

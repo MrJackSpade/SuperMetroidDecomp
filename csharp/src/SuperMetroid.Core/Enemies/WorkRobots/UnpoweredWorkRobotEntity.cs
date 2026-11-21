@@ -13,7 +13,7 @@ internal sealed class UnpoweredWorkRobotEntity(WorkRobotBehavior species, RoomEn
     internal WorkRobotSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal UnpoweredWorkRobotEnemyState State { get; } = species.InitializeUnpoweredWorkRobot(settings, place);
+    private readonly UnpoweredWorkRobotEnemyState state = species.InitializeUnpoweredWorkRobot(settings, place);
 
     /// <summary>Takes no action of its own.</summary>
     /// <param name="frame">The enemy frame.</param>
@@ -22,7 +22,7 @@ internal sealed class UnpoweredWorkRobotEntity(WorkRobotBehavior species, RoomEn
     }
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WorkRobotBehavior.AdvanceUnpoweredWorkRobotTypedAnimation(Place, State);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WorkRobotBehavior.AdvanceUnpoweredWorkRobotTypedAnimation(Place, state);
 
     /// <summary>The robot takes a bomb's damage, never rejecting it, and does nothing more (#2164).</summary>
     protected override EnemyBombReaction OwnBombReaction => Species.UnpoweredWorkRobotBombReaction;

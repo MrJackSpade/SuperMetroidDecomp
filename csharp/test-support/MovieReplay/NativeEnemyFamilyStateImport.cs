@@ -407,11 +407,6 @@ internal static class NativeEnemyFamilyStateImport
             magdolliteOverlay.Action = MagdolliteNativeWords.MagdolliteOverlayActions.Decode(words.F, "recorded MagdolliteOverlayAction");
             magdolliteOverlay.ThrowDirection = words.B != 0 ? HorizontalDirection.Right : HorizontalDirection.Left;
         }
-        if (enemy.SpeciesState<SbugEnemyState>() is { } sbugRecord)
-        {
-            sbugRecord.Action = SbugNativeWords.SbugActions.Decode(words.B, "recorded SbugAction");
-            sbugRecord.MovementTimer = TrueWait(words.F);
-        }
         if (enemy.SpeciesState<KiHunterBodyState>() is { } kiHunterBodyRecord)
         {
             kiHunterBodyRecord.Action = KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
@@ -464,18 +459,6 @@ internal static class NativeEnemyFamilyStateImport
             // A crawl's routine names its way (#2278).
             if (yardRecord.Movement == YardMovement.Crawling)
                 yardRecord.Crawl = YardNativeWords.Crawls.Decode(words.F, "recorded Yard crawl");
-        }
-        if (enemy.SpeciesState<ZoaEnemyState>() is { } zoaRecord)
-        {
-            zoaRecord.SpawnPosition = new(words.A, words.B);
-            // The record keeps the requested animation beside the installed one (#2145): Core keeps the Zoa's facing, which
-            // the requested animation shows, and only the playing animation, which this import does not read.
-            ZoaSegment requested = ZoaNativeWords.AnimationSelectorOf(words.C);
-            zoaRecord.Facing = requested is ZoaSegment.FacingRightRising or ZoaSegment.FacingRightShooting
-                ? HorizontalDirection.Right
-                : HorizontalDirection.Left;
-            RequirePlaying(zoaRecord.Playback, ZoaAnimations.StartingWith(ZoaNativeWords.AnimationSelectorOf(words.D)), "Zoa");
-            zoaRecord.Action = ZoaNativeWords.ZoaActions.Decode(words.F, "recorded ZoaAction");
         }
         if (enemy.SpeciesState<BabyTurtleEnemyState>() is { } babyTurtleRecord)
         {
@@ -542,18 +525,6 @@ internal static class NativeEnemyFamilyStateImport
             if (verticalShutterSpeed != verticalShutterSettings.Speed)
                 throw new InvalidDataException($"Recorded vertical shutter speed {verticalShutterSpeed} is not its placement's {verticalShutterSettings.Speed}.");
         }
-        if (enemy.SpeciesState<WorkRobotEnemyState>() is { } workRobotRecord)
-        {
-            // The game keeps the robot's facing as its laser velocity's sign, two pixels either way.
-            workRobotRecord.Facing = words.A switch
-            {
-                0xfe00 => HorizontalDirection.Left,
-                0x0200 => HorizontalDirection.Right,
-                _ => throw new InvalidDataException($"Recorded Work Robot laser velocity ${words.A:X4} is not two pixels either way."),
-            };
-            workRobotRecord.LaserCooldown = WrappingCountdown.Start(words.B);
-            workRobotRecord.FallVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
-        }
         // An unpowered robot keeps no facing, laser cooldown or fall: it only holds its pose (#2179, #2455).
         if (enemy.SpeciesState<MetroidEnemyState>() is { } metroidRecord)
         {
@@ -570,15 +541,6 @@ internal static class NativeEnemyFamilyStateImport
             // count stops at zero.
             fakeKraidRecord.WalkTurnWait.SetCartridgeCount(words.D - 1);
             fakeKraidRecord.SpitWait.SetUpdatesLeft(words.E);
-        }
-        if (enemy.SpeciesState<OumEnemyState>() is { } oumRecord)
-        {
-            oumRecord.Action = MaridiaSnailsNativeWords.OumActions.Decode(words.A, "recorded MaridiaLargeSnailAction");
-            oumRecord.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(unchecked((short)words.B));
-            oumRecord.AttackCooldown = TrueWait(words.C);
-            oumRecord.Heading = words.D != 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
-            oumRecord.RemainingBounces = unchecked((short)words.E);
-            oumRecord.BouncePhase = MaridiaSnailsNativeWords.OumBouncePhases.Decode(words.F, "recorded MaridiaLargeSnailBouncePhase");
         }
         if (enemy.SpeciesState<WallSpacePirateEnemyState>() is { } wallSpacePirateRecord)
         {
@@ -662,18 +624,6 @@ internal static class NativeEnemyFamilyStateImport
                 hopperRecord.HopSize = size;
             hopperRecord.YSpeedCurvePlaceStep = QuadraticSpeedCurvePlace.FromMarks(words.D);
         }
-        if (enemies.PlatformStates[index] is { } platform)
-        {
-            platform.RestingY = words.A;
-            // The platform reads its speed and its acceleration's cap from its spawn settings where it uses them (#2439); the
-            // recording's copy of the speed must be the placement's.
-            PlatformSpawnSettings platformSettings = enemy.HeldOccupant().SpawnSettings<PlatformSpawnSettings>();
-            SignedSixteenSixteen platformSpeed = NegatedPair(SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B),
-                SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D), "platform speed");
-            if (platformSpeed != platformSettings.Speed)
-                throw new InvalidDataException($"Recorded platform speed {platformSpeed} is not its placement's {platformSettings.Speed}.");
-            platform.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(Index(words.F, platformSettings.VerticalAccelerationUpdates, "platform acceleration index"));
-        }
         if (enemy.Holds(EnemyDefinitionId.Shaktool) && enemies.ShaktoolSegments[index] is { } segment)
         {
             int segmentIndex = Array.IndexOf(ShaktoolSegmentDefinitions.Segments, enemy.HeldOccupant().SpawnSettings<ShaktoolSpawnSettings>().Segment);
@@ -688,17 +638,6 @@ internal static class NativeEnemyFamilyStateImport
             if (SlotIndex(words.E, "Shaktool owner") != 0)
                 throw new InvalidDataException($"Recorded Shaktool owner ${words.E:X4} does not name the first enemy, where the chain's saw is placed.");
             segment.Motion = ShaktoolNativeWords.DecodeMotion(words.F, "recorded ShaktoolSegmentMotion");
-        }
-        if (enemies.SkulteraStates[index] is { } skultera)
-        {
-            (skultera.Action, skultera.Heading) = SkulteraNativeWords.SkulteraActions.Decode(words.A, "recorded SkulteraAction");
-            // The leftward words are the speed reversed (#2278): the speed is the rightward pair. The Skultera swims at its
-            // placement's speed (#2450), which the recording's must be.
-            SignedSixteenSixteen skulteraSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
-            if (skulteraSpeed != enemy.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>().Speed)
-                throw new InvalidDataException($"Recorded Skultera speed {skulteraSpeed} is not its placement's {enemy.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>().Speed}.");
-            // Only the angle word's low byte is ever read; movement discards its high byte.
-            global::SuperMetroid.Core.PrivateState.Set(skultera, "Angle", RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.F)));
         }
         if (enemy.Holds(EnemyDefinitionId.Coven) && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
         {
@@ -762,11 +701,6 @@ internal static class NativeEnemyFamilyStateImport
             PrivateState.Set(escape, "Speed", escapeVelocity.IsNegative ? escapeVelocity.Negated() : escapeVelocity);
             PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Action), AnimalsNativeWords.EscapeEtecoonActionAt(words.F));
         }
-        if (enemy.Holds(EnemyDefinitionId.NuclearWaffle) && enemy.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
-        {
-            waffle.Action = NuclearNativeWords.NuclearWaffleActions.Decode(words.A, "recorded NuclearWaffleAction");
-            waffle.WaitingTimer = TrueWait(words.B);
-        }
         // The halves reuse the same words for different values, each half into its own state (#1845).
         if (enemy.Holds(EnemyDefinitionId.Powamp) && enemy.SpeciesState<PowampBalloonState>() is { } powampBalloon)
         {
@@ -820,29 +754,6 @@ internal static class NativeEnemyFamilyStateImport
             geruta.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.A));
             geruta.Action = RiosNativeWords.GerutaActions.Decode(words.F, "recorded NorfairRioAction");
         }
-        if (enemies.WaverStates[index] is { } waver)
-        {
-
-            // The record keeps the requested animation beside the installed one (#2145): Core keeps the Waver's facing,
-            // which the requested animation shows, and only the playing animation, which this import does not read.
-            RequirePlaying(waver.Playback, WaverAnimations.StartingWith(WaverNativeWords.Animations.Decode(words.C, "recorded Waver installed animation")), "Waver");
-            // Only the phase word's low byte is ever read.
-            waver.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.D));
-            // The game keeps a finished spin as a flag beside the spin it installed (#2450): a spinning Waver whose flag is
-            // set has finished its spin, and only a spin sets it.
-            bool spins = WaverAnimationChoices.IsSpin(WaverNativeWords.Animations.Decode(words.C, "recorded Waver installed animation"));
-            waver.Action = (spins, words.E) switch
-            {
-                (true, 0) => WaverAction.Spinning,
-                (true, _) => WaverAction.SpinFinished,
-                (false, 0) => WaverAction.Gliding,
-                (false, _) => throw new InvalidDataException("Recorded steady Waver has finished a spin."),
-            };
-            waver.Facing = WaverAnimationChoicesConstants.Facing(WaverNativeWords.Animations.Decode(words.F, "recorded Waver requested animation"));
-            // The Waver flies its one speed toward its facing (#2278): the recorded velocity must be that.
-            if (waver.XVelocity != SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A))
-                throw new InvalidDataException($"Recorded Waver velocity ${words.B:X4}.{words.A:X4} is not its speed toward its facing {waver.Facing}.");
-        }
         if (enemies.DragonStates[index] is { } dragon)
         {
             // Only the direction word's sign bit, the facing, is ever read.
@@ -873,28 +784,6 @@ internal static class NativeEnemyFamilyStateImport
             lavaJumper.SpawnPosition = new Position16<RoomPixels>(words.D, words.E);
             lavaJumper.Action = LavaJumpersNativeWords.SqueeptActions.Decode(words.F, "recorded NorfairLavaJumpingEnemyAction");
         }
-        if (enemies.SparkStates[index] is { } spark)
-        {
-            spark.Action = SparksNativeWords.SparkActions.Decode(words.B, "recorded SparkAction");
-            // The Spark waits its placement's time between actions (#2450), which the recording's copy must be.
-            if (words.E != enemy.HeldOccupant().SpawnSettings<SparkSpawnSettings>().BaseActionTime)
-                throw new InvalidDataException($"Recorded Spark wait {words.E} is not its placement's {enemy.HeldOccupant().SpawnSettings<SparkSpawnSettings>().BaseActionTime}.");
-            // The cartridge's countdown expires on the update it would step from one, which the wait's last update stands for.
-            spark.ActionTimer = UpdateCountdownAccess.Recorded(unchecked((short)words.F));
-        }
-        if (enemies.PuyoStates[index] is { } puyo)
-        {
-            puyo.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(Index(words.A, short.MaxValue, "Puyo speed index"));
-            puyo.HopCooldownTimer = TrueWait(words.B);
-            puyo.Action = PuyoNativeWords.PuyoActions.Decode(words.C, "recorded PuyoAction");
-            // A Puyo that has not hopped yet records no airborne behaviour; the port chooses one as each hop starts, so a
-            // grounded Puyo's is not read before its next hop writes it.
-            if (words.D != 0)
-                puyo.AirborneMovement = PuyoNativeWords.PuyoAirborneMovements.Decode(words.D, "recorded PuyoAirborneMovement");
-            else if (puyo.Action != PuyoAction.Grounded)
-                throw new InvalidDataException($"Recorded {puyo.Action} Puyo has no airborne behaviour.");
-            puyo.CurrentHop = PuyoNativeWords.HopRecordOffsets.Decode(words.E, "recorded Puyo hop record offset");
-        }
     }
 
     /// <summary>
@@ -924,7 +813,8 @@ internal static class NativeEnemyFamilyStateImport
             or GunshipBottomEntity or BlueBrinstarFaceBlockEntity or MultiviolaEntity or PolypEntity or FliesEntity or FirefleaEntity
             or FuneEntity or NamiheEntity or BeetomEntity or BullEntity or BoulderEntity or BoyonEntity or CacatacEntity or ChootEntity
             or DragonWingEntity or KagoEntity or KzanTopEntity or NorfairLavaJumperFollowerEntity or MetareeEntity
-            or SkreeEntity or MochtroidEntity)
+            or SkreeEntity or MochtroidEntity or OumEntity or WaverEntity or SbugEntity or SparkEntity or SkulteraEntity
+            or UnpoweredWorkRobotEntity or PoweredWorkRobotEntity or ZoaEntity or PlatformsEntity or NuclearWaffleEntity or PuyoEntity)
         {
             throw new InvalidDataException(
                 $"Recorded enemy {enemy.Ordinal} is a {enemy.HeldOccupant().DefinitionId}, whose state its entity keeps to itself; a native snapshot holding one cannot be imported.");
@@ -955,12 +845,6 @@ internal static class NativeEnemyFamilyStateImport
                 (_, false) => hopper.Action,
                 (var other, true) => throw new InvalidDataException($"Recorded hopper {other} has its falling flag set."),
             };
-        }
-        if (enemy.SpeciesState<PuyoEnemyState>() is { Action: PuyoAction.Rising } puyo && extraWord(PuyoFallingFlagOffset) != 0)
-        {
-            // The falling flag ($7E:7806) is the airborne Puyo's having passed its hop's apex (#2512); a grounded Puyo keeps
-            // the last hop's, which its next hop clears.
-            puyo.Action = PuyoAction.Falling;
         }
         if (enemy.Holds(EnemyDefinitionId.Coven) && enemy.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
         {

@@ -32,8 +32,7 @@ internal static class WorkRobotInitialSelectionVerification
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemyPlace place = system.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.WorkRobot, parameter);
-            system.WorkRobotBehavior.InitializeUnpoweredWorkRobot(place.HeldOccupant().SpawnSettings<WorkRobotSpawnSettings>(), place);
-            UnpoweredWorkRobotEnemyState state = place.RequireSpeciesState<UnpoweredWorkRobotEnemyState>();
+            UnpoweredWorkRobotEnemyState state = system.WorkRobotBehavior.InitializeUnpoweredWorkRobot(place.HeldOccupant().SpawnSettings<WorkRobotSpawnSettings>(), place);
             AssertEqual(new AnimationPlayback<WorkRobotSegment>(WorkRobotAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Work Robot production selection {parameter} without cartridge access");
         }

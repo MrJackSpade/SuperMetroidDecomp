@@ -8,11 +8,11 @@ internal sealed class ZoaEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal ZoaEnemyState State { get; } = ZoaBehavior.InitializeZoa(place);
+    private readonly ZoaEnemyState state = ZoaBehavior.InitializeZoa(place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => ZoaBehavior.RunZoaMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => ZoaBehavior.RunZoaMainAi(Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ZoaBehavior.AdvanceZoaAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ZoaBehavior.AdvanceZoaAnimation(Place, state);
 }

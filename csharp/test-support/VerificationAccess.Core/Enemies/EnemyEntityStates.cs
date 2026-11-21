@@ -122,16 +122,12 @@ internal static class EnemyEntityStates
             return held84;
         if (entity is global::SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleEntity entity85 && entity85.State is T held85)
             return held85;
-        if (entity is global::SuperMetroid.Core.Enemies.MaridiaSnails.OumEntity entity86 && entity86.State is T held86)
-            return held86;
         if (entity is global::SuperMetroid.Core.Enemies.Metroids.MetroidEntity entity88 && entity88.State is T held88)
             return held88;
         if (entity is global::SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeEntity entity90 && entity90.State is T held90)
             return held90;
         if (entity is global::SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeMountEntity entity91 && entity91.State is T held91)
             return held91;
-        if (entity is global::SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleEntity entity92 && entity92.State is T held92)
-            return held92;
         if (entity is global::SuperMetroid.Core.Enemies.Owtch.OwtchEntity entity93 && entity93.State is T held93)
             return held93;
         if (entity is global::SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugEntity entity94 && entity94.State is T held94)
@@ -140,52 +136,34 @@ internal static class EnemyEntityStates
             return held95;
         if (entity is global::SuperMetroid.Core.Enemies.PipeBugs.YellowPipeBugEntity entity96 && entity96.State is T held96)
             return held96;
-        if (entity is global::SuperMetroid.Core.Enemies.Platforms.PlatformsEntity entity97 && entity97.State is T held97)
-            return held97;
         if (entity is global::SuperMetroid.Core.Enemies.Powamp.PowampBalloonEntity entity99 && entity99.State is T held99)
             return held99;
         if (entity is global::SuperMetroid.Core.Enemies.Powamp.PowampBodyEntity entity100 && entity100.State is T held100)
             return held100;
-        if (entity is global::SuperMetroid.Core.Enemies.Puyo.PuyoEntity entity101 && entity101.State is T held101)
-            return held101;
         if (entity is global::SuperMetroid.Core.Enemies.Rios.GerutaEntity entity102 && entity102.State is T held102)
             return held102;
         if (entity is global::SuperMetroid.Core.Enemies.Rios.HoltzEntity entity104 && entity104.State is T held104)
             return held104;
         if (entity is global::SuperMetroid.Core.Enemies.Ripper.RipperEntity entity107 && entity107.State is T held107)
             return held107;
-        if (entity is global::SuperMetroid.Core.Enemies.Sbug.SbugEntity entity108 && entity108.State is T held108)
-            return held108;
         if (entity is global::SuperMetroid.Core.Enemies.Shaktool.ShaktoolEntity entity109 && entity109.State is T held109)
             return held109;
         if (entity is global::SuperMetroid.Core.Enemies.Shutters.GrowingShutterEntity entity110 && entity110.State is T held110)
             return held110;
         if (entity is global::SuperMetroid.Core.Enemies.Shutters.VerticalShutterEntity entity111 && entity111.State is T held111)
             return held111;
-        if (entity is global::SuperMetroid.Core.Enemies.Skultera.SkulteraEntity entity113 && entity113.State is T held113)
-            return held113;
         if (entity is global::SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateEntity entity114 && entity114.State is T held114)
             return held114;
         if (entity is global::SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateEntity entity115 && entity115.State is T held115)
             return held115;
         if (entity is global::SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateEntity entity116 && entity116.State is T held116)
             return held116;
-        if (entity is global::SuperMetroid.Core.Enemies.Sparks.SparkEntity entity117 && entity117.State is T held117)
-            return held117;
-        if (entity is global::SuperMetroid.Core.Enemies.Waver.WaverEntity entity118 && entity118.State is T held118)
-            return held118;
-        if (entity is global::SuperMetroid.Core.Enemies.WorkRobots.PoweredWorkRobotEntity entity119 && entity119.State is T held119)
-            return held119;
-        if (entity is global::SuperMetroid.Core.Enemies.WorkRobots.UnpoweredWorkRobotEntity entity120 && entity120.State is T held120)
-            return held120;
         if (entity is global::SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostEntity entity121 && entity121.State is T held121)
             return held121;
         if (entity is global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawEntity entity122 && entity122.State is T held122)
             return held122;
         if (entity is global::SuperMetroid.Core.Enemies.Yard.YardEntity entity123 && entity123.State is T held123)
             return held123;
-        if (entity is global::SuperMetroid.Core.Enemies.Zoa.ZoaEntity entity124 && entity124.State is T held124)
-            return held124;
         return null;
     }
 }

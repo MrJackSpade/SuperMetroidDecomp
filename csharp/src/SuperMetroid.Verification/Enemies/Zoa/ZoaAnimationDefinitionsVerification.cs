@@ -68,8 +68,8 @@ internal static class ZoaAnimationDefinitionsVerification
         place.Position = place.Position.WithWhole(new(0x0100, 0x0080));
 
         place.Bind(EnemyDefinitionId.Zoa, place.KeptDefinition);
-        ZoaBehavior.InitializeZoa(place);
-        ZoaEnemyState state = (enemies.ZoaStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ZoaStates[0]."));
+        // The Zoa's setup builds the state its steps run on.
+        ZoaEnemyState state = ZoaBehavior.InitializeZoa(place);
 
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {

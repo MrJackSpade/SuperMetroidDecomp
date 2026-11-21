@@ -17,9 +17,11 @@ internal static class PolypOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
+        // The rock's launch draws the cooldown that follows it.
+        enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Polyp, place.KeptDefinition);
-        enemies.PolypBehavior.InitializePolyp(place);
+        // The Polyp is placed and set up as its room's population places it, so its entity runs its main AI.
+        place.PlaceAs<PolypEntity>(EnemyDefinitionId.Polyp, EnemySpawnSettings.None, RoomEnemyFrameFixtures.StandaloneSamus(), new(128, 128));
         // A new Polyp waits for Samus with no cooldown: Samus beside it sets it shooting, which it signals for one update
         // and then launches its rock.
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();

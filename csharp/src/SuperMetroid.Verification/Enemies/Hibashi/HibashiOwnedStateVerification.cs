@@ -44,12 +44,13 @@ internal static class HibashiOwnedStateVerification
         AssertTrue(!Erupting(), "the eruption's last cue finishes it");
 
         // The next update rests the finished flame, for parameter one's full word and the update it runs out on.
-        graphics.RunMainAi(samus);
+        IEnemyAiFrame frame = PlacedEnemyAccess.AiFrame(samus);
+        graphics.RunMainAi(frame);
         int rest = ushort.MaxValue + EnemyWaitDefinitions.RunOutUpdate;
         int rested = 0;
         while (!Erupting() && rested <= rest)
         {
-            graphics.RunMainAi(samus);
+            graphics.RunMainAi(frame);
             rested++;
         }
         AssertEqual(rest, rested, "a finished eruption rests for parameter one's full word and the update it runs out on");

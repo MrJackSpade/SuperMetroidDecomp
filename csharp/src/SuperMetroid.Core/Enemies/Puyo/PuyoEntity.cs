@@ -13,11 +13,11 @@ internal sealed class PuyoEntity(PuyoBehavior species, RoomEnemyOccupant occupan
     internal PuyoSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal PuyoEnemyState State { get; } = PuyoBehavior.InitializePuyo(settings, place);
+    private readonly PuyoEnemyState state = PuyoBehavior.InitializePuyo(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPuyoMainAi(Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPuyoMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PuyoBehavior.AdvancePuyoTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PuyoBehavior.AdvancePuyoTypedAnimation(Place, state);
 }

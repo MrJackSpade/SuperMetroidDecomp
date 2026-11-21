@@ -72,9 +72,9 @@ internal static class OumInstructionDefinitionsVerification
             Start(place, state, attack);
             int[] holds = [16, 16, 16, 2, 3, 4, 2, 3, 1, 3, 2, 1, 18];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(OumAnimationsConstants.Spritemaps(attack), holds),
-                EnemyInstructionRunner.ShownFrames(place, holds.Sum()), $"Oum {attack} poses");
+                EnemyInstructionRunner.ShownFrames(place, holds.Sum(), () => enemies.OumBehavior.AdvanceOumTypedAnimation(place, state)), $"Oum {attack} poses");
             AssertEqual(OumAction.Attacking, state.Action, $"Oum {attack} is unfinished while its last pose holds");
-            EnemyInstructionRunner.ShownFrames(place, 1);
+            EnemyInstructionRunner.ShownFrames(place, 1, () => enemies.OumBehavior.AdvanceOumTypedAnimation(place, state));
             AssertEqual(OumAction.AttackFinished, state.Action, $"Oum {attack} finishes the attack");
             AssertEqual<SoundEffectId?>(OumNativeValues.SplashSound,
                 enemies.Audio.LatestSound, $"Oum {attack} plays the library-two splash");
@@ -88,13 +88,13 @@ internal static class OumInstructionDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place, OumEnemyState state) = Create();
             Start(place, state, roll);
-            EnemyInstructionRunner.ShownFrames(place, 7 * windowPose + 1);
+            EnemyInstructionRunner.ShownFrames(place, 7 * windowPose + 1, () => enemies.OumBehavior.AdvanceOumTypedAnimation(place, state));
             AssertTrue(state.AttackAllowsRotation, $"Oum {roll} opens the attack-rotation window");
-            EnemyInstructionRunner.ShownFrames(place, 7);
+            EnemyInstructionRunner.ShownFrames(place, 7, () => enemies.OumBehavior.AdvanceOumTypedAnimation(place, state));
             AssertTrue(!state.AttackAllowsRotation, $"Oum {roll} closes the attack-rotation window one pose later");
             Start(place, state, roll);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(OumAnimations.Segments, roll, OumFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(OumAnimations.Segments, roll)), $"Oum {roll} loop");
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(OumAnimations.Segments, roll), () => enemies.OumBehavior.AdvanceOumTypedAnimation(place, state)), $"Oum {roll} loop");
         }
         Console.WriteLine($"Maridia Large Snail: eight native selectors, installs, {transitions} index-arithmetic transitions, both attacks' splash and completion, and all four rolls' rotation windows and loops pass.");
     }
@@ -129,8 +129,8 @@ internal static class OumInstructionDefinitionsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Oum, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        OumBehavior.InitializeOum();
-        return new OumInstructionDefinitionsCreateResult(enemies, place, enemies.OumStates[0] ?? throw new InvalidOperationException("Oum has no state."));
+        // The Oum's setup builds the state its steps and its animation, which the checks play, run on.
+        return new OumInstructionDefinitionsCreateResult(enemies, place, OumBehavior.InitializeOum());
     }
 
     /// <summary>Starts <paramref name="program"/> with its first step due on the next update.</summary>

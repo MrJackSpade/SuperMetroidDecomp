@@ -13,11 +13,11 @@ internal sealed class WaverEntity(WaverBehavior species, RoomEnemyOccupant occup
     internal WaverSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal WaverEnemyState State { get; } = WaverBehavior.InitializeWaver(settings, place);
+    private readonly WaverEnemyState state = WaverBehavior.InitializeWaver(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunWaverMainAi(Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunWaverMainAi(Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WaverBehavior.AdvanceWaverTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WaverBehavior.AdvanceWaverTypedAnimation(Place, state);
 }

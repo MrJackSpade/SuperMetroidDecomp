@@ -12,11 +12,11 @@ internal sealed class SbugEntity(RoomEnemyOccupant occupant, RoomEnemyPlace plac
     internal SbugSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal SbugEnemyState State { get; } = SbugBehavior.InitializeSbug(settings, place);
+    private readonly SbugEnemyState state = SbugBehavior.InitializeSbug(settings, place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => SbugBehavior.RunSbugMainAi(Settings, Place, State, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => SbugBehavior.RunSbugMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SbugBehavior.AdvanceSbugTypedAnimation(Place, State);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SbugBehavior.AdvanceSbugTypedAnimation(Place, state);
 }

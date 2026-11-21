@@ -73,7 +73,9 @@ internal static class HoltzInstructionProgramDefinitionsVerification
         follower.Bind(EnemyDefinitionId.Holtz, follower.KeptDefinition);
         follower.Bind(follower.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         follower.SetUpAsPlaced();
-        // The follower shows the first picture of the flames its setup started on its next animation step.
+        // The follower shows the first picture of the flames its setup started on its next animation step; the room spawn
+        // primes the instruction timer before the species' setup runs.
+        follower.AnimationClock.StepOnNextUpdate();
         follower.AdvanceAnimation(RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual<EnemyFrameId?>(HoltzAnimations.Segments.FirstFrameShown(HoltzAnimations.StartingWith(HoltzSegment.Flames)), follower.Frame,
             "Lower Norfair Rio follower initializer selects flames");

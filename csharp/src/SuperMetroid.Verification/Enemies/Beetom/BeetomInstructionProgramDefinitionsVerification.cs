@@ -95,13 +95,12 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
         enemies.VerificationServices().NextRandom = nextRandom;
-        void initialize(RoomEnemyPlace beetom, SamusState samus, GameplayAction input) =>
-            beetom.SetSpeciesState(enemies.BeetomBehavior.InitializeBeetom(beetom, samus, input));
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Beetom, place.KeptDefinition);
-        initialize(place, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), 0);
+        // The Beetom's setup builds the state its choice runs on.
+        BeetomEnemyState state = enemies.BeetomBehavior.InitializeBeetom(place, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), 0);
         Action<BeetomEnemyState> choose = enemies.BeetomBehavior.ChooseDistantBeetomAction;
-        return new CreateBeetomDistantSelectionFixtureResult(enemies, (enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires the initialized Beetom state.")), choose);
+        return new CreateBeetomDistantSelectionFixtureResult(enemies, state, choose);
     }
 
     /// <summary>Checks every RNG word against the native eight-pointer action table and verifies one random consumption per choice.</summary>

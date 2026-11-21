@@ -22,21 +22,16 @@ internal static class Directives
         var groups = new List<(List<string> Earlier, string? Current)>();
         foreach (DirectiveTriviaSyntax directive in DirectivesBefore(root, position))
         {
-            switch (directive)
-            {
-                case IfDirectiveTriviaSyntax open:
-                    groups.Add(([], open.Condition.ToString()));
-                    break;
-                case ElifDirectiveTriviaSyntax elif when groups.Count > 0:
-                    groups[groups.Count - 1] = (Earlier(groups[groups.Count - 1]), elif.Condition.ToString());
-                    break;
-                case ElseDirectiveTriviaSyntax when groups.Count > 0:
-                    groups[groups.Count - 1] = (Earlier(groups[groups.Count - 1]), null);
-                    break;
-                case EndIfDirectiveTriviaSyntax when groups.Count > 0:
-                    groups.RemoveAt(groups.Count - 1);
-                    break;
-            }
+            if (directive is IfDirectiveTriviaSyntax open)
+                groups.Add(([], open.Condition.ToString()));
+            else if (groups.Count == 0)
+                continue;
+            else if (directive is ElifDirectiveTriviaSyntax elif)
+                groups[groups.Count - 1] = (Earlier(groups[groups.Count - 1]), elif.Condition.ToString());
+            else if (directive is ElseDirectiveTriviaSyntax)
+                groups[groups.Count - 1] = (Earlier(groups[groups.Count - 1]), null);
+            else if (directive is EndIfDirectiveTriviaSyntax)
+                groups.RemoveAt(groups.Count - 1);
         }
         return [.. groups.Select(group => Condition(group.Earlier, group.Current))];
     }

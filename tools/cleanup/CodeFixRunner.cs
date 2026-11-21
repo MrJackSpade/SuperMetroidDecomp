@@ -42,23 +42,24 @@
 // are left and counted as kept.
 //
 // A fix may change several files (a field and its property in different parts of a partial type), and may add,
-// rename or delete files (SME6400, SME6401, SME6360). It is accepted only when every file it changes belongs to an
-// analyzed project that compiles, and when no other fix in the same pass has touched one of those files; a file touched
-// in this pass waits for the next. A project compiling a file of such a fix that no longer compiles after it is
+// rename or delete files (SME6400, SME6401, SME6360). It is applied once every file it changes belongs to an
+// analyzed project that compiles; until then its findings are kept, and a fix touching a file another fix of the same
+// pass touched waits for the next pass. A project compiling a file of such a fix that no longer compiles after it is
 // recorded as a problem naming the fix, and the fix is kept. An added file joins every project that compiles the file its finding is in; when the files are
 // written, the explicit source lists (.projitems and <Compile Include> items) follow the files created and deleted
-// (ProjectLists).
+// (ProjectLists). A rename that changes only the case of a file's name is the same file on a file system that ignores
+// case: it is deleted before it is created, and the cleanup loop tells git the index's old name is gone.
 //
 // Fixes cascade (a removed cast can leave a using unnecessary), so the analysis repeats until a pass finds nothing to
 // apply. Each pass applies one rule per file, because the other findings' spans are stale once a file changes. The
 // loop stops, keeping the tree it has and recording a problem, if a file returns to an earlier text (a cycle) or the
 // passes exceed MaxPasses.
 //
-// The owner's ruling (2026-11-15): the cleanup never fails over a fix; it would rather commit broken code. A finding
-// whose fixer offers no fix, refuses (a CleanupFailure), throws, or produces a fix the runner cannot apply is recorded
-// in the summary's Unfixed list with the reason (an exception's full text) and the run goes on; the file's other
-// rules are still fixed. Only a failure to load the workspace or the analyzers, or a bad command line, fails the run,
-// since there is then nothing to fix.
+// The owner's rule (2026-11-15, #2599): a fix is always applied, and when it cannot be applied without breaking the
+// code, it breaks the code; the build then fails at that site and the cleanup commits it as it is. Nothing is left
+// unfixed: no site is skipped or recorded as unfixed, and no fixer's failure is caught. A fixer that offers no fix,
+// has no fix-all, produces no usable change or throws is a defect of that fixer, and fails the run with its full
+// exception (written to standard error, nonzero exit); so does a fix the runner cannot apply.
 //
 // Usage: dotnet run tools/cleanup/CodeFixRunner.cs -- <solution.slnx | project.csproj> <summary.json> <rule,rule,...> [--dry-run]
 // --dry-run prints every finding with all its locations and writes nothing.
@@ -281,7 +282,6 @@ internal sealed record ProjectItems(List<string> Compile, List<string> ProjectRe
 /// <param name="Kept">Findings per rule the last code-fix step left in files compiled by several projects that do not
 /// all report them, or by a project that does not compile.</param>
 /// <param name="ProjectsWithCompilerErrors">Projects a code-fix step found with compiler errors, whose files it left alone.</param>
-/// <param name="Unfixed">Every site no fixer could fix, with the reason.</param>
 /// <param name="Problems">Every problem the run carried on past, in order.</param>
 /// <param name="FixedPaths">Repository-relative paths the code-fix steps changed.</param>
 /// <param name="PrunedPaths">Paths the dead-code prunes changed.</param>
@@ -298,7 +298,6 @@ internal sealed record CleanupOutcome(
     SortedDictionary<string, int> CodeFixes,
     SortedDictionary<string, int> Kept,
     List<string> ProjectsWithCompilerErrors,
-    List<string> Unfixed,
     List<string> Problems,
     List<string> FixedPaths,
     List<string> PrunedPaths,
@@ -325,9 +324,11 @@ internal sealed record CleanupStep(int? Number, string Kind, double Seconds, int
 /// the solution as the previous steps left it: the code fixes return theirs, and what a prune writes is read back from
 /// the files git reports it changed (<see cref="SourceFiles"/>), so no step loads the solution again.
 /// </summary>
-/// <remarks>The owner's ruling (2026-11-15): the cleanup never fails over what it does. A failed prune, review prune or
-/// inventory step, steps that do not settle and steps that undo each other are each recorded as a problem and the run
-/// goes on; only a failure to load the solution or the analyzers, or an unusable command line, fails it.</remarks>
+/// <remarks>The owner's rulings (2026-11-15, #2599): a fix is always applied, breaking the code if it must, and the
+/// cleanup commits what it has. A failed prune, review prune or inventory step, steps that do not settle and steps that
+/// undo each other are each recorded as a problem and the run goes on. A fixer that offers no fix or throws is a defect
+/// of that fixer, never a site left unfixed, and fails the run, as a failure to load the solution or the analyzers, or
+/// an unusable command line, does.</remarks>
 internal sealed class CleanupLoop(string solutionPath, string artifacts, string[] rules, string pruneCategories, string prunePrefix,
     string pruneDestination, int maxRounds)
 {
@@ -348,7 +349,6 @@ internal sealed class CleanupLoop(string solutionPath, string artifacts, string[
         var codeFixes = new SortedDictionary<string, int>(StringComparer.Ordinal);
         var kept = new SortedDictionary<string, int>(StringComparer.Ordinal);
         var broken = new SortedSet<string>(StringComparer.Ordinal);
-        var unfixed = new SortedSet<string>(StringComparer.Ordinal);
         var problems = new List<string>();
         var fixedPaths = new SortedSet<string>(StringComparer.Ordinal);
         var prunedPaths = new SortedSet<string>(StringComparer.Ordinal);
@@ -410,7 +410,8 @@ internal sealed class CleanupLoop(string solutionPath, string artifacts, string[
                 if (summary.ProjectsWithCompilerErrors.Count > 0)
                     Console.WriteLine($"projects with compiler errors, whose files were left alone: {string.Join(", ", summary.ProjectsWithCompilerErrors)}");
                 broken.UnionWith(summary.ProjectsWithCompilerErrors);
-                unfixed.UnionWith(summary.Unfixed);
+                // A file renamed only in case keeps its old name in an index that ignores case until git is told it is gone.
+                git.Untrack(summary.RenamedCase);
                 foreach (string problem in summary.Problems)
                     problems.Add($"Code fixes, step {step}: {problem}");
             }
@@ -502,7 +503,7 @@ internal sealed class CleanupLoop(string solutionPath, string artifacts, string[
             if (final != inventoried || changedByBuild.Count > 0)
                 throw new InvalidOperationException($"The build changed the tree, which tools/build.ps1 never does: {string.Join(", ", changedByBuild)}");
         }
-        return new CleanupOutcome(codeFixes, kept, [.. broken], [.. unfixed], problems, [.. fixedPaths], [.. prunedPaths], prunedSummaries,
+        return new CleanupOutcome(codeFixes, kept, [.. broken], problems, [.. fixedPaths], [.. prunedPaths], prunedSummaries,
             retiredFields, [.. reviewPaths], staleReviews, inventoryPaths, final, steps, built?.Exit);
     }
 
@@ -575,6 +576,14 @@ internal sealed class Git(string root)
     {
         _ = Run("add", "--all");
         return Run("write-tree");
+    }
+
+    /// <summary>Takes repository-relative paths out of the index, leaving the working copy as it is: a file renamed only
+    /// in case keeps its old name in an index that ignores case, and the next <see cref="TreeId"/> then adds its new one.</summary>
+    public void Untrack(IReadOnlyCollection<string> paths)
+    {
+        if (paths.Count > 0)
+            _ = Run(["rm", "--cached", "--quiet", "--", .. paths]);
     }
 
     /// <summary>The paths that differ between two trees, as <c>git diff --name-only</c> lists them.</summary>
@@ -797,19 +806,18 @@ internal sealed class ConsoleCapture : IDisposable
 /// them, or whose fix changes a file that a project with compiler errors compiles.</param>
 /// <param name="ChangedFiles">Repository-relative paths of the files written, created or deleted, project lists included.</param>
 /// <param name="ProjectsWithCompilerErrors">Projects whose findings were not used because they do not compile.</param>
-/// <param name="Unfixed">Each site a fixer could not fix (it offered no fix, refused, threw, or produced a fix the runner
-/// could not apply), with the reason; the run went on without it. The owner's ruling (2026-11-15): the cleanup never
-/// fails over a fix, it records it.</param>
 /// <param name="Problems">What went wrong in the run as a whole and was carried on past: fixes that left a project with
-/// compiler errors (they are kept), fixes that cycle, and passes that did not converge.</param>
+/// compiler errors (they are kept, the owner's rule: a fix breaks the code rather than leave a site unfixed), fixes that
+/// cycle, and passes that did not converge.</param>
+/// <param name="RenamedCase">Repository-relative paths of files renamed only in case, by their old names.</param>
 internal sealed record CleanupSummary(
     int Passes,
     SortedDictionary<string, int> Fixed,
     SortedDictionary<string, int> Kept,
     List<string> ChangedFiles,
     List<string> ProjectsWithCompilerErrors,
-    List<string> Unfixed,
-    List<string> Problems);
+    List<string> Problems,
+    List<string> RenamedCase);
 
 /// <summary>One project's analysis: whether it compiles, and its findings of the requested rules by file.</summary>
 /// <param name="Project">The analyzed project.</param>
@@ -825,17 +833,18 @@ internal sealed record ProjectAnalysis(Project Project, List<Diagnostic> Compile
 /// <param name="Origins">Each added file's path, with the path of the file whose finding added it.</param>
 internal sealed record FileFix(Solution Solution, List<string> Paths, Dictionary<string, string> Origins);
 
-/// <summary>Whether a computed fix is applied now, left for the next pass, kept unapplied, or refused.</summary>
+/// <summary>Whether a computed fix is applied now, left for the next pass, or kept unapplied.</summary>
 /// <param name="Fix">The accepted fix, or null when it is not applied in this pass.</param>
 /// <param name="Kept">Whether the findings are kept (a project compiling a changed file does not compile) rather
 /// than retried in the next pass.</param>
-/// <param name="Refusal">Why the fix cannot be applied at all, or null; its findings are recorded as unfixed.</param>
-internal sealed record FixDecision(FileFix? Fix, bool Kept, string? Refusal = null);
+internal sealed record FixDecision(FileFix? Fix, bool Kept);
 
-/// <summary>A fixer's result for one rule in one document: the solution it produces, or why it produced none.</summary>
-/// <param name="Changed">The solution after the fix, or null when the fixer could not fix the findings.</param>
-/// <param name="Refusal">Why the fixer could not fix them, or null.</param>
-internal sealed record FixAttempt(Solution? Changed, string? Refusal);
+/// <summary>The fix a file's plan holds: the first rule in <c>RuleOrder</c> with agreed findings in it, those findings
+/// and the solution its fixer produced for them.</summary>
+/// <param name="Rule">The rule.</param>
+/// <param name="Diagnostics">The agreed findings of the rule in the file.</param>
+/// <param name="Changed">The solution after the fix.</param>
+internal sealed record PlannedFix(string Rule, List<Diagnostic> Diagnostics, Solution Changed);
 
 /// <summary>The assembly a rule's code fix provider comes from.</summary>
 internal enum FixerSource
@@ -920,11 +929,11 @@ internal sealed class SolutionFixer
     private readonly string _root;
     private readonly Dictionary<string, List<CodeFixProvider>> _fixerAssemblies = new(StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>Each site no fixer could fix, keyed by rule and place, with the reason; recorded once per run.</summary>
-    private readonly SortedDictionary<string, string> _unfixed = new(StringComparer.Ordinal);
-
     /// <summary>What went wrong in the run as a whole and was carried on past, in the order it happened.</summary>
     private readonly List<string> _problems = [];
+
+    /// <summary>The repository-relative old paths of the files the run renamed only in case.</summary>
+    private readonly List<string> _renamedCase = [];
 
     /// <summary>Creates a fixer for the rules to fix in the repository at <paramref name="root"/>.</summary>
     public SolutionFixer(string root, string[] rules, bool dryRun)
@@ -945,7 +954,7 @@ internal sealed class SolutionFixer
         Solution solution = original;
         var fixedCounts = new SortedDictionary<string, int>(StringComparer.Ordinal);
         var keptCounts = new SortedDictionary<string, int>(StringComparer.Ordinal);
-        var history = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+        var history = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
         var analyses = new Dictionary<ProjectId, ProjectAnalysis>();
         var changedSinceAnalysis = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var broken = new SortedSet<string>(StringComparer.Ordinal);
@@ -977,7 +986,7 @@ internal sealed class SolutionFixer
             if (_dryRun)
             {
                 PrintFindings(analyses.Values);
-                return (solution, new CleanupSummary(pass, fixedCounts, keptCounts, [], [.. broken], Unfixed(), [.. _problems]));
+                return (solution, new CleanupSummary(pass, fixedCounts, keptCounts, [], [.. broken], [.. _problems], []));
             }
             var passKept = new SortedDictionary<string, int>(StringComparer.Ordinal);
             var touched = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -1033,11 +1042,8 @@ internal sealed class SolutionFixer
         }
         var changed = await WriteAsync(original, solution, origins);
         Console.WriteLine($"fixed {Format(fixedCounts)} in {changed.Count} files after {pass} passes; kept {Format(keptCounts)}"
-            + (broken.Count > 0 ? $"; projects with compiler errors: {string.Join(", ", broken)}" : "")
-            + (_unfixed.Count > 0 ? $"; {_unfixed.Count} sites unfixed" : ""));
-        foreach (string unfixed in Unfixed())
-            Console.WriteLine($"unfixed: {unfixed}");
-        return (solution, new CleanupSummary(pass, fixedCounts, keptCounts, changed, [.. broken], Unfixed(), [.. _problems]));
+            + (broken.Count > 0 ? $"; projects with compiler errors: {string.Join(", ", broken)}" : ""));
+        return (solution, new CleanupSummary(pass, fixedCounts, keptCounts, changed, [.. broken], [.. _problems], [.. _renamedCase]));
     }
 
     /// <summary>The problems of the pass applying its fixes, in the order they arise; null outside that loop.</summary>
@@ -1055,16 +1061,6 @@ internal sealed class SolutionFixer
         _problems.Add(text);
         Console.WriteLine($"problem: {text}");
     }
-
-    /// <summary>Records findings a fixer could not fix, once each, with the reason.</summary>
-    private void RecordUnfixed(string rule, IEnumerable<Diagnostic> diagnostics, string reason)
-    {
-        foreach (Diagnostic diagnostic in diagnostics)
-            _unfixed.TryAdd($"{rule} {Describe(diagnostic)}", reason);
-    }
-
-    /// <summary>The unfixed sites as lines for the summary.</summary>
-    private List<string> Unfixed() => [.. _unfixed.Select(entry => $"{entry.Key}: {entry.Value}")];
 
     /// <summary>Analyzes every project on the first pass, then only the projects that compile a changed file. The
     /// fixes never change what another project can see (they change a file's own code, private members, or the files
@@ -1242,13 +1238,13 @@ internal sealed class SolutionFixer
 
     /// <summary>
     /// What one file's fix will be computed from: the projects compiling it, what each reports, the findings they agree
-    /// on, the document of the first, and the fixers' results for its rules in order, up to the first that changes
-    /// anything. The results are computed for every file at once, on all processors, from the solution the pass analyzed.
+    /// on, the document of the first, and the fix of the first rule in order with agreed findings, which is always
+    /// applied. The fixes are computed for every file at once, on all processors, from the solution the pass analyzed.
     /// Each pass fixes at most one rule per file and a fix that would change a file another fix of the pass changed waits
     /// for the next pass, so the file a fix is computed for holds the same text as in that solution when the fix is applied.
     /// </summary>
     private sealed record FilePlan(List<ProjectAnalysis> Compilers, List<List<Diagnostic>> Reported, HashSet<string> Agreed,
-        Document? Document, List<(string Rule, FixAttempt Attempt)> Attempts);
+        Document? Document, PlannedFix? Fix);
 
     /// <summary>Plans every file of the pass, on all processors; the plans are used in path order.</summary>
     private async Task<Dictionary<string, FilePlan>> PlanAsync(Solution solution, List<string> paths, Dictionary<ProjectId, ProjectAnalysis> analyses)
@@ -1265,33 +1261,30 @@ internal sealed class SolutionFixer
         var reported = compilers.Select(a => a.Findings.GetValueOrDefault(path) ?? []).ToList();
         var agreed = reported.Select(l => l.Select(Key).ToHashSet(StringComparer.Ordinal))
             .Aggregate((left, right) => { left.IntersectWith(right); return left; });
-        var attempts = new List<(string Rule, FixAttempt Attempt)>();
         if (compilers.Any(a => a.CompilerErrors.Count > 0))
-            return new FilePlan(compilers, reported, agreed, null, attempts);
+            return new FilePlan(compilers, reported, agreed, null, null);
         ProjectAnalysis chosen = compilers[0];
         Document document = solution.GetDocument(solution.GetDocumentIdsWithFilePath(path).Single(id => id.ProjectId == chosen.Project.Id))!;
         foreach (CleanupRule cleanupRule in RuleOrder)
         {
             var diagnostics = reported[0].Where(d => d.Id == cleanupRule.Id && agreed.Contains(Key(d))).ToList();
-            if (diagnostics.Count == 0)
-                continue;
-            FixAttempt attempt = await AttemptAsync(document, chosen, cleanupRule, diagnostics);
-            attempts.Add((cleanupRule.Id, attempt));
-            if (attempt.Changed is not null)
-                break;
+            if (diagnostics.Count > 0)
+                return new FilePlan(compilers, reported, agreed, document,
+                    new PlannedFix(cleanupRule.Id, diagnostics, await FixOfAsync(document, chosen, cleanupRule, diagnostics)));
         }
-        return new FilePlan(compilers, reported, agreed, document, attempts);
+        return new FilePlan(compilers, reported, agreed, document, null);
     }
 
-    /// <summary>The fixer's result for one rule's agreed findings in a document.</summary>
-    private async Task<FixAttempt> AttemptAsync(Document document, ProjectAnalysis chosen, CleanupRule cleanupRule, List<Diagnostic> diagnostics)
+    /// <summary>The fixer's fix of one rule's agreed findings in a document.</summary>
+    private async Task<Solution> FixOfAsync(Document document, ProjectAnalysis chosen, CleanupRule cleanupRule, List<Diagnostic> diagnostics)
     {
         string path = document.FilePath!;
-        return cleanupRule.Id != UnusedUsing
-            ? await ApplyFixAllAsync(document, cleanupRule, cleanupRule.Id, diagnostics)
-            : chosen.FixerOnly.GetValueOrDefault(path) is { } fixable
-                ? await ApplyFixAllAsync(document, cleanupRule, UnusedUsingFixable, fixable)
-                : new FixAttempt(null, $"{Relative(path)} reports {UnusedUsing} without {UnusedUsingFixable} in {chosen.Project.Name}.");
+        if (cleanupRule.Id != UnusedUsing)
+            return await ApplyFixAllAsync(document, cleanupRule, cleanupRule.Id, diagnostics);
+        return chosen.FixerOnly.GetValueOrDefault(path) is { } fixable
+            ? await ApplyFixAllAsync(document, cleanupRule, UnusedUsingFixable, fixable)
+            : throw new InvalidOperationException($"{Relative(path)} reports {UnusedUsing} without {UnusedUsingFixable} in {chosen.Project.Name}, " +
+                "so the code-style fixer has nothing to fix it from.");
     }
 
     /// <summary>Applies one rule's agreed fixes to one file, or returns null when nothing in it may be fixed in this
@@ -1302,62 +1295,39 @@ internal sealed class SolutionFixer
         Dictionary<ProjectId, ProjectAnalysis> analyses, SortedDictionary<string, int> fixedCounts, SortedDictionary<string, int> kept,
         HashSet<string> touched)
     {
-        var (compilers, reported, agreed, planned, attempts) = plan;
+        var (compilers, reported, agreed, planned, planFix) = plan;
         if (planned is not { } document)
         {
             Count(kept, reported.SelectMany(l => l).DistinctBy(Key));
             return null;
         }
         Count(kept, reported.SelectMany(l => l).Where(d => !agreed.Contains(Key(d))).DistinctBy(Key));
-        ProjectAnalysis chosen = compilers[0];
-        var own = reported[0];
-        int next = 0;
-        foreach (CleanupRule cleanupRule in RuleOrder)
+        if (planFix is { Rule: var rule, Diagnostics: var diagnostics, Changed: var changed })
         {
-            string rule = cleanupRule.Id;
-            var diagnostics = own.Where(d => d.Id == rule && agreed.Contains(Key(d))).ToList();
-            if (diagnostics.Count > 0)
+            // The fix is always applied, now or in a later pass; it is never skipped.
+            FixDecision decision = await AcceptAsync(solution, analyzed, changed, document, rule, analyses, touched);
+            if (decision.Fix is not { } fix)
             {
-                // The plan holds the results up to the first that changes anything; a later rule is reached only when
-                // that change is refused, and is computed here from the same solution.
-                FixAttempt attempt = next < attempts.Count && attempts[next].Rule == rule
-                    ? attempts[next++].Attempt
-                    : await AttemptAsync(document, chosen, cleanupRule, diagnostics);
-                if (attempt.Changed is not { } changed)
-                {
-                    // The owner's ruling (2026-11-15): a site no fixer can fix is recorded and the file's other rules go on.
-                    RecordUnfixed(rule, diagnostics, attempt.Refusal!);
-                    continue;
-                }
-                FixDecision decision = await AcceptAsync(solution, analyzed, changed, document, rule, analyses, touched);
-                if (decision.Refusal is { } refusal)
-                {
-                    RecordUnfixed(rule, diagnostics, refusal);
-                    continue;
-                }
-                if (decision.Fix is not { } fix)
-                {
-                    if (decision.Kept)
-                        Count(kept, diagnostics);
-                    return null;
-                }
-                int count = rule == UnusedUsing
-                    ? CountUsings(await document.GetTextAsync()) - CountUsings(await RequiredTextAsync(fix.Solution, path))
-                    : diagnostics.Count;
-                fixedCounts[rule] = fixedCounts.GetValueOrDefault(rule) + count;
-                return fix;
+                if (decision.Kept)
+                    Count(kept, diagnostics);
+                return null;
             }
-            if (rule == UnusedUsing && compilers.Count > 1)
-            {
-                // The projects disagree on the file's unused usings: remove only the usings every one of them reports.
-                var lines = reported.Select(l => UsingLines(l.Where(d => d.Id == UnusedUsing)))
-                    .Aggregate((left, right) => { left.IntersectWith(right); return left; });
-                if (lines.Count == 0)
-                    continue;
-                SourceText text = await document.GetTextAsync();
-                fixedCounts[rule] = fixedCounts.GetValueOrDefault(rule) + lines.Count;
-                return new FileFix(WithText(solution, path, RemoveLines(text, lines, path)), [path], new());
-            }
+            int count = rule == UnusedUsing
+                ? CountUsings(await document.GetTextAsync()) - CountUsings(await RequiredTextAsync(fix.Solution, path))
+                : diagnostics.Count;
+            fixedCounts[rule] = fixedCounts.GetValueOrDefault(rule) + count;
+            return fix;
+        }
+        if (compilers.Count > 1)
+        {
+            // The projects disagree on the file's unused usings: remove only the usings every one of them reports.
+            var lines = reported.Select(l => UsingLines(l.Where(d => d.Id == UnusedUsing)))
+                .Aggregate((left, right) => { left.IntersectWith(right); return left; });
+            if (lines.Count == 0)
+                return null;
+            SourceText text = await document.GetTextAsync();
+            fixedCounts[UnusedUsing] = fixedCounts.GetValueOrDefault(UnusedUsing) + lines.Count;
+            return new FileFix(WithText(solution, path, RemoveLines(text, lines, path)), [path], new());
         }
         return null;
     }
@@ -1370,7 +1340,8 @@ internal sealed class SolutionFixer
     /// this pass touched one of its files (otherwise it waits for the next pass); a project compiling one of its files
     /// that no longer compiles afterwards is recorded as a problem and the fix is kept (the owner's ruling, 2026-11-15:
     /// commit broken code rather than fail). An added file joins every project that compiles the finding's file; it must
-    /// not exist yet. A fix that changes anything but source documents is refused, and its findings recorded as unfixed.
+    /// not exist yet, unless the fix removes it under a name that differs only in case. A fix that changes anything but
+    /// source documents, or changes nothing, is a defect of its fixer and fails the run.
     /// </summary>
     private async Task<FixDecision> AcceptAsync(Solution solution, Solution analyzed, Solution changed, Document document, string rule,
         Dictionary<ProjectId, ProjectAnalysis> analyses, HashSet<string> touched)
@@ -1384,42 +1355,48 @@ internal sealed class SolutionFixer
         // applied to the current one.
         SolutionChanges changes = changed.GetChanges(analyzed);
         if (changes.GetAddedProjects().Any() || changes.GetRemovedProjects().Any())
-            return Refused($"{fix} adds or removes projects.");
+            throw Defect($"{fix} adds or removes projects.");
         foreach (ProjectChanges project in changes.GetProjectChanges())
         {
             if (project.GetAddedAdditionalDocuments().Any() || project.GetRemovedAdditionalDocuments().Any() ||
                 project.GetChangedAdditionalDocuments().Any() || project.GetAddedMetadataReferences().Any() ||
                 project.GetRemovedMetadataReferences().Any() || project.GetAddedProjectReferences().Any() ||
                 project.GetRemovedProjectReferences().Any())
-                return Refused($"{fix} changes {project.NewProject.Name} beyond its source files.");
+                throw Defect($"{fix} changes {project.NewProject.Name} beyond its source files.");
             foreach (DocumentId id in project.GetChangedDocuments())
             {
                 Document fixedDocument = changed.GetDocument(id)!;
                 if (fixedDocument.FilePath is not { } path)
-                    return Refused($"{fix} changed {fixedDocument.Name}, which has no file.");
+                    throw Defect($"{fix} changed {fixedDocument.Name}, which has no file.");
                 SourceText text = await fixedDocument.GetTextAsync();
                 if (texts.TryGetValue(path, out SourceText? other) && !other.ContentEquals(text))
-                    return Refused($"{fix} gave {Relative(path)} two different texts.");
+                    throw Defect($"{fix} gave {Relative(path)} two different texts.");
                 texts[path] = text;
             }
             foreach (DocumentId id in project.GetAddedDocuments())
             {
                 Document addedDocument = changed.GetDocument(id)!;
                 if (addedDocument.FilePath is not { } path)
-                    return Refused($"{fix} added {addedDocument.Name} without a file.");
-                if (File.Exists(path) || !solution.GetDocumentIdsWithFilePath(path).IsEmpty)
-                    return Refused($"{fix} adds {Relative(path)}, which exists already.");
+                    throw Defect($"{fix} added {addedDocument.Name} without a file.");
                 added[path] = addedDocument;
             }
             foreach (DocumentId id in project.GetRemovedDocuments())
             {
                 if (analyzed.GetDocument(id)!.FilePath is not { } path)
-                    return Refused($"{fix} removed a document without a file.");
+                    throw Defect($"{fix} removed a document without a file.");
                 removed.Add(path);
             }
         }
         if (texts.Count + added.Count + removed.Count == 0)
-            return Refused($"{fix} changed nothing.");
+            throw Defect($"{fix} changed nothing.");
+        // A file a fix adds must not exist yet, unless the fix removes the same file under a name that differs only in
+        // case: a rename on a file system that ignores case.
+        foreach (string path in added.Keys)
+        {
+            bool renamedCase = removed.Any(gone => string.Equals(gone, path, StringComparison.OrdinalIgnoreCase));
+            if (!renamedCase && (File.Exists(path) || !solution.GetDocumentIdsWithFilePath(path).IsEmpty))
+                throw Defect($"{fix} adds {Relative(path)}, which exists already.");
+        }
         if (added.Count == 0 && removed.Count == 0 && texts.Count == 1 && texts.ContainsKey(source))
             return new FixDecision(new FileFix(WithText(solution, source, texts[source]), [source], new()), false);
 
@@ -1430,7 +1407,7 @@ internal sealed class SolutionFixer
         {
             var ids = solution.GetDocumentIdsWithFilePath(path);
             if (ids.IsEmpty)
-                return Refused($"{fix} changed {Relative(path)}, which no project of the solution compiles.");
+                throw Defect($"{fix} changed {Relative(path)}, which no project of the solution compiles.");
             if (ids.Any(id => !analyses.TryGetValue(id.ProjectId, out var analysis) || analysis.CompilerErrors.Count > 0))
                 return new FixDecision(null, true);
         }
@@ -1440,16 +1417,17 @@ internal sealed class SolutionFixer
         Solution result = solution;
         foreach (var (path, text) in texts)
             result = WithText(result, path, text);
+        foreach (string path in removed)
+        {
+            foreach (DocumentId id in result.GetDocumentIdsWithFilePath(path))
+                result = result.RemoveDocument(id);
+        }
+        // After the removals, so a rename that changes only case keeps the file it adds.
         foreach (var (path, addedDocument) in added)
         {
             SourceText text = await addedDocument.GetTextAsync();
             foreach (ProjectId project in sourceProjects)
                 result = result.AddDocument(DocumentId.CreateNewId(project), Path.GetFileName(path), text, addedDocument.Folders, path);
-        }
-        foreach (string path in removed)
-        {
-            foreach (DocumentId id in result.GetDocumentIdsWithFilePath(path))
-                result = result.RemoveDocument(id);
         }
         // The solution after this fix is checked for compiler errors while the pass goes on; its problems are recorded
         // in their place when the pass ends.
@@ -1458,8 +1436,8 @@ internal sealed class SolutionFixer
         return new FixDecision(new FileFix(result, paths, added.Keys.ToDictionary(path => path, _ => source, StringComparer.OrdinalIgnoreCase)), false);
     }
 
-    /// <summary>A refused fix: its findings are recorded as unfixed and the run goes on.</summary>
-    private static FixDecision Refused(string reason) => new(null, false, reason);
+    /// <summary>A fix the runner cannot apply: a defect of its fixer, which fails the run (#2599).</summary>
+    private static InvalidOperationException Defect(string reason) => new(reason + " A fix is always applied, so this is a defect of the fixer.");
 
     /// <summary>A problem for each project with a compiler error in the given solution; the fix is kept (the owner's
     /// ruling, 2026-11-15: commit broken code rather than fail).</summary>
@@ -1481,11 +1459,12 @@ internal sealed class SolutionFixer
         return problems;
     }
 
-    /// <summary>A file's text in a solution, or null when no project compiles that file.</summary>
+    /// <summary>A file's text in a solution, or null when no project compiles that file under that name, its case
+    /// included: a file renamed only in case is absent under its old name.</summary>
     private static async Task<SourceText?> TextAtAsync(Solution solution, string path)
     {
-        var ids = solution.GetDocumentIdsWithFilePath(path);
-        return ids.IsEmpty ? null : await solution.GetDocument(ids[0])!.GetTextAsync();
+        var ids = solution.GetDocumentIdsWithFilePath(path).Where(id => string.Equals(solution.GetDocument(id)!.FilePath, path, StringComparison.Ordinal)).ToList();
+        return ids.Count == 0 ? null : await solution.GetDocument(ids[0])!.GetTextAsync();
     }
 
     /// <summary>A file's text in a solution, which must compile it.</summary>
@@ -1498,38 +1477,31 @@ internal sealed class SolutionFixer
 
     /// <summary>Runs the rule's fixer, for the diagnostic id it fixes, over exactly the given findings of one document
     /// and returns the solution it produces, which may change other documents too.</summary>
-    /// <remarks>The owner's ruling (2026-11-15): the cleanup never fails over a fix. A fixer that offers no fix, has no
-    /// fix-all, produces nothing usable or throws (its own refusal, <c>CleanupFailure</c>, included) yields a refusal
-    /// with the reason (an exception's full text), which the caller records as unfixed.</remarks>
-    private async Task<FixAttempt> ApplyFixAllAsync(Document document, CleanupRule cleanupRule, string rule, List<Diagnostic> diagnostics)
+    /// <remarks>The owner's rule (#2599): a fix is always applied, breaking the code if it must, and nothing is left
+    /// unfixed. A fixer that offers no fix, has no fix-all, produces no usable change or throws is a defect of that
+    /// fixer: nothing here is caught, and the run fails with the full exception.</remarks>
+    private async Task<Solution> ApplyFixAllAsync(Document document, CleanupRule cleanupRule, string rule, List<Diagnostic> diagnostics)
     {
         var providers = FixersFor(document.Project, cleanupRule.Fixer, rule);
         if (providers.Count != 1)
-            return new FixAttempt(null,
+            throw new InvalidOperationException(
                 $"{rule} has {providers.Count} {cleanupRule.Fixer} code fix providers in {document.Project.Name}; expected exactly one.");
         CodeFixProvider provider = providers[0];
-        try
-        {
-            var actions = new List<CodeAction>();
-            await provider.RegisterCodeFixesAsync(new CodeFixContext(document, diagnostics[0], (action, _) => actions.Add(action), CancellationToken.None));
-            if (actions.Count == 0)
-                return new FixAttempt(null, $"{provider.GetType().Name} offers no fix for {rule} at {Describe(diagnostics[0])}.");
-            if (provider.GetFixAllProvider() is not { } fixAll)
-                return new FixAttempt(null, $"{provider.GetType().Name} has no fix-all provider.");
-            var context = new FixAllContext(document, provider, FixAllScope.Document, actions[0].EquivalenceKey, [rule],
-                new FixedDiagnostics(document, diagnostics), CancellationToken.None);
-            if (await fixAll.GetFixAsync(context) is not { } action)
-                return new FixAttempt(null, $"{provider.GetType().Name} produced no fix-all action for {Relative(document.FilePath!)}.");
-            var operations = await action.GetOperationsAsync(CancellationToken.None);
-            var applies = operations.OfType<ApplyChangesOperation>().ToList();
-            return applies.Count == 1
-                ? new FixAttempt(applies[0].ChangedSolution, null)
-                : new FixAttempt(null, $"{provider.GetType().Name} produced {applies.Count} solution changes for {Relative(document.FilePath!)}; expected one.");
-        }
-        catch (Exception exception)
-        {
-            return new FixAttempt(null, $"{provider.GetType().Name} threw for {rule} at {Describe(diagnostics[0])}: {exception}");
-        }
+        var actions = new List<CodeAction>();
+        await provider.RegisterCodeFixesAsync(new CodeFixContext(document, diagnostics[0], (action, _) => actions.Add(action), CancellationToken.None));
+        if (actions.Count == 0)
+            throw Defect($"{provider.GetType().Name} offers no fix for {rule} at {Describe(diagnostics[0])}.");
+        if (provider.GetFixAllProvider() is not { } fixAll)
+            throw Defect($"{provider.GetType().Name} has no fix-all provider.");
+        var context = new FixAllContext(document, provider, FixAllScope.Document, actions[0].EquivalenceKey, [rule],
+            new FixedDiagnostics(document, diagnostics), CancellationToken.None);
+        if (await fixAll.GetFixAsync(context) is not { } fix)
+            throw Defect($"{provider.GetType().Name} produced no fix-all action for {rule} in {Relative(document.FilePath!)}.");
+        var operations = await fix.GetOperationsAsync(CancellationToken.None);
+        var applies = operations.OfType<ApplyChangesOperation>().ToList();
+        return applies.Count == 1
+            ? applies[0].ChangedSolution
+            : throw Defect($"{provider.GetType().Name} produced {applies.Count} solution changes for {rule} in {Relative(document.FilePath!)}; expected one.");
     }
 
     /// <summary>The code fix providers for a rule, from the fixer assemblies of the given source that the project
@@ -1581,10 +1553,11 @@ internal sealed class SolutionFixer
     /// Writes every file whose text changed, keeping its byte-order mark; creates every added file, with the byte-order
     /// mark of the file it came from; deletes every removed file; and updates the explicit project lists
     /// (<see cref="ProjectLists"/>). Returns the repository-relative paths of every file written, created or deleted.
+    /// Files are deleted before any is written, so a file renamed only in case is created after its old name is gone.
     /// </summary>
     private async Task<List<string>> WriteAsync(Solution original, Solution solution, Dictionary<string, string> origins)
     {
-        var paths = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        var paths = new SortedSet<string>(StringComparer.Ordinal);
         foreach (ProjectChanges project in solution.GetChanges(original).GetProjectChanges())
         {
             foreach (DocumentId id in project.GetChangedDocuments().Concat(project.GetAddedDocuments()))
@@ -1615,6 +1588,9 @@ internal sealed class SolutionFixer
             }
             writes.Add((path, after.ToString(), File.ReadAllBytes(bomSource) is [0xEF, 0xBB, 0xBF, ..]));
         }
+        // Deleted first, so a file renamed only in case is gone before its new name is created.
+        foreach (string path in deleted)
+            File.Delete(path);
         foreach (var (path, text, bom) in writes)
         {
             if (created.ContainsKey(path))
@@ -1625,8 +1601,8 @@ internal sealed class SolutionFixer
             }
             File.WriteAllText(path, text, new UTF8Encoding(bom));
         }
-        foreach (string path in deleted)
-            File.Delete(path);
+        _renamedCase.AddRange(deleted.Where(gone => created.Keys.Any(path => string.Equals(path, gone, StringComparison.OrdinalIgnoreCase)))
+            .Select(Relative));
         var changed = writes.Select(write => write.Path).Concat(deleted)
             .Concat(ProjectLists.Update(original, created, deleted, Relative)).ToList();
         changed.Sort(StringComparer.OrdinalIgnoreCase);

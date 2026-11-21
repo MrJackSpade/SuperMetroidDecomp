@@ -37,7 +37,7 @@ internal static class VariableDeclarations
                 case ForStatementSyntax:
                     edits.Replace(declaration.Span, string.Empty);
                     break;
-                case UsingStatementSyntax when declaration.Variables is [{ Initializer: { } initializer }]:
+                case UsingStatementSyntax when declaration.Variables.Count == 1 && declaration.Variables[0].Initializer is { } initializer:
                     edits.Replace(declaration.Span, initializer.Value.ToString());
                     break;
                 default:

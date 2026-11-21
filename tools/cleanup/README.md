@@ -63,17 +63,18 @@ developer's checkout, with its own `bin`/`obj` and its own `temp\`), `config.jso
    - **Inventories:** the architecture audit's `--write`. A failure is recorded as a problem and the run goes on.
 
    The process prints each step to the log, with how long it took and how many files it changed, and writes what the
-   steps did (the counts, paths, summaries, retired fields, removed reviews, unfixed sites and problems the commit
-   message is made of) to `cleanup-outcome.json`. Only a failure to load the solution or the analyzers, or a bad command
-   line, fails it, as each step's own process failed the run before.
+   steps did (the counts, paths, summaries, retired fields, removed reviews and problems the commit message is made of)
+   to `cleanup-outcome.json`. A fix is always applied (#2599), so there are no unfixed sites to write. A failure to
+   load the solution or the analyzers, a bad command line, or a fixer that offers no fix or throws (a defect of that
+   fixer) fails it, with the full exception on standard error, as each step's own process failed the run before.
 3. **Nothing changed:** the run ends quietly. A change outside `csharp/` and `docs/` fails the run.
 4. **Build once:** `pwsh -File tools/build.ps1 csharp/SuperMetroid.Full.slnx`. When the loop changed the code, the runner starts
    this build as soon as the loop ends and writes the inventories while it runs, since the inventories write only
    `docs/`, which no build reads; when only the inventories changed, `run.ps1` builds after them. The owner's ruling (2026-11-15): the
    cleanup would rather commit broken code than fail. A failed build is recorded as a problem and the tree is
    committed and pushed anyway, as `Cleanup (does not build): ...`; its full output is kept as
-   `logs\<run>\build.log`. Every problem and unfixed site is listed in the commit body and the result, and a pushed
-   run with any of them raises a notification. A build failure is never fixed by judgment. The build changes no file;
+   `logs\<run>\build.log`. Every problem is listed in the commit body and the result, and a pushed run with any of them
+   raises a notification. A build failure is never fixed by judgment. The build changes no file;
    a tree it changed fails the run.
 5. **Commit** as `Cleanup: <rule, what, count; ...>` (stale reviews as `stale architecture reviews removed <count>`),
    with the files, the prune's own summary and every removed review in the body, under
@@ -154,24 +155,51 @@ fixture the runner's output for IDE0004, IDE0005, IDE0032, IDE0044, IDE0076 and 
 `dotnet format style --diagnostics ... --severity info`. The repository's fixers are in
 `SuperMetroid.EnsureAnalyzer.CodeFixes`, which every project references as an analyzer; the runner loads them from the
 projects' Debug references, which `run.ps1` builds first. A fixer resolves every finding without changing behaviour.
-The owner's ruling (2026-11-15): the cleanup never fails over a fix, and would rather commit broken code. A finding
-a fixer offers no fix for, refuses, throws on, or fixes in a way the runner cannot apply is recorded with the reason
-(the summary's `Unfixed` list, the log and the commit body) and the run goes on. A dead store or initializer whose value could have an effect keeps its evaluation as `_ = value;`.
+
+**A fix is always applied, breaking the code if it must; nothing is left unfixed** (the owner's rule, 2026-11-15 and
+#2599). When a finding's fix needs a choice the fixer cannot make, the fixer applies it all the same and the code it
+leaves does not compile, or fails a build rule, at that site: the build fails there, the cleanup commits and pushes it
+as `Cleanup (does not build)`, and the developer makes the choice. No fixer declines a finding, no site is skipped or
+recorded as unfixed, and the runner catches nothing a fixer throws. A fixer that offers no fix, has no fix-all,
+produces no usable change or throws is a defect of that fixer, not a site to leave: the run fails with the full
+exception, and the fixer is fixed. What each fixer does where a choice was needed:
+
+- SME6400 keeps in the file the type it is named after (its name compared without case) and moves the others, the
+  file's first type when the reported one is the file's. A moved type takes the `#define`, `#nullable` and `#pragma
+  warning` directives before it and the `#if` branches it lies in; lines inside a verbatim or raw string are not
+  re-indented. When the file it belongs in exists, it goes into that file beside its code, deleting nothing. Two types
+  that both belong in the file (`Pair` and `Pair<T>` in `Pair.cs`) get an `#error` naming both. A file-local type
+  moves, and its references fail the build.
+- SME6401 renames a file whose name differs only in case (`objectcharacterplacement.cs`, which a file system that
+  ignores case holds as the same file): the runner deletes it before it creates the new name, and the loop takes the
+  old name out of git's index. When another file has the name, the type goes into it, as SME6400's does.
+- SME6360 merges parts with directives (a part's body moves whole), a primary constructor on another part, type
+  parameters with differing attributes and constraints only one part states, whatever the braces' layout.
+- The dead-code fixes remove the member, variable or statement at every finding. A use they cannot rewrite (one that
+  reads the variable, a `nameof` or cref, a write through a receiver with effects) is left as written and fails the
+  build. An initializer with an effect is kept as `_ = value;` in a constructor the type is given when it has none,
+  or, in a type with a primary constructor, at the start of the type's body, which cannot hold it. A parameter left
+  unread whose removal needs a choice stays (IDE0060 reports it), and a member left reading no instance data is
+  reported by CA1822.
+
+A dead store or initializer whose value could have an effect keeps its evaluation as `_ = value;`.
 
 A dead-code fix (CS0414, IDE0052, IDE0051, CA1823, CS0169, CS0219) takes out with the code it removes every parameter
 only that code read (`UnreadParameters`), since IDE0060, an unused parameter, is a build error: the cleanup of e4ce9514eb
 (2026-11-15) removed the write-only field `_room` of eight constructors and left each one's `room` parameter unread. The
 parameter goes with its `param` documentation and the argument every call passes it, a target-typed `new` among them;
 an argument that read a parameter of its caller is removed code too, so that parameter goes when nothing else reads
-it. Reading an automatic property is free of effects, like reading a field, so such an argument goes as well. What
-cannot go without a choice fails the fix and keeps the code as it was: an argument that could have an effect, a `ref`,
-`out`, `in` or `params` parameter, a method something else decides the signature of (virtual, abstract, an override, an
-interface's), a method used other than by calls (a method group, a cref with parameters), a removal that would clash
-with an overload, a record's positional parameter, a parameter `paramref` still names, and an instance member that would
-read its instance only in the removed code, which CA1822 (a build error) would then ask to be static.
-`IDE0052.unread-parameter` holds the constructor of the e4ce9514eb failure, a caller passing an automatic property
-through a target-typed `new`, a factory whose own parameter only fed the removed argument and a caller of it with a named
-argument, and a field the fix keeps because its removal would leave a caller reading no instance data.
+it. Reading an automatic property is free of effects, like reading a field, so such an argument goes as well. A
+parameter whose removal needs a choice stays, unread, with its arguments, while the dead code goes (#2599): one passed
+an argument that could have an effect, a `ref`, `out`, `in` or `params` parameter, one of a method something else
+decides the signature of (virtual, abstract, an override, an interface's), one of a method used other than by calls (a
+method group, a cref with parameters), one whose removal would clash with an overload, a record's positional
+parameter, and one `paramref` still names; IDE0060 (a build error) reports it where it applies. An instance member
+that read its instance only in the removed code reads none afterwards, and CA1822 (a build error) asks for it to be
+static. `IDE0052.unread-parameter` holds the constructor of the e4ce9514eb failure, a caller passing an automatic
+property through a target-typed `new`, a factory whose own parameter only fed the removed argument and a caller of it
+with a named argument, and a field whose removal leaves a caller reading no instance data, which the build then
+reports (CA1822).
 
 Since the group is at `none`, the runner enables exactly the requested rules, as warnings, in its own analysis: in
 the compilation's per-file diagnostic options (where the `.editorconfig` severity would otherwise win over any
@@ -246,7 +274,8 @@ changed file, and the summary lists them all.
 A fix may also add, rename or delete files: SME6400 moves a type into a new file, SME6401 renames a file after its type,
 and SME6360 merges a type's hand-written parts into one and deletes the files it empties. The runner adds a new file to
 every project that compiles the file its finding is in, creates it with that file's byte-order mark (it must not exist
-yet), deletes a removed file, and keeps the explicit source lists in step: in a project file or an imported
+yet, unless the fix removes it under a name that differs only in case), deletes a removed file before it writes any,
+and keeps the explicit source lists in step: in a project file or an imported
 `.projitems`, a single-line `<Compile Include="..."/>` item that names a deleted file goes, one that names a renamed
 file is retargeted (its `Link` too), and a file created beside a listed one gets a copy of that item right after it. A
 wildcard item already covers a new file in its folder. Git records a renamed file's deletion and creation as a rename.
@@ -268,8 +297,22 @@ It builds `SuperMetroid.EnsureAnalyzer.CodeFixes` (and so the analyzer) once in 
 that imports `csharp/Directory.Build.props` and names the analyzer and code-fix assemblies (`$(CleanupAnalyzer)`,
 `$(CleanupCodeFixes)`) for the fixture's own `<Analyzer>` items. It restores the copy, runs the runner on it for that
 rule, compares every file (less `bin/`, `obj/` and the two added files) with `expected/`, including which files
-exist, and builds the fixed copy with `tools/build.ps1`. A failed fixture keeps its copy and prints where; the script
-exits nonzero when any fixture fails.
+exist, and builds the fixed copy with `tools/build.ps1`. A fixture whose fix breaks the code, as a fix must where a choice
+was needed, holds `expected-build-errors.txt` beside `input/` and `expected/`: one line per text (an error code, say)
+the build of the fixed copy must report, and that build must fail. A failed fixture keeps its copy and prints where; the
+script exits nonzero when any fixture fails.
+
+The fixtures of #2599 hold the shapes the fixers used to decline, applied: `SME6400.file-named-type` the three sites of
+cda71cca6b (a file named after its second type, `FrontendFloorSheetComposer.cs` and `GameOverBabyPaletteNames.cs`, and
+after its third, `RoomPaletteFxPrograms.cs`, on which the fixer threw); `SME6401.case-only` the fourth
+(`objectcharacterplacement.cs`); `SME6401.taken-name` a file whose name another file has, whose type joins that file;
+`SME6400.directives` a type moved with its directives, a raw string in a namespace block, a type that joins an existing
+file and a file of top-level statements; `SME6400.breaking` a file-local type and two types that both belong in one file;
+`SME6360.refusals` the merges that needed a choice; `IDE0051.breaking` a member a cref still names; `IDE0052.breaking`
+initializers kept in an added constructor, in a block body given to an expression-bodied one and in a primary
+constructor's type body, a write through a receiver with effects left as written, an assignment used with the field's
+type, and a virtual method's parameter left unread; `IDE0052.unread-parameter` (above) a member left reading no
+instance data.
 
 `tools/cleanup/prune-fixtures/<name>/` confirms the dead-code prune the same way: `input/` is a small repository whose
 `csharp/Fixture.slnx` lists projects named like the shipped, host and verification projects (the reachability audit

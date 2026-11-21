@@ -31,12 +31,11 @@ public sealed class PowerBombBlastTimeline
     private PowerBombRadius _radiusSpeed;
 
     /// <summary>
-    /// The play of the yellow pre-explosion's or the white explosion's ovals (#1927, #2529): each update shows the next
-    /// oval, and the stage ends on the update that shows its last (<see cref="PowerBombOvalAnimations"/>). Each stage starts
-    /// its ovals as it is entered; no other stage reads them.
+    /// The play of the yellow pre-explosion's or the white explosion's ovals (#1927, #2529, #2553): each update shows the
+    /// next oval, and the stage ends on the update that shows its last. Each stage starts its ovals as it is entered; no
+    /// other stage reads them.
     /// </summary>
-    private readonly AnimationPlayer<PowerBombOvalSegment, int, NoAnimationCue> _ovals =
-        AnimationPlayer<PowerBombOvalSegment, int, NoAnimationCue>.Starting(PowerBombOvalAnimations.Segments, PowerBombOvalAnimations.PreExplosionYellow);
+    private PowerBombOvalPlay _ovals = PowerBombOvalPlay.Starting(PowerBombExplosionDefinitions.YellowOvalRadii);
 
     /// <summary>
     /// The horizontal radius, in pixels, of the authored oval the current frame shows, or null when the frame shows the
@@ -211,7 +210,7 @@ public sealed class PowerBombBlastTimeline
 
         // Advancing past the wait runs the yellow stage's setup, starts its radius step,
         // and waits again during this same effect pass.
-        _ovals.Start(PowerBombOvalAnimations.PreExplosionYellow);
+        _ovals = PowerBombOvalPlay.Starting(PowerBombExplosionDefinitions.YellowOvalRadii);
         Phase = new PowerBombExplosionPhase.Running.PreExplosionYellow();
     }
 
@@ -219,12 +218,13 @@ public sealed class PowerBombBlastTimeline
     /// Runs one update of an oval stage: returns the authored oval radius this update shows.
     /// </summary>
     /// <param name="stageEnds">Whether this update showed the stage's last oval, which ends it.</param>
-    /// <exception cref="InvalidOperationException">The stage has already shown its last oval.</exception>
     private int ShowNextOval(out bool stageEnds)
     {
-        int radius = _ovals.StepToNewFrame()
-            ?? throw new InvalidOperationException($"Power Bomb phase {Phase} ran past its last oval.");
-        stageEnds = _ovals.IsResting;
+        int radius = _ovals.Radius;
+        PowerBombOvalPlay? rest = _ovals.AfterShowing;
+        stageEnds = rest is null;
+        if (rest is { } next)
+            _ovals = next;
         return radius;
     }
 
@@ -294,7 +294,7 @@ public sealed class PowerBombBlastTimeline
         }
 
         // The white explosion starts its expanding ovals (PowerBombExplosionDefinitions.WhiteOvalRadii) on the next update.
-        _ovals.Start(PowerBombOvalAnimations.ExplosionWhite);
+        _ovals = PowerBombOvalPlay.Starting(PowerBombExplosionDefinitions.WhiteOvalRadii);
         RenderedOvalRadius = null;
         Phase = new PowerBombExplosionPhase.Running.ExplosionWhite();
     }

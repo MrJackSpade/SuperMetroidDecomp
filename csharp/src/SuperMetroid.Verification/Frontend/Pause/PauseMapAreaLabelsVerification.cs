@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -42,12 +43,15 @@ internal static class PauseMapAreaLabelsVerification
             system.SetAreaMapAcquired(area);
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = area, RoomMapPosition = new(0, 1), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
             int list = 0x820000 | Read(0x82c74d + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
-            // The map is scrolled so every label lies on the screen's lines, the topmost LabelTopLine lines down: a label's
-            // origin is its signed screen position, and one below the screen no longer comes round at the top (#1587).
+            // The arrows scroll the map so every label lies on the screen's lines, the topmost about LabelTopLine lines down: a
+            // label's origin is its signed screen position, and one below the screen no longer comes round at the top (#1587).
+            // The arrows reach only their eight-pixel steps from where the menu opens the map, so the labels are compared at
+            // the scroll they stop at (#2554).
             int topmost = int.MaxValue;
             for (int entry = list; Read(entry) != 0xffff; entry += 6) topmost = Math.Min(topmost, Read(entry + 2));
-            int x = Read(list) - 128, y = topmost - LabelTopLine;
-            pause.ScrollMapTo(new Offset16<MapPixels>(x, y));
+            _ = pause.ScrollMapToward(new Offset16<MapPixels>(Read(list) - 128, topmost - LabelTopLine));
+            Offset16<MapPixels> scrolled = pause.MapScroll;
+            int x = scrolled.X, y = scrolled.Y;
             var native = new OamBuffer(); native.BeginFrame();
             for (int entry = list; Read(entry) != 0xffff; entry += 6)
             {

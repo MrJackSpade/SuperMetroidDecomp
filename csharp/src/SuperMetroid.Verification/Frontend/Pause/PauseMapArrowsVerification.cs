@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -19,6 +20,9 @@ using SuperMetroid.TestSupport.FrameRendering;
 /// <summary>Checks pause map-arrow OAM, palette timing, and visibility at scroll boundaries.</summary>
 internal static class PauseMapArrowsVerification
 {
+    /// <summary>The pixels one held arrow scrolls the map, on whose grid every reachable scroll lies.</summary>
+    private const int ScrollStep = MapScrollDefinitions.StepPixels;
+
     /// <summary>Compares native arrow OAM and palette cycling and checks page fade and restored snapshot behavior.</summary>
     internal static void VerifyPauseMapArrows()
     {
@@ -30,26 +34,25 @@ internal static class PauseMapArrowsVerification
         SuperMetroid.Core.Map.IAreaMapView crateria = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.Get(AreaId.Crateria);
         MapScrollLimits limits = MapScrollLimits.Scan(cell => SuperMetroid.Core.Map.AreaMapVisibility.IsVisible(
             false, false, crateria.IsRevealedByMapStation(cell), crateria.IsDiscoverable(cell), global::SuperMetroid.Core.Map.MapRevealMode.Secret));
-        int middleX = (limits.Left - 23 + limits.Right - 232) / 2;
-        int middleY = (limits.Top - 55 + limits.Bottom - 177) / 2;
         pause.BindFixtureArtwork(RetailPresentationFixture());
+        // The arrows scroll the map in eight-pixel steps from where the menu opens it, so each case is the scroll on that
+        // grid nearest the middle, or on either side of an arrow's edge: the last scroll at or before the edge and the step
+        // past it (#2554).
+        Offset16<MapPixels> opened = pause.MapScroll;
+        int middleX = OnGridAtOrBefore(opened.X, (limits.Left - 23 + limits.Right - 232) / 2);
+        int middleY = OnGridAtOrBefore(opened.Y, (limits.Top - 55 + limits.Bottom - 177) / 2);
+        int leftHidden = OnGridAtOrBefore(opened.X, limits.Left - 24), rightShown = OnGridAtOrBefore(opened.X, limits.Right - 232);
+        int upHidden = OnGridAtOrBefore(opened.Y, limits.Top - 56), downShown = OnGridAtOrBefore(opened.Y, limits.Bottom - 177);
         var nativeArrowColors = new RgbColor[16];
         int nativePaletteTimer = 1, nativePaletteFrame = 0;
         int allArrowParts = 0;
         var arrowAttributes = new HashSet<ushort>();
-        foreach (var (x, y) in new VerifyPauseMapArrowsCase[] { new(middleX, middleY), new(limits.Left - 24, middleY), new(limits.Left - 23, middleY), new(limits.Right - 232, middleY), new(limits.Right - 231, middleY), new(middleX, limits.Top - 56), new(middleX, limits.Top - 55), new(middleX, limits.Bottom - 177), new(middleX, limits.Bottom - 176) })
+        foreach (var (x, y) in new VerifyPauseMapArrowsCase[] { new(middleX, middleY), new(leftHidden, middleY), new(leftHidden + ScrollStep, middleY), new(rightShown, middleY), new(rightShown + ScrollStep, middleY), new(middleX, upHidden), new(middleX, upHidden + ScrollStep), new(middleX, downShown), new(middleX, downShown + ScrollStep) })
         {
-            pause.ScrollMapTo(new Offset16<MapPixels>(x, y));
+            int updates = pause.ScrollMapTo(new Offset16<MapPixels>(x, y));
             pause.Step(0, 0);
-            // Literal $82:A92B increment-before-read palette timing and raw colors.
-            if (nativePaletteTimer != 0 && --nativePaletteTimer == 0)
-            {
-                nativePaletteFrame++;
-                if (bus.ReadCartridgeByte(0x82c10c + nativePaletteFrame * 3) == 255) nativePaletteFrame = 0;
-                nativePaletteTimer = bus.ReadCartridgeByte(0x82c10c + nativePaletteFrame * 3);
-                for (int color = 0; color < 16; color++)
-                    nativeArrowColors[color] = RgbColor.FromWord(checked(Read(0x82a987 + nativePaletteFrame * 32 + color * 2)));
-            }
+            for (int update = 0; update <= updates; update++)
+                AdvanceNativePalette();
             var expected = new OamBuffer();
             expected.BeginFrame();
             bool[] visible = [unchecked((short)(limits.Left - 24 - x)) < 0, unchecked((short)(limits.Right - 232 - x)) >= 0,
@@ -100,6 +103,19 @@ internal static class PauseMapArrowsVerification
         AssertEqual(stable - allArrowParts, pause.LastRenderedSpriteCount, "page-fade dispatcher does not draw map arrows");
         Console.WriteLine("Pause arrows: native ROM OAM and palette cycle match at all four scroll edges; R/fade visibility and pure repaint pass.");
         ushort Read(int address) => RomDataReader.ReadWordFixedBank(cart, address);
+        // Literal $82:A92B increment-before-read palette timing and raw colors, one pause update's worth.
+        void AdvanceNativePalette()
+        {
+            if (nativePaletteTimer == 0 || --nativePaletteTimer != 0)
+                return;
+            nativePaletteFrame++;
+            if (bus.ReadCartridgeByte(0x82c10c + nativePaletteFrame * 3) == 255) nativePaletteFrame = 0;
+            nativePaletteTimer = bus.ReadCartridgeByte(0x82c10c + nativePaletteFrame * 3);
+            for (int color = 0; color < 16; color++)
+                nativeArrowColors[color] = RgbColor.FromWord(checked(Read(0x82a987 + nativePaletteFrame * 32 + color * 2)));
+        }
+        // The scroll on the eight-pixel grid through `from` that lies at or before `edge`, and is the last such.
+        static int OnGridAtOrBefore(int from, int edge) => from + (int)Math.Floor((edge - from) / (double)ScrollStep) * ScrollStep;
     }
 
     /// <summary>Runs the retail pause map-arrow visual comparison.</summary>

@@ -23,12 +23,6 @@ internal static class PauseMenuStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Pause.PauseMenuState, global::SuperMetroid.Core.Frontend.Pause.ShownEquipmentPage>(self, "EquipmentPage");
         }
 
-        /// <summary>The private property <c>MapScrollPosition</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.MapPixels> MapScrollPosition
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Pause.PauseMenuState, global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.MapPixels>>(self, "MapScrollPosition");
-        }
-
         /// <summary>The private property <c>ReserveArrowShading</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Assets.PictureShading ReserveArrowShading
         {
@@ -81,12 +75,6 @@ internal static class PauseMenuStatePrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Frontend.Pause.PauseMenuState self)
     {
-        /// <summary>The private property <c>ActiveMapScroll</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Frontend.Map.MapScroll ActiveMapScroll
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Pause.PauseMenuState, global::SuperMetroid.Core.Frontend.Map.MapScroll>(self, "ActiveMapScroll");
-        }
-
         /// <summary>The private field <c>itemSelector</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Frontend.Pause.Artwork.PauseSelectorSegment, global::SuperMetroid.Core.Frontend.Pause.Artwork.PauseSelectorLook, global::SuperMetroid.Core.Animation.NoAnimationCue> itemSelector => PrivateState.Field<global::SuperMetroid.Core.Frontend.Pause.PauseMenuState, global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Frontend.Pause.Artwork.PauseSelectorSegment, global::SuperMetroid.Core.Frontend.Pause.Artwork.PauseSelectorLook, global::SuperMetroid.Core.Animation.NoAnimationCue>>(self, "itemSelector");
     }

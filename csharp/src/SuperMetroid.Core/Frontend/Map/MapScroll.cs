@@ -33,7 +33,7 @@ public sealed class MapScroll
     private MapScrollLimits Limits { get; }
 
     /// <summary>The screen's top-left corner as an offset from the map's corner, negative left of or above it.</summary>
-    public Offset16<MapPixels> Scroll { get; internal set; }
+    public Offset16<MapPixels> Scroll { get; private set; }
 
     /// <summary>The accepted scroll step under way, or null while none is.</summary>
     private MapScrollStep? StepUnderWay { get; set; }

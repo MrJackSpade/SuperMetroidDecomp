@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
@@ -37,8 +38,11 @@ internal static class BossMapMarkersVerification
                 var system = new SharedGameState(new SharedRandom());
                 system.SetAreaMapAcquired(area);
                 var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), RoomMapPosition = new(0, 1), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
-                // Center the marker under test without changing its authored position.
-                pause.ScrollMapTo(new Offset16<MapPixels>(x - 128, y - 112));
+                // The arrows bring the marker under test as near the screen's centre as their eight-pixel steps from where
+                // the menu opens the map reach, without changing its authored position (#2554).
+                _ = pause.ScrollMapToward(new Offset16<MapPixels>(x - 128, y - 112));
+                Offset16<MapPixels> scrolled = pause.MapScroll;
+                int markerX = x - scrolled.X, markerY = y - scrolled.Y;
                 var alive = pause.Render();
                 AssertEqual(0, record, "retail authored boss markers use area-boss bit zero");
                 for (int other = 0; other < 6; other++)
@@ -50,8 +54,8 @@ internal static class BossMapMarkersVerification
                 for (int pixel = 0; pixel < alive.Length; pixel++)
                 {
                     if (alive[pixel] == dead[pixel]) continue;
-                    AssertTrue(Math.Abs(pixel % 256 - 128) <= 16 && Math.Abs(pixel / 256 - 112) <= 16,
-                        "defeating one boss changes only its centered map marker");
+                    AssertTrue(Math.Abs(pixel % 256 - markerX) <= 16 && Math.Abs(pixel / 256 - markerY) <= 16,
+                        "defeating one boss changes only its map marker");
                     changed++;
                 }
                 AssertTrue(changed > 0, $"area {area} boss bit {record} must visibly change on defeat");
@@ -102,7 +106,7 @@ internal static class BossMapMarkersVerification
                 PauseMenuState CenteredPause(SharedGameState state)
                 {
                     var reopened = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = state, Area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), RoomMapPosition = new(0, 1), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
-                    reopened.ScrollMapTo(new Offset16<MapPixels>(x - 128, y - 112));
+                    _ = reopened.ScrollMapTo(scrolled);
                     return reopened;
                 }
                 markers++;

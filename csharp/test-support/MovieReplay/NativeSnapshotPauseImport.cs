@@ -33,20 +33,25 @@ internal static class NativeSnapshotPauseImport
 
         SelectedRoom room = runtime.Room.ActiveRoom ?? throw new InvalidDataException("Paused snapshot has no room.");
         var menu = new PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, Audio = game.Session.audio, GameplayHud = runtime.Hud.Shown(), MapRevealMode = game.Session.Assists.MapReveal, ScreenContent = game.Artwork.ScreenContent, SpriteSheets = game.Artwork.SpriteSheets });
-        menu.ScrollMapTo(Offset16<MapPixels>.Wrapped(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll)));
+        // The recorded scroll is reached as the native menu reached it, by the arrows' eight-pixel steps from where the menu
+        // opens the map; a scroll they cannot reach is refused (#2554). Each of those updates steps the highlight and the
+        // indicator once as well.
+        int scrollUpdates = menu.ScrollMapTo(Offset16<MapPixels>.Wrapped(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll)));
         // The highlight and the indicator are brought where the native menu's updates left them as the menu's own updates
-        // bring them, each update stepping each once. The highlight's native timer counts the updates its frame has left, as
-        // the highlight's does.
+        // bring them, each update stepping each once: both loop, so the updates the scroll took count towards the place in
+        // their loop. The highlight's native timer counts the updates its frame has left, as the highlight's does.
         MapHighlightCycle highlight = game.Artwork.ScreenContent.Maps.HighlightCycle;
-        int highlightUpdates = UpdatesToShow([.. highlight.Frames.Select(highlight.Duration)],
-            memory[PauseMemory.PaletteAnimationFrame], memory[PauseMemory.PaletteAnimationTimer]);
+        int[] highlightDurations = [.. highlight.Frames.Select(highlight.Duration)];
+        int highlightUpdates = UpdatesAfter(scrollUpdates, highlightDurations, UpdatesToShow(highlightDurations,
+            memory[PauseMemory.PaletteAnimationFrame], memory[PauseMemory.PaletteAnimationTimer]));
         for (int update = 0; update < highlightUpdates; update++)
             _ = menu.mapHighlight.Step();
         // $0776 is a byte offset into $82:BA25's word tables; the native marker counts its timer down after its frame's
         // update and moves on at zero, one update short of the indicator's count.
-        int indicatorUpdates = UpdatesToShow(
-            [.. PauseMapIndicatorAnimation.Segments.Beats(MapIndicatorSegment.Pulse).OfType<AnimationBeat<MapSpriteId, MapIndicatorCue>.Frame>().Select(frame => frame.Duration)],
-            W(PauseMemory.IndicatorAnimationFrame) / 2, W(PauseMemory.IndicatorAnimationTimer) + 1);
+        int[] indicatorDurations = [.. PauseMapIndicatorAnimation.Segments.Beats(MapIndicatorSegment.Pulse)
+            .OfType<AnimationBeat<MapSpriteId, MapIndicatorCue>.Frame>().Select(frame => frame.Duration)];
+        int indicatorUpdates = UpdatesAfter(scrollUpdates, indicatorDurations, UpdatesToShow(indicatorDurations,
+            W(PauseMemory.IndicatorAnimationFrame) / 2, W(PauseMemory.IndicatorAnimationTimer) + 1));
         for (int update = 0; update < indicatorUpdates; update++)
             menu.mapIndicator.Step(_ => { });
         game.Session.Show(menu);
@@ -68,6 +73,17 @@ internal static class NativeSnapshotPauseImport
         // A first frame shows again once every later frame has shown, after its start's one update.
         int reached = frame == 0 ? durations.Count : frame;
         return 1 + durations.Skip(1).Take(reached - 1).Sum() + durations[frame] - updatesLeft;
+    }
+
+    /// <summary>
+    /// How many more updates a looping animation of frames lasting <paramref name="durations"/>, which has already run
+    /// <paramref name="run"/> updates from its start, takes to show what it shows after <paramref name="shown"/> updates
+    /// (<see cref="UpdatesToShow"/>): it shows the same after every whole loop of its frames' updates.
+    /// </summary>
+    private static int UpdatesAfter(int run, IReadOnlyList<int> durations, int shown)
+    {
+        int loop = durations.Sum();
+        return ((shown - run) % loop + loop) % loop;
     }
 
     /// <summary>

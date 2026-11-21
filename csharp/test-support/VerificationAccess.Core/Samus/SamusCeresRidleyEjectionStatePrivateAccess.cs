@@ -11,10 +11,20 @@ internal static class SamusCeresRidleyEjectionStatePrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Samus.SamusCeresRidleyEjectionState self)
     {
-        /// <summary>The private property <c>PushDirection</c>, reached by name.</summary>
+        /// <summary>
+        /// The side the shove pushes Samus toward once it has started, read from its private phase; none before it starts
+        /// or once it has ended. Production reads the side only inside the pushing phase, so this view lives with the checks.
+        /// </summary>
         internal global::SuperMetroid.Core.Spatial.HorizontalDirection? PushDirection
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Samus.SamusCeresRidleyEjectionState, global::SuperMetroid.Core.Spatial.HorizontalDirection?>(self, "PushDirection");
+            get
+            {
+                object phase = PrivateState.Get<global::SuperMetroid.Core.Samus.SamusCeresRidleyEjectionState, object>(self, "Phase");
+                return phase.GetType().Name == "Pushing"
+                    ? (global::SuperMetroid.Core.Spatial.HorizontalDirection)(phase.GetType().GetProperty("Side")
+                        ?? throw new MissingMemberException(phase.GetType().FullName, "Side")).GetValue(phase)!
+                    : null;
+            }
         }
     }
 }

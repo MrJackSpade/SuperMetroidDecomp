@@ -231,10 +231,10 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Plays her brain at her brain's draw, advancing it one update, returning the picture it shows and
+    /// Plays her brain at her brain's draw, returning the picture it shows and
     /// whether her brain's shake, which a shown picture counts down, was still shaking; null when the brain is not live.
     /// </summary>
-    private MotherBrainBrainPicture? PlayMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)
+    internal MotherBrainBrainPicture? PlayMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)
     {
         EnemyFrameId? shown = state.Brain.AdvanceAtDraw(_frameContext.TimeIsFrozen, cue => (state.RainbowBeamSequence is { } lateFight
                 ? ApplyLateFightHeadCue(lateFight, samus, cue)
@@ -247,7 +247,7 @@ internal sealed class MotherBrainHead
     /// <summary>A picture her brain's draw shows and whether her brain's shake counted one of its updates off for it.</summary>
     /// <param name="Frame">The picture.</param>
     /// <param name="Shook">Whether her brain's shake was still shaking when the picture counted an update off it.</param>
-    private readonly record struct MotherBrainBrainPicture(EnemyFrameId Frame, bool Shook);
+    internal readonly record struct MotherBrainBrainPicture(EnemyFrameId Frame, bool Shook);
 
     /// <summary>
     /// Carries out one event of a brain animation in her late fight: the cues of her attacks on the Baby act on

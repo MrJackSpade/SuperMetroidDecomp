@@ -123,7 +123,7 @@ internal static class CinematicSpriteAnimationsVerification
         where TCue : notnull
     {
         int updates = 0;
-        foreach (TAnimation animation in animations.Starts)
+        foreach (TAnimation animation in animations.starts.Keys)
         {
             compared.Add(animation);
             updates += ComparePlayback(cartridge, animations, cues, shows, animation);

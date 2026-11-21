@@ -8,6 +8,13 @@ namespace SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 /// </summary>
 internal static class PhantoonColorCatalogAccess
 {
+    /// <summary>
+    /// The power-on targets the cartridge holds among its background colours (#2604): a group of colours for each part the
+    /// power-on paints (<see cref="SuperMetroid.AssetExtraction.CartridgeTables.PhantoonSourceDefinitions.PowerOnGroups"/>).
+    /// </summary>
+    internal static int PowerOnNativeColourCount =>
+        SuperMetroid.AssetExtraction.CartridgeTables.PhantoonSourceDefinitions.PowerOnGroups.Count * PhantoonColorFormat.PoweredPartColourCount;
+
     /// <summary>Native views of the catalog.</summary>
     extension(PhantoonColorCatalog self)
     {

@@ -29,7 +29,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
     {
         BotwoonColorCatalog native = stock.Bosses.BotwoonColors ??
             throw new InvalidDataException("Installed enemy art has no Botwoon colors.");
-        for (int band = 0; band < BotwoonColorFormat.HealthBandCount; band++)
+        for (int band = 0; band < SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown.Count; band++)
         for (int color = 0; color < BotwoonColorFormat.ColorsPerPalette; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     BotwoonSourceDefinitions.HealthColors +
@@ -85,7 +85,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
     /// <summary>Guards the migrated Botwoon palette range against live cartridge reads.</summary>
     internal static CartridgeReadGuard NewBotwoonColorReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(BotwoonSourceDefinitions.HealthColors,
-            BotwoonColorFormat.HealthBandCount *
+            SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown.Count *
                 BotwoonColorFormat.ColorsPerPalette * sizeof(ushort),
             address => $"Live Botwoon read migrated color ROM ${address:X6}.");
 }

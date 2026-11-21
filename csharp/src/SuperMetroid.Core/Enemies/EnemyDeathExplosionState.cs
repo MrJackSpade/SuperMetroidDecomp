@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemyDeathExplosionState(KilledEnemy killedEnemy, RoomEnemyOccupant? dropper)
     : EnemyDeathAndDropState
 {
-    /// <inheritdoc/>
+    /// <summary>The enemy the explosion came from, and whether it respawns when the drop ends.</summary>
     public KilledEnemy KilledEnemy { get; } = Ensure.NotNull(killedEnemy);
 
     /// <summary>

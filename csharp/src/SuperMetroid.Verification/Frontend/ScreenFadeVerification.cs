@@ -47,15 +47,15 @@ internal static class ScreenFadeVerification
         var fade = new ScreenFade(DisplayBrightness.Full.Darker(1));
         AssertTrue(fade.Brighten() && fade.IsFullyLit, "the step to full reports a fully lit screen");
         AssertTrue(fade.Brighten() && fade.Level == DisplayBrightness.Full, "a fully lit screen stays fully lit");
-        fade.Show(DisplayBrightness.StepsAbove(1));
+        fade.Show(DisplayBrightness.Black.Brighter(1));
         AssertTrue(!fade.IsBlack && fade.Darken() && fade.Level.IsBlack, "the step from level one reports a black screen");
         AssertTrue(fade.Darken() && fade.Level.IsBlack, "a black screen stays black");
         fade.Show(DisplayBrightness.Full.Darker(1));
         AssertTrue(fade.Brighten(2) && fade.Level == DisplayBrightness.Full, "a two-level step stops at full");
-        fade.Show(DisplayBrightness.StepsAbove(1));
+        fade.Show(DisplayBrightness.Black.Brighter(1));
         AssertTrue(fade.Darken(2) && fade.Level.IsBlack, "a two-level step stops at black");
-        AssertThrows<ArgumentOutOfRangeException>(() => fade.Show(DisplayBrightness.StepsAbove(DisplayBrightness.StepsFromBlackToFull + 1)), "no level lies past full");
-        AssertThrows<ArgumentOutOfRangeException>(() => fade.Show(DisplayBrightness.StepsAbove(-1)), "no level lies below black");
+        AssertThrows<ArgumentOutOfRangeException>(() => fade.Brighten(DisplayBrightness.StepsFromBlackToFull + 1), "no step brightens past a whole fade");
+        AssertThrows<ArgumentOutOfRangeException>(() => fade.Darken(0), "a step darkens by a level or more");
     }
 
     /// <summary>Runs the focused screen fade verification command.</summary>

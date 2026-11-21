@@ -109,7 +109,7 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcceptanceTiming<So
         {
             states[library] = nativeMemory[SoundStateLib1 + library];
             currents[library] = SoundEffectCommands.DecodeOptional(
-                SoundLibraryNumbers.FromDriverIndex(library), nativeMemory[CurrentSoundLib1 + library]);
+                SoundDriverLibraryPlaces.At(library), nativeMemory[CurrentSoundLib1 + library]);
         }
         captured = true;
     }

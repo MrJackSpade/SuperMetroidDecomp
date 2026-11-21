@@ -2049,7 +2049,8 @@ internal static class LookupStream3Verification
         for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
             AssertEqual(ReadVerificationWord(rom, IntroCinematicSourceDefinitions.FinalTextLine + index * 2),
                 LittleEndianBytes.Word(subtitleUpload[index * 2], subtitleUpload[index * 2 + 1]), "actual Japanese subtitle staging upload");
-        AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent stock bundle preserves canonical identity");
+        AssertTrue(BackgroundTileWordBytes.Of(Copy(native).InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native),
+            "an equivalent stock bundle holds the same narration page");
         BackgroundTile[] first = stock.InitialNarrationTilemap.ToArray();
         first[0] = first[0] with { Tile = first[0].Tile ^ 1 };
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "installed page is not mutated through a copy");
@@ -2148,7 +2149,8 @@ internal static class LookupStream3Verification
             if (expected != actual) mismatches.Add($"page{cell / 1024} ({cell % 32},{cell % 1024 / 32}) expected{expected:X4}/actual{actual:X4}");
         }
         AssertTrue(mismatches.Count == 0, "all 4096 installed background words match native: " + string.Join("; ", mismatches.Take(32)));
-        AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
+        AssertTrue(BackgroundTileWordBytes.Of(Copy(native).BackgroundPages.Span).AsSpan().SequenceEqual(installed),
+            "equivalent backgrounds hold the same words");
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, language: TextLanguage.English)
         {
             Random = new SharedRandom(),
@@ -2261,7 +2263,8 @@ BranchesToSharedBody:true),
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
         ImportIntroCinematicArtwork Copy(byte[] portrait) => new(new IntroCinematicSceneParts { Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction }, stock.Sprites, new IntroCinematicLayouts(pages, Page(portrait), Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), stock.FinalLine, stock.EyeFrames, stock.ZebesRevealMap, stock.CeresDestructionMaps), new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 installed portrait words match native");
-        AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
+        AssertTrue(BackgroundTileWordBytes.Of(Copy(native).PortraitTilemap.Span).AsSpan().SequenceEqual(native),
+            "an equivalent portrait holds the same words");
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, language: TextLanguage.English)
         {
             Random = new SharedRandom(),

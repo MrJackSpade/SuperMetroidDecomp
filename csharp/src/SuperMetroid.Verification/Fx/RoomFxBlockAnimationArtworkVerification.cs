@@ -38,7 +38,7 @@ internal static class RoomFxBlockAnimationArtworkVerification
                 AssertTrue(atlas.TryResolve(source, native.Length, out ReadOnlyMemory<byte> installed) &&
                     installed.Span.SequenceEqual(native),
                     $"room-FX frame $87:{cursor:X4} preserves every native art byte");
-                int ticksUntilFrame = frameIndex == 0 ? 1 : definition.Frames[frameIndex - 1].Duration;
+                int ticksUntilFrame = frameIndex == 0 ? 1 : BlockAnimationLoopPasses.Of(definition)[frameIndex - 1];
                 // The frame's pass selects into fresh selections, so the selection read back is the one that pass made.
                 for (int tick = 1; tick < ticksUntilFrame; tick++)
                     BlockAnimationLoops.Pass(state, new ArtworkFrameSelections());

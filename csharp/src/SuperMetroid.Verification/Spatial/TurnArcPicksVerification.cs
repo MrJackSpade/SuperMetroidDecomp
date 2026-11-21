@@ -20,15 +20,13 @@ internal static class TurnArcPicksVerification
         Console.WriteLine("  Turn-arc picks: the arc division, the eye's 65536 aims and Ridley's 256 tail-tip frames equal the sixteenth arithmetic.");
     }
 
-    /// <summary>An arc division picks by the angle's place from its start, names each arc's start, and rejects uneven arcs.</summary>
+    /// <summary>An arc division picks by the angle's place from its start and rejects uneven arcs.</summary>
     private static void VerifyTurnArcs()
     {
         var arcs = new TurnArcs<int>(TrigonometryAngle.Wrapped(-8), 0, 1, 2, 3);
         for (int units = 0; units < 256; units++)
             AssertEqual(((units + 8) & 255) >> 6, arcs.At(new TrigonometryAngle(units)), $"four arcs from -8, angle {units}");
-        AssertEqual(new TrigonometryAngle(56), arcs.StartOf(1), "second arc opens a quarter turn on from the first");
         AssertThrows<ArgumentException>(() => new TurnArcs<int>(TrigonometryAngle.Zero, 0, 1, 2), "three arcs do not divide the turn");
-        AssertThrows<ArgumentException>(() => new TurnArcs<int>(TrigonometryAngle.Zero, 0, 0).StartOf(0), "a value held by two arcs has no single start");
     }
 
     /// <summary>

@@ -19,24 +19,19 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// </summary>
 internal static class CinematicSheetFixtures
 {
-    /// <summary>Installed sheets with an intro sheet already composed, by the intro artwork's content identity (#1532).</summary>
+    /// <summary>Installed sheets with an intro sheet already composed, by the intro artwork's tag (#1532, #2604).</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, InstalledSpriteSheets> intros = new(StringComparer.Ordinal);
 
-    /// <summary>Each artwork object's content identity, computed once per object.</summary>
-    private static readonly ConditionalWeakTable<object, string> identities = new();
+    /// <summary>The tag of <paramref name="intro"/>, which tells it apart from every other intro artwork object.</summary>
+    private static string Identity(ImportIntroCinematicArtwork intro) => FixtureArtworkTags.Of(intro);
 
-    /// <summary>The content identity of <paramref name="intro"/>, which covers every artwork its sheets compose from.</summary>
-    private static string Identity(ImportIntroCinematicArtwork intro) =>
-        identities.GetValue(intro, key => ((ImportIntroCinematicArtwork)key).ContentIdentity);
-
-    /// <summary>The content identity of <paramref name="flight"/>, which covers every artwork its sheets compose from.</summary>
-    private static string Identity(CeresFlightCharacters flight) =>
-        identities.GetValue(flight, key => ((CeresFlightCharacters)key).ContentIdentity);
+    /// <summary>The tag of <paramref name="flight"/>, which tells it apart from every other flight artwork object.</summary>
+    private static string Identity(CeresFlightCharacters flight) => FixtureArtworkTags.Of(flight);
 
     /// <summary>Drawers already composed, by presentation.</summary>
     private static readonly ConditionalWeakTable<object, CinematicSpriteSheet> drawers = new();
 
-    /// <summary>Ceres flight sheets already composed, by the flight artwork's content identity (#1532).</summary>
+    /// <summary>Ceres flight sheets already composed, by the flight artwork's tag (#1532, #2604).</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, SpriteSheet> flights = new(StringComparer.Ordinal);
 
     /// <summary>The Ceres flight sheet <paramref name="flight"/> composes.</summary>
@@ -70,7 +65,7 @@ internal static class CinematicSheetFixtures
         }
     }
 
-    /// <summary>Installed sheets with the Ceres flight's sprites, caption pictures and floor composed, by the flight artwork's content identity.</summary>
+    /// <summary>Installed sheets with the Ceres flight's sprites, caption pictures and floor composed, by the flight artwork's tag.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, InstalledSpriteSheets> flightSheets = new(StringComparer.Ordinal);
 
     /// <summary>The installed sheets with the Ceres flight sheet, caption pictures and floor <paramref name="flight"/> composes.</summary>
@@ -159,7 +154,7 @@ internal static class CinematicSheetFixtures
         {
             var frames = (ICinematicSpriteFrames)key;
             return new CinematicSpriteSheet(Load(DrawerSources(frames),
-                $"cinematic-fixture-{frames.Family}-{RuntimeHelpers.GetHashCode(key):X8}"), frames.Family);
+                $"cinematic-fixture-{frames.Family}-{RuntimeHelpers.GetHashCode(key):X8}"), frames.Family, PictureShading.Shaded);
         });
     }
 

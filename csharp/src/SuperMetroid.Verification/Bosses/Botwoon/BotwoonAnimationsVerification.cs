@@ -119,12 +119,15 @@ internal static class BotwoonAnimationsVerification
             byte spitAngle = unchecked((byte)(64 - aim));
             AssertEqual(RotationAngle.FromSteps(spitAngle), volleyState.SpitAngle, $"spit angle toward octant {octant} wraps around the turn");
             int[] expectedDirections = [unchecked((byte)(spitAngle - 16)), spitAngle, unchecked((byte)(spitAngle + 16))];
-            int[] actualDirections = volleyEnemies.Projectiles.EnemyProjectiles
+            // Each spit flies along its heading at the stage's spit speed: its velocity is the speed split along it.
+            string[] expectedVelocities = [.. expectedDirections
+                .Select(direction => EnemyMath.VelocityAlong(TrigonometryAngle.Wrapped(direction), volleyState.SpeedStage.SpitSpeed).ToString())
+                .Order(StringComparer.Ordinal)];
+            string[] actualVelocities = [.. volleyEnemies.Projectiles.EnemyProjectiles
                 .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.BotwoonSpit)
-                .Select(projectile => (int)volleyEnemies.BotwoonBehavior.Spits.Of(projectile).Heading.RawValue)
-                .Order()
-                .ToArray();
-            AssertTrue(expectedDirections.Order().SequenceEqual(actualDirections),
+                .Select(projectile => volleyEnemies.BotwoonBehavior.Spits.Of(projectile).Velocity.ToString())
+                .Order(StringComparer.Ordinal)];
+            AssertTrue(expectedVelocities.SequenceEqual(actualVelocities),
                 $"volley toward octant {octant} spreads around the wrapped spit angle");
         }
 

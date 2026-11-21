@@ -125,7 +125,7 @@ internal sealed record SamusOverreadDocument(
     /// <param name="UsedStations">The used save stations and elevators, by name, the copy decides.</param>
     /// <param name="AreaMaps">Whether the copy leaves each area's map acquired, by area name.</param>
     /// <param name="SavedStartupRoute">The name of the saved startup route the copy leaves, or null when it stops before it.</param>
-    internal sealed record Overwrite(
+    internal readonly record struct Overwrite(
         DecidedMembers Events,
         int? ZebetitesDestroyed,
         IReadOnlyDictionary<string, IReadOnlyList<string>> AreaBosses,

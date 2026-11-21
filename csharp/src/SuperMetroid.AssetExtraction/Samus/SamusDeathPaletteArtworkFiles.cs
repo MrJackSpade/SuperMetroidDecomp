@@ -189,11 +189,11 @@ public static class SamusDeathPaletteArtworkFiles
     }
 
     /// <summary>Complete suited, suitless, whiteout, and explosion death-step payload, which only the import reads.</summary>
-    private sealed record ArtworkDocument(int Version, Dictionary<string, ushort[][]> Suited,
+    internal sealed record ArtworkDocument(int Version, Dictionary<string, ushort[][]> Suited,
         ushort[][] Suitless, ushort[] Whiteout, Dictionary<string, int> ExplosionSteps);
     /// <summary>
     /// The installed death steps by purpose: the death step each explosion frame shows her suit and suitless body in, and the
     /// colour the room and every other sprite whiten to at each whiteout step, written as <c>#rrggbb</c> (#2564).
     /// </summary>
-    private sealed record StepDocument(int Version, Dictionary<string, int> ExplosionSteps, string[] Whiteout);
+    internal sealed record StepDocument(int Version, Dictionary<string, int> ExplosionSteps, string[] Whiteout);
 }

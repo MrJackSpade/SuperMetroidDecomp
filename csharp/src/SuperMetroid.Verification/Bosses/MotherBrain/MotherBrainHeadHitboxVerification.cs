@@ -29,9 +29,10 @@ internal static class MotherBrainHeadHitboxVerification
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemyPlace head = state.Head;
-        AssertEqual<MotherBrainHeadSegment?>(MotherBrainHeadSegment.WholeHeadMouthClosed, state.Brain.Playback?.Animation.PlayingSegment,
-            "the brain program starts at InstList_MotherBrainHead_Initial");
-        AssertEqual<EnemyFrameId?>(EnemyFrameId.MotherBrainHeadEyeShut, state.Brain.ShownFrame,
+        // The brain program starts at InstList_MotherBrainHead_Initial, which holds her closed eye from its start: a draw with
+        // time frozen shows the picture the brain holds without playing it on.
+        AssertEqual<EnemyFrameId?>(EnemyFrameId.MotherBrainHeadEyeShut,
+            state.Brain.AdvanceAtDraw(timeIsFrozen: true, cue => throw new InvalidOperationException($"A frozen draw played the brain's {cue}.")),
             "the brain's initial animation shows its closed eye from its start");
 
         EnemyAnimationPlayer.AdvanceAnimation(head, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);

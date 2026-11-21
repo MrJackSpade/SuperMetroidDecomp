@@ -98,7 +98,7 @@ public static class RoomBlockAppearanceFiles
     /// <param name="Blocks">
     /// The inputs of each block a room shows, by the name the block's pictures begin with; a block no room shows has no entry.
     /// </param>
-    private sealed record BlockAppearancesDocument(int Version, string Tileset, int Count, Dictionary<string, string[]> Blocks);
+    internal sealed record BlockAppearancesDocument(int Version, string Tileset, int Count, Dictionary<string, string[]> Blocks);
 
     /// <summary>Strict camel-case record fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

@@ -1,94 +1,74 @@
 using System.Collections;
-using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
-using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>
-/// Rejects a JSON null element of an installed document's collection at load, naming the document and the member,
-/// when the document declares that collection's elements non-nullable (#2554). The serializer's nullable annotations
-/// reject a null member but never look inside the collection a member holds, so without this an edited document's
-/// null element would surface only as a failure wherever the game first read it.
+/// Rejects a JSON null element of an installed document's collection at load, naming the document and the member
+/// (#2554). The serializer's nullable annotations reject a null member but never look inside the collection a member
+/// holds, so without this an edited document's null element would surface only as a failure wherever the game first read
+/// it. A document's collection holds present references: an element that may be absent is a nullable value, which keeps
+/// its null. The check reads each document's generated contract (<see cref="InstalledDocumentJsonContext"/>): its
+/// members' getters and its collections' element types.
 /// </summary>
-[ReflectionAudit("A document's declared element nullability is serialization metadata, read once per document type.")]
 internal static class InstalledDocumentElements
 {
-    /// <summary>The default resolver, with every document type checking its collections' elements once read.</summary>
-    internal static IJsonTypeInfoResolver Resolver { get; } =
-        new DefaultJsonTypeInfoResolver { Modifiers = { RejectNullElements } };
+    /// <summary>The installed documents' generated contract, with every document checking its collections' elements once read.</summary>
+    internal static IJsonTypeInfoResolver Resolver { get; } = Over(InstalledDocumentJsonContext.Default);
 
-    /// <summary>Adds the element check to an object type whose members hold collections of declared-present elements.</summary>
+    /// <summary><paramref name="contract"/>, with every object it describes checking its collections' elements once read.</summary>
+    internal static IJsonTypeInfoResolver Over(IJsonTypeInfoResolver contract) => contract.WithAddedModifier(RejectNullElements);
+
+    /// <summary>Adds the element check to an object type, run over its members once the serializer has read it.</summary>
     private static void RejectNullElements(JsonTypeInfo typeInfo)
     {
-        if (typeInfo.Kind != JsonTypeInfoKind.Object) return;
-        var context = new NullabilityInfoContext();
-        var members = new List<CheckedMember>();
-        foreach (JsonPropertyInfo property in typeInfo.Properties)
-        {
-            if (property.Get is not { } get) continue;
-            NullabilityInfo? declared = property.AttributeProvider switch
-            {
-                PropertyInfo member => context.Create(member),
-                FieldInfo member => context.Create(member),
-                _ => null,
-            };
-            if (declared is not null && Elements(declared) is { } elements && NeedsCheck(elements))
-                members.Add(new CheckedMember(property.Name, get, elements));
-        }
-        if (members.Count == 0) return;
+        if (typeInfo.Kind != JsonTypeInfoKind.Object)
+            return;
+        CheckedMember[] members = [.. typeInfo.Properties
+            .Where(property => property.Get is not null)
+            .Select(property => new CheckedMember(property.Name, property.Get!, property.PropertyType))];
+        if (members.Length == 0)
+            return;
         string document = typeInfo.Type.Name;
+        JsonSerializerOptions options = typeInfo.Options;
         Action<object>? deserialized = typeInfo.OnDeserialized;
         typeInfo.OnDeserialized = value =>
         {
             foreach (CheckedMember member in members)
-                if (member.Get(value) is IEnumerable collection)
-                    Check(document, member.Name, collection, member.Elements);
+                if (member.Get(value) is IEnumerable collection and not string)
+                    Check(document, member.Name, collection, options.GetTypeInfo(member.Type), options);
             deserialized?.Invoke(value);
         };
     }
 
-    /// <summary>A document member holding a collection whose elements the document declares present.</summary>
+    /// <summary>A document member the check reads: its name in the document, its getter and its declared type.</summary>
     /// <param name="Name">The member's name in the document.</param>
     /// <param name="Get">Reads the member from a read document.</param>
-    /// <param name="Elements">The declared nullability of the collection's elements.</param>
-    private sealed record CheckedMember(string Name, Func<object, object?> Get, NullabilityInfo Elements);
+    /// <param name="Type">The member's declared type, whose contract names its collection's element type.</param>
+    private sealed record CheckedMember(string Name, Func<object, object?> Get, Type Type);
 
     /// <summary>
-    /// The declared nullability of a collection's elements: an array's element, or a generic collection's last type
-    /// argument (a list's item, a dictionary's value). A string is text, never a collection of elements.
+    /// Throws at the first null element of <paramref name="collection"/>, a list's item or a dictionary's value, that is
+    /// not a nullable value, descending into elements that are collections themselves.
     /// </summary>
-    private static NullabilityInfo? Elements(NullabilityInfo declared)
+    private static void Check(string document, string member, IEnumerable collection, JsonTypeInfo contract, JsonSerializerOptions options)
     {
-        if (declared.ElementType is { } element) return element;
-        if (declared.Type == typeof(string) || !typeof(IEnumerable).IsAssignableFrom(declared.Type)) return null;
-        return declared.GenericTypeArguments.Length == 0 ? null : declared.GenericTypeArguments[^1];
-    }
-
-    /// <summary>Whether elements are declared present, or hold collections whose own elements are.</summary>
-    private static bool NeedsCheck(NullabilityInfo elements) =>
-        DeclaredPresent(elements) || Elements(elements) is { } inner && NeedsCheck(inner);
-
-    /// <summary>A reference element the document declares non-nullable.</summary>
-    private static bool DeclaredPresent(NullabilityInfo elements) =>
-        !elements.Type.IsValueType && elements.ReadState == NullabilityState.NotNull;
-
-    /// <summary>Throws at the first null element the declaration forbids, descending into nested collections.</summary>
-    private static void Check(string document, string member, IEnumerable collection, NullabilityInfo elements)
-    {
+        if (contract.Kind is not (JsonTypeInfoKind.Enumerable or JsonTypeInfoKind.Dictionary) || contract.ElementType is not { } elementType)
+            return;
+        bool mayBeAbsent = Nullable.GetUnderlyingType(elementType) is not null;
         IEnumerable values = collection is IDictionary dictionary ? dictionary.Values : collection;
-        NullabilityInfo? inner = Elements(elements);
+        JsonTypeInfo? inner = null;
         foreach (object? element in values)
         {
             if (element is null)
             {
-                if (DeclaredPresent(elements))
+                if (!mayBeAbsent)
                     throw new JsonException($"{document}.{member} holds a null element; every element must be present.");
                 continue;
             }
-            if (inner is not null && NeedsCheck(inner) && element is IEnumerable nested)
-                Check(document, member, nested, inner);
+            if (element is IEnumerable nested and not string)
+                Check(document, member, nested, inner ??= options.GetTypeInfo(elementType), options);
         }
     }
 }

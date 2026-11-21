@@ -66,23 +66,29 @@ internal static class RoomFxOverlayStateAccess
 
         /// <summary>
         /// Takes the liquid's motion from a native snapshot recorded mid-room (#2056): its motion has begun, whether an
-        /// enemy has stopped it, where its tide stands, its base surface and its surface line.
+        /// enemy has stopped it, where its tide stands and its base surface. The surface line is then placed as the game
+        /// places it on the screen at <paramref name="camera"/>, where the base line and the tide put it, which must be the
+        /// recorded line: the cartridge places it there at every motion pass, and a stopped liquid's tide no longer moves.
         /// </summary>
         /// <param name="stopped">Whether an enemy has ended the liquid's motion.</param>
         /// <param name="tidePhase">How far round its rise and fall the tide is.</param>
         /// <param name="tideOffset">How far the tide displaces the surface from its base line.</param>
         /// <param name="baseY">The surface before the tide's displacement.</param>
-        /// <param name="surface">The surface's room line, negative once a tide carries it above the room's top.</param>
+        /// <param name="surface">The recorded surface's room line, negative once a tide carries it above the room's top.</param>
+        /// <param name="camera">The room camera the snapshot shows the room through.</param>
+        /// <exception cref="InvalidDataException">The base line and tide place the surface on another line than the recorded one.</exception>
         internal void ImportLiquidMotion(bool stopped, RotationAngle tidePhase, SignedSixteenSixteen tideOffset, FixedCoordinate baseY,
-            int surface)
+            int surface, Position16<RoomPixels> camera)
         {
             SetPrivate(self, nameof(RoomFxOverlayState.Motion),
                 stopped ? SuperMetroid.Core.Compatibility.LiquidMotion.Stopped : SuperMetroid.Core.Compatibility.LiquidMotion.Moving);
             SetPrivate(self, "TidePhase", tidePhase);
             SetPrivate(self, "TideOffset", tideOffset);
             SetPrivate(self, nameof(RoomFxOverlayState.BaseY), baseY);
-            // The surface line is published as the liquid's motion publishes it: moved in place, or created for its first line.
-            self.PublishSurface(surface);
+            self.PrimeViewport(camera);
+            if (self.Surface != surface)
+                throw new InvalidDataException(
+                    $"The recorded liquid surface stands on line {surface}, but its base line and tide place it on line {self.Surface}.");
         }
 
         /// <summary>Gives the liquid <paramref name="liquid"/>'s tide standing at <paramref name="phase"/> with <paramref name="offset"/>, for a check of one tide step.</summary>

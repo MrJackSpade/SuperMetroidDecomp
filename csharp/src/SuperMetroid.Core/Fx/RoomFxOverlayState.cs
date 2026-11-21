@@ -199,7 +199,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// Publishes the liquid's surface line, <paramref name="line"/>, or its having none: a published surface moves its line
     /// in place, a liquid's first surface is created, and a liquid without one drops it.
     /// </summary>
-    internal void PublishSurface(int? line)
+    private void PublishSurface(int? line)
     {
         if (line is not int surface)
         {
@@ -447,15 +447,16 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Seeds the liquid surface's camera-dependent screen line during a room transition without advancing
-    /// a wave clock. Destination rendering can therefore show the correct surface on its
-    /// first frame boundary instead of waiting for the first gameplay update.
+    /// Seeds the liquid surface's line where its base line and tide place it, and its camera-dependent screen line,
+    /// during a room transition without advancing a wave clock. Destination rendering can therefore show the correct
+    /// surface on its first frame boundary instead of waiting for the first gameplay update. A room's liquid enters with
+    /// no tide offset, so its surface enters on its base line.
     /// </summary>
     public void PrimeViewport(Position16<RoomPixels> camera)
     {
         if (!RoomFxTypes.ShowsLiquid(Type))
             return;
-        PublishSurface(BaseLine);
+        PublishSurface(ComputeTidalYPosition());
         PlaceLiquid(camera, Offset16<OverlayPixels>.Zero);
     }
 

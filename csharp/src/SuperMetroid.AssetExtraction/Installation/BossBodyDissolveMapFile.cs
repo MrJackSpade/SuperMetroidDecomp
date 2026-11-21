@@ -145,10 +145,10 @@ internal static class BossBodyDissolveMapFile
     /// <summary>The map file.</summary>
     /// <param name="Version">The format revision.</param>
     /// <param name="Maps">Every map, by tag.</param>
-    private sealed record Document(int Version, Dictionary<string, MapDocument> Maps);
+    internal sealed record Document(int Version, Dictionary<string, MapDocument> Maps);
 
     /// <summary>One map.</summary>
     /// <param name="Size">The width and height of the picture it is for.</param>
     /// <param name="Rows">Each row's runs: a kept run's count, or an erased run's band, steps, then count.</param>
-    private sealed record MapDocument(Extent16<ImagePixels> Size, int[][][] Rows);
+    internal sealed record MapDocument(Extent16<ImagePixels> Size, int[][][] Rows);
 }

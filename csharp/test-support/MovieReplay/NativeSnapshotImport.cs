@@ -355,7 +355,8 @@ internal static class NativeSnapshotImport
             baseY: (runtime.RoomFxOverlay.BaseY
                 ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(new PixelFraction(W(NativeSnapshotMemory.LiquidBaseFraction))),
             // The surface word is a signed line: one a tide carries above the room's top is negative.
-            surface: CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface)));
+            surface: CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface)),
+            camera: runtime.Room.LoadedCamera.PixelPosition);
         samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(bus);
         var kraidHeadCursors = new KraidHeadNativeCursors(bus);

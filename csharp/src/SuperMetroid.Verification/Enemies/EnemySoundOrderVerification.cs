@@ -83,8 +83,10 @@ internal static class EnemySoundOrderVerification
         AssertSequenceEqual(new[] { new SoundRequest(SamusSound.DudShot, SoundRequestPriority.Normal) }, enemies.Audio.SoundRequests,
             "the rejected shot queues the dud sound at once, at normal priority");
 
+        // The body part's dud is made from the shot that struck it, which holds the second place.
+        SamusProjectileOccupant bodyPartShot = shots.Shots[1].Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), 1);
         enemies.Audio.BeginFrame();
-        enemies.Projectiles.CreateEnemyProjectileDudShot(shots.Shots[1].HeldShot());
+        enemies.Projectiles.CreateEnemyProjectileDudShot(bodyPartShot);
         AssertSequenceEqual(new[] { new SoundRequest(SamusSound.DudShot, SoundRequestPriority.Low) }, enemies.Audio.SoundRequests,
             "a protected body part's dud queues the same sound at low priority");
         Console.WriteLine("  Dud sounds: an indestructible projectile's dud is queued at once at normal priority; a body part's at low.");

@@ -57,18 +57,9 @@ internal static class DragonBehaviorVerification
     private static void VerifyDragonsAttackingTogether()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        foreach (int bodySlot in new[] { 0, 2 })
-        {
-            for (int part = 0; part < 2; part++)
-            {
-                RoomEnemyPlace place = enemies.Places.InUpdateOrder[bodySlot + part];
-                place.SetSpawnParameter1(EnemyDefinitionId.Dragon, (ushort)part);
-                place.Bind(EnemyDefinitionId.Dragon, place.KeptDefinition);
-                place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-                // Each part is set up as its room's population sets it up, the wing after the body that offers it.
-                place.SetUpAsPlaced();
-            }
-        }
+        // Two Dragons are set up as their room's population sets them up, each wing after the body that offers it.
+        _ = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Dragon, new DragonSpawnSettings(DragonPart.Body)), PopulationPlacementAccess.Entry(EnemyDefinitionId.Dragon, new DragonSpawnSettings(DragonPart.Wing)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Dragon, new DragonSpawnSettings(DragonPart.Body)), PopulationPlacementAccess.Entry(EnemyDefinitionId.Dragon, new DragonSpawnSettings(DragonPart.Wing)));
         foreach (int bodySlot in new[] { 0, 2 })
         {
             DragonEnemyState body = enemies.DragonStates[bodySlot] ?? throw new InvalidOperationException("Dragon has no state.");
@@ -90,14 +81,7 @@ internal static class DragonBehaviorVerification
         bool wing = selector is DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight;
         // The body is set up as its room's population sets it up, and a wing after the body that offers it.
         int parts = wing ? 2 : 1;
-        for (int part = 0; part < parts; part++)
-        {
-            RoomEnemyPlace placed = enemies.Places.InUpdateOrder[part];
-            placed.SetSpawnParameter1(EnemyDefinitionId.Dragon, (ushort)part);
-            placed.Bind(EnemyDefinitionId.Dragon, placed.KeptDefinition);
-            placed.Bind(placed.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-            placed.SetUpAsPlaced();
-        }
+        _ = enemies.LoadPopulation([.. new[] { PopulationPlacementAccess.Entry(EnemyDefinitionId.Dragon, new DragonSpawnSettings(DragonPart.Body)), PopulationPlacementAccess.Entry(EnemyDefinitionId.Dragon, new DragonSpawnSettings(DragonPart.Wing)) }.Take(parts)]);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[parts - 1];
         DragonPartState state = enemies.DragonPartStates[parts - 1] ?? throw new InvalidOperationException("Dragon has no state.");
         // An attack plays while the body attacks, whose finishing cue it answers (#2476).

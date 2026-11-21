@@ -4,7 +4,6 @@
 global using static SuperMetroid.Core.World.LoadedRoomAccess;
 global using static SuperMetroid.Core.Samus.SamusGroundAccess;
 global using static SuperMetroid.Core.Enemies.EnemySpeciesStateAccess;
-global using static SuperMetroid.Core.Enemies.EnemyPlaceRegistries;
 global using static SuperMetroid.Core.Frontend.FrontendSessionStepAccess;
 global using static SuperMetroid.Core.Frontend.FrontendSessionEntryAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.SamusShotKindStateAccess;

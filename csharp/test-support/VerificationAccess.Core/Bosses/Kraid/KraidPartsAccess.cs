@@ -28,20 +28,23 @@ internal static class KraidPartsAccess
             }
         }
 
+    }
+
+    /// <summary>A room's enemies, which a check places Kraid in.</summary>
+    extension(World.RoomEnemySystem enemies)
+    {
         /// <summary>
-        /// Sets up the eight places the fixture has bound to Kraid's parts in the order his room lists them, as his room's
-        /// population load sets them up (#2218, #2554): his body's entity begins his encounter, and each part joins it
-        /// through the creation his body offers it, so his body's main AI runs as the enemy pass runs it.
+        /// Places Kraid as his room's population places him (#2218, #2554): the room's load of his room's eight entries, his
+        /// body first, whose entity begins his encounter, and each part after it, which joins it through the creation his body
+        /// offers it, beside a lone Samus. The enemies load a room once, so a check places him in enemies of their own.
         /// </summary>
         /// <returns>The encounter his body began.</returns>
-        internal KraidEnemyState SetUpKraidInRoomOrder()
-        {
-            RoomEnemyPlace body = enemies.InUpdateOrder[0];
-            body.SetUpAsPlaced();
-            KraidEnemyState state = body.EntityOf<KraidBodyEntity>().Encounter;
-            for (int place = 1; place < PartsInRoomOrder.Length; place++)
-                enemies.InUpdateOrder[place].SetUpAsPlaced();
-            return state;
-        }
+        internal KraidEnemyState PlaceKraid() => enemies.PlaceKraid(RoomEnemyFrameFixtures.StandaloneSamus());
+
+        /// <summary>Places Kraid as his room's population places him as the parameterless placing does beside <paramref name="samus"/>.</summary>
+        /// <returns>The encounter his body began.</returns>
+        internal KraidEnemyState PlaceKraid(Samus.SamusState samus) =>
+            enemies.LoadRoom(World.RoomStates.RoomEnemyPopulationDefinitions.Kraid, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)))[0]
+                .EntityOf<KraidBodyEntity>().Encounter;
     }
 }

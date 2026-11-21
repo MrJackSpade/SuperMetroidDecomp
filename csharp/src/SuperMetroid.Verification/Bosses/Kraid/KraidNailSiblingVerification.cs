@@ -61,7 +61,6 @@ internal static class KraidNailSiblingVerification
         Suite(nameof(VerifyKraidNailLaunchYWhole), () => VerifyKraidNailLaunchYWhole(rom));
         ushort Word(int a) => LittleEndianBytes.Word(KraidNailSiblingRomByte(rom, a), KraidNailSiblingRomByte(rom, a + 1));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.Places.BindKraidPartsInRoomOrder();
         // Kraid's room has not seen him beaten, so his rise begins.
         enemies.VerificationServices().IsAreaBossDefeated = () => false;
         enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
@@ -69,19 +68,13 @@ internal static class KraidNailSiblingVerification
         // scrolls his fight frames, which this room takes.
         enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
         enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
-        KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
-        enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.Kraid, enemies.Places.InUpdateOrder[0].KeptDefinition);
+        KraidEnemyState state = enemies.PlaceKraid();
         ushort random = 0;
         enemies.VerificationServices().ReadRandom = () => random;
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Nail initialization must not advance RNG.");
         Action<RoomEnemyPlace, KraidNailState> initialize = enemies.KraidBehavior.Projectiles.InitializeKraidNailFlight;
-        // Both fingernails live in their places, so each launch reads its sibling's speed.
-        foreach ((int place, EnemyDefinitionId nailDefinition) in new[] { (6, EnemyDefinitionId.KraidFirstNail), (7, EnemyDefinitionId.KraidSecondNail) })
-        {
-            RoomEnemyPlace living = enemies.Places.InUpdateOrder[place];
-            living.Bind(nailDefinition, living.KeptDefinition);
-            living.SetUpAsPlaced();
-        }
+        // Both fingernails live in their places, which his room's population load set up, so each launch reads its sibling's
+        // speed.
         foreach (int slot in new[] { 6, 7 })
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         foreach (bool siblingAlternate in new[] { false, true })

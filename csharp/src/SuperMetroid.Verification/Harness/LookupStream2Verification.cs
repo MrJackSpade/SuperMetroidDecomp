@@ -828,12 +828,11 @@ internal static class LookupStream2Verification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         // The parts hold Kraid's encounter, which the body's setup begins; this fixture begins it directly.
-        enemies.Places.BindKraidPartsInRoomOrder();
         // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
         // scrolls his fight frames, which this room takes.
         enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
         enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
-        KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
+        KraidEnemyState state = enemies.PlaceKraid();
         enemies.VerificationServices().ReadRandom = () => 1;
         Action<RoomEnemyPlace, KraidLintState> align = enemies.KraidBehavior.Projectiles.AlignKraidLint;
         var body = enemies.Places.InUpdateOrder[0];
@@ -928,9 +927,11 @@ internal static class LookupStream2Verification
                 var place = enemies.Places.InUpdateOrder[member];
                 place.Bind(EnemyDefinitionId.Gamet, place.KeptDefinition);
                 place.Position = place.Position.WithWhole(new(128, 128)); place.SetSpawnParameter2(EnemyDefinitionId.Gamet, 64);
-                place.SetUpAsPlaced();
-                place.AnimationClock.HoldFor((ushort)(member + 4));
             }
+            // The room's population load sets up the formation in order (#2554).
+            _ = enemies.LoadAuthoredPopulation();
+            for (int member = 0; member < 5; member++)
+                enemies.Places.InUpdateOrder[member].AnimationClock.HoldFor((ushort)(member + 4));
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
             // The formation's leader waits for Samus, and its main AI launches the formation once she comes within its reach.
             (enemies.NorfairPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairPipeBugStates[0].")).Action = NorfairPipeBugAction.WaitForSamus;

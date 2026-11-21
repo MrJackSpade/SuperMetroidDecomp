@@ -131,7 +131,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             // The Metroid is set up as its room's population sets it up, then starts at the chasing loop's random-cry cue,
             // after its four pulses.
             place.SetSpawnSettings(new MetroidSpawnSettings(IceDamageToFreeze: 0));
-            place.SetUpAsPlaced();
+            _ = enemies.LoadAuthoredPopulation();
             place.AnimationClock.StepOnNextUpdate();
             place.RequireSpeciesState<MetroidEnemyState>().Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
                 AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),

@@ -36,7 +36,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 floor: RoomBackgroundsFixtures.CeresFloor());
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.StartCeresDoorOrWall(actor, settings);
+            enemies.StartCeresDoorOrWall(actor, settings);
 
             AssertEqual(rom.ReadCartridgeWord((functionTable + selector * 2)),
                 CeresNativeWords.MainBehaviourWord(place),

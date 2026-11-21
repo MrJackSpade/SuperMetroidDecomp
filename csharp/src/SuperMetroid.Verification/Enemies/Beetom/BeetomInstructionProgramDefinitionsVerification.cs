@@ -45,7 +45,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         place.Position = place.Position.WithWholeX(0x0200);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0)) };
         // The Beetom is set up as its room's population sets it up, with Samus to its left.
-        place.InitializeAsPlaced(samus);
+        _ = enemies.LoadAuthoredPopulation(samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         BeetomEnemyState state = enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires enemies.BeetomStates[0].");
         object?[] processArguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
 
@@ -100,7 +100,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Beetom, place.KeptDefinition);
         // The Beetom is set up as its room's population sets it up: its species builds its entity, whose setup builds its state.
-        place.SetUpAsPlaced();
+        _ = enemies.LoadAuthoredPopulation();
         Action<BeetomEnemyState> choose = enemies.BeetomBehavior.ChooseDistantBeetomAction;
         return new CreateBeetomDistantSelectionFixtureResult(enemies, (enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires the initialized Beetom state.")), choose);
     }

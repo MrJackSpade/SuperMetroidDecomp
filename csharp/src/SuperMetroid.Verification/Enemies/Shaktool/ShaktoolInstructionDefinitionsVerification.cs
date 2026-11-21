@@ -139,7 +139,6 @@ internal static class ShaktoolInstructionDefinitionsVerification
 )
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = fixturePlace => fixturePlace.SetUpAsPlaced();
         for (int index = 0; index < 7; index++)
         {
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
@@ -148,8 +147,9 @@ internal static class ShaktoolInstructionDefinitionsVerification
             // The chain is placed curling clockwise, as its population entry names how it starts moving.
             place.SetSpawnSettings(new ShaktoolSpawnSettings(ShaktoolChainMotion.CurlingClockwise, ShaktoolSegmentDefinitions.Segments[index]));
             place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
-            initialize(place);
         }
+        // The room's population load sets up the chain, its leading saw first (#2554).
+        _ = enemies.LoadAuthoredPopulation();
         return enemies;
     }
 

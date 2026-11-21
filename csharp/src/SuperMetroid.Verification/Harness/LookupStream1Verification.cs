@@ -289,7 +289,7 @@ internal static class LookupStream1Verification
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // The Metroid is set up as its room's population sets it up, then plays the pulse its chase or drain starts.
             place.SetSpawnSettings(new MetroidSpawnSettings(IceDamageToFreeze: 0));
-            place.SetUpAsPlaced();
+            _ = enemies.LoadAuthoredPopulation();
             place.RequireSpeciesState<MetroidEnemyState>().Playback =
                 new(MetroidAnimations.StartingWith(chasing ? MetroidSegment.ChasingSamus : MetroidSegment.DrainingSamus), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();

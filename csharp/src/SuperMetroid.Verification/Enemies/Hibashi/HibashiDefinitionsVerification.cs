@@ -21,18 +21,12 @@ internal static class HibashiDefinitionsVerification
         const int yRadiusTable = 0xa68de7;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = static place => place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
-
-        RoomEnemyPlace graphics = enemies.Places.InUpdateOrder[0];
-        graphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
-        graphics.Bind(EnemyDefinitionId.Hibashi, graphics.KeptDefinition);
-        graphics.Position = graphics.Position.WithWholeY(0x0200);
-        initialize(graphics);
-        RoomEnemyPlace hitbox = enemies.Places.InUpdateOrder[1];
-        hitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
-        hitbox.Bind(EnemyDefinitionId.Hibashi, hitbox.KeptDefinition);
-        hitbox.Position = hitbox.Position.WithWholeY(graphics.Position.Y.Whole);
-        initialize(hitbox);
+        // The room's population load sets up the flame and then its collision part (#2554).
+        IReadOnlyList<RoomEnemyPlace> geyser = enemies.LoadPopulation(
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Hibashi, new HibashiFlameSpawnSettings(InactiveTime: 0), new(0, 0x0200)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Hibashi, new HibashiCollisionPartSpawnSettings(), new(0, 0x0200)));
+        RoomEnemyPlace graphics = geyser[0];
+        RoomEnemyPlace hitbox = geyser[1];
 
         HibashiEruptionStep[] steps = HibashiAnimationsToolingConstants.EruptionSteps();
         AssertEqual(22, steps.Length, "Hibashi eruption steps");
@@ -65,35 +59,17 @@ internal static class HibashiDefinitionsVerification
 
         var shownSpritemaps = new HashSet<ushort>();
         var programSystem = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initializeProgram = static place => place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
-
-        RoomEnemyPlace programGraphics = programSystem.Places.InUpdateOrder[0];
-        programGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
-        programGraphics.Bind(EnemyDefinitionId.Hibashi, programGraphics.KeptDefinition);
-        programGraphics.Bind(programGraphics.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        programGraphics.Position = programGraphics.Position.WithWhole(new(0x0180, 0x0200));
-        initializeProgram(programGraphics);
-
-        RoomEnemyPlace programHitbox = programSystem.Places.InUpdateOrder[1];
-        programHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
-        programHitbox.Bind(EnemyDefinitionId.Hibashi, programHitbox.KeptDefinition);
-        programHitbox.Bind(programHitbox.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        programHitbox.Position = programHitbox.Position.WithWhole(programGraphics.Position.Whole);
-        initializeProgram(programHitbox);
-
-        // A second geyser erupting in lockstep: its eruption sound is queued in the same frame.
-        RoomEnemyPlace twinGraphics = programSystem.Places.InUpdateOrder[2];
-        twinGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
-        twinGraphics.Bind(EnemyDefinitionId.Hibashi, twinGraphics.KeptDefinition);
-        twinGraphics.Bind(twinGraphics.HeldOccupant().DefinitionId, programGraphics.KeptDefinition);
-        twinGraphics.Position = twinGraphics.Position.WithWhole(new(448, 512));
-        initializeProgram(twinGraphics);
-        RoomEnemyPlace twinHitbox = programSystem.Places.InUpdateOrder[3];
-        twinHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
-        twinHitbox.Bind(EnemyDefinitionId.Hibashi, twinHitbox.KeptDefinition);
-        twinHitbox.Bind(twinHitbox.HeldOccupant().DefinitionId, programGraphics.KeptDefinition);
-        twinHitbox.Position = twinHitbox.Position.WithWhole(twinGraphics.Position.Whole);
-        initializeProgram(twinHitbox);
+        // The room's population load sets up two geysers, each its flame and then its collision part; the second erupts in
+        // lockstep with the first, so its eruption sound is queued in the same frame.
+        IReadOnlyList<RoomEnemyPlace> geysers = programSystem.LoadPopulation(
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Hibashi, new HibashiFlameSpawnSettings(InactiveTime: 0), new(0x0180, 0x0200)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Hibashi, new HibashiCollisionPartSpawnSettings(), new(0x0180, 0x0200)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Hibashi, new HibashiFlameSpawnSettings(InactiveTime: 0), new(448, 512)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Hibashi, new HibashiCollisionPartSpawnSettings(), new(448, 512)));
+        RoomEnemyPlace programGraphics = geysers[0];
+        RoomEnemyPlace programHitbox = geysers[1];
+        RoomEnemyPlace twinGraphics = geysers[2];
+        RoomEnemyPlace twinHitbox = geysers[3];
 
         object?[] graphicsArguments =
             [programGraphics, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];

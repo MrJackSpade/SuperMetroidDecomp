@@ -66,7 +66,6 @@ internal static class EnemySystemFixtures
             Scenery = new RoomEnemyScenery(floor, shaftTurn, statueRoom, warnings ?? new RoomWarnings(InstalledFixtures.RoomAssets.BlockSheets.Written.Values.First())),
         });
         system.BossArtwork = installedBosses;
-        EnemyPlaceRegistries.Register(system.Species);
         return system;
     }
 

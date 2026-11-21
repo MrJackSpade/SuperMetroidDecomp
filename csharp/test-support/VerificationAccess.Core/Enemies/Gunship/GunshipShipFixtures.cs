@@ -18,10 +18,13 @@ internal static class GunshipShipFixtures
     /// <returns>The top hull, which moves the ship.</returns>
     internal static GunshipTopEntity PlaceShip(RoomEnemySystem enemies, SamusState samus)
     {
-        IReadOnlyList<RoomEnemyPlace> places = Ensure.NotNull(enemies).Places.InUpdateOrder;
-        GunshipTopEntity top = places[0].PlaceAs<GunshipTopEntity>(EnemyDefinitionId.ShipTop, EnemySpawnSettings.None, samus, ShipPlace);
-        places[1].PlaceAs<GunshipBottomEntity>(EnemyDefinitionId.ShipBottomEntrance, new GunshipSpawnSettings(GunshipBottomPiece.Hull), samus, ShipPlace);
-        places[2].PlaceAs<GunshipBottomEntity>(EnemyDefinitionId.ShipBottomEntrance, new GunshipSpawnSettings(GunshipBottomPiece.EntrancePad), samus, ShipPlace);
-        return top;
+        // The room's population load places the three pieces in order, the top first (#2554).
+        IReadOnlyList<RoomEnemyPlace> places = Ensure.NotNull(enemies).LoadPopulation(samus,
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.ShipTop, EnemySpawnSettings.None, ShipPlace),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.ShipBottomEntrance, new GunshipSpawnSettings(GunshipBottomPiece.Hull), ShipPlace),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.ShipBottomEntrance, new GunshipSpawnSettings(GunshipBottomPiece.EntrancePad), ShipPlace));
+        _ = places[1].EntityOf<GunshipBottomEntity>();
+        _ = places[2].EntityOf<GunshipBottomEntity>();
+        return places[0].EntityOf<GunshipTopEntity>();
     }
 }

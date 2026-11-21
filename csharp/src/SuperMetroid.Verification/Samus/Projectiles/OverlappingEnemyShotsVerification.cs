@@ -26,15 +26,13 @@ internal static class OverlappingEnemyShotsVerification
         enemies.VerificationServices().SeedRandom = _ => { };
         var interactive = (List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies;
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) };
+        // The room's population load sets up three Beetoms stacked on one another (#2554).
+        _ = enemies.LoadPopulation(samus, [.. Enumerable.Repeat(PopulationPlacementAccess.Entry(EnemyDefinitionId.Beetom, new Position16<RoomPixels>(128, 128)), 3)]);
         for (int index = 0; index < 3; index++)
         {
             var enemy = enemies.Places.InUpdateOrder[index];
-            enemy.Bind(EnemyDefinitionId.Beetom, enemy.KeptDefinition);
-            enemy.Bind(enemy.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(enemy.HeldOccupant().DefinitionId));
-            enemy.Position = enemy.Position.WithWhole(new(128, 128));
-            // The Beetom is set up as its room's population sets it up, keeping its real callback and vulnerability, then
-            // given enough health to observe damage independently from the death actor and drop machinery.
-            enemy.InitializeAsPlaced(samus);
+            // The Beetom was set up as its room's population sets it up, keeping its real callback and vulnerability, then
+            // is given enough health to observe damage independently from the death actor and drop machinery.
             enemy.Radius = new(enemy.Definition.Radius.X, enemy.Definition.Radius.Y);
             enemy.Health = 180;
             enemy.Frame = EnemyFrameId.BeetomCrawlingLeftLegsTucked; // Shots reach only an enemy showing a frame.

@@ -30,7 +30,7 @@ internal static class AlcoonFireballBehaviorVerification
         // The Alcoon is placed as its room's population places it, standing in terrain that its setup's floor search meets at
         // once; its volley's animation then spits its three fireballs, one at each of its fire cues, facing each way in turn.
         RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
-        AlcoonEnemyState state = source.PlaceAs<AlcoonEntity>(EnemyDefinitionId.Alcoon, EnemySpawnSettings.None, RoomEnemyFrameFixtures.StandaloneSamus(),
+        AlcoonEnemyState state = enemies.PlaceAs<AlcoonEntity>(EnemyDefinitionId.Alcoon, EnemySpawnSettings.None, RoomEnemyFrameFixtures.StandaloneSamus(),
             new Position16<RoomPixels>(128, 0x300), PlacedEnemyAccess.SolidRoom(new(64, 64))).State;
         source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;

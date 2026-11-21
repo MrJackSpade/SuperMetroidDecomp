@@ -143,9 +143,8 @@ internal static class LookupStream5Verification
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null),
                 floor: RoomBackgroundsFixtures.CeresFloor());
             var place = system.Places.InUpdateOrder[0];
-            place.Position = place.Position.WithWhole(origin);
             // The door is set up as its room places it, then stands in its explosion's rumble.
-            place.StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
+            system.StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None, origin);
             place.Position = place.Position.WithWhole(origin);
             CeresElevatorDoorState doorState = place.RequireSpeciesState<CeresElevatorDoorState>();
             doorState.Phase = CeresElevatorDoorPhase.Exploding;
@@ -331,7 +330,7 @@ internal static class LookupStream5Verification
         var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new StandaloneRoomEnemyServices(() => 0), floor: floor);
         var places = (RoomEnemyPlace[])system.Places.InUpdateOrder;
         // The intact door, set up as its room places it, cycles the glow and platform on each of its updates (#2482).
-        places[0].StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
+        system.StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
         places[0].RequireSpeciesState<CeresElevatorDoorState>().Phase = CeresElevatorDoorPhase.Intact;
         IEnemyAiFrame aiFrame = CeresDoorAiFrame();
         foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
@@ -1117,7 +1116,7 @@ internal static class LookupStream5Verification
                 place.Bind(EnemyDefinitionId.MorphBallEye, place.KeptDefinition);
                 place.Position = place.Position.WithWhole(new(origin, origin));
                 // The mount is set up as its room's population sets it up.
-                place.SetUpAsPlaced();
+                _ = enemies.LoadAuthoredPopulation();
                 AssertEqual(unchecked((ushort)(origin + expected.First)), place.Position.X.Whole, "Actual mount X with native wrap");
                 AssertEqual(unchecked((ushort)(origin + expected.Second)), place.Position.Y.Whole, "Actual mount Y with native wrap");
                 MorphBallEyeMountState mountState = enemies.Places.InUpdateOrder[0].SpeciesState<MorphBallEyeMountState>() ?? throw new InvalidOperationException("The mount has no state.");
@@ -1128,9 +1127,9 @@ internal static class LookupStream5Verification
             }
         }
         var owner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var body = owner.Places.InUpdateOrder[1];
-        body.BindPlaced(EnemyDefinitionId.MorphBallEye, new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
-        body.SetUpAsPlaced();
+        // The room's population load sets up an enemy standing in the first place, then the eye.
+        var body = owner.LoadPopulation(PopulationPlacementAccess.Entry(EnemyPlaceFixtures.StandIn),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.MorphBallEye, new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right)))[1];
         MorphBallEyeEnemyState eye = body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.");
         // The eye's request casts the beam: its first step activates the eye and starts it widening, six more make it full.
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Request(body, eye);
@@ -1720,7 +1719,7 @@ internal static class LookupStream5Verification
                 var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom());
                 var place = system.Places.InUpdateOrder[0];
                 (EnemyDefinitionId actor, EnemySpawnSettings settings) = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(variant);
-                place.StartCeresDoorOrWall(actor, settings);
+                system.StartCeresDoorOrWall(actor, settings);
                 // The initializer shows the normal colours as the door's shade, which the import paints from this paint (#1512).
                 AssertEqual(CeresDoorShades.InNormalColours, place.Shading, "Actual normal/target initializer shows the normal colours");
             }
@@ -1766,7 +1765,7 @@ internal static class LookupStream5Verification
                 system.RidleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
                 var place = system.Places.InUpdateOrder[0];
                 (EnemyDefinitionId actor, EnemySpawnSettings settings) = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(variant);
-                place.StartCeresDoorOrWall(actor, settings);
+                system.StartCeresDoorOrWall(actor, settings);
                 // Once the self-destruct starts, the initializer shows the escaping colours as the door's shade (#1512).
                 AssertEqual(CeresDoorShades.InEscapingColours, place.Shading, "Actual escape initializer shows the escaping colours");
             }
@@ -1813,7 +1812,7 @@ internal static class LookupStream5Verification
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             RoomEnemyPlace door = system.Places.InUpdateOrder[0];
             // The intact door, set up as its room places it, cycles the glow and platform on each of its updates (#2482).
-            door.StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
+            system.StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
             door.RequireSpeciesState<CeresElevatorDoorState>().Phase = CeresElevatorDoorPhase.Intact;
             IEnemyAiFrame aiFrame = CeresDoorAiFrame();
             foreach (int counter in Enumerable.Range(0, 64))

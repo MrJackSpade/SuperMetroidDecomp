@@ -22,13 +22,12 @@ internal static class FuneNamiheDefinitionsVerification
             bool right = (variant & 1) != 0;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             // The Fune or Namihe is set up as its room's population sets it up: its species builds its entity and its state.
-            Action<RoomEnemyPlace> initialize = static fixturePlace => fixturePlace.SetUpAsPlaced();
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, place.KeptDefinition);
             place.SetSpawnParameter1(place.HeldOccupant().DefinitionId, (ushort)((namihe ? 1 : 0) | (right ? 0x10 : 0)));
             place.SetSpawnParameter2(place.HeldOccupant().DefinitionId, 0x1000);
             place.Position = place.Position.WithWholeY(0x0200);
-            initialize(place);
+            _ = enemies.LoadAuthoredPopulation();
             FuneNamiheEnemyState state = namihe
                 ? enemies.NamiheStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NamiheStates[0].")
                 : enemies.FuneStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FuneStates[0].");

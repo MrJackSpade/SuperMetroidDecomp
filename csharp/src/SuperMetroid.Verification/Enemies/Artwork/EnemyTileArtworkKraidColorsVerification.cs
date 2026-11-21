@@ -101,9 +101,9 @@ internal static class EnemyTileArtworkKraidColorsVerification
     }
 
     /// <summary>
-    /// Kraid's backdrop keeps what his growth fade showed when Kraid is initialized again, which replaces his encounter
-    /// state, as the cartridge's colour memory keeps it; his death fade then starts from his colours instead of failing
-    /// on the room's (#1532).
+    /// Kraid's backdrop keeps what his growth fade showed, as the cartridge's colour memory keeps it; his death fade then
+    /// starts from his colours instead of failing on the room's (#1532). His room loads its population once, so his setup
+    /// never runs again in it (#2554).
     /// </summary>
     private static void VerifyKraidBackdropSurvivesReinitialization(ImportEnemyArtwork artwork)
     {
@@ -113,14 +113,6 @@ internal static class EnemyTileArtworkKraidColorsVerification
         while (!fade(KraidBackdropSettledColours.KraidColours))
             AssertTrue(++growthSteps <= FadeCounterValues, "Kraid's growth fade completes once the counter passes its last moving value");
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's growth fade ends on his colours");
-        // Kraid's body initializer replaces his encounter state; the room's backdrop colours outlive it.
-        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
-        // scrolls his fight frames, which this room takes.
-        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
-        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
-        _ = enemies.Places.SetUpKraidInRoomOrder();
-        AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows,
-            "re-initializing Kraid keeps the backdrop his growth fade showed");
         int deathSteps = 0;
         while (!fade(KraidBackdropSettledColours.Black))
             AssertTrue(++deathSteps <= FadeCounterValues, "Kraid's death fade completes once the counter passes its last moving value");
@@ -313,14 +305,12 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// <summary>A fresh Kraid room's enemies, Kraid loaded.</summary>
     private static RoomEnemySystem NewKraidRoom(ImportEnemyArtwork artwork)
     {
-        // The room binds Kraid's parts once; a later initialization joins the same parts again.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-        enemies.Places.BindKraidPartsInRoomOrder();
         // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
         // scrolls his fight frames, which this room takes.
         enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
         enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
-        _ = enemies.Places.SetUpKraidInRoomOrder();
+        _ = enemies.PlaceKraid();
         return enemies;
     }
 
@@ -449,7 +439,6 @@ internal static class EnemyTileArtworkKraidColorsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         var colours = new RgbColor[SnesCgram.ColorCount];
-        enemies.Places.BindKraidPartsInRoomOrder();
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Health = 1000;
         // The death setup restarts the arm's typed program (#641), which lives in the room's Kraid state.
@@ -457,7 +446,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         // scrolls his fight frames, which this room takes.
         enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
         enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
-        KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
+        KraidEnemyState state = enemies.PlaceKraid();
         KraidColorCatalog kraid = artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The installed artwork has no Kraid colours.");
         switch (consumer)
         {

@@ -57,8 +57,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
         enemies.VerificationServices().ReadRandom = () => 0;
         enemies.VerificationServices().NextRandom = () => 0;
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
-        MotherBrainEnemyState state = enemies.Places.InUpdateOrder[0].PlaceAs<MotherBrainBodyEntity>(EnemyDefinitionId.MotherBrainBody, EnemySpawnSettings.None, samus).Encounter;
-        enemies.Places.InUpdateOrder[1].PlaceAs<MotherBrainHeadEntity>(EnemyDefinitionId.MotherBrainHead, EnemySpawnSettings.None, samus);
+        MotherBrainEnemyState state = MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
         MotherBrainRainbowBeamAttackSequence lateFight = MotherBrainBabyArrival.BringInBaby(state, samus);
 
         BabyMetroidCutsceneState madeBaby = lateFight.Baby ??

@@ -121,10 +121,9 @@ internal static class FamilyTrigonometryVerification
             // The leading saw starts the chain the second segment joins (#2452); the second segment finds the saw it
             // orbits as production places it, right after the saw.
             previous.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 0);
-            previous.SetUpAsPlaced();
             segment.Bind(EnemyDefinitionId.Shaktool, segment.KeptDefinition);
             segment.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 2);
-            segment.SetUpAsPlaced();
+            _ = enemies.LoadAuthoredPopulation();
             // The segment's main AI places it on its orbit around the saw before it; with no angular speed of its own its
             // orbit then stays where it was.
             ShaktoolSegmentState segmentState = segment.EntityOf<ShaktoolEntity>().State;

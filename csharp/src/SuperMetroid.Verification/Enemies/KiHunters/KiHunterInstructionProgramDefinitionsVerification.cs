@@ -204,8 +204,6 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             // The body is set up as its room's population sets it up, offering its wings, which are set up after it.
-            Action<RoomEnemyPlace> initializeBody = fixturePlace => fixturePlace.SetUpAsPlaced();
-            Action<RoomEnemyPlace> initializeWings = fixturePlace => fixturePlace.SetUpAsPlaced();
 
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.Bind(EnemyDefinitionId.KihunterGreen, body.KeptDefinition);
@@ -220,8 +218,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             // entry's detachment health is never reached by these unhurt programs.
             body.SetSpawnSettings(new KiHunterSpawnSettings(KiHunterWings.Winged));
             wings.SetSpawnSettings(new KiHunterWingsSpawnSettings(DetachHealth: 0));
-            initializeBody(body);
-            initializeWings(wings);
+            _ = enemies.LoadAuthoredPopulation();
             return new CreatePairResult(enemies, body, wings,
                 (enemies.KiHunterBodyStates[0] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter body state.")), (enemies.KiHunterWingStates[1] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter wing state.")));
         }

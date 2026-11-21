@@ -24,7 +24,7 @@ internal static class SkulteraOwnedStateVerification
         place.SetSpawnParameter1(EnemyDefinitionId.Skultera, speedRecord);
         place.SetSpawnParameter2(EnemyDefinitionId.Skultera, LittleEndianBytes.Word(20, 10));
         // The enemy is set up as its room's population sets it up: its species builds its entity, whose setup builds its state.
-        place.SetUpAsPlaced();
+        _ = enemies.LoadAuthoredPopulation();
         SkulteraEnemyState state = enemies.SkulteraStates[0]
             ?? throw new InvalidOperationException("The initialized Skultera has no state.");
 

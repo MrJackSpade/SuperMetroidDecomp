@@ -33,7 +33,6 @@ internal static class ShaktoolSegmentDefinitionsVerification
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = fixturePlace => fixturePlace.SetUpAsPlaced();
         for (int index = 0; index < definitions.Length; index++)
         {
             ShaktoolSegmentDefinition definition = definitions[index];
@@ -44,7 +43,13 @@ internal static class ShaktoolSegmentDefinitionsVerification
             place.Processing = EnemyProcessing.None;
             place.Presence = EnemyPresence.None;
             place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
-            initialize(place);
+        }
+        // The room's population load sets up the chain, its leading saw first (#2554).
+        _ = enemies.LoadAuthoredPopulation();
+        for (int index = 0; index < definitions.Length; index++)
+        {
+            ShaktoolSegmentDefinition definition = definitions[index];
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
 
             ShaktoolSegmentState state = (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index]."));
             AssertEqual(EnemyContact.BlocksPlasmaBeam | definition.Contact,

@@ -22,7 +22,7 @@ internal static class RipperVariantOwnedStateVerification
         place.SetSpawnParameter1(EnemyDefinitionId.JetRipper, speedRecord);
         place.SetSpawnParameter2(EnemyDefinitionId.JetRipper, 0);
         // The enemy is set up as its room's population sets it up: its species builds its entity, whose setup builds its state.
-        place.SetUpAsPlaced();
+        _ = enemies.LoadAuthoredPopulation();
         RipperEnemyState state = place.SpeciesState<RipperEnemyState>()
             ?? throw new InvalidOperationException("The Ripper II has no state.");
 

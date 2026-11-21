@@ -96,12 +96,11 @@ internal static class BossBodyLayeredPartsVerification
     private static int CheckKraidHead(BossSourceArtwork frames)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        enemies.Places.BindKraidPartsInRoomOrder();
         // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
         // scrolls his fight frames, which this room takes.
         enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
         enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
-        KraidEnemyState state = enemies.Places.SetUpKraidInRoomOrder();
+        KraidEnemyState state = enemies.PlaceKraid();
         state.InitializeBodyLayer();
         state.ShowBody();
         Dictionary<string, BossBodyFrameSource> sources = SourcesOf(frames, BossBodyOwner.Kraid);

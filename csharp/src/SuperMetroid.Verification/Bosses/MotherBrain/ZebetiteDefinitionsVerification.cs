@@ -104,7 +104,7 @@ internal static class ZebetiteDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.Zebetite, linkedHalf ? (ushort)2 : (ushort)0);
             place.Bind(EnemyDefinitionId.Zebetite, place.KeptDefinition);
-            place.SetUpAsPlaced();
+            _ = enemies.LoadAuthoredPopulation();
             ZebetiteEnemyState state = enemies.ZebetiteStates[0] ??
                 throw new InvalidDataException("Zebetite initializer omitted typed state.");
             ZebetiteGenerationDefinition expected = Zebetites.Generation(generation);
@@ -138,7 +138,7 @@ internal static class ZebetiteDefinitionsVerification
             var enemies = NewZebetiteDefinitionSystem((ushort)split);
             SuperMetroid.Core.Samus.SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
             RoomEnemyPlace primary = enemies.Places.InUpdateOrder[0];
-            primary.PlaceAs<ZebetiteEntity>(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Primary), samus);
+            enemies.PlaceAs<ZebetiteEntity>(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Primary), samus);
             primary.Health = ZebetiteDefinitions.MaximumHealth;
             primary.RunMainAi(samus);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[1];
@@ -153,7 +153,7 @@ internal static class ZebetiteDefinitionsVerification
             enemies.VerificationServices().WriteZebetitesDestroyed = value => destroyed = value;
             SuperMetroid.Core.Samus.SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
             RoomEnemyPlace primary = enemies.Places.InUpdateOrder[0];
-            ZebetiteEnemyState dying = primary.PlaceAs<ZebetiteEntity>(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Primary), samus).State;
+            ZebetiteEnemyState dying = enemies.PlaceAs<ZebetiteEntity>(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Primary), samus).State;
             dying.Action = ZebetiteAction.Active;
             primary.Health = 0;
             primary.RunMainAi(samus);

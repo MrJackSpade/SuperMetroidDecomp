@@ -422,11 +422,15 @@ internal static class EnemyDropsVerification
         MaxHealth = 99,
     };
 
-    /// <summary>Loads a one-block room with ROM-shaped pickup programs and a controlled random queue.</summary>
+    /// <summary>
+    /// Loads a one-block room with ROM-shaped pickup programs and a controlled random queue, placing no enemies, or the
+    /// <paramref name="population"/> a check places (#2554).
+    /// </summary>
     internal static EnemyDropFixture CreateEnemyDropFixture(
         SamusState samus,
         IReadOnlyList<ushort> randomValues,
-        IRoomEnemyDefinitionSource? definitions = null)
+        IRoomEnemyDefinitionSource? definitions = null,
+        IReadOnlyList<RoomEnemyPlacement>? population = null)
     {
         var bus = new TestAddressSpace();
         SeedEnemyPickupRom(bus);
@@ -435,7 +439,10 @@ internal static class EnemyDropsVerification
 
         RoomLevelData level = CreateEmptyRoom(new(1, 1));
         var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: definitions ?? bus, services: new StandaloneRoomEnemyServices(NextRandom));
-        system.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(0x9000), BgArtworkFixtures.For(new SnesVram()), level, samus));
+        if (population is null)
+            system.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(0x9000), BgArtworkFixtures.For(new SnesVram()), level, samus));
+        else
+            _ = system.LoadPopulation(samus, level, [.. population]);
         return new EnemyDropFixture(bus, system, level, samus);
     }
 

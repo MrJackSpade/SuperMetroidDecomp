@@ -154,7 +154,6 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             Type selectedPart)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace, SamusState> initialize = static (place, samus) => place.InitializeAsPlaced(samus);
             for (int index = 0; index < 3; index++)
             {
                 RoomEnemyPlace member = enemies.Places.InUpdateOrder[index];
@@ -163,8 +162,9 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 member.Bind(EnemyDefinitionId.Magdollite, member.KeptDefinition);
                 member.Bind(member.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
                 member.Position = member.Position.WithWhole(new(0x0080, 0x0080));
-                initialize(member, RoomEnemyFrameFixtures.StandaloneSamus());
             }
+            // The room's population load sets up the three parts in order (#2554).
+            _ = enemies.LoadAuthoredPopulation();
 
             // Each placement spawned as the part its parameter names; the selected part is the one whose state's type names
             // it (#2474).

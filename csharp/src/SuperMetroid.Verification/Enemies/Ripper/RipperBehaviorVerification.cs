@@ -53,7 +53,7 @@ internal static class RipperBehaviorVerification
             place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
             place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
-            place.SetUpAsPlaced();
+            _ = enemies.LoadAuthoredPopulation();
             VerifyInstalledLoop(enemies, place, expectedProgram, context);
         }
 
@@ -63,7 +63,7 @@ internal static class RipperBehaviorVerification
             RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.GrappleRipper);
             // Its patrol's right bound lies at the room's left edge, so its first flight passes it and it turns back.
             place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: 0));
-            place.SetUpAsPlaced();
+            _ = enemies.LoadAuthoredPopulation();
             place.Position = place.Position.WithWhole(new(0x80, 0x80));
             place.Radius = new(8, 8);
             place.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
@@ -76,7 +76,7 @@ internal static class RipperBehaviorVerification
             RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.JetRipper);
             place.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
             place.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
-            place.SetUpAsPlaced();
+            _ = enemies.LoadAuthoredPopulation();
             VerifyInstalledLoop(enemies, place, expectedProgram, context);
         }
 
@@ -86,7 +86,7 @@ internal static class RipperBehaviorVerification
             RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.Ripper);
             place.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
             place.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
-            place.SetUpAsPlaced();
+            _ = enemies.LoadAuthoredPopulation();
             VerifyInstalledLoop(enemies, place, expectedProgram, context);
         }
 

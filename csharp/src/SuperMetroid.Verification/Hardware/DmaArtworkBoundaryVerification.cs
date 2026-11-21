@@ -36,12 +36,11 @@ internal static class DmaArtworkBoundaryVerification
         ImportEnemyArtwork art = InstalledFixtures.EnemyArtwork;
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art.Bosses);
         // His growth shows the room's backdrop on the update its phase comes to, his body's main AI as the enemy pass runs it.
-        enemies.Places.BindKraidPartsInRoomOrder();
         // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
         // scrolls his fight frames, which this room takes.
         enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
         enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
-        KraidEnemyState kraid = enemies.Places.SetUpKraidInRoomOrder();
+        KraidEnemyState kraid = enemies.PlaceKraid();
         var background = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(background));
         kraid.BodyState.GrowthPhase = KraidGrowthPhase.ShowRoomBackdrop;

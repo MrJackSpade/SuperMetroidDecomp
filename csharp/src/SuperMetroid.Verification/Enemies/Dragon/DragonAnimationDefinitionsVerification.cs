@@ -67,9 +67,7 @@ internal static class DragonAnimationDefinitionsVerification
     private static void VerifyDragonAttackStartsOverAfterFireball()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        RoomEnemyPlace wing = enemies.Places.InUpdateOrder[1];
-        PlaceDragon(body, wing);
+        (RoomEnemyPlace body, RoomEnemyPlace wing) = PlaceDragon(enemies, default);
         DragonEnemyState bodyState = enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[0].");
         Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonSegment.AttackingFacingRight);
         var playedOut = new AnimationPlayback<DragonSegment>(attack, AnimationPlace.HoldingIn(0, attack.Phases[0].BeatCount));
@@ -111,14 +109,7 @@ internal static class DragonAnimationDefinitionsVerification
         bool facingLeft)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        RoomEnemyPlace wing = enemies.Places.InUpdateOrder[1];
-        wing.Position = wing.Position.WithWholeX(0x0100);
-        body.Position = body.Position.WithWholeX(0x0100);
-        wing.Position = wing.Position.WithWholeY(0x0100);
-        body.Position = body.Position.WithWholeY(0x0100);
-
-        PlaceDragon(body, wing);
+        (RoomEnemyPlace body, RoomEnemyPlace wing) = PlaceDragon(enemies, new(0x0100, 0x0100));
         DragonEnemyState bodyState = (enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[0]."));
         DragonWingState wingState = (enemies.DragonWingStates[1] ?? throw new InvalidOperationException("Verification requires enemies.DragonWingStates[1]."));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
@@ -161,16 +152,14 @@ internal static class DragonAnimationDefinitionsVerification
             facingLeft ? "live left-facing Dragon attack" : "live right-facing Dragon attack");
     }
 
-    /// <summary>Places a Dragon body and the wing listed after it, each bound as its own part and initialized.</summary>
-    private static void PlaceDragon(RoomEnemyPlace body, RoomEnemyPlace wing)
+    /// <summary>
+    /// Places a Dragon body and the wing listed after it at <paramref name="at"/> in <paramref name="enemies"/>' first two
+    /// places, as their room's population load sets them up (#2554), the wing after the body that offers it.
+    /// </summary>
+    private static (RoomEnemyPlace Body, RoomEnemyPlace Wing) PlaceDragon(RoomEnemySystem enemies, Position16<RoomPixels> at)
     {
-        body.SetSpawnParameter1(EnemyDefinitionId.Dragon, 0);
-        wing.SetSpawnParameter1(EnemyDefinitionId.Dragon, 1);
-        body.Bind(EnemyDefinitionId.Dragon, body.KeptDefinition);
-        wing.Bind(EnemyDefinitionId.Dragon, wing.KeptDefinition);
-        // Both parts are set up as their room's population sets them up, the wing after the body that offers it.
-        body.SetUpAsPlaced();
-        wing.SetUpAsPlaced();
+        IReadOnlyList<RoomEnemyPlace> places = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Dragon, new DragonSpawnSettings(DragonPart.Body), at), PopulationPlacementAccess.Entry(EnemyDefinitionId.Dragon, new DragonSpawnSettings(DragonPart.Wing), at));
+        return (places[0], places[1]);
     }
 
     /// <summary>Starts with nondefault instruction values so an omitted install remains observable.</summary>

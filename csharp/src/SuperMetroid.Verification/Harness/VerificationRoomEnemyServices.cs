@@ -142,6 +142,9 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
             Loaded("count a head shot on Mother Brain's glass").MotherBrain.CountHeadShotOnGlass();
     }
 
+    /// <summary>Confirms Mother Brain's glass loaded through the loaded services.</summary>
+    public void ConfirmGlassLoaded() => Loaded("confirm Mother Brain's glass loaded").MotherBrain.ConfirmGlassLoaded();
+
     /// <summary>Whether the loaded room's Bomb Torizo statue hand still stands.</summary>
     public bool BombTorizoHandRemains => Loaded("ask whether the statue's hand still stands").RoomObjects.BombTorizoHandRemains;
 

@@ -33,7 +33,7 @@ public sealed class MapSpriteArtwork : MapSpriteCompositions
     /// <summary>A named map marker, elevator, label, or indicator as a whole frame over the menu OBJ page (#1392).</summary>
     internal SpriteFrame Frame(MapSpriteId id)
     {
-        string name = Ensure.Listed(MapSpriteDefinitions.Names, id);
+        string name = MapSpriteDefinitions.Names[id];
         return Ensure.Listed(frames, id).ToFrame(name, 0);
     }
 
@@ -62,7 +62,7 @@ public sealed class MapSpriteArtwork : MapSpriteCompositions
         var frames = new Dictionary<MapSpriteId, SpriteComposition>();
         foreach (MapSpriteId id in MapSpriteFormat.FrameOrder)
         {
-            string name = Ensure.Listed(MapSpriteDefinitions.Names, id);
+            string name = MapSpriteDefinitions.Names[id];
             if (!document.Frames.TryGetValue(name, out var parts) || parts is null || parts.Length > MapSpriteFormat.MaximumParts)
                 throw new InvalidDataException($"Map sprite {name} requires an ordered array of at most 128 parts.");
             frames.Add(id, MenuSpriteCompiler.Compile(parts, name));
@@ -72,7 +72,7 @@ public sealed class MapSpriteArtwork : MapSpriteCompositions
 
     /// <summary>Enumerates the named map sprite roles in the installed document's order.</summary>
     public static IEnumerable<MapSpriteFrameName> FrameNames =>
-        MapSpriteFormat.FrameOrder.Select(id => new MapSpriteFrameName(id, Ensure.Listed(MapSpriteDefinitions.Names, id)));
+        MapSpriteFormat.FrameOrder.Select(id => new MapSpriteFrameName(id, MapSpriteDefinitions.Names[id]));
 
     /// <summary>The map sprite sheet's frames, one per named role.</summary>
     public static IEnumerable<string> SheetFrames => FrameNames.Select(frame => frame.Name);

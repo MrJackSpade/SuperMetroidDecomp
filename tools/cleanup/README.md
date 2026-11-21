@@ -176,6 +176,12 @@ exception, and the fixer is fixed. What each fixer does where a choice was neede
   re-indented. When the file it belongs in exists, it goes into that file beside its code, deleting nothing. Two types
   that both belong in the file (`Pair` and `Pair<T>` in `Pair.cs`) get an `#error` naming both. A file-local type
   moves, and its references fail the build.
+
+That `#error` leaves the finding in place, since both types stay in the file. A fix whose only change is to add lines
+its file already holds has been applied before, by this run or an earlier one: the runner records "leaves its finding in
+place: the fix stands as applied" as a problem and goes on to the file's next rule, instead of adding the same `#error`
+again on every pass (as it did once #2607 stopped leaving the files of a project with compiler errors alone) and on every
+later run.
 - SME6401 renames a file whose name differs only in case (`objectcharacterplacement.cs`, which a file system that
   ignores case holds as the same file): the runner deletes it before it creates the new name, and the loop takes the
   old name out of git's index. When another file has the name, the type goes into it, as SME6400's does.

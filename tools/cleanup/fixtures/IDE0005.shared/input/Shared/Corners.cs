@@ -11,5 +11,5 @@ namespace Fixture.Shared;
 internal static class Corners
 {
     /// <summary>The corners of a square.</summary>
-    internal static int Of(Square square) => square.Corners;
+    internal static int OfSquare() => Square.Corners;
 }

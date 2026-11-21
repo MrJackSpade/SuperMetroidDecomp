@@ -936,6 +936,9 @@ internal sealed class SolutionFixer
     /// <summary>The repository-relative old paths of the files the run renamed only in case.</summary>
     private readonly List<string> _renamedCase = [];
 
+    /// <summary>The files and rules whose standing fixes have been recorded as a problem, each once.</summary>
+    private readonly HashSet<string> _reportedStanding = new(StringComparer.OrdinalIgnoreCase);
+
     /// <summary>Creates a fixer for the rules to fix in the repository at <paramref name="root"/>.</summary>
     public SolutionFixer(string root, string[] rules, bool dryRun)
     {
@@ -995,6 +998,12 @@ internal sealed class SolutionFixer
                 .Order(StringComparer.OrdinalIgnoreCase).ToList();
             Solution analyzed = solution;
             var plans = await PlanAsync(analyzed, paths, analyses);
+            foreach (string path in paths)
+            {
+                foreach (string rule in plans[path].Standing.Where(rule => _reportedStanding.Add($"{rule} {path}")))
+                    Problem($"The {rule} fix for {Relative(path)} leaves its finding in place: the fix stands as applied, breaking " +
+                        "the code there, and it is not applied again.");
+            }
             _passProblems = [];
             foreach (string path in paths)
             {
@@ -1244,12 +1253,21 @@ internal sealed class SolutionFixer
     /// solution the pass analyzed. Each pass fixes at most one rule per file and a fix that would change a file another
     /// fix of the pass changed waits for the next pass, so the file a fix is computed for holds the same text as in that
     /// solution when the fix is applied.
+    /// <para>
+    /// A fix that breaks the code where it needs a choice can leave its own finding in place: SME6400's <c>#error</c> for
+    /// two types that both belong in one file keeps both types there. Fixing that finding again would only add the same
+    /// <c>#error</c> again, and did, once a pass until the passes ran out, once #2607 stopped leaving the files of a project
+    /// with compiler errors alone. So a fix whose only change is to add lines its file already holds (<see cref="Repeats"/>)
+    /// has been applied before, by this run or an earlier one: its break stands, and the plan goes on to the next rule.
+    /// </para>
     /// </summary>
     /// <param name="Document">The file's document in the project the fix is computed in.</param>
     /// <param name="Fix">The fix of the first rule with findings, or null when no rule has any.</param>
     /// <param name="UnusedUsings">Without a fix, each project reporting unused usings in the file with what it reports,
     /// when there are several; otherwise empty.</param>
-    private sealed record FilePlan(Document Document, PlannedFix? Fix, List<List<Diagnostic>> UnusedUsings);
+    /// <param name="Standing">The rules, before the planned one, whose fixes in the file have been applied before and
+    /// left their findings in place: their breaks stand.</param>
+    private sealed record FilePlan(Document Document, PlannedFix? Fix, List<List<Diagnostic>> UnusedUsings, List<string> Standing);
 
     /// <summary>Plans every file of the pass, on all processors; the plans are used in path order.</summary>
     private async Task<Dictionary<string, FilePlan>> PlanAsync(Solution solution, List<string> paths, Dictionary<ProjectId, ProjectAnalysis> analyses)
@@ -1269,6 +1287,7 @@ internal sealed class SolutionFixer
             solution.GetDocument(solution.GetDocumentIdsWithFilePath(path).Single(id => id.ProjectId == project.Project.Id))!;
         // The fix is computed in a project that compiles where there is one, since a fixer binds the code it rewrites.
         static ProjectAnalysis Chosen(List<ProjectAnalysis> deciders) => deciders.FirstOrDefault(a => a.CompilerErrors.Count == 0) ?? deciders[0];
+        var standing = new List<string>();
         foreach (CleanupRule cleanupRule in RuleOrder)
         {
             if (!_rules.Contains(cleanupRule.Id))
@@ -1283,13 +1302,55 @@ internal sealed class SolutionFixer
             ProjectAnalysis chosen = Chosen(deciders);
             Document document = DocumentIn(chosen);
             var diagnostics = chosen.FindingsOf(path, cleanupRule.Id).Where(d => agreed.Contains(Key(d))).ToList();
-            return new FilePlan(document,
-                new PlannedFix(cleanupRule.Id, diagnostics, await FixOfAsync(document, chosen, cleanupRule, diagnostics)), []);
+            Solution changed = await FixOfAsync(document, chosen, cleanupRule, diagnostics);
+            if (await RepeatsAsync(solution, changed))
+            {
+                standing.Add(cleanupRule.Id);
+                continue;
+            }
+            return new FilePlan(document, new PlannedFix(cleanupRule.Id, diagnostics, changed), [], standing);
         }
         var usingDeciders = compilers.Where(a => a.Reports(path, UnusedUsing)).ToList();
         return new FilePlan(DocumentIn(Chosen(usingDeciders.Count > 0 ? usingDeciders : compilers)), null,
-            usingDeciders.Count > 1 ? [.. usingDeciders.Select(a => a.FindingsOf(path, UnusedUsing))] : []);
+            usingDeciders.Count > 1 ? [.. usingDeciders.Select(a => a.FindingsOf(path, UnusedUsing))] : [], standing);
     }
+
+    /// <summary>
+    /// Whether a fix has been applied before (<see cref="FilePlan"/>): it adds or removes no file, removes no line, and
+    /// every line it adds is a line its file already holds, so all it would do is repeat a break the file shows already.
+    /// </summary>
+    private static async Task<bool> RepeatsAsync(Solution analyzed, Solution changed)
+    {
+        SolutionChanges changes = changed.GetChanges(analyzed);
+        bool repeats = false;
+        foreach (ProjectChanges project in changes.GetProjectChanges())
+        {
+            if (project.GetAddedDocuments().Any() || project.GetRemovedDocuments().Any())
+                return false;
+            foreach (DocumentId id in project.GetChangedDocuments())
+            {
+                var before = Lines(await analyzed.GetDocument(id)!.GetTextAsync());
+                var after = Lines(await changed.GetDocument(id)!.GetTextAsync());
+                var held = before.ToHashSet(StringComparer.Ordinal);
+                var remaining = before.GroupBy(line => line, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
+                var added = new List<string>();
+                foreach (string line in after)
+                {
+                    if (remaining.TryGetValue(line, out int count) && count > 0)
+                        remaining[line] = count - 1;
+                    else
+                        added.Add(line);
+                }
+                if (remaining.Values.Any(count => count > 0) || added.Count == 0 || !added.All(held.Contains))
+                    return false;
+                repeats = true;
+            }
+        }
+        return repeats;
+    }
+
+    /// <summary>A text's lines, without their line breaks.</summary>
+    private static List<string> Lines(SourceText text) => [.. text.Lines.Select(line => line.ToString())];
 
     /// <summary>The fixer's fix of one rule's agreed findings in a document.</summary>
     private async Task<Solution> FixOfAsync(Document document, ProjectAnalysis chosen, CleanupRule cleanupRule, List<Diagnostic> diagnostics)
@@ -1310,7 +1371,7 @@ internal sealed class SolutionFixer
     private async Task<FileFix?> FixFileAsync(Solution solution, Solution analyzed, string path, FilePlan plan,
         SortedDictionary<string, int> fixedCounts, HashSet<string> touched)
     {
-        var (document, planFix, unusedUsings) = plan;
+        var (document, planFix, unusedUsings, _) = plan;
         if (planFix is { Rule: var rule, Diagnostics: var diagnostics, Changed: var changed })
         {
             // The fix is always applied, now or in a later pass; it is never skipped.

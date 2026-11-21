@@ -1,8 +1,8 @@
 namespace Fixture.Shapes;
 
 /// <summary>A square, in a namespace one of the two projects compiling it imports globally.</summary>
-internal sealed class Square
+internal static class Square
 {
     /// <summary>How many corners a square has.</summary>
-    internal int Corners => 4;
+    internal const int Corners = 4;
 }

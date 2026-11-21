@@ -1233,14 +1233,14 @@ internal static class LookupStream2Verification
             AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), pulse.Colours[1], "Native arrow color11 reaches the arrow's light colour");
         }
         Check(stock, document);
-        Console.WriteLine("Reserve arrow ramps: all 64 native colors, shades and wrapping pass.");
+        Console.WriteLine("Reserve arrow ramps: all 64 native colors and shades pass.");
 
         static void Check(PauseReserveUiPresentation presentation, PauseReserveUiDocument expected)
         {
-            for (int frame = -1; frame <= 32; frame++)
+            foreach (SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowPulseFrame frame in SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowPulseFrame.All)
             {
                 var pulse = presentation.ArrowColours.Pulse(frame);
-                var row = expected.Arrow.Frames[frame & 31];
+                var row = expected.Arrow.Frames[frame.Frame];
                 AssertEqual(Pack(row.Shade), pulse.Shade, "Supplied color6");
                 AssertEqual(Pack(row.Light), pulse.Light, "Supplied color11");
             }

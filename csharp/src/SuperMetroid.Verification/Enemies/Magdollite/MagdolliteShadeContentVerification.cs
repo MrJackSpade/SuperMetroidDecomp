@@ -26,7 +26,7 @@ internal static class MagdolliteShadeContentVerification
         ISnesAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Magdollite));
-        int row = new GraphicsSetRows(RoomEnemyGraphicsSetLists.MembersOf(set), EnemyGraphicsSetPaletteRowDefinitions.Rows).RowOf(EnemyDefinitionId.Magdollite);
+        int row = new GraphicsSetRows(RoomEnemyGraphicsSetLists.MembersOf(set)).RowOf(EnemyDefinitionId.Magdollite);
         // The sheet composed in-process, which knows the palette index each pixel was composed as (#1633).
         SpriteImage image = EnemySheetFixtures.ComposedSheet(set, EnemyDefinitionId.Magdollite);
         int first = row * LoadedSetColours.RowColours;

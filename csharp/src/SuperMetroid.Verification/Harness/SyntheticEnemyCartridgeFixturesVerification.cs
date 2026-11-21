@@ -34,7 +34,7 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
     }
 
     /// <summary>The palette row seeded records name; gameplay reads no row, so every fixture record names the first enemy row (#1512).</summary>
-    private const int FixturePaletteRow = 1;
+    internal const int FixturePaletteRow = 1;
 
     /// <summary>
     /// Seeds a terminated bank-$B4 enemy graphics set at <paramref name="tileset"/>: each
@@ -46,7 +46,7 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
         int address = 0xb40000 | tileset;
         foreach (RoomEnemyGraphicsSetMember record in records)
         {
-            WriteTestWords(bus, address, TestAddressSpace.FixtureHeaderPointer(record), RoomEnemyGraphicsSetMember.NativePlacement(FixturePaletteRow,
+            WriteTestWords(bus, address, TestAddressSpace.FixtureHeaderPointer(record), RoomEnemyGraphicsSetMember.NativePlacement(record.PaletteRow,
                 record.FixedBlock ?? 0));
             address += 4;
         }

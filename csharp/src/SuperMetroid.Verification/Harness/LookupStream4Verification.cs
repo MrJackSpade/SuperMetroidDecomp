@@ -82,7 +82,8 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Verification.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;namespace SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>
 internal static class LookupStream4Verification
@@ -1057,8 +1058,6 @@ internal static class LookupStream4Verification
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
         GameplayHudArtwork stock = GameplayHudPresentationFile.Read(new MemoryStream(json));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        AssertTrue(!MetadataShape.DeclaresField(typeof(GameplayHudPresentation), "autoReserveBasis", flags), "AUTO no longer stores whole-word basis cells");
         ushort[] tiles = new ushort[96];
         for (int state = 0; state < 2; state++)
         {

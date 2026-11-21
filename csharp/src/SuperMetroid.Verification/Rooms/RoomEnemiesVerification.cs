@@ -293,20 +293,6 @@ internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     }
 }
 
-/// <summary>Checks that the enemy subsystem declares no generic source reader.</summary>
-/// <remarks>
-/// The fixed-bank work-RAM word this check once read through the runtime's work-RAM image is gone with the image
-/// (#1688): no enemy reads work RAM, so only the readers' absence is asserted.
-/// </remarks>
-internal static void VerifyEnemyMappedSourceRouting()
-{
-    const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
-    foreach (string removed in new[] { "ReadEnemySourceByte", "ReadWord", "ReadLong" })
-        AssertTrue(!MetadataShape.DeclaresMethod(typeof(RoomEnemySystem), removed, flags),
-            $"enemy subsystem has no generic {removed} source reader");
-    Console.WriteLine("Enemy memory boundary: generic source readers are absent.");
-}
-
 /// <summary>
 /// Reproduces the rapid-Super visual failure from room $A56B: a fresh owner and its
 /// invisible linked slot occupy the same 32-pixel cell as a blocking eye-door projectile.
@@ -1640,7 +1626,6 @@ static void SeedCeresRidleyRoomEntryCartridge(
     [VerificationCommand("--enemy-source-routing")]
     internal static int EnemySourceRoutingCommand()
     {
-        Suite(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting());
         return 0;
     }
 

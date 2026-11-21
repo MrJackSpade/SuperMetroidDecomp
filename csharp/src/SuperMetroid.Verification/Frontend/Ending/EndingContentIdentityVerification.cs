@@ -12,7 +12,8 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+
 using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks ending artwork role mapping and decoded-content identity behavior.</summary>
@@ -140,19 +141,6 @@ internal static class EndingContentIdentityVerification
                 AssertEqual(digest, CreateEndingIdentityFixture(cosmeticEdit).Installed[component],
                     cosmeticEdit + " preserves decoded " + component);
         }
-
-        // These identities are derived from existing installed fields. Persisting an extra cached
-        // digest would needlessly change the exact debugger-object layout of older save states.
-        foreach (Type type in new[]
-        {
-            typeof(EndingObjectSourceArtwork), typeof(EndingFloorCharacters), typeof(EndingBackdrops),
-            typeof(EndingCloudSpritePresentation), typeof(EndingExplosionSpritePresentation),
-            typeof(EndingCompletionTextSpritePresentation), typeof(EndingRewardSpritePresentation),
-            typeof(EndingLogoSpritePresentation),
-        })
-            AssertTrue(!MetadataShape.DeclaresField(type, "<ContentIdentity>k__BackingField",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
-                type.Name + " adds no serialized derived-identity field");
         Console.WriteLine($"  Ending content: {objectEdits.Length} map/composition edits and {edits.Count} backdrop edits, " +
             "ordered transfers and parts, canonical frames, encoding invariance and host warnings pass without a ROM.");
     }

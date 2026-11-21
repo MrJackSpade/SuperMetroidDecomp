@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Reflection;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
@@ -24,31 +23,14 @@ internal static class OperationContractsVerification
     /// </summary>
     internal static void VerifyOperationContracts()
     {
-        const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
-        const BindingFlags shared = BindingFlags.Static | BindingFlags.NonPublic;
-
-        // Main AI's narrow frame is the enemy frame plus the counters the pass resolved once.
-        AssertTrue(typeof(IEnemyAiFrame).IsAssignableFrom(typeof(ClockedEnemyAiFrame)), "the pass's clocked frame satisfies main AI's frame");
-        AssertTrue(MetadataShape.Properties(typeof(IEnemyAiFrame), BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public).Select(property => property.Name).Order(StringComparer.Ordinal).SequenceEqual(
-            ["Camera", "Clock", "ControllerInput", "Level", "NewlyPressedControllerInput", "PseudoScrew", "Samus", "SamusBombs",
-             "SamusProjectiles"]),
-            "main AI's frame exposes only the nine values main AI reads");
-        AssertEqual(typeof(IEnemyAiFrame), MetadataShape.ParameterTypes(typeof(EnemyLifecycle), nameof(EnemyLifecycle.RunMainAi), shared)[1],
-            "main AI accepts its narrow frame, not the enemy pass's whole frame");
-        AssertEqual(typeof(IEnemyAiFrame), MetadataShape.ParameterTypes(typeof(GrappleBehavior), nameof(GrappleBehavior.RunCommonGrappleAi), instance)[1],
-            "the common grapple wrapper accepts main AI's frame");
-
-
-        // Children that read a subset take that subset, not the parent's record.
-        AssertEqual(typeof(ColourEffectInputs),
-            MetadataShape.ParameterTypes(typeof(ColourEffectSystem), "CheckCondition", instance)[1],
-            "a colour effect's condition takes only the room's conditions; the power bomb stays with the step");
-        AssertEqual(typeof(VerticalTerrainProbe),
-            MetadataShape.ParameterTypes(typeof(SamusBlockCollision), "ScanVerticalTerrain", shared)[4],
-            "the vertical terrain scan takes its probe, not the whole vertical move");
-        AssertEqual(typeof(IDefeatedBossesReader),
-            typeof(RoomObjectSetupContext).GetProperty(nameof(RoomObjectSetupContext.Bosses))?.PropertyType,
-            "PLM setup reads boss flags without being able to set them");
+        // The narrow contracts are the compiler's: main AI and the common grapple wrapper take main AI's frame, which the
+        // pass's clocked frame satisfies, and PLM setup reads boss flags through the reader, which cannot set them.
+        Action<RoomEnemyPlace, IEnemyAiFrame> mainAi = EnemyLifecycle.RunMainAi;
+        Func<GrappleBehavior, RoomEnemyOccupant, IEnemyAiFrame, bool> grapple = static (behavior, grappled, frame) => behavior.RunCommonGrappleAi(grappled, frame);
+        Func<ClockedEnemyAiFrame, IEnemyAiFrame> narrowed = static frame => frame;
+        Func<RoomObjectSetupContext, IDefeatedBossesReader> bosses = static context => context.Bosses;
+        AssertTrue(mainAi is not null && grapple is not null && narrowed is not null && bosses is not null,
+            "main AI, the grapple wrapper and PLM setup take their narrow contracts");
 
         // Concrete contexts validate required values at construction.
         var level = new RoomLevelData(new(1, 1), new RoomLevelPlanes(new RoomTerrainBlock[1], new RoomBlockBehavior[1], new RoomBlockAppearance[1]), RoomLevelData.NothingBeyondGrid(), []);

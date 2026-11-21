@@ -213,7 +213,8 @@ internal static class EnumerationOrderAnalyzerTests
         }
     }
 
-    /// <summary>Compiles one source and compares the SME6469 count and an optional message fragment.</summary>    private static void Expect(string source, string? message = null, int count = 1, string assemblyName = CoreLayerAnalyzer.CoreAssembly)
+    /// <summary>Compiles one source and compares the SME6469 count and an optional message fragment.</summary>
+    private static void Expect(string source, string? message = null, int count = 1, string assemblyName = CoreLayerAnalyzer.CoreAssembly)
     {
         var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview),
             path: "C:/fixture-repo/csharp/src/SuperMetroid.Core/Fixture/Fixture.cs");

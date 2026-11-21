@@ -301,10 +301,12 @@ internal static class KraidAnimationsVerification
         lint.AnimationClock.Stop();
         lint.AnimationClock.Extend(1);
         int stoppedHold = lint.AnimationClock.Hold;
+        // His room's population load leaves the lint showing the empty frame it loads with.
+        EnemyFrameId? stoppedFrame = lint.Frame;
         for (int update = 0; update < 256; update++)
         {
             Pass(lint);
-            if (lint.Frame is not null || lint.AnimationClock.ShowsNewFrame || lint.AnimationClock.Hold != stoppedHold ||
+            if (lint.Frame != stoppedFrame || lint.AnimationClock.ShowsNewFrame || lint.AnimationClock.Hold != stoppedHold ||
                 state.TopLintState.Playback != Started(KraidPartSegment.LintInitial))
                 throw new InvalidOperationException($"Verification failed: the stopped lint's animation stepped at update {update}.");
         }
@@ -360,7 +362,6 @@ internal static class KraidAnimationsVerification
         (RoomEnemySystem enemies, KraidEnemyState state, _, _) = NewKraid();
         KraidNailState part = state.Nail(KraidNailPart.First);
         RoomEnemyPlace nail = part.Place;
-        nail.Bind(EnemyDefinitionId.KraidFirstNail, nail.KeptDefinition);
         KraidProjectiles.InitializeKraidNail(nail, KraidNailPart.First, state);
         AssertEqual((EnemyFrameId?)EnemyFrameId.KraidNailTurned0, nail.Frame, "a fingernail set up shows its spin's first pose");
         AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.NailLoop), part.Playback.Animation, "the pose is its spin's");

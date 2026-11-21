@@ -81,6 +81,10 @@ internal static class PopulationPlacementAccess
                 entries.Add((authored.Placing is EnemyPlacedAt ? authored with { Placing = EnemyPlacing.At(place.Position.Whole) } : authored)
                     with { Contact = place.Contact, Processing = place.Processing, Presence = place.Presence });
             }
+            // The load meets each place holding no enemy, as a room's load meets its places: an earlier enemy's setup that
+            // reads a later place finds it empty, not holding the entry the check authored there.
+            foreach (RoomEnemyPlace place in enemies.Places.InUpdateOrder.Take(entries.Count))
+                place.Unbind();
             return enemies.LoadPopulation(samus, level, [.. entries]);
         }
 

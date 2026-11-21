@@ -86,11 +86,14 @@ internal static class RidleyBreakupProgramsVerification
         // The first piece flies by its own main AI until its lifetime ends, when it becomes a small enemy death where it
         // last stood.
         var expiring = fragments[0];
-        _ = NorfairRidleyDeathFixtures.FlyUntilExpiry(expiring, RoomEnemyFrameFixtures.StandaloneSamus());
+        FixedPosition<RoomPixels> spawned = expiring.Position;
+        int flown = NorfairRidleyDeathFixtures.FlyUntilExpiry(expiring, RoomEnemyFrameFixtures.StandaloneSamus());
         AssertTrue(expiring.Occupant is null, "native breakup expiry clears the actor immediately");
+        // Its last update moves it before its lifetime ends: the explosion stands where that flight ends.
+        FixedPosition<RoomPixels> landed = NorfairRidleyDeathFixtures.Flight(spawned, NorfairRidleyDeathFixtures.SpeedFrom(1), flown);
         var explosion = enemies.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
-        AssertEqual(expiring.Position.X.Whole, explosion.Position.X.Whole, "fragment death effect retains final X");
-        AssertEqual(expiring.Position.Y.Whole, explosion.Position.Y.Whole, "fragment death effect retains final Y");
+        AssertEqual(landed.X.Whole, explosion.Position.X.Whole, "fragment death effect retains final X");
+        AssertEqual(landed.Y.Whole, explosion.Position.Y.Whole, "fragment death effect retains final Y");
         AssertEqual(EnemyDefinitionId.RidleyBreakupPiece, enemies.DeathsAndDrops.Explosions.Of(explosion).Dropper?.DefinitionId, "fragment drop retains native header");
         AssertEqual(EnemyDeathAndDropSegment.SmallExplosion,
             ProgramOf(explosion), "fragment expiry selects native small death animation");

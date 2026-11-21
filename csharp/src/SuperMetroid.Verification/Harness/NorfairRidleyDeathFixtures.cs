@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.World;
 
 using SuperMetroid.Core;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Ridley;
 
 namespace SuperMetroid.Verification.Harness;
@@ -65,9 +66,11 @@ internal static class NorfairRidleyDeathFixtures
     /// <exception cref="InvalidOperationException">The piece flies past the longest breakup flight.</exception>
     internal static int FlyUntilExpiry(RoomEnemyPlace piece, SamusState samus)
     {
+        // One enemy pass's frame serves every update: the piece reads only Samus and the room's terrain from it.
+        IEnemyAiFrame frame = PlacedEnemyAccess.AiFrame(samus);
         for (int updates = 1; updates <= LongestFlight; updates++)
         {
-            Ensure.NotNull(piece).RunMainAi(samus);
+            Ensure.NotNull(piece).RunMainAi(frame);
             if (piece.Occupant is null)
                 return updates;
         }
@@ -78,10 +81,33 @@ internal static class NorfairRidleyDeathFixtures
     /// Where a breakup piece standing at <paramref name="start"/> with <paramref name="horizontalSpeed"/> and no vertical
     /// speed moves on its first update: its drag slows its horizontal speed and gravity starts its fall before it moves.
     /// </summary>
-    internal static FixedPosition<RoomPixels> FirstMove(FixedPosition<RoomPixels> start, SignedEightEight horizontalSpeed)
+    internal static FixedPosition<RoomPixels> FirstMove(FixedPosition<RoomPixels> start, SignedEightEight horizontalSpeed) =>
+        Flight(start, horizontalSpeed, 1);
+
+    /// <summary>
+    /// Where a breakup piece standing at <paramref name="start"/> with <paramref name="horizontalSpeed"/> and no vertical
+    /// speed stands after <paramref name="updates"/> updates of its flight, each of which slows its horizontal speed by its
+    /// drag and adds gravity to its fall before it moves.
+    /// </summary>
+    internal static FixedPosition<RoomPixels> Flight(FixedPosition<RoomPixels> start, SignedEightEight horizontalSpeed, int updates)
     {
-        SignedEightEight x = horizontalSpeed.SlowedBy(RidleyExplosionDefinitions.BreakupFragmentDrag);
-        SignedEightEight y = default(SignedEightEight) + RidleyExplosionDefinitions.BreakupFragmentGravity;
-        return start.Advance(new(x.ToSixteenSixteenDelta(), y.ToSixteenSixteenDelta()));
+        SignedEightEight x = horizontalSpeed;
+        SignedEightEight y = default;
+        FixedPosition<RoomPixels> position = start;
+        for (int update = 0; update < updates; update++)
+        {
+            x = x.SlowedBy(RidleyExplosionDefinitions.BreakupFragmentDrag);
+            y += RidleyExplosionDefinitions.BreakupFragmentGravity;
+            position = position.Advance(new(x.ToSixteenSixteenDelta(), y.ToSixteenSixteenDelta()));
+        }
+        return position;
     }
+
+    /// <summary>
+    /// The horizontal speed a breakup piece's setup gives it from <paramref name="random"/>, the random number it draws: the
+    /// definitions' fraction and whole pixel the number selects, toward the side it selects.
+    /// </summary>
+    internal static SignedEightEight SpeedFrom(int random) =>
+        (RidleyExplosionDefinitions.FragmentSpeedFraction.Of(random) + RidleyExplosionDefinitions.FragmentSpeedWholePixel.Of(random))
+            .Toward(BossRandomRolls.SideOf(random));
 }

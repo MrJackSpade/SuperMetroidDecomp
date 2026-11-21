@@ -2159,9 +2159,9 @@ internal static class LookupStream4Verification
             // The last update of his death's explosions, in his body's main AI, spawns his pieces, each joining the breakup
             // of his encounter and his body as it spawns (#2231).
             void Spawn() => NorfairRidleyDeathFixtures.RunPhase(body, state, NorfairRidleyPhase.DeathExplosions, 1, RoomEnemyFrameFixtures.StandaloneSamus());
-            if (freeSlots < expected.Length)
-                AssertThrows<InvalidOperationException>(Spawn, "Breakup preserves partial allocation before pool exhaustion");
-            else Spawn();
+            // A full pool spawns no piece, and the breakup goes on with the pieces it spawned.
+            Spawn();
+            AssertEqual(freeSlots, NorfairRidleyDeathFixtures.Pieces(enemies).Length, "Breakup keeps the pieces it spawned before the pool ran out");
             AssertEqual(freeSlots, randomCalls, "Breakup consumes RNG once per successfully allocated fragment only");
             for (int index = 0; index < freeSlots; index++)
             {

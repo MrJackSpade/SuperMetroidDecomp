@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Spatial;
-using System.Runtime.ExceptionServices;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Presentation;
 using SuperMetroid.Rendering.Direct3D11.Telemetry;
@@ -23,8 +22,8 @@ public sealed class D3D11RenderWorker
     private readonly TaskCompletionSource<string> ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
     /// <summary>Reports owner-thread exit or its unrecoverable exception.</summary>
     private readonly TaskCompletionSource completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    /// <summary>Preserves an owner-thread failure and its original stack for callers.</summary>
-    private ExceptionDispatchInfo? fault;
+    /// <summary>The owner's device-loss bookkeeping: the last loss, the recoveries and the terminal fault it keeps for callers.</summary>
+    private readonly D3D11DeviceRecovery recovery = new();
     /// <summary>Blocks new publication after shutdown begins.</summary>
     private bool stopping;
     /// <summary>Latest pending client-size request, consumed by the render owner.</summary>
@@ -43,10 +42,6 @@ public sealed class D3D11RenderWorker
     internal long lastDrawnSize;
     /// <summary>Records whether a zero-sized client surface has suspended presentation.</summary>
     internal bool surfaceSuspended;
-    /// <summary>Counts successful GPU resource recreation after device loss.</summary>
-    private long deviceRecoveries;
-    /// <summary>Latest device-loss details captured before resource teardown.</summary>
-    internal D3D11DeviceLossDiagnostic? lastDeviceLoss;
     /// <summary>CPU time spent submitting frame composition.</summary>
     private readonly RenderTimingWindow cpuCompositionTiming;
     /// <summary>CPU time spent in display setup and Present.</summary>
@@ -84,7 +79,7 @@ public sealed class D3D11RenderWorker
     /// <summary>Thread-safe count of render attempts without GPU timestamps because the query ring was full; telemetry is skipped without delaying composition or simulation.</summary>
     public long SkippedGpuTimingSamples => Interlocked.Read(ref skippedGpuTimingSamples);
     /// <summary>Thread-safe count of successful device/resource recreations after startup, excluding failed recovery attempts and the initial device.</summary>
-    public long DeviceRecoveries => Interlocked.Read(ref deviceRecoveries);
+    public long DeviceRecoveries => recovery.Recoveries;
     /// <summary>Initial startup task returning the actual device's diagnostic description once renderer/swapchain/timer resources are ready; startup failure faults the task, and later recovery does not replace its result.</summary>
     public Task<string> Ready => ready.Task;
     /// <summary>Worker shutdown/failure task; unrecoverable owner-thread errors fault it rather than escaping the thread or displaying a modal error.</summary>
@@ -163,7 +158,7 @@ public sealed class D3D11RenderWorker
     }
 
     /// <summary>Rethrows any captured unrecoverable worker failure on the caller with its original stack; returns immediately when no failure has been recorded and does not wait for startup or GPU work.</summary>
-    public void ThrowIfFaulted() => Volatile.Read(ref fault)?.Throw();
+    public void ThrowIfFaulted() => recovery.ThrowIfFaulted();
 
     /// <summary>Idempotently requests owner-thread shutdown and wakes it, returning the shared completion task; await before destroying the HWND and do not block the UI message pump while Present may be in flight.</summary>
     /// <returns>Task completed after render-device resources have been released, or faulted with an unrecoverable worker error; shutdown need not present the pending packet.</returns>
@@ -190,7 +185,6 @@ public sealed class D3D11RenderWorker
         {
             RenderFrame? retained = null;
             bool suspended = false;
-            int consecutiveLosses = 0;
             while (true)
             {
                 // Complete startup even if Stop raced thread entry, so a UI awaiting
@@ -198,20 +192,20 @@ public sealed class D3D11RenderWorker
                 lock (lifecycle) { if (stopping && ready.Task.IsCompleted) break; }
                 try
                 {
-                    RunDevice(window, ref clientSize, kind, ref retained, ref suspended, ref consecutiveLosses);
+                    RunDevice(window, ref clientSize, kind, ref retained, ref suspended);
                     break;
                 }
-                catch (Exception error) when (D3D11RecoveryPolicy.Recreates(error, ready.Task.IsCompletedSuccessfully, ref consecutiveLosses))
+                catch (Exception error) when (recovery.Recreates(error, ready.Task.IsCompletedSuccessfully))
                 {
                     // RunDevice's using scopes release every old-device reference before
                     // recreating the HWND swapchain. Keep only immutable CPU display data.
-                    Console.Error.WriteLine($"GPU device lost; recreating resources (attempt {consecutiveLosses}): {error}");
+                    Console.Error.WriteLine($"GPU device lost; recreating resources: {error}");
                 }
             }
         }
         catch (Exception exception)
         {
-            Volatile.Write(ref fault, ExceptionDispatchInfo.Capture(exception));
+            recovery.Fault(exception);
             ready.TrySetException(exception);
             completion.TrySetException(exception);
         }
@@ -224,7 +218,7 @@ public sealed class D3D11RenderWorker
 
     /// <summary>Creates one device generation and consumes mailbox frames until shutdown or device loss.</summary>
     private void RunDevice(nint window, ref Extent16<DisplayPixels> clientSize, D3D11DeviceKind kind,
-        ref RenderFrame? retained, ref bool suspended, ref int consecutiveLosses)
+        ref RenderFrame? retained, ref bool suspended)
     {
             using var device = new D3D11RenderDevice(kind);
             try
@@ -234,7 +228,7 @@ public sealed class D3D11RenderWorker
             using var gpuTimer = new D3D11GpuTimer(device);
             if (!ready.TrySetResult(device.DiagnosticDescription))
             {
-                Interlocked.Increment(ref deviceRecoveries);
+                recovery.Recovered();
                 Console.WriteLine($"Renderer recovered: {device.DiagnosticDescription}");
             }
             bool opportunity = false, wasOccluded = false;
@@ -306,7 +300,7 @@ public sealed class D3D11RenderWorker
                                 throw new InvalidOperationException($"Undefined {nameof(D3D11PresentationResult)} {presentationResult}.");
                         }
                         retained = packet;
-                        consecutiveLosses = 0;
+                        recovery.Submitted();
                         // Both dimensions are published as one atomic word for the host's queries.
                         Interlocked.Exchange(ref lastDrawnSize, ((long)clientSize.X << 32) | clientSize.Y);
                         redraw = false;
@@ -324,11 +318,8 @@ public sealed class D3D11RenderWorker
             {
                 // Query the still-live device, not its replacement. A synthetic test
                 // HRESULT correctly reports S_OK here; do not invent a removal cause.
-                var diagnostic = new D3D11DeviceLossDiagnostic(error.HResult,
-                    device.Device.DeviceRemovedReason.Code, device.AdapterDescription,
-                    kind, clientSize, retained?.Identity);
-                Volatile.Write(ref lastDeviceLoss, diagnostic);
-                Console.Error.WriteLine(diagnostic);
+                Console.Error.WriteLine(D3D11DeviceRecovery.Loss(error,device.Device.DeviceRemovedReason.Code, device.AdapterDescription,
+                    kind, clientSize, retained?.Identity));
                 throw; // Preserve the HRESULT used by bounded recovery and strict failure.
             }
     }

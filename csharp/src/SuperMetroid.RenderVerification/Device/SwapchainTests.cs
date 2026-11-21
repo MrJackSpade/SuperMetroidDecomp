@@ -71,8 +71,8 @@ internal static partial class SwapchainTests
                 throw new InvalidOperationException("Worker did not record CPU submission/presentation timings.");
             if (metrics.HasPendingFrame || metrics.Generation != 2 || worker.LastConsumedSequence != 1001)
                 throw new InvalidOperationException("GPU worker lost mailbox accounting.");
-            // A device that was never lost is never recreated and leaves no loss diagnostic.
-            if (worker.DeviceRecoveries != 0 || worker.LastDeviceLoss is not null)
+            // A device that was never lost is never recreated.
+            if (worker.DeviceRecoveries != 0)
                 throw new InvalidOperationException("GPU worker reported a device recovery no device loss caused.");
             Console.WriteLine($"{selection.Kind}: worker {adapter}; idle-start, 1001 publications, retained redraw, generation/resize, bounded accounting passed.");
         }
@@ -84,35 +84,91 @@ internal static partial class SwapchainTests
             }
             if (!DestroyWindow(window)) throw new Win32Exception(Marshal.GetLastWin32Error());
         }
-        VerifyRecoveryPolicy();
+        VerifyDeviceRecovery(selection);
         VerifySurfaceSuspension(selection.Kind);
     }
 
     /// <summary>
-    /// Checks the bounded recreation the worker runs when a device generation fails (<see cref="D3D11RecoveryPolicy.Recreates"/>):
-    /// each DXGI device loss after startup recreates the device until the consecutive recreations reach their bound, the
-    /// next loss is the worker's terminal fault, and a loss at startup or any other failure is never retried.
+    /// Checks the device-loss decisions the worker makes (<see cref="D3D11DeviceRecovery"/>), driven with the failures real
+    /// DXGI calls raise: each device loss after startup recreates the device until the consecutive recreations reach their
+    /// bound, a successful submission ends the run, each recreated generation counts one recovery, and the next loss is the
+    /// worker's terminal fault, rethrown with its own result; a loss at startup or any other failure is never retried and
+    /// faults with its own type; a loss is reported with the failed device's context.
     /// </summary>
-    private static void VerifyRecoveryPolicy()
+    private static void VerifyDeviceRecovery(D3D11RenderDevice selection)
     {
         Exception removed = DxgiFailure((int)DxgiDeviceLoss.DeviceRemoved);
         Exception reset = DxgiFailure((int)DxgiDeviceLoss.DeviceReset);
-        int losses = 0;
-        if (D3D11RecoveryPolicy.Recreates(removed, started: false, ref losses) || losses != 0)
+
+        var startup = new D3D11DeviceRecovery();
+        if (startup.Recreates(removed, started: false))
             throw new InvalidOperationException("A device lost before startup was recreated.");
-        for (int attempt = 1; attempt <= D3D11RecoveryPolicy.MaximumConsecutiveRecreations; attempt++)
+        startup.Fault(removed);
+        RequireFault(startup, failure => failure.HResult == (int)DxgiDeviceLoss.DeviceRemoved, "a device lost before startup");
+
+        var recovery = new D3D11DeviceRecovery();
+        recovery.ThrowIfFaulted();
+        for (int run = 0; run < 2; run++)
         {
-            Exception loss = attempt % 2 == 0 ? reset : removed;
-            if (!D3D11RecoveryPolicy.Recreates(loss, started: true, ref losses) || losses != attempt)
-                throw new InvalidOperationException($"Device loss {attempt} ({loss.HResult:X8}) was not recreated and counted.");
+            for (int attempt = 1; attempt <= D3D11RecoveryPolicy.MaximumConsecutiveRecreations; attempt++)
+            {
+                Exception loss = attempt % 2 == 0 ? reset : removed;
+                if (!recovery.Recreates(loss, started: true))
+                    throw new InvalidOperationException($"Device loss {attempt} of run {run} ({loss.HResult:X8}) was not recreated.");
+                recovery.Recovered();
+            }
+            // A frame submitted on the last recreated device ends the first run, so the second may recreate as often again.
+            if (run == 0)
+                recovery.Submitted();
         }
-        if (D3D11RecoveryPolicy.Recreates(removed, started: true, ref losses))
+        if (recovery.Recoveries != 2 * D3D11RecoveryPolicy.MaximumConsecutiveRecreations)
+            throw new InvalidOperationException($"{recovery.Recoveries} recoveries were counted for {2 * D3D11RecoveryPolicy.MaximumConsecutiveRecreations} recreated devices.");
+        if (recovery.Recreates(removed, started: true))
             throw new InvalidOperationException("A device loss past the recreation bound was retried instead of surfacing.");
-        int otherFailures = 0;
-        if (D3D11RecoveryPolicy.Recreates(new InvalidDataException("A failure that is no device loss."), started: true, ref otherFailures) ||
-            otherFailures != 0)
+        recovery.Fault(removed);
+        RequireFault(recovery, failure => failure.HResult == (int)DxgiDeviceLoss.DeviceRemoved, "a device loss past the bound");
+
+        var other = new D3D11DeviceRecovery();
+        var unrelated = new InvalidDataException("A failure that is no device loss.");
+        if (other.Recreates(unrelated, started: true))
             throw new InvalidOperationException("A failure that is no device loss was retried.");
-        Console.WriteLine($"Device recovery: {D3D11RecoveryPolicy.MaximumConsecutiveRecreations} consecutive device losses recreate the device, the next surfaces, other failures are never retried.");
+        other.Fault(unrelated);
+        other.Fault(removed);
+        RequireFault(other, failure => ReferenceEquals(failure, unrelated), "a failure that is no device loss, kept over a later one");
+
+        var frame = new RenderFrameIdentity(1000, 2);
+        D3D11DeviceLossDiagnostic context = D3D11DeviceRecovery.Loss(reset, 0, selection.AdapterDescription, selection.Kind,
+            new Extent16<DisplayPixels>(801, 601), frame);
+        if (context.FailureHResult != (int)DxgiDeviceLoss.DeviceReset || context.RemovalReason != 0 ||
+            context.Adapter != selection.AdapterDescription || context.Backend != selection.Kind ||
+            context.Target != new Extent16<DisplayPixels>(801, 601) || context.Frame != frame)
+            throw new InvalidOperationException($"A device loss lost its failure, device or frame context: {context}.");
+        bool refused = false;
+        try
+        {
+            _ = D3D11DeviceRecovery.Loss(unrelated, 0, selection.AdapterDescription, selection.Kind, new Extent16<DisplayPixels>(801, 601), frame);
+        }
+        catch (ArgumentException)
+        {
+            refused = true;
+        }
+        if (!refused)
+            throw new InvalidOperationException("A failure that is no device loss was reported as one.");
+        Console.WriteLine($"Device recovery: {D3D11RecoveryPolicy.MaximumConsecutiveRecreations} consecutive device losses recreate the device and count, a submission ends the run, the next loss faults with its own result, other failures are never retried; a loss reports its device's context.");
+    }
+
+    /// <summary>Requires <paramref name="recovery"/>'s terminal fault to be rethrown as the failure <paramref name="original"/> accepts.</summary>
+    private static void RequireFault(D3D11DeviceRecovery recovery, Func<Exception, bool> original, string label)
+    {
+        try
+        {
+            recovery.ThrowIfFaulted();
+        }
+        catch (Exception failure) when (original(failure))
+        {
+            return;
+        }
+        throw new InvalidOperationException($"The worker's fault after {label} was not its original failure.");
     }
 
     /// <summary>The exception a DXGI call failing with <paramref name="result"/> raises.</summary>
@@ -295,6 +351,7 @@ internal static partial class SwapchainTests
         legacy.BindAudio(audioAssets);
         captured.BindAudio(audioAssets);
         headless.BindAudio(audioAssets);
+        var bound = new BoundObjectGraph([.. SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent, audioAssets]);
         var left = new short[AudioSession.PcmSamplesPerFrame];
         var right = new short[AudioSession.PcmSamplesPerFrame];
         var silentDisplay = new short[AudioSession.PcmSamplesPerFrame];
@@ -410,20 +467,21 @@ internal static partial class SwapchainTests
         {
             // Reuse the exact-build debugger graph writer rather than a hand-picked
             // list of gameplay properties. Private fields, arrays, aliases, cycles
-            // and delegates are included. No state is deserialized or normalized.
-            using var expected = new MemoryStream();
-            using var actual = new MemoryStream();
-            DebuggerObjectGraphSerializer.Serialize(expected, legacy.GameplayRuntimeForVerification);
-            DebuggerObjectGraphSerializer.Serialize(actual, captured.GameplayRuntimeForVerification);
+            // and delegates are included. No state is deserialized or normalized. The sessions share the installed content
+            // and audio clips, which each graph names by path, as a host's store names the content it binds. The two
+            // sessions stepped as a host steps them, capturing each update's frame, drawn on the GPU and undrawn, hold the
+            // same graph. The uncaptured session publishes no frame for a host, so its display holds the frame its scene
+            // composed where a capturing session's holds the frame it published; its game state is compared update by
+            // update (position, pose, phase, audio commands and PCM) instead.
+            bound.Refresh();
+            using var drawn = new MemoryStream();
             using var undrawn = new MemoryStream();
-            DebuggerObjectGraphSerializer.Serialize(undrawn, headless.GameplayRuntimeForVerification);
-            if (!expected.GetBuffer().AsSpan(0, checked((int)expected.Length))
+            DebuggerObjectGraphSerializer.Serialize(drawn, captured.GameplayRuntimeForVerification, bound);
+            DebuggerObjectGraphSerializer.Serialize(undrawn, headless.GameplayRuntimeForVerification, bound);
+            if (!drawn.GetBuffer().AsSpan(0, checked((int)drawn.Length))
                 .SequenceEqual(undrawn.GetBuffer().AsSpan(0, checked((int)undrawn.Length))))
-                throw new InvalidOperationException($"Headless runtime graph diverged: {context}.");
-            if (!expected.GetBuffer().AsSpan(0, checked((int)expected.Length))
-                .SequenceEqual(actual.GetBuffer().AsSpan(0, checked((int)actual.Length))))
-                throw new InvalidOperationException($"Exact runtime graph diverged: {context} (lengths {expected.Length}/{actual.Length}).");
-            Console.WriteLine($"  Exact runtime graph agrees: {context}, {expected.Length} bytes.");
+                throw new InvalidOperationException($"Headless runtime graph diverged: {context} (lengths {drawn.Length}/{undrawn.Length}).");
+            Console.WriteLine($"  Exact runtime graph agrees: {context}, {drawn.Length} bytes.");
         }
     }
 

@@ -17,7 +17,9 @@ internal static class EnemyExtendedFrames
     private static ReadOnlyMemory<EnemyExtendedDrawComponent>? ComponentsOf(EnemyExtendedFrameCatalog catalog, EnemyFrameId frame) =>
         CommonEnemyEmptyFrames.IsEmpty(frame) ? ReadOnlyMemory<EnemyExtendedDrawComponent>.Empty
         : catalog.selection.Frames.TryGetValue(frame, out EnemyExtendedDrawComponent[]? components) ? new ReadOnlyMemory<EnemyExtendedDrawComponent>(components)
-        : null;
+        // Typed as absent: a bare null would convert to an empty component list through the array conversion, and every
+        // frame would read as installed.
+        : (ReadOnlyMemory<EnemyExtendedDrawComponent>?)null;
 
     /// <summary>
     /// The components of the installed frame displayed for the frame gameplay shows, or null when it is not installed: the

@@ -86,6 +86,8 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.Fighting>(), state.DeathStage,
             "white hurt flash leaves fight phase unchanged");
         state.DeathStageWait.LastFor(1);
+        // His death shows the wall spikes' colours before the skeleton's reveal adds the arm's (#2560).
+        state.Colours.ShowWallSpikes();
         enemies.CrocomireBehavior.Skeleton.RunCrocomireSkeletonRevealAndWallBreak(state);
         AssertTrue(state.Colours.ShowsSkeletonArm, "the wall break shows the skeleton arm's colours");
         AssertBand(BossSheetShades.OwnRow(bosses, EnemyDefinitionId.Crocomire, 0), CrocomireShades.SkeletonArm,

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Animation;
+
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>A Magdollite's rising body's state, the arm that grows out of the lava: what it is doing and how far it has grown.</summary>
@@ -8,6 +10,9 @@ public sealed class MagdolliteBodyState : MagdollitePartState
     {
         Action = action;
     }
+
+    /// <summary>The animation the body plays and where it stands in it (#1600, #2554).</summary>
+    internal AnimationPlayback<MagdolliteBodySegment> Playback { get; set; }
 
     /// <summary>What the arm is doing.</summary>
     public MagdolliteBodyAction Action { get; internal set; }

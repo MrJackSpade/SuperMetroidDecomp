@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <param name="OverlayYOffset">How far above the body the tracking overlay rides, in pixels.</param>
 internal readonly record struct MagdollitePhaseDefinition(
     int DistanceThreshold,
-    MagdolliteSegment BodyAnimation,
+    MagdolliteBodySegment BodyAnimation,
     int OverlayYOffset);

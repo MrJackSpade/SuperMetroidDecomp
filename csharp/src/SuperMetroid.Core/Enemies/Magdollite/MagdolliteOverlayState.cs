@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Animation;
+
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
@@ -11,6 +13,9 @@ public sealed class MagdolliteOverlayState : MagdollitePartState
     {
         Action = action;
     }
+
+    /// <summary>The animation the overlay plays and where it stands in it (#1600, #2554).</summary>
+    internal AnimationPlayback<MagdolliteOverlaySegment> Playback { get; set; }
 
     /// <summary>What the overlay is doing.</summary>
     public MagdolliteOverlayAction Action { get; internal set; }

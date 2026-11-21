@@ -37,19 +37,12 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     /// <summary>The room's quake, which shakes the overlay of Ridley's room's door sideways.</summary>
     private readonly RoomEarthquake _earthquake;
 
-    /// <summary>The door of Ceres Ridley's room and the look it shows, once it has initialized; null in any other room.</summary>
-    private (RoomEnemyPlace Place, CeresRidleyRoomDoorState Look)? _ridleyRoomDoor;
+    /// <summary>The door of Ceres Ridley's room and the animation holding its look, once it has initialized; null in any other room.</summary>
+    private (RoomEnemyPlace Place, CeresDoorAnimationState Door)? _ridleyRoomDoor;
 
-    /// <summary>Attaches <paramref name="door"/>, showing <paramref name="look"/>, as the door of Ceres Ridley's room as it initializes.</summary>
-    internal void AttachRidleyRoomDoor(RoomEnemyPlace door, CeresRidleyRoomDoorState look) =>
-        _ridleyRoomDoor = (Ensure.NotNull(door), Ensure.NotNull(look));
-
-    /// <summary>
-    /// The look of a door other than the one of Ridley's room, which no cue of its animations switches: only the door of
-    /// Ridley's room shows its overlay.
-    /// </summary>
-    internal static void LookOnlyRidleyRoomDoorShows(CeresRidleyRoomDoorLook look) =>
-        throw new InvalidOperationException($"Only the door of Ridley's room shows the {look} look.");
+    /// <summary>Attaches <paramref name="door"/>, whose animation <paramref name="state"/> holds its look, as the door of Ceres Ridley's room as it initializes.</summary>
+    internal void AttachRidleyRoomDoor(RoomEnemyPlace door, CeresDoorAnimationState state) =>
+        _ridleyRoomDoor = (Ensure.NotNull(door), Ensure.NotNull(state));
 
     /// <summary>
     /// Shows the door of Ridley's room as its fixed overlay picture while its look is the overlay (#2573): hidden as an
@@ -59,7 +52,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     internal void PublishRidleyRoomDoorOverlay(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
         Ensure.NotNull(sprites);
-        if (_ridleyRoomDoor is not { } ridleyRoomDoor || ridleyRoomDoor.Look.Look != CeresRidleyRoomDoorLook.Overlay)
+        if (_ridleyRoomDoor is not { } ridleyRoomDoor || ridleyRoomDoor.Door.Look != CeresRidleyRoomDoorLook.Overlay)
             return;
         RoomEnemyPlace door = ridleyRoomDoor.Place;
         int quakeXOffset = CeresDoorQuake.XOffset(_earthquake.RemainingFrames);
@@ -123,17 +116,16 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
 
     /// <summary>Plays a door's or wall's typed animation in place of the shared enemy animation.</summary>
     /// <param name="place">The door's place.</param>
-    /// <param name="showLook">Shows a look of the door of Ridley's room, which only its animations switch.</param>
-    /// <param name="state">The door's animation.</param>
+    /// <param name="state">The door's animation, which holds the look its cues switch.</param>
     /// <param name="samus">Samus, whom the door's cues read.</param>
-    internal void AdvanceAnimation(RoomEnemyPlace place, Action<CeresRidleyRoomDoorLook> showLook, CeresDoorAnimationState state, SamusState samus)
+    internal void AdvanceAnimation(RoomEnemyPlace place, CeresDoorAnimationState state, SamusState samus)
     {
         Ensure.NotNull(place);
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<CeresDoorSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, CeresDoorAnimations.Segments, ref playback,
-            cue => ApplyCue(place, showLook, samus, cue) is { } started
+            cue => ApplyCue(place, state, samus, cue) is { } started
                 ? new AnimationContinuation<CeresDoorSegment>(CeresDoorAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
@@ -167,7 +159,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     /// Carries out one cue of a door's or wall's animation, returning the segment whose animation the owner starts on a waiting
     /// door's or wall's event, or null to run on.
     /// </summary>
-    private CeresDoorSegment? ApplyCue(RoomEnemyPlace place, Action<CeresRidleyRoomDoorLook> showLook, SamusState samus, CeresDoorCue cue)
+    private CeresDoorSegment? ApplyCue(RoomEnemyPlace place, CeresDoorAnimationState state, SamusState samus, CeresDoorCue cue)
     {
         switch (cue.Kind)
         {
@@ -197,13 +189,13 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
                 place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
                 return null;
             case CeresDoorCueKind.ShowOverlay:
-                showLook(CeresRidleyRoomDoorLook.Overlay);
+                state.Look = CeresRidleyRoomDoorLook.Overlay;
                 return null;
             case CeresDoorCueKind.MakeInvisible:
                 place.Presence = place.Presence.With(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.MakeVisibleAndShowActor:
-                showLook(CeresRidleyRoomDoorLook.Actor);
+                state.Look = CeresRidleyRoomDoorLook.Actor;
                 place.Presence = place.Presence.Without(EnemyPresence.Hidden);
                 return null;
             case CeresDoorCueKind.MakeVisible:

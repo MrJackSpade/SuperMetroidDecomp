@@ -29,5 +29,5 @@ internal sealed class MagdolliteHeadEntity(MagdolliteBehavior species, RoomEnemy
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) =>
-        Species.AdvanceMagdolliteTypedAnimation<MagdolliteHeadState>(Occupant, Place, Head, Partners, context);
+        MagdolliteBehavior.AdvanceMagdolliteHeadAnimation(Place, Head, Partners);
 }

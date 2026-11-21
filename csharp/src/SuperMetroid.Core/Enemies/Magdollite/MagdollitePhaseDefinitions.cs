@@ -22,14 +22,14 @@ internal static class MagdollitePhaseDefinitions
     internal static IReadOnlyDictionary<MagdolliteRiseStage, MagdollitePhaseDefinition> Phases { get; } =
         new Dictionary<MagdolliteRiseStage, MagdollitePhaseDefinition>
         {
-            [S.Setup] = new(0, MagdolliteSegment.OneSegmentPillar, 12),
-            [S.OneSegment] = new(16, MagdolliteSegment.OneSegmentPillar, 12),
-            [S.TwoSegments] = new(32, MagdolliteSegment.TwoSegmentPillar, 20),
-            [S.ThreeSegments] = new(48, MagdolliteSegment.ThreeSegmentPillar, 28),
-            [S.FourSegments] = new(64, MagdolliteSegment.FourSegmentPillar, 36),
-            [S.FiveSegments] = new(80, MagdolliteSegment.FiveSegmentPillar, 44),
-            [S.SixSegments] = new(96, MagdolliteSegment.SixSegmentPillar, 52),
-            [S.SevenSegments] = new(112, MagdolliteSegment.SevenSegmentPillar, 60),
-            [S.EightSegments] = new(128, MagdolliteSegment.EightSegmentPillar, 68),
+            [S.Setup] = new(0, MagdolliteBodySegment.OneSegmentPillar, 12),
+            [S.OneSegment] = new(16, MagdolliteBodySegment.OneSegmentPillar, 12),
+            [S.TwoSegments] = new(32, MagdolliteBodySegment.TwoSegmentPillar, 20),
+            [S.ThreeSegments] = new(48, MagdolliteBodySegment.ThreeSegmentPillar, 28),
+            [S.FourSegments] = new(64, MagdolliteBodySegment.FourSegmentPillar, 36),
+            [S.FiveSegments] = new(80, MagdolliteBodySegment.FiveSegmentPillar, 44),
+            [S.SixSegments] = new(96, MagdolliteBodySegment.SixSegmentPillar, 52),
+            [S.SevenSegments] = new(112, MagdolliteBodySegment.SevenSegmentPillar, 60),
+            [S.EightSegments] = new(128, MagdolliteBodySegment.EightSegmentPillar, 68),
         };
 }

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Animation;
+
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>A Magdollite head's state: what it is doing. The speed its arm moves at is its spawn settings' (#2474).</summary>
@@ -8,6 +10,9 @@ public sealed class MagdolliteHeadState : MagdollitePartState
     {
         Action = action;
     }
+
+    /// <summary>The animation the head plays and where it stands in it (#1600, #2554).</summary>
+    internal AnimationPlayback<MagdolliteHeadSegment> Playback { get; set; }
 
     /// <summary>What the head is doing.</summary>
     public MagdolliteHeadAction Action { get; internal set; }

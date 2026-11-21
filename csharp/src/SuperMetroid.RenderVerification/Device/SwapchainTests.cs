@@ -329,16 +329,27 @@ internal static partial class SwapchainTests
         }
     }
 
-    /// <summary>Compares real desktop audio under normal and blocked GPU consumption in two recorded room slices.</summary>
+    /// <summary>
+    /// Compares real desktop audio under normal and blocked GPU consumption in two recorded room slices. Each room loads
+    /// under a camera that shows a floor wide enough to walk on, and Samus stands on it: the startup leaves her at room
+    /// position (128, 0), which in both rooms lies inside solid blocks, where the game rightly lets her move nowhere.
+    /// Alpha Power Bomb's floor is block row 13 under its first screen; the Glass Tunnel's is row 26, between its doors,
+    /// under its second screen.
+    /// </summary>
     internal static void RunSlowConsumerAudio(D3D11RenderDevice selection)
     {
-        foreach (RoomDefinition room in new[] { RoomDefinitions.AlphaPowerBomb, RoomDefinitions.GlassTunnel })
+        foreach ((RoomDefinition room, Position16<RoomPixels> camera, int floorBlockRow) in new[]
+                 {
+                     (RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0), 13),
+                     (RoomDefinitions.GlassTunnel, new Position16<RoomPixels>(0, 256), 26),
+                 })
             foreach (bool blockConsumer in new[] { false, true })
-                RunSlowConsumerAudioRoom(selection, room, blockConsumer);
+                RunSlowConsumerAudioRoom(selection, room, camera, floorBlockRow, blockConsumer);
     }
 
     /// <summary>Runs one room-local controller and pause slice through legacy, captured and headless audio paths.</summary>
-    private static void RunSlowConsumerAudioRoom(D3D11RenderDevice selection, RoomDefinition room, bool blockConsumer)
+    private static void RunSlowConsumerAudioRoom(D3D11RenderDevice selection, RoomDefinition room, Position16<RoomPixels> camera,
+        int floorBlockRow, bool blockConsumer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true };
@@ -391,8 +402,13 @@ internal static partial class SwapchainTests
         // Room-local pause slice, matching the portable capture fixture; no traversal.
         foreach (var game in new[] { legacy, captured, headless })
         {
-            game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-            game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
+            SuperMetroidRuntime runtime = game.GameplayRuntimeForVerification;
+            runtime.LoadCartridgeRoomForDebug(room, camera);
+            // Samus stands on the floor at the middle of the screen: her bottom row is the one above the floor's top.
+            SuperMetroid.Core.Samus.SamusState samus = runtime.Player.IntroducedSamus;
+            samus.Position = FixedPosition<RoomPixels>.FromWhole(new(camera.X + 128,
+                floorBlockRow * 16 - samus.Kinematics.Radius.Y));
+            runtime.FrameBoundary.BeginAcceptedFrame(0);
         }
         nint window = CreateWindowExW(0, "STATIC", "Hidden slow-consumer test", 0, 0, 0, 640, 480, 0, 0, 0, 0);
         if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -402,6 +418,8 @@ internal static partial class SwapchainTests
             worker = new D3D11RenderWorker(window, new Extent16<DisplayPixels>(640, 480), 1, selection.Kind);
             PumpUntil(() => worker.Ready.IsCompleted); worker.Ready.GetAwaiter().GetResult();
             var first = Step(0);
+            // The startup's updates took sequence numbers too: the first frame the worker draws is this one.
+            long firstSequence = sequence;
             worker.Publish(new RenderFrame(new(sequence, 1), first.Snapshot));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == sequence; });
             // A blocked consumer is one whose surface the host suspended, as a minimized window does: it takes no frame
@@ -448,7 +466,7 @@ internal static partial class SwapchainTests
             if (positions.Count < 2 || poses.Count < 2)
                 throw new InvalidOperationException("Movement input fixture did not change position and pose.");
             if (blockConsumer) PumpUntil(() => blockedTime.ElapsedMilliseconds >= 250);
-            if ((blockConsumer && (!worker.IsSurfaceSuspended || worker.LastConsumedSequence != 1)) || !paused || nonzero == 0 ||
+            if ((blockConsumer && (!worker.IsSurfaceSuspended || worker.LastConsumedSequence != firstSequence)) || !paused || nonzero == 0 ||
                 legacy.GameState != SuperMetroidGameState.MainGameplay)
                 throw new InvalidOperationException("Slow-consumer coverage incomplete.");
             if (blockConsumer) worker.Resize(new Extent16<DisplayPixels>(640, 480));

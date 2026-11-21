@@ -13,19 +13,32 @@ public readonly record struct RoomCollisionBlock
     /// The block's behaviour parameter. Its collision kind determines which of its named views applies; it is not a
     /// universal terrain identifier.
     /// </param>
+    /// <exception cref="ArgumentException">The terrain is of a reacting kind and the behaviour gives it no reaction.</exception>
     public RoomCollisionBlock(Position16<RoomBlocks> position, RoomTerrainBlock terrain, RoomBlockBehavior behavior)
         : this(position, (Position16<RoomBlocks>?)position, terrain, behavior)
     {
     }
 
     /// <summary>A block the read found at <paramref name="at"/>, which lies in the room at <paramref name="position"/>, or outside it.</summary>
+    /// <exception cref="ArgumentException">The terrain is of a reacting kind and the behaviour gives it no reaction.</exception>
     private RoomCollisionBlock(Position16<RoomBlocks> at, Position16<RoomBlocks>? position, RoomTerrainBlock terrain, RoomBlockBehavior behavior)
     {
+        if (!RoomBlockKind.TryOf(terrain.Collision, behavior, out RoomBlockKind? kind))
+            throw new ArgumentException($"A {terrain.Collision} block's behaviour {behavior} gives it no reaction.", nameof(behavior));
         At = at;
         Position = position;
         Terrain = terrain;
         Behavior = behavior;
+        Kind = kind;
     }
+
+    /// <summary>
+    /// The block a Wave shot's straddled read finds (<see cref="Compatibility.StraddledTerrain{TTerrain}"/>): the straddled
+    /// terrain under this block's behaviour, this being the block the read starts in.
+    /// </summary>
+    /// <param name="straddled">The terrain the read finds halfway through this block.</param>
+    /// <exception cref="ArgumentException">The straddled terrain is of a reacting kind and this block's behaviour gives it no reaction.</exception>
+    internal RoomCollisionBlock Straddled(RoomTerrainBlock straddled) => new(At, Position, straddled, Behavior);
 
     /// <summary>The edge-solid block a probe outside the room's width or height reads, where the probe named <paramref name="probed"/>.</summary>
     /// <param name="probed">The block the probe named, outside the room.</param>
@@ -44,7 +57,7 @@ public readonly record struct RoomCollisionBlock
     public Position16<RoomBlocks>? Position { get; }
 
     /// <summary>What the block shows and how it collides.</summary>
-    public RoomTerrainBlock Terrain { get; init; }
+    public RoomTerrainBlock Terrain { get; }
 
     /// <summary>The block's behaviour parameter, whose named view its collision kind selects.</summary>
     public RoomBlockBehavior Behavior { get; }
@@ -53,12 +66,11 @@ public readonly record struct RoomCollisionBlock
     public RoomCollisionType CollisionType => Terrain.Collision;
 
     /// <summary>
-    /// The reaction the block's kind reads from its behaviour (#2554), typed by its family; none for a kind that reads no
-    /// reaction. A room's level holds no block of a reacting kind without its reaction: it checks its blocks as the room
-    /// loads and refuses a write that would leave one (<see cref="RoomLevelData"/>), so a block of a reacting family always
-    /// carries its family's reaction.
+    /// How the block collides, with the reaction a reacting kind carries (#2554). A block of a reacting kind always carries
+    /// its reaction: the block is made only when its behaviour gives its kind one, and a room's level checks its blocks as
+    /// the room loads and refuses a write that would leave one without it (<see cref="RoomLevelData"/>).
     /// </summary>
-    public BlockReaction? Reaction => Behavior.ReactionUnder(CollisionType);
+    public RoomBlockKind Kind { get; }
 
     /// <summary>
     /// The columns a horizontal extension or the rows a vertical one leads a lookup on by, from this block in the room's

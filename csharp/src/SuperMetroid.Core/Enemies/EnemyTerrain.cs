@@ -285,31 +285,31 @@ internal sealed class EnemyTerrain
         bool treatNonSquareSlopesAsWalls)
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock, out Position16<RoomBlocks> reached);
-        return block.CollisionType switch
+        return block.Kind switch
         {
-            RoomCollisionType.Air or
-            RoomCollisionType.SpikeAir or
-            RoomCollisionType.SpecialAir or
-            RoomCollisionType.ShootableAir or
-            RoomCollisionType.UnrevealedAir or
-            RoomCollisionType.BombableAir => false,
-            RoomCollisionType.Slope when block.Behavior.Slope.IsNonSquare =>
+            RoomBlockKind.Air or
+            RoomBlockKind.SpikeAir or
+            RoomBlockKind.SpecialAir or
+            RoomBlockKind.ShootableAir or
+            RoomBlockKind.UnrevealedAir or
+            RoomBlockKind.BombableAir => false,
+            RoomBlockKind.Slope when block.Behavior.Slope.IsNonSquare =>
                 treatNonSquareSlopesAsWalls,
-            RoomCollisionType.Slope => SquareHorizontalSlopeIsSolid(
+            RoomBlockKind.Slope => SquareHorizontalSlopeIsSolid(
                 place,
                 targetEdge,
                 block.Behavior,
                 spanBlock),
-            RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension =>
+            RoomBlockKind.HorizontalExtension or RoomBlockKind.VerticalExtension =>
                 false, // A zero-offset extension resolves to air.
-            RoomCollisionType.SpikeBlock when block.Reaction is BlockReaction.SpikeBlockReaction { Reaction: var spike } =>
+            RoomBlockKind.SpikeBlock { Reaction: var spike } =>
                 ReactToEnemySpikeBlock(level, reached, spike),
-            RoomCollisionType.SolidBlock or
-            RoomCollisionType.DoorBlock or
-            RoomCollisionType.SpecialBlock or
-            RoomCollisionType.ShootableBlock or
-            RoomCollisionType.GrappleBlock or
-            RoomCollisionType.BombableBlock => true,
+            RoomBlockKind.SolidBlock or
+            RoomBlockKind.DoorBlock or
+            RoomBlockKind.SpecialBlock or
+            RoomBlockKind.ShootableBlock or
+            RoomBlockKind.GrappleBlock or
+            RoomBlockKind.BombableBlock => true,
             _ => throw new InvalidDataException(
                 $"Enemy horizontal collision type {block.CollisionType} is invalid."),
         };
@@ -319,35 +319,35 @@ internal sealed class EnemyTerrain
     private bool EnemyVerticalProbeIsSolid(RoomLevelData level, IEnemyTerrainBody place, Position16<RoomBlocks> startBlock, EnemyVerticalProbe probe)
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock, out Position16<RoomBlocks> reached);
-        return block.CollisionType switch
+        return block.Kind switch
         {
-            RoomCollisionType.Air or
-            RoomCollisionType.SpikeAir or
-            RoomCollisionType.SpecialAir or
-            RoomCollisionType.ShootableAir or
-            RoomCollisionType.UnrevealedAir or
-            RoomCollisionType.BombableAir => false,
-            RoomCollisionType.Slope when block.Behavior.Slope.IsNonSquare =>
+            RoomBlockKind.Air or
+            RoomBlockKind.SpikeAir or
+            RoomBlockKind.SpecialAir or
+            RoomBlockKind.ShootableAir or
+            RoomBlockKind.UnrevealedAir or
+            RoomBlockKind.BombableAir => false,
+            RoomBlockKind.Slope when block.Behavior.Slope.IsNonSquare =>
                 NonSquareVerticalSlopeIsSolid(
                     place,
                     reached,
                     block.Behavior,
                     probe.TargetCenter.Y,
                     probe.MovingUp),
-            RoomCollisionType.Slope => SquareVerticalSlopeIsSolid(
+            RoomBlockKind.Slope => SquareVerticalSlopeIsSolid(
                 place,
                 probe.TargetEdge.Y,
                 block.Behavior,
                 probe.SpanBlock),
-            RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => false,
-            RoomCollisionType.SpikeBlock when block.Reaction is BlockReaction.SpikeBlockReaction { Reaction: var spike } =>
+            RoomBlockKind.HorizontalExtension or RoomBlockKind.VerticalExtension => false,
+            RoomBlockKind.SpikeBlock { Reaction: var spike } =>
                 ReactToEnemySpikeBlock(level, reached, spike),
-            RoomCollisionType.SolidBlock or
-            RoomCollisionType.DoorBlock or
-            RoomCollisionType.SpecialBlock or
-            RoomCollisionType.ShootableBlock or
-            RoomCollisionType.GrappleBlock or
-            RoomCollisionType.BombableBlock => true,
+            RoomBlockKind.SolidBlock or
+            RoomBlockKind.DoorBlock or
+            RoomBlockKind.SpecialBlock or
+            RoomBlockKind.ShootableBlock or
+            RoomBlockKind.GrappleBlock or
+            RoomBlockKind.BombableBlock => true,
             _ => throw new InvalidDataException(
                 $"Enemy vertical collision type {block.CollisionType} is invalid."),
         };

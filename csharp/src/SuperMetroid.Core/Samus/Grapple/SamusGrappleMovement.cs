@@ -680,31 +680,31 @@ public static class SamusGrappleMovement
         if (level.GrappleBlockStoodFor(block) is not { } stoodFor)
             return GrappleBlockReaction.Passes;
         block = stoodFor;
-        switch (block.CollisionType)
+        switch (block.Kind)
         {
             // These four block kinds let the beam pass: it remains live.
-            case RoomCollisionType.Air:
-            case RoomCollisionType.SpikeAir:
-            case RoomCollisionType.SpecialAir:
-            case RoomCollisionType.UnrevealedAir:
+            case RoomBlockKind.Air:
+            case RoomBlockKind.SpikeAir:
+            case RoomBlockKind.SpecialAir:
+            case RoomBlockKind.UnrevealedAir:
                 return GrappleBlockReaction.Passes;
 
             // Slopes and these solid kinds stop the beam without connecting,
             // which makes the firing step queue cancellation rather than establish a rope.
-            case RoomCollisionType.Slope:
-            case RoomCollisionType.SolidBlock:
-            case RoomCollisionType.DoorBlock:
-            case RoomCollisionType.SpecialBlock:
+            case RoomBlockKind.Slope:
+            case RoomBlockKind.SolidBlock:
+            case RoomBlockKind.DoorBlock:
+            case RoomBlockKind.SpecialBlock:
                 return GrappleBlockReaction.Solid;
 
-            case RoomCollisionType.SpikeBlock:
+            case RoomBlockKind.SpikeBlock { Reaction: var spike }:
                 // The spike's reaction selects a grapple-reaction room object. A spike that lets the
                 // beam through rejects it. Every other spike uses the empty reaction, which stops the
                 // beam without latching, and immediately deletes; the turret spike alone uses Draygon's
                 // broken-turret setup, which adds one whole periodic-damage unit and latches the beam.
-                if (block.Behavior.Spike is { LetsGrappleBeamThrough: true })
+                if (spike.LetsGrappleBeamThrough)
                     return GrappleBlockReaction.Passes;
-                if (block.Behavior.Spike == SpikeReaction.TurretSpike)
+                if (spike == SpikeReaction.TurretSpike)
                 {
                     samus.PeriodicDamage.Accumulate(SpikeHazardDefinitions.GrappledTurretSpikeDamage);
                     return GrappleBlockReaction.Connects;
@@ -712,36 +712,35 @@ public static class SamusGrappleMovement
 
                 return GrappleBlockReaction.Solid;
 
-            case RoomCollisionType.GrappleBlock:
-                // A rejecting reaction lets the beam through. The anchors spawn the persistent grapple
-                // room object, whose setup connects the beam.
-                // The persistent room object has no level mutation, so this result is complete.
-                if (block.Behavior.Grapple == GrappleReaction.Rejected)
-                    return GrappleBlockReaction.Passes;
-                if (block.Behavior.Grapple is GrappleReaction.Anchor or GrappleReaction.UnrevealedAnchor)
-                    return GrappleBlockReaction.Connects;
-
-                // Respawning and permanent breakable anchors spawn the breakable grapple room objects. Their setup synchronously saves the
-                // complete terrain block and clears its grapple reaction before connecting the beam; the new room object
-                // runs its first timed step later in this same gameplay frame.
-                if (block.Behavior.Grapple is GrappleReaction.RespawningBreakableAnchor or GrappleReaction.PermanentBreakableAnchor)
+            case RoomBlockKind.GrappleBlock { Reaction: var grapple }:
+                switch (grapple)
                 {
-                    if (!roomObjects.BlockReactions.TrySpawnBreakableGrappleBlock(level, block.At, block.Behavior))
-                    {
-                        throw new InvalidOperationException(
-                            "Every room object is in use during grapple acquisition.");
-                    }
+                    // A rejecting reaction lets the beam through. The anchors spawn the persistent grapple
+                    // room object, whose setup connects the beam.
+                    // The persistent room object has no level mutation, so this result is complete.
+                    case GrappleReaction.Rejected:
+                        return GrappleBlockReaction.Passes;
+                    case GrappleReaction.Anchor:
+                    case GrappleReaction.UnrevealedAnchor:
+                        return GrappleBlockReaction.Connects;
 
-                    return GrappleBlockReaction.Connects;
+                    // Respawning and permanent breakable anchors spawn the breakable grapple room objects. Their setup
+                    // synchronously saves the complete terrain block and clears its grapple reaction before connecting
+                    // the beam; the new room object runs its first timed step later in this same gameplay frame.
+                    case GrappleReaction.RespawningBreakableAnchor:
+                    case GrappleReaction.PermanentBreakableAnchor:
+                        if (!roomObjects.BlockReactions.TrySpawnBreakableGrappleBlock(level, block.At, block.Behavior))
+                        {
+                            throw new InvalidOperationException(
+                                "Every room object is in use during grapple acquisition.");
+                        }
+                        return GrappleBlockReaction.Connects;
+                    default:
+                        throw new InvalidOperationException($"Undefined {nameof(GrappleReaction)} {grapple}.");
                 }
 
-                // A grapple block with no grapple reaction would select none of the four grapple room
-                // objects.
-                throw new InvalidDataException(
-                    $"Invalid grapple block behaviour ({block.Behavior}) at {block.Position}.");
-
-            case RoomCollisionType.ShootableAir:
-            case RoomCollisionType.ShootableBlock:
+            case RoomBlockKind.ShootableAir:
+            case RoomBlockKind.ShootableBlock:
                 // The shootable block reactions are the same as ordinary
                 // projectiles'. Grapple owns no projectile family, so weapon-gated
                 // reactions reject it while the eight any-weapon breaks retain their unconditional block
@@ -789,18 +788,18 @@ public static class SamusGrappleMovement
                     ? GrappleBlockReaction.Solid
                     : GrappleBlockReaction.Passes;
 
-            case RoomCollisionType.BombableAir:
+            case RoomBlockKind.BombableAir:
                 // The bombable-air setup immediately deletes its provisional
                 // room object, because the grapple is no projectile. The beam passes.
                 return GrappleBlockReaction.Passes;
 
-            case RoomCollisionType.BombableBlock:
+            case RoomBlockKind.BombableBlock:
                 // The solid twin performs the same rejected setup but independently
                 // reports the block solid to the beam from its collision reaction.
                 return GrappleBlockReaction.Solid;
 
-            case RoomCollisionType.HorizontalExtension:
-            case RoomCollisionType.VerticalExtension:
+            case RoomBlockKind.HorizontalExtension:
+            case RoomBlockKind.VerticalExtension:
                 throw new InvalidOperationException($"Continuing block {block.Position} reached the grapple's endpoint in place of the block it stands for.");
 
             default:

@@ -26,7 +26,7 @@ public static class SamusInsideBlockReactions
         {
             var block = level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
             if (block.Position is null || !level.TryReachBlockStoodFor(ref block) ||
-                block.Reaction is not BlockReaction.SpecialAirBlockReaction { Reaction: var air })
+                block.Kind is not RoomBlockKind.SpecialAir { Reaction: var air })
                 return;
             // A scroll trigger wakes only from the inside-block sample at Samus's centre.
             // Feet/head contacts belong to the separate movement scans. Keeping

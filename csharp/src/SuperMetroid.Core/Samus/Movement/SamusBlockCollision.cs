@@ -133,12 +133,12 @@ public static class SamusBlockCollision
                     new(TerrainScanEdges.Block(blockX), TerrainScanEdges.Block(topBlockY + rowOffset)));
                 if (!terrain.Level.TryReachBlockStoodFor(ref block))
                     continue;
-                switch (block.CollisionType)
+                switch (block.Kind)
                 {
-                    case RoomCollisionType.Air:
+                    case RoomBlockKind.Air:
                         break;
 
-                    case RoomCollisionType.Slope:
+                    case RoomBlockKind.Slope:
                         if (!block.Behavior.Slope.IsNonSquare)
                         {
                             bool squareCollision = ReactHorizontalSquareSlope(
@@ -163,9 +163,9 @@ public static class SamusBlockCollision
                             state.VerticalVelocity.Speed);
                         break;
 
-                    case RoomCollisionType.SolidBlock:
-                    case RoomCollisionType.ShootableBlock:
-                    case RoomCollisionType.GrappleBlock:
+                    case RoomBlockKind.SolidBlock:
+                    case RoomBlockKind.ShootableBlock:
+                    case RoomBlockKind.GrappleBlock:
                         acceptedDisplacement = ClipHorizontalToSolid(
                             state,
                             acceptedDisplacement,
@@ -173,7 +173,7 @@ public static class SamusBlockCollision
                         collided = true;
                         break;
 
-                    case RoomCollisionType.DoorBlock:
+                    case RoomBlockKind.DoorBlock:
                         // A door block leads somewhere. Samus enters a door it leads through, which reports no
                         // collision, so this scan allows her into the doorway. The elevator's door is not a door
                         // and clips her as an ordinary solid block does.
@@ -187,19 +187,16 @@ public static class SamusBlockCollision
                         }
                         break;
 
-                    case RoomCollisionType.SpikeAir:
-                    case RoomCollisionType.ShootableAir:
-                    case RoomCollisionType.UnrevealedAir:
+                    case RoomBlockKind.SpikeAir:
+                    case RoomBlockKind.ShootableAir:
+                    case RoomBlockKind.UnrevealedAir:
                         // Spike, shootable and unrevealed air let Samus pass with no reaction.
                         break;
-                    case RoomCollisionType.BombableAir:
-                        ActivateCollisionBombableAir(terrain, block, owner, move.CanBreakBombBlocks);
+                    case RoomBlockKind.BombableAir { Reaction: var bombableAir }:
+                        ActivateCollisionBombableAir(terrain, block, bombableAir, owner, move.CanBreakBombBlocks);
                         break;
 
-                    case RoomCollisionType.SpecialAir:
-                        // A special-air block carries its reaction: the room's level holds none without it.
-                        if (block.Reaction is not BlockReaction.SpecialAirBlockReaction { Reaction: var horizontalAir })
-                            break;
+                    case RoomBlockKind.SpecialAir { Reaction: var horizontalAir }:
                         // Sand's submerging reaction clears vertical speed/gravity even
                         // when reached through the horizontal step.
                         collided = SamusInsideBlockReactions.ReactCollision(new(state, BodyAttackOf(owner)), terrain, new(block, horizontalAir),
@@ -213,9 +210,8 @@ public static class SamusBlockCollision
                         }
                         break;
 
-                    case RoomCollisionType.SpikeBlock:
-                        // A spike block carries its reaction: the room's level holds none without it.
-                        if (owner is { } horizontalSamus && block.Reaction is BlockReaction.SpikeBlockReaction { Reaction: var horizontalSpike })
+                    case RoomBlockKind.SpikeBlock { Reaction: var horizontalSpike }:
+                        if (owner is { } horizontalSamus)
                         {
                             SamusTerrainHazardCollision.ApplySolidSpikeCollision(
                                 terrain.Level,
@@ -229,8 +225,7 @@ public static class SamusBlockCollision
                         collided = true;
                         break;
 
-                    case RoomCollisionType.SpecialBlock when
-                        block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger:
+                    case RoomBlockKind.SpecialBlock { Reaction: SpecialBlockReaction.CollectibleTrigger }:
                         // Visible item frames are special blocks that collect an item. Block collision spawns the
                         // shared item detector, whose setup triggers the item at this
                         // origin and reports no collision; Samus therefore passes through
@@ -242,7 +237,7 @@ public static class SamusBlockCollision
                         }
                         break;
 
-                    case RoomCollisionType.SpecialBlock:
+                    case RoomBlockKind.SpecialBlock:
                         // Both special-block reactions spawn the room object and let Samus pass unless its setup stops her.
                         // A full pool returns without running setup, so even a block whose
                         // setup would normally reject contact falls through as air.
@@ -283,7 +278,7 @@ public static class SamusBlockCollision
                         collided = true;
                         break;
 
-                    case RoomCollisionType.BombableBlock:
+                    case RoomBlockKind.BombableBlock { Reaction: var bombable }:
                         // A bomb block spawns its room object for the block's reaction.
                         // Its setup reports the block solid unless Samus
                         // is speed boosting, screw attacking, or in a shinespark pose. On an
@@ -291,7 +286,7 @@ public static class SamusBlockCollision
                         // reports no collision, so this scan continues through the new air.
                         if (terrain.RoomObjects.EveryPlaceHeld)
                             break;
-                        if (block.Behavior.Bombable == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, move.CanBreakBombBlocks))
+                        if (bombable == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, move.CanBreakBombBlocks))
                         {
                             acceptedDisplacement = ClipHorizontalToSolid(
                                 state,
@@ -300,7 +295,7 @@ public static class SamusBlockCollision
                             collided = true;
                             break;
                         }
-                        if (!BombableReactions.IsBreak(block.Behavior.Bombable))
+                        if (!BombableReactions.IsBreak(bombable))
                         {
                             throw new InvalidDataException(
                                 $"Collision bomb block {block.Position} has invalid behaviour ({block.Behavior}).");
@@ -313,8 +308,8 @@ public static class SamusBlockCollision
                             brokenBombBlock ??= block;
                         break;
 
-                    case RoomCollisionType.HorizontalExtension:
-                    case RoomCollisionType.VerticalExtension:
+                    case RoomBlockKind.HorizontalExtension:
+                    case RoomBlockKind.VerticalExtension:
                     default:
                         throw new InvalidDataException(
                             $"Block {block.Position} type {block.CollisionType} escaped the " +
@@ -464,12 +459,12 @@ public static class SamusBlockCollision
             RoomCollisionBlock block = terrain.Level.GetCollisionBlockOrEdgeSolid(new(TerrainScanEdges.Block(blockX), TerrainScanEdges.Block(blockY)));
             if (!terrain.Level.TryReachBlockStoodFor(ref block))
                 continue;
-            switch (block.CollisionType)
+            switch (block.Kind)
             {
-                case RoomCollisionType.Air:
+                case RoomBlockKind.Air:
                     break;
 
-                case RoomCollisionType.Slope:
+                case RoomBlockKind.Slope:
                     if (!block.Behavior.Slope.IsNonSquare)
                     {
                         bool squareCollision = ReactVerticalSquareSlope(
@@ -507,9 +502,9 @@ public static class SamusBlockCollision
                         reactsDownward: move.Observes || !acceptedDisplacement.IsNegative);
                     break;
 
-                case RoomCollisionType.SolidBlock:
-                case RoomCollisionType.ShootableBlock:
-                case RoomCollisionType.GrappleBlock:
+                case RoomBlockKind.SolidBlock:
+                case RoomBlockKind.ShootableBlock:
+                case RoomBlockKind.GrappleBlock:
                     acceptedDisplacement = ClipVerticalToSolid(
                         state,
                         acceptedDisplacement,
@@ -517,7 +512,7 @@ public static class SamusBlockCollision
                     collided = true;
                     break;
 
-                case RoomCollisionType.DoorBlock:
+                case RoomBlockKind.DoorBlock:
                     // A door block reacts to a vertical move as it does to a horizontal one.
                     if (MeetDoorBlock(terrain, block, pose, move.DoorBlocks))
                     {
@@ -529,13 +524,10 @@ public static class SamusBlockCollision
                     }
                     break;
 
-                case RoomCollisionType.SpikeAir:
+                case RoomBlockKind.SpikeAir:
                     // Spike air lets Samus's vertical movement pass with no reaction.
                     break;
-                case RoomCollisionType.SpecialAir:
-                    // A special-air block carries its reaction: the room's level holds none without it.
-                    if (block.Reaction is not BlockReaction.SpecialAirBlockReaction { Reaction: var verticalAir })
-                        break;
+                case RoomBlockKind.SpecialAir { Reaction: var verticalAir }:
                     collided = SamusInsideBlockReactions.ReactCollision(new(state, BodyAttackOf(owner)), terrain, new(block, verticalAir),
                         Axis.Vertical, ref acceptedDisplacement, out bool touchedSand, move.Observes) == SpecialAirCollisionOutcome.Blocks;
                     sandContact |= touchedSand;
@@ -549,17 +541,16 @@ public static class SamusBlockCollision
                     // Scroll wake-up itself lets Samus pass; sand has a separate
                     // collision and contact contract handled above.
                     break;
-                case RoomCollisionType.ShootableAir:
-                case RoomCollisionType.UnrevealedAir:
+                case RoomBlockKind.ShootableAir:
+                case RoomBlockKind.UnrevealedAir:
                     // These air blocks let Samus pass without room-object setup.
                     break;
-                case RoomCollisionType.BombableAir:
-                    ActivateCollisionBombableAir(terrain, block, owner, move.CanBreakBombBlocks);
+                case RoomBlockKind.BombableAir { Reaction: var bombableAir }:
+                    ActivateCollisionBombableAir(terrain, block, bombableAir, owner, move.CanBreakBombBlocks);
                     break;
 
-                case RoomCollisionType.SpikeBlock:
-                    // A spike block carries its reaction: the room's level holds none without it.
-                    if (owner is { } verticalSamus && block.Reaction is BlockReaction.SpikeBlockReaction { Reaction: var verticalSpike })
+                case RoomBlockKind.SpikeBlock { Reaction: var verticalSpike }:
+                    if (owner is { } verticalSamus)
                     {
                         SamusTerrainHazardCollision.ApplySolidSpikeCollision(
                             terrain.Level,
@@ -573,8 +564,7 @@ public static class SamusBlockCollision
                     collided = true;
                     break;
 
-                case RoomCollisionType.SpecialBlock when
-                    block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger:
+                case RoomBlockKind.SpecialBlock { Reaction: SpecialBlockReaction.CollectibleTrigger }:
                     if (!terrain.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(block.At))
                     {
                         throw new InvalidOperationException(
@@ -582,7 +572,7 @@ public static class SamusBlockCollision
                     }
                     break;
 
-                case RoomCollisionType.SpecialBlock:
+                case RoomBlockKind.SpecialBlock:
                     // When the room has no place left for the block's room object, no setup runs, so the
                     // unchanged special block is treated as air for this collision probe.
                     if (terrain.RoomObjects.EveryPlaceHeld)
@@ -644,7 +634,7 @@ public static class SamusBlockCollision
                     collided = true;
                     break;
 
-                case RoomCollisionType.BombableBlock:
+                case RoomBlockKind.BombableBlock { Reaction: var bombable }:
                     // The vertical reaction shares the exact room-object
                     // setup and collision contract documented in the horizontal branch above.
                     if (terrain.RoomObjects.EveryPlaceHeld)
@@ -654,7 +644,7 @@ public static class SamusBlockCollision
                         // treats an untouched bomb block as air.
                         break;
                     }
-                    if (block.Behavior.Bombable == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, move.CanBreakBombBlocks))
+                    if (bombable == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, move.CanBreakBombBlocks))
                     {
                         acceptedDisplacement = ClipVerticalToSolid(
                             state,
@@ -663,7 +653,7 @@ public static class SamusBlockCollision
                         collided = true;
                         break;
                     }
-                    if (!BombableReactions.IsBreak(block.Behavior.Bombable))
+                    if (!BombableReactions.IsBreak(bombable))
                     {
                         throw new InvalidDataException(
                             $"Collision bomb block {block.Position} has invalid behaviour ({block.Behavior}).");
@@ -672,8 +662,8 @@ public static class SamusBlockCollision
                         .TrySpawnCollisionBombBlock(terrain.Level, block.At, block.Behavior);
                     break;
 
-                case RoomCollisionType.HorizontalExtension:
-                case RoomCollisionType.VerticalExtension:
+                case RoomBlockKind.HorizontalExtension:
+                case RoomBlockKind.VerticalExtension:
                 default:
                     throw new InvalidDataException(
                         $"Block {block.Position} type {block.CollisionType} escaped the " +
@@ -745,16 +735,22 @@ public static class SamusBlockCollision
     /// <summary>
     /// Runs the shared bomb-block setup for non-solid cells without consuming its collision result.
     /// </summary>
+    /// <param name="terrain">The room's level and room objects.</param>
+    /// <param name="block">The bombable air block Samus met.</param>
+    /// <param name="reaction">The block's bombable reaction.</param>
+    /// <param name="owner">The Samus whose collision reactions act, or null for an ownerless probe.</param>
+    /// <param name="explicitAdmission">Whether the probe admits the break whatever Samus's pose.</param>
     private static void ActivateCollisionBombableAir(
         SamusTerrain terrain,
         RoomCollisionBlock block,
+        BombableReaction reaction,
         SamusState? owner,
         bool explicitAdmission)
     {
         // The game's horizontal and vertical air reactions invoke the same setup as solid
         // bomb blocks, but ignores its collision result. A refused break, or one with no room left for its
         // effect, must never turn this non-solid cell into a movement obstruction.
-        if (block.Behavior.Bombable == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, explicitAdmission))
+        if (reaction == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, explicitAdmission))
             return;
         terrain.RoomObjects.BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.At, block.Behavior);
     }

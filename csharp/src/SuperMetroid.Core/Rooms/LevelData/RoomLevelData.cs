@@ -561,7 +561,7 @@ public sealed class RoomLevelData
     /// (#2554): a kind that reads none always does, and a reacting kind does when its behaviour gives its family a reaction.
     /// </summary>
     private static bool CarriesItsReaction(RoomCollisionType collision, RoomBlockBehavior behavior) =>
-        BlockReactionFamilies.Of(collision) is not { } family || behavior.ReactionIn(family) is not null;
+        RoomBlockKind.TryOf(collision, behavior, out _);
 
     /// <summary>Names a reacting kind's block whose behaviour gives its kind no reaction, for a refusal.</summary>
     private static string NoReaction(RoomCollisionType collision, RoomBlockBehavior behavior) =>

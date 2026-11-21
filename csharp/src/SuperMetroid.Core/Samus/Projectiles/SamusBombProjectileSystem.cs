@@ -853,8 +853,8 @@ public sealed class SamusBombProjectileSystem
 
         // A bombed item block, special or shootable, tells the item room object at it of the hit, and no other reaction
         // runs.
-        if (block.CollisionType == RoomCollisionType.SpecialBlock && block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger ||
-            block.CollisionType == RoomCollisionType.ShootableBlock && block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
+        if (block.Kind is RoomBlockKind.SpecialBlock { Reaction: SpecialBlockReaction.CollectibleTrigger } or
+            RoomBlockKind.ShootableBlock { Reaction: ShootableReaction.CollectibleTrigger })
         {
             roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(block.At);
             return;
@@ -888,90 +888,106 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // The bomb reaction sends these types to reactions that only report pass or stop. They
-        // spawn no room object and do not alter the room's terrain or behaviours: the bomb's visit is recorded
-        // and nothing else happens.
-        if (block.CollisionType is
-            RoomCollisionType.Air or
-            RoomCollisionType.Slope or
-            RoomCollisionType.SpikeAir or
-            RoomCollisionType.SpecialAir or
-            RoomCollisionType.UnrevealedAir or
-            RoomCollisionType.SolidBlock or
-            RoomCollisionType.DoorBlock or
-            RoomCollisionType.SpikeBlock or
-            RoomCollisionType.GrappleBlock)
-            return;
-
-        if (block.Reaction is BlockReaction.BombableBlockReaction { Reaction: var bombable })
+        switch (block.Kind)
         {
+            // The bomb reaction sends these types to reactions that only report pass or stop. They
+            // spawn no room object and do not alter the room's terrain or behaviours: the bomb's visit is recorded
+            // and nothing else happens.
+            case RoomBlockKind.Air:
+            case RoomBlockKind.Slope:
+            case RoomBlockKind.SpikeAir:
+            case RoomBlockKind.SpecialAir:
+            case RoomBlockKind.UnrevealedAir:
+            case RoomBlockKind.SolidBlock:
+            case RoomBlockKind.DoorBlock:
+            case RoomBlockKind.SpikeBlock:
+            case RoomBlockKind.GrappleBlock:
+                return;
+
             // Both bombable-air and bombable-solid reactions use the bomb-block reactions; an inert block neither
             // spawns a room object nor changes the terrain.
-            if (bombable == BombableReaction.Inert)
+            case RoomBlockKind.BombableAir { Reaction: BombableReaction.Inert }:
+            case RoomBlockKind.BombableBlock { Reaction: BombableReaction.Inert }:
                 return;
-            // Spawn is synchronous: an accepted bomb-block reaction applies its temporary solid-block
-            // or air collision before the bomb proceeds to its next border/cross member.
-            roomObjects.BlockReactions.SpawnBombReactionBlock(
-                level,
-                block.At,
-                bombable,
-                projectileType);
-            return;
-        }
+            case RoomBlockKind.BombableAir { Reaction: var bombableAir }:
+                // Spawn is synchronous: an accepted bomb-block reaction applies its temporary solid-block
+                // or air collision before the bomb proceeds to its next border/cross member.
+                roomObjects.BlockReactions.SpawnBombReactionBlock(level, block.At, bombableAir, projectileType);
+                return;
+            case RoomBlockKind.BombableBlock { Reaction: var bombableBlock }:
+                roomObjects.BlockReactions.SpawnBombReactionBlock(level, block.At, bombableBlock, projectileType);
+                return;
 
-        if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
-        {
             // Gate shot blocks reuse shootable collision with the private gate-trigger behaviours. They
             // select temporary trigger room objects rather than the ordinary bomb reactions.
-            if (block.CollisionType == RoomCollisionType.ShootableBlock &&
-                block.Behavior.TryGetDownwardGateTrigger(out _))
-            {
+            case RoomBlockKind.ShootableBlock when block.Behavior.TryGetDownwardGateTrigger(out _):
                 roomObjects.Gates.SpawnDownwardGateTrigger(
                     level,
                     block.At,
                     block.Behavior,
                     BlockStrike.By(projectileType));
                 return;
-            }
 
             // Shootable air passes a bomb by when its reaction sets off only in a shootable block. A
             // shootable block with that reaction still spawns the empty room object, which takes a
             // room-object place for one pass.
-            if (block.CollisionType == RoomCollisionType.ShootableAir &&
-                block.Behavior.Shootable is { } shootable && shootable.SetsOffOnlyInSolidBlocks)
+            case RoomBlockKind.ShootableAir { Reaction: var passing } when passing.SetsOffOnlyInSolidBlocks:
                 return;
-            if (block.Behavior.Shootable is not (ShootableReaction.NothingWhenSolid or ShootableReaction.AnimalEscape or
-                    ShootableReaction.CollisionProbe) &&
-                !ShotBlockReactions.IsWeaponReaction(block.Behavior.Shootable))
-            {
+            case RoomBlockKind.ShootableAir { Reaction: var shootableAir }:
+                SpawnBombedShotBlock(level, block, shootableAir, roomObjects, projectileType, solidBlock: false);
+                return;
+            case RoomBlockKind.ShootableBlock { Reaction: var shootableBlock }:
+                SpawnBombedShotBlock(level, block, shootableBlock, roomObjects, projectileType, solidBlock: true);
+                return;
+
+            case RoomBlockKind.SpecialBlock { Reaction: var special }:
+                roomObjects.BlockReactions.SpawnBombedSpecialBlock(
+                    level,
+                    block.At,
+                    special,
+                    projectileType);
+                return;
+
+            // A continuing cell either reached the block it stands for or returned before this step.
+            case RoomBlockKind.HorizontalExtension:
+            case RoomBlockKind.VerticalExtension:
+            default:
                 throw new InvalidDataException(
-                    $"Shootable block {block.Position} has behaviour ({block.Behavior}) with no " +
-                    "reaction a bomb sets off.");
-            }
-            roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
-                level,
-                block.At,
-                block.Behavior,
-                BlockStrike.By(projectileType),
-                solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
-            return;
+                    $"Bombed block reaction reached impossible type {block.CollisionType}/" +
+                    $"behaviour ({block.Behavior}) at ({x},{y}).");
         }
+    }
 
-        if (block.Reaction is BlockReaction.SpecialBlockBlockReaction { Reaction: var special })
+    /// <summary>Sets off the ordinary shot-block reaction a bombed shootable block or shootable air holds.</summary>
+    /// <param name="level">The room's level.</param>
+    /// <param name="block">The bombed block.</param>
+    /// <param name="reaction">Its shootable reaction.</param>
+    /// <param name="roomObjects">The room's room objects.</param>
+    /// <param name="projectileType">The bombing projectile's type.</param>
+    /// <param name="solidBlock">Whether the block is a shootable block rather than shootable air.</param>
+    /// <exception cref="InvalidDataException">The reaction is none a bomb sets off.</exception>
+    private static void SpawnBombedShotBlock(
+        RoomLevelData level,
+        RoomCollisionBlock block,
+        ShootableReaction reaction,
+        ISamusRoomObjects roomObjects,
+        SamusProjectileType projectileType,
+        bool solidBlock)
+    {
+        if (reaction is not (ShootableReaction.NothingWhenSolid or ShootableReaction.AnimalEscape or
+                ShootableReaction.CollisionProbe) &&
+            !ShotBlockReactions.IsWeaponReaction(reaction))
         {
-            roomObjects.BlockReactions.SpawnBombedSpecialBlock(
-                level,
-                block.At,
-                special,
-                projectileType);
-            return;
+            throw new InvalidDataException(
+                $"Shootable block {block.Position} has behaviour ({block.Behavior}) with no " +
+                "reaction a bomb sets off.");
         }
-
-        // Every collision type is handled above; a continuing cell either reached the block it stands for or returned
-        // before this step, so reaching here means a collision type was added without a bomb reaction.
-        throw new InvalidDataException(
-            $"Bombed block reaction reached impossible type {block.CollisionType}/" +
-            $"behaviour ({block.Behavior}) at ({x},{y}).");
+        roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
+            level,
+            block.At,
+            block.Behavior,
+            BlockStrike.By(projectileType),
+            solidBlock);
     }
 
     /// <summary>

@@ -436,50 +436,46 @@ public static class SamusGrappleSwing
         if (level.GrappleBlockStoodFor(block) is not { } stoodFor)
             return false;
         block = stoodFor;
-        switch (block.CollisionType)
+        switch (block.Kind)
         {
             // The swing step intentionally treats shootable/bombable air as air;
             // unlike a firing endpoint, body contact does not spawn their room objects.
-            case RoomCollisionType.Air:
-            case RoomCollisionType.SpecialAir:
-            case RoomCollisionType.ShootableAir:
-            case RoomCollisionType.UnrevealedAir:
-            case RoomCollisionType.BombableAir:
+            case RoomBlockKind.Air:
+            case RoomBlockKind.SpecialAir:
+            case RoomBlockKind.ShootableAir:
+            case RoomBlockKind.UnrevealedAir:
+            case RoomBlockKind.BombableAir:
                 return false;
 
-            case RoomCollisionType.SpikeAir:
+            case RoomBlockKind.SpikeAir { Reaction: var airSpike }:
                 // Spike air is harmless to the swing except damaging spike air, which queues
                 // its light damage. It never collides, but it still starts the common
                 // spike invulnerability and knockback (SpikeHazardDefinitions.InvincibilityFrames,
                 // SpikeHazardDefinitions.KnockbackFrames). The timer
                 // check must precede the behaviour lookup so a second radial probe in this
                 // same sweep cannot queue damage again.
-                // Spike air carries its reaction: the room's level holds none without it.
-                if (block.Reaction is BlockReaction.SpikeBlockReaction { Reaction: var airSpike })
-                    ApplySwingSpikeDamage(samus, airSpike, block: SwingSpikeBlock.Plain);
+                ApplySwingSpikeDamage(samus, airSpike, block: SwingSpikeBlock.Plain);
                 return false;
 
             // Slopes are unconditional collision in this grapple-specific step.
-            case RoomCollisionType.Slope:
-            case RoomCollisionType.SolidBlock:
-            case RoomCollisionType.DoorBlock:
-            case RoomCollisionType.SpecialBlock:
-            case RoomCollisionType.ShootableBlock:
-            case RoomCollisionType.GrappleBlock:
-            case RoomCollisionType.BombableBlock:
+            case RoomBlockKind.Slope:
+            case RoomBlockKind.SolidBlock:
+            case RoomBlockKind.DoorBlock:
+            case RoomBlockKind.SpecialBlock:
+            case RoomBlockKind.ShootableBlock:
+            case RoomBlockKind.GrappleBlock:
+            case RoomBlockKind.BombableBlock:
                 return true;
 
-            case RoomCollisionType.SpikeBlock:
+            case RoomBlockKind.SpikeBlock { Reaction: var solidSpike }:
                 // The solid spike reaction always reports collision. Before reporting it, it applies
                 // the heavy spike's damage or the light spike's; every other spike deals
                 // none.
-                // A spike block carries its reaction: the room's level holds none without it.
-                if (block.Reaction is BlockReaction.SpikeBlockReaction { Reaction: var solidSpike })
-                    ApplySwingSpikeDamage(samus, solidSpike, block: SwingSpikeBlock.Solid);
+                ApplySwingSpikeDamage(samus, solidSpike, block: SwingSpikeBlock.Solid);
                 return true;
 
-            case RoomCollisionType.HorizontalExtension:
-            case RoomCollisionType.VerticalExtension:
+            case RoomBlockKind.HorizontalExtension:
+            case RoomBlockKind.VerticalExtension:
                 throw new InvalidOperationException($"Continuing block {block.Position} reached the grapple's swing in place of the block it stands for.");
 
             default:

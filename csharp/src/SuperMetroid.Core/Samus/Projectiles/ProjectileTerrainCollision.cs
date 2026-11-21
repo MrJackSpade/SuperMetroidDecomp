@@ -543,9 +543,14 @@ internal sealed class ProjectileTerrainCollision
                 if (!level.TryGridBlockStepped(readBlock, Offset16<RoomBlocks>.OneRight, out Position16<RoomBlocks> nextBlock))
                     throw new NotSupportedException("A straddled Wave collision read crosses the room's grid.");
                 RoomTerrainBlock next = level.GetCollisionBlock(nextBlock).Terrain;
+                RoomTerrainBlock straddled = straddledTerrain.Straddling(block.Terrain, next);
+                // A straddled kind whose reaction the start block's behaviour does not give finds no reaction to set off: no
+                // room object spawns, and Wave goes on past whatever such a block would stop.
+                if (!RoomBlockKind.TryOf(straddled.Collision, block.Behavior, out _))
+                    continue;
                 // The reaction consumes the straddled block; the behaviour and room-object setup
                 // still use the block the read starts in, as aligned reads do.
-                block = block with { Terrain = straddledTerrain.Straddling(block.Terrain, next) };
+                block = block.Straddled(straddled);
             }
             RunShotReaction(level, held, block, roomObjects, ShotSpan.At(step, span, targetX), out bool endSpan);
             // Wave discards whether a block stops it, but still honors room-object scan termination.

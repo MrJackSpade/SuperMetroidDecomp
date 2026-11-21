@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Cartridge;

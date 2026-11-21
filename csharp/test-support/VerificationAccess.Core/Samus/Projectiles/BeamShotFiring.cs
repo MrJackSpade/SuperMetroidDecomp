@@ -52,7 +52,7 @@ internal static class BeamShotFiring
     }
 
     /// <summary>Whether <paramref name="fire"/> takes one of <paramref name="projectiles"/>' shots: their shot count stands one higher after it.</summary>
-    private static bool TakesShot(SamusProjectileSystem projectiles, Func<BeamFiringResult> fire)
+    private static bool TakesShot(SamusProjectileSystem projectiles, Func<BeamFiringResult?> fire)
     {
         int before = projectiles.Pool.ShotCount.Count;
         _ = fire();

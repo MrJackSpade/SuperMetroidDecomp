@@ -60,7 +60,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         escape.BeginGetaway();
         int flown = 0;
         for (; flown < 40; flown++)
-            escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, arena, flown);
+            escape.RunGetawayRoomMain(runtime.Player.Samus, arena, flown);
         // The getaway's floor reaches the display at the accepted frame boundary (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RgbaPixel[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
@@ -77,7 +77,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
             "the floor band's background scroll above the origin is signed");
         // The getaway flies its remaining steps, and the update after its last leaves the turning floor.
         for (; flown <= SuperMetroid.Core.Bosses.Ridley.CeresRidleyGetawayCurve.Duration; flown++)
-            escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, arena, flown);
+            escape.RunGetawayRoomMain(runtime.Player.Samus, arena, flown);
         AssertTrue(escape.ShownFloor is null, "the getaway's end leaves the turning floor");
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");

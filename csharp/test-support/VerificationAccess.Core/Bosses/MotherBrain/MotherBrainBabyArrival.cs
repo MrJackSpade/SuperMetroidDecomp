@@ -20,7 +20,7 @@ internal static class MotherBrainBabyArrival
     internal static MotherBrainRainbowBeamAttackSequence BringInBaby(MotherBrainEnemyState state, SamusState samus)
     {
         MotherBrainRainbowBeamAttackSequence lateFight = Ensure.NotNull(state).RainbowBeamSequence ?? state.BeginLateFight();
-        state.FinishOffPhase = MotherBrainFinishOffPhase.BringInBaby;
+        lateFight.State.FinishOffPhase = MotherBrainFinishOffPhase.BringInBaby;
         state.PhaseTimer.LastFor(1);
         state.Body.RunMainAi(samus);
         return lateFight.Baby is not null

@@ -233,7 +233,7 @@ internal static class GameplayDisplayFrameTestsVerification
         CeresEscape escape = runtime.Enemies.CeresEscape;
         RoomFloor arena = runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ridley's arena shows his floor.");
         escape.BeginGetaway();
-        escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, arena, 0);
+        escape.RunGetawayRoomMain(runtime.Player.Samus, arena, 0);
         FloorView shown = escape.ShownFloor ?? throw new InvalidOperationException("Ridley flies his getaway.");
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Ridley's floor and fake BGMODE wait for the NMI");
@@ -244,7 +244,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertTrue(mode7.LowerBand is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
         // The getaway flies its remaining steps, and the update after its last hands on to the self-destruct warning.
         for (int update = 1; update <= CeresRidleyGetawayCurve.Duration; update++)
-            escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, arena, update);
+            escape.RunGetawayRoomMain(runtime.Player.Samus, arena, update);
         AssertTrue(escape.ShownFloor is null, "the getaway's end leaves the turning floor");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }

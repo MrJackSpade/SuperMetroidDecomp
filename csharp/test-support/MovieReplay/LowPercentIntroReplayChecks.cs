@@ -161,9 +161,9 @@ internal sealed class LowPercentIntroReplayChecks : IConvertedMovieChecks
         var recorded = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new BeamChargeState(), game.Session.Artwork.FlashbackSamusArtwork())
         {
-            Pose = SamusPoseNumbering.FromNumber(native.Word(NativeSnapshotMemory.Pose)),
             Position = FixedPosition<RoomPixels>.FromWhole(new(native.Word(NativeSnapshotMemory.X), native.Word(NativeSnapshotMemory.Y))),
         };
+        recorded.PlaceInPose(SamusPoseNumbering.FromNumber(native.Word(NativeSnapshotMemory.Pose)));
         SamusPoseMetadata.RefreshCollisionRadii(recorded);
         SamusPresentation.InitializeAnimation(recorded);
         SamusPresentation.SetAnimationFrameFromMovementOwner(recorded, recorded.AnimationFrameNumbered(native.Word(NativeSnapshotMemory.Animation)),

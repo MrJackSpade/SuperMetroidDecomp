@@ -67,11 +67,13 @@ internal static class FamilyProjectileStarts
     /// <summary>
     /// Spawns a projectile of <paramref name="kind"/> through the game's spawn (<see cref="EnemyProjectileEngine.AllocateEnemyProjectile"/>),
     /// bound to the behaviour its production spawner binds: the first free place searched from the last down takes it, and
-    /// it holds its kind's definition and <paramref name="graphics"/> before any animation starts.
+    /// it holds its kind's definition and <paramref name="graphics"/> before its spawner's animation starts: until a check
+    /// starts one, it runs the animation that deletes it at its first animation step, since every projectile runs one.
     /// </summary>
     /// <exception cref="InvalidOperationException">Every place is held.</exception>
     internal static EnemyProjectile Allocate(RoomEnemySystem enemies, RoomEnemyProjectileKind kind, SpriteGraphics graphics) =>
-        Ensure.NotNull(enemies).Projectiles.AllocateEnemyProjectile(kind, BehaviorOf(enemies, kind), graphics)
+        Ensure.NotNull(enemies).Projectiles.AllocateEnemyProjectile(kind, BehaviorOf(enemies, kind), graphics,
+            EnemyProjectileDeleteAnimation.Instance)
             ?? throw new InvalidOperationException($"A {kind} spawn found every enemy-projectile place held.");
 
     /// <summary>

@@ -346,8 +346,7 @@ internal static class NativeSnapshotImport
         RunLiquidMotionToSnapshot(runtime, W, stopped: !lavaAcidObjectLive);
         // This is a one-time initial snapshot import. No native state is fed back during replay. The random number is the
         // recorded one, whatever the liquid's motion passes above stirred it to.
-        runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random),
-            camera: runtime.Room.LoadedCamera.PixelPosition);
+        runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
         samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(bus);
         var kraidHeadCursors = new KraidHeadNativeCursors(bus);

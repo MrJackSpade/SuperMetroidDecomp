@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Runtime.Attract;
 /// <summary>
 /// Checks an attract demo's loading waits (#1627) as the game runs them: the demo's first update creates its scene's
 /// runtime and loads the scene behind a black screen, which stays loading through each of its enemy-setup waits
-//// (<see cref="GameLoadingDefinitions.EnemySetupWaits"/>) but the last, which starts the scene. The schedule the title
+/// (<see cref="GameLoadingDefinitions.EnemySetupWaits"/>) but the last, which starts the scene. The schedule the title
 /// plays from (#2553): a title request loads the set's first scene; each completed scene routes to the set's next, in
 /// order, until the set has played through, which returns the title from its beginning with the playlist's next set to
 /// come; a cancelled scene returns the title at its title screen; a soft reset returns to the first set.

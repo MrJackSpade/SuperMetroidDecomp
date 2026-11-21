@@ -129,7 +129,8 @@ internal static class RoomObjectSystemAccess
                     continue;
                 if (!reached)
                     return false;
-                return self.ProjectileTriggers.TryNotifyResidentProjectileHit(block, BlockStrike.By(projectileType));
+                self.ProjectileTriggers.NotifyResidentProjectileHit(block, BlockStrike.By(projectileType));
+                return true;
             }
             return false;
         }

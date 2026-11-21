@@ -1,7 +1,6 @@
 // The generated private-access classes (#2570), imported everywhere this folder is compiled: each names its owner's
 // private members as extension members, which a check reaches wherever it reaches the owner. The architecture audit's
 // --fix-test-only-members and the reachability prune write this file with the classes they generate.
-global using static SuperMetroid.AssetExtraction.Areas.Ceres.Artwork.CeresEscapeTileArtworkDefinitionsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresCinematicPictureSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualFilesPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlayTilemapFilesPrivateAccess;
@@ -618,7 +617,6 @@ global using static SuperMetroid.Core.Gameplay.LibraryImageBackgroundPrivateAcce
 global using static SuperMetroid.Core.Gameplay.RoomPlaneBackgroundPrivateAccess;
 global using static SuperMetroid.Core.Gameplay.SkyBackgroundPrivateAccess;
 global using static SuperMetroid.Core.Gameplay.XrayRevealBackgroundPrivateAccess;
-global using static SuperMetroid.Core.Hud.GameplayMessageBoxDefinitionsTimingPrivateAccess;
 global using static SuperMetroid.Core.Hud.GameplayMessageBoxStatePrivateAccess;
 global using static SuperMetroid.Core.Hud.HudStatePrivateAccess;
 global using static SuperMetroid.Core.Hud.ShownHudPrivateAccess;

@@ -1,7 +1,5 @@
-using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Colours;
 
 namespace SuperMetroid.Core.Samus.Death;
 

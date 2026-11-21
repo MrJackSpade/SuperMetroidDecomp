@@ -476,7 +476,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// </summary>
     internal bool ResolveSpacePirateHitboxShot(in EnemyShotContext c, PirateHitboxShotActions.PirateHitboxShotAction pirateAction)
     {
-        if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Normal)
+        Ensure.NotNull(pirateAction);
+        if (!pirateAction.RunsNormalReaction)
         {
             // The collision marks a non-plasma projectile as having entered an extended hitbox before the
             // selected reaction runs. Normal hits get the equivalent lifecycle transition from TryStartEnemyImpact;
@@ -484,13 +485,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             // forces the mark.
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
         }
-        if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
-        {
-            // The ninja's body ignores a just-fired Super Missile that has no link yet; the ignored shot is consumed
-            // and touches no further hitbox.
-            return true;
-        }
-        if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Reflect)
+        if (pirateAction.Reflected is { } reflectedFamily)
         {
             c.Enemy.Invincibility.Restart(SpacePirateCollisionDefinitions.ReflectInvincibility);
             // A shot aimed straight left or right reflects up and away; every other aim reflects down.
@@ -498,11 +493,13 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             c.Projectile.Direction = reflected;
             c.Projectile.FlyOn();
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus,
-                c.Shot);
+                c.Shot, reflectedFamily);
             RequestSpacePirateSound(EnemySoundEffectDefinitions.WalkingPirateReflectSound);
             return true;
         }
-        return false;
+        // The ninja's body ignores a just-fired Super Missile that has no link yet, and what else it neither reflects nor
+        // takes; the ignored shot is consumed and touches no further hitbox.
+        return !pirateAction.RunsNormalReaction;
     }
 
     /// <summary>

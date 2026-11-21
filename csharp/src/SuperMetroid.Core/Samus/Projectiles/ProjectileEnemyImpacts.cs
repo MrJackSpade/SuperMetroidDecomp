@@ -57,15 +57,14 @@ internal sealed class ProjectileEnemyImpacts
     /// projectile family, type and world position, and sets up its damage, direction-specific animation, radii and the
     /// family's behaviour afresh.
     /// </summary>
-    public void ReflectFromEnemy(SamusState samus, SamusProjectileOccupant held)
+    public void ReflectFromEnemy(SamusState samus, SamusProjectileOccupant held, ReflectableShotFamily family)
     {
         Ensure.NotNull(samus);
         SamusProjectile shot = Ensure.NotNull(held).Projectile;
         if (!held.HasEnemyCollisionPayload)
             return;
 
-        SamusProjectileFamily family = held.Type.Family;
-        if (family == SamusProjectileFamily.SuperMissile)
+        if (family == ReflectableShotFamily.SuperMissile)
         {
             // Reflection deletes the projectile in the place the Super Missile names as its link
             // (UnlinkedSuperMissileLink) before repurposing the owner; it does not broadly delete
@@ -75,7 +74,7 @@ internal sealed class ProjectileEnemyImpacts
                 _animation.ClearProjectile(_pool.Shots[linkPlace]);
         }
 
-        if (family == SamusProjectileFamily.Beam)
+        if (family == ReflectableShotFamily.Beam)
         {
             // Beam reflection alone reinitializes velocity immediately. Missile families
             // retain their old velocity until they re-ignite on their next update, at
@@ -85,32 +84,25 @@ internal sealed class ProjectileEnemyImpacts
 
         SamusProjectileKind kind;
         SamusProjectileSegment? segment;
-        if (family == SamusProjectileFamily.Beam)
+        if (family == ReflectableShotFamily.Beam)
         {
             kind = SamusProjectileSelection.BeamShot(held.Type.BeamCombination, held.Type.IsChargedBeam);
             segment = SamusProjectileSelection.BeamShotAnimation(held.Type.BeamCombination, held.Type.IsChargedBeam, shot.Direction);
         }
-        else if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
-        {
-            kind = SamusProjectileSelection.Missile(family == SamusProjectileFamily.SuperMissile);
-            segment = SamusProjectileKinds.Animation(kind, shot.Direction);
-        }
         else
         {
-            // The reflection producer only selects beams and the two missile
-            // families. Reaching this method with a bomb/explosion payload is corrupt
-            // scheduler state rather than an unimplemented reflection behavior.
-            throw new InvalidDataException(
-                $"Projectile family {family} is not reflectable.");
+            // The reflection carries a beam or one of the two missile families, so a bomb or explosion never reaches it.
+            kind = SamusProjectileSelection.Missile(family == ReflectableShotFamily.SuperMissile);
+            segment = SamusProjectileKinds.Animation(kind, shot.Direction);
         }
 
         held.Damage = SamusProjectileDamage.Read(kind);
         shot.Animation = SamusProjectilePlayback.Start(segment);
         shot.Radius = SamusProjectilePlayback.InitialRadius(segment);
 
-        if (family == SamusProjectileFamily.Missile)
+        if (family == ReflectableShotFamily.Missile)
             held.Install(SamusShotBehaviors.Missile, new MissileShotState(new SamusMissileIgnition.PendingAfterReflection()));
-        else if (family == SamusProjectileFamily.SuperMissile)
+        else if (family == ReflectableShotFamily.SuperMissile)
         {
             held.Install(SamusShotBehaviors.SuperMissile,
                 new SuperMissileShotState(new SamusMissileIgnition.PendingAfterReflection(), linkPlace: null));

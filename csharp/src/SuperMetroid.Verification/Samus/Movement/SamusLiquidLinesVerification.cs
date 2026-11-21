@@ -35,12 +35,12 @@ internal static class SamusLiquidLinesVerification
             int wrappedBottom = CoordinateAxis.Wrap(centre + poseRadius - 1);
             foreach (int surface in Surfaces)
             {
-                samus.LiquidPhysics.ConfigureWater(surface, ignoresSurface: false, RoomFxType.Water);
+                samus.LiquidPhysics.ConfigureWater(surface, ignoresSurface: false, SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
                 AssertSameAt(CoordinateAxis.Difference(surface, wrappedTop) < 0, samus.LiquidPhysics.IsTopBoundarySubmerged(samus),
                     $"top under water at line {surface}", centre);
                 AssertSameAt(CoordinateAxis.Difference(surface, wrappedBottom) < 0 ? SamusLiquidMedium.Water : SamusLiquidMedium.Air,
                     samus.LiquidPhysics.DetermineMovementMedium(samus), $"movement in water at line {surface}", centre);
-                samus.LiquidPhysics.ConfigureLavaAcid(surface);
+                samus.LiquidPhysics.ConfigureLavaAcid(surface, SuperMetroid.Core.Samus.Movement.LavaAcidRoomFx.Lava);
                 AssertSameAt(CoordinateAxis.Difference(surface, wrappedTop) < 0, samus.LiquidPhysics.IsTopBoundarySubmerged(samus),
                     $"top under lava at line {surface}", centre);
                 AssertSameAt(CoordinateAxis.Difference(surface, wrappedBottom) < 0 ? SamusLiquidMedium.LavaOrAcid : SamusLiquidMedium.Air,

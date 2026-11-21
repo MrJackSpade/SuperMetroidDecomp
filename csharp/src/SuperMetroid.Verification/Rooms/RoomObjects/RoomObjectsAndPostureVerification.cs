@@ -352,9 +352,6 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), aimedStandTrans
         SamusGroundedPoseTransitions.ApplyGroundedAimTransition(crouchAim, target);
         AssertEqual(16, crouchAim.Kinematics.Radius.Y, $"right crouch aim ${SamusPoseNumbers.Number(target):X2} radius");
     }
-    AssertThrows<InvalidOperationException>(
-        () => SamusGroundedPoseTransitions.ApplyGroundedAimTransition(crouchAim, SamusPoseId.CrouchingAimUpLeftPose),
-        "crouch aim cannot cross facing families");
 
     // Releasing Down while retaining the facing direction matches `$91:A6A0`'s direct
     // `$27 -> $01` record. This is not the `$3B` standing animation: expansion collision

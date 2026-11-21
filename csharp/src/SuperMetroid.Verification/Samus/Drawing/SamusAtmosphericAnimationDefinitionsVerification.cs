@@ -163,7 +163,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         }.InPose(SamusPoseId.FacingRightNormalPose);
         samus.LiquidPhysics.ConfigureLavaAcid(
             surfaceY: 100,
-            fxType == RoomFxType.Acid ? RoomFxType.Acid : RoomFxType.Lava);
+            fxType == RoomFxType.Acid ? SuperMetroid.Core.Samus.Movement.LavaAcidRoomFx.Acid : SuperMetroid.Core.Samus.Movement.LavaAcidRoomFx.Lava);
         samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1, bossPresent: false);
         AssertEqual(expected.Fraction, samus.PeriodicDamage.Pending.Fraction,
             $"production {fxType} fractional damage accumulation");

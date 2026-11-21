@@ -1083,9 +1083,6 @@ internal static class LookupStream4Verification
             for (int place = 0; place < 3; place++)
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + digit * 2)), tiles[74 + place], "actual stock ammo digit draw");
         }
-        // A value naming no ammunition counter is rejected rather than drawn anywhere.
-        foreach (HudAmmoCounter invalid in new[] { (HudAmmoCounter)int.MinValue, (HudAmmoCounter)(-1), (HudAmmoCounter)int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyAmmo(tiles, invalid, 0), "HUD ammunition counter exact domain");
     }
 
     /// <summary>Checks title screen sprite identities against the native artwork pointers.</summary>

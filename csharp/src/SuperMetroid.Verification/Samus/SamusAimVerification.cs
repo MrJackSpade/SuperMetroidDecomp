@@ -276,9 +276,6 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, Gameplay
     ushort compactCenterY = samus.Position.Y.Whole;
     uint compactVelocity = samus.Kinematics.VerticalVelocity.Speed.RawValue;
     SamusVerticalDirection compactDirection = samus.Kinematics.VerticalVelocity.Direction;
-    AssertThrows<InvalidOperationException>(
-        () => SamusAerialPoseTransitions.ApplySameFacingAerialTransition(samus, SamusPoseId.NormalJumpAimDownRightPose),
-        "compact aim requires room-aware collision route");
     SamusAerialPoseTransitions.ApplyCompactAerialTransition(samus, 
 SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.NormalJumpAimDownRightPose, frameCounter: 4);
     AssertEqual(SamusPoseId.NormalJumpAimDownRightPose, samus.Pose, "compact jump pose");

@@ -152,7 +152,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             }.InPose(pose);
             runner.Ground = room.Ground;
             if (wetness == RoomGroundWetness.WetWhileRaining)
-                runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
+                runner.LiquidPhysics.ConfigureNonLiquidRoomFx(SuperMetroid.Core.Samus.Movement.DryRoomFx.Rain);
             runner.ChangePose(runner.Pose, runner.PoseFrameNumbered(2));
             AdvanceToFootContactTick(runner);
             runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: false);
@@ -166,7 +166,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             }.InPose(pose);
             landing.Ground = room.Ground;
             if (wetness == RoomGroundWetness.WetWhileRaining)
-                landing.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
+                landing.LiquidPhysics.ConfigureNonLiquidRoomFx(SuperMetroid.Core.Samus.Movement.DryRoomFx.Rain);
             landing.LiquidPhysics.BeginFrameSoundRequests();
             landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
                 landing,

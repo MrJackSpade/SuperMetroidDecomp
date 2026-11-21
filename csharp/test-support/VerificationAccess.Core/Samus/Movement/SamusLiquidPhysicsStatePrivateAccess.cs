@@ -11,17 +11,6 @@ internal static class SamusLiquidPhysicsStatePrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Samus.Movement.SamusLiquidPhysicsState self)
     {
-        /// <summary>The private method <c>ConfigureLavaAcid</c>, invoked by name.</summary>
-        internal void ConfigureLavaAcid(int? surfaceY, global::SuperMetroid.Core.Fx.RoomFxType type = (global::SuperMetroid.Core.Fx.RoomFxType)(1)) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Samus.Movement.SamusLiquidPhysicsState>(self, "ConfigureLavaAcid", [typeof(int?), typeof(global::SuperMetroid.Core.Fx.RoomFxType)], new object?[] { surfaceY, type });
-
-        /// <summary>The private method <c>ConfigureNonLiquidRoomFx</c>, invoked by name.</summary>
-        internal void ConfigureNonLiquidRoomFx(global::SuperMetroid.Core.Fx.RoomFxType type) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Samus.Movement.SamusLiquidPhysicsState>(self, "ConfigureNonLiquidRoomFx", [typeof(global::SuperMetroid.Core.Fx.RoomFxType)], new object?[] { type });
-
-        /// <summary>The private method <c>ConfigureWater</c>, invoked by name.</summary>
-        internal void ConfigureWater(int? surfaceY, bool ignoresSurface, global::SuperMetroid.Core.Fx.RoomFxType type) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Samus.Movement.SamusLiquidPhysicsState>(self, "ConfigureWater", [typeof(int?), typeof(bool), typeof(global::SuperMetroid.Core.Fx.RoomFxType)], new object?[] { surfaceY, ignoresSurface, type });
 
         /// <summary>The private property <c>Surface</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface Surface

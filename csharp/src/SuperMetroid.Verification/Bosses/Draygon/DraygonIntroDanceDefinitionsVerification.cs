@@ -68,7 +68,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
     /// </summary>
     internal static void VerifyDraygonIntroMovementDefinitions(CartridgeImportAddressSpace rom)
     {
-        for (int step = 0; step <= DraygonIntroDanceDefinitions.TracedPath.Length; step++)
+        for (int step = 0; step < DraygonIntroDanceDefinitions.TracedPath.Length; step++)
         {
             NativeIntroRecord native = ReadRecord(rom, step);
             Offset16<RoomPixels> actual = DraygonIntroDanceDefinitions.TracedPath[step];

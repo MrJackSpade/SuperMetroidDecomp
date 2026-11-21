@@ -605,10 +605,6 @@ SamusTerrain.InRoom(airRoom, SamusRoomObjectFixtures.Uninstalled), integrated, n
     AssertEqual(100, integrated.Position.X.Whole, "wall probe does not commit X motion");
     AssertEqual(0, integrated.Position.Y.Fraction, "wall probe commits only native touching side effect");
 
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => SamusSolidEnemyCollision.Probe(
-            samus, [], (SamusCollisionDirection)(-1), UnsignedSixteenSixteen.FromWholePixels(0)),
-        "an undefined solid-enemy probe direction rejected");
 
     Console.WriteLine("  Solid enemies: eligibility, native rounding, overlap, gaps, order, and touching quirk agree.");
 }

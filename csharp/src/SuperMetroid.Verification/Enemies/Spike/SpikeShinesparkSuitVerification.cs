@@ -185,7 +185,7 @@ internal static class SpikeShinesparkSuitVerification
         samus.Health = samus.MaxHealth = 199;
         samus.ReserveEnergy = 0;
         if (underwater)
-            samus.LiquidPhysics.ConfigureWater(8, ignoresSurface: false, type: SuperMetroid.Core.Fx.RoomFxType.Water);
+            samus.LiquidPhysics.ConfigureWater(8, ignoresSurface: false, type: SuperMetroid.Core.Samus.Movement.WaterRoomFx.Water);
         samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(200).WithFractionX(0).WithWholeY(166).WithFractionY(0);
         samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
         SamusPoseMetadata.RefreshCollisionRadii(samus);

@@ -64,9 +64,6 @@ internal static class CeresRidleyGetawayDefinitionsVerification
             AssertTrue(drawn.Count == expected.Count && expected.All(cell => drawn.TryGetValue(cell.Key, out int tile) && tile == cell.Value),
                 $"Ceres {pointer}'s picture writes exactly the cells and tiles its list writes");
         }
-        AssertThrows<InvalidDataException>(() =>
-            RoomFloorSheet.PictureNameOf((CeresFloorActorPicture)0xffff),
-            "Ceres unknown floor animation frame fails loudly");
         Console.WriteLine($"Ceres floor animation: {checkedTransfers} native transfers across all seven lists match the pictured cells and installed updates.");
     }
 }

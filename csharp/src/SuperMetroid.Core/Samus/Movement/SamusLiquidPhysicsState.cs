@@ -157,14 +157,14 @@ public sealed class SamusLiquidPhysicsState
     /// Configures the water surface, or none, and whether Samus ignores it, while preserving the ordinary or statue room's
     /// FX identity; the room has no lava or acid surface.
     /// </summary>
-    private void ConfigureWater(int? surfaceY, bool ignoresSurface, WaterRoomFx type)
+    internal void ConfigureWater(int? surfaceY, bool ignoresSurface, WaterRoomFx type)
     {
         FxType = WaterRoomFxTypes[type];
         Surface = surfaceY is int line ? new SamusLiquidSurface.Water(line, ignoresSurface) : SamusLiquidSurface.None;
     }
 
     /// <summary>Configures a lava or acid surface, or none; the room has no water surface.</summary>
-    private void ConfigureLavaAcid(int? surfaceY, LavaAcidRoomFx type)
+    internal void ConfigureLavaAcid(int? surfaceY, LavaAcidRoomFx type)
     {
         FxType = LavaAcidRoomFxTypes[type];
         Surface = surfaceY is int line ? new SamusLiquidSurface.LavaOrAcid(line) : SamusLiquidSurface.None;
@@ -175,7 +175,7 @@ public sealed class SamusLiquidPhysicsState
     /// Rain and other atmospheric owners still need their FX type,
     /// so clearing the entire state would discard observable animation behavior.
     /// </summary>
-    private void ConfigureNonLiquidRoomFx(DryRoomFx type)
+    internal void ConfigureNonLiquidRoomFx(DryRoomFx type)
     {
         Clear();
         FxType = DryRoomFxTypes[type];

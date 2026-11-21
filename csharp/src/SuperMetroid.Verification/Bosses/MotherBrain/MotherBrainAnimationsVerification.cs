@@ -131,7 +131,7 @@ internal static class MotherBrainAnimationsVerification
             // Holding restarts the hold's animation and shows its first frame; leaving shows the hold's last frame before its goto.
             AssertEqual(new AnimationPlayback<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.NeutralPhase2Hold),
                     new AnimationPlace(0, holds ? 1 : 3)),
-                state.Brain.Playback, $"random {random} {(holds ? "holds" : "leaves")} the phase-two neutral pose");
+                state.Brain.Playback?.Animation, $"random {random} {(holds ? "holds" : "leaves")} the phase-two neutral pose");
         }
         foreach ((ushort random, bool bursts) in new[] { new VerifyBrainRandomHoldsCase(4063, false), new VerifyBrainRandomHoldsCase(4064, true) })
         {
@@ -139,12 +139,11 @@ internal static class MotherBrainAnimationsVerification
             enemies.VerificationServices().ReadRandom = () => random;
             // The dying drool's loop shows its first frame, which the burst's last drool has just moved on to.
             var loopFrame = (AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame)MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.DyingDroolLoop)[0];
-            state.Brain.Playback = new(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.DyingDrool), new AnimationPlace(2, 1));
-            state.Brain.ShownFrame = loopFrame.Shown;
+            state.Brain.Playback = new(new(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.DyingDrool), new AnimationPlace(2, 1)), loopFrame.Shown);
             state.Brain.Clock.Show(loopFrame.Duration);
             for (int draw = 0; draw < loopFrame.Duration; draw++)
                 enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-            AnimationPlayback<MotherBrainHeadSegment> drooling = state.Brain.Playback ?? throw new InvalidOperationException("Verification requires a brain playback.");
+            AnimationPlayback<MotherBrainHeadSegment> drooling = state.Brain.Playback?.Animation ?? throw new InvalidOperationException("Verification requires a brain playback.");
             AssertEqual(bursts ? MotherBrainHeadSegment.DyingDroolBurst : MotherBrainHeadSegment.DyingDroolLoop, drooling.Animation.Phases[drooling.Place.Phase].Segment,
                 $"random {random} {(bursts ? "bursts into more drool" : "keeps the drool loop")}");
         }

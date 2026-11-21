@@ -57,10 +57,11 @@ internal static class CeresFlightScreenMemory
     {
         const int cell = ScreenGeometry.BackgroundCellSizePixels;
         var tiles = new BackgroundTile[TilemapScreenGeometry.CellCount];
-        for (int letter = 0; letter < flight.CaptionLettersShown; letter++)
+        (int lettersShown, bool japaneseShown) = CaptionShown(flight);
+        for (int letter = 0; letter < lettersShown; letter++)
             tiles[SpaceColonyCaptionDefinitions.Top / cell * TilemapScreenGeometry.WidthInTiles + SpaceColonyCaption.Left(letter) / cell] =
                 SpaceColonyCaptionTileDefinitions.Glyphs[CeresCinematicPictureSheetComposer.CaptionCharacter(letter)];
-        if (flight.JapaneseCaptionShown)
+        if (japaneseShown)
         {
             ReadOnlySpan<BackgroundTile> japanese = SpaceColonyCaptionTileDefinitions.JapaneseTiles;
             for (int index = 0; index < japanese.Length; index++)
@@ -68,5 +69,28 @@ internal static class CeresFlightScreenMemory
                     SpaceColonyCaptionDefinitions.JapaneseLeft / cell + index % CeresCinematicPictureSheetComposer.JapaneseWidth] = japanese[index];
         }
         return tiles;
+    }
+
+    /// <summary>
+    /// The caption <paramref name="flight"/> shows, as its scene composes it (#2554): the letters typed so far on the
+    /// caption's row, and whether the katakana caption below them shows.
+    /// </summary>
+    private static (int Letters, bool Japanese) CaptionShown(IntroCeresFlightState flight)
+    {
+        int letters = 0;
+        bool japanese = false;
+        foreach (Rendering.DisplayLayer layer in flight.ComposeScene().Layers)
+        {
+            if (layer is not Rendering.PicturedPlaneLayer plane)
+                continue;
+            foreach (Rendering.PlacedPlanePicture picture in plane.Plane.Pictures)
+            {
+                if (picture.Corner.Y == SpaceColonyCaptionDefinitions.Top)
+                    letters++;
+                else if (picture.Corner == new Spatial.Offset16<Spatial.PlanePixels>(SpaceColonyCaptionDefinitions.JapaneseLeft, SpaceColonyCaptionDefinitions.JapaneseTop))
+                    japanese = true;
+            }
+        }
+        return (letters, japanese);
     }
 }

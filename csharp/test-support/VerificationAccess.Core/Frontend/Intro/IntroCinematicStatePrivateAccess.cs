@@ -37,29 +37,23 @@ internal static class IntroCinematicStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Frontend.Intro.IntroCeresFlightState?>(self, "CurrentCeresFlight");
         }
 
-        /// <summary>The private property <c>CurrentFlashbackDemoInput</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Input.DemoInputState? CurrentFlashbackDemoInput
+        /// <summary>The private property <c>MotherBrainFlashback</c>, reached by name.</summary>
+        internal global::SuperMetroid.Core.Frontend.Intro.IntroMotherBrainFlashback? MotherBrainFlashback
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Input.DemoInputState?>(self, "CurrentFlashbackDemoInput");
+            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Frontend.Intro.IntroMotherBrainFlashback?>(self, "MotherBrainFlashback");
         }
 
-        /// <summary>The private property <c>CurrentFlashbackLevel</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData? CurrentFlashbackLevel
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData?>(self, "CurrentFlashbackLevel");
-        }
+        /// <summary>The demo input the Mother Brain flashback replays, while it plays.</summary>
+        internal global::SuperMetroid.Core.Input.DemoInputState? CurrentFlashbackDemoInput => self.MotherBrainFlashback?.DemoInput;
 
-        /// <summary>The private property <c>CurrentFlashbackMotherBrain</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Frontend.Intro.IntroMotherBrainSpriteState? CurrentFlashbackMotherBrain
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Frontend.Intro.IntroMotherBrainSpriteState?>(self, "CurrentFlashbackMotherBrain");
-        }
+        /// <summary>The Mother Brain flashback's room level, while it plays.</summary>
+        internal global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData? CurrentFlashbackLevel => self.MotherBrainFlashback?.Level;
 
-        /// <summary>The private property <c>CurrentFlashbackSamus</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Samus.SamusState? CurrentFlashbackSamus
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Samus.SamusState?>(self, "CurrentFlashbackSamus");
-        }
+        /// <summary>The Mother Brain flashback's Mother Brain, while it plays.</summary>
+        internal global::SuperMetroid.Core.Frontend.Intro.IntroMotherBrainSpriteState? CurrentFlashbackMotherBrain => self.MotherBrainFlashback?.MotherBrain;
+
+        /// <summary>The Mother Brain flashback's Samus, while it plays.</summary>
+        internal global::SuperMetroid.Core.Samus.SamusState? CurrentFlashbackSamus => self.MotherBrainFlashback?.Samus;
 
         /// <summary>The private property <c>CurrentNarration</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Frontend.Intro.IntroNarrationActors? CurrentNarration
@@ -67,11 +61,10 @@ internal static class IntroCinematicStatePrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Frontend.Intro.IntroNarrationActors?>(self, "CurrentNarration");
         }
 
-        /// <summary>The private property <c>Narration</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Frontend.Intro.IntroNarrationActors Narration
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCinematicState, global::SuperMetroid.Core.Frontend.Intro.IntroNarrationActors>(self, "Narration");
-        }
+        /// <summary>The narration actors of the page the intro shows.</summary>
+        /// <exception cref="InvalidOperationException">The intro shows no narration page.</exception>
+        internal global::SuperMetroid.Core.Frontend.Intro.IntroNarrationActors Narration =>
+            self.CurrentNarration ?? throw new InvalidOperationException("The intro shows no narration page.");
 
         /// <summary>The private property <c>Page</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Frontend.Intro.Artwork.IntroNarrationPageId Page

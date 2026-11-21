@@ -273,7 +273,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
         "post-drain health below $190 chooses finish-Samus chain");
     AssertEqual<MotherBrainBodySegment?>(MotherBrainBodySegment.WalkForwardReallySlow, attack.Encounter.BodyPlayback?.PlayingSegment,
         "low-health decision immediately requests the native forward body walk");
-    SuperMetroid.Core.Animation.AnimationPlayback<MotherBrainHeadSegment>? headBeforeFinishThreshold = attack.Encounter.Brain.Playback;
+    MotherBrainBrainPlayback? headBeforeFinishThreshold = attack.Encounter.Brain.Playback;
         _ = attack.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
         AssertEqual(MotherBrainFinishOffPhase.AttackUntilSamusIsLow, attack.Encounter.FinishOffPhase,
         "399 energy remains above no-suit finish threshold 340");

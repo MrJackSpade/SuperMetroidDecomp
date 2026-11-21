@@ -29,7 +29,7 @@ internal static class MotherBrainHeadHitboxVerification
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemyPlace head = state.Head;
-        AssertEqual<MotherBrainHeadSegment?>(MotherBrainHeadSegment.WholeHeadMouthClosed, state.Brain.Playback?.PlayingSegment,
+        AssertEqual<MotherBrainHeadSegment?>(MotherBrainHeadSegment.WholeHeadMouthClosed, state.Brain.Playback?.Animation.PlayingSegment,
             "the brain program starts at InstList_MotherBrainHead_Initial");
         AssertEqual<EnemyFrameId?>(EnemyFrameId.MotherBrainHeadEyeShut, state.Brain.ShownFrame,
             "the brain's initial animation shows its closed eye from its start");

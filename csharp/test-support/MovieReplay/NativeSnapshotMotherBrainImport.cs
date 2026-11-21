@@ -213,19 +213,19 @@ internal static class NativeSnapshotMotherBrainImport
         switch (MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat])
         {
             case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame frame:
-                brain.Playback = playback with { Place = new AnimationPlace(playback.Place.Phase, playback.Place.Beat + 1).WithPlaysLeft(playback.Place.PlaysLeft) };
-                brain.ShownFrame = frame.Shown;
+                brain.Playback = new MotherBrainBrainPlayback(
+                    playback with { Place = new AnimationPlace(playback.Place.Phase, playback.Place.Beat + 1).WithPlaysLeft(playback.Place.PlaysLeft) },
+                    frame.Shown);
                 // The frame moves on at the draw its count passes its list's duration: its updates less the draws shown.
                 brain.Clock.HoldFor(frame.Duration - drawsShown + 1);
                 return;
             case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.HeldFrame held:
-                brain.Playback = playback with { Place = AnimationPlace.HoldingIn(playback.Place.Phase, phase.BeatCount) };
-                brain.ShownFrame = held.Shown;
+                brain.Playback = new MotherBrainBrainPlayback(playback with { Place = AnimationPlace.HoldingIn(playback.Place.Phase, phase.BeatCount) }, held.Shown);
                 brain.Clock.ShowForGood();
                 return;
             default:
-                brain.Playback = playback;
-                brain.ShownFrame = null;
+                // A start leaves the pointer on its opening cue, and shows the picture after that cue until the cue plays.
+                brain.Playback = new MotherBrainBrainPlayback(playback, MotherBrainAnimations.HeadSegments.FirstFrameShown(playback.Animation));
                 brain.Clock.StepOnNextUpdate();
                 return;
         }

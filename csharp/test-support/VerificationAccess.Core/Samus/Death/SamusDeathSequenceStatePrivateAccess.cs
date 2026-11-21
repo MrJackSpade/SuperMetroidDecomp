@@ -15,12 +15,6 @@ internal static class SamusDeathSequenceStatePrivateAccess
         internal void DrawExplosion(global::SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, global::SuperMetroid.Core.Assets.InstalledSpriteSheets sheets) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Samus.Death.SamusDeathSequenceState>(self, "DrawExplosion", [typeof(global::SuperMetroid.Core.Assets.SpriteFrameBuffer), typeof(global::SuperMetroid.Core.Assets.InstalledSpriteSheets)], new object?[] { sprites, sheets });
 
-        /// <summary>The private property <c>Explosion</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Samus.Death.SamusDeathExplosionSegment, global::SuperMetroid.Core.Samus.Artwork.SamusDeathExplosionFrame, global::SuperMetroid.Core.Animation.NoAnimationCue>? Explosion
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Samus.Death.SamusDeathSequenceState, global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Samus.Death.SamusDeathExplosionSegment, global::SuperMetroid.Core.Samus.Artwork.SamusDeathExplosionFrame, global::SuperMetroid.Core.Animation.NoAnimationCue>?>(self, "Explosion");
-        }
-
         /// <summary>The private property <c>ExplosionFrame</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Samus.Artwork.SamusDeathExplosionFrame? ExplosionFrame
         {

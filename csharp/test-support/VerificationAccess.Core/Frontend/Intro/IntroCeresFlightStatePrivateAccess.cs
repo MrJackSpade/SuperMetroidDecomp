@@ -11,22 +11,10 @@ internal static class IntroCeresFlightStatePrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Frontend.Intro.IntroCeresFlightState self)
     {
-        /// <summary>The private property <c>CaptionLettersShown</c>, reached by name.</summary>
-        internal int CaptionLettersShown
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCeresFlightState, int>(self, "CaptionLettersShown");
-        }
-
         /// <summary>The private property <c>FloorShading</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Assets.PictureShading FloorShading
         {
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCeresFlightState, global::SuperMetroid.Core.Assets.PictureShading>(self, "FloorShading");
-        }
-
-        /// <summary>The private property <c>JapaneseCaptionShown</c>, reached by name.</summary>
-        internal bool JapaneseCaptionShown
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Intro.IntroCeresFlightState, bool>(self, "JapaneseCaptionShown");
         }
 
         /// <summary>The private property <c>Phase</c>, reached by name.</summary>

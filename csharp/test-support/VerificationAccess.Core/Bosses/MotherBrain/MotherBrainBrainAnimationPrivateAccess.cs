@@ -12,18 +12,14 @@ internal static class MotherBrainBrainAnimationPrivateAccess
     extension(global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainAnimation self)
     {
         /// <summary>The private property <c>Playback</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Animation.AnimationPlayback<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadSegment>? Playback
+        internal global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainPlayback? Playback
         {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainAnimation, global::SuperMetroid.Core.Animation.AnimationPlayback<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadSegment>?>(self, "Playback");
+            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainAnimation, global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainPlayback?>(self, "Playback");
             set => PrivateState.Set(self, "Playback", value);
         }
 
-        /// <summary>The private property <c>ShownFrame</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.Artwork.EnemyFrameId? ShownFrame
-        {
-            get => PrivateState.Get<global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainAnimation, global::SuperMetroid.Core.Enemies.Artwork.EnemyFrameId?>(self, "ShownFrame");
-            set => PrivateState.Set(self, "ShownFrame", value);
-        }
+        /// <summary>The picture the brain shows, which its playback holds; none while her brain is not live.</summary>
+        internal global::SuperMetroid.Core.Enemies.Artwork.EnemyFrameId? ShownFrame => self.Playback?.Shown;
     }
 
     /// <summary>The private instance members checks read or call.</summary>

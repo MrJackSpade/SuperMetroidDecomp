@@ -270,7 +270,11 @@ internal static class LookupRoomFxFieldsVerification
                 ushort word = door is null ? (ushort)0 : DoorDefinitions.PointerOf(door);
                 ushort expected = firstByDoor.TryGetValue(word, out ushort matching) ? matching : fallback;
                 ushort actual = RoomFxDefinitions.SelectedRecordPointer(RoomFxDefinitions.Suffix(root), door);
-                if (actual != expected)
+                // A selection the cartridge stores under two headers (the quicksand shafts', #2574) is one selection, whose
+                // records are named at the first header: the record selected is the same one.
+                bool sameRecord = actual != 0 && expected != 0 &&
+                    ReferenceEquals(RoomFxDefinitions.RecordAt(actual), RoomFxDefinitions.RecordAt(expected));
+                if (actual != expected && !sameRecord)
                     throw new InvalidOperationException(
                         $"FX selector root {root:X4}, door {word:X4}: native {expected:X4}, actual {actual:X4}.");
             }

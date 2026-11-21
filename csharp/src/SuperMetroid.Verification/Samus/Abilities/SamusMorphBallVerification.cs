@@ -792,12 +792,12 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     // floor. The real pre-instruction must undo penetration and restore its original
     // negative bounce velocity rather than freezing or reusing generic Samus collision.
     SamusBomb bouncingSpread = spreadBombs.Bombs[2];
-    bouncingSpread.Position = bouncingSpread.Position.WithWholeX(48).WithFractionX(0).WithWholeY(63).WithFractionY(0);
+    bouncingSpread.HeldBomb().Position = bouncingSpread.Position.WithWholeX(48).WithFractionX(0).WithWholeY(63).WithFractionY(0);
     var bouncingFlight = new BombSpreadFlight(SignedSixteenSixteen.Zero, SignedSixteenSixteen.FromParts(-2, 0x8000))
     {
         VerticalVelocity = SignedSixteenSixteen.FromParts(1, 0),
     };
-    bouncingSpread.SpreadFlight = bouncingFlight;
+    bouncingSpread.HeldBomb().SpreadFlight = bouncingFlight;
     spreadBombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spreadSamus, 0, 0);
     AssertEqual(63, bouncingSpread.Position.Y.Whole,
         "spread-bomb floor collision undoes penetrating Y movement");

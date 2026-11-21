@@ -554,11 +554,12 @@ public sealed class SamusShinesparkState
     /// </summary>
     /// <param name="samus">Samus, around whom the echo is placed.</param>
     /// <param name="cameraPosition">The camera's room position.</param>
-    /// <param name="shot">The shot carrying one of the crash's released echoes.</param>
+    /// <param name="held">The shot carrying one of the crash's released echoes.</param>
     /// <returns>Whether the echo is still on the screen; its shot is cleared otherwise.</returns>
     /// <exception cref="InvalidOperationException">The shot carries neither of the crash's released echoes.</exception>
-    internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectile shot)
+    internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectileOccupant held)
     {
+        SamusProjectile shot = Ensure.NotNull(held).Projectile;
         ShinesparkCrashEcho echo = FirstReleasedEcho.IsCarriedBy(shot) ? FirstReleasedEcho
             : SecondReleasedEcho.IsCarriedBy(shot) ? SecondReleasedEcho
             : throw new InvalidOperationException("The shot carries none of the crash's released echoes.");
@@ -583,7 +584,7 @@ public sealed class SamusShinesparkState
             return false;
 
         echo.MoveTo(point);
-        shot.Position = shot.Position.WithWhole(point);
+        held.Position = held.Position.WithWhole(point);
         return true;
     }
 

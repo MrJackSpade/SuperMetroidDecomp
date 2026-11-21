@@ -132,8 +132,9 @@ internal sealed class KraidCombat
             KraidPassBounds bounds = PlaceKraidPassBounds(body, inner);
             foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
-                if (projectile.Held is not { } shot)
+                if (projectile.Held is not { } held)
                     continue;
+                KraidBehavior.KraidCollisionShot shot = held.Shot;
                 SamusProjectileType type = shot.Type;
                 if (!OverlapsKraidMouth(bounds, shot) ||
                     (type.Family == SamusProjectileFamily.Beam && !type.IsChargedBeam))
@@ -173,7 +174,7 @@ internal sealed class KraidCombat
                     bounds.LeaveAfterDud(_effectActors.PlaceOf(dud), shot.Position);
                     _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Low);
                 }
-                projectile.MarkCollision();
+                held.MarkCollision();
                 mouthHits++;
             }
         }
@@ -204,13 +205,14 @@ internal sealed class KraidCombat
             KraidPassBounds bounds = PlaceKraidPassBounds(body, outerMouth);
             foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
-                if (projectile.Held is not { } shot)
+                if (projectile.Held is not { } held)
                     continue;
+                KraidBehavior.KraidCollisionShot shot = held.Shot;
                 if (!OverlapsKraidBody(ref bounds, body, shot))
                     continue;
                 SpawnKraidArmShotExplosion(shot.Type, shot.Position);
                 bounds.LeaveAfterBodyHit(shot.Position);
-                projectile.MarkCollision();
+                held.MarkCollision();
                 if (shot.Type.IsChargedBeam)
                     chargedHit = true;
                 bodyHits++;

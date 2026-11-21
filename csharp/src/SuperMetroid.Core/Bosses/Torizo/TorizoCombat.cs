@@ -197,7 +197,7 @@ internal sealed class TorizoCombat
             if (c.Family == SamusProjectileFamily.Missile)
             {
                 c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-                c.Projectile.FlyOn();
+                c.Shot.FlyOn();
                 torizoState.Phase = TorizoPhase.Idle;
                 TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.FacesRight(enemy)
                     ? TorizoAnimation.GoldenDodgeTurningRight
@@ -212,7 +212,7 @@ internal sealed class TorizoCombat
                     c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
                     torizoState.CaughtSuperMissile = true;
                     torizoState.Phase = TorizoPhase.Idle;
-                    c.Projectile.Spend();
+                    c.Shot.Spend();
                     TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.Posture(enemy).LeadsWithFarFoot
                         ? TorizoFacing.FacesRight(enemy)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward

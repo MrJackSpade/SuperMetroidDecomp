@@ -33,11 +33,6 @@ public sealed class SamusProjectile
     /// </summary>
     public SamusProjectileOccupant? Occupant { get; private set; }
 
-    /// <summary>The projectile holding the place, which a write to the place changes.</summary>
-    /// <exception cref="InvalidOperationException">No projectile holds the place.</exception>
-    private SamusProjectileOccupant Held =>
-        Occupant ?? throw new InvalidOperationException($"No projectile holds Samus's shot place {Place}.");
-
     /// <summary>
     /// Whether the projectile holds its place: from the update it takes the place with its type until it ends. The
     /// firing and the Super Missile's link take the lowest place no projectile holds.
@@ -65,23 +60,13 @@ public sealed class SamusProjectile
     /// The beam combination whose pictures the projectile holding the place shows (<see cref="SamusProjectileOccupant.PicturedBeams"/>);
     /// the Power beam's for a free place.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
-    public SamusBeamCombination PicturedBeams
-    {
-        get => Occupant is { } held ? held.PicturedBeams : SamusBeamCombination.Power;
-        internal set => Held.PicturedBeams = value;
-    }
+    public SamusBeamCombination PicturedBeams => Occupant is { } held ? held.PicturedBeams : SamusBeamCombination.Power;
 
     /// <summary>
     /// The direction the projectile holding the place was fired or reflected in (<see cref="SamusProjectileOccupant.Direction"/>);
     /// the cleared place's for a free place.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
-    public SamusProjectileDirection Direction
-    {
-        get => Occupant is { } held ? held.Direction : default;
-        internal set => Held.Direction = value;
-    }
+    public SamusProjectileDirection Direction => Occupant is { } held ? held.Direction : default;
 
     /// <summary>
     /// Whether the projectile holding the place has already struck something (<see cref="SamusProjectileOccupant.IsSpent"/>);
@@ -89,61 +74,28 @@ public sealed class SamusProjectile
     /// </summary>
     public bool IsSpent => Occupant is { IsSpent: true };
 
-    /// <summary>The projectile holding the place strikes something (#2562): later collisions skip it.</summary>
-    /// <exception cref="InvalidOperationException">No projectile holds the place.</exception>
-    internal void Spend() => Held.Spend();
-
-    /// <summary>The projectile holding the place flies on as though it had struck nothing (#2562).</summary>
-    /// <exception cref="InvalidOperationException">No projectile holds the place.</exception>
-    internal void FlyOn() => Held.FlyOn();
-
     /// <summary>
     /// The room position of the projectile holding the place, to a fraction of a pixel; the room's origin for a free place.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
-    public FixedPosition<RoomPixels> Position
-    {
-        get => Occupant is { } held ? held.Position : FixedPosition<RoomPixels>.Zero;
-        internal set => Held.Position = value;
-    }
+    public FixedPosition<RoomPixels> Position => Occupant is { } held ? held.Position : FixedPosition<RoomPixels>.Zero;
 
     /// <summary>The velocity of the projectile holding the place, in pixels per update; none for a free place.</summary>
-    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
-    public PixelVelocity<RoomPixels> Velocity
-    {
-        get => Occupant is { } held ? held.Velocity : default;
-        internal set => Held.Velocity = value;
-    }
+    public PixelVelocity<RoomPixels> Velocity => Occupant is { } held ? held.Velocity : default;
 
     /// <summary>The collision half-extents of the projectile holding the place, in pixels; none for a free place.</summary>
-    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
-    public Extent16<RoomPixels> Radius
-    {
-        get => Occupant is { } held ? held.Radius : Extent16<RoomPixels>.Zero;
-        internal set => Held.Radius = value;
-    }
+    public Extent16<RoomPixels> Radius => Occupant is { } held ? held.Radius : Extent16<RoomPixels>.Zero;
 
     /// <summary>
     /// The animation of the projectile holding the place (<see cref="SamusProjectileOccupant.Animation"/>); null while it has
     /// none to animate or the place is free.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
-    internal AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>? Animation
-    {
-        get => Occupant?.Animation;
-        set => Held.Animation = value;
-    }
+    internal AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>? Animation => Occupant?.Animation;
 
     /// <summary>The animation of the projectile holding the place and where it stands in it; null while it has none or the place is free.</summary>
     internal AnimationPlayback<SamusProjectileSegment>? Playback => Occupant?.Playback;
 
     /// <summary>The composition the projectile holding the place shows; none before its first frame or for a free place.</summary>
-    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
-    public ProjectileSpriteId? Sprite
-    {
-        get => Occupant?.Sprite;
-        internal set => Held.Sprite = value;
-    }
+    public ProjectileSpriteId? Sprite => Occupant?.Sprite;
 
     /// <summary>
     /// Counts one update of the flight of the shot holding the place toward its next trail
@@ -156,12 +108,7 @@ public sealed class SamusProjectile
     /// What the projectile holding the place does on its update (<see cref="SamusProjectileOccupant.Behavior"/>); null for an
     /// explosion, before the projectile is set up, and for a free place.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Set while no projectile holds the place.</exception>
-    internal SamusShotBehavior? Behavior
-    {
-        get => Occupant?.Behavior;
-        set => Held.Behavior = value;
-    }
+    internal SamusShotBehavior? Behavior => Occupant?.Behavior;
 
     /// <summary>
     /// The Power Bomb fuse the beam holding the place carries (<see cref="SamusProjectileOccupant.BeamFuse"/>); none for a

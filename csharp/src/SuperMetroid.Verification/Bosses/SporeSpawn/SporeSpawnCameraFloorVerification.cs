@@ -85,7 +85,7 @@ internal static class SporeSpawnCameraFloorVerification
             new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var bomb = new SamusBomb(0);
         bomb.OccupyAsPlaced(SamusProjectileType.Of(SamusProjectileFamily.Bomb));
-        bomb.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
+        bomb.HeldBomb().Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
         return new EnemyBombContext(body.HeldOccupant(), bomb.HeldBomb(), ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
             SelectedShot: SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnReactions.Shot, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0))
         {

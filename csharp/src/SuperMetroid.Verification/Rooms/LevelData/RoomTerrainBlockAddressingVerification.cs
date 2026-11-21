@@ -195,9 +195,9 @@ internal static class RoomTerrainBlockAddressingVerification
     private static bool ScanShot(RoomLevelData level, Position16<RoomBlocks> block, bool vertical)
     {
         var shot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
-        shot.Position = FixedPosition<RoomPixels>.FromWhole(new(block.X * 16 + 8, block.Y * 16 + 8));
-        shot.Radius = new(1, 1);
-        shot.Velocity = vertical ? new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1)) : new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
+        shot.HeldShot().Position = FixedPosition<RoomPixels>.FromWhole(new(block.X * 16 + 8, block.Y * 16 + 8));
+        shot.HeldShot().Radius = new(1, 1);
+        shot.HeldShot().Velocity = vertical ? new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1)) : new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
         SamusProjectileOccupant held = shot.HeldShot();
         return vertical
             ? ProjectileTerrainCollision.ScanVerticalShotReactions(level, held, roomObjects: SamusRoomObjectFixtures.Uninstalled)

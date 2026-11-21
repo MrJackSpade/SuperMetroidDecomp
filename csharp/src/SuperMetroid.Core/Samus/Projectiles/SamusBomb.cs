@@ -24,11 +24,6 @@ public sealed class SamusBomb
     /// </summary>
     public SamusBombOccupant? Occupant { get; private set; }
 
-    /// <summary>The bomb holding the place, which a write to the place changes.</summary>
-    /// <exception cref="InvalidOperationException">No bomb holds the place.</exception>
-    private SamusBombOccupant Held =>
-        Occupant ?? throw new InvalidOperationException($"No bomb holds Samus's bomb place {Place}.");
-
     /// <summary>Whether a bomb holds the place: from its placing, which gives it its type, until it ends.</summary>
     public bool IsOccupied => Occupant is not null;
 
@@ -49,94 +44,46 @@ public sealed class SamusBomb
     }
 
     /// <summary>The room position of the bomb holding the place, to a fraction of a pixel; the room's origin for a free place.</summary>
-    /// <exception cref="InvalidOperationException">Set while no bomb holds the place.</exception>
-    public FixedPosition<RoomPixels> Position
-    {
-        get => Occupant is { } held ? held.Position : FixedPosition<RoomPixels>.Zero;
-        internal set => Held.Position = value;
-    }
+    public FixedPosition<RoomPixels> Position => Occupant is { } held ? held.Position : FixedPosition<RoomPixels>.Zero;
 
     /// <summary>Whether the bomb holding the place has already struck an enemy (<see cref="SamusBombOccupant.IsSpent"/>); a free place has not.</summary>
     public bool IsSpent => Occupant is { IsSpent: true };
-
-    /// <summary>The bomb holding the place strikes an enemy (#2562).</summary>
-    /// <exception cref="InvalidOperationException">No bomb holds the place.</exception>
-    internal void Spend() => Held.Spend();
-
-    /// <summary>The explosion of the bomb holding the place passes through an enemy as though it had struck nothing (#2562).</summary>
-    /// <exception cref="InvalidOperationException">No bomb holds the place.</exception>
-    internal void FlyOn() => Held.FlyOn();
 
     /// <summary>
     /// The beam combination whose pictures the bomb holding the place shows (<see cref="SamusBombOccupant.PicturedBeams"/>);
     /// the Power beam's for a free place.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Set while no bomb holds the place.</exception>
-    public SamusBeamCombination PicturedBeams
-    {
-        get => Occupant is { } held ? held.PicturedBeams : SamusBeamCombination.Power;
-        internal set => Held.PicturedBeams = value;
-    }
+    public SamusBeamCombination PicturedBeams => Occupant is { } held ? held.PicturedBeams : SamusBeamCombination.Power;
 
     /// <summary>
     /// Whether the explosion of the bomb holding the place has reacted with the terrain around it
     /// (<see cref="SamusBombOccupant.HasReactedToTerrain"/>); a free place has not.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Set while no bomb holds the place.</exception>
-    public bool HasReactedToTerrain
-    {
-        get => Occupant is { HasReactedToTerrain: true };
-        internal set => Held.HasReactedToTerrain = value;
-    }
+    public bool HasReactedToTerrain => Occupant is { HasReactedToTerrain: true };
 
     /// <summary>The animation of the bomb holding the place (<see cref="SamusBombOccupant.Animation"/>); null for a free place.</summary>
-    /// <exception cref="InvalidOperationException">Set while no bomb holds the place.</exception>
-    internal AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>? Animation
-    {
-        get => Occupant?.Animation;
-        set => Held.Animation = value;
-    }
+    internal AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>? Animation => Occupant?.Animation;
 
     /// <summary>The animation of the bomb holding the place and where it stands in it; null for a free place.</summary>
     internal AnimationPlayback<SamusProjectileSegment>? Playback => Occupant?.Playback;
 
     /// <summary>The composition the bomb holding the place shows; none before its first frame or for a free place.</summary>
-    /// <exception cref="InvalidOperationException">Set while no bomb holds the place.</exception>
-    public ProjectileSpriteId? Sprite
-    {
-        get => Occupant?.Sprite;
-        internal set => Held.Sprite = value;
-    }
+    public ProjectileSpriteId? Sprite => Occupant?.Sprite;
 
     /// <summary>The collision half-extents of the bomb holding the place, in whole pixels; none for a free place.</summary>
-    /// <exception cref="InvalidOperationException">Set while no bomb holds the place.</exception>
-    public Extent16<RoomPixels> Radius
-    {
-        get => Occupant is { } held ? held.Radius : Extent16<RoomPixels>.Zero;
-        internal set => Held.Radius = value;
-    }
+    public Extent16<RoomPixels> Radius => Occupant is { } held ? held.Radius : Extent16<RoomPixels>.Zero;
 
     /// <summary>
     /// The flight of the bomb spread's bomb holding the place (<see cref="SamusBombOccupant.SpreadFlight"/>); null for a placed
     /// bomb, a Power Bomb or a free place.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Set while no bomb holds the place.</exception>
-    public BombSpreadFlight? SpreadFlight
-    {
-        get => Occupant?.SpreadFlight;
-        internal set => Held.SpreadFlight = value;
-    }
+    public BombSpreadFlight? SpreadFlight => Occupant?.SpreadFlight;
 
     /// <summary>Whether the bomb holding the place is one of a bomb spread's five.</summary>
     public bool IsBombSpread => SpreadFlight is not null;
 
     /// <summary>The fuse of the bomb holding the place (<see cref="SamusBombOccupant.Fuse"/>); over for a free place.</summary>
-    /// <exception cref="InvalidOperationException">Set while no bomb holds the place.</exception>
-    public UpdateCountdown Fuse
-    {
-        get => Occupant is { } held ? held.Fuse : UpdateCountdown.Ended();
-        internal set => Held.Fuse = value;
-    }
+    public UpdateCountdown Fuse => Occupant is { } held ? held.Fuse : UpdateCountdown.Ended();
 
     /// <summary>Whether the bomb's fuse has burned out: a normal bomb explodes, and a Power Bomb's blast has begun.</summary>
     public bool HasBurnedOut => Fuse.IsOver;

@@ -20,8 +20,8 @@ internal static class PlasmaPenetrationVerification
             SamusProjectileType type = SamusProjectileType.Beam(
                 SamusBeamCombinations.Of(SamusEquipmentWordCodec.FromBeamWord(combination) | SamusBeamFlags.Plasma), charged);
             slot.Occupy(type, 100);
-            slot.Direction = SamusProjectileDirection.Right;
-            slot.Animation = ProjectileFixturePlaybacks.Active(updates: 7);
+            slot.HeldShot().Direction = SamusProjectileDirection.Right;
+            slot.HeldShot().Animation = ProjectileFixturePlaybacks.Active(updates: 7);
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             for (int hit = 0; hit < 2; hit++)
             {

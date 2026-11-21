@@ -59,8 +59,8 @@ internal static class SharedSlopeHeightsVerification
                 {
                     int edge = (raw & 128) != 0 ? 15 - y : y;
                     bool solid = height <= edge;
-                    spread.Position = spread.Position.WithWhole(new(x, y));
-                    projectile.Position = projectile.Position.WithWhole(new(x, y));
+                    spread.HeldBomb().Position = spread.Position.WithWhole(new(x, y));
+                    projectile.HeldShot().Position = projectile.Position.WithWhole(new(x, y));
                     AssertEqual(solid, missile(block, held), "Missile slope point collision");
                     AssertEqual(solid, bomb(level, spread), "Bomb spread real slope collision");
                     enemy.Position = enemy.Position.WithY(new(128, 0x1234));

@@ -38,7 +38,7 @@ internal sealed class ProjectileTerrainCollision
         ISamusRoomObjects roomObjects)
     {
         SamusProjectile shot = held.Projectile;
-        shot.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
+        held.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
         return ScanHorizontalShotReactions(level, held, roomObjects);
     }
 
@@ -52,7 +52,7 @@ internal sealed class ProjectileTerrainCollision
         ISamusRoomObjects roomObjects)
     {
         SamusProjectile shot = held.Projectile;
-        shot.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
+        held.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
         ScanHorizontalWaveShotReactions(level, held, roomObjects, _straddledTerrain);
     }
 
@@ -69,7 +69,7 @@ internal sealed class ProjectileTerrainCollision
         // A new beam's first scan starts with no speed, so it tests the edge a rightward shot leads with. A shot fired
         // straight left starts with the smallest leftward speed instead, so its first scan tests its left edge; a shot
         // fired diagonally left still tests its right edge first.
-        shot.Velocity = new(shot.Direction == SamusProjectileDirection.Left ? LeftScanVelocity : default, default);
+        held.Velocity = new(shot.Direction == SamusProjectileDirection.Left ? LeftScanVelocity : default, default);
 
         SamusProjectileDirectionAxes axes = SamusProjectileDirectionDefinitions.Axes(shot.Direction);
         bool collided = false;
@@ -114,7 +114,7 @@ internal sealed class ProjectileTerrainCollision
         bool waveBeam = false)
     {
         SamusProjectile shot = held.Projectile;
-        shot.Position = shot.Position.AdvanceY(shot.Velocity.Y.ToSixteenSixteenDelta());
+        held.Position = shot.Position.AdvanceY(shot.Velocity.Y.ToSixteenSixteenDelta());
 
         if (waveBeam)
         {
@@ -445,19 +445,19 @@ internal sealed class ProjectileTerrainCollision
         // replaces the animation. Diagonals adjust both axes in their respective signs.
         SamusProjectileDirectionAxes axes = SamusProjectileDirectionDefinitions.Axes(shot.Direction);
         if (axes.Horizontal == HorizontalDirection.Right)
-            shot.Position += new Offset16<RoomPixels>(shot.Radius.X, 0);
+            held.Position += new Offset16<RoomPixels>(shot.Radius.X, 0);
         else if (axes.Horizontal == HorizontalDirection.Left)
-            shot.Position -= new Offset16<RoomPixels>(shot.Radius.X, 0);
+            held.Position -= new Offset16<RoomPixels>(shot.Radius.X, 0);
 
         if (axes.Vertical == VerticalDirection.Up)
-            shot.Position -= new Offset16<RoomPixels>(0, shot.Radius.Y);
+            held.Position -= new Offset16<RoomPixels>(0, shot.Radius.Y);
         else if (axes.Vertical == VerticalDirection.Down)
-            shot.Position += new Offset16<RoomPixels>(0, shot.Radius.Y);
+            held.Position += new Offset16<RoomPixels>(0, shot.Radius.Y);
 
         held.Type = held.Type.AsFamily(SamusProjectileFamily.BeamExplosion);
-        shot.Animation = SamusProjectilePlayback.Start(SamusProjectileSegment.BeamExplosion);
+        held.Animation = SamusProjectilePlayback.Start(SamusProjectileSegment.BeamExplosion);
         held.Damage = SamusProjectileDamageDefinitions.ExplosionDamage;
-        shot.Behavior = null;
+        held.Behavior = null;
     }
 
     /// <summary>Converts a missile impact to its family-specific explosion and requests Super Missile quake and impact audio.</summary>
@@ -482,10 +482,10 @@ internal sealed class ProjectileTerrainCollision
         _impactAudio.RequestMissileImpactSound();
         bool wasSuperMissile = held.Type.IsFamily(SamusProjectileFamily.SuperMissile);
         held.Type = held.Type.AsFamily(SamusProjectileFamily.MissileExplosion);
-        shot.Animation = SamusProjectilePlayback.Start(
+        held.Animation = SamusProjectilePlayback.Start(
             wasSuperMissile ? SamusProjectileSegment.SuperMissileExplosion : SamusProjectileSegment.MissileExplosion);
         held.Damage = SamusProjectileDamageDefinitions.ExplosionDamage;
-        shot.Behavior = null;
+        held.Behavior = null;
 
         if (wasSuperMissile)
         {

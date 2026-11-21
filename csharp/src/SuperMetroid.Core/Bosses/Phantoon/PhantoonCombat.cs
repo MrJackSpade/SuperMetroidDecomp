@@ -318,7 +318,7 @@ internal sealed class PhantoonCombat
             // Phantoon's shot reaction runs common normal-shot damage (#2255), including its charged-beam override, a
             // zero-damage shot's dud, and no death of its own; his own stage follows it. A special attack's particles
             // count as a charged beam, so the Wave Beam's shield attack damages him.
-            int appliedDamage = _collision.ApplyNormalShotDamage(state.BodyOccupant, projectile, projectileType, projectileDamage, _room.Area).HealthLost;
+            int appliedDamage = _collision.ApplyNormalShotDamage(state.BodyOccupant, held, projectileType, projectileDamage, _room.Area).HealthLost;
             ResolvePhantoonShotReaction(
                 body,
                 state,

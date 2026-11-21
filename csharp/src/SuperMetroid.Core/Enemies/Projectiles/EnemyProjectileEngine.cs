@@ -164,7 +164,7 @@ internal sealed class EnemyProjectileEngine
                 // enemy, so a freshly fired Super Missile (or its invisible link) does not explode on the update it was
                 // fired. The shot acts on the mark as it moves on the next projectile pass.
                 if (!held.Type.HasAnyBeam(SamusBeamFlags.Plasma))
-                    shot.Spend();
+                    held.Spend();
 
                 if (enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.IndestructibleDud)
                 {
@@ -700,7 +700,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Creates the common dud shot for a protected head hitbox.</summary>
-    internal void CreateEnemyProjectileDudShot(SamusProjectile projectile)
+    internal void CreateEnemyProjectileDudShot(SamusProjectileOccupant projectile)
     {
         _ = _effectActors.SpawnRoomEffectActor(
             projectile.Position.Whole,

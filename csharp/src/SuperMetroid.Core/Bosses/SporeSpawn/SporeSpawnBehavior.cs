@@ -326,7 +326,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (c.HitboxShot == EnemyReaction.DudShot)
                 {
                     c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-                    _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
+                    _projectiles.CreateEnemyProjectileDudShot(c.Shot);
                     return true;
                 }
                 if (!SporeSpawnAcceptsProjectile(c.ProjectileType))

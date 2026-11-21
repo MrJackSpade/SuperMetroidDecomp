@@ -66,7 +66,7 @@ internal static class MotherBrainPlasmaImpactVerification
         // The sequence shares the encounter's walk credit (#1388); recoil needs less than the Hyper Beam's cost.
         state.WalkCounter = MotherBrainWalkCredit.Empty;
         Seed(1000);
-        shot.Behavior = SamusShotBehaviors.HyperBeam;
+        shot.HeldShot().Behavior = SamusShotBehaviors.HyperBeam;
         // The first case's Plasma hit left the head invincible; $A0:A17C skips it until the
         // timer expires, so this case starts once that immunity has run out.
         head.Invincibility.End();
@@ -84,10 +84,10 @@ internal static class MotherBrainPlasmaImpactVerification
         {
             // Each case fires a new shot into the place, ending the one the last case left flying.
             shot.End();
-            shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true), damage); shot.Direction = SamusProjectileDirection.Right;
-            shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
-            shot.Animation = ProjectileFixturePlaybacks.Active();
-            shot.Behavior = SamusShotBehaviors.Beam;
+            shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true), damage); shot.HeldShot().Direction = SamusProjectileDirection.Right;
+            shot.HeldShot().Position = shot.Position.WithWhole(new(128, 128)); shot.HeldShot().Radius = new(4, 4);
+            shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
+            shot.HeldShot().Behavior = SamusShotBehaviors.Beam;
         }
     }
 

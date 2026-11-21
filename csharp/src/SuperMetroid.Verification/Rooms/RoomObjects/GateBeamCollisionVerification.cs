@@ -74,9 +74,9 @@ internal static class GateBeamCollisionVerification
                 for (int i = 0; i < 40; i++)
                     AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, level.BlockAt(first), 0x10, BlockStrike.GrappleTouch.Instance, true), "Fill gate probe pool");
             var shot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
-            shot.Position = new(new(33, 0), new(33, 0));
-            shot.Radius = new(17, 17);
-            shot.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1));
+            shot.HeldShot().Position = new(new(33, 0), new(33, 0));
+            shot.HeldShot().Radius = new(17, 17);
+            shot.HeldShot().Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1));
             // The scans take the shot holding its place (#2558): an uncharged Power beam, which strikes the gate probes
             // as the unfired place the check used before did.
             SamusProjectileOccupant held = shot.HeldShot();

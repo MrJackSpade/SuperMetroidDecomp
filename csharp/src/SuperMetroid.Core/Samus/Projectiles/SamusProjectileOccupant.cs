@@ -40,7 +40,7 @@ public sealed class SamusProjectileOccupant
 
     /// <summary>
     /// What the projectile's kind keeps beyond what every projectile keeps (#2346), created when the kind's behaviour is
-    /// installed (<see cref="Install"/>) and kept through its later behaviours and its explosion; null for a beam, the
+    /// installed (<see cref="Install{TState}"/>) and kept through its later behaviours and its explosion; null for a beam, the
     /// Hyper Beam, and before its behaviour is installed.
     /// </summary>
     internal SamusShotKindState? KindState { get; private set; }
@@ -57,10 +57,20 @@ public sealed class SamusProjectileOccupant
     /// keeps its state and changes only <see cref="SamusProjectile.Behavior"/>.
     /// </summary>
     /// <param name="behavior">The behaviour the projectile runs from its next update.</param>
-    /// <param name="kindState">The state the kind keeps, new for this installation, or null for a kind that keeps none.</param>
-    internal void Install(SamusShotBehavior behavior, SamusShotKindState? kindState)
+    /// <param name="kindState">The state the kind keeps, which the behaviour runs with.</param>
+    /// <typeparam name="TState">The state the kind keeps.</typeparam>
+    internal void Install<TState>(SamusShotBehavior<TState> behavior, TState kindState)
+        where TState : SamusShotKindState
+    {
+        Projectile.Behavior = Ensure.NotNull(behavior).BoundTo(Ensure.NotNull(kindState));
+        KindState = kindState;
+    }
+
+    /// <summary>Gives the projectile the behaviour of a kind that keeps no state: a beam's or the Hyper Beam's.</summary>
+    /// <param name="behavior">The behaviour the projectile runs from its next update.</param>
+    internal void Install(SamusShotBehavior behavior)
     {
         Projectile.Behavior = Ensure.NotNull(behavior);
-        KindState = kindState;
+        KindState = null;
     }
 }

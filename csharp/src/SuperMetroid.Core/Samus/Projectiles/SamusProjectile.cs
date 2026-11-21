@@ -119,7 +119,7 @@ public sealed class SamusProjectile
 
     /// <summary>
     /// What the projectile does on its update (#1923), installed when it is fired, released or changed
-    /// (<see cref="SamusProjectileOccupant.Install"/>); null for an explosion, which only plays its animation, and before
+    /// (<see cref="SamusProjectileOccupant.Install{TState}"/>); null for an explosion, which only plays its animation, and before
     /// the projectile is set up.
     /// </summary>
     internal SamusShotBehavior? Behavior { get; set; }
@@ -161,14 +161,6 @@ public sealed class SamusProjectile
     /// </summary>
     private static SignedEightEight ReflectionHeadStart =>
         SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed - SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
-
-    /// <summary>The state the kind of the projectile holding the place keeps, which must be a <typeparamref name="TState"/>.</summary>
-    /// <exception cref="InvalidOperationException">No projectile holds the place, or the one holding it keeps no such state.</exception>
-    internal TState KindStateAs<TState>() where TState : SamusShotKindState =>
-        Occupant is { KindState: TState state }
-            ? state
-            : throw new InvalidOperationException(
-                $"The projectile in place {Place} keeps no {typeof(TState).Name}; it keeps {Occupant?.KindState?.GetType().Name ?? "nothing"}.");
 
     /// <summary>A live projectile animation marks the projectile drawable and updated.</summary>
     public bool IsActive => Animation is not null;

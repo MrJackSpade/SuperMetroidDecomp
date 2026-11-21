@@ -299,7 +299,7 @@ internal sealed class BeamFiring
             // effect lies outside the emulation scope limit (UnauthoredBeamShotBehaviors) is refused here (#1500).
             SamusShotBehavior behavior = SamusBeamShotBehaviors.Resolve(charged, beamType);
             behavior.AdmitFiring();
-            held.Install(behavior, kindState: null);
+            held.Install(behavior);
             InitializePowerBeamVelocity(samus.ProjectileInheritance, held, _unauthoredFiring);
         }
         return new BeamShot(sound);
@@ -360,7 +360,7 @@ internal sealed class BeamFiring
             held,
             roomObjects,
             waveBeam: true);
-        held.Install(SamusShotBehaviors.HyperBeam, kindState: null);
+        held.Install(SamusShotBehaviors.HyperBeam);
         InitializePowerBeamVelocity(samus.ProjectileInheritance, held, _unauthoredFiring);
 
         // The shot starts the Hyper Beam's own suit glow, and its flare in place of the charge.

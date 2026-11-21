@@ -137,6 +137,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusState samus,
         SamusProjectileOccupant held,
+        MissileShotState missile,
         Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects)
@@ -152,7 +153,6 @@ internal sealed class ProjectileMotion
             _trails.SpawnTrail(held);
 
         SamusProjectileDirection direction = shot.Direction;
-        MissileShotState missile = shot.KindStateAs<MissileShotState>();
         if (!missile.Ignition.HasIgnited)
         {
             // A missile ignites on its first input phase: its velocity is rebuilt from its
@@ -185,6 +185,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusState samus,
         SamusProjectileOccupant held,
+        SuperMissileShotState superMissile,
         Position16<RoomPixels> cameraPosition,
         SamusBombProjectileSystem samusBombs,
         ISamusRoomObjects roomObjects)
@@ -204,7 +205,6 @@ internal sealed class ProjectileMotion
             _trails.SpawnTrail(held);
 
         SamusProjectileDirection direction = shot.Direction;
-        SuperMissileShotState superMissile = shot.KindStateAs<SuperMissileShotState>();
         if (!superMissile.Ignition.HasIgnited)
         {
             // A Super Missile ignites as a missile does on its first input phase, and then

@@ -73,11 +73,9 @@ internal sealed class ShinesparkEchoProjectile
 
     /// <summary>Runs one update of the echo <paramref name="shot"/> carries, clearing the shot once the echo leaves the screen.</summary>
     internal void StepShinesparkEcho(SamusState samus,
-        SamusProjectile shot, Position16<RoomPixels> camera)
+        SamusProjectile shot, ShinesparkEchoShotState flight, Position16<RoomPixels> camera)
     {
-        if (shot.Behavior is not ShinesparkEchoFlight)
-            throw new InvalidOperationException("Departing echo no longer owns this shot.");
-        if (!samus.Shinespark.StepReleasedEcho(samus, camera, shot))
+        if (!samus.Shinespark.StepReleasedEcho(samus, camera, shot, flight))
             _animation.ClearProjectile(shot);
     }
 }

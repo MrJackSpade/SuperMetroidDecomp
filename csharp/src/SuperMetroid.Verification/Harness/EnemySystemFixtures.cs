@@ -44,7 +44,8 @@ internal static class EnemySystemFixtures
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null,
         BossSourceArtwork? installedBosses = null, EnemyBreakableTerrainObjects? breakableTerrain = null,
         AreaId area = AreaId.Crateria, DoorPassage? doorPassage = null, RoomFxOverlayState? roomFx = null,
-        RoomFloor? floor = null, ITourianStatueRoom? statueRoom = null, CeresElevatorShaftRoomMainState? shaftTurn = null)
+        RoomFloor? floor = null, ITourianStatueRoom? statueRoom = null, CeresElevatorShaftRoomMainState? shaftTurn = null,
+        RoomWarnings? warnings = null)
     {
         var system = new RoomEnemySystem(new RoomEnemySystemDependencies
         {
@@ -60,9 +61,11 @@ internal static class EnemySystemFixtures
             DoorPassage = doorPassage ?? new DoorPassage(),
             RoomFx = roomFx ?? global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.RoomFxOverlayState>([typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() }),
             Earthquake = new RoomEarthquake(),
-            Scenery = new RoomEnemyScenery(floor, shaftTurn, statueRoom),
+            // A fixture room can place Ceres Ridley and Mother Brain, whose escapes write the room's warnings (#2554).
+            Scenery = new RoomEnemyScenery(floor, shaftTurn, statueRoom, warnings ?? new RoomWarnings(InstalledFixtures.RoomAssets.BlockSheets.Written.Values.First())),
         });
         system.BossArtwork = installedBosses;
+        EnemyPlaceRegistries.Register(system.Species);
         return system;
     }
 

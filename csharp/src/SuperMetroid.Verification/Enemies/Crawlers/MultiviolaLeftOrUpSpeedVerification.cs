@@ -51,7 +51,7 @@ internal static class MultiviolaLeftOrUpSpeedVerification
             place.SetSpawnSettings(new MultiviolaSpawnSettings(angle, speed));
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(Centre, Centre));
             MultiviolaBehavior.InitializeMultiviola(place);
-            enemies.MultiviolaBehavior.RunMultiviolaMainAi(place, frame);
+            enemies.MultiviolaBehavior.RunMultiviolaMainAi(place.HeldOccupant().SpawnSettings<MultiviolaSpawnSettings>(), place, place.RequireSpeciesState<MultiviolaEnemyState>(), frame);
 
             // The original turns an axis left when the heading a quarter turn on lies in the turn's first half, and up
             // when the heading lies in its second half.

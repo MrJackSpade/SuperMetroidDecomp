@@ -37,13 +37,13 @@ internal static class CeresSelfDestructWarningVerification
         {
             if (update == 4096)
                 throw new InvalidOperationException("The Japanese warning never reached its subtitle phase.");
-            escape.RunRidleysStep(0);
+            escape.RunRidleysStep(0, RoomWarningFixtures.Ceres());
             CountTypedCharacter();
         }
 
         for (int update = 1; update <= CeresSelfDestructWarningDefinitions.JapaneseSubtitleWaitUpdates; update++)
         {
-            escape.RunRidleysStep(0);
+            escape.RunRidleysStep(0, RoomWarningFixtures.Ceres());
             CountTypedCharacter();
             bool last = update == CeresSelfDestructWarningDefinitions.JapaneseSubtitleWaitUpdates;
             AssertEqual(last, ShowsSubtitle(escape.Warning),

@@ -48,7 +48,7 @@ internal static class CeresEscapeTileArtworkVerification
         // The station's escape runs its warning until the escape timer and warning show (#2228, #2469).
         installed.CeresEscape.BeginSelfDestruct();
         for (int update = 0; update < CeresSelfDestructWarningDefinitions.BeforeWarningUpdates; update++)
-            installed.CeresEscape.RunRidleysStep(0);
+            installed.CeresEscape.RunRidleysStep(0, RoomWarningFixtures.Ceres());
         AssertTrue(installed.Presentation.Looks.Shows(CeresEscapeWarningLookDefinitions.WarningLook),
             "Ceres escape production shows the warning look once its wait runs out");
         IReadOnlyList<EncounterArtworkUpload> installedPages = EncounterLookUploads.Uploads(ComposedEncounter.CeresEscape,

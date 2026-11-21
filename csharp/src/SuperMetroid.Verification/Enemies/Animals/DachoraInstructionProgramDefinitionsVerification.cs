@@ -56,7 +56,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
                 continue;
             (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachora(0);
             place.Bind(EnemyDefinitionId.Dachora, place.KeptDefinition);
-            enemies.DachoraBehavior.InitializeDachora(place);
+            enemies.DachoraBehavior.InitializeDachora(place.HeldOccupant().SpawnSettings<DachoraSpawnSettings>(), place);
             DachoraEnemyState state = enemies.Places.InUpdateOrder[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             state.Playback = new(DachoraAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
@@ -73,7 +73,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachora(0);
             place.Bind(EnemyDefinitionId.Dachora, place.KeptDefinition);
-            enemies.DachoraBehavior.InitializeDachora(place);
+            enemies.DachoraBehavior.InitializeDachora(place.HeldOccupant().SpawnSettings<DachoraSpawnSettings>(), place);
             DachoraEnemyState state = enemies.Places.InUpdateOrder[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(16, 16));
             // One $1000 subspeed step from just below each threshold lands exactly on whole speeds four and eight.

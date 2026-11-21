@@ -1,6 +1,13 @@
 // The generated private-access classes (#2570), imported everywhere this folder is compiled: each names its owner's
 // private members as extension members, which a check reaches wherever it reaches the owner. The architecture audit's
 // --fix-test-only-members and the reachability prune write this file with the classes they generate.
+global using static SuperMetroid.Core.World.LoadedRoomAccess;
+global using static SuperMetroid.Core.Samus.SamusGroundAccess;
+global using static SuperMetroid.Core.Enemies.EnemySpeciesStateAccess;
+global using static SuperMetroid.Core.Enemies.EnemyPlaceRegistries;
+global using static SuperMetroid.Core.Frontend.FrontendSessionStepAccess;
+global using static SuperMetroid.Core.Frontend.FrontendSessionEntryAccess;
+global using static SuperMetroid.Core.Samus.Projectiles.SamusShotKindStateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.Artwork.CeresEscapeTileArtworkDefinitionsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresCinematicPictureSheetComposerPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualFilesPrivateAccess;
@@ -474,7 +481,9 @@ global using static SuperMetroid.Core.Enemies.KiHunters.KiHunterBehaviorPrivateA
 global using static SuperMetroid.Core.Enemies.Kzan.KzanAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.LavaJumpers.SqueeptBehaviorPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Magdollite.MagdolliteAnimationsPrivateAccess;
+global using static SuperMetroid.Core.Enemies.Magdollite.MagdolliteBodyAnimationsPrivateAccess;
+global using static SuperMetroid.Core.Enemies.Magdollite.MagdolliteHeadAnimationsPrivateAccess;
+global using static SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Magdollite.MagdolliteBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.MamaTurtles.BabyTurtleAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleAnimationsPrivateAccess;

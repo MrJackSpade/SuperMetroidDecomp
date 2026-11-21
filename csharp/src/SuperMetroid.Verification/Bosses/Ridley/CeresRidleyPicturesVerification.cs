@@ -41,7 +41,7 @@ internal static class CeresRidleyPicturesVerification
         // Each frame's uploads and words reach the display as the next accepted frame begins, which resolves their pictures.
         while (escape.Stage == CeresEscapeStage.SelfDestruct)
         {
-            escape.RunRidleysStep(ridleyFrameCounter);
+            escape.RunRidleysStep(ridleyFrameCounter, RoomWarningFixtures.Ceres());
             runtime.FrameBoundary.BeginAcceptedFrame(0);
         }
         RoomWarningText overlay = runtime.Room.LoadedScope.Enemies.CeresEscape.Warning.Overlay;

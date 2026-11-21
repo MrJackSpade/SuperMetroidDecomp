@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
@@ -30,7 +31,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
         IReadOnlyList<SuperMetroid.AssetExtraction.Artwork.SheetShade> shades = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresSprites(colours);
         Action<CeresRidleyState> tick = RidleyReveal.TickEyeFadeIn;
 
-        var state = new CeresRidleyState(Position16<RoomPixels>.Zero) { RevealPhase = RidleyRevealPhase.FadeInEyes, MovementAnimationEnabled = false };
+        var state = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres()) { RevealPhase = RidleyRevealPhase.FadeInEyes, MovementAnimationEnabled = false };
         for (int update = 0; update < ScheduleUpdates; update++)
         {
             tick(state);

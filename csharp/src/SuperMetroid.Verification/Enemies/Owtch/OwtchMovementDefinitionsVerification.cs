@@ -21,7 +21,7 @@ internal static class OwtchMovementDefinitionsVerification
         Suite(nameof(VerifyOwtchUndergroundTimerAlgorithm), () => VerifyOwtchUndergroundTimerAlgorithm(rom));
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = fixturePlace => OwtchBehavior.InitializeOwtch(fixturePlace);
+        Action<RoomEnemyPlace> initialize = fixturePlace => OwtchBehavior.InitializeOwtch(fixturePlace.HeldOccupant().SpawnSettings<OwtchSpawnSettings>(), fixturePlace);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Owtch, place.KeptDefinition);
 

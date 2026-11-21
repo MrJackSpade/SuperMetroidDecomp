@@ -70,7 +70,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         for (int tick = 0; tick < 6; tick++)
         {
             endpoint.LiquidPhysics.BeginFrameSoundRequests();
-            SamusPresentation.Animate(endpoint, new SamusAnimationStep { Random = new SharedRandom(), ProspectiveInputPose = selected });
+            SamusPresentation.Animate(endpoint, new SamusAnimationStep { Ground = endpoint.Ground, Random = new SharedRandom(), ProspectiveInputPose = selected });
         }
         bool jumpWins = !locked && selected.HasValue && selected != SamusPoseId.MovingRightNormalPose;
         AssertEqual(jumpWins ? null : SamusPoseId.FacingRightNormalPose,
@@ -174,7 +174,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     for (int tick = 0; tick < 6; tick++)
     {
         turn.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(turn, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(turn, new SamusAnimationStep { Ground = turn.Ground, Random = new SharedRandom() });
     }
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(turn), "aerial turn F8 applies");
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpLeftPose, turn.Pose, "aerial turn preserves diagonal-up aim endpoint");
@@ -208,7 +208,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         for (int tick = 0; tick < 6; tick++)
         {
             endpoint.LiquidPhysics.BeginFrameSoundRequests();
-            SamusPresentation.Animate(endpoint, new SamusAnimationStep { Random = new SharedRandom() });
+            SamusPresentation.Animate(endpoint, new SamusAnimationStep { Ground = endpoint.Ground, Random = new SharedRandom() });
         }
         AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(endpoint), "turn endpoint command consumed");
         AssertEqual(extra == 0 ? SamusAccelerationMode.Accelerating : SamusAccelerationMode.Decelerating, endpoint.HorizontalSpeed.AccelerationMode, "turn endpoint uses cartridge dash predicate");
@@ -232,7 +232,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         SamusPresentation.InitializeAnimation(lavaEndpoint);
         SamusPresentation.SetAnimationFrameFromMovementOwner(lavaEndpoint, lavaEndpoint.AnimationFrameNumbered(2), 1);
         lavaEndpoint.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(lavaEndpoint, new SamusAnimationStep { Random = new SharedRandom(), FrameCounter = 1 });
+        SamusPresentation.Animate(lavaEndpoint, new SamusAnimationStep { Ground = lavaEndpoint.Ground, Random = new SharedRandom(), FrameCounter = 1 });
         AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(lavaEndpoint), "lava turn consumes command three");
         AssertEqual(falling ? 12 : 6, lavaEndpoint.AnimationFrameTimer.RawValue,
             "command three adds lava and pose-change buffers to native jump/fall target delay (2 or 8, plus 2+2)");
@@ -403,7 +403,7 @@ level, heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects:
     for (int tick = 0; tick < 10; tick++)
     {
         eligible.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(eligible, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(eligible, new SamusAnimationStep { Ground = eligible.Ground, Random = new SharedRandom() });
     }
     AssertEqual(3, eligible.AnimationNumber, "ordinary dry wall animation selects frame three");
 

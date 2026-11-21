@@ -28,7 +28,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                 : EnemyDefinitionId.Zeb, initializedPlace.KeptDefinition);
             initializedPlace.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? (ushort)1 : (ushort)0);
             initializedPlace.Position = initializedPlace.Position.WithWhole(new(0x0100, 0x0080));
-            PipeBugsBehavior.InitializeBrinstarPipeBug(initializedPlace);
+            PipeBugsBehavior.InitializeBrinstarPipeBug(initializedPlace.HeldOccupant().SpawnSettings<BrinstarPipeBugSpawnSettings>(), initializedPlace);
             AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(
                     PipeBugAnimationChoices.Rising(kind, HorizontalDirection.Left)), AnimationPlace.StartOfAnimation),
                 (initializedEnemies.BrinstarPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires a Pipe Bug state.")).Playback,

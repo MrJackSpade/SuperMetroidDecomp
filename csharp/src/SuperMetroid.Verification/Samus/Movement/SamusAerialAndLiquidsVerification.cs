@@ -68,7 +68,7 @@ internal static void VerifySamusAerialMovement()
 level, samus, GameplayAction.Jump, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
     AssertEqual(77, samus.Position.Y.Whole, "neutral-jump transition preserves Y");
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "FD installs neutral jump pose");
     AssertEqual(SamusPoseId.NeutralJumpRightPose, samus.Pose, "FD target pose");
 
@@ -111,7 +111,7 @@ level, samus, 0, unchecked((ushort)(frame + 3)), roomObjects: SamusRoomObjectFix
     for (int tick = 0; tick < 7; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     }
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "landing F8 transition applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "landing animation returns to standing");
@@ -674,7 +674,7 @@ empty, screwRepeat, GameplayAction.Jump, 0, GameplayAction.Jump, roomObjects: Sa
     for (int tick = 0; tick < 3; tick++)
     {
         submergedSpin.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(submergedSpin, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(submergedSpin, new SamusAnimationStep { Ground = submergedSpin.Ground, Random = new SharedRandom() });
     }
     submergedSpin.LiquidPhysics.ConfigureWater(surfaceY: 100, ignoresSurface: false, type: SuperMetroid.Core.Fx.RoomFxType.Water);
     submergedSpin.LiquidPhysics.BeginFrameSoundRequests();

@@ -1104,7 +1104,7 @@ internal static class LookupStream5Verification
                 place.SetSpawnParameter2(EnemyDefinitionId.MorphBallEye, (ushort)(0x8000 | direction));
                 place.Bind(EnemyDefinitionId.MorphBallEye, place.KeptDefinition);
                 place.Position = place.Position.WithWhole(new(origin, origin));
-                new Action<RoomEnemyPlace>(fixturePlace => enemies.MorphBallEyeBehavior.InitializeMorphBallEyeMount(fixturePlace))(place);
+                new Action<RoomEnemyPlace>(fixturePlace => enemies.MorphBallEyeBehavior.InitializeMorphBallEyeMount(fixturePlace.HeldOccupant().SpawnSettings<MorphBallEyeMountSpawnSettings>(), fixturePlace))(place);
                 AssertEqual(unchecked((ushort)(origin + expected.First)), place.Position.X.Whole, "Actual mount X with native wrap");
                 AssertEqual(unchecked((ushort)(origin + expected.Second)), place.Position.Y.Whole, "Actual mount Y with native wrap");
                 MorphBallEyeMountState mountState = enemies.Places.InUpdateOrder[0].SpeciesState<MorphBallEyeMountState>() ?? throw new InvalidOperationException("The mount has no state.");
@@ -1118,7 +1118,7 @@ internal static class LookupStream5Verification
         var body = owner.Places.InUpdateOrder[1];
         body.SetSpawnSettings(new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
         body.Bind(EnemyDefinitionId.MorphBallEye, body.KeptDefinition);
-        new Action<RoomEnemyPlace>(fixturePlace => MorphBallEyeBehavior.InitializeMorphBallEyeBody(fixturePlace))(body);
+        new Action<RoomEnemyPlace>(fixturePlace => MorphBallEyeBehavior.InitializeMorphBallEyeBody(fixturePlace.HeldOccupant().SpawnSettings<MorphBallEyeBodySpawnSettings>(), fixturePlace))(body);
         (body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.")).IsActivated = true;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Body = body;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
@@ -1599,7 +1599,7 @@ internal static class LookupStream5Verification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(SpawnedObjectFixtures.InstalledTilesWith(installed)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
         enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.Places.InUpdateOrder[0].KeptDefinition);
-        enemies.HoldCeresRidley(enemies.Places.InUpdateOrder[0], new CeresRidleyState(Position16<RoomPixels>.Zero));
+        enemies.HoldCeresRidley(enemies.Places.InUpdateOrder[0], new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres()));
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         var door = enemies.Places.InUpdateOrder[1];

@@ -35,7 +35,7 @@ internal static class WorkRobotFallVerification
             var state = new WorkRobotEnemyState() { FallVelocity = SignedSixteenSixteen.FromParts(whole, fraction) };
             place.SetSpeciesState(state);
 
-            enemies.WorkRobotBehavior.RunWorkRobotMainAi(place, frame);
+            enemies.WorkRobotBehavior.RunWorkRobotMainAi(place, place.RequireSpeciesState<WorkRobotEnemyState>(), frame);
 
             string context = $"Work Robot falling at {whole} and {fraction}/65536 pixels";
             AssertEqual(expectedWhole, state.FallVelocity.UnsignedWholePixels, $"{context}: whole speed word");

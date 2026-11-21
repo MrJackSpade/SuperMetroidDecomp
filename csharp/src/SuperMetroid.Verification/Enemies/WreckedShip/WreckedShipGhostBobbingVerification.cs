@@ -43,7 +43,7 @@ internal static class WreckedShipGhostBobbingVerification
             };
             place.SetSpeciesState(state);
 
-            WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(place, frame);
+            WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(place, place.RequireSpeciesState<WreckedShipGhostEnemyState>(), frame);
 
             AssertEqual(expectedY, place.Position.Y.Whole, $"Ghost {context}: position");
             AssertEqual((ushort)0, place.Position.Y.Fraction, $"Ghost {context}: subposition");

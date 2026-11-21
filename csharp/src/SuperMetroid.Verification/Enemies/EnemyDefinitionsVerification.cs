@@ -153,7 +153,7 @@ internal static class EnemyDefinitionsVerification
         // first free place after them.
         RoomEnemyPlace brain = enemies.Places.InUpdateOrder[1];
         brain.Bind(EnemyDefinitionId.MotherBrainHead, brain.KeptDefinition);
-        var encounter = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), brain, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+        var encounter = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), brain, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes());
 
         for (int index = 0; index < pieces.Length; index++)
         {
@@ -200,7 +200,7 @@ internal static class EnemyDefinitionsVerification
         var fixtureEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: fixture);
         RoomEnemyPlace fixtureBrain = fixtureEnemies.Places.InUpdateOrder[1];
         fixtureBrain.Bind(EnemyDefinitionId.MotherBrainHead, fixtureBrain.KeptDefinition);
-        fixtureEnemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainFallingTube(new MotherBrainEnemyState(fixtureEnemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), fixtureBrain, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), MotherBrainTubePiece.BottomLeft);
+        fixtureEnemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainFallingTube(new MotherBrainEnemyState(fixtureEnemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), fixtureBrain, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()), MotherBrainTubePiece.BottomLeft);
         AssertEqual(0x1234, fixtureEnemies.Places.InUpdateOrder[2].Position.X.Whole,
             "constructed room fixture retains its authored falling-tube X position");
 

@@ -14,7 +14,7 @@ internal static class FirefleaMovementDefinitionsVerification
         const ushort radiusTable = 0x8d1d;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = fixturePlace => FirefleaBehavior.InitializeFireflea(fixturePlace);
+        Action<RoomEnemyPlace> initialize = fixturePlace => FirefleaBehavior.InitializeFireflea(fixturePlace.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>(), fixturePlace);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Fireflea, place.KeptDefinition);
 

@@ -50,10 +50,10 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         Type type = typeof(RoomEnemySystem);
         var guarded = NewChozoAndTubePaletteReadGuard(rom);
         Suite(nameof(VerifyLive), () => VerifyLive(0, PictureShading.Shaded(ChozoAndTubeShades.WreckedShipStatue),
-            "Wrecked Ship Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
+            "Wrecked Ship Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue.HeldOccupant().SpawnSettings<ChozoStatueSpawnSettings>(), statue),
             ChozoStatueSegment.WreckedShipIdle));
         Suite(nameof(VerifyLive), () => VerifyLive(2, PictureShading.Shaded(ChozoAndTubeShades.LowerNorfairStatue),
-            "Lower Norfair Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
+            "Lower Norfair Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue.HeldOccupant().SpawnSettings<ChozoStatueSpawnSettings>(), statue),
             ChozoStatueSegment.LowerNorfairIdle));
 
         visual.TubeCracks[5] = visual.TubeCracks[5] with { Blue = 32 };

@@ -27,7 +27,7 @@ internal static class FrozenMetroidShellVerification
         enemy.Bind(EnemyDefinitionId.Metroid, enemy.KeptDefinition);
         enemy.Shading = PictureShading.Standard;
         enemy.SetSpawnWords(EnemyDefinitionId.Metroid, words => words);
-        enemies.MetroidBehavior.InitializeMetroid(enemy.HeldOccupant(), enemy);
+        enemies.MetroidBehavior.InitializeMetroid(enemy.HeldOccupant(), enemy.HeldOccupant().SpawnSettings<MetroidSpawnSettings>(), enemy);
         var state = enemies.MetroidStates[0];
         // The shell is read by its own draws, apart from the electrical overlay.
         var shell = (state ?? throw new InvalidOperationException("Verification requires state.")).Shell;
@@ -53,7 +53,7 @@ internal static class FrozenMetroidShellVerification
         Require(expected.NextByteOffset > 0, "The frozen shell must contain visible sprite parts.");
         for (int frame = 0; frame < 3; frame++)
         {
-            MetroidBehavior.RunMetroidFrozen(enemy);
+            MetroidBehavior.RunMetroidFrozen(enemy, enemy.RequireSpeciesState<MetroidEnemyState>());
             enemies.EffectActors.StepRoomEffectActors();
             Require(shell.SpritemapPointer == expectedPointer,
                 $"Frozen shell retained ${shell.SpritemapPointer:X4}, expected ${expectedPointer:X4}.");

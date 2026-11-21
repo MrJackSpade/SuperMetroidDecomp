@@ -21,7 +21,7 @@ internal static class FuneNamiheDefinitionsVerification
             bool namihe = (variant & 2) != 0;
             bool right = (variant & 1) != 0;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace> initialize = namihe ? fixturePlace => FuneNamiheBehavior.InitializeNamihe(fixturePlace) : fixturePlace => FuneNamiheBehavior.InitializeFune(fixturePlace);
+            Action<RoomEnemyPlace> initialize = namihe ? fixturePlace => FuneNamiheBehavior.InitializeNamihe(fixturePlace) : fixturePlace => FuneNamiheBehavior.InitializeFune(fixturePlace.HeldOccupant().SpawnSettings<FuneNamiheSpawnSettings>(), fixturePlace.HeldOccupant().SpawnSettings<FuneSpawnSettings>(), fixturePlace);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, place.KeptDefinition);
             place.SetSpawnParameter1(place.HeldOccupant().DefinitionId, (ushort)((namihe ? 1 : 0) | (right ? 0x10 : 0)));

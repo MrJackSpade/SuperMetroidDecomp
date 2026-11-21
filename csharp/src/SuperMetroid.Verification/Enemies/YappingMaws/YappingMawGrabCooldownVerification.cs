@@ -41,7 +41,7 @@ internal static class YappingMawGrabCooldownVerification
         CountRounds(enemies, place, state, frame, startedAt: 0, "a newly placed Maw");
 
         samus.Position = samus.Position.WithWhole(Root);
-        enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
+        enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
         AssertEqual(YappingMawAction.WaitingForSamus, state.Action, "Samus at the Maw's root starts no bite");
         AssertTrue(!state.GrabCooldown.AllowsGrab, "Samus at the Maw's root starts its cooldown");
         samus.Position = samus.Position.WithWhole(OutOfReach);
@@ -49,11 +49,11 @@ internal static class YappingMawGrabCooldownVerification
 
         // The word now stands at none: a touch is refused, and the next update, which counts it past none, allows one.
         AssertTrue(!state.GrabCooldown.AllowsGrab, "the cooldown refuses at the end of its second round");
-        YappingMawBehavior.ReactToYappingMawTouch(Touch(place, samus));
+        YappingMawBehavior.ReactToYappingMawTouch(Touch(place, samus), Touch(place, samus).RequireSpeciesState<YappingMawEnemyState>());
         AssertTrue(!state.HasGrabbedSamus, "a touch while the cooldown refuses leaves Samus free");
-        enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
+        enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
         AssertTrue(state.GrabCooldown.AllowsGrab, "the next update lets the Maw grab again");
-        YappingMawBehavior.ReactToYappingMawTouch(Touch(place, samus));
+        YappingMawBehavior.ReactToYappingMawTouch(Touch(place, samus), Touch(place, samus).RequireSpeciesState<YappingMawEnemyState>());
         AssertTrue(state.HasGrabbedSamus, "a touch while the cooldown allows grabs Samus");
         AssertEqual(YappingMawGrabCooldown.Spent, state.GrabCooldown, "the grab spends the cooldown");
         Console.WriteLine("  Yapping Maw grab cooldown: two rounds from none and from 48 grab exactly while the original's word is negative.");
@@ -69,7 +69,7 @@ internal static class YappingMawGrabCooldownVerification
     {
         for (int update = 1; update <= 2 * CooldownWordSpan + startedAt; update++)
         {
-            enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, place.RequireSpeciesState<YappingMawEnemyState>(), frame);
             int word = ((startedAt - update) % CooldownWordSpan + CooldownWordSpan) % CooldownWordSpan;
             bool negative = word >= CooldownWordSpan / 2;
             if (state.GrabCooldown.AllowsGrab != negative)
@@ -99,7 +99,7 @@ internal static class YappingMawGrabCooldownVerification
         place.Position = place.Position.WithWhole(Root);
         place.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 48);
         place.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, 0);
-        enemies.YappingMawBehavior.InitializeYappingMaw(place.HeldOccupant(), place);
+        enemies.YappingMawBehavior.InitializeYappingMaw(place.HeldOccupant(), place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place);
         YappingMawEnemyState state = enemies.YappingMawStates[0] ?? throw new InvalidOperationException("Yapping Maw has no state.");
         return new NewInitializedYappingMawResult(enemies, place, state);
     }

@@ -49,7 +49,7 @@ internal static class NuclearWaffleDefinitionsVerification
                 $"Nuclear Waffle first turn threshold {direction}");
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace> initialize = waffle => enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(waffle.HeldOccupant(), waffle);
+            Action<RoomEnemyPlace> initialize = waffle => enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(waffle.HeldOccupant(), waffle.HeldOccupant().SpawnSettings<NuclearWaffleSpawnSettings>(), waffle);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.NuclearWaffle, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.NuclearWaffle, 0x2001);
@@ -103,12 +103,12 @@ internal static class NuclearWaffleDefinitionsVerification
         place.SetSpawnParameter1(EnemyDefinitionId.NuclearWaffle, LittleEndianBytes.Word(speedIndex, radius));
         place.SetSpawnParameter2(EnemyDefinitionId.NuclearWaffle, LittleEndianBytes.Word(1, 0));
         place.Position = place.Position.WithWhole(new(384, 512));
-        enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(place.HeldOccupant(), place);
+        enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(place.HeldOccupant(), place.HeldOccupant().SpawnSettings<NuclearWaffleSpawnSettings>(), place);
         NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Nuclear Waffle has no state.");
         AssertEqual(NuclearWaffleSweepDirection.Forward, place.HeldOccupant().SpawnSettings<NuclearWaffleSpawnSettings>().Direction, "Nuclear Waffle direction one sweeps forward");
         AssertEqual(SixteenSixteenWords.ToDisplacement(oneUnit + oneUnit / 2), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(place.HeldOccupant().SpawnSettings<NuclearWaffleSpawnSettings>().AngularSpeed.FractionsOfStep), "Nuclear Waffle speed record 24 is 1.5 units per update");
 
-        enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(place);
+        enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(place.HeldOccupant().SpawnSettings<NuclearWaffleSpawnSettings>(), place, place.RequireSpeciesState<NuclearWaffleEnemyState>());
         AssertEqual(NuclearWaffleAction.Sweeping, state.Action, "Nuclear Waffle zero wait expires on the first update");
         AssertEqual(NuclearWaffleSweepAngle.FromSteps(startAngle), state.SweepAngle, "Nuclear Waffle sweep restarts at its start angle");
 
@@ -116,7 +116,7 @@ internal static class NuclearWaffleDefinitionsVerification
         {
             if (update == 96)
                 enemies.Audio.BeginFrame();
-            enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(place);
+            enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(place.HeldOccupant().SpawnSettings<NuclearWaffleSpawnSettings>(), place, place.RequireSpeciesState<NuclearWaffleEnemyState>());
             AssertEqual(SixteenSixteenWords.ToDisplacement(startAngle * oneUnit + (update + 1) * (oneUnit + oneUnit / 2)), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(state.SweepAngle.FractionsOfStep),
                 $"Nuclear Waffle sweep angle after sweep update {update}");
             AssertEqual(update == finishingUpdate ? NuclearWaffleAction.Waiting : NuclearWaffleAction.Sweeping, state.Action,

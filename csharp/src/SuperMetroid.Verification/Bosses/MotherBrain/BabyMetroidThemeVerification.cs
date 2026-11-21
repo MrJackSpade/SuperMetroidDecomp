@@ -15,7 +15,7 @@ internal static class BabyMetroidThemeVerification
     internal static int VerifyBabyMetroidTheme()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes());
         enemies.MotherBrainEncounter.BeginAsSetUp(state);
         var sequence = MotherBrainLateFightFixtures.NewSequence();
         // The Baby's health lives in the place the final beam's spawn makes it in (#2572).

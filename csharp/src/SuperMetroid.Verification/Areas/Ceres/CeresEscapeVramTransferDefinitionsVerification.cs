@@ -78,7 +78,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         escape.BeginSelfDestruct();
         for (int index = 0; index < spriteList.Length; index++)
         {
-            escape.RunRidleysStep(0);
+            escape.RunRidleysStep(0, RoomWarningFixtures.Ceres());
             TileTransferDefinition expected = spriteList[index];
             AssertEqual(index == spriteList.Length - 1, escape.Warning.Phase == CeresSelfDestructPhase.WaitingForTitle,
                 $"Ceres transfer ${expected.Pointer:X4}'s update ends the wait only last");

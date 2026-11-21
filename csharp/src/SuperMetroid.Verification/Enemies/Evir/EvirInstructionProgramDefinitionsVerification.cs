@@ -65,7 +65,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             body.SetSpeciesState(bodyState);
             // The spit finds its body as production places it, two places after the body.
             place.Bind(EnemyDefinitionId.EvirProjectile, place.KeptDefinition);
-            enemies.EvirBehavior.InitializeEvirProjectile(place);
+            enemies.EvirBehavior.InitializeEvirProjectile(place, place);
             EvirSpitState state = PrepareEvirSpit(place, EvirSegment.ProjectileRegenerating, body);
             // #1269: the projectile's own facing word disagrees with its body on purpose; $A8:879B/$87B6 follow the
             // body's installed list, so the offset starts at +8.

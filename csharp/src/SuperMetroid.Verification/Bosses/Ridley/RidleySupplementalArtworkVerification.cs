@@ -84,7 +84,7 @@ internal static class RidleySupplementalArtworkVerification
         place.Position = place.Position.WithWhole(new(200, 100));
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
-        var state = new CeresRidleyState(Position16<RoomPixels>.Zero)
+        var state = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres())
         {
             MovementAnimationEnabled = true,
             Flight = { FacingDirection = facing },

@@ -15,7 +15,7 @@ internal static class BullMovementDefinitionsVerification
     internal static void VerifyCompiledBullMovement(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Action<RoomEnemyPlace> initialize = fixturePlace => enemies.BullBehavior.InitializeBull(fixturePlace);
+        Action<RoomEnemyPlace> initialize = fixturePlace => enemies.BullBehavior.InitializeBull(fixturePlace.HeldOccupant().SpawnSettings<BullSpawnSettings>(), fixturePlace);
         var place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Bull, place.KeptDefinition);
         for (ushort interval = 0; interval < 13; interval++)

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -114,7 +115,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         before = Registers(runtime);
-        var motherBrain = new MotherBrainEnemyState(runtime.Enemies.Places.InUpdateOrder[0].HeldOccupant(), runtime.Enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { BodyPlacement = MotherBrainBodyPlacement.FollowsBody, DeathHidesBodyLayer = true };
+        var motherBrain = new MotherBrainEnemyState(runtime.Enemies.Places.InUpdateOrder[0].HeldOccupant(), runtime.Enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()) { BodyPlacement = MotherBrainBodyPlacement.FollowsBody, DeathHidesBodyLayer = true };
         runtime.Enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
         // The room's display reads the body the encounter attached as it set up (#2194): this one's.
         runtime.Enemies.Presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, motherBrain));

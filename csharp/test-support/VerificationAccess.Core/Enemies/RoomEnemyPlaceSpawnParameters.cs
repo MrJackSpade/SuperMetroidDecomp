@@ -12,8 +12,8 @@ internal static class RoomEnemyPlaceSpawnParameters
     /// entry placing <paramref name="species"/> at the room origin with no contact, processing, presence or settings of
     /// its own.
     /// </summary>
-    internal static void Bind(this RoomEnemyPlace place, EnemyDefinitionId species, RoomEnemyDefinition definition) =>
-        place.Bind(place.History is PopulatedEnemyPlace populated
+    internal static RoomEnemyOccupant Bind(this RoomEnemyPlace place, EnemyDefinitionId species, RoomEnemyDefinition definition) =>
+        place.BindEntry(place.History is PopulatedEnemyPlace populated
             ? populated.LastSpawn with { DefinitionId = species }
             : PlacementFor(species, EnemySpawnSettings.None), definition);
 
@@ -22,28 +22,28 @@ internal static class RoomEnemyPlaceSpawnParameters
     /// from its entry with <paramref name="settings"/>, as a population load binds it, before the check initializes it.
     /// </summary>
     /// <exception cref="InvalidOperationException">The check has bound no enemy in the place.</exception>
-    internal static void SetSpawnSettings(this RoomEnemyPlace place, EnemySpawnSettings settings)
+    internal static RoomEnemyOccupant SetSpawnSettings(this RoomEnemyPlace place, EnemySpawnSettings settings)
     {
         RoomEnemyPlacement entry = place.History is PopulatedEnemyPlace populated
             ? populated.LastSpawn
             : throw new InvalidOperationException($"A check sets the spawn settings of enemy place {place.Ordinal}, where it has bound no enemy.");
-        place.Bind(Settled(entry, settings), place.KeptDefinition);
+        return place.BindEntry(Settled(entry, settings), place.KeptDefinition);
     }
 
     /// <summary>
     /// Binds <paramref name="species"/> placed with <paramref name="settings"/>, where the place's entry places it, or at
     /// the room origin in a place no enemy has been spawned in.
     /// </summary>
-    internal static void BindPlaced(this RoomEnemyPlace place, EnemyDefinitionId species, EnemySpawnSettings settings) =>
-        place.Bind(Settled((place.History is PopulatedEnemyPlace populated ? populated.LastSpawn : PlacementFor(species, settings))
+    internal static RoomEnemyOccupant BindPlaced(this RoomEnemyPlace place, EnemyDefinitionId species, EnemySpawnSettings settings) =>
+        place.BindEntry(Settled((place.History is PopulatedEnemyPlace populated ? populated.LastSpawn : PlacementFor(species, settings))
             with { DefinitionId = species }, settings), place.KeptDefinition);
 
     /// <summary>
     /// Binds <paramref name="species"/> in the place as an entry placing it at the room origin would, with no contact,
     /// processing or presence of its own and <paramref name="settings"/>.
     /// </summary>
-    internal static void PopulateFor(this RoomEnemyPlace place, EnemyDefinitionId species, EnemySpawnSettings settings) =>
-        place.Bind(PlacementFor(species, settings), place.KeptDefinition);
+    internal static RoomEnemyOccupant PopulateFor(this RoomEnemyPlace place, EnemyDefinitionId species, EnemySpawnSettings settings) =>
+        place.BindEntry(PlacementFor(species, settings), place.KeptDefinition);
 
     /// <summary><paramref name="entry"/> giving its species <paramref name="settings"/> instead of its own.</summary>
     private static RoomEnemyPlacement Settled(RoomEnemyPlacement entry, EnemySpawnSettings settings) =>

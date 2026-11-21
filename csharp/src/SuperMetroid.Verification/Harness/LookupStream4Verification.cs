@@ -431,7 +431,7 @@ internal static class LookupStream4Verification
         // The station's escape steps the alarm (#2228); Ceres Ridley's own colours lay nothing here.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         CeresEscape escape = enemies.CeresEscape;
-        var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero);
+        var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres());
         // The alarm shows nothing before its first step; that step shows its second row, and each step every fourth NMI the
         // next, its first after its last (#2409).
         AssertEqual<RidleyFadeImage?>(null, escape.Warning.Alarm.Shown, "the alarm shows nothing before its first step");
@@ -2279,7 +2279,7 @@ internal static class LookupStream4Verification
                 int cursor = 0xbf5d + phase * 8;
                 int row = (rom.ReadCartridgeWordFixedBank(0xa60000 | (cursor + 2)) - 0xe1f1) / 30;
                 // The expressive loop's palette command for this phase is beat 1 + 2 * phase, its pose the next beat.
-                var state = new CeresRidleyState(Position16<RoomPixels>.Zero)
+                var state = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres())
                 {
                     Baby = { Playback = new AnimationPlayback<CeresBabySegment>(CeresBabyAnimations.StartingWith(CeresBabySegment.ExpressiveLoop), new AnimationPlace(0, 1 + 2 * phase)), VerticalVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1) },
                 };
@@ -2339,7 +2339,7 @@ internal static class LookupStream4Verification
             // The station's escape shows the floor's zoom (#2228); Ceres Ridley's own colours lay nothing here.
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             CeresEscape escape = enemies.CeresEscape;
-            var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero);
+            var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres());
             IReadOnlyList<SheetShade> zoomRoom = RidleySheetShades.CeresRoom(ceresStock, selected);
             Action<ushort> apply = appliedZoom => escape.ShowFloorZoom(FloorZoomConstants.FromTwoHundredFiftySixths(appliedZoom));
             for (int row = 0; row < 9; row++)
@@ -2431,7 +2431,7 @@ internal static class LookupStream4Verification
             }
             foreach (RidleyFightMode fight in new[] { RidleyFightMode.NotFighting, RidleyFightMode.Fighting }) foreach (ushort hits in new ushort[] { 49, 50, 69, 70, 89, 90 })
             {
-                var hit = new CeresRidleyState(Position16<RoomPixels>.Zero) { FightMode = fight, HitCounter = hits };
+                var hit = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres()) { FightMode = fight, HitCounter = hits };
                 ceres(hit);
                 Check(hit, fight == RidleyFightMode.NotFighting || hits < 50 ? -1 : hits < 70 ? 0 : 2);
             }

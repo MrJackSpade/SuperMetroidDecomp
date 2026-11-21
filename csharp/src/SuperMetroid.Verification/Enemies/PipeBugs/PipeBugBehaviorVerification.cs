@@ -80,10 +80,10 @@ internal static class PipeBugBehaviorVerification
             Initialize(enemies, place, EnemyDefinitionId.Zeb, 0);
             BrinstarPipeBugState state = place.RequireSpeciesState<BrinstarPipeBugState>();
             state.Action = BrinstarPipeBugAction.WaitForSamus;
-            PipeBugsBehavior.RunBrinstarPipeBugMainAi(place, Frame(new(28, 78)));
+            PipeBugsBehavior.RunBrinstarPipeBugMainAi(place.HeldOccupant().SpawnSettings<BrinstarPipeBugSpawnSettings>(), place, place.RequireSpeciesState<BrinstarPipeBugState>(), Frame(new(28, 78)));
             AssertEqual(HorizontalDirection.Left, state.Flight, "Brinstar Pipe Bug flies left of Samus on her left");
             AssertEqual(BrinstarPipeBugAction.WaitForSamus, state.Action, "Brinstar Pipe Bug waits while Samus is 100 pixels away");
-            PipeBugsBehavior.RunBrinstarPipeBugMainAi(place, Frame(new(148, 78)));
+            PipeBugsBehavior.RunBrinstarPipeBugMainAi(place.HeldOccupant().SpawnSettings<BrinstarPipeBugSpawnSettings>(), place, place.RequireSpeciesState<BrinstarPipeBugState>(), Frame(new(148, 78)));
             AssertEqual(HorizontalDirection.Right, state.Flight, "Brinstar Pipe Bug flies right toward Samus on her right");
             AssertEqual(BrinstarPipeBugAction.Emerge, state.Action, "Brinstar Pipe Bug emerges for Samus 20 pixels away");
             AssertEqual(PipeBugSegment.ZebRisingRight, state.Playback.PlayingSegment, "Brinstar Pipe Bug emerges facing right");
@@ -105,7 +105,7 @@ internal static class PipeBugBehaviorVerification
             PipeBugBehaviorExpected[] expected = [new PipeBugBehaviorExpected(0, true), new PipeBugBehaviorExpected(0, false), new PipeBugBehaviorExpected(1, false)];
             for (int update = 0; update < expected.Length; update++)
             {
-                PipeBugsBehavior.RunYellowPipeBugMainAi(place, Frame(new(200, 128)));
+                PipeBugsBehavior.RunYellowPipeBugMainAi(place.HeldOccupant().SpawnSettings<YellowPipeBugSpawnSettings>(), place, place.RequireSpeciesState<YellowPipeBugState>(), Frame(new(200, 128)));
                 AssertEqual(SixteenSixteenWords.ToCoordinate(checked((uint)(128 * onePixel + (update + 1) * (onePixel + onePixel / 2)))), place.Position.X,
                     $"yellow Pipe Bug arc update {update} carries its 16.16 speed");
                 AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected[update].Counter), state.ArcCurvePlace, $"yellow Pipe Bug arc record after update {update}");
@@ -177,7 +177,7 @@ internal static class PipeBugBehaviorVerification
         switch (definition)
         {
             case EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo:
-                PipeBugsBehavior.InitializeBrinstarPipeBug(place);
+                PipeBugsBehavior.InitializeBrinstarPipeBug(place.HeldOccupant().SpawnSettings<BrinstarPipeBugSpawnSettings>(), place);
                 break;
             case EnemyDefinitionId.Gamet:
                 enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place.HeldOccupant(), place);
@@ -330,7 +330,7 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.PirateMagentaWalking:
             case EnemyDefinitionId.PirateSilverWalking:
             default:
-                PipeBugsBehavior.InitializeYellowPipeBug(place);
+                PipeBugsBehavior.InitializeYellowPipeBug(place.HeldOccupant().SpawnSettings<YellowPipeBugSpawnSettings>(), place);
                 break;
         }
     }

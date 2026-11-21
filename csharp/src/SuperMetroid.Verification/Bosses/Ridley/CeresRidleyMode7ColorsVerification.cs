@@ -52,7 +52,7 @@ internal static class CeresRidleyMode7ColorsVerification
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
         // The station's escape shows the floor's zoom (#2228); Ceres Ridley's own colours lay nothing here.
-        var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero);
+        var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres());
         CeresEscape escape = enemies.CeresEscape;
         Action<FloorZoom> select = escape.ShowFloorZoom;
         var visited = new HashSet<int>();

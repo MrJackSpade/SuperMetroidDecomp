@@ -158,7 +158,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 ushort expectedY = unchecked((ushort)(place.Position.Y.Whole - nativeSpeed / 256));
                 nativeSpeed = unchecked((ushort)(nativeSpeed - speedStep));
                 bool riseEnds = unchecked((short)nativeSpeed) < 0;
-                enemies.NinjaSpacePirateBehavior.RunNinjaSpacePirateMainAi(place, frame);
+                enemies.NinjaSpacePirateBehavior.RunNinjaSpacePirateMainAi(place, place.RequireSpeciesState<NinjaSpacePirateEnemyState>(), frame);
                 AssertEqual(expectedY, place.Position.Y.Whole, $"ninja divekick rise update {update} climbs by the speed's whole pixels");
                 if (!riseEnds)
                 {
@@ -239,7 +239,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             place.Radius = new(8, 16);
             place.SetSpawnParameter2(EnemyDefinitionId.PirateSilverNinja, 0x0080);
-            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place);
+            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place.HeldOccupant().SpawnSettings<NinjaSpacePirateSpawnSettings>(), place);
             return new NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, place, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
         }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -18,7 +19,7 @@ internal static class MotherBrainLateFightFixtures
     {
         var body = new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>());
         var brain = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>()) { Health = 3000 };
-        var encounter = new MotherBrainEnemyState(body.BoundFor(EnemyDefinitionId.MotherBrainBody), brain, new MotherBrainWalkCounter(), bursts, new MotherBrainBrainAnimation()) { RainbowPhase = MotherBrainRainbowPhase.StartCharging, DroolGenerationEnabled = true, SmallPurpleBreathGenerationEnabled = true, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
+        var encounter = new MotherBrainEnemyState(body.BoundFor(EnemyDefinitionId.MotherBrainBody), brain, new MotherBrainWalkCounter(), bursts, new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()) { RainbowPhase = MotherBrainRainbowPhase.StartCharging, DroolGenerationEnabled = true, SmallPurpleBreathGenerationEnabled = true, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
         return new MotherBrainRainbowBeamAttackSequence(encounter);
     }
 

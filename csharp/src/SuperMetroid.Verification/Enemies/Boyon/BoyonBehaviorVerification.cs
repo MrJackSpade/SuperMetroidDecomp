@@ -100,7 +100,7 @@ internal static class BoyonBehaviorVerification
         {
             (_, RoomEnemyPlace place, BoyonEnemyState state) = Create(parameter1: (heightSelector << 8) | multiplierSelector);
             SamusState samus = SamusAt(place);
-            BoyonBehavior.RunBoyonMain(place, state, samus);
+            BoyonBehavior.RunBoyonMain(place.HeldOccupant().SpawnSettings<BoyonSpawnSettings>(), place, state, samus);
             int multiplier = SelectorMultipliers[multiplierSelector];
             (int baseline, _) = OriginalBaseline(samples, multiplier, rom.ReadCartridgeWord(0xa286ef + heightSelector * 2));
             string context = $"Boyon with multiplier {multiplier} and height selector {heightSelector}";
@@ -129,7 +129,7 @@ internal static class BoyonBehaviorVerification
                     expected = rising ? BoyonPhase.Landed : BoyonPhase.Falling;
                 }
 
-                BoyonBehavior.RunBoyonMain(place, state, samus);
+                BoyonBehavior.RunBoyonMain(place.HeldOccupant().SpawnSettings<BoyonSpawnSettings>(), place, state, samus);
                 updates++;
                 string at = $"{context}, update {update}";
                 AssertEqual(y, (int)place.Position.Y.Whole, $"{at}: height");

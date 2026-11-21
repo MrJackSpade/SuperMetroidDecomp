@@ -183,7 +183,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                     ? unchecked((short)(angle - 128)) < 0
                     : unchecked((short)(angle - 256)) >= 0;
 
-                enemies.KiHunterBehavior.RunKiHunterBodyMainAi(body, frame);
+                enemies.KiHunterBehavior.RunKiHunterBodyMainAi(body, body.RequireSpeciesState<KiHunterBodyState>(), frame);
                 string side = swoopLeft ? "left" : "right";
                 AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction), SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(state.AngularVelocity.FractionsOfStep),
                     $"KiHunter {side} swoop update {update} angular velocity carries and caps only its whole part");
@@ -203,7 +203,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         CreatePairResult CreatePair()
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace> initializeBody = fixturePlace => enemies.KiHunterBehavior.InitializeKiHunter(fixturePlace);
+            Action<RoomEnemyPlace> initializeBody = fixturePlace => enemies.KiHunterBehavior.InitializeKiHunter(fixturePlace.HeldOccupant().SpawnSettings<KiHunterSpawnSettings>(), fixturePlace);
             Action<RoomEnemyPlace> initializeWings = fixturePlace => enemies.KiHunterBehavior.InitializeKiHunterWings(fixturePlace.HeldOccupant(), fixturePlace);
 
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];

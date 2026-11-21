@@ -76,18 +76,18 @@ internal static void VerifySamusRenderingSlice()
     for (int tick = 0; tick < 9; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     }
     AssertEqual(0, samus.AnimationNumber, "standing frame remains zero for first nine ticks");
     AssertEqual(1, samus.AnimationFrameTimer.RawValue, "standing timer reaches one before advance");
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     AssertEqual(1, samus.AnimationNumber, "standing frame advances on tenth tick");
     AssertEqual(10, samus.AnimationFrameTimer.RawValue, "next standing frame reloads ten ticks");
     for (int tick = 0; tick < 30; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     }
     AssertEqual(0, samus.AnimationNumber, "healthy $F6 command loops standing animation");
 
@@ -98,14 +98,14 @@ internal static void VerifySamusRenderingSlice()
     for (int tick = 0; tick < 40; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     }
     AssertEqual(5, samus.AnimationNumber, "low-health $F6 enters alternate sequence");
     AssertEqual(8, samus.AnimationFrameTimer.RawValue, "low-health sequence uses eight-tick delay");
     for (int tick = 0; tick < 32; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     }
     AssertEqual(5, samus.AnimationNumber, "$FE,$04 loops low-health standing sequence");
 

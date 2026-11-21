@@ -21,7 +21,7 @@ internal static class FirefleaBehaviorVerification
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
         place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
-        FirefleaBehavior.InitializeFireflea(place);
+        FirefleaBehavior.InitializeFireflea(place.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>(), place);
         AssertEqual(new AnimationPlayback<FirefleaSegment>(FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<FirefleaEntity, FirefleaEnemyState>() ?? throw new InvalidOperationException("The Fireflea has no state.")).Playback,
             "Fireflea initializer animation");
         place.AnimationClock.StepOnNextUpdate();
@@ -50,14 +50,14 @@ internal static class FirefleaBehaviorVerification
             place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
             place.Position = place.Position.WithWhole(new(128, 100));
-            FirefleaBehavior.InitializeFireflea(place);
+            FirefleaBehavior.InitializeFireflea(place.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>(), place);
             BobbingFirefleaState state = place.RequireSpeciesState<FirefleaEnemyState>().Flight as BobbingFirefleaState
                 ?? throw new InvalidOperationException("Verification requires a bobbing Fireflea.");
             AssertEqual(92, state.MinimumY, "the upper extent is the spawn Y minus the radius");
             AssertEqual(108, state.MaximumY, "the lower extent is the spawn Y plus the radius");
             place.Position = place.Position.WithWholeY(y);
 
-            FirefleaBehavior.RunFirefleaMainAi(place);
+            FirefleaBehavior.RunFirefleaMainAi(place.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>(), place, place.RequireSpeciesState<FirefleaEnemyState>());
 
             AssertEqual(expectedDirection, state.Direction, $"Fireflea at Y {y} keeps or reverses its way");
         }

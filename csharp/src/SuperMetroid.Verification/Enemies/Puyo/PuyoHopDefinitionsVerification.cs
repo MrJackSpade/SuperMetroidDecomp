@@ -69,7 +69,7 @@ internal static class PuyoHopDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.Puyo, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.Puyo, 5);
-            PuyoBehavior.InitializePuyo(place);
+            PuyoBehavior.InitializePuyo(place.HeldOccupant().SpawnSettings<PuyoSpawnSettings>(), place);
             place.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             place.Radius = RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.Puyo).Radius;
             PuyoEnemyState state = place.RequireSpeciesState<PuyoEnemyState>();

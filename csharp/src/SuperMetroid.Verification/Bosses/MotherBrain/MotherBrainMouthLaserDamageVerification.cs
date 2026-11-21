@@ -28,7 +28,7 @@ internal static class MotherBrainMouthLaserDamageVerification
         bodyPlace.Bind(EnemyDefinitionId.MotherBrainBody, EnemyDefinitionFixtures.Blank with { Damage = BodyDamage });
         RoomEnemyPlace brainPlace = enemies.Places.InUpdateOrder[1];
         brainPlace.Bind(EnemyDefinitionId.MotherBrainHead, EnemyDefinitionFixtures.Blank with { Damage = BrainDamage });
-        var state = new MotherBrainEnemyState(bodyPlace.HeldOccupant(), brainPlace, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+        var state = new MotherBrainEnemyState(bodyPlace.HeldOccupant(), brainPlace, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes());
         enemies.MotherBrainEncounter.BeginAsSetUp(state);
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Laser);
 

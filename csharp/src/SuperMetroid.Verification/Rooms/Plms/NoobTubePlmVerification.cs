@@ -221,7 +221,7 @@ internal static class NoobTubePlmVerification
         Suite(nameof(VerifyNoobTubeProjectileInitializers), () => VerifyNoobTubeProjectileInitializers(bus, level, blockIndex, projectiles));
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "n00b-tube complete break never rereads its program source bytes");
-        Suite(nameof(VerifyAlreadyBrokenNoobTube), () => VerifyAlreadyBrokenNoobTube(bus, level, samus));
+        Suite(nameof(VerifyAlreadyBrokenNoobTube), () => VerifyAlreadyBrokenNoobTube(bus, level, samus, blockIndex));
         Console.WriteLine(
             "  N00b tube: setup, two-stage wake, debris, earthquake, event, water, and reload agree.");
     }
@@ -305,11 +305,15 @@ internal static class NoobTubePlmVerification
             "every burst actor retains the executing PLM block index");
     }
 
-    /// <summary>Confirms event $0B skips every one-shot effect on subsequent room loads.</summary>
+    /// <summary>
+    /// Confirms event $0B skips every one-shot effect on subsequent room loads, and that the
+    /// solid BTS-$44 origin its setup leaves behind still takes shots and bombs (#2592).
+    /// </summary>
     private static void VerifyAlreadyBrokenNoobTube(
         TestAddressSpace bus,
         RoomLevelData level,
-        SamusState samus)
+        SamusState samus,
+        int blockIndex)
     {
         const ushort populationPointer = 0x9400;
         var projectiles = new List<NoobTubeProjectileRequest>();
@@ -335,6 +339,22 @@ internal static class NoobTubePlmVerification
             "event-$0B reload keeps fully submerged movement underwater");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "already-broken n00b-tube branch never rereads program bytes");
+
+        // Setup $84:D6CC writes the solid BTS-$44 origin before the program sees event $0B
+        // and deletes the PLM, so the broken tube's room keeps that block with no running
+        // owner. $84:C7E2 matches the deleted slot's block index and the hit is inert; a
+        // wave beam or bomb reaching the block must not stop the game.
+        AssertEqual(RoomCollisionType.SolidBlock, level.GetCollisionBlockByIndex(blockIndex).CollisionType,
+            "already-broken n00b tube leaves its solid origin block");
+        AssertEqual(RoomBlockBehaviorValues.ResidentPlmProjectileTrigger, level.GetCollisionBlockByIndex(blockIndex).Bts,
+            "already-broken n00b tube leaves its BTS-$44 origin block");
+        AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(blockIndex, 0x0100),
+            "a shot at the deleted tube's origin reaches its slot as $84:C7E2 does");
+        AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(blockIndex, 0x0500),
+            "a bomb at the deleted tube's origin reaches its slot as $84:C7E2 does");
+        AssertEqual(0, plms.SlotTable.ActiveCount, "hits on the deleted tube revive nothing");
+        StepNoobTube(plms, level);
+        AssertEqual(0, projectiles.Count, "hits on the deleted tube spawn no break debris");
     }
 
     /// <summary>Rejects reads from the compiled tube instruction ranges while the fixture runs.</summary>

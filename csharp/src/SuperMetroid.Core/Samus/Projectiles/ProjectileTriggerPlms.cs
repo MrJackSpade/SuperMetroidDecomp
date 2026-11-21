@@ -27,10 +27,14 @@ internal sealed class ProjectileTriggerPlms
         // Native searches physical slots from $4E down to zero and accepts the first
         // matching block regardless of its header. Preserve that generality: reaction
         // PLMs and future translated actors must not be omitted from a family dispatcher.
+        // It compares block indices only, never whether the slot still runs: deletion
+        // clears the ID but keeps the block index, so a PLM that deleted itself after
+        // leaving its BTS-$44 block behind (the already-broken n00b tube) still receives
+        // the hit, and the hit changes nothing because that slot never runs again.
         for (int slotIndex = _slotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
         {
             PlmSlot slot = _slotTable.Slots[slotIndex];
-            if (!slot.Active || slot.BlockIndex != blockIndex)
+            if (slot.BlockIndex != blockIndex)
                 continue;
 
             SamusProjectileTypeWord publishedType = new(

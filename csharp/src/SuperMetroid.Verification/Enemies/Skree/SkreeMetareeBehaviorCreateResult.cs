@@ -11,4 +11,5 @@ namespace SuperMetroid.Verification.Enemies.Skree;
 /// <param name="Third">The third.</param>
 /// <param name="Fourth">The fourth.</param>
 /// <param name="Fifth">The fifth.</param>
+/// <param name="Sixth">The animation step, over the state the species' setup built.</param>
 internal readonly record struct SkreeMetareeBehaviorCreateResult(RoomEnemySystem First, RoomEnemyPlace Second, Func<AnimationPlayback<SkreeMetareeSegment>> Third, Action<SkreeMetareeSegment> Fourth, Func<bool> Fifth, Action Sixth);

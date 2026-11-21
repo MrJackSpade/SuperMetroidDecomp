@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
+using SuperMetroid.Core.Samus;
 using static SuperMetroid.Verification.Areas.Ceres.CeresSteamNativeListAddresses;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Areas.Ceres;

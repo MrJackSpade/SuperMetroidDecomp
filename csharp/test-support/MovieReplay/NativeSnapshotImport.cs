@@ -419,7 +419,7 @@ internal static class NativeSnapshotImport
             {
                 NativeEnemyFamilyStateImport.Import(runtime.Enemies, enemy, words);
                 int extra = NativeSnapshotMemory.EnemyExtra + index * NativeSnapshotMemory.EnemyExtraBytes;
-                NativeEnemyFamilyStateImport.ImportExtraWords(enemy, words, offset => W(extra + offset));
+                NativeEnemyFamilyStateImport.ImportExtraWords(enemy, offset => W(extra + offset));
             }
             // Kraid's head program is typed and kept in the encounter state; the recorded body word is its native cursor,
             // which only this import translates. Before the first attack the word names no head record and the head stays unstarted.

@@ -903,12 +903,11 @@ internal static class NativeEnemyFamilyStateImport
     /// movement (#2531), a Wrecked Ship ghost's watch timers and a Kago's hits left (#2512).
     /// </summary>
     /// <param name="enemy">The imported slot, its record words already imported.</param>
-    /// <param name="words">The enemy's six recorded record words.</param>
     /// <param name="extraWord">The enemy's extra variable word at a byte offset from the start of its extra variables.</param>
-    internal static void ImportExtraWords(RoomEnemyPlace enemy, NativeEnemyRecordWords words, Func<int, ushort> extraWord)
+    internal static void ImportExtraWords(RoomEnemyPlace enemy, Func<int, ushort> extraWord)
     {
         RejectSealedFamily(enemy);
-        ImportFamilyExtraWords(enemy, words, extraWord);
+        ImportFamilyExtraWords(enemy, extraWord);
     }
 
     /// <summary>
@@ -916,6 +915,7 @@ internal static class NativeEnemyFamilyStateImport
     /// nothing outside the enemy, so its recorded words have nowhere to go, and a snapshot holding it cannot be imported.
     /// </summary>
     /// <exception cref="InvalidDataException">The enemy is of such a family.</exception>
+    /// <param name="enemy">The imported slot.</param>
     private static void RejectSealedFamily(RoomEnemyPlace enemy)
     {
         if (enemy.Entity is CeresDoorEntity or CeresElevatorDoorEntity or CeresElevatorRoomWallEntity or CeresGetawayChamberWallEntity
@@ -932,7 +932,9 @@ internal static class NativeEnemyFamilyStateImport
     }
 
     /// <summary>Translates the recorded extra words of the enemy in <paramref name="enemy"/> into its family's state.</summary>
-    private static void ImportFamilyExtraWords(RoomEnemyPlace enemy, NativeEnemyRecordWords words, Func<int, ushort> extraWord)
+    /// <param name="enemy">The imported slot, its record words already imported.</param>
+    /// <param name="extraWord">The enemy's extra variable word at a byte offset from the start of its extra variables.</param>
+    private static void ImportFamilyExtraWords(RoomEnemyPlace enemy, Func<int, ushort> extraWord)
     {
         if (enemy.SpeciesState<KiHunterBodyState>() is { } kiHunterBody)
         {

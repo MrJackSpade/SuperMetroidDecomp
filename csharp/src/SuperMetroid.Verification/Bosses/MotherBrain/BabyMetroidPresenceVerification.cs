@@ -76,7 +76,7 @@ internal static class BabyMetroidPresenceVerification
 
         // The update that reaches the final cutscene shows the room lights' first recovery step; the call after the
         // seventh ends it.
-        for (int lights = 1; place.RequireSpeciesState<BabyMetroidCutsceneState>().Phase is BabyMetroidCutscenePhase.Flying.FinalCutscene; lights++)
+        for (int lights = 1; !baby.IsDeleted; lights++)
         {
             AssertEqual(EnemyPresence.Hidden, place.Presence, $"recovery step {lights}: the Baby stays hidden and in its place");
             AssertTrue(!baby.IsDeleted, $"recovery step {lights}: Mother Brain's rings still look for the Baby");

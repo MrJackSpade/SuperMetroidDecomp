@@ -55,7 +55,7 @@ internal static class BabyMetroidPresenceVerification
             if (frame == 1000)
                 throw new InvalidOperationException("The Baby's fade to black never finished.");
             RunMain(frame);
-            bool flickering = place.RequireSpeciesState<BabyMetroidCutsceneState>().Phase == BabyMetroidCutscenePhase.DeathSequence;
+            bool flickering = baby.Phase == BabyMetroidCutscenePhase.DeathSequence;
             EnemyPresence expected = flickering && frame % 2 == 1 ? EnemyPresence.None : EnemyPresence.Hidden;
             AssertEqual(expected, place.Presence, flickering
                 ? $"enemy frame {frame}: the death's flicker shows the Baby on odd frames and hides it on even"
@@ -75,7 +75,7 @@ internal static class BabyMetroidPresenceVerification
 
         // The update that reaches the final cutscene shows the room lights' first recovery step; the call after the
         // seventh ends it.
-        for (int lights = 1; place.RequireSpeciesState<BabyMetroidCutsceneState>().Phase == BabyMetroidCutscenePhase.FinalCutscene; lights++)
+        for (int lights = 1; baby.Phase == BabyMetroidCutscenePhase.FinalCutscene; lights++)
         {
             AssertEqual(EnemyPresence.Hidden, place.Presence, $"recovery step {lights}: the Baby stays hidden and in its place");
             AssertTrue(!baby.IsDeleted, $"recovery step {lights}: Mother Brain's rings still look for the Baby");

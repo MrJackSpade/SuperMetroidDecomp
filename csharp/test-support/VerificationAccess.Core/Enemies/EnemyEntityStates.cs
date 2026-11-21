@@ -54,8 +54,6 @@ internal static class EnemyEntityStates
             return held18;
         if (entity is global::SuperMetroid.Core.Bosses.Kraid.KraidNailEntity entity19 && entity19.Part is T held19)
             return held19;
-        if (entity is global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneEntity entity20 && entity20.Baby is T held20)
-            return held20;
         if (entity is global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidEntity entity21 && entity21.State is T held21)
             return held21;
         if (entity is global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodyEntity entity22 && entity22.Encounter is T held22)

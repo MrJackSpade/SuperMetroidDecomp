@@ -31,6 +31,27 @@ internal static class RoomObjectFixtures
     private static readonly ConditionalWeakTable<RoomObjectSystem, RoomObjectVisuals>[] visualsByFixture =
         [.. Enumerable.Range(0, 64).Select(_ => new ConditionalWeakTable<RoomObjectSystem, RoomObjectVisuals>())];
 
+    /// <summary>
+    /// The room objects each fixture's enemies reach (Bomb Torizo's hand, Mother Brain's glass), as the room loader hands
+    /// them to the room's enemies, kept in tables chosen as <see cref="visualsByFixture"/>'s are.
+    /// </summary>
+    private static readonly ConditionalWeakTable<RoomObjectSystem, RoomObjectsReachedByEnemies>[] reachedByFixture =
+        [.. Enumerable.Range(0, 64).Select(_ => new ConditionalWeakTable<RoomObjectSystem, RoomObjectsReachedByEnemies>())];
+
+    /// <summary>The table that keeps the room objects <paramref name="fixture"/>'s enemies reach.</summary>
+    private static ConditionalWeakTable<RoomObjectSystem, RoomObjectsReachedByEnemies> ReachedTable(RoomObjectSystem fixture) =>
+        reachedByFixture[(RuntimeHelpers.GetHashCode(fixture) & int.MaxValue) % reachedByFixture.Length];
+
+    /// <summary>
+    /// The room objects <paramref name="fixture"/>'s enemies reach, as the room's enemy services reach them: a check reads
+    /// Bomb Torizo's hand and counts head shots on Mother Brain's glass there, as her head and his AI do.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The system was not built by these fixtures.</exception>
+    internal static RoomObjectsReachedByEnemies ReachedByEnemiesOf(RoomObjectSystem fixture) =>
+        ReachedTable(fixture).TryGetValue(fixture, out RoomObjectsReachedByEnemies? reached)
+            ? reached
+            : throw new InvalidOperationException("The PLM system was not built by RoomObjectFixtures.");
+
     /// <summary>The table that keeps <paramref name="fixture"/>'s artwork.</summary>
     private static ConditionalWeakTable<RoomObjectSystem, RoomObjectVisuals> VisualsTable(RoomObjectSystem fixture) =>
         visualsByFixture[(RuntimeHelpers.GetHashCode(fixture) & int.MaxValue) % visualsByFixture.Length];
@@ -64,8 +85,10 @@ internal static class RoomObjectFixtures
         var visuals = new RoomObjectVisuals(artwork);
         var room = (RoomObjectRoom)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectRoom));
         var services = (RoomObjectServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectServices));
-        var roomObjects = new RoomObjectSystem(room, services, ReachedByEnemies(services), visuals, new CollectibleBlockPairs(), ShotCapClosing(), UnspawnedThrows);
+        RoomObjectsReachedByEnemies reached = ReachedByEnemies(services);
+        var roomObjects = new RoomObjectSystem(room, services, reached, visuals, new CollectibleBlockPairs(), ShotCapClosing(), UnspawnedThrows);
         VisualsTable(roomObjects).Add(roomObjects, visuals);
+        ReachedTable(roomObjects).Add(roomObjects, reached);
         return roomObjects;
     }
 
@@ -100,8 +123,10 @@ internal static class RoomObjectFixtures
     internal static RoomObjectSystem Bound(RoomObjectRoom room, RoomObjectServices services, RoomObjectSystem fixture)
     {
         RoomObjectVisuals visuals = VisualsOf(fixture);
-        var roomObjects = new RoomObjectSystem(room, services, ReachedByEnemies(services), visuals, new CollectibleBlockPairs(), ShotCapClosing(), UnspawnedThrows);
+        RoomObjectsReachedByEnemies reached = ReachedByEnemies(services);
+        var roomObjects = new RoomObjectSystem(room, services, reached, visuals, new CollectibleBlockPairs(), ShotCapClosing(), UnspawnedThrows);
         VisualsTable(roomObjects).Add(roomObjects, visuals);
+        ReachedTable(roomObjects).Add(roomObjects, reached);
         return roomObjects;
     }
 

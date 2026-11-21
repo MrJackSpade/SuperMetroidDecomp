@@ -470,7 +470,9 @@ internal static class RoomBlockPicturesVerification
                     int expected = word.PaletteIndex * 4 + colour;
                     if (ShownRow(shownArtwork, cellY + y, transferPixels) is not ({ } shownPage, int row))
                         continue;
-                    var at = new Position16<ImagePixels>((cellX + x) % (shownPage.Size ?? throw new InvalidOperationException($"{room.Name}: an effect picture installs neither part.")).X, row);
+                    if (!shownPage.ShowsSomething(out Extent16<ImagePixels> shownSize))
+                        throw new InvalidOperationException($"{room.Name}: an effect picture installs neither part.");
+                    var at = new Position16<ImagePixels>((cellX + x) % shownSize.X, row);
                     // The message names the character's picture, which costs a lookup, so it is built only for a failing pixel.
                     if (!PaintsTwoBitInPart(shownPage, at, expected, word.PaletteIndex * 4, word.HasPriority))
                     {

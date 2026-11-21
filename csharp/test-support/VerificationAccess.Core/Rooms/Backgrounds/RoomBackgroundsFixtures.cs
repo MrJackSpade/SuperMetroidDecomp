@@ -192,7 +192,7 @@ internal static class RoomBackgroundsFixtures
     /// </summary>
     private static void Tile(List<ShownBossBodyPart> parts, LayeredPicture picture, Position16<BackgroundPixels> corner, int width, int height)
     {
-        if (picture.Size is not { } size)
+        if (!picture.ShowsSomething(out Extent16<ImagePixels> size))
             return;
         for (int y = 0; y < height; y += size.Y)
         for (int x = 0; x < width; x += size.X)

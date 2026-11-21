@@ -70,7 +70,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             "Mother Brain Baby physical definition");
         AssertEqual(population, baby.HeldOccupant().Spawn,
             "Mother Brain Baby retained population snapshot");
-        AssertTrue(ReferenceEquals(madeBaby, baby.SpeciesState<BabyMetroidCutsceneState>()),
+        AssertTrue(baby.Entity is BabyMetroidCutsceneEntity,
             "Mother Brain Baby's place holds the Baby its late fight made");
         AssertEqual(3, enemies.Places.EnemyCount,
             "Mother Brain Baby extended physical enemy high-water mark");

@@ -83,16 +83,33 @@ internal static class EnemySheetFixtures
     /// <paramref name="shown"/> (#1538): the room load's characters with every look of each up to the one shown copied in
     /// order, from the installation's artwork, which a frame's picture of those looks paints like.
     /// </summary>
-    internal static SpriteArtwork LivePage(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterLook> shown) =>
-        Characters(set).Page(shown);
+    /// <remarks>
+    /// The room load's characters are those the import pictures a frame reading the whole table in, drawn in no look of its
+    /// own (<see cref="SetCharacters.Pictures"/>); each shown look's copies are the import's own for its encounter
+    /// (<see cref="EncounterLookUploads.Steps"/>).
+    /// </remarks>
+    /// <exception cref="InvalidDataException">A look is of an encounter the set's members do not play.</exception>
+    internal static SpriteArtwork LivePage(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterLook> shown)
+    {
+        ArgumentNullException.ThrowIfNull(shown);
+        FramePictures loaded = Characters(set).Pictures("whole table", WholeTable, FrameDrawings.None);
+        byte[] page = loaded.Sources.Single().Characters.Characters[..SpriteCharacterTableLayout.TableByteCount].ToArray();
+        IReadOnlyList<ComposedEncounter> played = EncounterLookUploads.Of(
+            RoomEnemyGraphicsSetLists.MembersOf(set, FixtureGraphicsSetMembers.CatalogueFor(set)));
+        foreach (EncounterLook look in shown)
+        {
+            ComposedEncounter[] showing = [.. played.Where(candidate => EncounterLookUploads.ShownAs(candidate) == look.Encounter)];
+            ComposedEncounter encounter = showing.Length != 0 ? showing[0]
+                : throw new InvalidDataException($"The set's members play no encounter that shows {look}.");
+            foreach (EncounterArtworkUpload upload in EncounterLookUploads.Steps(encounter, inputs.Value).CopiesThrough(ComposedLook.Of(encounter, look)))
+                upload.ApplyTo(page);
+        }
+        return ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), page);
+    }
 
-    /// <summary>
-    /// The OBJ characters graphics set <paramref name="set"/> leaves once <paramref name="encounter"/> shows its look at
-    /// <paramref name="look"/> (#1538), whose looks gameplay may never show: the room load's characters with every look up
-    /// to it copied in order, which a frame drawn in that look paints like.
-    /// </summary>
-    internal static SpriteArtwork LivePage(RoomEnemyGraphicsSetDefinition set, ComposedEncounter encounter, int look) =>
-        Characters(set).Page(encounter, look);
+    /// <summary>A frame reading every character of the OBJ character table: eight 64-pixel squares, two across each quarter.</summary>
+    private static readonly SpriteFrame WholeTable = new("whole table", [.. new[] { 0, 8, 128, 136, 256, 264, 384, 392 }.Select(character =>
+        new SpriteFramePart(new(0, 0), new(64, 64), character, PictureFlip.None, Palette: null, Depth: null))]);
 
     /// <summary>The characters the import composes graphics set <paramref name="set"/>'s pictures from, composed once.</summary>
     private static SetCharacters Characters(RoomEnemyGraphicsSetDefinition set)

@@ -68,7 +68,6 @@ global using static SuperMetroid.AssetExtraction.Enemies.GunshipLiftoffArtworkCa
 global using static SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetListsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetMemberPrivateAccess;
-global using static SuperMetroid.AssetExtraction.Enemies.SetCharactersPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.Cinematics.CinematicSpritemapSourceDefinitionsPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCloudSpritePresentationPrivateAccess;
 global using static SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCompletionTextSpritePresentationPrivateAccess;

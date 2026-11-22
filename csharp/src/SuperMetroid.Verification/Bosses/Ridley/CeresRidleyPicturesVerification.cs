@@ -52,7 +52,13 @@ internal static class CeresRidleyPicturesVerification
         ShownRoomWarning shown = runtime.Display.LatchedOrdinaryRoom.Rooms.Warning
             ?? throw new InvalidOperationException("The displayed frame shows no warning over BG1.");
         BgTilePicture?[] shownCells = TwoScreenTilemapCells.Lay(shown.Pictures);
-        ReadOnlySpan<byte> page = EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet, UploadedPictureChecks.Shown(runtime)).Characters;
+        // The warning's words read only the characters its look copies over the table, as the import composes that look.
+        byte[] page = new byte[SuperMetroid.AssetExtraction.Enemies.SpriteCharacterTableLayout.TableByteCount];
+        var warning = SuperMetroid.AssetExtraction.Enemies.ComposedLook.Of(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape,
+            SuperMetroid.Core.Areas.Ceres.CeresEscapeWarningLookDefinitions.WarningLook);
+        foreach (SuperMetroid.AssetExtraction.Enemies.EncounterArtworkUpload upload in SuperMetroid.AssetExtraction.Enemies.EncounterLookUploads
+            .Steps(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape, EnemySheetFixtures.Inputs).CopiesOf(warning))
+            upload.ApplyTo(page);
         int written = 0;
         for (int index = 0; index < TwoScreenTilemapCells.Count; index++)
         {

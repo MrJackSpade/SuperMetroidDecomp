@@ -348,6 +348,9 @@ internal static class SymbolRemover
     /// <item>a parameter something else reads (its base call, a member's initializer) lives on, and when no surviving member
     /// keeps it, the removed members that keep it (<see cref="Keeps"/>) stay, which removes nothing the
     /// type needs. A parameter a member's code captures keeps itself.</item>
+    /// <item>an attribute's parameters are read from the metadata of its applications (a source generator reads
+    /// <c>[GeneratedText("file")]</c>'s argument), so they stay with the members keeping them, whatever source reads
+    /// them.</item>
     /// </list>
     /// The cleanup of 67a5170535 removed the members keeping Draygon's steps' <c>phase</c>, which their base calls read, and
     /// fifteen more, and none of them compiled (SME6492).
@@ -381,7 +384,8 @@ internal static class SymbolRemover
                     if (!reads.Any(InRemoved))
                         continue;
                     var liveReads = reads.Where(read => !InRemoved(read)).ToList();
-                    if (liveReads.Count == 0)
+                    bool attribute = IsAttribute(type);
+                    if (liveReads.Count == 0 && !attribute)
                     {
                         For(tree).Nodes.Add(parameter);
                         For(tree).DocumentedParameters.Add(new RecordParameter(declaration.Identifier.Text, symbol.Name));
@@ -395,7 +399,7 @@ internal static class SymbolRemover
                         continue;
                     }
                     // The parameter lives on: a member keeps it unless only removed members do.
-                    if (reads.Any(read => IsCapture(read)) ||
+                    if (!attribute && reads.Any(read => !InRemoved(read) && IsCapture(read)) ||
                         type.GetMembers().Any(member => !removedMembers.Any(removed => SymbolEqualityComparer.Default.Equals(removed.Member, member)) &&
                             Keeps(member, symbol, compilation)))
                         continue;
@@ -403,13 +407,25 @@ internal static class SymbolRemover
                     {
                         if (identity.Key(SymbolIdentity.Normalize(member)) is not { } key || !kept.Add(key))
                             continue;
-                        Console.WriteLine($"Kept {type.ToDisplayString()}.{member.Name}: it keeps the parameter {symbol.Name}, which " +
-                            "the type still reads, so a debugger state can rebuild it through its primary constructor (SME6492)");
+                        Console.WriteLine(attribute
+                            ? $"Kept {type.ToDisplayString()}.{member.Name}: it keeps the parameter {symbol.Name} of an attribute, whose " +
+                                "arguments are read from its applications' metadata"
+                            : $"Kept {type.ToDisplayString()}.{member.Name}: it keeps the parameter {symbol.Name}, which " +
+                                "the type still reads, so a debugger state can rebuild it through its primary constructor (SME6492)");
                     }
                 }
             }
         }
         targets.ExceptWith(kept);
+    }
+
+    /// <summary>Whether <paramref name="type"/> is an attribute.</summary>
+    private static bool IsAttribute(INamedTypeSymbol type)
+    {
+        for (INamedTypeSymbol? current = type.BaseType; current is not null; current = current.BaseType)
+            if (current.ToDisplayString() == "System.Attribute")
+                return true;
+        return false;
     }
 
     /// <summary>Whether a parameter read is a capture: a read in a member's code, not in an initializer or the base call.</summary>

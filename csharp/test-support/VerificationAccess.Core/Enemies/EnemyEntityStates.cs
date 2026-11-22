@@ -86,6 +86,8 @@ internal static class EnemyEntityStates
             return held67c;
         if (entity is global::SuperMetroid.Core.Enemies.Gunship.GunshipTopEntity entity67d && entity67d.State.Pieces is T held67d)
             return held67d;
+        if (entity is global::SuperMetroid.Core.Enemies.KiHunters.KiHunterBodyEntity entity72 && entity72.State is T held72)
+            return held72;
         if (entity is global::SuperMetroid.Core.Enemies.KiHunters.KiHunterWingsEntity entity73 && entity73.State is T held73)
             return held73;
         if (entity is global::SuperMetroid.Core.Enemies.LavaJumpers.SqueeptEntity entity76 && entity76.State is T held76)
@@ -112,6 +114,8 @@ internal static class EnemyEntityStates
             return held104;
         if (entity is global::SuperMetroid.Core.Enemies.Ripper.RipperEntity entity107 && entity107.State is T held107)
             return held107;
+        if (entity is global::SuperMetroid.Core.Enemies.Sbug.SbugEntity entity109 && entity109.State is T held109)
+            return held109;
         if (entity is global::SuperMetroid.Core.Enemies.Shutters.VerticalShutterEntity entity111 && entity111.State is T held111)
             return held111;
         return null;

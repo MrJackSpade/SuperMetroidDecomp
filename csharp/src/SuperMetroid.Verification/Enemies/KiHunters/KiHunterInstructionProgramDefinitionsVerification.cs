@@ -204,23 +204,16 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
-            RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            body.Bind(EnemyDefinitionId.KihunterGreen, body.KeptDefinition);
-            body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-            // The header's collision half-extents: the terrain movers scan the rows the body spans.
-            body.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.KihunterGreen).Radius;
-            body.Position = body.Position.WithWhole(new(0x0080, 0x0080));
-            RoomEnemyPlace wings = enemies.Places.InUpdateOrder[1];
-            wings.Bind(EnemyDefinitionId.KihunterGreenWings, wings.KeptDefinition);
-            wings.Bind(wings.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-            // A winged pair's population entries, as the room load gives them: the body keeps its wings, and the wing
-            // entry's detachment health is never reached by these unhurt programs.
-            body.SetSpawnSettings(new KiHunterSpawnSettings(KiHunterWings.Winged));
-            wings.SetSpawnSettings(new KiHunterWingsSpawnSettings(DetachHealth: 0));
-            // The body is set up as its room's population sets it up, offering its wings, which are set up after it; its
-            // setup, run again, builds the state the body's steps and its animation, which the check plays, run on.
-            _ = enemies.LoadAuthoredPopulation();
-            KiHunterBodyState bodyState = enemies.KiHunterBehavior.InitializeKiHunter(body.HeldOccupant().SpawnSettings<KiHunterSpawnSettings>(), body);
+            // A winged pair set up as its room's population sets it up (#2554): the body keeps its wings and offers them to
+            // the wing entry listed after it, whose detachment health these unhurt programs never reach.
+            Position16<RoomPixels> at = new(0x0080, 0x0080);
+            IReadOnlyList<RoomEnemyPlace> places = enemies.LoadPopulation(
+                PopulationPlacementAccess.Entry(EnemyDefinitionId.KihunterGreen, new KiHunterSpawnSettings(KiHunterWings.Winged), at),
+                PopulationPlacementAccess.Entry(EnemyDefinitionId.KihunterGreenWings, new KiHunterWingsSpawnSettings(DetachHealth: 0), at));
+            RoomEnemyPlace body = places[0];
+            RoomEnemyPlace wings = places[1];
+            // The state the body's setup built, which its steps and its animation, which the check plays, run on.
+            KiHunterBodyState bodyState = body.RequireSpeciesState<KiHunterBodyState>();
             return new CreatePairResult(enemies, body, wings,
                 bodyState, (enemies.KiHunterWingStates[1] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter wing state.")));
         }

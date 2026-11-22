@@ -19,13 +19,6 @@ internal static class SbugMovementDefinitionsVerification
         const int instructionTable = 0xa3a111;
         const int activationTable = 0xa3a121;
 
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Func<RoomEnemyPlace, SbugEnemyState> initialize = fixturePlace => SbugBehavior.InitializeSbug(fixturePlace.HeldOccupant().SpawnSettings<SbugSpawnSettings>(), fixturePlace);
-        Action<RoomEnemyPlace, SbugEnemyState, SamusState> runMain = (fixturePlace, fixtureState, fixtureSamus) =>
-            SbugBehavior.RunSbugMainAi(fixturePlace.HeldOccupant().SpawnSettings<SbugSpawnSettings>(), fixturePlace, fixtureState, PlacedEnemyAccess.AiFrame(fixtureSamus));
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Sbug, place.KeptDefinition);
-
         for (int facing = 0; facing < 8; facing++)
         {
             int address = instructionTable + facing * 2;
@@ -56,9 +49,8 @@ internal static class SbugMovementDefinitionsVerification
         for (ushort selector = 0; selector < 8; selector++)
         {
             byte angle = unchecked((byte)(0x30 + selector * 0x20));
-            place.SetSpawnParameter1(EnemyDefinitionId.Sbug, (ushort)(angle << 8 | 1));
-            place.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
-            SbugEnemyState state = initialize(place);
+            RoomEnemyPlace place = PlaceSbug(angle << 8 | 1, 1, Position16<RoomPixels>.Zero);
+            SbugEnemyState state = place.RequireSpeciesState<SbugEnemyState>();
 
             ushort native = rom.ReadCartridgeWord(instructionTable + selector * 2);
             CompassDirection forward = SbugBehavior.ForwardLeg(place.HeldOccupant().SpawnSettings<SbugSpawnSettings>()).Facing;
@@ -78,15 +70,14 @@ internal static class SbugMovementDefinitionsVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
         };
-        place.Position = place.Position.WithWhole(samus.Position.Whole);
         foreach (int behavior in AuthoredActivationSelectors)
         {
-            // The Sbug takes its activation behaviour from its placement when it is placed (#2063).
-            place.SetSpawnParameter2(EnemyDefinitionId.Sbug, (ushort)(behavior << 8 | 1));
-            SbugEnemyState state = initialize(place);
-            place.Position = place.Position.WithWhole(samus.Position.Whole);
-            state.Action = SbugAction.WaitForSamus;
-            runMain(place, state, samus);
+            // The Sbug takes its activation behaviour from its placement when it is placed (#2063), and waits for Samus,
+            // who stands where it is placed.
+            RoomEnemyPlace place = PlaceSbug(0x10 << 8 | 1, behavior << 8 | 1, samus.Position.Whole);
+            SbugEnemyState state = place.RequireSpeciesState<SbugEnemyState>();
+            AssertEqual(SbugAction.WaitForSamus, state.Action, $"Sbug placed with activation {behavior} waits for Samus");
+            place.RunMainAi(samus);
 
             int address = activationTable + behavior * 2;
             var native = SbugNativeWords.SbugActions.Decode(rom.ReadCartridgeWord(address), "Sbug activation function");
@@ -98,6 +89,18 @@ internal static class SbugMovementDefinitionsVerification
             "with the selector tables forbidden.");
     }
 
+
+    /// <summary>
+    /// An Sbug whose population entry's parameters are <paramref name="parameter1"/> and <paramref name="parameter2"/>,
+    /// placed at <paramref name="at"/> as its room's population sets it up (#2554), each in a room of its own.
+    /// </summary>
+    private static RoomEnemyPlace PlaceSbug(int parameter1, int parameter2, Position16<RoomPixels> at)
+    {
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        return enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Sbug,
+            SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Sbug,
+                SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(parameter1, parameter2)), at))[0];
+    }
 
     /// <summary>
     /// The activation selectors the game's rooms place Sbugs with: forward, zigzag and forward-then-wait, the first, second

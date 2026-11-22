@@ -48,18 +48,23 @@ internal static class CeresDoorInitializationDefinitionsVerification
             AssertEqual(1, place.AnimationClock.Hold,
                 $"production Ceres {actor} {settings} instruction timer");
             // The cartridge's instruction list names the animation the actor starts; the actor shows that animation's first
-            // picture on its next animation step (#2424).
+            // picture on its next animation step (#2424), and a wall whose animation shows none, being unseen, shows none.
             ushort list = rom.ReadCartridgeWord(instructionTable + selector * 2);
-            EnemyFrameId[] firstPictures = [.. CeresDoorNativeListAddresses.EntriesBySide
+            EnemyFrameId?[] firstPictures = [.. CeresDoorNativeListAddresses.EntriesBySide
                 .SelectMany(side => CeresDoorAnimationsConstants.StartingAt(side.Key).Keys
                     .Where(segment => NativeEnemyAnimationOracle.EntryOf(side.Value, segment) == list)
-                    .Select(segment => CeresDoorAnimations.Segments(side.Key).FirstFrameShown(CeresDoorAnimations.StartingWith(side.Key, segment))))
+                    .Select(segment => FirstPicture(side.Key, segment)))
                 .Distinct()];
             AssertEqual(1, firstPictures.Length, $"Ceres instruction selector {selector} names one animation's first picture");
             place.AdvanceAnimation(RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(firstPictures[0], place.Frame,
                 $"production Ceres {actor} {settings} animation, instruction selector {selector}");
         }
+
+        // The first picture one play of the animation starting at the segment shows, or none for one that shows none.
+        static EnemyFrameId? FirstPicture(HorizontalDirection side, CeresDoorSegment segment) =>
+            CeresDoorAnimations.Segments(side).PlayedBeats(CeresDoorAnimations.StartingWith(side, segment))
+                .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>().Select(frame => (EnemyFrameId?)frame).FirstOrDefault();
 
         AssertThrows<InvalidDataException>(
             () => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(7),

@@ -26,11 +26,37 @@ internal static class RoomEnemyPlaceInitializationAccess
         {
             PopulationEnemySpawn spawn = EnemyPlaceRegistries.Of(self).Bind(self.HeldOccupant().Spawn);
             RoomEnemyOccupant occupant = self.Bind(spawn, self.KeptDefinition);
-            var surroundings = new EnemyPopulationSurroundings(level, samus, GameplayAction.None, default);
-            EnemyOccupant built = self.Build(occupant, spawn.Loaded(surroundings));
-            built.Initialization?.Initialize();
-            built.SurroundingsInitialization?.Initialize(surroundings);
+            SetUp(occupant, spawn, samus, level);
         }
+
+        /// <summary>
+        /// Sets the enemy the place holds up as the population load does once it has bound it and given it its entry's
+        /// position, contact, processing and presence (#2554): its entry is bound to its species' creation through the
+        /// place's registry, its species builds its entity in the place as it stands, and the entity runs its setup with
+        /// <paramref name="samus"/> in a room whose terrain is <paramref name="level"/>.
+        /// </summary>
+        internal void SetUpAsLoaded(SamusState samus, RoomLevelData level)
+        {
+            RoomEnemyOccupant occupant = self.HeldOccupant();
+            SetUp(occupant, EnemyPlaceRegistries.Of(self).Bind(occupant.Spawn), samus, level);
+        }
+    }
+
+    /// <summary>
+    /// Builds <paramref name="occupant"/>'s entity through <paramref name="spawn"/> and runs its setup, as the population
+    /// load sets up an enemy it has placed.
+    /// </summary>
+    private static void SetUp(RoomEnemyOccupant occupant, PopulationEnemySpawn spawn, SamusState samus, RoomLevelData level)
+    {
+        var surroundings = new EnemyPopulationSurroundings(level, samus, GameplayAction.None, default);
+        EnemyOccupant built = occupant.Place.Build(occupant, spawn.Loaded(surroundings));
+        built.Initialization?.Initialize();
+        built.SurroundingsInitialization?.Initialize(surroundings);
+    }
+
+    /// <summary>Verification placing of an enemy as a room load places it.</summary>
+    extension(RoomEnemyPlace self)
+    {
 
         /// <summary>
         /// Sets the slot's enemy up as the population load does, with a lone Samus (<see cref="InitializeAsPlaced"/>), so its

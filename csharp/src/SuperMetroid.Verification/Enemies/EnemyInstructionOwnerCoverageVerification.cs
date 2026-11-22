@@ -173,7 +173,8 @@ internal static class EnemyInstructionOwnerCoverageVerification
             bool translatedRecord = true;
             try
             {
-                EnemyLifecycle.SetUpEnemy(place, new EnemyPopulationSurroundings(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), GameplayAction.None, default));
+                // The population load sets the enemy up as it stands (#2554): its species builds its entity, which runs its setup.
+                place.SetUpAsLoaded(InstalledFixtures.CreateSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
             }
             catch (Exception exception)
                 when (IsUntranslatedEnemyInitializer(

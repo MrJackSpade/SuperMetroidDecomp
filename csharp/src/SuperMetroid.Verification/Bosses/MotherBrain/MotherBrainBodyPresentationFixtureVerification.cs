@@ -42,10 +42,12 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             // She draws under the retail graphics set her room loads, whose sheets hold her frames, at the tile base and
             // palette row it gives her (#1459).
             SpawnedObjectFixtures.LoadSetDrawing(Inner.Enemies, EnemyDefinitionId.MotherBrainBody, Body);
-            // Her phase-two transition attaches the body layer her body draws on (#1356, #1466), showing her blank. Her
-            // body draws from sheets composed from the fixture's own frames, as an installation of them would hold.
+            // Her phase-two transition reveals the body layer her setup attached, which her body draws on (#1356, #1466),
+            // showing her blank. Her body draws from sheets composed from the fixture's own frames, as an installation of
+            // them would hold.
             bodies = BossBodySheetFixtures.For(artwork.Bosses, BossBodyOwner.MotherBrain);
             Inner.Enemies.BossArtworkBinding.BodySheets = Sheets;
+            State.BodyParts.Reveal();
             ClearBg2();
             Inner.Enemies.Drawing.Enqueue(Body, reached: true);
             instructions = new Action<RoomEnemyPlace, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
@@ -88,7 +90,10 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal OamBuffer Draw() => Inner.Draw();
         /// <summary>Runs the fixture's production enemy drawing path once, publishing into <paramref name="frame"/>.</summary>
         internal void DrawInto(SpriteFrameBuffer frame) => Inner.DrawInto(frame);
-        /// <summary>Attaches a fresh body showing nothing, as her phase-two transition reveals it, before checking fresh publication.</summary>
-        internal void ClearBg2() => Inner.Enemies.Presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.MotherBrain, showing: null));
+        /// <summary>
+        /// Clears the body her setup attached, which her phase-two transition reveals showing nothing, before checking fresh
+        /// publication.
+        /// </summary>
+        internal void ClearBg2() => State.BodyParts.Clear();
     }
 }

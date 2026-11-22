@@ -22,16 +22,21 @@ internal static class PhantoonPatternsVerification
             AssertEqual((ushort)0, rom.ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
             AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), placement.FirstColumn.Place, "Native first rain column");
         }
+        // His four parts as his room's population sets them up; the encounter is the one his body's setup began. He hides for
+        // each rain in turn, his last rain's flames gone before the next.
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        PhantoonEnemyState state = enemies.PlacePhantoon();
+        RoomEnemyPlace body = state.Body;
+        ushort random = 0;
+        int calls = 0;
+        enemies.VerificationServices().NextRandom = () => { calls++; return random; };
         for (int high = 0; high < 256; high++)
         for (int pattern = 0; pattern < 8; pattern++)
         {
-            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            // His four parts as his room's population sets them up; the encounter is the one his body's setup began.
-            PhantoonEnemyState state = enemies.PlacePhantoon();
-            RoomEnemyPlace body = state.Body;
-            ushort random = LittleEndianBytes.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
-            int calls = 0;
-            enemies.VerificationServices().NextRandom = () => { calls++; return random; };
+            foreach (EnemyProjectile flame in enemies.Projectiles.EnemyProjectiles.Where(p => p.IsActive))
+                flame.Delete();
+            random = LittleEndianBytes.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
+            calls = 0;
             state.PhaseWait.LastFor(1);
             state.FigureEight.Direction = PhantoonPathDirection.Backwards;
             enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain(body.HeldOccupant(), body, state);

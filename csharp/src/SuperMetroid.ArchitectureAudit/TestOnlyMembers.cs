@@ -1,7 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.ReachabilityAudit.Analysis;
 using SuperMetroid.ReachabilityAudit.Declarations;
 using SuperMetroid.ReachabilityAudit.SolutionLoading;

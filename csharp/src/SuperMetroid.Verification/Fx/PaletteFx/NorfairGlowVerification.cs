@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
-using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationOracles;
 
 namespace SuperMetroid.Verification.Fx.PaletteFx;

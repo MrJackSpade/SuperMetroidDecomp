@@ -120,7 +120,7 @@ public static partial class SamusInsideBlockReactions
         ref SignedSixteenSixteen displacement,
         bool observes = false)
     {
-        RoomLevelData level = terrain.Level;
+        _ = terrain.Level;
         ISamusRoomObjects roomObjects = terrain.RoomObjects;
         SamusKinematicsState body = contact.Body;
         RoomCollisionBlock block = reached.Block;

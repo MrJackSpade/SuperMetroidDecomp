@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.Doors;
 

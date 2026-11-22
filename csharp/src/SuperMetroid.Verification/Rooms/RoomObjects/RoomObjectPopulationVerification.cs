@@ -192,10 +192,10 @@ internal static class RoomObjectPopulationVerification
             const ushort population = 0x9000;
             byte blockX = (byte)(1 + definitionIndex % 4);
             byte blockY = (byte)(1 + definitionIndex / 4);
-            var decoded = new global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation($"$8F:{population:X4}", (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)([
+            var decoded = new global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation($"$8F:{population:X4}", [
                 RoomObjectPlacementAccess.Placed(header,
                     new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(header, 0x8000)), // Negative argument always closes.
-            ]));
+            ]);
 
             RoomLevelData level = CreateRoom(new(8, 8),
                 new RoomTerrainBlock[64],
@@ -761,7 +761,6 @@ internal static class RoomObjectPopulationVerification
     private static void VerifyNativeOutOfBoundsPopulationSetupOrder()
     {
         const ushort population = 0x96c0;
-        const ushort malformedPopulation = 0x96e0;
         const int width = 16;
         const int height = 32;
         const int offRoomX = 1;
@@ -769,13 +768,13 @@ internal static class RoomObjectPopulationVerification
         const int inRoomX = 2;
         const int inRoomY = 2;
 
-        var decoded = new global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation($"$8F:{population:X4}", (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)([
+        var decoded = new global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation($"$8F:{population:X4}", [
             RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingRight,
                 new(offRoomX, offRoomY), new DoorLock(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent))
             with { Site = RoomObjectSite.OffTheRoom },
             RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingLeft,
                 new(inRoomX, inRoomY), new DoorLock(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x28), DoorOpeningPersistence.Persistent)),
-        ]));
+        ]);
 
         RoomLevelData level = CreateRoom(new(width, height),
             new RoomTerrainBlock[width * height],
@@ -805,10 +804,10 @@ internal static class RoomObjectPopulationVerification
 
         // The import decodes each placement to the block it occupies (#2034): one off the grid that it did not decode as off
         // the room is refused, and one decoded off the room must lie past the grid.
-        var undecoded = new global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation("undecoded off-room door", (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)([
+        var undecoded = new global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation("undecoded off-room door", [
             RoomObjectPlacementAccess.Placed(RoomObjectKind.GreenDoorFacingRight,
                 new(offRoomX, offRoomY), new DoorLock(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent)),
-        ]));
+        ]);
         AssertThrows<InvalidDataException>(
             () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), undecoded, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "a grid placement off the grid is refused");

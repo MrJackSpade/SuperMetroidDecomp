@@ -4,7 +4,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.World;
 
 using SuperMetroid.Core;
-using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Ridley;
 
 namespace SuperMetroid.Verification.Harness;

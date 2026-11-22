@@ -6,7 +6,6 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

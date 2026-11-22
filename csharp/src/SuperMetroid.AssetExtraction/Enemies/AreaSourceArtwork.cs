@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
-using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 

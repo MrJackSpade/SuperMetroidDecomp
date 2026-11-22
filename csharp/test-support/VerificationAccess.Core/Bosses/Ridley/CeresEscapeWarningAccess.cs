@@ -1,9 +1,6 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Runtime.CompilerServices;
-using SuperMetroid.Core.Escape;
-using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 

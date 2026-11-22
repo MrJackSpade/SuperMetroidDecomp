@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;

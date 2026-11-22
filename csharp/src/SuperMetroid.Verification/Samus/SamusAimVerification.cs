@@ -250,9 +250,9 @@ internal static void VerifySamusAimedAerialMovement()
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     AssertEqual(19, samus.Kinematics.Radius.Y, "next alpha publishes aimed jump radius");
     ushort launchY = samus.Position.Y.Whole;
-    AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
+        _ = SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping,
 SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Jump, frameCounter: 0);
-    AssertEqual(launchY, samus.Position.Y.Whole, "aimed transition frame does not move vertically");
+        AssertEqual(launchY, samus.Position.Y.Whole, "aimed transition frame does not move vertically");
 
     SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "aimed transition FD applies");

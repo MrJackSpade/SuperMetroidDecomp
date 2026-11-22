@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.FaceBlocks;

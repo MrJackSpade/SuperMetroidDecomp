@@ -31,9 +31,3 @@ public abstract partial record ColourEffectCue
         internal override void React<TContext>(ColourEffectCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).PublishHeatPhase(this, context);
     }
 }
-
-/// <summary>What the owner of a <see cref="ColourEffectCue"/> does on each of its cases (#2553).</summary>
-/// <param name="QueueSound">Reacts to a <see cref="ColourEffectCue.QueueSound"/>.</param>
-/// <param name="PublishHeatPhase">Reacts to a <see cref="ColourEffectCue.PublishHeatPhase"/>.</param>
-/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-public sealed partial record ColourEffectCueReactions<TContext>(Action<ColourEffectCue.QueueSound, TContext> QueueSound, Action<ColourEffectCue.PublishHeatPhase, TContext> PublishHeatPhase);

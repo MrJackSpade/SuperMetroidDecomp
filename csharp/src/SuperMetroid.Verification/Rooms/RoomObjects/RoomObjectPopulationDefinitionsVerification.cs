@@ -14,9 +14,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
-
-using SuperMetroid.Verification.Harness;
-
 /// <summary>Checks compiled room PLM populations, header metadata, scroll programs, and collectible uploads against ROM.</summary>
 internal static class RoomObjectPopulationDefinitionsVerification
 {

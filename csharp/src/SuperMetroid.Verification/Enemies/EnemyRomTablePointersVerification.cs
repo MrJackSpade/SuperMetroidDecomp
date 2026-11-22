@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Bosses.Torizo;
-using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotInitialSelectionVerification;
 using SuperMetroid.Core.Bosses.Torizo;

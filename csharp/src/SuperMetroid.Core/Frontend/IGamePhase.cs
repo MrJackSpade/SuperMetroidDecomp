@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -30,34 +28,4 @@ internal interface IGamePhase
 
     /// <summary>What the sequence's current step runs on: nothing of gameplay, the session's runtime, or its loaded room.</summary>
     PhaseGameplayNeed Need { get; }
-}
-
-/// <summary>A sequence whose steps run without gameplay.</summary>
-internal interface IFrontendPhase : IGamePhase
-{
-    /// <inheritdoc/>
-    PhaseGameplayNeed IGamePhase.Need => PhaseGameplayNeed.Nothing;
-
-    /// <summary>Runs one update of the sequence.</summary>
-    void Step(ControllerButton controllerInput);
-}
-
-/// <summary>A sequence whose steps run on the session's gameplay runtime, before or after its room.</summary>
-internal interface IRuntimePhase : IGamePhase
-{
-    /// <inheritdoc/>
-    PhaseGameplayNeed IGamePhase.Need => PhaseGameplayNeed.Runtime;
-
-    /// <summary>Runs one update of the sequence on <paramref name="runtime"/>.</summary>
-    void Step(ControllerButton controllerInput, SuperMetroidRuntime runtime);
-}
-
-/// <summary>A sequence whose steps run gameplay in the runtime's loaded room.</summary>
-internal interface IGameplayPhase : IGamePhase
-{
-    /// <inheritdoc/>
-    PhaseGameplayNeed IGamePhase.Need => PhaseGameplayNeed.LoadedRoom;
-
-    /// <summary>Runs one update of the sequence in <paramref name="live"/>.</summary>
-    void Step(ControllerButton controllerInput, LoadedGameplay live);
 }

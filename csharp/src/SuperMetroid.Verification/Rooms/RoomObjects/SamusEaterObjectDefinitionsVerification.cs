@@ -8,7 +8,6 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.World;
-using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 

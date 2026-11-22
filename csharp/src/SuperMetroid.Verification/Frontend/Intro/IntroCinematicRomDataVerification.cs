@@ -1,5 +1,3 @@
-using SuperMetroid.Tooling;
-using static SuperMetroid.Verification.Enemies.EnemyInstructionCodePointersVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Artwork;

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;

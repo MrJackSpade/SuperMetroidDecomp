@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;

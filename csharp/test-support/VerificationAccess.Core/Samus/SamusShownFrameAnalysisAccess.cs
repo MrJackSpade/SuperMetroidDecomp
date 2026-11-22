@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core;
-using SuperMetroid.Core.Samus.Poses;
+﻿using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

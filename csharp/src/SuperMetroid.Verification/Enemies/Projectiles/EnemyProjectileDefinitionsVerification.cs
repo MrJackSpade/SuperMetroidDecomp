@@ -22,7 +22,6 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.EyeDoor;

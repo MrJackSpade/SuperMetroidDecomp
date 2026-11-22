@@ -743,7 +743,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         "zero hurt timer ends special handler at interruption");
     AssertEqual(SamusPoseId.KnockbackRightPose, expires.Pose, "expiry command skips proposed falling pose");
     AssertTrue(!expires.KnockbackActive, "expired knockback restores normal handler");
-    AssertEqual((SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection?)null, expires.KnockbackDirection, "expired knockback clears direction");
+    AssertEqual(null, expires.KnockbackDirection, "expired knockback clears direction");
 
     // `$90:DF15` republishes a ball's current pose rather than substituting `$53/$54`.
     // `$91:EE27` then ignores the hit side and held-forward rule when selecting vertical

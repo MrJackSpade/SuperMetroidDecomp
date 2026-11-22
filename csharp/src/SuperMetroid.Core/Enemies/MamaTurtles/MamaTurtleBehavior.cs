@@ -738,7 +738,7 @@ internal sealed partial class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Runs MamaTurtle's main AI.</summary>
     internal void RunMamaTurtleMainAi(RoomEnemyOccupant turtle, MamaTurtleEnemyState mamaTurtleEnemyState, IEnemyAiFrame frame)
     {
-        RoomEnemyPlace place = turtle.Place;
+        _ = turtle.Place;
         RunMamaTurtleMain(
             turtle,
             mamaTurtleEnemyState,

@@ -15,7 +15,6 @@ using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Ripper;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;

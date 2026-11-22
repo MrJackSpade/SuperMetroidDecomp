@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Rooms.TilemapJsonContractsVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
-using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 

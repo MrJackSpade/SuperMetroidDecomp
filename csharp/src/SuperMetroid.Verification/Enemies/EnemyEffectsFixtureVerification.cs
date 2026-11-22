@@ -9,7 +9,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Enemies;
 

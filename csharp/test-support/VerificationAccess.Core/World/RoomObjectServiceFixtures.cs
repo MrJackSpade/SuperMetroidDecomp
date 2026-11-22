@@ -1,5 +1,3 @@
-using SuperMetroid.Core.World;
-
 namespace SuperMetroid.Core.World;
 
 /// <summary>

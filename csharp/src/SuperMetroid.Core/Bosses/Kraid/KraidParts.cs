@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Kraid;
 

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 

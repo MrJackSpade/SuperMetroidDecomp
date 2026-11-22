@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

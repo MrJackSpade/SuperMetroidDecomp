@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Verification access to the installed map sprites' characters, as the import reads them.</summary>

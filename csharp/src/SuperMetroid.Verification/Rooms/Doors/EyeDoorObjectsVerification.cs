@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;

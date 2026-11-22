@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;

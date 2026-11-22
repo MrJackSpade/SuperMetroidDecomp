@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Diagnostics.SaveStates;
 

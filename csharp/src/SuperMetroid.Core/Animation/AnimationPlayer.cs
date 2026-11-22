@@ -346,13 +346,6 @@ internal sealed partial class AnimationPlayer<TSegment, TFrame, TEvent>
         _ => null,
     };
 
-    /// <summary>Plays the animation on to its next frame, pause or rest, raising the events it passes, and returns what it reached.</summary>
-    private AnimationShown<TSegment, TFrame> Advance(Action<TEvent> raise) => Advance(raised =>
-    {
-        raise(raised);
-        return null;
-    });
-
     /// <summary>
     /// Plays the animation on to its next frame, pause or rest, going on where <paramref name="react"/> continues it, and
     /// returns what it reached.

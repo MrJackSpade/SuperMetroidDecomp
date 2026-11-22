@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;

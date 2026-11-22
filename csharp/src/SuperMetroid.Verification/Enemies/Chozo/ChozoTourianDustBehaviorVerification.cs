@@ -7,7 +7,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Areas.Tourian;
 
 namespace SuperMetroid.Verification.Enemies.Chozo;
 

@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;

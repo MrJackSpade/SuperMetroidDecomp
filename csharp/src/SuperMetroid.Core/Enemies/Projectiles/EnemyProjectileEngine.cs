@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;

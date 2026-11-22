@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -9,7 +8,6 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Pause;

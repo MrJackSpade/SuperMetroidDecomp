@@ -1,5 +1,3 @@
-using static SuperMetroid.Core.Enemies.Choot.ChootFallingPathDefinitions;
-
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>

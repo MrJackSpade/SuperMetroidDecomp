@@ -6,8 +6,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.World.RoomStates;
 
-using SuperMetroid.Core.Rooms.Doors;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>

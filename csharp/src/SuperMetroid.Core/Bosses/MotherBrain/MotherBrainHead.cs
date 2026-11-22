@@ -303,7 +303,7 @@ internal sealed partial class MotherBrainHead
             PlaySound: static (playSound, context) =>
             {
                 context.Owner._audio.QueueEnemySound(playSound.Effect, priority: SoundRequestPriority.Normal);
-                return (MotherBrainHeadSegment?)null;
+                return null;
             },
             SpawnBomb: static (bomb, context) =>
             {

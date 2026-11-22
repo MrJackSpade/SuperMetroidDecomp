@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 

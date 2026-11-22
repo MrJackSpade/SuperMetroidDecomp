@@ -1,9 +1,7 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;

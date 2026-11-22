@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Gameplay;

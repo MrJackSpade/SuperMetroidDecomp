@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;

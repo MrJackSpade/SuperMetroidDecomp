@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;

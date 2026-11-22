@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Torizo;

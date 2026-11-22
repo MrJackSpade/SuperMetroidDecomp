@@ -1,10 +1,8 @@
-using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

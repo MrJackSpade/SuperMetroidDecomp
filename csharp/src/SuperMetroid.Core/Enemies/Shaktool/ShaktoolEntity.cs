@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>One Shaktool occupant: its own AI, with the shared reactions.</summary>

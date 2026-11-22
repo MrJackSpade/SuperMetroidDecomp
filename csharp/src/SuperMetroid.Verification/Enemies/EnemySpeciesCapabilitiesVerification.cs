@@ -1,7 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Areas.Ceres;

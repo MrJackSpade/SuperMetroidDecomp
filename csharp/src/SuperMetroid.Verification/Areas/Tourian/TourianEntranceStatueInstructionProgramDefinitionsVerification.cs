@@ -40,7 +40,8 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
             place.Bind(EnemyDefinitionId.TourianStatue, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
-            EnemySystemFixtures.InitializeStatuePlacement(place);
+            // The room's population load builds the placement and initializes it.
+            _ = enemies.LoadAuthoredPopulation();
             AssertEqual(parameter == 0 ? 3 : 0, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
                 $"Tourian entrance-statue parameter {parameter} spawns the decorations only from the first placement");
             AssertTrue(!place.Presence.HasAny(EnemyPresence.Deleted),

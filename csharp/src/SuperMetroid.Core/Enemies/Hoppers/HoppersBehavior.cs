@@ -9,19 +9,16 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 [RoomLifetime]
 internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The hopper definitions this species owns.</summary>
+    internal IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
+        [EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian, EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Dessgeega];
+
     /// <summary>Each hopper definition, from its settings, with the kind <see cref="HopperKindDefinitions.Kinds"/> gives it (#2553).</summary>
     /// <param name="registrar">The room's registry being composed.</param>
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar);
-        EnemyDefinitionId[] definitions =
-            [EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian, EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Dessgeega];
-        foreach (EnemyDefinitionId definition in definitions)
-        {
-            HopperKind kind = HopperKindDefinitions.Kinds[definition];
-            registrar.Spawns<HopperSpawnSettings>([definition], (occupant, settings, place, common) =>
-                EnemyOccupant.Running(new HoppersEntity(this, occupant, place, common, settings, kind)));
-        }
+        Ensure.NotNull(registrar).Spawns<HopperSpawnSettings>(Definitions, (occupant, settings, place, common) =>
+            EnemyOccupant.Running(new HoppersEntity(this, occupant, place, common, settings, HopperKindDefinitions.Kinds[occupant.DefinitionId])));
     }
 
     /// <summary>Supplies the shared RNG seed consumed during Hopper initialization.</summary>

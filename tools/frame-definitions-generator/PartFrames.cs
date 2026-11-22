@@ -377,8 +377,15 @@ internal sealed record PartFrameConfiguration(
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
                 ["Ridley"] = [.. RidleyBodyFrames, "EnemyFrameId=RidleyBodyForward"],
-                ["RidleyCeres"] = RidleyBodyFrames,
                 ["RidleyBreakupPiece"] = [],
+            },
+            null, null, []),
+        // Ceres Ridley's own factory (#2554), which builds him with his room's warnings, serves his body poses.
+        new("CeresRidleyEntityFactory", "RidleyCollisionDefinitions", "BodyFrames", null, null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal),
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["RidleyCeres"] = RidleyBodyFrames,
             },
             null, null, []),
     ];

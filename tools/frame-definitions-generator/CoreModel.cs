@@ -873,13 +873,14 @@ internal sealed class CoreModel
     private List<CollectionExpressionSyntax> DefinitionCollections(INamedTypeSymbol type)
     {
         var declared = type.GetMembers("Definitions").OfType<IPropertySymbol>().Where(p => !p.IsStatic).ToList();
+        var collections = new List<CollectionExpressionSyntax>();
+        // A species that declares its own definitions may still hand the registrar the parts that join them (Joins).
         if (declared is [{ DeclaringSyntaxReferences: [var reference] }])
         {
-            return reference.GetSyntax() is PropertyDeclarationSyntax { Initializer.Value: CollectionExpressionSyntax collection }
-                ? [collection]
-                : throw new InvalidDataException($"{type.ToDisplayString()}.Definitions is not initialized with a collection expression.");
+            collections.Add(reference.GetSyntax() is PropertyDeclarationSyntax { Initializer.Value: CollectionExpressionSyntax collection }
+                ? collection
+                : throw new InvalidDataException($"{type.ToDisplayString()}.Definitions is not initialized with a collection expression."));
         }
-        var collections = new List<CollectionExpressionSyntax>();
         foreach (IMethodSymbol offer in type.GetMembers("OfferCreations").OfType<IMethodSymbol>())
         {
             foreach (SyntaxReference syntax in offer.DeclaringSyntaxReferences)
@@ -893,6 +894,9 @@ internal sealed class CoreModel
                         _ => null,
                     };
                     if (called is null || !RegistrarCreations.Contains(called) || call.ArgumentList.Arguments.Count == 0)
+                        continue;
+                    // The species' own Definitions, handed on, are already read.
+                    if (declared is [var own] && SymbolEqualityComparer.Default.Equals(model.GetSymbolInfo(call.ArgumentList.Arguments[0].Expression).Symbol, own))
                         continue;
                     collections.Add(DefinitionList(model, call.ArgumentList.Arguments[0].Expression, type));
                 }

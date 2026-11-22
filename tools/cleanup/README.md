@@ -465,13 +465,39 @@ stand behind the compared one. Each fixture keeps every file as written, and eac
 `positional-base-argument` holds the shape of the failure at 0ea41f339b (#2599): the prune retired the dead property of
 `KraidColours.BandShade(PictureShade Shade) : BodyShown(Shade)` by deleting its positional parameter, which the base call
 reads as a constructor parameter, and the tree no longer built (CS0103). When every positional property of the record is
-dead and only the base call reads parameters, the record loses its parameter list and gets a constructor taking the
-parameters read, under constructor-parameter names, with their documentation, and passing them to its base: `BandShade`
-becomes `record BandShade : BodyShown` with `BandShade(Tint shade) : base(shade)`. Otherwise the parameter goes anyway
-and the build fails at each read, where moving the code that reads it into a constructor is the developer's choice: the
-fixture's `Glow(Tint Level)`, whose property initializer reads `Level`, loses it, and the build fails there (CS0103). An
-argument passed to a removed parameter whose evaluation calls code or writes state stays as written, so the call fails
-to compile there instead of the effect silently going with it.
+dead and only the base call and its members' initializers read parameters, the record loses its parameter list and gets
+a constructor taking the parameters read, under constructor-parameter names, with their documentation, passing them to
+its base and giving its members their initial values: `BandShade` becomes `record BandShade : BodyShown` with
+`BandShade(Tint shade) : base(shade)`, and `Glow(Tint Level)`, whose property initializer reads `Level`, becomes `Glow(Tint
+level) : base((Tint?)null)` assigning `Strength = level`. The initializers move into the constructor's body, all of them
+and in order, only where running them after the base constructor changes nothing: a record with no base record, or
+initializers that call no code and write no state. Otherwise a parameter the record reads is never deleted (#2611): its
+dead property stays. `positional-initializer-read` holds the shape of the failure at 418ca79935: the prune deleted
+`TitleFloorSceneDefinition`'s `startingZoom`, whose property was dead but which the initializer of the live `Zoom` read,
+and neither the initializer nor the four constructions compiled (CS0103, CS1729). The fixture's `SceneDefinition` keeps
+its parameter list as written (the prune prints `Kept ... startingZoom`), and `Fade(int start)`, whose only property is
+dead, becomes a record whose constructor sets both its properties.
+
+An argument passed to a removed parameter whose evaluation calls code or writes state stays as written, so the call fails
+to compile there instead of the effect silently going with it. An argument removed with its parameter can leave a
+parameter of its caller unread, and IDE0060 is a build error: at 418ca79935 the dead `Direction` of
+`KiHunterAcidSpitCue.Launch` and `SpacePirateProjectileCue` left the `facing` and `direction` parameters of the
+animations building them unread. Such a parameter goes too, with its `param` documentation (a `paramref` to it becomes
+its name as code text) and the argument every call passes it, up the callers; one whose method something else decides
+the signature of, or a `ref`, `out`, `in`, `params` or primary-constructor parameter, stays and IDE0060 reports it.
+`unread-caller-parameter` holds that shape, and its check reading the removed property fails to build (CS1061).
+
+`constructor-state-writer` holds the shape of the other failure at 418ca79935: `UnsupportedGameStateException`'s only
+constructor was called only by a check, while the game's error reporter matched the type and read its
+`BehaviorIdentity`; the prune removed the constructor, and the property it alone set no longer compiled (CS8618). A type
+is decided consistently (`ConstructorStateWriters` in `csharp/src/SuperMetroid.ReachabilityAudit/Analysis`): an instance
+field or automatic property with no initializer that code reads keeps the constructors that write it while no
+constructor that writes it is reached. The fixture keeps `UnsupportedState` whole, and removes `Note`'s second
+constructor, which only a check calls, since the constructor the game calls also sets its text (CS1729 in the check).
+
+`nameof-of-removed` holds the third: `RidleyPogoTailAction` took its steps' names through `nameof` of
+`RidleyTailAction.Stab` and three more members nothing else read, and the prune removed them (CS0103). A `nameof` of a
+removed declaration becomes the text it produced, which is what it meant at run time.
 
 The enum-default fixtures hold the shape of the failures at f4af8a1aca and 0ea41f339b (#2608): the prune removed
 `SamusPresentationMode.Gameplay` and `LiquidMotionStage.AwaitingFirstPass` as unreferenced enum members, though every new

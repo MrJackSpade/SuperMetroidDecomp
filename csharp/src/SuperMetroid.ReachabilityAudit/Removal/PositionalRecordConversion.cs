@@ -12,6 +12,12 @@ namespace SuperMetroid.ReachabilityAudit.Removal;
 /// parameter that is gone. The cleanup of 0ea41f339b deleted <c>KraidColours.BandShade</c>'s parameter <c>Shade</c>
 /// whole, and its base call <c>: BodyShown(Shade)</c> no longer compiled (CS0103). The record's <c>param</c>
 /// documentation of a kept parameter moves to the constructor; that of every other parameter goes with it.
+/// <para>
+/// A parameter its members' initializers read is kept the same way (#2611): every instance initializer of the record moves
+/// into the constructor's body as an assignment, in order, reading the kept parameters under their new names. The cleanup
+/// of 418ca79935 deleted <c>TitleFloorSceneDefinition</c>'s parameter <c>startingZoom</c>, whose property was dead but
+/// which the initializer of <c>Zoom</c> read, and neither the initializer nor the four constructions compiled.
+/// </para>
 /// </summary>
 internal static class PositionalRecordConversion
 {
@@ -37,8 +43,9 @@ internal static class PositionalRecordConversion
         TextLine keywordLine = source.Lines.GetLineFromPosition(record.Keyword.SpanStart);
         string indent = Indentation(keywordLine.ToString());
         string inner = indent + "    ";
-        PrimaryConstructorBaseTypeSyntax baseCall = record.BaseList?.Types.OfType<PrimaryConstructorBaseTypeSyntax>().SingleOrDefault()
-            ?? throw new InvalidOperationException($"{path}: record {conversion.Record} has no base call to keep its parameters for.");
+        PrimaryConstructorBaseTypeSyntax? baseCall = record.BaseList?.Types.OfType<PrimaryConstructorBaseTypeSyntax>().SingleOrDefault();
+        if (baseCall is null && !conversion.MovesInitializers)
+            throw new InvalidOperationException($"{path}: record {conversion.Record} has no base call or initializer to keep its parameters for.");
         var names = conversion.Parameters.Where(conversion.Kept.Contains).ToDictionary(name => name, ParameterName, StringComparer.Ordinal);
 
         var changes = new List<TextChange>();
@@ -57,17 +64,41 @@ internal static class PositionalRecordConversion
                 documentation.AddRange(Relined(element.ToString().Replace($"name=\"{name}\"", $"name=\"{renamed}\"", StringComparison.Ordinal), inner));
         }
         changes.Add(new TextChange(record.ParameterList!.Span, ""));
-        changes.Add(new TextChange(baseCall.ArgumentList.Span, ""));
+        if (baseCall is not null)
+            changes.Add(new TextChange(baseCall.ArgumentList.Span, ""));
+        // Every instance initializer moves into the constructor's body, in order, when one reads a kept parameter: the
+        // initializers keep their order among themselves, and SymbolRemover moves them only where running them after the
+        // base constructor changes nothing.
+        var assignments = new List<string>();
+        if (conversion.MovesInitializers)
+        {
+            foreach (EqualsValueClauseSyntax initializer in InstanceInitializers(record))
+            {
+                (string member, TextSpan removed) = initializer.Parent switch
+                {
+                    PropertyDeclarationSyntax property => (property.Identifier.Text,
+                        TextSpan.FromBounds(property.AccessorList!.Span.End, property.SemicolonToken.Span.End)),
+                    VariableDeclaratorSyntax variable => (variable.Identifier.Text, TextSpan.FromBounds(variable.Identifier.Span.End, initializer.Span.End)),
+                    _ => throw new InvalidOperationException($"{path}: an initializer of record {conversion.Record} belongs to no property or field."),
+                };
+                changes.Add(new TextChange(removed, ""));
+                string target = names.ContainsValue(member) ? "this." + member : member;
+                assignments.Add($"{inner}    {target} = {Renamed(initializer.Value, names)};{newline}");
+            }
+        }
 
         var parameters = record.ParameterList.Parameters.Where(parameter => names.ContainsKey(parameter.Identifier.Text))
             .Select(parameter => Parameter(parameter, names[parameter.Identifier.Text]));
         string access = record.Modifiers.Any(SyntaxKind.AbstractKeyword) ? "protected" : "public";
+        string summary = !conversion.MovesInitializers ? "Creates the record from what its base takes."
+            : baseCall is null ? "Creates the record from what its members' initial values take."
+            : "Creates the record from what its base and its members' initial values take.";
         string constructor =
-            $"{inner}/// <summary>Creates the record from what its base takes.</summary>{newline}" +
+            $"{inner}/// <summary>{summary}</summary>{newline}" +
             string.Concat(documentation.Select(line => line + newline)) +
             $"{inner}{access} {record.Identifier.Text}({string.Join(", ", parameters)}){newline}" +
-            $"{inner}    : base{Arguments(baseCall.ArgumentList, names)}{newline}" +
-            $"{inner}{{{newline}{inner}}}{newline}";
+            (baseCall is null ? "" : $"{inner}    : base{Renamed(baseCall.ArgumentList, names)}{newline}") +
+            $"{inner}{{{newline}{string.Concat(assignments)}{inner}}}{newline}";
         if (record.SemicolonToken.IsKind(SyntaxKind.SemicolonToken))
             changes.Add(new TextChange(record.SemicolonToken.Span, $"{newline}{indent}{{{newline}{constructor}{indent}}}"));
         else
@@ -99,12 +130,28 @@ internal static class PositionalRecordConversion
         return string.Concat(attributes) + modifiers + parameter.Type + " " + name + (parameter.Default is { } value ? " " + value : "");
     }
 
-    /// <summary>The base call's arguments with every read of a kept parameter under its new name.</summary>
-    private static string Arguments(ArgumentListSyntax arguments, Dictionary<string, string> names)
+    /// <summary>The initializers of a record declaration's instance properties and fields, in order.</summary>
+    internal static IEnumerable<EqualsValueClauseSyntax> InstanceInitializers(RecordDeclarationSyntax record)
     {
-        SourceText text = SourceText.From(arguments.ToString());
-        int start = arguments.SpanStart;
-        var renames = arguments.DescendantNodes().OfType<IdentifierNameSyntax>()
+        foreach (MemberDeclarationSyntax member in record.Members)
+        {
+            if (member.Modifiers.Any(SyntaxKind.StaticKeyword) || member.Modifiers.Any(SyntaxKind.ConstKeyword))
+                continue;
+            if (member is PropertyDeclarationSyntax { Initializer: { } initializer })
+                yield return initializer;
+            else if (member is FieldDeclarationSyntax field)
+                foreach (VariableDeclaratorSyntax variable in field.Declaration.Variables)
+                    if (variable.Initializer is { } value)
+                        yield return value;
+        }
+    }
+
+    /// <summary>A node's text with every read of a kept parameter under its new name.</summary>
+    private static string Renamed(SyntaxNode node, Dictionary<string, string> names)
+    {
+        SourceText text = SourceText.From(node.ToString());
+        int start = node.SpanStart;
+        var renames = node.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>()
             .Where(identifier => names.ContainsKey(identifier.Identifier.Text) &&
                 !(identifier.Parent is MemberAccessExpressionSyntax access && access.Name == identifier) &&
                 identifier.Parent is not NameColonSyntax)

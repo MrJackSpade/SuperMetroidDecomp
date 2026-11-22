@@ -185,6 +185,9 @@ internal sealed partial class EnemyPresentation
     internal SpriteSheetFrame SheetPicture(EnemyDefinitionId enemy, EnemyFrameId frame) =>
         Artwork.Enemy(enemy).Sheet.Frame(EnemySheetDefinitions.FrameName(frame));
 
+    /// <summary>Whether the room's sheet of <paramref name="enemy"/> is pre-coloured in <paramref name="shade"/> (#2622).</summary>
+    internal bool SheetHolds(EnemyDefinitionId enemy, PictureShade shade) => Artwork.Enemy(enemy).Sheet.Image.Shades.ContainsKey(shade);
+
     /// <summary>The installed enemy sheets.</summary>
     private IEnemySheetSource Sheets => _session.Sheets;
 }

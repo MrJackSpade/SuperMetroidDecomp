@@ -8,7 +8,8 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>The blue Brinstar face block species owner: its per-room state, behaviour and the interactions it registers.</summary>
-internal sealed partial class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyLoadedFactory<FaceBlockSpawnSettings>, IRoomGlow
+internal sealed partial class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyLoadedFactory<FaceBlockSpawnSettings>, IRoomGlow,
+    ISharedColourGlow
 {
     /// <summary>The pass-through shot reaction for this species' private shot reaction.</summary>
     internal static EnemyShotReaction PassThroughShot { get; } =
@@ -45,6 +46,12 @@ internal sealed partial class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEn
     /// </summary>
     private readonly ShowingAnimationPlayer<FaceBlockGlowSegment, FaceBlockGlowLevel, NoAnimationCue> _glow =
         ShowingAnimationPlayer<FaceBlockGlowSegment, FaceBlockGlowLevel, NoAnimationCue>.StartShowing(FaceBlockGlowAnimations.Segments, FaceBlockGlowAnimations.Restarted);
+
+    /// <summary>
+    /// The glow's shade once it has started (#2622), which an enemy sharing the face blocks' colours shows too: the Morph Ball
+    /// eye in their room.
+    /// </summary>
+    public PictureShade? SharedShade => _glowStarted ? FaceBlockShades.Glow(_glow.Showing) : null;
 
     /// <summary>The glow every face block in the room shows once it has started (#1512).</summary>
     private PictureShading Glow => PictureShading.Shaded(FaceBlockShades.Glow(_glow.Showing));
@@ -116,8 +123,8 @@ internal sealed partial class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEn
         samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall);
 
     /// <summary>
-    /// Starts the room's glow and shows it on <paramref name="place"/>; every face block, and only a face block, shows the
-    /// glow (#1512).
+    /// Starts the room's glow and shows it on <paramref name="place"/>; every face block shows the glow (#1512), and an enemy
+    /// sharing their colours shows it through the enemy draw (<see cref="SharedShade"/>, #2622).
     /// </summary>
     private void StartGlow(RoomEnemyPlace place)
     {

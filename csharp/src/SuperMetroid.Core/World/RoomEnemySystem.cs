@@ -318,7 +318,7 @@ public sealed partial class RoomEnemySystem : IEnemyDisplaySources
             FallingSparkFloorProbe = compatibility.FallingSparkFloorProbe,
         });
         AnimationPlayer = new EnemyAnimationPlayer(Presentation);
-        Drawing = new EnemyDrawList(new EnemyDrawListDependencies { LateDraws = SpeciesComposition.LateDraws, FrameContext = FrameContext, AnimationPlayer = AnimationPlayer, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
+        Drawing = new EnemyDrawList(new EnemyDrawListDependencies { LateDraws = SpeciesComposition.LateDraws, SharedGlows = SpeciesComposition.SharedGlows, FrameContext = FrameContext, AnimationPlayer = AnimationPlayer, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
     }
 
     /// <summary>

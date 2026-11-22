@@ -287,7 +287,20 @@ internal sealed partial class EnemySheetShades
     /// Baby Metroid victim's drain.
     /// </summary>
     internal IReadOnlyList<SheetShade> OwnRow(EnemyDefinitionId enemy, int row) =>
-        ownRowEffects.TryGetValue(enemy, out OwnRowShading? shading) ? [.. shading(enemy, row, row * LoadedSetColours.RowColours)] : [];
+    [
+        .. ownRowEffects.TryGetValue(enemy, out OwnRowShading? shading) ? shading(enemy, row, row * LoadedSetColours.RowColours) : [],
+        .. SharedRowGlow(enemy, row),
+    ];
+
+    /// <summary>
+    /// The face blocks' glow over <paramref name="row"/> for another enemy drawing in the face blocks' row under a set that
+    /// loads them (#2622): the game draws it in their colours, so their glow shows on it, as on the Morph Ball eye's pupil in
+    /// their room; none for the face blocks themselves or an enemy drawing in another row.
+    /// </summary>
+    private IEnumerable<SheetShade> SharedRowGlow(EnemyDefinitionId enemy, int row) =>
+        enemy != EnemyDefinitionId.FaceBlock && colours.Loads(EnemyDefinitionId.FaceBlock) && colours.RowOf(EnemyDefinitionId.FaceBlock) == row
+            ? FaceBlockGlow(row * LoadedSetColours.RowColours)
+            : [];
 
     /// <summary>The shades one enemy's effects lay over the row it draws in, <paramref name="row"/>, from its first ink <paramref name="first"/>.</summary>
     private delegate IEnumerable<SheetShade> OwnRowShading(EnemyDefinitionId enemy, int row, int first);

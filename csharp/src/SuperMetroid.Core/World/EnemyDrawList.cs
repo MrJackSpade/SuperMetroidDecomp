@@ -17,6 +17,8 @@ internal sealed partial class EnemyDrawList
 {
     /// <summary>The encounters' sprites drawn after every queued enemy, in their order (#2571).</summary>
     private readonly IReadOnlyList<IEnemyLateDraw> _lateDraws;
+    /// <summary>The room-wide glows an enemy shows where its sheet shares their colours (#2622).</summary>
+    private readonly IReadOnlyList<ISharedColourGlow> _sharedGlows;
     /// <summary>Supplies the shared enemy frame counter that phases the hit flash.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Shows a reached enemy's boss body frame before its picture is drawn.</summary>
@@ -32,6 +34,7 @@ internal sealed partial class EnemyDrawList
     internal EnemyDrawList(EnemyDrawListDependencies dependencies)
     {
         _lateDraws = dependencies.LateDraws;
+        _sharedGlows = dependencies.SharedGlows;
         _frameContext = dependencies.FrameContext;
         _animationPlayer = dependencies.AnimationPlayer;
         _presentation = dependencies.Presentation;
@@ -94,7 +97,7 @@ internal sealed partial class EnemyDrawList
                     ? HorizontalDirection.Left : HorizontalDirection.Right), 0);
                 place.Shake.Count();
             }
-            PictureShading drawShading = SelectCommonEnemyDrawShading(place);
+            PictureShading drawShading = SelectCommonEnemyDrawShading(place, occupant.DefinitionId);
             // An enemy the draw pass does not reach and that has shown no frame yet shows nothing; one it reaches has
             // always shown a frame.
             if (place.Frame is not { } shown)
@@ -241,24 +244,40 @@ internal sealed partial class EnemyDrawList
     /// shows the frozen colours the same way. Every enemy flashes through this one choice.
     /// Ridley makes the same choice himself, once for his body, wings and tail, so they flash on one phase.
     /// </remarks>
-    private PictureShading SelectCommonEnemyDrawShading(RoomEnemyPlace place)
+    private PictureShading SelectCommonEnemyDrawShading(RoomEnemyPlace place, EnemyDefinitionId enemy)
     {
         if (place.Entity is IEnemyDrawHooks drawHooks && drawHooks.CommonDrawShading() is { } owned)
             return owned;
 
+        PictureShading own = OwnShading(place, enemy);
         // A hit flash shows the common hurt colours on alternate phases. The flash shades the draw over the enemy's own
         // shading: the colours it changes show the flash, and the colours it leaves as they are keep showing what the
         // enemy's own effects laid there.
         if (place.HurtFlash.IsRunning && EnemyDrawPhaseDefinitions.HurtFlashShown.IsInSecondHalfAt(_frameContext.EnemyPassCount))
-            return place.Shading.With(EnemyShades.HurtFlash);
+            return own.With(EnemyShades.HurtFlash);
 
         if (place.Freeze.IsRunning &&
             (place.Freeze.UpdatesLeft >= EnemyDrawPhaseDefinitions.FrozenColoursSteadyUpdates ||
              EnemyDrawPhaseDefinitions.FrozenColoursShown.IsInSecondHalfAt(place.Freeze.UpdatesLeft)))
         {
-            return place.Shading.With(EnemyShades.Frozen);
+            return own.With(EnemyShades.Frozen);
         }
 
-        return place.Shading;
+        return own;
+    }
+
+    /// <summary>
+    /// <paramref name="place"/>'s own shading, with each room-wide glow it shares the colours of (#2622): a glow showing a
+    /// shade <paramref name="enemy"/>'s sheet is pre-coloured in, which the enemy's own shading does not already name.
+    /// </summary>
+    private PictureShading OwnShading(RoomEnemyPlace place, EnemyDefinitionId enemy)
+    {
+        PictureShading own = place.Shading;
+        foreach (ISharedColourGlow glow in _sharedGlows)
+        {
+            if (glow.SharedShade is { } shade && !own.Shades.Contains(shade) && _presentation.SheetHolds(enemy, shade))
+                own = own.With(shade);
+        }
+        return own;
     }
 }

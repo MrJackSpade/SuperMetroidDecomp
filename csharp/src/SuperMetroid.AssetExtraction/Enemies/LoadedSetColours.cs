@@ -43,6 +43,9 @@ internal sealed partial class LoadedSetColours
     /// <summary>The row <paramref name="enemy"/> draws in under the set (<see cref="GraphicsSetRows.RowOf"/>).</summary>
     internal int RowOf(EnemyDefinitionId enemy) => rows.RowOf(enemy);
 
+    /// <summary>Whether the set loads <paramref name="enemy"/> (<see cref="GraphicsSetRows.Loads"/>).</summary>
+    internal bool Loads(EnemyDefinitionId enemy) => rows.Loads(enemy);
+
     /// <summary>The set's colours with row <paramref name="row"/> holding <paramref name="replaced"/> from its colour <paramref name="first"/> on.</summary>
     internal RgbColor[] With(int row, int first, ReadOnlySpan<RgbColor> replaced)
     {

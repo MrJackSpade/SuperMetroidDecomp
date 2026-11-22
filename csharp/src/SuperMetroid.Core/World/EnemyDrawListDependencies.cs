@@ -9,6 +9,9 @@ internal sealed partial record EnemyDrawListDependencies
     /// <summary>The encounters' sprites drawn after every queued enemy, in their order (#2571).</summary>
     public required IReadOnlyList<IEnemyLateDraw> LateDraws { get; init; }
 
+    /// <summary>The room-wide glows an enemy shows where its sheet shares their colours (#2622).</summary>
+    public required IReadOnlyList<ISharedColourGlow> SharedGlows { get; init; }
+
     /// <summary>The enemy pass's frame counter, which times an enemy's hit flash.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 

@@ -24,6 +24,9 @@ internal sealed partial class GraphicsSetRows
         }
     }
 
+    /// <summary>Whether the set loads <paramref name="enemy"/>'s own colours into a row of their own record.</summary>
+    internal bool Loads(EnemyDefinitionId enemy) => memberRows.ContainsKey(enemy);
+
     /// <summary>
     /// The row <paramref name="enemy"/> draws in under the set: the shared row its initialization fixes, the row of the
     /// enemy whose row it copies, its own first record's, or, for an enemy the set does not load, the enemy projectiles'

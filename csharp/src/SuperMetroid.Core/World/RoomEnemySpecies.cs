@@ -336,6 +336,8 @@ internal sealed partial class RoomEnemySpecies
         BeforeSelection = [new MorphBallEyeBeamStep(morphBallEyeBehavior)];
         // The room-wide glows step in the game's order: the work robots', the Magdollites', the face blocks'.
         Glows = [workRobotBehavior, magdolliteBehavior, blueBrinstarFaceBlockBehavior];
+        // The face blocks' glow shows on the enemies that share their colours (#2622).
+        SharedGlows = [blueBrinstarFaceBlockBehavior];
         AfterPass = [new MotherBrainRainbowBeamStep(enemies.BossEncounters, enemies.BossArtworkBinding)];
         // Mother Brain's late parts draw before the dead Torizo's sand heap.
         LateDraws = [new MotherBrainLateParts(motherBrainBehavior, enemies.BossEncounters), new DeadTorizoSandHeap(deadTorizoBehavior)];
@@ -397,6 +399,9 @@ internal sealed partial class RoomEnemySpecies
 
     /// <summary>The encounters' sprites drawn after every queued enemy, in their order.</summary>
     internal IReadOnlyList<IEnemyLateDraw> LateDraws { get; }
+
+    /// <summary>The room-wide glows other enemies show where they share the glows' colours (#2622).</summary>
+    internal IReadOnlyList<ISharedColourGlow> SharedGlows { get; }
 
     /// <summary>The encounters' scenes that step beside the enemy pass and show among the actors, in their order.</summary>
     internal IReadOnlyList<IEnemyPassScene> PassScenes { get; }

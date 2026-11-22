@@ -650,7 +650,6 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
         : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration;
 
     /// <summary>What <see cref="StepLiquidRise"/> does for each <see cref="LiquidRisePhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<LiquidRisePhase, Action<int, PowerOnEarthquakeSoundDelay>> StepLiquidRiseForLiquidRisePhase => field ??= new(new Dictionary<LiquidRisePhase, Action<int, PowerOnEarthquakeSoundDelay>>
     {
         [LiquidRisePhase.Dormant] = (randomNumber, earthquakeSoundDelay) =>

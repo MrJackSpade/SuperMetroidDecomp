@@ -37,7 +37,6 @@ internal sealed partial class NoobTubeObject(NoobTubeObjects owner) : SilentSequ
     }
 
     /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="NoobTubePhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<NoobTubePhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForNoobTubePhase => field ??= new(new Dictionary<NoobTubePhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [NoobTubePhase.Starting] = (place, context) =>
@@ -84,7 +83,6 @@ internal sealed partial class NoobTubeObject(NoobTubeObjects owner) : SilentSequ
         context.Draw(place, frame.Draw);
 
     /// <summary>What <c>Wake</c> does for each <see cref="NoobTubePhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<NoobTubePhase, Action<RoomObjectPlace, RoomObjectStepContext>> WakeForNoobTubePhase => field ??= new(new Dictionary<NoobTubePhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [NoobTubePhase.WaitingForPowerBomb] = (place, context) =>

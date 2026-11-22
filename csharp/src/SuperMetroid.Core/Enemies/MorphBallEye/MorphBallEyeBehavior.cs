@@ -75,7 +75,6 @@ internal sealed partial class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnF
     }
 
     /// <summary>What <see cref="RunMorphBallEyeMain"/> does for each <see cref="MorphBallEyeAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<MorphBallEyeAction, Action<MorphBallEyeBodySpawnSettings, RoomEnemyPlace, MorphBallEyeEnemyState, SamusState>> RunMorphBallEyeMainForMorphBallEyeAction => field ??= new(new Dictionary<MorphBallEyeAction, Action<MorphBallEyeBodySpawnSettings, RoomEnemyPlace, MorphBallEyeEnemyState, SamusState>>
     {
         [MorphBallEyeAction.WaitForSamus] = (settings, place, state, samus) => WaitForSamusNearMorphBallEye(settings, place, state, samus),

@@ -32,7 +32,6 @@ internal sealed partial class CacatacBehavior : IEnemySpecies, IEnemySpawnFactor
     }
 
     /// <summary>What <see cref="ApplyCacatacCue"/> does for each <see cref="CacatacCueKind"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<CacatacCueKind, Action<CacatacEnemyState>> ApplyCacatacCueForCacatacCueKind => field ??= new(new Dictionary<CacatacCueKind, Action<CacatacEnemyState>>
     {
         [CacatacCueKind.RestorePatrol] = state => RestoreCacatacPatrol(state),
@@ -80,7 +79,6 @@ internal sealed partial class CacatacBehavior : IEnemySpecies, IEnemySpawnFactor
     }
 
     /// <summary>What <see cref="RunCacatacMain"/> does for each <see cref="CacatacAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<CacatacAction, Action<CacatacSpawnSettings, RoomEnemyPlace, CacatacEnemyState>> RunCacatacMainForCacatacAction => field ??= new(new Dictionary<CacatacAction, Action<CacatacSpawnSettings, RoomEnemyPlace, CacatacEnemyState>>
     {
         [CacatacAction.Patrolling] = (settings, place, state) =>

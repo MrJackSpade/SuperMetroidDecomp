@@ -87,7 +87,6 @@ internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>What <see cref="RunHopperMain"/> does for each <see cref="HopperAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<HopperAction, Action<HopperSpawnSettings, RoomEnemyPlace, SamusState, RoomLevelData, HopperEnemyState>> RunHopperMainForHopperAction => field ??= new(new Dictionary<HopperAction, Action<HopperSpawnSettings, RoomEnemyPlace, SamusState, RoomLevelData, HopperEnemyState>>
     {
         [HopperAction.ChooseHopSize] = (_, place, samus, level, state) =>

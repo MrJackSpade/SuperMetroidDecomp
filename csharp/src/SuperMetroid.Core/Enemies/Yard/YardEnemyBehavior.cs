@@ -101,7 +101,6 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFact
     private readonly partial record struct ApplyYardCueContext(RoomEnemyPlace Place, YardEnemyState State, AnimationPlayback<YardSegment> Playing, YardEnemyBehavior Owner);
 
     /// <summary>What each of the Yard's signals does, and the animation it continues at, or null to run on.</summary>
-    [field: NonSerialized]
     private IdentityTable<YardCueKind, Func<YardEnemyState, AnimationPlayback<YardSegment>, AnimationContinuation<YardSegment>?>> YardSignals => field ??=
         new(new Dictionary<YardCueKind, Func<YardEnemyState, AnimationPlayback<YardSegment>, AnimationContinuation<YardSegment>?>>
         {

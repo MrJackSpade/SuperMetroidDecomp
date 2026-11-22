@@ -240,7 +240,6 @@ internal sealed partial class PhantoonBehavior : IEnemySpecies, IEnemySpawnFacto
     }
 
     /// <summary>What <see cref="ApplyPhantoonPartCue"/> does for each <see cref="PhantoonPartCue"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<PhantoonPartCue, Action<PhantoonEnemyState>> ApplyPhantoonPartCueForPhantoonPartCue => field ??= new(new Dictionary<PhantoonPartCue, Action<PhantoonEnemyState>>
     {
         [PhantoonPartCue.PlayMaterializationSound] = state =>

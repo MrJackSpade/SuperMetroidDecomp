@@ -98,7 +98,6 @@ internal sealed partial class IntroScientistCutsceneState
         baby.Draw(screenSprites, installedArt: installedArt);
 
     /// <summary>What <see cref="HandleCue"/> does for each <see cref="IntroLaboratoryCue"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<IntroLaboratoryCue, Action> HandleCueForIntroLaboratoryCue => field ??= new(new Dictionary<IntroLaboratoryCue, Action>
     {
         [IntroLaboratoryCue.StartNextPage] = () =>

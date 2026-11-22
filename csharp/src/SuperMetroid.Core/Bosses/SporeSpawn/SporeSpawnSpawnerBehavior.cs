@@ -21,7 +21,6 @@ internal sealed partial class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, E
         new SporeSpawnCeilingAnimation(this, SporeSpawnCeilingSegment.SpawnerClosed);
 
     /// <summary>What <c>Move</c> does for each <see cref="SporeSpawnSpawnerMotion"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<SporeSpawnSpawnerMotion, Action<EnemyProjectileMotionContext>> MoveForSporeSpawnSpawnerMotion => field ??= new(new Dictionary<SporeSpawnSpawnerMotion, Action<EnemyProjectileMotionContext>>
     {
         [SporeSpawnSpawnerMotion.Releasing] = context => ReleaseSpores(context.Projectile),
@@ -36,7 +35,6 @@ internal sealed partial class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, E
     }
 
     /// <summary>What <see cref="RunCue"/> does for each cue the ceiling's animations publish, each cue's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<SporeSpawnCeilingCue, Action<EnemyProjectileCueContext>> RunCueForCeilingCue => field ??= new(new Dictionary<SporeSpawnCeilingCue, Action<EnemyProjectileCueContext>>
     {
         [SporeSpawnCeilingCue.SpawnSpore] = context =>

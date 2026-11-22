@@ -26,7 +26,7 @@ internal sealed partial class DachoraBehavior : IEnemySpecies, IEnemySpawnFactor
         if (Ensure.NotNull(settings).Role == DachoraRole.SpeedBoostEcho)
             return EnemyOccupant.Running(new DachoraEchoEntity(occupant, place, common, settings));
         var body = new DachoraEntity(this, occupant, place, common, settings);
-        _partOffers.Offer<DachoraSpawnSettings>(EnemyDefinitionId.Dachora, new TrailJoining(this, body).CreateLater);
+        _partOffers.Offer<DachoraSpawnSettings>(EnemyDefinitionId.Dachora, new TrailJoining(this, body.State.Echoes).CreateLater);
         return EnemyOccupant.Running(body);
     }
 
@@ -35,13 +35,16 @@ internal sealed partial class DachoraBehavior : IEnemySpecies, IEnemySpawnFactor
     /// is built as any body is.
     /// </summary>
     /// <param name="species">The Dachora species owner.</param>
-    /// <param name="body">The body whose trail later echoes join.</param>
-    private sealed partial class TrailJoining(DachoraBehavior species, DachoraEntity body)
+    /// <param name="echoes">
+    /// The trail of the body later echoes join. The joining holds what the creation reads, not the body's entity, so a restore of the game's state never rebuilds
+    /// that entity from inside its own offer.
+    /// </param>
+    private sealed partial class TrailJoining(DachoraBehavior species, DachoraEchoTrail echoes)
     {
         /// <summary>A later entry: an echo joining the body's trail, or another body.</summary>
         internal EnemyOccupant CreateLater(RoomEnemyOccupant occupant, DachoraSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
             settings.Role == DachoraRole.SpeedBoostEcho
-                ? EnemyOccupant.Running(body.State.Echoes.Join(new DachoraEchoEntity(occupant, place, common, settings)))
+                ? EnemyOccupant.Running(echoes.Join(new DachoraEchoEntity(occupant, place, common, settings)))
                 : species.Create(occupant, settings, place, common);
     }
 
@@ -103,7 +106,6 @@ internal sealed partial class DachoraBehavior : IEnemySpecies, IEnemySpawnFactor
     }
 
     /// <summary>What <see cref="RunDachoraMain"/> does for each <see cref="DachoraAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<DachoraAction, Action<RoomEnemyPlace, DachoraEnemyState, SamusState, RoomLevelData>> RunDachoraMainForDachoraAction => field ??= new(new Dictionary<DachoraAction, Action<RoomEnemyPlace, DachoraEnemyState, SamusState, RoomLevelData>>
     {
         [DachoraAction.WaitingForSamus] = (place, state, samus, level) => RunDachoraWaiting(place, state, samus, level),
@@ -278,9 +280,9 @@ internal sealed partial class DachoraBehavior : IEnemySpecies, IEnemySpawnFactor
         StartDachoraAnimation(place, state, DachoraSegment.EchoRight);
         state.Action = DachoraAction.Shinesparking;
 
-        IReadOnlyList<DachoraEchoEntity> echoes = state.Echoes.Joined;
+        IReadOnlyList<DachoraTrailEcho> echoes = state.Echoes.Joined;
         state.TrailTimer = UpdateCountdown.Ended();
-        foreach (DachoraEchoEntity echo in echoes)
+        foreach (DachoraTrailEcho echo in echoes)
             echo.State.Lifetime = UpdateCountdown.Ended();
         state.VerticalAcceleration = SignedSixteenSixteen.Zero;
         place.Position = place.Position.WithWholeY(place.Position.Y.Whole - DachoraMotionDefinitions.ChargeCrouchDepth);
@@ -289,7 +291,7 @@ internal sealed partial class DachoraBehavior : IEnemySpecies, IEnemySpawnFactor
         DachoraSegment echoList = state.Facing == HorizontalDirection.Right
             ? DachoraSegment.EchoRight
             : DachoraSegment.EchoLeft;
-        foreach (DachoraEchoEntity echo in echoes)
+        foreach (DachoraTrailEcho echo in echoes)
             echo.State.Playback = StartedDachoraAnimation(echo.Place, echoList);
     }
 
@@ -361,7 +363,7 @@ internal sealed partial class DachoraBehavior : IEnemySpecies, IEnemySpawnFactor
     /// <summary>Spaces the body's trail of echoes, each new echo taking the first free one (#2147).</summary>
     private static void UpdateDachoraEchoPositions(RoomEnemyPlace body, DachoraEnemyState state)
     {
-        IReadOnlyList<DachoraEchoEntity> echoes = state.Echoes.Joined;
+        IReadOnlyList<DachoraTrailEcho> echoes = state.Echoes.Joined;
         if (state.TrailTimer.IsRunning)
         {
             state.TrailTimer.Count();

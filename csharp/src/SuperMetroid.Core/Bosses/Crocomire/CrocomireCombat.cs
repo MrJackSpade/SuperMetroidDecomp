@@ -17,10 +17,6 @@ internal sealed partial class CrocomireCombat
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Resolves Crocomire body and tongue contact with Samus.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Produces the distributed drops at skeleton collapse.</summary>
-    private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
-    private readonly CrocomireEncounterAccess _access;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -29,8 +25,8 @@ internal sealed partial class CrocomireCombat
         _projectiles = projectiles;
         _frameContext = frameContext;
         _collision = collision;
-        _deathsAndDrops = deathsAndDrops;
-        _access = access;
+        MouthShot = new CrocomireProjectileBehavior(projectiles, deathsAndDrops, access, CrocomireProjectileSegment.Shot);
+        Debris = new CrocomireProjectileBehavior(projectiles, deathsAndDrops, access);
     }
 
     /// <summary>Shows Crocomire's white hurt flash on his body.</summary>
@@ -57,11 +53,10 @@ internal sealed partial class CrocomireCombat
     /// The mouth's shot (#1760): its spawner starts its animation, and a shot one runs its typed shot animation, whose
     /// drop is allocated with Crocomire's chances before the deletion frees the exploding actor.
     /// </summary>
-    internal CrocomireProjectileBehavior MouthShot => field ??= new CrocomireProjectileBehavior(_projectiles, _deathsAndDrops, _access,
-        CrocomireProjectileSegment.Shot);
+    internal CrocomireProjectileBehavior MouthShot { get; }
 
     /// <summary>The bridge's fragments and the spike wall's pieces (#1760): their spawners start their animations.</summary>
-    internal CrocomireProjectileBehavior Debris => field ??= new CrocomireProjectileBehavior(_projectiles, _deathsAndDrops, _access);
+    internal CrocomireProjectileBehavior Debris { get; }
 
     /// <summary>One of Crocomire's projectiles: the shot's aim and flight, the spike wall's and the bridge's falls, and their cues.</summary>
     /// <param name="projectiles">The enemy projectiles, which raise the dust a landing spike-wall piece leaves.</param>
@@ -94,7 +89,6 @@ internal sealed partial class CrocomireCombat
         };
 
         /// <summary>What <c>Move</c> does for each <see cref="CrocomireProjectileMotion"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<CrocomireProjectileMotion, Action<EnemyProjectileMotionContext>> MoveForCrocomireProjectileMotion => field ??= new(new Dictionary<CrocomireProjectileMotion, Action<EnemyProjectileMotionContext>>
         {
             [CrocomireProjectileMotion.ShotAiming] = context => StartCrocomireProjectileFlight(context.Projectile, context.Level),
@@ -110,7 +104,6 @@ internal sealed partial class CrocomireCombat
         }
 
         /// <summary>What <see cref="RunCue"/> does for each <see cref="CrocomireProjectileCue"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<CrocomireProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForCrocomireProjectileCue => field ??= new(new Dictionary<CrocomireProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
         {
             [CrocomireProjectileCue.SpawnDrops] = (context, projectile) => deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.Crocomire, context.Samus),

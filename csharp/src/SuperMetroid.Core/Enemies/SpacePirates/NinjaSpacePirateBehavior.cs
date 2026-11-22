@@ -91,7 +91,6 @@ internal sealed partial class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEn
     }
 
     /// <summary>What <see cref="RunNinjaSpacePirateMain"/> does for each <see cref="NinjaSpacePirateAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<NinjaSpacePirateAction, Action<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, RoomLevelData, SamusProjectileSystem>> RunNinjaSpacePirateMainForNinjaSpacePirateAction => field ??= new(new Dictionary<NinjaSpacePirateAction, Action<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, RoomLevelData, SamusProjectileSystem>>
     {
         [NinjaSpacePirateAction.StandingStill] = (place, state, samus, level, samusProjectiles) => { },
@@ -527,7 +526,6 @@ internal sealed partial class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEn
     private readonly partial record struct ApplyNinjaSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, NinjaSpacePirateEnemyState State, SamusState Samus, NinjaSpacePirateBehavior Owner);
 
     /// <summary>What each of the ninja Space Pirates' signals does, and the animation it continues at, or null to run on.</summary>
-    [field: NonSerialized]
     private IdentityTable<NinjaSpacePirateCueKind, Func<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, NinjaSpacePirateSegment?>> NinjaSignals => field ??=
         new(new Dictionary<NinjaSpacePirateCueKind, Func<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, NinjaSpacePirateSegment?>>
         {

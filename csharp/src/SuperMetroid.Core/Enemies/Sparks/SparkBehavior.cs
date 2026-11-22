@@ -66,7 +66,6 @@ internal sealed partial class SparkBehavior : IEnemySpecies, IEnemySpawnFactory<
     }
 
     /// <summary>What <see cref="RunSparkMain"/> does for each <see cref="SparkAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<SparkAction, Action<RoomEnemyOccupant, SparkSpawnSettings, RoomEnemyPlace, SparkEnemyState>> RunSparkMainForSparkAction => field ??= new(new Dictionary<SparkAction, Action<RoomEnemyOccupant, SparkSpawnSettings, RoomEnemyPlace, SparkEnemyState>>
     {
         [SparkAction.AlwaysActive] = (_, _, _, _) => { },

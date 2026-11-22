@@ -167,7 +167,6 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
     private readonly partial record struct ApplyWorkRobotCueContext(RoomEnemyPlace Place, WorkRobotEnemyState State, EnemyAnimationCueContext Context, WorkRobotBehavior Owner);
 
     /// <summary>What each of the Work Robot's signals does; each runs on.</summary>
-    [field: NonSerialized]
     private IdentityTable<WorkRobotCueKind, Action<RoomEnemyPlace, WorkRobotEnemyState, Position16<RoomPixels>>> WorkRobotSignals => field ??=
         new(new Dictionary<WorkRobotCueKind, Action<RoomEnemyPlace, WorkRobotEnemyState, Position16<RoomPixels>>>
         {

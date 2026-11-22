@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Text;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Diagnostics.Configuration;
@@ -300,6 +301,216 @@ internal static partial class DebuggerStateLayoutVerification
         Console.WriteLine($"Debugger state restore: Botwoon's room restores with his {captured} body segments, his setup not run again.");
     }
 
+    /// <summary>
+    /// #2554: a restore rebuilds the Dachora room's speed-boost echoes, which join their body's trail through the creation
+    /// the body offered (<see cref="RoundTripJoinedParts"/>).
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoresDachoraEchoes() =>
+        RoundTripJoinedParts(JoinedPartsRuntime(), SuperMetroid.Core.Rooms.RoomDefinitions.Dachora,
+            ("Dachora echoes", place => place.Entity is SuperMetroid.Core.Enemies.Animals.DachoraEchoEntity));
+
+    /// <summary>
+    /// #2554: a restore rebuilds Rising Tide's Squeept followers, which follow their parents, and its Dragon wings, which take
+    /// their bodies' wing states, each through the creation its partner offered (<see cref="RoundTripJoinedParts"/>).
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoresSqueeptAndDragonParts() =>
+        RoundTripJoinedParts(JoinedPartsRuntime(), SuperMetroid.Core.Rooms.RoomDefinitions.RisingTide,
+            ("Squeept followers", place => place.Entity is SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperFollowerEntity),
+            ("Dragon wings", place => place.Entity is SuperMetroid.Core.Enemies.Dragon.DragonWingEntity));
+
+    /// <summary>
+    /// #2554: a restore rebuilds the Cathedral's Geruta followers, which follow their parents through the creation each
+    /// parent offered (<see cref="RoundTripJoinedParts"/>).
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoresGerutaFollowers() =>
+        RoundTripJoinedParts(JoinedPartsRuntime(), SuperMetroid.Core.Rooms.RoomDefinitions.Cathedral,
+            ("Geruta followers", place => place.Entity is SuperMetroid.Core.Enemies.Rios.GerutaFollowerEntity));
+
+    /// <summary>
+    /// #2554: a restore rebuilds the Acid Statue room's Holtz followers, which follow their parents through the creation each
+    /// parent offered, with the room's Chozo statue and its hand (<see cref="RoundTripJoinedParts"/>).
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoresHoltzFollowers() =>
+        RoundTripJoinedParts(JoinedPartsRuntime(), SuperMetroid.Core.Rooms.RoomDefinitions.AcidStatue,
+            ("Holtz followers", place => place.Entity is SuperMetroid.Core.Enemies.Rios.HoltzFollowerEntity));
+
+    /// <summary>
+    /// #2554: a restore rebuilds the Attic's Ki-Hunter wings once Phantoon is dead, which follow their bodies through the
+    /// creation each body offered (<see cref="RoundTripJoinedParts"/>).
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoresKiHunterWings()
+    {
+        SuperMetroidRuntime runtime = JoinedPartsRuntime();
+        runtime.System.RecordBossesDefeated(SuperMetroid.Core.Progression.AreaId.WreckedShip, SuperMetroid.Core.Progression.DefeatedBosses.AreaBoss);
+        RoundTripJoinedParts(runtime, SuperMetroid.Core.Rooms.RoomDefinitions.Attic,
+            ("Ki-Hunter wings", place => place.Entity is SuperMetroid.Core.Enemies.KiHunters.KiHunterWingsEntity));
+    }
+
+    /// <summary>
+    /// #2554: a debugger state leaves out a get-only lazy cache (<c>X => field ??= …</c>), whose value its object's other
+    /// state rebuilds on first use. A sealed primary-constructor type derived from a non-sealed primary-constructor base,
+    /// each with a lazy reaction built before the capture, round-trips through the generated members: the base's restore
+    /// does not compare its cache with one it just built, and each restored reaction is built again from the restored
+    /// object, reading what the state restored and what changes after it, while the captured object's reactions still read
+    /// the captured object.
+    /// </summary>
+    internal static void VerifyDebuggerStateRebuildsLazyCaches()
+    {
+        var shutter = new LazyShutter(3, 5) { Hits = 2 };
+        AssertEqual(5, shutter.Reaction(), "the captured base's reaction reads its strength and hits");
+        AssertEqual(7, shutter.Rise(), "the captured derived type's reaction reads its height and hits");
+
+        LazyShutter restored = DeserializeDebuggerGraph<LazyShutter>(SerializeDebuggerGraph(shutter));
+        AssertTrue(!ReferenceEquals(shutter, restored), "the restore builds its own object");
+        AssertEqual(2, restored.Hits, "the restored object holds the captured hits");
+        restored.Hits = 4;
+        AssertEqual(7, restored.Reaction(), "the restored base's reaction is built again from the restored object");
+        AssertEqual(9, restored.Rise(), "the restored derived type's reaction is built again from the restored object");
+        AssertEqual(5, shutter.Reaction(), "the captured object's reaction still reads the captured object");
+        Console.WriteLine("Debugger state lazy caches: a derived primary-constructor object restores and rebuilds its base's and its own caches.");
+    }
+
+    /// <summary>The updates the Kraid eye door room runs before its capture, past each eye door part's first update.</summary>
+    private const int EyeDoorUpdatesBeforeCapture = 8;
+
+    /// <summary>The updates the captured and the restored Kraid eye door rooms each run after the restore.</summary>
+    private const int EyeDoorUpdatesAfterRestore = 120;
+
+    /// <summary>
+    /// #2554: a restore rebuilds the eye door parts' own dispatch of what each part does as its image ends, a lazy cache of
+    /// arms reading the part itself (<see cref="SuperMetroid.Core.Rooms.Doors.EyeDoorPartObject"/>), which the state leaves
+    /// out. The Kraid eye door room runs past its parts' first updates, so the captured parts have built theirs; the restored
+    /// room holds parts in the same phases with the captured runtime's graph digest, and the captured and restored rooms
+    /// then run the same updates to the same parts' phases and the same digest.
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoresEyeDoorParts()
+    {
+        object[] content = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
+        SuperMetroidRuntime runtime = JoinedPartsRuntime();
+        runtime.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomDefinitions.KraidEyeDoor);
+        runtime.Player.Samus.Control.LockOutPlayer();
+        for (int update = 0; update < EyeDoorUpdatesBeforeCapture; update++)
+            runtime.StepFrame(0);
+        SuperMetroid.Core.Rooms.Doors.EyeDoorPartPhase[] captured = EyeDoorPartPhases(runtime);
+        AssertTrue(captured.Length > 0, "the Kraid eye door room placed its eye door's parts");
+
+        var restored = GraphDigestVerification.RestoreGraph<SuperMetroidRuntime>(GraphDigestVerification.SerializeGraph(runtime, content), content);
+        RetailRuntimeFixtureVerification.BindRetailRuntimeFixture(restored);
+        AssertTrue(EyeDoorPartPhases(restored).SequenceEqual(captured), "the restored room holds the eye door parts in their captured phases");
+        AssertTrue(GraphDigestVerification.GraphDigest(restored, content).SequenceEqual(GraphDigestVerification.GraphDigest(runtime, content)),
+            "the restored Kraid eye door runtime has the captured runtime's graph digest");
+        for (int update = 0; update < EyeDoorUpdatesAfterRestore; update++)
+        {
+            runtime.StepFrame(0);
+            restored.StepFrame(0);
+            AssertTrue(EyeDoorPartPhases(restored).SequenceEqual(EyeDoorPartPhases(runtime)),
+                $"update {update + 1} after the restore leaves the restored eye door parts in the captured parts' phases");
+        }
+        AssertTrue(GraphDigestVerification.GraphDigest(restored, content).SequenceEqual(GraphDigestVerification.GraphDigest(runtime, content)),
+            "the captured and restored Kraid eye door runtimes run to the same graph digest");
+        Console.WriteLine($"Debugger state restore: the Kraid eye door's {captured.Length} parts restore and run {EyeDoorUpdatesAfterRestore} updates as captured.");
+    }
+
+    /// <summary>The phases of the eye door parts in <paramref name="runtime"/>'s room, in update order.</summary>
+    private static SuperMetroid.Core.Rooms.Doors.EyeDoorPartPhase[] EyeDoorPartPhases(SuperMetroidRuntime runtime) =>
+        [.. runtime.Room.LoadedScope.RoomObjects.Places.InUpdateOrder
+            .Select(place => place.Behaviour)
+            .OfType<SuperMetroid.Core.Rooms.Doors.EyeDoorPartObject>()
+            .Select(part => part.Phase)];
+
+    /// <summary>The most death updates that reach the suit's explosion: its preflash and its flashing (#2387).</summary>
+    private const int DeathUpdatesToExplosion = 16 + 60;
+
+    /// <summary>The death updates the captured and the restored runtimes each run after the restore, within the explosion.</summary>
+    private const int DeathUpdatesAfterRestore = 40;
+
+    /// <summary>
+    /// #2554: a restore rebuilds Samus's death sequence's dispatch of what each death update draws, a lazy cache of arms
+    /// reading the sequence itself (<see cref="SuperMetroid.Core.Samus.Death.SamusDeathSequenceState"/>), which the state
+    /// leaves out. Samus dies in Alpha Power Bomb's room and her death runs into the suit's explosion, drawing each update,
+    /// so the captured sequence has built its dispatch; the restored runtime has the captured graph digest and stage, and
+    /// the captured and restored deaths then run the same updates to the same draws, explosion pictures, Samus and
+    /// latched frame.
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoresSamusDeathSequence()
+    {
+        object[] content = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
+        SuperMetroidRuntime runtime = JoinedPartsRuntime();
+        runtime.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomDefinitions.AlphaPowerBomb);
+        SuperMetroid.Core.Samus.SamusState samus = runtime.Player.Samus;
+        samus.PoseId = SuperMetroid.Core.Samus.Poses.SamusPoseId.FacingRightNormalPose;
+        SuperMetroid.Core.Samus.Poses.SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SuperMetroid.Core.Samus.Drawing.SamusPresentation.InitializeAnimation(samus);
+        // The death begins from gameplay, where Samus's grounded movement runs.
+        runtime.Player.GroundedSamusMovementEnabled = true;
+        runtime.DeathSequence.BeginDeathSequenceAfterMusicWait(runtime.Room.LoadedScope, samus);
+        for (int update = 0; update < DeathUpdatesToExplosion && samus.DeathSequence.Phase is not SuperMetroid.Core.Samus.Death.SamusDeathSequencePhase.Begun.SuitExplosion; update++)
+            _ = StepDeath(runtime);
+        AssertTrue(samus.DeathSequence.Phase is SuperMetroid.Core.Samus.Death.SamusDeathSequencePhase.Begun.SuitExplosion,
+            "Samus's death reaches the suit's explosion after its preflash and flashing");
+        AssertEqual(SuperMetroid.Core.Samus.Death.SamusDeathDraw.Explosion, StepDeath(runtime).Draws, "the exploding suit draws its explosion");
+
+        var restored = GraphDigestVerification.RestoreGraph<SuperMetroidRuntime>(GraphDigestVerification.SerializeGraph(runtime, content), content);
+        RetailRuntimeFixtureVerification.BindRetailRuntimeFixture(restored);
+        AssertEqual(samus.DeathSequence.Phase, restored.Player.Samus.DeathSequence.Phase, "the restored death is in the captured stage");
+        AssertTrue(GraphDigestVerification.GraphDigest(restored, content).SequenceEqual(GraphDigestVerification.GraphDigest(runtime, content)),
+            "the restored dying runtime has the captured runtime's graph digest");
+        for (int update = 0; update < DeathUpdatesAfterRestore; update++)
+        {
+            SuperMetroid.Core.Samus.Death.SamusDeathSequenceStepResult expected = StepDeath(runtime);
+            AssertEqual(expected, StepDeath(restored), $"death update {update + 1} after the restore draws as the captured death draws");
+            AssertEqual(samus.DeathSequence.ExplosionFrame, restored.Player.Samus.DeathSequence.ExplosionFrame,
+                $"death update {update + 1} after the restore shows the captured explosion picture");
+        }
+        // The whole runtimes' digests part after their first death update, as they did before the generator left lazy caches
+        // out: the difference lies in what the room's loader and objects reach, not in the death, so the death's own state is
+        // compared, with the frame each update latched.
+        AssertTrue(GraphDigestVerification.GraphDigest(restored.Player.Samus, content).SequenceEqual(GraphDigestVerification.GraphDigest(samus, content)),
+            "the captured and restored deaths run to the same Samus, her death sequence included");
+        AssertTrue(GraphDigestVerification.GraphDigest(restored.Display, content).SequenceEqual(GraphDigestVerification.GraphDigest(runtime.Display, content)),
+            "the captured and restored deaths latch the same frame");
+        Console.WriteLine($"Debugger state restore: Samus's death restores in the suit's explosion and runs {DeathUpdatesAfterRestore} updates as captured.");
+    }
+
+    /// <summary>Runs one update of the death of <paramref name="runtime"/>'s Samus, as the game's death state runs it.</summary>
+    private static SuperMetroid.Core.Samus.Death.SamusDeathSequenceStepResult StepDeath(SuperMetroidRuntime runtime) =>
+        runtime.DeathSequence.StepDeathSequenceFrame(0, runtime.Room.LoadedScope, runtime.Player.Samus,
+            (SuperMetroid.Core.Samus.Death.SamusDeathSequencePhase.Begun)runtime.Player.Samus.DeathSequence.Phase);
+
+    /// <summary>A retail runtime with its HUD and Ceres start set up, from which a room loads directly.</summary>
+    private static SuperMetroidRuntime JoinedPartsRuntime()
+    {
+        SuperMetroidRuntime runtime = RetailRuntimeFixtureVerification.CreateRetailRuntimeFixture();
+        runtime.HudSetup.InitializeHud(SuperMetroid.Core.Hud.HudSnapshot.NewGame);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
+        return runtime;
+    }
+
+    /// <summary>
+    /// Loads <paramref name="room"/> into <paramref name="runtime"/>, captures and restores it, and checks that the restored
+    /// room holds as many of each kind of offered part as the captured one, which holds some, and that the restored runtime
+    /// has the captured runtime's graph digest.
+    /// </summary>
+    private static void RoundTripJoinedParts(SuperMetroidRuntime runtime, SuperMetroid.Core.Rooms.RoomDefinition room,
+        params (string Parts, Func<SuperMetroid.Core.Enemies.RoomEnemyPlace, bool> IsPart)[] kinds)
+    {
+        object[] content = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
+        runtime.LoadCartridgeRoomForDebug(room);
+        int[] captured = [.. kinds.Select(kind => runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder.Count(kind.IsPart))];
+        for (int index = 0; index < kinds.Length; index++)
+            AssertTrue(captured[index] > 0, $"the room's population load built {kinds[index].Parts} through their partners' offers");
+        var restored = GraphDigestVerification.RestoreGraph<SuperMetroidRuntime>(GraphDigestVerification.SerializeGraph(runtime, content), content);
+        for (int index = 0; index < kinds.Length; index++)
+        {
+            AssertEqual(captured[index], restored.Room.LoadedScope.Enemies.Places.InUpdateOrder.Count(kinds[index].IsPart),
+                $"the restored room holds its {kinds[index].Parts}");
+        }
+        AssertTrue(GraphDigestVerification.GraphDigest(restored, content).SequenceEqual(GraphDigestVerification.GraphDigest(runtime, content)),
+            $"the restored {room.Name} runtime has the captured runtime's graph digest");
+        Console.WriteLine($"Debugger state restore: {room.Name} restores with its {string.Join(" and ", kinds.Select((kind, index) => $"{captured[index]} {kind.Parts}"))}.");
+    }
+
     /// <summary>The live Botwoon body segments among <paramref name="runtime"/>'s room's enemy projectiles.</summary>
     private static int BotwoonBodySegments(SuperMetroidRuntime runtime) =>
         runtime.Room.LoadedScope.Enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == SuperMetroid.Core.Enemies.RoomEnemyProjectileKind.BotwoonBody);
@@ -329,6 +540,29 @@ internal static partial class DebuggerStateLayoutVerification
     {
         /// <summary>The run.</summary>
         internal HoldingElement[] Elements { get; } = elements;
+    }
+
+    /// <summary>
+    /// A non-sealed base that caches its own reaction in a lazy property built from its primary constructor's parameter, as
+    /// an enemy part's base caches its own shot reaction.
+    /// </summary>
+    /// <param name="strength">What its reaction adds to its hits.</param>
+    private partial class LazyReacting(int strength)
+    {
+        /// <summary>The hits it has taken.</summary>
+        internal int Hits { get; set; }
+
+        /// <summary>Its strength and hits, built once.</summary>
+        internal Func<int> Reaction => field ??= () => strength + Hits;
+    }
+
+    /// <summary>A sealed primary-constructor type derived from <see cref="LazyReacting"/>, with a lazy reaction of its own.</summary>
+    /// <param name="strength">What its base's reaction adds to its hits.</param>
+    /// <param name="height">What its own reaction adds to its hits.</param>
+    private sealed partial class LazyShutter(int strength, int height) : LazyReacting(strength)
+    {
+        /// <summary>Its height and hits, built once.</summary>
+        internal Func<int> Rise => field ??= () => height + Hits;
     }
 
     /// <summary>A key compared by reference identity, whose hash is its object's.</summary>
@@ -407,6 +641,14 @@ internal static partial class DebuggerStateLayoutVerification
         Suite(nameof(VerifyDebuggerStatePacksLevelBlocks), () => VerifyDebuggerStatePacksLevelBlocks());
         Suite(nameof(VerifyDebuggerStateRestoresRoomObjectVisuals), () => VerifyDebuggerStateRestoresRoomObjectVisuals());
         Suite(nameof(VerifyDebuggerStateRestoreRunsNoSetup), () => VerifyDebuggerStateRestoreRunsNoSetup());
+        Suite(nameof(VerifyDebuggerStateRestoresDachoraEchoes), () => VerifyDebuggerStateRestoresDachoraEchoes());
+        Suite(nameof(VerifyDebuggerStateRestoresSqueeptAndDragonParts), () => VerifyDebuggerStateRestoresSqueeptAndDragonParts());
+        Suite(nameof(VerifyDebuggerStateRestoresGerutaFollowers), () => VerifyDebuggerStateRestoresGerutaFollowers());
+        Suite(nameof(VerifyDebuggerStateRestoresHoltzFollowers), () => VerifyDebuggerStateRestoresHoltzFollowers());
+        Suite(nameof(VerifyDebuggerStateRestoresKiHunterWings), () => VerifyDebuggerStateRestoresKiHunterWings());
+        Suite(nameof(VerifyDebuggerStateRebuildsLazyCaches), () => VerifyDebuggerStateRebuildsLazyCaches());
+        Suite(nameof(VerifyDebuggerStateRestoresEyeDoorParts), () => VerifyDebuggerStateRestoresEyeDoorParts());
+        Suite(nameof(VerifyDebuggerStateRestoresSamusDeathSequence), () => VerifyDebuggerStateRestoresSamusDeathSequence());
         return 0;
     }
 }

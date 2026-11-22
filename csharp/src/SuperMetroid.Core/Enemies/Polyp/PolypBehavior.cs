@@ -26,6 +26,7 @@ internal sealed partial class PolypBehavior : IEnemySpecies, IEnemySpawnFactory<
     {
         _room = room;
         _projectiles = projectiles;
+        Rock = new(FlyPolypRock);
     }
 
     /// <summary>Initializes the Polyp.</summary>
@@ -43,7 +44,6 @@ internal sealed partial class PolypBehavior : IEnemySpecies, IEnemySpawnFactory<
     }
 
     /// <summary>What <see cref="RunPolypMain"/> does for each <see cref="PolypAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<PolypAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PolypEnemyState, SamusState>> RunPolypMainForPolypAction => field ??= new(new Dictionary<PolypAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PolypEnemyState, SamusState>>
     {
         [PolypAction.WaitingForSamus] = (_, place, state, samus) =>
@@ -95,7 +95,7 @@ internal sealed partial class PolypBehavior : IEnemySpecies, IEnemySpawnFactory<
     }
 
     /// <summary>A Polyp rock (#1760): it rises and falls quadratically until it leaves the camera.</summary>
-    internal StatefulSingleMotionProjectileBehavior<PolypRockState> Rock => field ??= new(FlyPolypRock);
+    internal StatefulSingleMotionProjectileBehavior<PolypRockState> Rock { get; }
 
     /// <summary>Moves a Polyp rock (<see cref="Rock"/>).</summary>
     private void FlyPolypRock(EnemyProjectileMotionContext context) => FlyPolypRock(context.Projectile, context.Camera);
@@ -130,7 +130,6 @@ internal sealed partial class PolypBehavior : IEnemySpecies, IEnemySpawnFactory<
     }
 
     /// <summary>What <see cref="FlyPolypRock"/> does for each <see cref="PolypRockMovement"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<PolypRockMovement, Action<EnemyProjectile>> FlyPolypRockForPolypRockMovement => field ??= new(new Dictionary<PolypRockMovement, Action<EnemyProjectile>>
     {
         [PolypRockMovement.Rising] = projectile => StepRisingPolypRock(projectile),

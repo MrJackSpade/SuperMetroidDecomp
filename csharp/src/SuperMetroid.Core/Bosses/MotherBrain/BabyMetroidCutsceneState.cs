@@ -682,7 +682,6 @@ public sealed partial class BabyMetroidCutsceneState
     }
 
     /// <summary>What <see cref="StepSamusRainbowColours"/> does for each <see cref="BabyMetroidSamusRainbowPhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<BabyMetroidSamusRainbowPhase, Action<SamusState>> StepSamusRainbowColoursForBabyMetroidSamusRainbowPhase => field ??= new(new Dictionary<BabyMetroidSamusRainbowPhase, Action<SamusState>>
     {
         [BabyMetroidSamusRainbowPhase.Inactive] = samus => { },

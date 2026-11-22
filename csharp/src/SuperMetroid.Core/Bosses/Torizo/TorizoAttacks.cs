@@ -15,34 +15,32 @@ internal sealed partial class TorizoAttacks
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the room's enemy projectiles, which Torizo's attacks spawn.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Queues the statue-break sound with the enemy audio limits.</summary>
-    private readonly EnemyAudioQueue _audio;
-    /// <summary>Spawns the orb drops and the death scatter after the authored sequences.</summary>
-    private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal TorizoAttacks(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyDeathsAndDrops deathsAndDrops)
     {
         _room = room;
         _projectiles = projectiles;
-        _audio = audio;
-        _deathsAndDrops = deathsAndDrops;
+        TorizoProjectiles = new TorizoProjectileBehavior(room, projectiles, audio, deathsAndDrops);
+        ChozoOrb = new TorizoProjectileBehavior(room, projectiles, audio, deathsAndDrops, TorizoProjectileSegment.ChozoOrbShot);
+        Egg = new TorizoProjectileBehavior(room, projectiles, audio, deathsAndDrops, TorizoProjectileSegment.ChozoOrbWallImpact);
+        SuperMissile = new TorizoProjectileBehavior(room, projectiles, audio, deathsAndDrops, TorizoProjectileSegment.SuperMissileImpact);
     }
 
     /// <summary>
     /// Torizo's drool, swipes, explosions, sonic booms, eye beam, landing dust and statue fragments (#1760): their
     /// spawners start their animations, and a shot one runs the shared delete animation.
     /// </summary>
-    internal TorizoProjectileBehavior TorizoProjectiles => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops);
+    internal TorizoProjectileBehavior TorizoProjectiles { get; }
 
     /// <summary>A Chozo orb, Bomb or Golden Torizo's (#1760): a shot one runs its typed shot animation.</summary>
-    internal TorizoProjectileBehavior ChozoOrb => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops, TorizoProjectileSegment.ChozoOrbShot);
+    internal TorizoProjectileBehavior ChozoOrb { get; }
 
     /// <summary>A Golden Torizo egg (#1760): its definition names the Chozo orb's wall-impact animation as its shot animation.</summary>
-    internal TorizoProjectileBehavior Egg => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops, TorizoProjectileSegment.ChozoOrbWallImpact);
+    internal TorizoProjectileBehavior Egg { get; }
 
     /// <summary>A super missile Golden Torizo catches and throws (#1760): a shot one runs its typed impact.</summary>
-    internal TorizoProjectileBehavior SuperMissile => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops, TorizoProjectileSegment.SuperMissileImpact);
+    internal TorizoProjectileBehavior SuperMissile { get; }
 
     /// <summary>
     /// One of the Torizos' projectiles: every motion of the statue fragments, orbs, sonic booms, drool, eggs,
@@ -97,7 +95,6 @@ internal sealed partial class TorizoAttacks
         };
 
         /// <summary>What <c>Move</c> does for each <see cref="TorizoProjectileMotion"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<TorizoProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>> MoveForTorizoProjectileMotion => field ??= new(new Dictionary<TorizoProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>>
         {
             [TorizoProjectileMotion.StatueFragmentFalling] = (context, projectile) => DropStatueFragment(projectile, context.Level),

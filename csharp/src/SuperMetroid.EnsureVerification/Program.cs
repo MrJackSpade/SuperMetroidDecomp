@@ -135,6 +135,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(RoomPointerAnalyzerTests.VerifyRoomPointerAnalyzer), RoomPointerAnalyzerTests.VerifyRoomPointerAnalyzer),
                 new AnalyzerSuite(nameof(VerifyOwnedReflectionAnalyzer), VerifyOwnedReflectionAnalyzer),
                 new AnalyzerSuite(nameof(GameReflectionAnalyzerTests.VerifyGameReflectionAnalyzer), GameReflectionAnalyzerTests.VerifyGameReflectionAnalyzer),
+                new AnalyzerSuite(nameof(StateGraphGeneratorTests.VerifyStateGraphGeneratorLeavesOutLazyCaches), StateGraphGeneratorTests.VerifyStateGraphGeneratorLeavesOutLazyCaches),
                 new AnalyzerSuite(nameof(VerifyParameterContracts), VerifyParameterContracts),
                 new AnalyzerSuite(nameof(VerifyEnsureCallsAndCodeFix), VerifyEnsureCallsAndCodeFix),
                 new AnalyzerSuite(nameof(VerifyWordReadAnalyzer), VerifyWordReadAnalyzer),

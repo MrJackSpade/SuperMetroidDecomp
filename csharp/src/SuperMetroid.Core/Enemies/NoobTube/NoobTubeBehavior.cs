@@ -22,20 +22,17 @@ internal sealed partial class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSe
     private static readonly SpriteGraphics TubePieceGraphics =
         SpriteGraphics.SharedIn(PictureShading.Shaded(ChozoAndTubeShades.TubeCracks));
 
-    /// <summary>Provides room-load state and the RNG for shard and bubble launch angles.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Allocates and advances crack, glass shard, and released-air-bubble projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
     /// <summary>Binds projectile initialization to the loaded room and its projectiles.</summary>
     internal NoobTubeBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
-        _room = room;
         _projectiles = projectiles;
+        TubePieces = new NoobTubeProjectileBehavior(room);
     }
 
     /// <summary>What <see cref="SpawnNoobTubeProjectile"/> does for each <see cref="NoobTubeProjectileDefinition"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<NoobTubeProjectileDefinition, Action<NoobTubePiece, EnemyProjectile, Position16<RoomPixels>>> SpawnNoobTubeProjectileForNoobTubeProjectileDefinition => field ??= new(new Dictionary<NoobTubeProjectileDefinition, Action<NoobTubePiece, EnemyProjectile, Position16<RoomPixels>>>
     {
         [NoobTubeProjectileDefinition.Crack] = (piece, projectile, place) =>
@@ -145,7 +142,7 @@ internal sealed partial class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSe
     }
 
     /// <summary>The tube's crack, shards and released-air bubbles (#1760): their spawner starts their animations.</summary>
-    internal NoobTubeProjectileBehavior TubePieces => field ??= new NoobTubeProjectileBehavior(_room);
+    internal NoobTubeProjectileBehavior TubePieces { get; }
 
     /// <summary>The enemy projectile each n00b-tube piece spawns as (#2553): its crack, a glass shard or a released bubble.</summary>
     private static IdentityTable<NoobTubeProjectileDefinition, RoomEnemyProjectileKind> PieceKinds { get; } = new(new Dictionary<NoobTubeProjectileDefinition, RoomEnemyProjectileKind>
@@ -180,7 +177,6 @@ internal sealed partial class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSe
         };
 
         /// <summary>What <c>Move</c> does for each <see cref="NoobTubePieceMotion"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<NoobTubePieceMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>> MoveForNoobTubePieceMotion => field ??= new(new Dictionary<NoobTubePieceMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>>
         {
             [NoobTubePieceMotion.CrackFlickering] = (context, projectile) => FlickerNoobTubeCrack(projectile, context.ShortCounter),
@@ -217,7 +213,6 @@ internal sealed partial class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSe
             Pieces.Of(projectile).IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsInSecondHalfAt(shortCounter);
 
         /// <summary>What <see cref="ApplyNoobTubeProjectileCue"/> does for each <see cref="NoobTubeProjectileCueKind"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<NoobTubeProjectileCueKind, Action<EnemyProjectile, NoobTubeShardMirroring, bool>> ApplyNoobTubeProjectileCueForNoobTubeProjectileCueKind => field ??= new(new Dictionary<NoobTubeProjectileCueKind, Action<EnemyProjectile, NoobTubeShardMirroring, bool>>
         {
             [NoobTubeProjectileCueKind.FlickerReflected] = (projectile, mirroring, atOwnColumn) =>

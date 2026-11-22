@@ -186,7 +186,6 @@ internal sealed partial class MotherBrainFakeDeath
     }
 
     /// <summary>What <see cref="RunMotherBrainFallingTubeMain"/> does for each <see cref="MotherBrainTubeAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<MotherBrainTubeAction, Action<RoomEnemyPlace, MotherBrainFallingTubeState, MotherBrainEnemyState>> RunMotherBrainFallingTubeMainForMotherBrainTubeAction => field ??= new(new Dictionary<MotherBrainTubeAction, Action<RoomEnemyPlace, MotherBrainFallingTubeState, MotherBrainEnemyState>>
     {
         [MotherBrainTubeAction.NonMainTube] = (tube, tubeState, _) => FallMotherBrainSideTube(tube, tubeState),

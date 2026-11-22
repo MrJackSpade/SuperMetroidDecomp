@@ -42,7 +42,6 @@ internal sealed partial class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>What <see cref="ApplyFuneNamiheCue"/> does for each <see cref="FuneNamiheCueKind"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<FuneNamiheCueKind, Action<FuneNamiheEnemyState>> ApplyFuneNamiheCueForFuneNamiheCueKind => field ??= new(new Dictionary<FuneNamiheCueKind, Action<FuneNamiheEnemyState>>
     {
         [FuneNamiheCueKind.SpitSound] = state =>

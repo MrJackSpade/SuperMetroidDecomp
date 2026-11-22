@@ -62,7 +62,6 @@ internal sealed partial class DeadSidehopperBehavior : IEnemySpecies, IEnemySpaw
     }
 
     /// <summary>What <see cref="InitializeDeadSidehopper"/> does for each <see cref="DeadSidehopperLayout"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<DeadSidehopperLayout, Func<RoomEnemyPlace, DeadSidehopperEnemyState>> InitializeDeadSidehopperForDeadSidehopperLayout => field ??= new(new Dictionary<DeadSidehopperLayout, Func<RoomEnemyPlace, DeadSidehopperEnemyState>>
     {
         [DeadSidehopperLayout.BabyMetroidVictim] = place => InitializeBabyMetroidVictimSidehopper(place),
@@ -123,7 +122,6 @@ internal sealed partial class DeadSidehopperBehavior : IEnemySpecies, IEnemySpaw
         RunDeadSidehopperState(place, deadSidehopperEnemyState, samus, level, camera);
 
     /// <summary>What <see cref="RunDeadSidehopperState"/> does for each <see cref="DeadSidehopperAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<DeadSidehopperAction, Action<RoomEnemyPlace, DeadSidehopperEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>> RunDeadSidehopperStateForDeadSidehopperAction => field ??= new(new Dictionary<DeadSidehopperAction, Action<RoomEnemyPlace, DeadSidehopperEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>>
     {
         [DeadSidehopperAction.AliveWaitForCamera] = (place, state, samus, level, camera) =>

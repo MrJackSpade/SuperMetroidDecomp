@@ -15,18 +15,18 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 [RoomLifetime]
 internal sealed partial class DraygonShots
 {
-    /// <summary>Allocates the drop a shot goop leaves.</summary>
-    private readonly EnemyDeathsAndDrops _deathsAndDrops;
-
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonShots(EnemyDeathsAndDrops deathsAndDrops) => _deathsAndDrops = deathsAndDrops;
+    internal DraygonShots(EnemyDeathsAndDrops deathsAndDrops)
+    {
+        Goop = new DraygonShotBehavior(deathsAndDrops, StartsGoopFlying, shot: StartsGoopShot, touch: StartsGoopTouch);
+        WallTurretShot = new DraygonShotBehavior(deathsAndDrops, StartsHeld, shot: StartsTurretShotExplosion);
+    }
 
     /// <summary>
     /// Draygon's goop: Samus's touch sticks it to her and a shot one drops Draygon's eye's chances, through the typed
     /// animations its definition names.
     /// </summary>
-    internal DraygonShotBehavior Goop => field ??= new DraygonShotBehavior(_deathsAndDrops, StartsGoopFlying,
-        shot: StartsGoopShot, touch: StartsGoopTouch);
+    internal DraygonShotBehavior Goop { get; }
 
     /// <summary>The goop starts flying from Draygon's tail.</summary>
     private static EnemyProjectileOwnedMotion? StartsGoopFlying(DraygonShotBehavior shots) => shots.GoopFlying;
@@ -50,8 +50,7 @@ internal sealed partial class DraygonShots
     /// A wall turret's shot: it holds still through its muzzle bloom until its animation fires it, and a shot one runs the
     /// shared dust's small explosion, the animation its definition names.
     /// </summary>
-    internal DraygonShotBehavior WallTurretShot => field ??= new DraygonShotBehavior(_deathsAndDrops, StartsHeld,
-        shot: StartsTurretShotExplosion);
+    internal DraygonShotBehavior WallTurretShot { get; }
 
     /// <summary>
     /// A goop or turret shot: the goop's flight and its hold on Samus, the turret shot's flight, and their cues. The power
@@ -112,7 +111,6 @@ internal sealed partial class DraygonShots
         }
 
         /// <summary>What <see cref="RunCue"/> does for each <see cref="DraygonProjectileCue"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<DraygonProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForDraygonProjectileCue => field ??= new(new Dictionary<DraygonProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
         {
             [DraygonProjectileCue.StickToSamus] = (context, projectile) => AttachDraygonGoopToSamus(projectile, context.Samus, context.SamusBombs.PowerBombExplosion),

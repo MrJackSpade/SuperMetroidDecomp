@@ -128,7 +128,6 @@ internal sealed partial class AccessStationObject(StationAccessRule rule, AreaId
     }
 
     /// <summary>What <see cref="ReachAccessMoment"/> does for each <see cref="StationAccessCue"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<StationAccessCue, Action<RoomObjectStepContext, IRoomSamus>> ReachAccessMomentForStationAccessCue => field ??= new(new Dictionary<StationAccessCue, Action<RoomObjectStepContext, IRoomSamus>>
     {
         [StationAccessCue.Activates] = (context, samus) =>

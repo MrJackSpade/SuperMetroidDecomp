@@ -133,7 +133,6 @@ internal sealed partial class ElevatorBehavior : IEnemySpecies, IEnemyLoadedFact
     }
 
     /// <summary>What <see cref="RunElevatorMain"/> does for each <see cref="ElevatorActorStatus"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<ElevatorActorStatus, Action<ElevatorSpawnSettings, RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction, SamusProjectileSystem>> RunElevatorMainForElevatorActorStatus => field ??= new(new Dictionary<ElevatorActorStatus, Action<ElevatorSpawnSettings, RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction, SamusProjectileSystem>>
     {
         [ElevatorActorStatus.Inactive] = (settings, place, state, samus, newlyPressedControllerInput, samusProjectiles) =>

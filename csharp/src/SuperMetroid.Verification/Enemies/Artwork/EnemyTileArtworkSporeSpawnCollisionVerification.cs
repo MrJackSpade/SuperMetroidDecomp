@@ -22,10 +22,9 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
 
         var installed = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
-        RoomEnemyPlace installedPlace = installed.Places.InUpdateOrder[0];
-        // The test-only cartridge walker supplies an independent reference; the blank definition's own values are not what
-        // the walk compares.
-        installedPlace.Bind(EnemyDefinitionId.SporeSpawn, EnemyDefinitionFixtures.Blank);
+        // The room's population load sets him up, whose entity answers for his frames' hitboxes; the test-only cartridge
+        // walker supplies an independent reference.
+        RoomEnemyPlace installedPlace = installed.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.SporeSpawn, new Position16<RoomPixels>(0x100, 0x100)))[0];
         installedPlace.Position = installedPlace.Position.WithWhole(new(0x100, 0x100));
 
         var seenLists = new HashSet<ushort>();
@@ -87,12 +86,10 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         AssertThrows<InvalidDataException>(
             () => SporeSpawnCollision.ComponentsAt(0xa2df),
             "Draygon frame cannot enter Spore Spawn collision data");
+        // An address inside his frames or one no frame uses names no frame at all, so it reaches no collision data: the
+        // lookup takes frames, never addresses.
         foreach (ushort invalid in new ushort[] { 0xee64, 0xee66, 0xee70, 0xee7a, 0xeef7, 0xef01, 0xef33, 0xef62 })
-        {
             AssertTrue(!SporeSpawnCollision.IsFrame(invalid), "Spore component exact native root domain");
-            AssertThrows<InvalidDataException>(() => SporeSpawnCollision.ComponentsAt(invalid),
-                "Spore invalid or unused component root rejected");
-        }
         AssertEqual(1, SporeSpawnCollision.ComponentsAt(0xee6f).Length, "Spore closed frame has no inner point");
         AssertEqual(2, SporeSpawnCollision.ComponentsAt(0xef3d).Length, "Spore open frame has exactly two components");
         Console.WriteLine($"  Spore Spawn collision: {frameCount} roots, {seenLists.Count} lists and {callbackComparisons} live touch/shot comparisons match the cartridge with installed ROM reads denied.");

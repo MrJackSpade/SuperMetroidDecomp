@@ -8,6 +8,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Checks Draygon's empty OAM collision frames without claiming Spore Spawn's bank $A5 frames.</summary>
@@ -23,10 +24,10 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
         // VerifySporeSpawnAnimations confirms each typed Spore Spawn frame's spritemap equals its native operand.
         var sporePointers = SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification.BodySpritemaps();
 
+        // His room's population places him whole, his body first, whose entity answers for his frames' hitboxes.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.DraygonBody, place.KeptDefinition);
-        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        RoomEnemyPlace place = enemies.LoadRoom(RoomEnemyPopulationDefinitions.DraygonDefault, RoomEnemyFrameFixtures.StandaloneSamus(),
+            RoomEnemyFrameFixtures.OpenRoom(new(64, 64)))[0];
         place.Position = place.Position.WithWhole(new(0x100, 0x100));
 
         int draygonFrames = 0;

@@ -1155,25 +1155,17 @@ public sealed partial class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// <paramref name="draws"/> with the flashback Samus's draws in her shading (#1512), and every draw shown in her beams'
-    /// shade also at the level the crossfade shows her beam colours at: the shading, not the kind of draw, says which
-    /// draws show the faded beam colours.
+    /// <paramref name="draws"/> with the flashback Samus's draws in her shading (#1512), over which each crossfaded scene below
+    /// full shows its own colours at its level (#2616): her suit with the flashback, the beam colours the narration shares
+    /// with the narration. The rest of each draw keeps her colours; the other draws keep the shading their owners named.
     /// </summary>
     private ImmutableArray<ImageSpriteDraw> FlashbackDraws(ImmutableArray<SpriteDraw> draws)
     {
-        ImmutableArray<ImageSpriteDraw> shaded = flashbackSamusColours.ShadeOwnDraws(draws);
-        int level = crossfade.LevelOf(IntroCrossfadeScene.Narration);
-        if (level == IntroCrossfade.Levels)
-            return shaded;
-        var beamLevel = new ColourLevel(new FadeLevel(level, IntroCrossfade.Levels));
-        var faded = ImmutableArray.CreateBuilder<ImageSpriteDraw>(shaded.Length);
-        foreach (ImageSpriteDraw draw in shaded)
-        {
-            faded.Add(draw.Shading.Shades.Contains(SamusShades.IntroBeams)
-                ? draw with { Shading = draw.Shading.With(beamLevel) }
-                : draw);
-        }
-        return faded.MoveToImmutable();
+        PictureShading samus = crossfade.OwnColourShading(flashbackSamusColours.Shading);
+        var shaded = ImmutableArray.CreateBuilder<ImageSpriteDraw>(draws.Length);
+        foreach (SpriteDraw draw in draws)
+            shaded.Add(draw.Published(samus));
+        return shaded.MoveToImmutable();
     }
 
     /// <summary>The scene plane showing <paramref name="pictures"/> at the selected scroll (#1467).</summary>

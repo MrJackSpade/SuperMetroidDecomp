@@ -99,6 +99,22 @@ public sealed partial class IntroCrossfade
     }
 
     /// <summary>
+    /// <paramref name="shading"/>, then each scene's level below full over the colours the scene owns (#2616): the shading of
+    /// an actor that colours itself, such as the flashbacks' Samus, whose colours each scene fades only where it owns them.
+    /// </summary>
+    internal PictureShading OwnColourShading(PictureShading shading)
+    {
+        PictureShading faded = Ensure.NotNull(shading);
+        foreach (IntroCrossfadeScene scene in ShadedScenes)
+        {
+            int level = LevelOf(scene);
+            if (level < Levels)
+                faded = faded.With(IntroShades.Faded(scene, level));
+        }
+        return faded;
+    }
+
+    /// <summary>
     /// An actor's shading: <paramref name="drawn"/>, then each scene's level below full over the actor's own-colour parts
     /// and over the parts its drawn shade colours.
     /// </summary>

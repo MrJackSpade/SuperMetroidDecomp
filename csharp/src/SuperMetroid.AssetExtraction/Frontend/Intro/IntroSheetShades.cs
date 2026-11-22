@@ -44,6 +44,31 @@ internal static partial class IntroSheetShades
     }
 
     /// <summary>
+    /// Every crossfaded scene at every level below full over the sprite inks it owns, coloured from <paramref name="sprites"/>
+    /// (#2616): the shades of a sheet whose frames colour themselves at the opening's sprite inks, such as Samus's, which
+    /// the opening's crossfade fades where each scene owns her colours.
+    /// </summary>
+    /// <param name="sprites">The opening's installed sprite colours, at the inks every frame colours them at.</param>
+    internal static IReadOnlyList<SheetShade> SpriteFades(IReadOnlyList<RgbColor> sprites)
+    {
+        Ensure.NotNull(sprites);
+        var shades = new List<SheetShade>();
+        foreach (IntroCrossfadeScene scene in ShadedScenes)
+        {
+            for (int level = 0; level < IntroCrossfade.Levels; level++)
+                shades.Add(SpriteFade(sprites, scene, level));
+        }
+        return shades;
+    }
+
+    /// <summary><paramref name="scene"/> at <paramref name="level"/> over the sprite inks it owns, coloured from <paramref name="sprites"/>.</summary>
+    private static SheetShade SpriteFade(IReadOnlyList<RgbColor> sprites, IntroCrossfadeScene scene, int level)
+    {
+        var faded = new FadeLevel(level, IntroCrossfade.Levels);
+        return SheetShade.Of(IntroShades.Faded(scene, level), IntroSheetInks.Sprite(scene), colour => PreColouredFade.AtLevel(sprites[colour], faded));
+    }
+
+    /// <summary>
     /// The intro sprite sheet's shades over <paramref name="sprites"/> (#1513): each colouring over its own sprite set's inks,
     /// which every frame it draws is coloured in, and every crossfaded scene at every level below full over its inks, both as
     /// its own shade and as each colouring's, whose frames show the scene's inks where their set holds them.
@@ -65,7 +90,7 @@ internal static partial class IntroSheetShades
             for (int level = 0; level < IntroCrossfade.Levels; level++)
             {
                 var faded = new FadeLevel(level, IntroCrossfade.Levels);
-                shades.Add(SheetShade.Of(IntroShades.Faded(scene, level), colours, colour => PreColouredFade.AtLevel(sprites[colour], faded)));
+                shades.Add(SpriteFade(sprites, scene, level));
                 foreach (IntroSpriteColouring colouring in Colourings)
                 {
                     int set = IntroSheetInks.SpriteSet(colouring);

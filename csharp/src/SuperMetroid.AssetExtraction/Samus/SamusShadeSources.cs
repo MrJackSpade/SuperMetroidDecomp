@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Death;
@@ -13,8 +14,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The installed colour tables Samus's sheets are pre-coloured from (#1512), loaded once for all her sheets.</summary>
 /// <param name="Starting">Gameplay's starting colours, which hold her suit's and beams' before any is loaded.</param>
-/// <param name="IntroSuit">Her suit's colours in the opening's own colours.</param>
-/// <param name="IntroBeams">Her beams' colours in the opening's own colours.</param>
+/// <param name="IntroSprites">
+/// The opening's own sprite colours, at the inks her sheets colour them at: her suit's and beams' in the opening, which its
+/// crossfade fades where each scene owns them (#2616).
+/// </param>
 /// <param name="Suits">The three suits' normal colours.</param>
 /// <param name="Charge">The charged-beam and pseudo Screw Attack colours.</param>
 /// <param name="HyperBeamSuit">The Hyper Beam's full-body glow.</param>
@@ -26,7 +29,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="HyperBeamCycle">The Hyper Beam's own beam colour cycle.</param>
 /// <param name="Death">The death sequence's suited, suitless and whiteout colours.</param>
 /// <param name="PaletteFx">The palette-FX records' colours, whose heat glow and loading suit recolour her suit (#1512).</param>
-internal sealed partial record SamusShadeSources(GameplayStartingColours Starting, RgbColor[] IntroSuit, RgbColor[] IntroBeams,
+internal sealed partial record SamusShadeSources(GameplayStartingColours Starting, IReadOnlyList<RgbColor> IntroSprites,
     InstalledSamusSuitColors Suits, SamusChargeColours Charge, SamusHyperBeamColours HyperBeamSuit,
     SamusFullBodyCycleColours FullBodyCycles,
     InstalledSamusHurtColors Hurt, InstalledSamusVisorColors Visor, InstalledBeamPalettes BeamPalettes,
@@ -69,8 +72,8 @@ internal sealed partial record SamusShadeSources(GameplayStartingColours Startin
         {
             Suit(SamusShades.StartingSuit, Starting.SamusSuit),
             Beams(SamusShades.StartingBeams, Starting.SamusBeams),
-            Suit(SamusShades.IntroSuit, IntroSuit),
-            Beams(SamusShades.IntroBeams, IntroBeams),
+            Suit(SamusShades.IntroSuit, [.. IntroSprites.Skip(SamusSheetInks.Suit).Take(SamusColourSets.ColoursPerSet)]),
+            Beams(SamusShades.IntroBeams, [.. IntroSprites.Skip(SamusSheetInks.Beams).Take(SamusColourSets.ColoursPerSet)]),
             SheetShade.Of(SamusShades.ChargedShotGlow, Enumerable.Range(SamusSheetInks.Suit + 1, SamusColourSets.ColoursPerSet - 1),
                 _ => ChargedShotGlowColour),
             SheetShade.Of(SamusShades.DoorCompletionVisor, [SamusSheetInks.Visor], _ => DoorCompletionVisorColour),
@@ -125,6 +128,8 @@ internal sealed partial record SamusShadeSources(GameplayStartingColours Startin
             shades.Add(SheetShade.Of(SamusShades.DeathWhiteout(whiteout),
                 [SamusSheetInks.GrappleFlare, .. Enumerable.Range(SamusSheetInks.Beams, SamusColourSets.ColoursPerSet)], _ => white));
         }
+        // The opening's crossfade fades her colours where each scene owns them (#2616).
+        shades.AddRange(IntroSheetShades.SpriteFades(IntroSprites));
         // Her heat glow and her suit's loading are palette-FX records she lays over her suit.
         shades.AddRange(PaletteFxSamusShades.Of(PaletteFx));
         return shades;

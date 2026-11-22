@@ -47,8 +47,7 @@ internal sealed partial record SamusSheetInputs(ImportProjectileArtwork Projecti
         SamusMapColourTables tables = maps.SamusColours;
         var sources = new SamusShadeSources(
             palettes.Starting,
-            [.. intro.Palette.SpriteColours.AsSpan(SamusSheetInks.Suit, SamusSheetInks.GroupColours)],
-            [.. intro.Palette.SpriteColours.AsSpan(SamusSheetInks.Beams, SamusSheetInks.GroupColours)],
+            [.. intro.Palette.SpriteColours],
             tables.Suits,
             tables.Charge,
             tables.HyperBeam,

@@ -105,9 +105,13 @@ internal static class ChootPatternDefinitionsVerification
                 AssertEqual(unchecked((ushort)(0x5000 + point.Y)),
                     fallPlace.Position.Y.Whole,
                     $"Choot production fall Y {patternIndex}/{frameIndex}");
-                AssertEqual(frameIndex + 1,
-                    ChootFallLoopAccess.AgeOf(fallState.FallingLoop),
-                    $"Choot production fall cursor {patternIndex}/{frameIndex}");
+                // The path's last sample leaves the loop over, at the native list's end record; an over loop counts no age.
+                if (frameIndex + 1 == frameCounts[patternIndex] - 1)
+                    AssertTrue(fallState.FallingLoop is ChootFallLoop.Over, $"Choot production fall cursor {patternIndex}/{frameIndex} reaches the loop's end");
+                else
+                    AssertEqual(frameIndex + 1,
+                        ChootFallLoopAccess.AgeOf(fallState.FallingLoop),
+                        $"Choot production fall cursor {patternIndex}/{frameIndex}");
             }
 
             runFall(fallPlace, fallState);

@@ -33,7 +33,7 @@ internal static class SamusMovementNativeWords
     {
         SamusKnockback.Moving moving => KnockbackDirections.Word(moving.Direction),
         SamusKnockback.HandedBack => throw new InvalidOperationException(
-            "A handed-back knockback keeps no direction; compare it with the cartridge's word through AgreesWithDirectionWord."),
+            $"A handed-back knockback keeps no direction; compare it with the cartridge's word through {nameof(AgreesWithDirectionWord)}."),
         _ => NoKnockbackDirection,
     };
 

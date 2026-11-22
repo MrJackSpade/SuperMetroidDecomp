@@ -332,6 +332,9 @@ internal static class EnemySpeciesCapabilitiesVerification
     {
         RoomEnemyPlacement[] placements = population.Placements.Span[..(last + 1)].ToArray();
         RoomEnemySystem enemies = NewRoomEnemies();
+        // Mother Brain's room sets her glass up with its objects before its enemies spawn, and her body's setup confirms it.
+        if (placements.Any(placement => placement.DefinitionId == EnemyDefinitionId.MotherBrainBody))
+            Bosses.MotherBrain.MotherBrainPlacement.SetUpGlass(enemies);
         // The entries keep their population's name, so they draw from its artwork as its room's load has them.
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(new PlacedRoomEnemyPopulationDefinition(population.Name, placements, deathQuota: 0),
             BgArtworkFixtures.For(new SnesVram()), WalledRoomHolding(placements), RoomEnemyFrameFixtures.StandaloneSamus()));

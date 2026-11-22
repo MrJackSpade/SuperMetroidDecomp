@@ -25,7 +25,7 @@ internal static class MotherBrainLaterContactVerification
         // with her body, brain and neck hit areas enabled. Her setup reads the room's random numbers, which stand at zero.
         enemies.VerificationServices().ReadRandom = () => 0;
         enemies.VerificationServices().NextRandom = () => 0;
-        MotherBrainEnemyState state = MotherBrainBabyArrival.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
+        MotherBrainEnemyState state = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
         RoomEnemyPlace body = state.Body;
         // Her second phase sets her brain up as her rise does, her body and brain tangible.
         MotherBrainAscent.SetupMotherBrainPhaseTwoBrain(state);

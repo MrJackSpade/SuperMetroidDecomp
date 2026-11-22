@@ -25,7 +25,7 @@ internal static class MotherBrainPlasmaImpactVerification
         // Her setup reads the room's random numbers, which stand at zero here.
         enemies.VerificationServices().ReadRandom = () => 0;
         enemies.VerificationServices().NextRandom = () => 0;
-        MotherBrainEnemyState state = MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
+        MotherBrainEnemyState state = MotherBrainPlacement.PlaceMotherBrain(enemies, samus);
         // Her second phase sets her brain up as her rise does, her body and brain tangible.
         MotherBrainAscent.SetupMotherBrainPhaseTwoBrain(state);
         RoomEnemyPlace head = state.Head;

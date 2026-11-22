@@ -12,10 +12,16 @@ internal sealed class EnemyPlaces
     /// </summary>
     internal EnemyPlaces(EnemyCommonParticipation common)
     {
-        Ensure.NotNull(common);
+        Common = Ensure.NotNull(common);
         _places = [.. Enumerable.Range(0, EnemyPlaceOrder.Capacity).Select(ordinal =>
             new RoomEnemyPlace(ordinal, common, new RemovedEnemyLeftovers<IEnemyEntity>()))];
     }
+
+    /// <summary>
+    /// The shared participation every entity built in a place composes, which the room's species registry shares too, so
+    /// a binding through the registry and a build in a place compose the same one.
+    /// </summary>
+    internal EnemyCommonParticipation Common { get; }
 
     /// <summary>The places, each created once with its ordinal.</summary>
     private readonly RoomEnemyPlace[] _places;

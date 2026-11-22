@@ -540,7 +540,7 @@ internal static class InstalledFixtures
     internal static SuperMetroidGame CreateGame(SuperMetroid.Core.Saves.SaveSlotStore saves,
         SuperMetroid.Core.Gameplay.GameplayAssists? assists = null, bool renderGameplayFrames = true,
         SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null) =>
-        CreateGameWithAudio(saves, SuperMetroid.Core.Audio.GameAudioOutput.Silent, assists, renderGameplayFrames, hostServices, random);
+        CreateGameWithAudio(saves, new SuperMetroid.Core.Audio.GameAudioOutput.Muted(), assists, renderGameplayFrames, hostServices, random);
 
     /// <summary>
     /// A frontend game over <paramref name="saves"/> whose audio produces <paramref name="audioOutput"/>, built with the

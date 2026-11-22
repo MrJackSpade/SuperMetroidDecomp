@@ -174,7 +174,7 @@ internal static class CollectiblesVerification
         var grappleSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
         SeedStationaryGrappleCollisionProbe(grappleSamus);
-        var orbHit = SamusGrappleMovement.StepFiringAndCommit(SamusTerrain.InRoom(orb.Level, orb.RoomObjects), grappleSamus,
+        var orbHit = SamusGrappleMovement.StepFiringAndCommit(new RoomTerrain(orb.Level, orb.RoomObjects), grappleSamus,
             GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "grapple collides with the solid Chozo orb");
@@ -259,7 +259,7 @@ internal static class CollectiblesVerification
         };
         // The probe moves as a Samus the game builds, in her pose, whose collision reactions act on her (#2554).
         SamusState probeSamus = InstalledFixtures.CreateSamus();
-        SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(fixture.Level, fixture.RoomObjects), movement, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
+        SamusBlockCollision.MoveHorizontal(new RoomTerrain(fixture.Level, fixture.RoomObjects), movement, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
         RoomObjectStepOutcome pickupStep = fixture.RoomObjects.Step(fixture.Level);
         AssertTrue(fixture.System.HasCollectedItemBit(26), "Morph Ball pickup persists");
         AssertPermanentCollectibleEffect(InWorldCollectibleKind.MorphBall, fixture.Samus);
@@ -271,7 +271,7 @@ internal static class CollectiblesVerification
         fixture.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(fixture.Level);
         AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air), fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain,
             "Morph Ball pickup draws native empty level word on message return");
-        var next = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(fixture.Level, fixture.RoomObjects), movement, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
+        var next = SamusBlockCollision.MoveHorizontal(new RoomTerrain(fixture.Level, fixture.RoomObjects), movement, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
         AssertEqual((ushort)1122, movement.Position.X.Whole, "message-return horizontal movement advances");
         AssertTrue(!next.Collided, "message-return Morph Ball block remains passable");
         AssertEqual(CollectiblePhase.EmptyAwaitingDelete, fixture.RoomObjects.CollectiblePhases[0],
@@ -279,7 +279,7 @@ internal static class CollectiblesVerification
         RoomObjectStepOutcome deleteStep = fixture.RoomObjects.Step(fixture.Level);
         AssertEqual(0, fixture.RoomObjects.Places.ActiveCount, "Morph Ball owner deletes on the next PLM pass");
         AssertEqual(0, deleteStep.Pickups.Count, "Morph Ball cannot be awarded twice");
-        var cleared = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(fixture.Level, fixture.RoomObjects), movement, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
+        var cleared = SamusBlockCollision.MoveHorizontal(new RoomTerrain(fixture.Level, fixture.RoomObjects), movement, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
         AssertTrue(!cleared.Collided, "deleted Morph Ball leaves passable air");
         AssertEqual((ushort)1121, movement.Position.X.Whole, "movement also advances after owner deletion");
         Console.WriteLine("  Morph Ball message return and subsequent horizontal collision agree.");

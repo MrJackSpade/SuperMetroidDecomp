@@ -35,7 +35,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
     {
         var assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
         var oracle = new ClipAudioBackend(assets);
-        SuperMetroidGame silent = CreateLandingSiteSession(SuperMetroid.Core.Audio.GameAudioOutput.Silent);
+        SuperMetroidGame silent = CreateLandingSiteSession(new SuperMetroid.Core.Audio.GameAudioOutput.Muted());
         SuperMetroidGame playing = CreateLandingSiteSession(SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(assets));
         SuperMetroidGame[] subjects = [silent, playing];
         SuperMetroidGame[] sessions = subjects;

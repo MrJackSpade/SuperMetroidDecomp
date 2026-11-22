@@ -128,14 +128,14 @@ internal static class BeamFiredOverLastShotVerification
                 ? SamusProjectilePlayback.PlaybackAt(InstalledFixtures.SamusOverreads.Projectiles.ChainsawFuseShift.Shift(
                     SamusProjectilePlayback.BeatOf(playback)))
                 : playback;
-            projectiles.Chainsaw.RunPowerBombFuse(SamusTerrain.InRoom(bombable, SamusRoomObjectFixtures.Uninstalled), chainsaw, shared);
+            projectiles.Chainsaw.RunPowerBombFuse(new RoomTerrain(bombable, SamusRoomObjectFixtures.Uninstalled), chainsaw, shared);
             AssertTrue(chainsaw.IsOccupied, $"update {update}: the Chainsaw shot lives while its fuse burns");
             AssertEqual(expected, chainsaw.Playback, $"update {update}: the animation moves only as the fuse reaches fifteen");
             AssertEqual(update == ignitedWord, shared.PowerBombExplosion.IsActive,
                 $"update {update}: the blast starts only as the fuse runs out");
         }
         AssertThrows<InvalidOperationException>(
-            () => projectiles.Chainsaw.RunPowerBombFuse(SamusTerrain.InRoom(bombable, SamusRoomObjectFixtures.Uninstalled), chainsaw, shared),
+            () => projectiles.Chainsaw.RunPowerBombFuse(new RoomTerrain(bombable, SamusRoomObjectFixtures.Uninstalled), chainsaw, shared),
             "the burned-out fuse's boundary step reacts at the blast's edge");
     }
 
@@ -293,9 +293,9 @@ internal static class BeamFiredOverLastShotVerification
     private static bool Fire(FirePath path, SamusProjectileSystem projectiles, RoomLevelData level, SamusState samus,
         SamusBombProjectileSystem shared) => path switch
     {
-        FirePath.Uncharged => projectiles.FireUnchargedBeam(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, shared),
-        FirePath.Charged => projectiles.FireChargedBeam(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, shared, GameplayAction.Shoot),
-        FirePath.Hyper => projectiles.FireHyperBeam(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, shared),
+        FirePath.Uncharged => projectiles.FireUnchargedBeam(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, shared),
+        FirePath.Charged => projectiles.FireChargedBeam(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, shared, GameplayAction.Shoot),
+        FirePath.Hyper => projectiles.FireHyperBeam(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, shared),
         _ => throw new ArgumentOutOfRangeException(nameof(path), path, $"Undefined {nameof(FirePath)}."),
     };
 

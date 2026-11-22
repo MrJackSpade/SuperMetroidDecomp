@@ -141,7 +141,7 @@ internal static class HeroShotRuntimeVerification
         var level = CreateRoom(new(16, 32), blocks, new RoomBlockBehavior[blocks.Length]);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 477)) }.InPose(SamusPoseId.FallingRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPoseTransitions.ApplyAerialLandingInRoom(samus, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(samus), SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), false, 0, 0);
+        SamusPoseTransitions.ApplyAerialLandingInRoom(samus, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(samus), new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), false, 0, 0);
         AssertEqual((ushort)475, samus.Position.Y.Whole, "Landing correction preserves the old bottom boundary");
         AssertEqual(19, samus.Kinematics.Radius.Y, "landing commit retains falling radius");
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -154,7 +154,7 @@ internal static class HeroShotRuntimeVerification
             "Checkpoint event is consumed once before normal scrolling replaces it");
         var unobstructed = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 400)) }.InPose(SamusPoseId.FallingRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(unobstructed);
-        SamusPoseTransitions.ApplyAerialLandingInRoom(unobstructed, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(unobstructed), SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), false, 0, 0);
+        SamusPoseTransitions.ApplyAerialLandingInRoom(unobstructed, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(unobstructed), new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), false, 0, 0);
         AssertEqual(previous, unobstructed.ApplyPreviousPositionWrites(previous),
             "No-collision pose expansion leaves the existing camera checkpoint untouched");
     }

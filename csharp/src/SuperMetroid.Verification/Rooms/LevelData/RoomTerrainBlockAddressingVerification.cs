@@ -206,8 +206,8 @@ internal static class RoomTerrainBlockAddressingVerification
         shot.HeldShot().Velocity = vertical ? new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1)) : new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
         SamusProjectileOccupant held = shot.HeldShot();
         return vertical
-            ? ProjectileTerrainCollision.MoveVertically(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), held)
-            : ProjectileTerrainCollision.MoveHorizontally(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), held);
+            ? ProjectileTerrainCollision.MoveVertically(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), held)
+            : ProjectileTerrainCollision.MoveHorizontally(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), held);
     }
 
     /// <summary>The block a level-data place addresses: the place's remainder by the width is its column, its quotient its row.</summary>

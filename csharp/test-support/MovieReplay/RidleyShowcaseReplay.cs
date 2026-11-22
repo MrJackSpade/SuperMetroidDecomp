@@ -427,7 +427,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus health", SamusCountWords.Encode(samus.Health), NativeSnapshotMemory.Health);
             Check("Samus general Samus damage immunity countdown", samus.InvincibilityTimer.RawValue, NativeSnapshotMemory.InvincibilityTimer);
             Check("Samus Samus knockback countdown", samus.KnockbackHold.UpdatesLeft, NativeSnapshotMemory.KnockbackTimer);
-            Check("Samus Samus knockback direction", SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.KnockbackDirectionWord(samus.Knockback), NativeSnapshotMemory.KnockbackDirection);
+            ushort nativeKnockbackDirection = W(NativeSnapshotMemory.KnockbackDirection);
+            if (!SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.AgreesWithDirectionWord(samus.Knockback, nativeKnockbackDirection))
+                mismatches.Add($"Samus Samus knockback direction: native={nativeKnockbackDirection:X4} port={samus.Knockback}");
             Check("Samus horizontal knockback direction", (ushort)samus.KnockbackXDirection, NativeSnapshotMemory.KnockbackXDirection);
             Check("Samus hurt palette/audio recovery countdown", checked((ushort)samus.HurtFlash.Count), NativeSnapshotMemory.HurtFlashCounter);
             Check("Samus fractional health word", checked((ushort)samus.EnergyFraction.Parts), NativeSnapshotMemory.SubunitHealth);

@@ -75,7 +75,7 @@ internal static class RidleyFlightTailVerification
             link.Distance = link.RestDistance;
         }
         run(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-        AssertEqual(RidleyTailAction.PointDown, state.Tail.Action, "pogo wait runs pointed-tail setup");
+        AssertEqual<RidleyTailAction>(RidleyPogoTailAction.PointingDown, state.Tail.Action, "pogo wait runs pointed-tail setup");
         AssertEqual(RidleyTailAngle.StraightDown.TurnedClockwise(8), state.Tail.Base.Angle, "setup immediately advances tail by eight");
         tail(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(RidleyTailAction.Pogo, state.Tail.Action, "all pointed segments finish into normal pogo");
@@ -86,9 +86,9 @@ internal static class RidleyFlightTailVerification
         AssertEqual((ushort)145, state.Tail.Base.Position.Y, "pointed root retains pre-stop native hip Y");
         state.Flight.Velocity = state.Flight.Velocity.WithY(new SignedEightEight(0));
         tail(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(RidleyTailAction.StabSetup, state.Tail.Action, "descending normal pogo starts stab setup");
+        AssertEqual<RidleyTailAction>(RidleyPogoTailAction.ReadyingStab, state.Tail.Action, "descending normal pogo starts stab setup");
         tail(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(RidleyTailAction.Stab, state.Tail.Action, "stab setup activates downward stab");
+        AssertEqual<RidleyTailAction>(RidleyPogoTailAction.Stabbing, state.Tail.Action, "stab setup activates downward stab");
         AssertTrue(state.Tail.Links.All(segment => segment.TargetDistance == SignedEightEight.FromParts(10, 0)), "stab sets every segment extension target");
         state.Phase = NorfairRidleyPhase.PogoRise;
         run(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));

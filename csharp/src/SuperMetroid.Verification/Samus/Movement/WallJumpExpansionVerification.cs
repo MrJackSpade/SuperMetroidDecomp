@@ -27,7 +27,7 @@ internal static class WallJumpExpansionVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             ushort beforeX = samus.Position.X.Whole;
-            SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), frameCounter: 0);
+            SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus, new RoomTerrain(room, SamusRoomObjectFixtures.Uninstalled), frameCounter: 0);
             AssertEqual(left ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose,
                 samus.Pose, "walljump expansion selects facing-preserving pose");
             AssertEqual(beforeX, samus.Position.X.Whole, "vertical expansion preserves X");

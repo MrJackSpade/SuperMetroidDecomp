@@ -55,11 +55,11 @@ internal static class RidleyNativeWords
     {
         [RidleyTailAction.None] = 0,
         [RidleyTailAction.Neutral] = 1,
-        [RidleyTailAction.PogoSetup] = 2,
-        [RidleyTailAction.PointDown] = 3,
+        [RidleyPogoTailAction.Setup] = 2,
+        [RidleyPogoTailAction.PointingDown] = 3,
         [RidleyTailAction.Pogo] = 4,
-        [RidleyTailAction.StabSetup] = 5,
-        [RidleyTailAction.Stab] = 6,
+        [RidleyPogoTailAction.ReadyingStab] = 5,
+        [RidleyPogoTailAction.Stabbing] = 6,
     });
 
 

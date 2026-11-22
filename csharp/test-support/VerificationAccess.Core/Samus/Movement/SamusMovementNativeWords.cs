@@ -23,12 +23,30 @@ internal static class SamusMovementNativeWords
         return knockbackMoving ? new SamusKnockback.Moving(direction) : new SamusKnockback.HandedBack();
     }
 
-    /// <summary>The cartridge's knockback direction word for <paramref name="knockback"/>.</summary>
+    /// <summary>
+    /// The cartridge's knockback direction word for <paramref name="knockback"/>, none or moving her. A handed-back knockback
+    /// has no word the port can name: the cartridge keeps the direction it moved her until her knockback hold's expiry, but
+    /// nothing reads it once her pose has her movement back, so the game keeps none (<see cref="AgreesWithDirectionWord"/>).
+    /// </summary>
+    /// <exception cref="InvalidOperationException"><paramref name="knockback"/> is handed back.</exception>
     internal static ushort KnockbackDirectionWord(SamusKnockback knockback) => knockback switch
     {
         SamusKnockback.Moving moving => KnockbackDirections.Word(moving.Direction),
-        SamusKnockback.HandedBack handedBack => KnockbackDirections.Word(handedBack.Direction),
+        SamusKnockback.HandedBack => throw new InvalidOperationException(
+            $"A handed-back knockback keeps no direction; compare it with the cartridge's word through {nameof(AgreesWithDirectionWord)}."),
         _ => NoKnockbackDirection,
+    };
+
+    /// <summary>
+    /// Whether the cartridge's knockback direction word <paramref name="directionWord"/> agrees with <paramref name="knockback"/>:
+    /// no direction for no knockback, its direction for one moving her, and any direction for a handed-back one, whose
+    /// direction the cartridge keeps until her knockback hold's expiry and nothing reads.
+    /// </summary>
+    internal static bool AgreesWithDirectionWord(SamusKnockback knockback, ushort directionWord) => knockback switch
+    {
+        SamusKnockback.Moving moving => directionWord == KnockbackDirections.Word(moving.Direction),
+        SamusKnockback.HandedBack => KnockbackDirections.TryDecode(directionWord, out _),
+        _ => directionWord == NoKnockbackDirection,
     };
 
     /// <summary>

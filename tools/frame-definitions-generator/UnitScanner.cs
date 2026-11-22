@@ -156,9 +156,12 @@ internal sealed class UnitScanner(CoreModel model)
         return scan;
     }
 
-    /// <summary>Whether <paramref name="unit"/> is code that dispatches on its slot's definition: an entity type's, or the behaviour's entity factory.</summary>
+    /// <summary>
+    /// Whether <paramref name="unit"/> is code that dispatches on its slot's definition: an entity type's, or the behaviour's
+    /// factory code (<see cref="CoreModel.IsFactoryCode"/>).
+    /// </summary>
     public bool IsDispatch(Unit unit, Behaviour behaviour) =>
-        model.IsEntityType(unit.Type) || IsCreate(unit, behaviour);
+        model.IsEntityType(unit.Type) || model.IsFactoryCode(unit, behaviour);
 
     /// <summary>
     /// Whether <paramref name="unit"/> is <paramref name="behaviour"/>'s entity factory: its creations (#2553), the method

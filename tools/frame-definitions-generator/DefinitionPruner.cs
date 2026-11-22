@@ -119,13 +119,13 @@ internal sealed class DefinitionPruner
             // call runs only those names, never the creation, unless the creation offers that definition's own, as Mama
             // Turtle's creation offers her babies theirs.
             case InvocationExpressionSyntax { ArgumentList.Arguments: [var named, var creation, ..] } invocation
-                when UnitScanner.IsCreate(_unit, _context.Behaviour) && CreationNames(invocation, named) is { } names:
+                when _model.IsFactoryCode(_unit, _context.Behaviour) && CreationNames(invocation, named) is { } names:
                 return names.Any(name => Equal(name, DispatchConstant.Of(_context.Definition)) != false) || OffersOwnDefinition(creation)
                     ? null
                     : [invocation.Expression, named];
             // Under a definition one of the factory's part offers builds, a block making that offer runs only the statements
             // making it (#2554): the part is built by the creation it is offered, not by the code building whoever offers it.
-            case BlockSyntax block when UnitScanner.IsCreate(_unit, _context.Behaviour) && block.Statements.Any(OffersOwnDefinition):
+            case BlockSyntax block when _model.IsFactoryCode(_unit, _context.Behaviour) && block.Statements.Any(OffersOwnDefinition):
                 return [.. block.Statements.Where(OffersOwnDefinition)];
             case ConditionalExpressionSyntax conditional when Truth(conditional.Condition) is { } truth:
                 return [conditional.Condition, truth ? conditional.WhenTrue : conditional.WhenFalse];
@@ -289,13 +289,13 @@ internal sealed class DefinitionPruner
         {
             IParameterSymbol { ContainingSymbol: IMethodSymbol owner } =>
                 (owner.MethodKind == MethodKind.Constructor && InEntityChain(owner.ContainingType))
-                || UnitScanner.IsCreate(Unit.Member(owner.OriginalDefinition), _context.Behaviour)
+                || _model.IsFactoryCode(Unit.Member(owner.OriginalDefinition), _context.Behaviour)
                 // A creation in the factory's creations (#2553) is handed the factory's own slot.
                 || (owner is { MethodKind: MethodKind.AnonymousFunction, ContainingSymbol: IMethodSymbol { AssociatedSymbol: IPropertySymbol creations } }
                     && UnitScanner.IsCreate(Unit.Member(creations.OriginalDefinition), _context.Behaviour))
                 // So is a creation the factory hands the registrar or offers a part (#2554).
                 || (owner is { MethodKind: MethodKind.AnonymousFunction, ContainingSymbol: IMethodSymbol creating }
-                    && UnitScanner.IsCreate(Unit.Member(creating.OriginalDefinition), _context.Behaviour)),
+                    && _model.IsFactoryCode(Unit.Member(creating.OriginalDefinition), _context.Behaviour)),
             _ => InEntityChain(symbol!.ContainingType),
         };
     }
@@ -334,12 +334,40 @@ internal sealed class DefinitionPruner
     }
 
     /// <summary>Whether <paramref name="node"/> makes a part offer naming the dispatched definition, or holds code that does.</summary>
-    private bool OffersOwnDefinition(SyntaxNode node) =>
-        node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().Any(invocation =>
-            invocation.ArgumentList.Arguments is [var named, _, ..]
-            && _semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol { ContainingType.Name: "EnemyPartOffers", Name: var name } method
-            && _model.IsSource(method) && PartOfferCalls.Contains(name)
-            && Equal(Value(named.Expression), DispatchConstant.Of(_context.Definition)) == true);
+    private bool OffersOwnDefinition(SyntaxNode node) => OffersOwnDefinition(node, _semantic, new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default));
+
+    /// <summary>
+    /// Whether <paramref name="node"/>, which <paramref name="semantic"/> binds, makes a part offer naming the dispatched
+    /// definition or holds code that does, a creation it names included: a creation handed on as a method group offers what
+    /// its body offers (#2554: <c>Spawns([MamaTurtle], CreateMama)</c>, whose body offers her babies theirs). Each creation
+    /// is read once (<paramref name="read"/>).
+    /// </summary>
+    private bool OffersOwnDefinition(SyntaxNode node, SemanticModel semantic, HashSet<IMethodSymbol> read)
+    {
+        foreach (SyntaxNode descendant in node.DescendantNodesAndSelf())
+        {
+            if (descendant is InvocationExpressionSyntax { ArgumentList.Arguments: [var named, _, ..] } invocation
+                && semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol { ContainingType.Name: "EnemyPartOffers", Name: var name } method
+                && _model.IsSource(method) && PartOfferCalls.Contains(name)
+                && Equal(semantic == _semantic ? Value(named.Expression) : MemberValue(semantic, named.Expression), DispatchConstant.Of(_context.Definition)) == true)
+                return true;
+            if (descendant is not ExpressionSyntax expression
+                || semantic.GetSymbolInfo(expression).Symbol is not IMethodSymbol { MethodKind: MethodKind.Ordinary } creation
+                || !_model.IsFactoryCode(Unit.Member(creation.OriginalDefinition), _context.Behaviour)
+                || !read.Add(creation.OriginalDefinition))
+                continue;
+            foreach (SyntaxReference declaration in creation.OriginalDefinition.DeclaringSyntaxReferences)
+            {
+                if (OffersOwnDefinition(declaration.GetSyntax(), _model.ModelOf(declaration.SyntaxTree), read))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>The enum member <paramref name="expression"/>, which <paramref name="semantic"/> binds, names, or null.</summary>
+    private static DispatchConstant? MemberValue(SemanticModel semantic, ExpressionSyntax expression) =>
+        semantic.GetSymbolInfo(expression).Symbol is IFieldSymbol member ? DispatchConstant.Of(member) : null;
 
     /// <summary>Whether two constants are the same value, or null when either is unknown.</summary>
     private static bool? Equal(DispatchConstant? left, DispatchConstant? right) =>

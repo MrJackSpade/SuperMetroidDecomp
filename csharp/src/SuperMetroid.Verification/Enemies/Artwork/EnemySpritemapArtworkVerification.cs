@@ -2,7 +2,6 @@ using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Verification.Enemies.Choot;
 using SuperMetroid.Core;

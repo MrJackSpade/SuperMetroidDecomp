@@ -31,9 +31,3 @@ internal abstract partial record HibashiCue
         internal override void React<TContext>(HibashiCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
     }
 }
-
-/// <summary>What the owner of a <see cref="HibashiCue"/> does on each of its cases (#2553).</summary>
-/// <param name="EruptionStep">Reacts to a <see cref="HibashiCue.EruptionStep"/>.</param>
-/// <param name="Signal">Reacts to a <see cref="HibashiCue.Signal"/>.</param>
-/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed partial record HibashiCueReactions<TContext>(Action<HibashiCue.EruptionStep, TContext> EruptionStep, Action<HibashiCue.Signal, TContext> Signal);

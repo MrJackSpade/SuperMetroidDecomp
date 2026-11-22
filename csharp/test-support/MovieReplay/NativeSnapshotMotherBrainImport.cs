@@ -6,7 +6,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Artwork;

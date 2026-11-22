@@ -1,5 +1,3 @@
-using SuperMetroid.TestSupport.SamusNativeCodecs;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses;
@@ -695,16 +693,6 @@ internal static class NativeEnemyFamilyStateImport
         }
     }
 
-    /// <summary>Decodes Fake Kraid's recorded signed four-pixel step into the direction it points (#2214).</summary>
-    /// <param name="word">The recorded step: four pixels right, or four left.</param>
-    /// <param name="meaning">What the word holds, for the failure message.</param>
-    private static HorizontalDirection FakeKraidNativeDirection(ushort word, string meaning) => unchecked((short)word) switch
-    {
-        4 => HorizontalDirection.Right,
-        -4 => HorizontalDirection.Left,
-        _ => throw new InvalidDataException($"Recorded Fake Kraid {meaning} ${word:X4} is neither four pixels right nor left."),
-    };
-
     /// <summary>
     /// A cartridge countdown that runs out on the step that takes it below zero, as the port's true duration (#2281): the
     /// updates it has left, the one it runs out on included. A count the cartridge already ran below zero has none left.
@@ -753,77 +741,10 @@ internal static class NativeEnemyFamilyStateImport
             ? SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.SlotOf(word)
             : throw new InvalidDataException($"Recorded {meaning} ${word:X4} is not an enemy slot.");
 
-    /// <summary>Decodes a dead Tourian corpse's recorded bank-$A9 main-AI function word into its phase.</summary>
-    /// <param name="species">The corpse's species, whose wait, pre-rot and rotting routines are its own.</param>
-    /// <param name="word">The recorded function word; zero is an emptied record.</param>
-    private static CorpsePhase DeadTourianCorpsePhaseOf(DeadTourianCorpseSpecies species, ushort word) =>
-        new DeadTourianCorpsePhaseOfCase(species, word) switch
-        {
-            (_, 0xda63) => CorpsePhase.Finished,
-            (DeadTourianCorpseSpecies.Zoomer, 0xda69) or (DeadTourianCorpseSpecies.Ripper, 0xda73) or (DeadTourianCorpseSpecies.Skree, 0xda6e) =>
-                CorpsePhase.Waiting,
-            (DeadTourianCorpseSpecies.Zoomer, 0xda94) or (DeadTourianCorpseSpecies.Ripper, 0xda99) or (DeadTourianCorpseSpecies.Skree, 0xda9e) =>
-                CorpsePhase.PreRotDelay,
-            (DeadTourianCorpseSpecies.Zoomer, 0xdad0) or (DeadTourianCorpseSpecies.Ripper, 0xdae6) or (DeadTourianCorpseSpecies.Skree, 0xdafc) =>
-                CorpsePhase.Rotting,
-            _ => throw new InvalidDataException($"Recorded dead {species} function ${word:X4} is not one of its routines."),
-        };
-
-    /// <summary>
-    /// Decodes a Wrecked Ship ghost's recorded flicker-table byte offset into its next flicker step. The steps are the
-    /// table's entries after its first, two bytes each, so offset two is the first step; the terminator's offset and zero,
-    /// which the game writes when the flicker ends, are no step: the last has started (#2451). Each step leads to the next
-    /// (#2512), so the step at an offset is that many steps on from the first.
-    /// </summary>
-    /// <param name="word">The recorded byte offset.</param>
-    private static WreckedShipGhostFlickerStep? WreckedShipGhostFlickerStepOf(ushort word)
-    {
-        if (word == 0)
-            return null;
-        if (word % 2 != 0)
-            throw new InvalidDataException($"Recorded Wrecked Ship ghost flicker offset {word} is not a flicker step.");
-        WreckedShipGhostFlickerStep? step = WreckedShipGhostFlickerStep.First;
-        for (int passed = 0; passed < word / 2 - 1; passed++)
-            step = (step ?? throw new InvalidDataException($"Recorded Wrecked Ship ghost flicker offset {word} is not a flicker step.")).Next;
-        return step;
-    }
-
     /// <summary>Decodes a recorded index word that the family's updates keep within 0 through <paramref name="maximum"/>.</summary>
     /// <param name="word">The recorded word.</param>
     /// <param name="maximum">The largest value the family produces.</param>
     /// <param name="meaning">What the word holds, for the failure message.</param>
     private static int Index(ushort word, int maximum, string meaning) =>
         word <= maximum ? word : throw new InvalidDataException($"Recorded {meaning} {word} exceeds {maximum}.");
-
-    /// <summary>
-    /// Requires a recorded Skree or Metaree to have installed the animation the imported one plays (#1810, #2145): the game
-    /// keeps the requested phase beside the installed one and installs a request in the same AI update, and Core keeps only
-    /// the playing animation, which this import does not read from the record, so a record whose two phases differ, or
-    /// whose installed phase is not the playing animation, fails.
-    /// </summary>
-    private static void RequirePlayingSkreeMetareeAnimation(
-        AnimationPlayback<SkreeMetareeSegment> playing, NativeWordIdentities<SkreeMetareeSegment> phases, NativeEnemyRecordWords words, string enemyName)
-    {
-        if (words.C != words.D)
-            throw new InvalidDataException($"Recorded {enemyName} requests animation phase {words.C} while phase {words.D} is installed.");
-        RequirePlaying(playing, SkreeMetareeAnimations.StartingWith(phases.Decode(words.D, $"recorded installed {enemyName} animation phase")), enemyName);
-    }
-
-    /// <summary>
-    /// Requires the imported enemy to play the animation its record installed (#2145): Core keeps no installed animation
-    /// beside its playback, which this import does not read from the record, so a record that installed another fails.
-    /// </summary>
-    private static void RequirePlaying<TSegment>(AnimationPlayback<TSegment> playing, Animation<TSegment> installed, string enemyName)
-        where TSegment : struct
-    {
-        if (!ReferenceEquals(playing.Animation, installed))
-            throw new InvalidDataException($"A recorded {enemyName} installed {installed.Phases[0].Segment}, which the imported {enemyName} does not play.");
-    }
-
-    /// <summary>
-    /// The speed a recorded pair holds: the game stores a speed beside its negation, and Core keeps the speed alone and
-    /// negates it at use (#1804), so a pair whose second value is not the first's negation fails.
-    /// </summary>
-    private static SignedSixteenSixteen NegatedPair(SignedSixteenSixteen speed, SignedSixteenSixteen negation, string meaning) =>
-        negation == -speed ? speed : throw new InvalidDataException($"Recorded {meaning} {speed} is stored beside {negation}, not its negation.");
 }

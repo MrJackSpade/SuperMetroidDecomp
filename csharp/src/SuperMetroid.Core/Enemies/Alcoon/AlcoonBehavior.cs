@@ -50,7 +50,7 @@ internal sealed partial class AlcoonBehavior : IEnemySpecies, IEnemyLoadedFactor
             {
                 context.Owner.SpawnAlcoonFireball(context.Occupant, context.Place, context.State, fire.Launch);
                 context.Owner._audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
-                return (AnimationContinuation<AlcoonSegment>?)null;
+                return null;
             },
             Signal: static (signal, context) => context.Owner.AlcoonSignals[signal.Kind](context.Place, context.State, context.Level));
 

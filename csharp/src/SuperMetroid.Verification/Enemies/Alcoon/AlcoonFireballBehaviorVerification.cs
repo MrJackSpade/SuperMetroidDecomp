@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;

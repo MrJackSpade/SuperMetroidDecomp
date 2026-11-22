@@ -12,6 +12,6 @@ internal static class ActiveRoomStateAccess2
         /// The loaded room's effect-overlay FX, for the accepted-frame publication; none while the room loads, whose
         /// construction holds no overlay until it completes (#2554).
         /// </summary>
-        internal RoomFxOverlayState? FxOverlay => self.View(_ => (RoomFxOverlayState?)null, s => s.FxOverlay);
+        internal RoomFxOverlayState? FxOverlay => self.View(_ => null, s => s.FxOverlay);
     }
 }

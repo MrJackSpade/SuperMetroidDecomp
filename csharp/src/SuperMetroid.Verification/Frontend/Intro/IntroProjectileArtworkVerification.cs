@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;

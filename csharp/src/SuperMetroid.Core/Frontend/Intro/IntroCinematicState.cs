@@ -415,7 +415,7 @@ public sealed partial class IntroCinematicState : IFrontendScreen
                 StartFinalPage(finalPage.Narration);
                 break;
 
-            case IntroCinematicStep.IntroFadeOut fadingOut:
+            case IntroCinematicStep.IntroFadeOut:
                 // The intro's end fades out and finishes once the screen is black.
                 if (fade.Darken())
                 {

@@ -13,7 +13,6 @@ namespace SuperMetroid.Verification.Bosses.Botwoon;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Animation;
 
 /// <summary>

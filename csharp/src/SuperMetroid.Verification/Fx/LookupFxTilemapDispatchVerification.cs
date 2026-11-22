@@ -1,4 +1,3 @@
-using SuperMetroid.Verification.Harness;
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Fx;

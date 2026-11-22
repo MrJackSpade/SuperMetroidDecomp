@@ -1,4 +1,3 @@
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;

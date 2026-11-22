@@ -1,7 +1,5 @@
 using System.Runtime.CompilerServices;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 

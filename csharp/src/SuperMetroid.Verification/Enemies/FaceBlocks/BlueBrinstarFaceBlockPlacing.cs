@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.FaceBlocks;

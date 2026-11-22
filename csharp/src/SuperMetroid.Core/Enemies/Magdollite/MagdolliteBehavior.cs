@@ -272,8 +272,7 @@ internal sealed partial class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFa
     {
         HorizontalDirection samusSide = SamusSide(samus, head);
         StartMagdolliteAnimation(head, state, samusSide == HorizontalDirection.Right ? MagdolliteHeadSegment.RightIdle : MagdolliteHeadSegment.LeftIdle);
-
-        (_, _, RoomEnemyPlace overlay) = partners.Composite;
+        (_, _, _) = partners.Composite;
         MagdolliteOverlayState overlayState = partners.OverlayState;
         if (overlayState.AttackCooldown.IsRunning)
             return;
@@ -292,7 +291,7 @@ internal sealed partial class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFa
         MagdolliteHeadState state,
         MagdollitePartners partners)
     {
-        (_, RoomEnemyPlace body, _) = partners.Composite;
+        (_, _, _) = partners.Composite;
         partners.BodyState.Release();
         state.Action = MagdolliteHeadAction.WaitingForBodyLanding;
     }
@@ -370,7 +369,7 @@ internal sealed partial class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFa
         MagdolliteBodyState state,
         MagdollitePartners partners)
     {
-        (RoomEnemyPlace head, _, _) = partners.Composite;
+        (_, _, _) = partners.Composite;
         MagdolliteHeadState headState = partners.HeadState;
         state.RiseDisplacementY += AddMagdolliteY(body, partners.HeadRise.Speed);
 
@@ -396,7 +395,7 @@ internal sealed partial class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFa
         MagdolliteOverlayState state,
         MagdollitePartners partners)
     {
-        (RoomEnemyPlace head, _, _) = partners.Composite;
+        (_, _, _) = partners.Composite;
         if (partners.HeadState.IsSubmerging)
             state.Action = MagdolliteOverlayAction.TrackingRisingBody;
     }
@@ -407,7 +406,7 @@ internal sealed partial class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFa
         MagdolliteOverlayState state,
         MagdollitePartners partners)
     {
-        (_, RoomEnemyPlace body, _) = partners.Composite;
+        (_, _, _) = partners.Composite;
         MagdolliteBodyState bodyState = partners.BodyState;
         StartMagdolliteAnimation(overlay, state, MagdolliteOverlaySegment.PillarCap);
         bodyState.Action = MagdolliteBodyAction.Falling;
@@ -447,7 +446,7 @@ internal sealed partial class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFa
         MagdolliteOverlayState state,
         MagdollitePartners partners)
     {
-        (RoomEnemyPlace head, RoomEnemyPlace body, _) = partners.Composite;
+        (_, RoomEnemyPlace body, _) = partners.Composite;
         MagdolliteHeadState headState = partners.HeadState;
         MagdolliteBodyState bodyState = partners.BodyState;
         if (headState.Action == MagdolliteHeadAction.Waiting)

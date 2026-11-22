@@ -25,9 +25,6 @@ internal sealed partial class SporeSpawnEntity(SporeSpawnBehavior species, RoomE
     {
     }
 
-    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly SporeSpawnEnemyState state = state;
-
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunSporeSpawnMainAi(Place, Encounter);
 
@@ -36,7 +33,7 @@ internal sealed partial class SporeSpawnEntity(SporeSpawnBehavior species, RoomE
 
     /// <summary>The encounter his body holds from its initialization (#2231), which his own reactions act on (#2420).</summary>
     /// <exception cref="InvalidOperationException">The body has not initialized.</exception>
-    internal SporeSpawnEnemyState Encounter => state;
+    internal SporeSpawnEnemyState Encounter { get; } = state;
 
     /// <summary>His own shot reaction, which resolves the rest of a shot on this encounter after the common damage.</summary>
     private EnemyShotReaction OwnShotReaction => field ??= species.SporeSpawnShotReactionOf(this);

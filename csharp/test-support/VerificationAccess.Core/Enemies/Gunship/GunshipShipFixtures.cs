@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies.Gunship;

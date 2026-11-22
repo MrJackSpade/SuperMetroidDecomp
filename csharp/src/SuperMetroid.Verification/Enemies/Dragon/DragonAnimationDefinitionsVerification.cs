@@ -67,7 +67,7 @@ internal static class DragonAnimationDefinitionsVerification
     private static void VerifyDragonAttackStartsOverAfterFireball()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        (RoomEnemyPlace body, RoomEnemyPlace wing) = PlaceDragon(enemies, default);
+        (RoomEnemyPlace body, _) = PlaceDragon(enemies, default);
         DragonEnemyState bodyState = enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[0].");
         Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonSegment.AttackingFacingRight);
         var playedOut = new AnimationPlayback<DragonSegment>(attack, AnimationPlace.HoldingIn(0, attack.Phases[0].BeatCount));

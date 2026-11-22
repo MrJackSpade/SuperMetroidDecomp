@@ -1,6 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;

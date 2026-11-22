@@ -2,7 +2,6 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Enemies.Metroids;
-using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -17,7 +16,6 @@ namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks that the enemies' sounds reach the sound queues in the order the enemies make them (#1620).</summary>
 internal static class EnemySoundOrderVerification

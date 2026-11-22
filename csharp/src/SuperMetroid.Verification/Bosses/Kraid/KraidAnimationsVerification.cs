@@ -317,7 +317,7 @@ internal static class KraidAnimationsVerification
     /// </summary>
     private static void VerifyArmWaitsForMouthReopens()
     {
-        (RoomEnemySystem enemies, KraidEnemyState state, _, RoomEnemyPlace arm) = NewKraid();
+        (_, KraidEnemyState state, _, RoomEnemyPlace arm) = NewKraid();
         state.ArmState.SetAnimation(KraidPartSegment.ArmNormal);
         arm.AnimationClock.StepOnNextUpdate();
         Update();
@@ -355,7 +355,7 @@ internal static class KraidAnimationsVerification
     /// </summary>
     private static void VerifyNailSetUpPose()
     {
-        (RoomEnemySystem enemies, KraidEnemyState state, _, _) = NewKraid();
+        (_, KraidEnemyState state, _, _) = NewKraid();
         KraidNailState part = state.Nail(KraidNailPart.First);
         RoomEnemyPlace nail = part.Place;
         KraidProjectiles.InitializeKraidNail(nail, KraidNailPart.First, state);

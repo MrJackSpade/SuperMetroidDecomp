@@ -8,7 +8,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies.Yard;
 
@@ -67,7 +66,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFact
             MoveBy: static (moveBy, context) =>
             {
                 context.Place.Position += moveBy.Offset;
-                return (AnimationContinuation<YardSegment>?)null;
+                return null;
             },
             SetDirection: static (setDirection, context) =>
             {

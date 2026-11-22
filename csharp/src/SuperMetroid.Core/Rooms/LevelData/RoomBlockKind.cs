@@ -46,7 +46,7 @@ public abstract partial record RoomBlockKind
         public abstract TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader);
 
         /// <inheritdoc/>
-        public sealed override TAnswer Read<TAnswer>(IRoomBlockReader<TAnswer> reader) => Read((IWholeBlockReader<TAnswer>)reader);
+        public sealed override TAnswer Read<TAnswer>(IRoomBlockReader<TAnswer> reader) => Read(reader);
 
         /// <inheritdoc/>
         internal sealed override Whole AsWholeBlock => this;

@@ -1,4 +1,3 @@
-using SuperMetroid.Verification.Harness;
 using System.Buffers.Binary;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

@@ -11,7 +11,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 

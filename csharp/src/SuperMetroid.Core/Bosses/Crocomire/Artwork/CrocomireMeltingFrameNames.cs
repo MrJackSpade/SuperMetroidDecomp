@@ -1,5 +1,3 @@
-using System.Collections.Frozen;
-
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>

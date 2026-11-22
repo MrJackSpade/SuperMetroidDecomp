@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Tooling;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Enemies.EnemyInstructionCodePointersVerification;
 using static SuperMetroid.Verification.Fx.LookupTreadmillArtworkVerification;
 using static SuperMetroid.Verification.Fx.LookupTreadmillMechanicsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

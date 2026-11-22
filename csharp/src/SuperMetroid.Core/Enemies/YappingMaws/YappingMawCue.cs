@@ -31,9 +31,3 @@ internal abstract partial record YappingMawCue
         internal override void React<TContext>(YappingMawCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
     }
 }
-
-/// <summary>What the owner of a <see cref="YappingMawCue"/> does on each of its cases (#2553).</summary>
-/// <param name="HoldSamus">Reacts to a <see cref="YappingMawCue.HoldSamus"/>.</param>
-/// <param name="Signal">Reacts to a <see cref="YappingMawCue.Signal"/>.</param>
-/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed partial record YappingMawCueReactions<TContext>(Action<YappingMawCue.HoldSamus, TContext> HoldSamus, Action<YappingMawCue.Signal, TContext> Signal);

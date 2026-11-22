@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Rooms.LevelData;

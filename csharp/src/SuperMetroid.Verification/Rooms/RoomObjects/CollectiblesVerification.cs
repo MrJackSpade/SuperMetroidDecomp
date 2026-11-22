@@ -33,7 +33,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
-using SuperMetroid.Verification.Bosses.MotherBrain;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms;

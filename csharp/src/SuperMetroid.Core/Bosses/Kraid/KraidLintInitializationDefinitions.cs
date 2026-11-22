@@ -1,5 +1,3 @@
-using System.Collections.Frozen;
-
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Per-part initialization policy for Kraid's post-growth lint attacks.</summary>

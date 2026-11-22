@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

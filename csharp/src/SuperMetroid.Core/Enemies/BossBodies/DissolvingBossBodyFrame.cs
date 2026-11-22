@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// </summary>
 public sealed partial class DissolvingBossBodyFrame
 {
-    /// <summary>The frame the dissolve erases.</summary>
-    private readonly BossBodyFrame _frame;
 
     /// <summary>How the dissolve erases the frame's picture.</summary>
     private readonly PictureDissolve _dissolve;
@@ -17,16 +15,16 @@ public sealed partial class DissolvingBossBodyFrame
     /// <param name="dissolve">How the dissolve erases the frame's picture.</param>
     internal DissolvingBossBodyFrame(BossBodyFrame frame, PictureDissolve dissolve)
     {
-        _frame = frame;
+        Whole = frame;
         _dissolve = dissolve;
     }
 
     /// <summary>The frame as it shows before the dissolve erases any of it.</summary>
-    public BossBodyFrame Whole => _frame;
+    public BossBodyFrame Whole { get; }
 
     /// <summary>
     /// The frame as its dissolve leaves its picture once each band has shown the steps <paramref name="bandSteps"/> gives
     /// it, by band (#1652, #2478).
     /// </summary>
-    public BossBodyFrame Dissolved(ReadOnlySpan<int> bandSteps) => _frame.Hiding(_dissolve.Hidden(bandSteps));
+    public BossBodyFrame Dissolved(ReadOnlySpan<int> bandSteps) => Whole.Hiding(_dissolve.Hidden(bandSteps));
 }

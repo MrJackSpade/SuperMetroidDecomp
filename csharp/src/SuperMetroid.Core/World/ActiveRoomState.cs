@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;

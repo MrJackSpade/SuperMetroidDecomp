@@ -62,7 +62,7 @@ internal static class SpeedBoosterEchoStopVerification
             {
                 (bool library3, SoundEffectId? value) = command switch
                 {
-                    AudioRequest.RequestSound { Sound.Library: SoundEffectLibrary.Room } sound => (true, (SoundEffectId?)sound.Sound),
+                    AudioRequest.RequestSound { Sound.Library: SoundEffectLibrary.Room } sound => (true, sound.Sound),
                     AudioRequest.ClearSoundRequest { Library: SoundEffectLibrary.Room } => (true, null),
                     _ => (false, null),
                 };

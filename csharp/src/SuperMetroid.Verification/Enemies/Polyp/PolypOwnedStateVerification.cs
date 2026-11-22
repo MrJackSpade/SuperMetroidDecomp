@@ -2,10 +2,10 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Polyp;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Checks the Polyp state the species owns: its initial behaviour.</summary>
 internal static class PolypOwnedStateVerification

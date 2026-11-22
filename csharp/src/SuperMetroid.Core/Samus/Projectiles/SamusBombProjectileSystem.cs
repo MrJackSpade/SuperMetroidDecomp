@@ -929,7 +929,7 @@ public sealed partial class SamusBombProjectileSystem
         {
             SamusBomb bomb = _bombs[place];
             if (!bomb.IsActive ||
-                bomb.Occupant is not { } placed ||
+                bomb.Occupant is not { } ||
                 bomb.IsBombSpread ||
                 bomb.IsSpent)
             {

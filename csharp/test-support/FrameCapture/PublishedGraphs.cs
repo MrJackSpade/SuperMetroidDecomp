@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using SuperMetroid.Core;
 
 namespace SuperMetroid.TestSupport.FrameRendering;
 

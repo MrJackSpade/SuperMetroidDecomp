@@ -9,7 +9,6 @@ using SuperMetroid.Core.Runtime;
 using System.Diagnostics;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Diagnostics.SaveStates;
-using SuperMetroid.RenderVerification.Harness;
 using SuperMetroid.RenderVerification.Rooms;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;

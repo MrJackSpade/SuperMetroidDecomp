@@ -54,7 +54,7 @@ internal static class SquareSlopeDefinitionsVerification
         }
 
         var missile = new Func<RoomCollisionBlock, SamusProjectileOccupant, bool>(ProjectileMotion.MissileSlopePointReaction);
-        var bus = NewSlopeHeightNoReadBus();
+        _ = NewSlopeHeightNoReadBus();
         var projectile = new SamusProjectile(0);
         SamusProjectileOccupant held = projectile.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), SamusProjectileDamage.Read(SamusProjectileKind.Missile));
         int cases = 0;

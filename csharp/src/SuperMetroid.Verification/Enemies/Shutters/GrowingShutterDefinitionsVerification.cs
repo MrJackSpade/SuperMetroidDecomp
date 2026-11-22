@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;

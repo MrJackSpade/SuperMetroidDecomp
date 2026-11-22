@@ -9,8 +9,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>Checks boss BG2 resource requirements and display bindings.</summary>

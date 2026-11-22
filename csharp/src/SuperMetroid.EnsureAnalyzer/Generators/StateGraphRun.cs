@@ -52,8 +52,6 @@ internal sealed partial class StateGraphRun
     private static readonly DiagnosticDescriptor UnsupportedField = new("SME6493", "Field a debugger state cannot hold",
         "{0}.{1} is a {2}, which a debugger state cannot hold (#2602): mark it [NonSerialized] when it is no game state",
         "Build", DiagnosticSeverity.Error, isEnabledByDefault: true);
-
-    private readonly Compilation compilation;
     private readonly SourceProductionContext output;
     private readonly bool partialOnly;
     private readonly bool catalogs;
@@ -77,7 +75,7 @@ internal sealed partial class StateGraphRun
 
     internal StateGraphRun(Compilation compilation, SourceProductionContext output, bool partialOnly, bool catalogs)
     {
-        this.compilation = compilation;
+        Compilation = compilation;
         this.output = output;
         this.partialOnly = partialOnly;
         this.catalogs = catalogs;
@@ -88,7 +86,7 @@ internal sealed partial class StateGraphRun
     /// <summary>Writes every covered type's members and the assembly's registrar.</summary>
     internal void Generate()
     {
-        Collect(compilation.Assembly.GlobalNamespace);
+        Collect(Compilation.Assembly.GlobalNamespace);
         foreach (INamedTypeSymbol type in types)
         {
             if (IsCovered(type))
@@ -97,7 +95,7 @@ internal sealed partial class StateGraphRun
                 output.ReportDiagnostic(Diagnostic.Create(NotPartial, type.Locations.FirstOrDefault(), type.ToDisplayString()));
         }
         CollectDelegateMethods();
-        RegisterEnums(compilation.Assembly.GlobalNamespace);
+        RegisterEnums(Compilation.Assembly.GlobalNamespace);
         if (catalogs)
         {
             CollectCatalogs();
@@ -153,7 +151,7 @@ internal sealed partial class StateGraphRun
     internal bool HasMembers(INamedTypeSymbol type)
     {
         INamedTypeSymbol definition = type.OriginalDefinition;
-        if (SymbolEqualityComparer.Default.Equals(definition.ContainingAssembly, compilation.Assembly))
+        if (SymbolEqualityComparer.Default.Equals(definition.ContainingAssembly, Compilation.Assembly))
             return covered.Contains(definition);
         return definition.GetMembers("__StateRegister").Length > 0;
     }
@@ -174,7 +172,7 @@ internal sealed partial class StateGraphRun
     internal bool IsNode(INamedTypeSymbol type)
     {
         INamedTypeSymbol definition = type.OriginalDefinition;
-        if (SymbolEqualityComparer.Default.Equals(definition.ContainingAssembly, compilation.Assembly))
+        if (SymbolEqualityComparer.Default.Equals(definition.ContainingAssembly, Compilation.Assembly))
             return LevelOf(definition) is not null;
         return definition.GetMembers("__StateWriteRestoreOrder_" + Suffix(definition)).Length > 0;
     }
@@ -399,7 +397,7 @@ internal sealed partial class StateGraphRun
         foreach (SyntaxReference reference in type.DeclaringSyntaxReferences)
         {
             var declaration = (TypeDeclarationSyntax)reference.GetSyntax();
-            SemanticModel model = compilation.GetSemanticModel(declaration.SyntaxTree);
+            SemanticModel model = Compilation.GetSemanticModel(declaration.SyntaxTree);
             foreach (MemberDeclarationSyntax member in declaration.Members)
             {
                 if (member is BaseTypeDeclarationSyntax or DelegateDeclarationSyntax or FieldDeclarationSyntax)
@@ -425,7 +423,7 @@ internal sealed partial class StateGraphRun
         if (!capturedTypes.TryGetValue(definition, out List<IParameterSymbol>? captured))
         {
             captured = [];
-            if (!definition.IsRecord && SymbolEqualityComparer.Default.Equals(definition.ContainingAssembly, compilation.Assembly) &&
+            if (!definition.IsRecord && SymbolEqualityComparer.Default.Equals(definition.ContainingAssembly, Compilation.Assembly) &&
                 PrimaryConstructor(definition) is { } primary && definition.DeclaringSyntaxReferences.All(reference => reference.GetSyntax() is TypeDeclarationSyntax))
                 captured.AddRange(CapturedParameters(definition, primary));
             capturedTypes[definition] = captured;
@@ -481,7 +479,7 @@ internal sealed partial class StateGraphRun
         foreach (SyntaxReference reference in type.DeclaringSyntaxReferences)
         {
             var declaration = (TypeDeclarationSyntax)reference.GetSyntax();
-            SemanticModel model = compilation.GetSemanticModel(declaration.SyntaxTree);
+            SemanticModel model = Compilation.GetSemanticModel(declaration.SyntaxTree);
             foreach (MemberDeclarationSyntax member in declaration.Members)
             {
                 (string Name, EqualsValueClauseSyntax Initializer, ITypeSymbol Type)[] initialized = member switch
@@ -517,7 +515,7 @@ internal sealed partial class StateGraphRun
         {
             for (int index = 0; index < baseArguments.Count && index < basePrimary.Parameters.Length; index++)
             {
-                SemanticModel model = compilation.GetSemanticModel(baseArguments[index].SyntaxTree);
+                SemanticModel model = Compilation.GetSemanticModel(baseArguments[index].SyntaxTree);
                 // The parameter itself, or a check of it that hands it on (Ensure.NotEmpty(parameter)).
                 ExpressionSyntax passedOn = baseArguments[index].Expression is InvocationExpressionSyntax { ArgumentList.Arguments.Count: 1 } call &&
                     model.GetTypeInfo(call).Type is { } checkedType && SymbolEqualityComparer.Default.Equals(checkedType, parameter.Type)
@@ -539,7 +537,7 @@ internal sealed partial class StateGraphRun
         foreach (SyntaxReference reference in type.DeclaringSyntaxReferences)
         {
             var declaration = (TypeDeclarationSyntax)reference.GetSyntax();
-            SemanticModel model = compilation.GetSemanticModel(declaration.SyntaxTree);
+            SemanticModel model = Compilation.GetSemanticModel(declaration.SyntaxTree);
             foreach (IdentifierNameSyntax identifier in declaration.DescendantNodes().OfType<IdentifierNameSyntax>())
             {
                 if (identifier.Identifier.ValueText == parameter.Name &&
@@ -578,7 +576,7 @@ internal sealed partial class StateGraphRun
 
     private bool Converts(ITypeSymbol from, ITypeSymbol to)
     {
-        Conversion conversion = compilation.ClassifyConversion(from, to);
+        Conversion conversion = Compilation.ClassifyConversion(from, to);
         return conversion.IsIdentity || conversion.IsImplicit && (conversion.IsReference || conversion.IsBoxing || conversion.IsNullable);
     }
 
@@ -588,7 +586,7 @@ internal sealed partial class StateGraphRun
         var inherited = new List<Level>();
         for (INamedTypeSymbol? current = level.Base; current is not null;)
         {
-            Level? below = current.OriginalDefinition.ContainingAssembly.Equals(compilation.Assembly, SymbolEqualityComparer.Default) ? LevelOf(current) : null;
+            Level? below = current.OriginalDefinition.ContainingAssembly.Equals(Compilation.Assembly, SymbolEqualityComparer.Default) ? LevelOf(current) : null;
             inherited.Add(below ?? ForeignLevel(current));
             current = below?.Base ?? ForeignBase(current);
         }

@@ -48,7 +48,7 @@ internal static class DefinitionIndexVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         object[] content = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
 
-        var capturing = new DefinitionObjects();
+        var capturing = new DefinitionObjects(StateGraphTypes.Shared);
         byte[] captured = GraphDigestVerification.SerializeGraphThrough(runtime, capturing, content);
         DefinitionCatalog[] indexed = Indexed(capturing);
         Console.WriteLine($"Definition index: a Landing Site runtime's first capture indexes {indexed.Length} of {capturing.Catalogs.Count} catalogs.");
@@ -59,7 +59,7 @@ internal static class DefinitionIndexVerification
             AssertTrue(indexed.All(catalog => TypeNameOf(catalog) != unreached.FullName), $"a Landing Site capture does not index {unreached.Name}");
         }
 
-        var restoring = new DefinitionObjects();
+        var restoring = new DefinitionObjects(StateGraphTypes.Shared);
         SuperMetroidRuntime restored = GraphDigestVerification.RestoreGraphThrough<SuperMetroidRuntime>(captured, restoring, content);
         AssertTrue(ReferenceEquals(RoomDefinitions.LandingSite, restored.Room.LoadedRoom.Definition),
             "the restored runtime stands in the catalog's own Landing Site");
@@ -106,7 +106,7 @@ internal static class DefinitionIndexVerification
     /// </summary>
     private static void VerifyCandidatesCoverExposedMembers(string group, Func<DefinitionCatalog, bool> covered)
     {
-        var definitions = new DefinitionObjects();
+        var definitions = new DefinitionObjects(StateGraphTypes.Shared);
         var candidates = new Dictionary<Type, HashSet<DefinitionCatalog>>();
         int exposedObjects = 0, coveredCatalogs = 0;
         foreach (DefinitionCatalog catalog in definitions.Catalogs.Where(covered))

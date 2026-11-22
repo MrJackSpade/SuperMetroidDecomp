@@ -38,13 +38,11 @@ internal static class SamusStateAccess
         /// <summary>Whether her knockback moves her: the knockback movement runs.</summary>
         internal bool KnockbackActive => self.Knockback is SamusKnockback.Moving;
 
-        /// <summary>The direction her knockback holds, moving her or handed back; null with no knockback.</summary>
-        internal SamusKnockbackDirection? KnockbackDirection => self.Knockback switch
-        {
-            SamusKnockback.Moving moving => moving.Direction,
-            SamusKnockback.HandedBack handedBack => handedBack.Direction,
-            _ => null,
-        };
+        /// <summary>
+        /// The direction her knockback moves her; null when none moves her, with no knockback or one handed back to her pose,
+        /// which keeps no direction.
+        /// </summary>
+        internal SamusKnockbackDirection? KnockbackDirection => self.Knockback is SamusKnockback.Moving moving ? moving.Direction : null;
 
         /// <summary>Enables her Hyper Beam when <paramref name="enabled"/>, as the Baby's gift does, and returns her.</summary>
         internal SamusState WithHyperBeam(bool enabled)
@@ -93,7 +91,7 @@ internal static class SamusStateAccess
 
             SamusPoseMetadata.PublishBombJumpDirection(self, direction);
             // A morphed Samus keeps her pose for the jump, so her pose handling arms it at once, in any room.
-            SamusTerrain terrain = SamusTerrain.InRoom(SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), SamusRoomObjectFixtures.Uninstalled);
+            SamusTerrain terrain = new RoomTerrain(SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), SamusRoomObjectFixtures.Uninstalled);
             if (!SamusPoseMetadata.TrySetupPublishedBombJump(self, terrain, timeIsFrozen: false, frameCounter: 0, GameplayAction.None))
                 throw new InvalidOperationException("The morphed bomb jump's pose handling did not arm it.");
         }

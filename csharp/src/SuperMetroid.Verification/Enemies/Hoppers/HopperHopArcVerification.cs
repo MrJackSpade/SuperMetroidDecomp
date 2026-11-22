@@ -33,21 +33,18 @@ internal static class HopperHopArcVerification
                  })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Sidehopper, place.KeptDefinition);
-            place.Position = place.Position.WithWhole(new(64, 48));
+            // The hopper reads its surface from its placement (#2474), and is set up as its room's population sets it up
+            // (#2554).
+            RoomEnemyPlace place = enemies.LoadPopulation(RoomEnemyFrameFixtures.StandaloneSamus(), level,
+                PopulationPlacementAccess.Entry(EnemyDefinitionId.Sidehopper, new HopperSpawnSettings(HopperSurface.Floor), new(64, 48)))[0];
             place.Radius = new(8, 8);
-            // The hopper reads its surface from its placement (#2474).
-            place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
-            // The hop's two halves are its two actions (#2473).
-            var state = new HopperEnemyState(falling ? HopperAction.Returning : HopperAction.HoppingAway)
-            {
-                YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(start),
-                YSpeedCurvePlaceStep = QuadraticSpeedCurvePlace.FromMarks(step),
-            };
-            place.SetSpeciesState(state);
+            // The hop's two halves are its two actions (#2473): the hop stands in its half at the record.
+            HopperEnemyState state = place.RequireSpeciesState<HopperEnemyState>();
+            state.Action = falling ? HopperAction.Returning : HopperAction.HoppingAway;
+            state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(start);
+            state.YSpeedCurvePlaceStep = QuadraticSpeedCurvePlace.FromMarks(step);
 
-            enemies.HoppersBehavior.RunHoppersMainAi(place.HeldOccupant().SpawnSettings<HopperSpawnSettings>(), place, place.RequireSpeciesState<HopperEnemyState>(), frame);
+            place.RunMainAi(frame);
 
             string context = $"Hopper {(falling ? "returning" : "rising")} from record {start} by {step}";
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected), state.YSpeedCurvePlace, context);

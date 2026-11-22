@@ -31,19 +31,15 @@ internal static class WreckedShipGhostBobbingVerification
                  })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Coven, place.KeptDefinition);
-            place.Position = FixedPosition<RoomPixels>.FromWhole(new(64, y));
-            var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay)
-            {
-                Action = WreckedShipGhostAction.BobbingWhileVisible,
-                VisibleTimer = UpdateCountdown.For(120),
-                BobbingOriginY = originY,
-                VerticalVelocity = SignedSixteenSixteen.FromParts(whole, 0),
-            };
-            place.SetSpeciesState(state);
+            // The ghost is set up as its room's population sets it up (#2554), then stands visible in its bob.
+            RoomEnemyPlace place = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Coven, new(64, y)))[0];
+            WreckedShipGhostEnemyState state = place.RequireSpeciesState<WreckedShipGhostEnemyState>();
+            state.Action = WreckedShipGhostAction.BobbingWhileVisible;
+            state.VisibleTimer = UpdateCountdown.For(120);
+            state.BobbingOriginY = originY;
+            state.VerticalVelocity = SignedSixteenSixteen.FromParts(whole, 0);
 
-            WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(place, place.RequireSpeciesState<WreckedShipGhostEnemyState>(), frame);
+            place.RunMainAi(frame);
 
             AssertEqual(expectedY, place.Position.Y.Whole, $"Ghost {context}: position");
             AssertEqual((ushort)0, place.Position.Y.Fraction, $"Ghost {context}: subposition");

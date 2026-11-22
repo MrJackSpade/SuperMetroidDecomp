@@ -4,6 +4,7 @@ using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.FuneNamihe;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -76,42 +77,54 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
             "  Fune/Namihe: the selector table, all eight programs' fireballs, spit sound and hand-back to waiting pass.");
     }
 
-    /// <summary>Seeds one variant and direction into an enemy slot, then advances enough updates to observe projectile and AI handoff behavior.</summary>
+    /// <summary>How near Samus must stand above or below a placed Namihe for it to wake and spit.</summary>
+    private const int NamiheWakingReach = 64;
+
+    /// <summary>
+    /// Sets one variant and facing up as its room's population sets it up (#2554), starts the case's program through the
+    /// enemy's own main AI (an active program, from a Fune whose one-update wait ends or a Namihe Samus stands level with)
+    /// or keeps the idle program its setup starts, then advances enough updates to observe projectile and AI handoff behavior.
+    /// </summary>
     private static RunFuneNamiheProgramResult RunFuneNamiheProgram(
         FuneNamiheProgramCase program)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(program.Namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, place.KeptDefinition);
-        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        place.SetSpawnParameter1(place.HeldOccupant().DefinitionId, unchecked((ushort)((program.Namihe ? 1 : 0) | (program.Right ? 0x10 : 0))));
-        place.SetSpawnParameter2(place.HeldOccupant().DefinitionId, 0);
-        place.Position = place.Position.WithWhole(new(128, 128));
-        place.AnimationClock.StepOnNextUpdate();
+        EnemyDefinitionId species = program.Namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune;
+        EnemySpawnSettings placed = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(species,
+            SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Blank(species) with
+            {
+                Parameter1 = unchecked((ushort)((program.Namihe ? 1 : 0) | (program.Right ? 0x10 : 0))),
+                Parameter2 = 0,
+            });
+        if (placed is NamiheSpawnSettings namiheSettings)
+            placed = namiheSettings with { YProximity = NamiheWakingReach };
+        Position16<RoomPixels> at = new(128, 128);
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        samus.Position = FixedPosition<RoomPixels>.FromWhole(at);
+        RoomEnemyPlace place = enemies.LoadPopulation(samus, PopulationPlacementAccess.Entry(species, placed, at))[0];
+        if (program.Active)
+            place.RunMainAi(samus);
 
-        var playback = new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(program.Entry), AnimationPlace.StartOfAnimation);
-        // The animation runs as the shared enemy animation runs a Fune's or Namihe's, over the state the check built.
+        // The animation runs as the shared enemy animation runs a Fune's or Namihe's, over the state its setup built.
         RoomEnemyOccupant spitter = place.HeldOccupant();
         FuneNamiheSpawnSettings settings = spitter.SpawnSettings<FuneNamiheSpawnSettings>();
         Action animate;
+        FuneNamiheEnemyState started;
         if (program.Namihe)
         {
-            var namihe = new NamiheEnemyState(program.Active ? NamiheAction.Spitting : NamiheAction.WaitForSamus)
-            {
-                Playback = playback,
-            };
-            place.SetSpeciesState(namihe);
+            NamiheEnemyState namihe = place.RequireSpeciesState<NamiheEnemyState>();
+            started = namihe;
             animate = () => enemies.FuneNamiheBehavior.AdvanceFuneNamiheTypedAnimation(spitter, settings, place, namihe);
         }
         else
         {
-            var fune = new FuneEnemyState(program.Active ? FuneAction.Spitting : FuneAction.WaitForCooldown)
-            {
-                Playback = playback,
-            };
-            place.SetSpeciesState(fune);
+            FuneEnemyState fune = place.RequireSpeciesState<FuneEnemyState>();
+            started = fune;
             animate = () => enemies.FuneNamiheBehavior.AdvanceFuneNamiheTypedAnimation(spitter, settings, place, fune);
         }
+        AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(program.Entry), AnimationPlace.StartOfAnimation), started.Playback,
+            $"Fune/Namihe {program.Entry} is the program the enemy starts");
+        place.AnimationClock.StepOnNextUpdate();
 
         int frames = program.Active ? 140 : 4;
         for (int frame = 0; frame < frames; frame++)

@@ -31,11 +31,11 @@ internal sealed partial class HoppersEntity(HoppersBehavior species, RoomEnemyOc
     internal HopperSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly HopperEnemyState state = state;
+    internal HopperEnemyState State { get; } = state;
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunHoppersMainAi(Settings, Place, state, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunHoppersMainAi(Settings, Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceHoppersTypedAnimation(Place, state);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceHoppersTypedAnimation(Place, State);
 }

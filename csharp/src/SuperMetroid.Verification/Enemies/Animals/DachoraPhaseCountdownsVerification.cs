@@ -15,10 +15,11 @@ internal static class DachoraPhaseCountdownsVerification
     internal static void VerifyDachoraPhaseCountdowns()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.BindPlaced(EnemyDefinitionId.Dachora, new DachoraSpawnSettings(HorizontalDirection.Right, DachoraRole.Runner));
-        var state = new DachoraEnemyState(DachoraAction.WaitingForSamus);
-        place.SetSpeciesState(state);
+        // A Dachora runner set up as its room's population sets it up, waiting for Samus (#2554).
+        RoomEnemyPlace place = enemies.LoadPopulation(
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Dachora, new DachoraSpawnSettings(HorizontalDirection.Right, DachoraRole.Runner)))[0];
+        DachoraEnemyState state = place.RequireSpeciesState<DachoraEnemyState>();
+        AssertEqual(DachoraAction.WaitingForSamus, state.Action, "the set-up Dachora waits for Samus");
 
         state.StartBlinking(5);
         AssertEqual(5, state.PhaseTimer.UpdatesLeft, "the warning countdown starts");

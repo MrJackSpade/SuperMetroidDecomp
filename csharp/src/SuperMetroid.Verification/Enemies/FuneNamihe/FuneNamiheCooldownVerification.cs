@@ -3,6 +3,7 @@ using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.FuneNamihe;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 using SuperMetroid.Verification.Harness;
@@ -34,16 +35,22 @@ internal static class FuneNamiheCooldownVerification
         Console.WriteLine("  Fune cooldown: short and reached counts pass.");
     }
 
-    /// <summary>Runs one waiting update of a left-facing Fune whose count stands at <paramref name="count"/>.</summary>
+    /// <summary>
+    /// Runs one waiting update of a left-facing Fune whose count stands at <paramref name="count"/>: the Fune is set up as its
+    /// room's population sets it up (#2554), its wait uncounted, and its main AI counts it to <paramref name="count"/> first.
+    /// </summary>
     private static FuneEnemyState Wait(int count)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Fune, place.KeptDefinition);
-        place.SetSpawnSettings(new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: CooldownTime, LaunchSpeed: SignedEightEight.Zero));
-        var state = new FuneEnemyState(FuneAction.WaitForCooldown) { Cooldown = UpdateCountdownAccess.AtAge(CooldownTime, count) };
-        place.SetSpeciesState(state);
-        FuneNamiheBehavior.RunFuneMain(place.HeldOccupant().SpawnSettings<FuneNamiheSpawnSettings>(), place.HeldOccupant().SpawnSettings<FuneSpawnSettings>(), place, state);
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        RoomEnemyPlace place = enemies.LoadPopulation(samus, PopulationPlacementAccess.Entry(EnemyDefinitionId.Fune,
+            new FuneSpawnSettings(Facing: HorizontalDirection.Left, CooldownTime: CooldownTime, LaunchSpeed: SignedEightEight.Zero)))[0];
+        FuneEnemyState state = place.RequireSpeciesState<FuneEnemyState>();
+        AssertEqual(0, state.Cooldown.Age, "the set-up Fune's wait starts uncounted");
+        for (int update = 0; update < count; update++)
+            place.RunMainAi(samus);
+        AssertEqual(count, state.Cooldown.Age, $"the Fune's wait counts {count} updates");
+        place.RunMainAi(samus);
         return state;
     }
 

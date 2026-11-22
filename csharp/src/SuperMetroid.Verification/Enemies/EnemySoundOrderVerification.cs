@@ -37,14 +37,21 @@ internal static class EnemySoundOrderVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => CryRandom;
-        // The room's population load places the Boyon; the Metroids are then bound in the places around it.
-        RoomEnemyPlace boyon = BoyonStartingItsBounce(enemies, 1);
-        RoomEnemyPlace firstMetroid = MetroidAtItsCry(enemies, 0);
-        RoomEnemyPlace secondMetroid = MetroidAtItsCry(enemies, 2);
+        // The room's population load sets up a Metroid, the Boyon and a second Metroid, in that order (#2554).
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        RoomEnemyPlacement metroid = PopulationPlacementAccess.Entry(EnemyDefinitionId.Metroid,
+            EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Metroid, EnemySpawnSettingsCodec.Blank(EnemyDefinitionId.Metroid)));
+        // Parameter two is the horizontal trigger range Samus must be within to start a bounce.
+        var boyonSettings = (BoyonSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Boyon, PopulationWords.Parameters(0, 64));
+        IReadOnlyList<RoomEnemyPlace> places = enemies.LoadPopulation(samus,
+            metroid, PopulationPlacementAccess.Entry(EnemyDefinitionId.Boyon, boyonSettings, new(256, 512)), metroid);
+        RoomEnemyPlace boyon = BoyonStartingItsBounce(places[1], samus);
+        RoomEnemyPlace firstMetroid = MetroidAtItsCry(enemies, places[0]);
+        RoomEnemyPlace secondMetroid = MetroidAtItsCry(enemies, places[2]);
 
         enemies.Audio.BeginFrame();
         // Each enemy's animation runs in place order: the Metroids' as the shared enemy animation runs a Metroid's, over the
-        // state each check built, and the Boyon's through the entity its placement built.
+        // state each one's setup built, and the Boyon's through the entity its placement built.
         void AnimateMetroid(RoomEnemyPlace metroid) =>
             enemies.MetroidBehavior.AdvanceMetroidTypedAnimation(metroid, metroid.RequireSpeciesState<MetroidEnemyState>());
         AnimateMetroid(firstMetroid);
@@ -99,37 +106,34 @@ internal static class EnemySoundOrderVerification
         Console.WriteLine("  Dud sounds: an indestructible projectile's dud is queued at once at normal priority; a body part's at low.");
     }
 
-    /// <summary>A Metroid in <paramref name="place"/> whose next script step is its chasing loop's random cry.</summary>
-    private static RoomEnemyPlace MetroidAtItsCry(RoomEnemySystem enemies, int place)
+    /// <summary>
+    /// The set-up Metroid in <paramref name="enemy"/>, its chasing loop, which its setup starts, played on through the
+    /// Metroid's own animation over every frame of the pulses before the loop's random cry: each step shows the next frame,
+    /// so its next script step is the cry.
+    /// </summary>
+    private static RoomEnemyPlace MetroidAtItsCry(RoomEnemySystem enemies, RoomEnemyPlace enemy)
     {
-        RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[place];
-        enemy.Bind(EnemyDefinitionId.Metroid, enemy.KeptDefinition);
-        enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        enemy.AnimationClock.StepOnNextUpdate();
-        enemy.SetSpeciesState(new MetroidEnemyState(
-            new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SpriteGraphics.SharedStandard),
-            new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SpriteGraphics.SharedStandard))
+        MetroidEnemyState state = enemy.RequireSpeciesState<MetroidEnemyState>();
+        Animation<MetroidSegment> chasing = state.Playback.Animation;
+        AssertEqual(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), chasing, "the set-up Metroid plays its chasing loop");
+        AssertEqual(AnimationPlace.StartOfAnimation, state.Playback.Place, "the set-up Metroid's chasing loop stands at its start");
+        int pulseFrames = chasing.Phases.TakeWhile(phase => phase.Segment != MetroidSegment.ChasingCry).Sum(phase => phase.Plays * phase.BeatCount);
+        for (int step = 0; step < pulseFrames; step++)
         {
-            Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
-                AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
-                    MetroidSegment.ChasingCry, 0)),
-        });
+            enemy.AnimationClock.StepOnNextUpdate();
+            enemies.MetroidBehavior.AdvanceMetroidTypedAnimation(enemy, state);
+        }
+        enemy.AnimationClock.StepOnNextUpdate();
         return enemy;
     }
 
     /// <summary>
-    /// A Boyon in <paramref name="place"/> whose next script step starts its bounce, reached as the game reaches it
+    /// The set-up Boyon in <paramref name="enemy"/>, beside <paramref name="samus"/>, whose next script step starts its bounce, reached as the game reaches it
     /// (#2521): its first main update derives its arc, and the next, with Samus standing on it, starts its bounce and the
     /// bouncing animation whose first cue is the bounce sound. The bouncing animation never plays before the Boyon bounces.
     /// </summary>
-    private static RoomEnemyPlace BoyonStartingItsBounce(RoomEnemySystem enemies, int place)
+    private static RoomEnemyPlace BoyonStartingItsBounce(RoomEnemyPlace enemy, SamusState samus)
     {
-        // Parameter two is the horizontal trigger range Samus must be within to start a bounce. The room's population places
-        // a stand-in in each place before the Boyon's.
-        var settings = (BoyonSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Boyon, PopulationWords.Parameters(0, 64));
-        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
-        RoomEnemyPlace enemy = enemies.LoadPopulation(samus, [.. Enumerable.Repeat(PopulationPlacementAccess.Entry(EnemyPlaceFixtures.StandIn), place),
-            PopulationPlacementAccess.Entry(EnemyDefinitionId.Boyon, settings, new(256, 512))])[place];
         _ = enemy.EntityOf<BoyonEntity>();
         samus.Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole);
         enemy.RunMainAi(samus);

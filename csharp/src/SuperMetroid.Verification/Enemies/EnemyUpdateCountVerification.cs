@@ -21,13 +21,15 @@ internal static class EnemyUpdateCountVerification
     internal static void VerifyEnemyUpdateCountCountsOn()
     {
         SamusState samus = EnemyDropsVerification.CreateDropTestSamus();
-        EnemyDropsVerification.EnemyDropFixture fixture = EnemyDropsVerification.CreateEnemyDropFixture(samus, randomValues: []);
+        // A waiting Sbug on screen, outside its one-pixel reach of Samus, runs its main behaviour and stays where it is. The
+        // room's population load sets it up (#2554), with the blank definition the rest of the check overrides.
+        EnemyDropsVerification.EnemyDropFixture fixture = EnemyDropsVerification.CreateEnemyDropFixture(samus, randomValues: [],
+            population: [PopulationPlacementAccess.Entry(EnemyDefinitionId.Sbug,
+                SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Sbug, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(1, 1)),
+                new(samus.Position.Whole.X + 60, samus.Position.Whole.Y))],
+            authored: new Dictionary<EnemyDefinitionId, RoomEnemyDefinition> { [EnemyDefinitionId.Sbug] = EnemyDefinitionFixtures.Blank });
         RoomEnemyPlace enemy = fixture.System.Places.InUpdateOrder[0];
-        // A waiting Sbug on screen, outside its one-pixel reach of Samus, runs its main behaviour and stays where it is.
-        enemy.Bind(EnemyDefinitionId.Sbug, enemy.KeptDefinition);
-        enemy.SetSpawnParameter1(EnemyDefinitionId.Sbug, 1);
-        enemy.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
-        enemy.SetSpeciesState(SuperMetroid.Core.Enemies.Sbug.SbugBehavior.InitializeSbug(enemy.HeldOccupant().SpawnSettings<SuperMetroid.Core.Enemies.Sbug.SbugSpawnSettings>(), enemy));
+        _ = enemy.EntityOf<SuperMetroid.Core.Enemies.Sbug.SbugEntity>();
         enemy.Position = enemy.Position.WithWhole(new(samus.Position.Whole.X + 60, samus.Position.Whole.Y));
         enemy.Radius = new(8, 8);
         enemy.Health = 1;

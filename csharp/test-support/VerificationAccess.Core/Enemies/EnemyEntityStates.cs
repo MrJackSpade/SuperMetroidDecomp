@@ -120,6 +120,22 @@ internal static class EnemyEntityStates
             return held109;
         if (entity is global::SuperMetroid.Core.Enemies.Shutters.VerticalShutterEntity entity111 && entity111.State is T held111)
             return held111;
+        if (entity is global::SuperMetroid.Core.Areas.Ceres.CeresRidleyRoomDoorEntity ridleyRoomDoor && ridleyRoomDoor.State is T heldRidleyRoomDoor)
+            return heldRidleyRoomDoor;
+        if (entity is global::SuperMetroid.Core.Enemies.FuneNamihe.FuneEntity fune && fune.State is T heldFune)
+            return heldFune;
+        if (entity is global::SuperMetroid.Core.Enemies.FuneNamihe.NamiheEntity namihe && namihe.State is T heldNamihe)
+            return heldNamihe;
+        if (entity is global::SuperMetroid.Core.Enemies.Hoppers.HoppersEntity hopper && hopper.State is T heldHopper)
+            return heldHopper;
+        if (entity is global::SuperMetroid.Core.Enemies.Metroids.MetroidEntity metroid && metroid.State is T heldMetroid)
+            return heldMetroid;
+        if (entity is global::SuperMetroid.Core.Enemies.WorkRobots.PoweredWorkRobotEntity workRobot && workRobot.State is T heldWorkRobot)
+            return heldWorkRobot;
+        if (entity is global::SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostEntity ghost && ghost.State is T heldGhost)
+            return heldGhost;
+        if (entity is global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawEntity yappingMaw && yappingMaw.State is T heldYappingMaw)
+            return heldYappingMaw;
         return null;
     }
 }

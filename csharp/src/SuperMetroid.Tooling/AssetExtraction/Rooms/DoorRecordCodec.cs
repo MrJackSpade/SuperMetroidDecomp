@@ -5,7 +5,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Decodes the fields of a bank-$83 door record into the door's domain values (#1414): the orientation byte into a
-/// direction and closing behavior, and the Samus-distance word into a push speed.
+/// direction and closing behavior, the closing block into the block the arrival closes, the elevator-properties byte into
+/// whether the door exchanges explored maps, and the Samus-distance word into a push speed.
 /// </summary>
 internal static class DoorRecordCodec
 {
@@ -17,6 +18,9 @@ internal static class DoorRecordCodec
 
     /// <summary>Bits 2-3 of the orientation byte select the <c>Door_Closing_PLMs</c> row group.</summary>
     private const int ClosingShift = 2;
+
+    /// <summary>Bit 6 of the elevator-properties byte: passing the door moves Samus to another area's explored map.</summary>
+    private const byte ExchangesExploredMapsBit = 0x40;
 
     /// <summary>Decodes an orientation byte, rejecting values outside <c>Door_Closing_PLMs</c>.</summary>
     internal static DoorOrientation DecodeOrientation(byte raw)
@@ -38,6 +42,19 @@ internal static class DoorRecordCodec
         };
         return new DoorOrientation(direction, closing);
     }
+
+    /// <summary>
+    /// Decodes the closing block at offsets four and five: a door that closes nothing stores block (0, 0) there, which
+    /// names no block its arrival closes (#2558); any other door names the block its stored coordinates give.
+    /// </summary>
+    internal static Position16<RoomBlocks>? DecodeClosingBlock(DoorOrientation orientation, byte x, byte y) =>
+        orientation.Closing ==DoorClosingBehavior.None && x == 0 && y == 0 ? null : new(x, y);
+
+    /// <summary>
+    /// Decodes the elevator-properties byte at offset two: a door whose byte carries <see cref="ExchangesExploredMapsBit"/>
+    /// exchanges explored maps as Samus passes it (#1500).
+    /// </summary>
+    internal static bool DecodeExchangesExploredMaps(byte elevatorProperties) => (elevatorProperties & ExchangesExploredMapsBit) != 0;
 
     /// <summary>
     /// Decodes the Samus-distance word: the door transition treats a negative word as the axis default and any other

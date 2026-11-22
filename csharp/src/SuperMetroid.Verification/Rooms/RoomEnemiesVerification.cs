@@ -97,9 +97,10 @@ internal static void VerifyRoomEnemyLoading()
     const ushort populationPointer = 0x9100;
     const ushort tilesetPointer = 0x9100;
     // The placed enemy is a real species whose initialization reads no placement settings, so the load runs it as a room
-    // load does (#2010); its header is the fixture's, seeded where the species' header lies.
+    // load does (#2010); the set's second member is Owtch, whose artwork the set loads without placing him. Each header is
+    // the fixture's, seeded where the species' header lies.
     const EnemyDefinitionId primaryDefinitionPointer = EnemyDefinitionId.Skree;
-    const EnemyDefinitionId specialDefinitionPointer = (EnemyDefinitionId)0xd040;
+    const EnemyDefinitionId specialDefinitionPointer = EnemyDefinitionId.Owtch;
 
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
@@ -191,7 +192,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(EnemyReaction.CommonPowerBomb, definition.PowerBombReaction,
         "definition power-bomb reaction offset $28 names no shared reaction");
     // The tile word is the import's to read (#1513): its low fifteen bits are the tile set's size, bit 15 set or not. The
-    // fixture's identities are no members, so the headers are read at the pointers the fixture seeded them at.
+    // headers are read where the fixture seeded them, at the species' header pointers.
     AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(0x0040),
         SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSetAt(bus, TestAddressSpace.FixtureHeaderPointer(primaryDefinitionPointer)),
         "the import decodes the definition's tile set size, the tile word's low fifteen bits");

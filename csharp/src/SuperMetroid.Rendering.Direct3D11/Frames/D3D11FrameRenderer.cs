@@ -860,8 +860,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         roomLevels.Collect(levels, images.Needed);
         images.Hold(images.Needed);
         // Every draw the frame shows, the paint's then each sprite layer's, packed once; each sprite layer draws its own
-        // run of them (#1514). The paint's draws are packed by depth, the actors in front first and each depth's in emission
-        // order, so the sprite layer keeps the frontmost actor among the layers at each pixel.
+        // run of them (#1514). The paint's draws are packed in emission order, frontmost first, so the sprite layer keeps the
+        // frontmost actor at each pixel, which then stands at its own depth among the room's layers (#2620).
         bool composesGameplay = !scene.Layers.IsEmpty && scene.Layers[0] is GameplaySceneLayer or GameplayBlendLayer or TurningRoomLayer;
         PackOrder(scene, composesGameplay);
         spriteDraws.Pack(CollectionsMarshal.AsSpan(packedDraws), CollectionsMarshal.AsSpan(packedDepths), images);
@@ -1062,11 +1062,6 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>The depth <see cref="GameplayLayer.ActorsInFront"/> shows.</summary>
     private static readonly ActorDepth[] ActorsInFront = [ActorDepth.InFront];
 
-    /// <summary>
-    /// The actor depths from the front back, grouped as the paint's draws are packed (#1514): the two depths behind the
-    /// room are one group, packed in emission order, since only a turning floor tells them apart (#2583).
-    /// </summary>
-    private static readonly ActorDepth[][] FrontToBack = [ActorsInFront, ActorsBehindFrontParts, ActorsBehindRoom];
 
     /// <summary>The frame's draws in the order they are packed, reused from frame to frame.</summary>
     private readonly List<ImageSpriteDraw> packedDraws = [];
@@ -1075,9 +1070,11 @@ public sealed class D3D11FrameRenderer : IDisposable
     private readonly List<ActorDepth> packedDepths = [];
 
     /// <summary>
-    /// Lays out <paramref name="scene"/>'s draws and their depths in the order they are packed (#1514): the paint's draws
-    /// grouped by depth from the front back, each group's in emission order, then every sprite layer's as the scene lists
-    /// them, in front, since a sprite layer is drawn whole at its place among the scene's layers. The draws a whole-gameplay
+    /// Lays out <paramref name="scene"/>'s draws and their depths in the order they are packed (#1514): the paint's draws in
+    /// emission order, frontmost first, then every sprite layer's as the scene lists them, in front, since a sprite layer is
+    /// drawn whole at its place among the scene's layers. Where actors overlap, the one emitted first shows, at its own depth
+    /// among the room's layers, as the game draws them (#2620): an actor standing behind another never covers it for having
+    /// a depth further forward. The draws a whole-gameplay
     /// layer composes sit at their frames' depths; a frontend screen's paint draws, which only a turning floor's glow
     /// composes, sit at their frames' depths where their frames have one and in front of the floor otherwise.
     /// </summary>
@@ -1088,16 +1085,10 @@ public sealed class D3D11FrameRenderer : IDisposable
         packedDepths.Clear();
         ReadOnlySpan<ImageSpriteDraw> draws = scene.SpriteDraws.AsSpan();
         int paintDraws = scene.Paint.SpriteDraws.Length;
-        foreach (ActorDepth[] group in FrontToBack)
+        foreach (ImageSpriteDraw image in draws[..paintDraws])
         {
-            foreach (ImageSpriteDraw image in draws[..paintDraws])
-            {
-                ActorDepth shown = composesGameplay ? DepthOf(image) : image.Depth ?? ActorDepth.InFront;
-                if (Array.IndexOf(group, shown) < 0)
-                    continue;
-                packedDraws.Add(image);
-                packedDepths.Add(shown);
-            }
+            packedDraws.Add(image);
+            packedDepths.Add(composesGameplay ? DepthOf(image) : image.Depth ?? ActorDepth.InFront);
         }
         foreach (ImageSpriteDraw draw in draws[paintDraws..])
         {

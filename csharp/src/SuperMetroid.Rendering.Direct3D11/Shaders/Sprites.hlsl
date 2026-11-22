@@ -2,7 +2,7 @@
 // drawn back to front so the frontmost draw's opaque pixel is the one the layer keeps. The layer holds, per pixel, the
 // colour shown and, below it, the draw's depth among the room's layers (#1514) with whether the pixel blends above that;
 // a pixel no draw covers keeps the cleared "none" value. D3D11SpriteDrawBuffer packs the records, a gameplay frame's
-// draws by depth from the front back, so the frontmost draw is the one at the frontmost depth.
+// draws in emission order, so the frontmost draw is the one emitted first, which then shows at its own depth (#2620).
 StructuredBuffer<uint> SpriteDraws : register(t1);
 // The run of draws this pass draws (#1514): a sprite layer's own, or every draw of the frame. FirstDraw counts from the
 // frontmost packed draw; D3D11FrameRenderer.DrawSpriteLayer uploads both.

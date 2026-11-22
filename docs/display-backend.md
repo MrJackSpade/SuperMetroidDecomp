@@ -18,7 +18,7 @@ to the WARP reference.
 | Image texture (`D3D11ImageAtlas`) | `Images`, t4 | Every installed image a scene draws: sprite frames, block pictures, background images, tile sheets, the message box. Each texel holds the image's pixel and its key word: for a clear pixel (alpha zero) only that it is clear; for a visible pixel the place of its colour key among the image's (`SpriteImage.ColourKeys`) and whether it blends where it is drawn as a sprite (its frame blends, or its sheet's blend map marks it). An image keeps its place while later scenes show it; a scene that does not fit empties the texture and lays its images tallest first on a skyline. |
 | Floor image (`D3D11FloorImage`) | `Floor`, t5 | The perspective floor, 1024 pixels square, laid out from its tiles' pictures whenever the floor changes, with its first tile's picture beside it. |
 | Scene colours (`D3D11SceneColourBuffer`) | `Colours`, t0 | The backdrop, then one colour table per image and colouring: the colour each of the image's colour keys shows under the colouring's shading, in the keys' order. |
-| Sprite draws (`D3D11SpriteDrawBuffer`) | `SpriteDraws`, t1 | One record per whole-frame sprite draw (position, size, mirroring, depth among the room's layers, image place, colours), front to back: the paint's draws grouped by depth from the front back, then each sprite layer's. |
+| Sprite draws (`D3D11SpriteDrawBuffer`) | `SpriteDraws`, t1 | One record per whole-frame sprite draw (position, size, mirroring, depth among the room's layers, image place, colours), front to back: the paint's draws in emission order, then each sprite layer's. |
 | Room levels (`D3D11RoomLevelBuffer`) | `RoomLevels`, t3 | The layers' block grids, each picture's place, size and colour slot, the pictures written over the layers and the HUD's at the pixels they show at, the effect overlay's placed picture, a boss body's placed pieces, the sky's bands, the door window and the floor's sheets (#1514). |
 | Sprite layer | `SpriteLayer`, u1 / render target | Per pixel, the frontmost sprite pixel's colour and its draw's depth, with whether it blends. |
 | Output | `Output`, u0 | The composed 256 by 224 frame, eight bits a channel. |
@@ -50,9 +50,9 @@ art is from the room's.
 Each pass runs over the screen, or over a band of lines, in the order the scene lists its layers.
 
 - **Sprite layer** (`Sprites.hlsl`). Each sprite draw is an instanced quad over its image, drawn back to front into the
-  sprite layer, so each pixel keeps the frontmost draw's opaque pixel. A gameplay frame's draws are packed by depth from
-  the front back (#1514), so the frontmost draw is one at the frontmost depth, and each pixel records its draw's depth: a
-  whole draw sits at one depth among the room's layers.
+  sprite layer, so each pixel keeps the frontmost draw's opaque pixel. A gameplay frame's draws are packed in emission
+  order, frontmost first (#2620): where actors overlap, the one the game draws in front shows, whatever its depth, and each
+  pixel records its draw's depth: a whole draw sits at one depth among the room's layers.
 - **Backdrop.** Fills the screen with the backdrop colour.
 - **Layer.** Draws a tile layer: a room plane through its block grid, the sky's rows, the effect overlay, a boss body, the
   X-ray reveal, a library background, or a frontend layer's cells. Each pixel of the layer shows its picture's pixel at

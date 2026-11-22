@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend;
+﻿namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Which step of an escape timer's expiry (<see cref="Progression.SuperMetroidGameState.TimeUp"/>) runs.</summary>
 internal enum TimeUpStep

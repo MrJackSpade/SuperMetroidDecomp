@@ -5,10 +5,9 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the baby occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="state">What the enemy's setup built (#2554).</param>
 internal sealed partial class BabyTurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
-    EnemyCommonParticipation common, BabyTurtleSpawnSettings settings, BabyTurtleEnemyState state)
+    EnemyCommonParticipation common, BabyTurtleEnemyState state)
     : TurtleEntity(species, occupant, place, common), IEnemyPrivateShotReaction
 {
     /// <summary>
@@ -23,12 +22,9 @@ internal sealed partial class BabyTurtleEntity(MamaTurtleBehavior species, RoomE
     /// <param name="family">The family of the Mama the room lists before the baby, which she offered it as she was placed (#2554).</param>
     internal BabyTurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
         BabyTurtleSpawnSettings settings, MamaTurtleFamily family)
-        : this(species, occupant, place, common, settings, MamaTurtleBehavior.InitializeBabyTurtle(settings, place, family))
+        : this(species, occupant, place, common, MamaTurtleBehavior.InitializeBabyTurtle(settings, place, family))
     {
     }
-
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal BabyTurtleSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly BabyTurtleEnemyState state = state;

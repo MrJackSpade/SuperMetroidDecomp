@@ -7,18 +7,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public abstract partial record BabyMetroidCutscenePhase
 {
-    /// <summary>Allows only the cases below.</summary>
-    private BabyMetroidCutscenePhase()
-    {
-    }
 
     /// <summary>The phases in which the cutscene Baby Metroid flies its course, from its dash onto the screen until it is deleted.</summary>
     public abstract partial record Flying : BabyMetroidCutscenePhase
     {
-        /// <summary>Allows only the cases below.</summary>
-        private Flying()
-        {
-        }
 
         /// <summary>Moves the Baby rapidly into the room until it reaches the first scripted X threshold.</summary>
         public sealed partial record DashOntoScreen : Flying;

@@ -9,6 +9,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Frames">The images in the order they show.</param>
 internal sealed partial record BlockReactionChange(int FirstFrameDelay, IReadOnlyList<BlockReactionFrame> Frames)
 {
-    /// <summary>A reaction whose whole effect its spawn made: it shows nothing and leaves the room on its first update.</summary>
-    internal static BlockReactionChange MadeAtSpawn { get; } = new(1, []);
 }

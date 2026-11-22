@@ -71,7 +71,7 @@ internal sealed partial class GunshipBehavior : IEnemyEntityFactory
     /// </summary>
     private EnemyOccupant CreateBottom(RoomEnemyOccupant occupant, GunshipSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         EnemyPopulationSurroundings surroundings, GunshipPieceState padPiece) =>
-        EnemyOccupant.PlacedOnly(new GunshipBottomEntity(occupant, place, common, settings, Ensure.NotNull(settings).Part == GunshipBottomPiece.EntrancePad
+        EnemyOccupant.PlacedOnly(new GunshipBottomEntity(occupant, place, common, Ensure.NotNull(settings).Part == GunshipBottomPiece.EntrancePad
             ? InitializeGunshipEntrancePad(place, padPiece)
             : InitializeGunshipBottomHull(place, Ensure.NotNull(surroundings).Samus)));
 

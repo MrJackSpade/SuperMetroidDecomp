@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// </summary>
 internal abstract partial class MorphBallEyeBeamStage
 {
-    /// <summary>Only the four stages below derive from this.</summary>
-    private MorphBallEyeBeamStage() { }
 
     /// <summary>The lifetime phase the stage shows as.</summary>
     internal abstract MorphBallEyeBeamPhase Phase { get; }

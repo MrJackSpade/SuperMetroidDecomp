@@ -5,10 +5,9 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="state">What the enemy's setup built (#2554).</param>
 internal sealed partial class EtecoonEntity(EtecoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
-    EnemyCommonParticipation common, EtecoonSpawnSettings settings, EtecoonEnemyState state)
+    EnemyCommonParticipation common, EtecoonEnemyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>
@@ -22,12 +21,9 @@ internal sealed partial class EtecoonEntity(EtecoonBehavior species, RoomEnemyOc
     /// <param name="settings">What the enemy's population entry tells its species.</param>
     internal EtecoonEntity(EtecoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
         EtecoonSpawnSettings settings)
-        : this(species, occupant, place, common, settings, EtecoonBehavior.InitializeEtecoon(settings, place))
+        : this(species, occupant, place, common, EtecoonBehavior.InitializeEtecoon(settings, place))
     {
     }
-
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal EtecoonSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly EtecoonEnemyState state = state;

@@ -34,9 +34,6 @@ internal abstract partial class TorizoEntity(TorizoBehavior species, RoomEnemyOc
             TorizoCombat.BeginTorizoDeath(context.Enemy, State);
     }
 
-    /// <summary>Which Torizo this is, Crateria's Bomb Torizo or Norfair's Golden Torizo, whose values his fight reads (#2301, #2410).</summary>
-    protected abstract TorizoVariant Variant { get; }
-
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);
 

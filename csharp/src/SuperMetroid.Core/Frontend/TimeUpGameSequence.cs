@@ -18,9 +18,6 @@ internal sealed partial class TimeUpGameSequence(FrontendSession session, Gamepl
     /// <summary>The step that runs, with what it holds (#2554).</summary>
     internal Stage Current { get; private set; } = Ensure.NotNull(stage);
 
-    /// <summary>The name of the step that runs.</summary>
-    internal TimeUpStep CurrentStep => Current.Step;
-
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.TimeUp;
 
@@ -96,9 +93,6 @@ internal sealed partial class TimeUpGameSequence(FrontendSession session, Gamepl
         {
         }
 
-        /// <summary>The step's name.</summary>
-        internal abstract TimeUpStep Step { get; }
-
         /// <summary>How the step advances the random generator.</summary>
         internal abstract PhaseRandomStep RandomStep { get; }
 
@@ -115,8 +109,6 @@ internal sealed partial class TimeUpGameSequence(FrontendSession session, Gamepl
         /// <param name="whiteOut">The running white-out, which a reserve refill's interruption leaves where it stood (#2518).</param>
         internal sealed partial class WhiteningOut(RunningGameplayFade whiteOut) : Stage
         {
-            /// <inheritdoc/>
-            internal override TimeUpStep Step => TimeUpStep.WhiteningOut;
 
             /// <inheritdoc/>
             internal override PhaseRandomStep RandomStep => PhaseRandomStep.RuntimeOwned;
@@ -139,9 +131,6 @@ internal sealed partial class TimeUpGameSequence(FrontendSession session, Gamepl
 
             /// <summary>The one fade to black.</summary>
             internal static FadingToBlack Instance { get; } = new();
-
-            /// <inheritdoc/>
-            internal override TimeUpStep Step => TimeUpStep.FadingToBlack;
 
             /// <inheritdoc/>
             internal override PhaseRandomStep RandomStep => PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance;

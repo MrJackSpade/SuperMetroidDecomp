@@ -35,13 +35,4 @@ internal static class RoomWarningAccess
 
     /// <summary>A room as it has loaded: nothing shown over it, no animation frame selected and no encounter look shown.</summary>
     private static RoomAppearanceView LoadedRoom => new(new RoomAppearance(), new ArtworkFrameSelections(), new EncounterLooks());
-
-    /// <summary>The one name in <paramref name="sheet"/> whose picture, while the room's inputs take <paramref name="appearance"/>'s values, is <paramref name="picture"/>.</summary>
-    /// <exception cref="InvalidOperationException">No name, or more than one, pictures it.</exception>
-    private static string NameOf(WrittenPictureSheet sheet, LayeredPicture picture, RoomAppearanceView appearance)
-    {
-        string[] names = [.. sheet.inputs.Keys.Where(name => sheet.Picture(name, appearance) == picture).Order(StringComparer.Ordinal)];
-        return names.Length == 1 ? names[0]
-            : throw new InvalidOperationException($"{sheet.Name} shows the warning's picture as {names.Length} pictures: {string.Join(", ", names)}.");
-    }
 }

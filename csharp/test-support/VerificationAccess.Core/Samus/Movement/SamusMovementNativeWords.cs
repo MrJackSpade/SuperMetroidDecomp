@@ -20,7 +20,7 @@ internal static class SamusMovementNativeWords
         if (directionWord == NoKnockbackDirection)
             return SamusKnockback.None;
         SamusKnockbackDirection direction = KnockbackDirections.Decode(directionWord, "Samus knockback direction");
-        return knockbackMoving ? new SamusKnockback.Moving(direction) : new SamusKnockback.HandedBack(direction);
+        return knockbackMoving ? new SamusKnockback.Moving(direction) : new SamusKnockback.HandedBack();
     }
 
     /// <summary>The cartridge's knockback direction word for <paramref name="knockback"/>.</summary>

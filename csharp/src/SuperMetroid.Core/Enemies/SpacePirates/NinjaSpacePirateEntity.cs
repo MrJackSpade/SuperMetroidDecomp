@@ -8,10 +8,9 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="state">What the enemy's setup built (#2554).</param>
 internal partial class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
-    EnemyCommonParticipation common, NinjaSpacePirateSpawnSettings settings, NinjaSpacePirateEnemyState state)
+    EnemyCommonParticipation common, NinjaSpacePirateEnemyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <summary>
@@ -25,12 +24,9 @@ internal partial class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, 
     /// <param name="settings">What the enemy's population entry tells its species.</param>
     internal NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
         EnemyCommonParticipation common, NinjaSpacePirateSpawnSettings settings)
-        : this(species, occupant, place, common, settings, NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(settings, place))
+        : this(species, occupant, place, common, NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(settings, place))
     {
     }
-
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal NinjaSpacePirateSpawnSettings Settings { get; } = settings;
 
     /// <summary>The ninja Space Pirate species owner.</summary>
     protected NinjaSpacePirateBehavior Species => species;

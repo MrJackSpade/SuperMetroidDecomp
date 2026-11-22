@@ -106,13 +106,6 @@ internal static partial class SamusPoseFamilyDefinitions
         [SamusPoseId.StandingTransitionAimDiagonalDownLeftPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
     };
 
-    /// <summary>Each damage boost, with the family of jumps it turns into: the left-named boost's left jumps, the right-named's right.</summary>
-    internal static readonly IReadOnlyDictionary<SamusPoseId, SamusPoseFamily> DamageBoostJumps = new Dictionary<SamusPoseId, SamusPoseFamily>
-    {
-        [SamusPoseId.DamageBoostLeftPose] = SamusPoseFamily.DamageBoostJumpLeft,
-        [SamusPoseId.DamageBoostRightPose] = SamusPoseFamily.DamageBoostJumpRight,
-    };
-
     /// <summary>The poses each family holds (<see cref="SamusPoseFamily"/>).</summary>
     internal static readonly IReadOnlyDictionary<SamusPoseFamily, SamusPoseId[]> Members = new Dictionary<SamusPoseFamily, SamusPoseId[]>
     {

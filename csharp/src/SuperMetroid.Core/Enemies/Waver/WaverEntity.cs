@@ -5,10 +5,8 @@ namespace SuperMetroid.Core.Enemies.Waver;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="state">What the enemy's setup built (#2554).</param>
-internal sealed partial class WaverEntity(WaverBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    WaverSpawnSettings settings, WaverEnemyState state)
+internal sealed partial class WaverEntity(WaverBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, WaverEnemyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>
@@ -22,12 +20,9 @@ internal sealed partial class WaverEntity(WaverBehavior species, RoomEnemyOccupa
     /// <param name="settings">What the enemy's population entry tells its species.</param>
     internal WaverEntity(WaverBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
         WaverSpawnSettings settings)
-        : this(species, occupant, place, common, settings, WaverBehavior.InitializeWaver(settings, place))
+        : this(species, occupant, place, common, WaverBehavior.InitializeWaver(settings, place))
     {
     }
-
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal WaverSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly WaverEnemyState state = state;

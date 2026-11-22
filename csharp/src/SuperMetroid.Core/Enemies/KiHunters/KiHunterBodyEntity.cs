@@ -8,10 +8,9 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="state">What the enemy's setup built (#2554).</param>
 internal sealed partial class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
-    EnemyCommonParticipation common, KiHunterSpawnSettings settings, KiHunterBodyState state)
+    EnemyCommonParticipation common, KiHunterBodyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>
@@ -25,7 +24,7 @@ internal sealed partial class KiHunterBodyEntity(KiHunterBehavior species, RoomE
     /// <param name="settings">What the enemy's population entry tells its species.</param>
     internal KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
         KiHunterSpawnSettings settings)
-        : this(species, occupant, place, common, settings, species.InitializeKiHunter(settings, place))
+        : this(species, occupant, place, common, species.InitializeKiHunter(settings, place))
     {
     }
 
@@ -34,9 +33,6 @@ internal sealed partial class KiHunterBodyEntity(KiHunterBehavior species, RoomE
 
     /// <summary>The species' KiHunterBombReaction, built once for this enemy with its state (#2554).</summary>
     private EnemyBombReaction OwnKiHunterBombReaction => field ??= KiHunterBehavior.KiHunterBombReaction(DetachWings);
-
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal KiHunterSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal KiHunterBodyState State { get; } = state;

@@ -44,8 +44,7 @@ internal abstract partial record WalkingSpacePirateCue
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
-    /// <param name="Kind">What the cue does.</param>
-    internal sealed partial record Signal(WalkingSpacePirateCueKind Kind) : WalkingSpacePirateCue
+    internal sealed partial record Signal() : WalkingSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(WalkingSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Signal(this, context);

@@ -144,9 +144,6 @@ internal sealed partial class StateGraphRun
         return true;
     }
 
-    /// <summary>Whether a type of this compilation gets members.</summary>
-    internal bool Covers(INamedTypeSymbol type) => covered.Contains(type.OriginalDefinition);
-
     /// <summary>Whether a type, of this compilation or another, has state-graph members a derived type or a field's registration can call.</summary>
     internal bool HasMembers(INamedTypeSymbol type)
     {

@@ -38,9 +38,6 @@ public sealed partial class BoyonEnemyState
     /// </summary>
     public BoyonPhase Phase { get; internal set; }
 
-    /// <summary>Whether the Boyon is bouncing: rising or falling along its arc, its bouncing animation playing.</summary>
-    public bool IsBouncing => Phase is BoyonPhase.Rising or BoyonPhase.Falling;
-
     /// <summary>The place along the curve at which falling reaches the spawn-height baseline, derived on the first update.</summary>
     public BoyonCurvePlace BaselineCurvePlace { get; internal set; }
 }

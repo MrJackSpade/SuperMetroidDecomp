@@ -315,9 +315,6 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     public void Queue<T>() => Put(new QueueStateType<T>(this));
 
     /// <inheritdoc/>
-    public void Stack<T>() => Put(new StackStateType<T>(this));
-
-    /// <inheritdoc/>
     public void HashSet<T>() => Put(new HashSetStateType<T>(this));
 
     /// <inheritdoc/>

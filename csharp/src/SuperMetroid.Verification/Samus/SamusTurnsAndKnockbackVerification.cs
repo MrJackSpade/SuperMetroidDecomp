@@ -854,7 +854,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     var floorClipOverlap = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x007a, 0x0696)),
-        Knockback = new SamusKnockback.HandedBack(SamusKnockbackDirection.DownRight),
+        Knockback = new SamusKnockback.HandedBack(),
         KnockbackHold = UpdateCountdown.Ended(),
     }.InPose(SamusPoseId.NormalJumpAimDownRightPose);
     floorClipOverlap.Kinematics.Position = floorClipOverlap.Kinematics.Position.WithFractionX(0xffff).WithFractionY(0xffff);
@@ -883,7 +883,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     var sameRadiusExpiry = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x0696)),
-        Knockback = new SamusKnockback.HandedBack(SamusKnockbackDirection.DownRight),
+        Knockback = new SamusKnockback.HandedBack(),
         KnockbackHold = UpdateCountdown.Ended(),
     }.InPose(SamusPoseId.NormalJumpAimDownRightPose);
     sameRadiusExpiry.PoseHistory.Restore(SamusPoseId.NormalJumpAimDownRightPose, sameRadiusExpiry.PoseHistory.PreviousMovement, sameRadiusExpiry.PoseHistory.MovementBeforePrevious);

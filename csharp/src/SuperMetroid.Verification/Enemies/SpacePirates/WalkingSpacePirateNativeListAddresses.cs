@@ -43,6 +43,6 @@ internal static class WalkingSpacePirateNativeListAddresses
         // The routine setter begins an action, a walk with its heading (#2165).
         [0xfcb8] = new NativeCueShape<WalkingSpacePirateCue>(nameof(WalkingSpacePirateCue.Begin),
             cue => cue is WalkingSpacePirateCue.Begin or WalkingSpacePirateCue.BeginHeading, "E"),
-        [0xfcc8] = NativeCueShape<WalkingSpacePirateCue>.Exactly(new WalkingSpacePirateCue.Signal(WalkingSpacePirateCueKind.ChooseMovement)),
+        [0xfcc8] = NativeCueShape<WalkingSpacePirateCue>.Exactly(new WalkingSpacePirateCue.Signal()),
     };
 }

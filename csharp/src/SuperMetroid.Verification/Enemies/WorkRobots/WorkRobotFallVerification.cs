@@ -28,14 +28,17 @@ internal static class WorkRobotFallVerification
                  })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.UnpoweredWorkRobot, place.KeptDefinition);
+            // The powered robot, whose main AI is its fall, is set up in the air as its room's population sets it up (#2554).
+            RoomEnemyPlace place = enemies.LoadPopulation(RoomEnemyFrameFixtures.StandaloneSamus(), air,
+                PopulationPlacementAccess.Entry(EnemyDefinitionId.WorkRobot,
+                    SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.WorkRobot,
+                        SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Blank(EnemyDefinitionId.WorkRobot)),
+                    new(64, 32)))[0];
             place.Radius = new(8, 8);
-            place.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 32));
-            var state = new WorkRobotEnemyState() { FallVelocity = SignedSixteenSixteen.FromParts(whole, fraction) };
-            place.SetSpeciesState(state);
+            WorkRobotEnemyState state = place.RequireSpeciesState<WorkRobotEnemyState>();
+            state.FallVelocity = SignedSixteenSixteen.FromParts(whole, fraction);
 
-            enemies.WorkRobotBehavior.RunWorkRobotMainAi(place, place.RequireSpeciesState<WorkRobotEnemyState>(), frame);
+            place.RunMainAi(frame);
 
             string context = $"Work Robot falling at {whole} and {fraction}/65536 pixels";
             AssertEqual(expectedWhole, state.FallVelocity.UnsignedWholePixels, $"{context}: whole speed word");

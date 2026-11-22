@@ -22,11 +22,11 @@ internal sealed partial class WreckedShipGhostEntity(RoomEnemyOccupant occupant,
     }
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly WreckedShipGhostEnemyState state = state;
+    internal WreckedShipGhostEnemyState State { get; } = state;
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(Place, state, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WreckedShipGhostBehavior.AdvanceWreckedShipGhostTypedAnimation(Place, state);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => WreckedShipGhostBehavior.AdvanceWreckedShipGhostTypedAnimation(Place, State);
 }

@@ -30,33 +30,33 @@ internal sealed partial class MetroidEntity(MetroidBehavior species, RoomEnemyOc
     internal MetroidSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly MetroidEnemyState state = state;
+    internal MetroidEnemyState State { get; } = state;
 
     /// <summary>Clears the Metroid's outer body before a lethal Power Bomb's generic death.</summary>
     /// <param name="context">The blast meeting the Metroid.</param>
-    internal void FinishDeath(EnemyPowerBombContext context) => MetroidBehavior.FinishMetroidDeath(state, context.Samus);
+    internal void FinishDeath(EnemyPowerBombContext context) => MetroidBehavior.FinishMetroidDeath(State, context.Samus);
 
     /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation once the shot has marked its hit.</summary>
     /// <param name="c">The shot meeting the Metroid.</param>
     /// <returns>Whether the resolution replaces the rest of the shot reaction.</returns>
-    internal bool ResolveOrdinaryShot(in EnemyShotContext c) => species.ResolveMetroidOrdinaryShot(c, state);
+    internal bool ResolveOrdinaryShot(in EnemyShotContext c) => species.ResolveMetroidOrdinaryShot(c, State);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Occupant, Place, state, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Occupant, Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMetroidTypedAnimation(Place, state);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceMetroidTypedAnimation(Place, State);
 
     /// <summary>The Metroid's own hurt behaviour, ahead of its frozen behaviour when it is both hurt and frozen; the animation still advances.</summary>
     /// <param name="frame">The enemy frame.</param>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        MetroidBehavior.ApplyMetroidHurt(Place, state);
+        MetroidBehavior.ApplyMetroidHurt(Place, State);
         return true;
     }
 
     /// <summary>The frozen Metroid's behaviour, which retains its outer-body state.</summary>
-    public override void RunFrozen() => MetroidBehavior.RunMetroidFrozen(Place, state);
+    public override void RunFrozen() => MetroidBehavior.RunMetroidFrozen(Place, State);
 
     /// <summary>Whether the Metroid's own touch, its attachment and suit-dependent draining, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == MetroidReactions.Touch || base.ReactsToTouch;
@@ -66,7 +66,7 @@ internal sealed partial class MetroidEntity(MetroidBehavior species, RoomEnemyOc
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == MetroidReactions.Touch)
-            species.ResolveMetroidTouch(context.Place, state, context.Samus);
+            species.ResolveMetroidTouch(context.Place, State, context.Samus);
         else
             base.ReactToTouch(context);
     }
@@ -86,7 +86,7 @@ internal sealed partial class MetroidEntity(MetroidBehavior species, RoomEnemyOc
     {
         if (Occupant.Definition.Shot != MetroidReactions.Shot)
             return base.TryReactToBomb(context);
-        species.ReactToMetroidBomb(context, state);
+        species.ReactToMetroidBomb(context, State);
         return true;
     }
 

@@ -30,12 +30,12 @@ internal sealed partial class NamiheEntity(FuneNamiheBehavior species, RoomEnemy
     internal NamiheSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly NamiheEnemyState state = state;
+    internal NamiheEnemyState State { get; } = state;
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>
-        FuneNamiheBehavior.RunNamiheMain(Settings, Settings, Place, state, Ensure.NotNull(frame).Samus);
+        FuneNamiheBehavior.RunNamiheMain(Settings, Settings, Place, State, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<NamiheEnemyState>(Occupant, Settings, Place, state);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<NamiheEnemyState>(Occupant, Settings, Place, State);
 }

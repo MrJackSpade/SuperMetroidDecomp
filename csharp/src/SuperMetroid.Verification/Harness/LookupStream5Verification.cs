@@ -180,6 +180,14 @@ internal static class LookupStream5Verification
         }
         Console.WriteLine("Ceres rumble: eight native words, bounds, 98 actual calls, 20 emitted native positions/order/animations, wrap and expiry pass.");
     }
+    /// <summary>
+    /// Phantoon set up in <paramref name="enemies"/> as his room's population sets him up (#2554): his room's four parts, in
+    /// the room's first four places, whose body begins his encounter and offers it to the parts listed after him.
+    /// </summary>
+    private static PhantoonEnemyState LoadPhantoon(RoomEnemySystem enemies) =>
+        enemies.LoadRoom(SuperMetroid.Core.World.RoomStates.WreckedShipRoomEnemyPopulationDefinitions.PhantoonDefault,
+            RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)))[0].RequireSpeciesState<PhantoonEnemyState>();
+
     /// <summary>Checks Phantoon's rain-phase wait against the cartridge countdown.</summary>
     internal static void VerifyLookupStream5PhantoonRainWait(CartridgeImportAddressSpace rom)
     {
@@ -190,8 +198,7 @@ internal static class LookupStream5Verification
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
-            var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, eye, system.Places.InUpdateOrder[2], system.Places.InUpdateOrder[3]);
-            system.BeginPhantoonAsSetUp(state);
+            PhantoonEnemyState state = LoadPhantoon(system);
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls == 1 ? bucket : nextPattern);
             // The fade writes Phantoon's palette rows toward its installed fade colors.
@@ -251,8 +258,7 @@ internal static class LookupStream5Verification
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
             var mouth = system.Places.InUpdateOrder[3];
-            var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, eye, system.Places.InUpdateOrder[2], mouth);
-            system.BeginPhantoonAsSetUp(state);
+            PhantoonEnemyState state = LoadPhantoon(system);
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => { randomCalls++; return (ushort)(reversed ? 1 : 0); };
             Action<PhantoonEnemyState> begin = system.PhantoonBehavior.Patterns.RunPhantoonPickFirstRoundPattern;
@@ -364,8 +370,7 @@ internal static class LookupStream5Verification
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
             var tentacles = system.Places.InUpdateOrder[2];
-            var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, eye, tentacles, system.Places.InUpdateOrder[3]);
-            system.BeginPhantoonAsSetUp(state);
+            PhantoonEnemyState state = LoadPhantoon(system);
             system.VerificationServices().NextRandom = () => (ushort)bucket;
             Action<PhantoonEnemyState> open = system.PhantoonBehavior.BeginPhantoonEyeTracking;
             Action<RoomEnemyPlace, PhantoonEnemyState, SamusState> tick = PhantoonPatterns.RunPhantoonEyeTracking;
@@ -967,7 +972,7 @@ internal static class LookupStream5Verification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Marker reference ROM revision");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var body = enemies.Places.InUpdateOrder[0];
-        var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
+        PhantoonEnemyState state = LoadPhantoon(enemies);
         Action<RoomEnemyPlace, PhantoonEnemyState, ushort, int> shot = (shotPlace, shotPhantoon, shotType, shotDamage) =>
             enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(shotPlace, shotPhantoon, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(shotType), shotDamage);
         ushort random = 0;
@@ -1283,8 +1288,7 @@ internal static class LookupStream5Verification
             enemies.VerificationServices().NextRandom = () => { calls++; return random; };
             var body = enemies.Places.InUpdateOrder[0];
             var eye = enemies.Places.InUpdateOrder[1];
-            var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
-            enemies.BeginPhantoonAsSetUp(state);
+            PhantoonEnemyState state = LoadPhantoon(enemies);
             state.PhaseWait.LastFor(1);
             state.FigureEight.Direction = PhantoonPathDirection.Backwards;
             enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain(body.HeldOccupant(), body, state);
@@ -1312,7 +1316,7 @@ internal static class LookupStream5Verification
         Action<RoomEnemyPlace, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
         RoomEnemyPlace eyeBody = eyeEnemies.Places.InUpdateOrder[0];
         RoomEnemyPlace trackingEye = eyeEnemies.Places.InUpdateOrder[1];
-        var eyeState = new PhantoonEnemyState(eyeBody.BoundFor(EnemyDefinitionId.PhantoonBody), eyeBody, trackingEye, eyeEnemies.Places.InUpdateOrder[2], eyeEnemies.Places.InUpdateOrder[3]);
+        PhantoonEnemyState eyeState = LoadPhantoon(eyeEnemies);
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, CompassDirection direction, _) in eyeTargets)
         {
@@ -1592,6 +1596,12 @@ internal static class LookupStream5Verification
         }
     }
 
+    /// <summary>
+    /// The updates within which the door of Ceres Ridley's room, as it is set up, comes to show its overlay: its opening
+    /// frames and waits are far fewer.
+    /// </summary>
+    private const int CeresDoorOverlayReach = 64;
+
     /// <summary>Checks the Ceres door quake's offsets against the authored ROM words.</summary>
     internal static void VerifyLookupStream5DoorQuakeDecoding(CartridgeImportAddressSpace rom)
     {
@@ -1600,14 +1610,21 @@ internal static class LookupStream5Verification
         var installed = EnemySpritemapDocuments.Load(new MemoryStream(stockJson, writable: false));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(SpawnedObjectFixtures.InstalledTilesWith(installed)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
-        enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.Places.InUpdateOrder[0].KeptDefinition);
-        enemies.HoldCeresRidley(enemies.Places.InUpdateOrder[0], new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres()));
+        // The door of Ceres Ridley's room is set up as its room's population sets it up (#2554), which attaches it as the
+        // room's door; its own animation then plays until it shows the door as its overlay.
+        RoomEnemyPlace door = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.CeresRidleyRoomDoor))[0];
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
-        var door = enemies.Places.InUpdateOrder[1];
-        door.BindCeresDoorOrWall(EnemyDefinitionId.CeresRidleyRoomDoor, EnemySpawnSettings.None);
-        door.SetSpeciesState(new CeresDoorAnimationState { Facing = HorizontalDirection.Right, Look = SuperMetroid.Core.Areas.Ceres.CeresRidleyRoomDoorLook.Overlay });
-        enemies.CeresDoorBehavior.AttachRidleyRoomDoor(door, door.RequireSpeciesState<CeresDoorAnimationState>());
+        CeresDoorAnimationState doorAnimation = door.RequireSpeciesState<CeresDoorAnimationState>();
+        IEnemyTypedAnimation doorSteps = door.EntityOf<CeresRidleyRoomDoorEntity>();
+        var doorContext = new EnemyAnimationCueContext
+            { Samus = RoomEnemyFrameFixtures.StandaloneSamus(), Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Camera = Position16<RoomPixels>.Zero, ControllerInput = GameplayAction.None };
+        for (int update = 0; doorAnimation.Look != CeresRidleyRoomDoorLook.Overlay; update++)
+        {
+            if (update > CeresDoorOverlayReach)
+                throw new InvalidOperationException("The Ridley room door's animation never shows its overlay.");
+            doorSteps.AdvanceTypedAnimation(doorContext);
+        }
         door.Position = door.Position.WithWholeY(80);
         foreach (ushort x in new ushort[] { 0, 1, 3, 255, 256, 511, ushort.MaxValue })
         foreach (ushort camera in new ushort[] { 0, ushort.MaxValue })

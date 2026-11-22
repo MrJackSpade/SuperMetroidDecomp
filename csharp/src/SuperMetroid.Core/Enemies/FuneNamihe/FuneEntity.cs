@@ -30,11 +30,11 @@ internal sealed partial class FuneEntity(FuneNamiheBehavior species, RoomEnemyOc
     internal FuneSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly FuneEnemyState state = state;
+    internal FuneEnemyState State { get; } = state;
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => FuneNamiheBehavior.RunFuneMain(Settings, Settings, Place, state);
+    public void RunMainAi(IEnemyAiFrame frame) => FuneNamiheBehavior.RunFuneMain(Settings, Settings, Place, State);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<FuneEnemyState>(Occupant, Settings, Place, state);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceFuneNamiheTypedAnimation<FuneEnemyState>(Occupant, Settings, Place, State);
 }

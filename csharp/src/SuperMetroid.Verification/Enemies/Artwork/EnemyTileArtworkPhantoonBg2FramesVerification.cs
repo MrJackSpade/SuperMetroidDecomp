@@ -20,6 +20,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Retail write and collision comparisons for Phantoon's installed BG2 frame artwork.</summary>
@@ -242,15 +243,18 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art.Bosses);
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        // His fight attaches the body his body frames show on.
-        BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Phantoon);
-        enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.PhantoonBody, place.KeptDefinition);
-        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        enemies.BossArtworkBinding.BodySheets = InstalledFixtures.BossBodySheets;
+        // His room's population places him whole, his body first, each part set up with the body placed before it; his
+        // setup makes the body his body frames show on (#2554), which shows nothing until a part shows a frame.
+        RoomEnemyPlace place = enemies.LoadRoom(RoomEnemyPopulationDefinitions.PhantoonDefault, RoomEnemyFrameFixtures.StandaloneSamus(),
+            RoomEnemyFrameFixtures.OpenRoom(new(64, 64)))[0];
+        BossBodyParts image = place.EntityOf<PhantoonBodyEntity>().BodyParts;
+        image.Clear();
+        enemies.Drawing.Enqueue(place, reached: true);
+        // His body shows, as his fight shows it.
+        place.Presence = EnemyPresence.None;
         place.CollidesByFrameHitboxes = true;
-        if (newInstructionFrame)
-            place.AnimationClock.ShowsNewFrame = true;
+        place.AnimationClock.ShowsNewFrame = newInstructionFrame;
         place.SpritemapPointer = pointer;
         place.Position = place.Position.WithWhole(new(0x0080, 0x0080));
         enemies.Drawing.DrawAsOam(new OamBuffer(), new(0, 0));

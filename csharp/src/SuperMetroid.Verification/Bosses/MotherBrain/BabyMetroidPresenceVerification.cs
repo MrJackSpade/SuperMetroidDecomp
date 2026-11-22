@@ -55,7 +55,8 @@ internal static class BabyMetroidPresenceVerification
             if (frame == 1000)
                 throw new InvalidOperationException("The Baby's fade to black never finished.");
             RunMain(frame);
-            bool flickering = place.RequireSpeciesState<BabyMetroidCutsceneState>().Phase is BabyMetroidCutscenePhase.Flying.DeathSequence;
+            // The Baby's place holds the state the final beam's spawn made, which the Baby's setup keeps.
+            bool flickering = baby.Phase is BabyMetroidCutscenePhase.Flying.DeathSequence;
             EnemyPresence expected = flickering && frame % 2 == 1 ? EnemyPresence.None : EnemyPresence.Hidden;
             AssertEqual(expected, place.Presence, flickering
                 ? $"enemy frame {frame}: the death's flicker shows the Baby on odd frames and hides it on even"

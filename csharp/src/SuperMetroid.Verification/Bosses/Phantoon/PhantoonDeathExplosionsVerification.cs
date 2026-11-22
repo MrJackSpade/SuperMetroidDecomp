@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
@@ -72,7 +73,10 @@ internal static class PhantoonDeathExplosionsVerification
                 AssertEqual((passes == 3 ? PhantoonPhase.BeginFinalWavyDeath : PhantoonPhase.DyingExplosions), state.Phase, "Exact final death phase handoff");
                 if (due)
                 {
-                    AssertEqual((SoundEffectId?)SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, type == 0x1d ? (ushort)0x24 : (ushort)0x2b), enemies.Audio.LatestSound, "Death sound choice survives pool exhaustion");
+                    // The runtime's requests go on into its session's queues, which admit the update's sounds.
+                    IReadOnlyList<SoundEffectId> queued = runtime.AudioRequests.SoundsQueued;
+                    AssertEqual((SoundEffectId?)SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, type == 0x1d ? (ushort)0x24 : (ushort)0x2b),
+                        queued.Count == 0 ? null : queued[^1], "Death sound choice survives pool exhaustion");
                     if (!full)
                     {
                         var explosion = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
@@ -84,6 +88,10 @@ internal static class PhantoonDeathExplosionsVerification
                             "Real explosion animation selection");
                     }
                 }
+                // The update ends with the game's audio dispatch, its sound program accepting each request it was sent by
+                // the next update, so the queues hand their waiting sounds on as the running game's do.
+                AudioQueues queues = runtime.AudioRequests.QueuesReached;
+                _ = queues.AdvanceFrame(queues.SentSoundRequests);
             }
             AssertEqual(29, requests, "Native thirteen plus eight plus eight schedule");
         }

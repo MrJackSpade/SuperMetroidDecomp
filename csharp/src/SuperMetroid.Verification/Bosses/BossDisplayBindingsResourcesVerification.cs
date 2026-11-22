@@ -50,7 +50,7 @@ internal static class BossDisplayBindingsResourcesVerification
         for (int frame = 0; frame < frames; frame++)
         {
             // The tentacles' animation runs as the shared enemy animation runs a Phantoon part's.
-            tentacles.Enemies.PhantoonBehavior.AdvancePhantoonPartAnimation(tentacles.Actor.RequireSpeciesState<PhantoonPart>());
+            tentacles.Enemies.PhantoonBehavior.AdvancePhantoonPartAnimation(tentacles.Actor.EntityOf<PhantoonEntity>().Part);
             tentacles.Draw();
             int index = frame / duration % poseCount;
             AssertEqual(PhantoonPartFramesConstants.Spritemap(AssertIs<AnimationBeat<EnemyFrameId, PhantoonPartCue>.Frame>(beats[index], "pose beat").Shown), tentacles.Actor.SpritemapPointer, "exact physical pose sequence");
@@ -62,16 +62,15 @@ internal static class BossDisplayBindingsResourcesVerification
         Console.WriteLine($"PASS boss clocks: {frames} production animation steps/{transitions} exact native frame admissions.");
     }
 
-    /// <summary>Phantoon's tentacles in their own slot beside the body, starting their program on a one-update timer.</summary>
+    /// <summary>
+    /// Phantoon's tentacles in their own place beside his body, as his room's population places them, starting their program
+    /// on a one-update timer.
+    /// </summary>
     private static BossDisplayFixture NewTentacleFixture(ImportEnemyArtwork artwork)
     {
-        var fixture = new BossDisplayFixture(EnemyDefinitionId.PhantoonTentacles, artwork, slot: 2);
-        RoomEnemyPlace body = fixture.Enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.PhantoonBody, body.KeptDefinition);
-        var state = new PhantoonEnemyState(body.HeldOccupant(), body, fixture.Enemies.Places.InUpdateOrder[1], fixture.Actor, fixture.Enemies.Places.InUpdateOrder[3]);
-        fixture.Enemies.BeginPhantoonAsSetUp(state);
+        var fixture = new BossDisplayFixture(EnemyDefinitionId.PhantoonTentacles, artwork);
         fixture.SetFrame(0, false);
-        fixture.Actor.RequireSpeciesState<PhantoonPart>().Playback = PhantoonPart.Starting(PhantoonPartSegment.Tentacles);
+        fixture.Actor.EntityOf<PhantoonEntity>().Part.Playback = PhantoonPart.Starting(PhantoonPartSegment.Tentacles);
         fixture.Actor.AnimationClock.StepOnNextUpdate();
         return fixture;
     }

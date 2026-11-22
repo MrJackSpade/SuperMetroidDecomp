@@ -97,6 +97,9 @@ internal static class EnemyDropsVerification
         {
             Touch = EnemyReaction.OrdinaryTouch,
         });
+        // The stand-in reacts to Samus's touch as the species the population load builds (#2554); the check then stands it
+        // where it asks, in the state it asks for.
+        enemy.SetUpAsPopulated();
         SeedContactDeathVulnerability(fixture.Bus);
         enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);
         enemy.Radius = new(8, 8);

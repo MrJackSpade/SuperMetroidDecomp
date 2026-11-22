@@ -145,6 +145,9 @@ internal static class ChainsawFiringVerification
         {
             Shot = EnemyReaction.OrdinaryShot,
         });
+        // The stand-in reacts to shots as the species the population load builds (#2554); the check then stands it where
+        // it asks, with its own health.
+        target.SetUpAsPopulated();
         target.Position = target.Position.WithWhole(new(139, 123));
         target.Radius = new(16, 16);
         target.Health = 1000;

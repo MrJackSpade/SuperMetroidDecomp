@@ -54,6 +54,19 @@ internal static class PlacedEnemyAccess
             return self.EntityOf<TEntity>();
         }
 
+        /// <summary>
+        /// Sets the enemy the check bound in the place up as the population load sets up one whose entry names no setting of
+        /// its own (#2554): the entry is bound again with the settings such an entry gives its species, keeping the
+        /// definition the check bound, and the species builds the enemy's entity, which runs its setup with a lone Samus.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The check has bound no enemy in the place.</exception>
+        internal void SetUpAsPopulated()
+        {
+            EnemyDefinitionId species = self.HeldOccupant().DefinitionId;
+            self.SetSpawnSettings(SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(species, SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Blank(species)));
+            self.SetUpAsPlaced();
+        }
+
         /// <summary>The entity the place's enemy is.</summary>
         /// <typeparam name="TEntity">The entity a check expects.</typeparam>
         /// <exception cref="InvalidOperationException">The place holds no such entity.</exception>

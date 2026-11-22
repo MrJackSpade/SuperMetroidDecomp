@@ -50,9 +50,9 @@ internal static class BossBodyLayeredPartsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.Crocomire), enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1]);
-        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
-        BossBodyCanvasFixtures.AttachCrocomire(enemies, sheets);
+        enemies.BossArtworkBinding.BodySheets = sheets;
+        // His room places him, his setup attaching the body his frames and melt images show on, showing nothing (#2554).
+        CrocomireEnemyState state = SuperMetroid.Verification.Bosses.Crocomire.CrocomirePlacement.PlaceCrocomire(enemies, Position16<RoomPixels>.Zero);
         Dictionary<string, BossBodyFrameSource> sources = SourcesOf(frames, BossBodyOwner.Crocomire);
         Extent16<BackgroundPixels> area = SideBySideCanvas;
         int compared = 0;

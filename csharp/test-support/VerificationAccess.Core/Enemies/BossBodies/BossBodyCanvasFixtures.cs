@@ -24,16 +24,6 @@ internal static class BossBodyCanvasFixtures
     }
 
     /// <summary>
-    /// Binds <paramref name="sheets"/> to <paramref name="enemies"/> and gives Crocomire the body his initialization
-    /// attaches, showing nothing; his death state is his encounter's own.
-    /// </summary>
-    internal static void AttachCrocomire(RoomEnemySystem enemies, BossBodySheets sheets)
-    {
-        enemies.BossArtworkBinding.BodySheets = sheets;
-        enemies.Presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Crocomire, showing: null));
-    }
-
-    /// <summary>
     /// Attaches the body that <paramref name="part"/>'s boss attaches at its initialization, before any of its parts shows a
     /// frame, with no part showing anything on it yet. A place that is no part a boss draws on its body, as any ordinary
     /// enemy or Draygon's tail, attaches none. Its boss's body sheets are those already bound to <paramref name="enemies"/>.

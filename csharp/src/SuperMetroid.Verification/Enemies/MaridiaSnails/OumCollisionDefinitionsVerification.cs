@@ -43,6 +43,8 @@ internal static class OumCollisionDefinitionsVerification
         // The native place is an Oum too: its frame's word is read in its header's bank (#2327).
         nativePlace.Bind(EnemyDefinitionId.Oum, nativePlace.KeptDefinition);
         compiledPlace.Bind(EnemyDefinitionId.Oum, compiledPlace.KeptDefinition);
+        // Oum answers for his own frames' hitboxes, as the population load builds him (#2554).
+        compiledPlace.SetUpAsPlaced();
         AssertEqual(30, OumCollisionDefinitionsConstants.FramePointers.Length,
             "all Oum extended frames have compiled collision");
         AssertEqual(30, OumCollisionDefinitions.HitboxPointers.Count(),

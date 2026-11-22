@@ -27,6 +27,8 @@ internal static class RidleyCollisionDefinitionsVerification
         // The reference slot is read by the independent test-side cartridge
         // walker. The installed definition selects the new compiled Ridley branch.
         compiledPlace.Bind(EnemyDefinitionId.Ridley, compiledPlace.KeptDefinition);
+        // Ridley answers for his own frames' hitboxes, as the population load builds him (#2554).
+        compiledPlace.SetUpAsPlaced();
         AssertEqual(11, RidleyCollisionDefinitions.FramePointers.Length,
             "all Ceres/Norfair Ridley body frames have fixed collision");
 
@@ -164,9 +166,10 @@ internal static class RidleyCollisionDefinitionsVerification
                 boxesChecked++;
             }
         }
+        // A frame is always an installed enemy frame (#2554); one that is none of Ridley's body frames fails loudly.
         AssertThrows<InvalidDataException>(
-            () => RidleyCollision.ComponentsAt(0x8000),
-            "unknown Ridley body frame fails loudly");
+            () => RidleyCollision.ComponentsAt(EnemyFrameId.MotherBrainBrainHitArea),
+            "a frame that is no Ridley body frame fails loudly");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "both installed Ridley collision walkers never read cartridge bytes");
         Console.WriteLine($"Ridley collision: 11 body frames, {componentsChecked} " +

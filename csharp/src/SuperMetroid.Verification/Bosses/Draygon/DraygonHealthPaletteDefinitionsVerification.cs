@@ -29,8 +29,9 @@ internal static class DraygonHealthPaletteDefinitionsVerification
             CartridgeImportSource.Require(rom).ReadCartridgeWord((DraygonHealthBandDefinitions.NativeThresholdAddress + 16)),
             "Draygon health threshold native terminator");
 
+        int fullHealth = SuperMetroid.Core.World.CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(SuperMetroid.Core.Enemies.EnemyDefinitionId.DraygonBody).Health;
         for (ushort health = 0;
-             health <= DraygonHealthBandDefinitions.MaximumAuthoredHealth;
+             health <= fullHealth;
              health++)
         {
             int expectedIndex = Array.FindIndex(

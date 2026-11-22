@@ -137,7 +137,7 @@ internal static class Program
                         }
                     throw new ArgumentException($"Unknown desktop check '{checkName}'.");
                 }
-                throw new ArgumentException("Usage: DesktopVerification [--audio-queue | --check NAME | --desktop-movie glitch|13|100|drunk|lowc|ridley]");
+                throw new ArgumentException("Usage: DesktopVerification [--audio-queue | --check NAME | --desktop-movie glitch|13|100|lowc|ridley]");
             }
             catch (Exception error) { Console.Error.WriteLine(error); Environment.ExitCode = 1; }
             finally { context.ExitThread(); }

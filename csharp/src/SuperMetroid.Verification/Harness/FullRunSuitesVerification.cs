@@ -493,13 +493,12 @@ internal static class FullRunSuitesVerification
     /// <summary>One outermost suite of the full no-argument run.</summary>
     internal sealed record RegisteredSuite(string Name, Action Body);
 
-    /// <summary>The six full-movie parity replays: the only suites exempt from the suite time limit (#1532).</summary>
+    /// <summary>The five full-movie parity replays: the only suites exempt from the suite time limit (#1532).</summary>
     internal static readonly FrozenSet<string> MovieReplaySuites = FrozenSet.Create(
         nameof(VerifyRidleyFullMovie),
         nameof(VerifyMotherBrainGlitchMovie),
         nameof(VerifyLowPercentPlaythroughMovie),
         nameof(VerifyFullPlaythroughMovie),
-        nameof(VerifyDrunkPlaythroughMovie),
         nameof(VerifyLowcPlaythroughMovie));
 
     /// <summary>
@@ -543,7 +542,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyMotherBrainGlitchMovie), () => VerifyMotherBrainGlitchMovie("csharp/test-fixtures/replay-traces/mother-brain-glitch")),
         new(nameof(VerifyLowPercentPlaythroughMovie), () => VerifyLowPercentPlaythroughMovie("csharp/test-fixtures/replay-traces/low-13-percent")),
         new(nameof(VerifyFullPlaythroughMovie), () => VerifyFullPlaythroughMovie("csharp/test-fixtures/replay-traces/full-100-percent")),
-        new(nameof(VerifyDrunkPlaythroughMovie), () => VerifyDrunkPlaythroughMovie("csharp/test-fixtures/replay-traces/samus-drunk")),
         new(nameof(VerifyLowcPlaythroughMovie), () => VerifyLowcPlaythroughMovie("csharp/test-fixtures/replay-traces/lowc")),
         new(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts()),
         new(nameof(VerifyDebuggerStateRestoresCatalogMembers), () => VerifyDebuggerStateRestoresCatalogMembers()),

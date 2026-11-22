@@ -13,7 +13,7 @@ using SuperMetroid.Verification.Harness;
 internal static class SlopeLandingPoseProbeVerification
 {
     /// <summary>
-    /// #1275 "Samus drunk", updates 44757-44759 in Ceres room $DFD7: Samus falls at X $69 onto
+    /// #1275, updates 44757-44759 in Ceres room $DFD7: Samus falls at X $69 onto
     /// a stair of horizontally flipped slopes. The fall is clipped one pixel onto slope $54,
     /// but the landing pose's two extra radius pixels then meet slope $55 below, and
     /// <c>$91:FF49</c> re-probes the remaining zero distance. <c>$94:96E3</c> still scans that

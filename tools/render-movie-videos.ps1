@@ -8,13 +8,13 @@
 # Usage: pwsh -File tools/render-movie-videos.ps1 [-OutputDirectory test-temp/movie-videos] [-Movies Lowc,Full100]
 param(
     [string] $OutputDirectory = 'test-temp/movie-videos',
-    [string[]] $Movies = @('Drunk', 'Full100', 'Lowc', 'LowPercent13', 'Ridley', 'MotherBrainGlitch'))
+    [string[]] $Movies = @('Full100', 'Lowc', 'LowPercent13', 'Ridley', 'MotherBrainGlitch'))
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot 'project-executable.ps1')
 
 # pwsh -File hands a list over as one comma-joined string, so the names are split here and checked against the movies.
-$known = @('MotherBrainGlitch', 'LowPercent13', 'Full100', 'Drunk', 'Lowc', 'Ridley')
+$known = @('MotherBrainGlitch', 'LowPercent13', 'Full100', 'Lowc', 'Ridley')
 $Movies = @($Movies | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 $unknown = @($Movies | Where-Object { $known -cnotcontains $_ })
 if ($unknown.Count -gt 0) { throw "Unknown movies: $($unknown -join ', '). The movies are $($known -join ', ')." }

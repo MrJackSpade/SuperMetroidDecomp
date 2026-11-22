@@ -15,17 +15,16 @@ internal static class DesktopMovieReplay
     internal const string Flag = "--desktop-movie";
 
     /// <summary>The movie a command-line name selects.</summary>
-    /// <param name="name">One of <c>glitch</c>, <c>13</c>, <c>100</c>, <c>drunk</c>, <c>lowc</c> or <c>ridley</c>.</param>
+    /// <param name="name">One of <c>glitch</c>, <c>13</c>, <c>100</c>, <c>lowc</c> or <c>ridley</c>.</param>
     internal static ReplayMovieId Parse(string name) => name switch
     {
         "glitch" => ReplayMovieId.MotherBrainGlitch,
         "13" => ReplayMovieId.LowPercent13,
         "100" => ReplayMovieId.Full100,
-        "drunk" => ReplayMovieId.Drunk,
         "lowc" => ReplayMovieId.Lowc,
         "ridley" => ReplayMovieId.Ridley,
         _ => throw new ArgumentException(
-            $"Unknown movie '{name}'; use glitch, 13, 100, drunk, lowc or ridley.", nameof(name)),
+            $"Unknown movie '{name}'; use glitch, 13, 100, lowc or ridley.", nameof(name)),
     };
 
     /// <summary>

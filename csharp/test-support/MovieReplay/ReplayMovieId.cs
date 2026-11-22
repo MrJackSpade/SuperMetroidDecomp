@@ -12,9 +12,6 @@ internal enum ReplayMovieId
     /// <summary>The 100% Snes9x power-on playthrough (<c>--full-playthrough-movie</c>).</summary>
     Full100,
 
-    /// <summary>The #1275 "Samus drunk" Snes9x 1.60 power-on playthrough (<c>--drunk-playthrough-movie</c>).</summary>
-    Drunk,
-
     /// <summary>The contributed "lowc" Snes9x 1.60 power-on playthrough (<c>--lowc-playthrough-movie</c>).</summary>
     Lowc,
 

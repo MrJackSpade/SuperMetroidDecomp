@@ -72,7 +72,7 @@ internal sealed class ConvertedMovieSession : IDisposable
         {
             ReplayMovieId.LowPercent13 => new LowPercentIntroReplayChecks(),
             ReplayMovieId.MotherBrainGlitch => new MotherBrainCryChecks(),
-            ReplayMovieId.Full100 or ReplayMovieId.Drunk or ReplayMovieId.Lowc => null,
+            ReplayMovieId.Full100 or ReplayMovieId.Lowc => null,
             ReplayMovieId.Ridley => throw new InvalidOperationException("The Ridley showcase replay is opened above."),
             _ => throw new ArgumentOutOfRangeException(nameof(movie), movie, "Undefined replay movie."),
         };

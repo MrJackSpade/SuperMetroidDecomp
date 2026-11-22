@@ -46,7 +46,6 @@ internal static class ReplayTraceCompactor
         [
             ReplayMovieFixture.Full100.MovieSha256,
             ReplayMovieFixture.LowPercent13.MovieSha256,
-            ReplayMovieFixture.Drunk.MovieSha256,
             ReplayMovieFixture.MotherBrainGlitch.MovieSha256,
             ReplayMovieFixture.Lowc.MovieSha256,
         ];

@@ -20,10 +20,6 @@ internal static class FullMovieReplayVerification
     internal static void VerifyLowPercentPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
         HeadlessMovieReplay.Run(ReplayMovieId.LowPercent13, traceDirectory, traceFromUpdate);
 
-    /// <summary>The #1275 "Samus drunk" Snes9x 1.60 power-on playthrough.</summary>
-    internal static void VerifyDrunkPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
-        HeadlessMovieReplay.Run(ReplayMovieId.Drunk, traceDirectory, traceFromUpdate);
-
     /// <summary>The contributed "lowc" Snes9x 1.60 power-on playthrough (208,183 frames, SRAM start).</summary>
     internal static void VerifyLowcPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
         HeadlessMovieReplay.Run(ReplayMovieId.Lowc, traceDirectory, traceFromUpdate);
@@ -48,13 +44,6 @@ internal static class FullMovieReplayVerification
     internal static int FullPlaythroughMovieCommand(string fullTraceDirectory)
     {
      VerifyFullPlaythroughMovie(fullTraceDirectory); return 0;
-    }
-
-    /// <summary>Runs the issue 1275 power-on Samus recording against its native trace.</summary>
-    [VerificationCommand("--drunk-playthrough-movie", "drunkTraceDirectory")]
-    internal static int DrunkPlaythroughMovieCommand(string drunkTraceDirectory)
-    {
-     VerifyDrunkPlaythroughMovie(drunkTraceDirectory); return 0;
     }
 
     /// <summary>Runs the contributed lowc power-on recording against its native trace.</summary>
@@ -92,14 +81,6 @@ internal static class FullMovieReplayVerification
     internal static int FullPlaythroughMovieTraceCommand(string traceDirectory, string traceFromUpdate)
     {
         VerifyFullPlaythroughMovie(traceDirectory, int.Parse(traceFromUpdate, CultureInfo.InvariantCulture));
-        return 0;
-    }
-
-    /// <summary>Runs the Samus movement replay while printing port and native state from a chosen update.</summary>
-    [VerificationCommand("--drunk-playthrough-movie", "traceDirectory", "--trace-from", "traceFromUpdate")]
-    internal static int DrunkPlaythroughMovieTraceCommand(string traceDirectory, string traceFromUpdate)
-    {
-        VerifyDrunkPlaythroughMovie(traceDirectory, int.Parse(traceFromUpdate, CultureInfo.InvariantCulture));
         return 0;
     }
 

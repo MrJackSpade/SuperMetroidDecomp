@@ -57,7 +57,7 @@ internal sealed class StartingMotions
             }
         }
         // A projectile is bound to its kind and its behaviour as it is built (#2554): its one constructor takes both.
-        IMethodSymbol bind = model.EnemyProjectile.InstanceConstructors.SingleOrDefault()
+        IMethodSymbol bind = GameConstructors.Of(model.EnemyProjectile).SingleOrDefault()
             ?? throw new InvalidDataException($"{model.EnemyProjectile.Name} declares no one constructor binding its kind and behaviour.");
         IParameterSymbol kindParameter = bind.Parameters.Single(parameter => SymbolEqualityComparer.Default.Equals(parameter.Type, model.RoomEnemyProjectileKind));
         IParameterSymbol behaviourParameter = bind.Parameters.Single(parameter => model.IsProjectileBehaviour((INamedTypeSymbol)parameter.Type));

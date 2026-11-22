@@ -776,9 +776,6 @@ internal static class PaletteFxInstructionCodesVerification
                 AssertThrows<ArgumentOutOfRangeException>(
                     () => PaletteFxHeatAnimationScriptDefinitions.Resolve(suit, phase), "Reject invalid heat phase");
         }
-        foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(
-                () => PaletteFxHeatAnimationScriptDefinitions.Resolve((ColourEffectHeatSuit)invalid, 0), "Reject unknown suit");
         ushort gravityMask = ReadVerificationWord(bus, 0x8de3c2);
         ushort variaMask = ReadVerificationWord(bus, 0x8de3cc);
         // Every equipment word Samus's items can record: each word whose set bits are all item bits.

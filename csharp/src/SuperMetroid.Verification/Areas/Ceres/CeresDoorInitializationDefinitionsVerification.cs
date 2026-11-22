@@ -52,7 +52,8 @@ internal static class CeresDoorInitializationDefinitionsVerification
             ushort list = rom.ReadCartridgeWord(instructionTable + selector * 2);
             EnemyFrameId?[] firstPictures = [.. CeresDoorNativeListAddresses.EntriesBySide
                 .SelectMany(side => CeresDoorAnimationsConstants.StartingAt(side.Key).Keys
-                    .Where(segment => NativeEnemyAnimationOracle.EntryOf(side.Value, segment) == list)
+                    // A segment one side's native lists never name is no animation that side's list starts.
+                    .Where(segment => side.Value.Where(entry => entry.Program == segment).Select(entry => (ushort?)entry.Entry).FirstOrDefault() == list)
                     .Select(segment => FirstPicture(side.Key, segment)))
                 .Distinct()];
             AssertEqual(1, firstPictures.Length, $"Ceres instruction selector {selector} names one animation's first picture");
@@ -61,10 +62,11 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 $"production Ceres {actor} {settings} animation, instruction selector {selector}");
         }
 
-        // The first picture one play of the animation starting at the segment shows, or none for one that shows none.
+        // The picture the animation starting at the segment shows on its first step: past the cues it opens with, its first
+        // frame, or none when it first waits unseen or shows nothing at all.
         static EnemyFrameId? FirstPicture(HorizontalDirection side, CeresDoorSegment segment) =>
             CeresDoorAnimations.Segments(side).PlayedBeats(CeresDoorAnimations.StartingWith(side, segment))
-                .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>().Select(frame => (EnemyFrameId?)frame).FirstOrDefault();
+                .FirstOrDefault(beat => beat.ShownFrame is not null || beat is AnimationBeat<EnemyFrameId, CeresDoorCue>.Pause)?.ShownFrame;
 
         AssertThrows<InvalidDataException>(
             () => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(7),

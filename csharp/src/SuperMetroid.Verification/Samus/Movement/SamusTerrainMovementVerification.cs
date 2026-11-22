@@ -305,7 +305,9 @@ internal static void VerifySamusBlockCollision()
             Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
             Radius = new(5, 5),
         };
-        BlockMoveResult dispatcherMove = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(dispatcherLevel, SamusRoomObjectFixtures.WithQuicksand()), dispatcherBody, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
+        // Samus meets the blocks in a room with its room objects, whose block reactions a special block asks whether her
+        // boost breaks it (#2554).
+        BlockMoveResult dispatcherMove = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(dispatcherLevel, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.Unbound()), dispatcherBody, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
 
         AssertEqual(expectedCollision, dispatcherMove.Collided,
             $"body dispatcher {collisionKind} collision topology");

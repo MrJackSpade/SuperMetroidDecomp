@@ -494,7 +494,10 @@ internal static class EnemyTileArtworkKraidColorsVerification
             {
                 // The glow's raised red and green channels, then one step of the fade: the eye glow service owns the colours.
                 state.Colours.ShowBandEyes([RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff)]);
-                enemies.KraidBehavior.Head.UnglowKraidEye(body, state, (KraidStageRun.Fighting)state.BodyState.Run);
+                // His eye glows only once he fights: his setup begins his rise, which ends in his first phase's thinking (#2554).
+                var fighting = new KraidStageRun.Fighting(KraidFightPhase.FirstPhaseThinking, KraidRisenHead.SelectingRoar());
+                state.BodyState.Run = fighting;
+                enemies.KraidBehavior.Head.UnglowKraidEye(body, state, fighting);
                 ImmutableArray<RgbColor> eyes = state.Colours.EyeGlow.Shown;
                 for (int eye = 0; eye < eyes.Length; eye++)
                     colours[113 + eye] = eyes[eye];

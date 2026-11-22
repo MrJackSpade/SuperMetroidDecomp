@@ -783,8 +783,9 @@ internal static void VerifyRoomLevelData()
         RoomTerrainBlock.Of(2, BlockMirroring.None, RoomCollisionType.GrappleBlock),
         RoomTerrainBlock.Of(3, BlockMirroring.None, RoomCollisionType.BombableBlock),
     ];
-    // Each block's behaviour names a reaction its kind's dispatcher has (#2554): the grapple block's a permanent anchor.
-    RoomBlockBehavior[] behavior = [RoomBlockBehaviorCodec.Decode(0x00), RoomBlockBehaviorCodec.Decode(0x45), RoomBlockBehaviorCodec.Decode(0x80), RoomBlockBehaviorCodec.Decode(0x11), RoomBlockBehaviorCodec.Decode(0x02), RoomBlockBehaviorCodec.Decode(0x33)];
+    // Each block's behaviour names a reaction its kind's dispatcher has (#2554): the grapple block's a permanent anchor, the
+    // bombable block's a respawning 2x2 break.
+    RoomBlockBehavior[] behavior = [RoomBlockBehaviorCodec.Decode(0x00), RoomBlockBehaviorCodec.Decode(0x45), RoomBlockBehaviorCodec.Decode(0x80), RoomBlockBehaviorCodec.Decode(0x11), RoomBlockBehaviorCodec.Decode(0x02), RoomBlockBehaviorCodec.Decode(0x03)];
     RoomBlockAppearance[] background = [.. Enumerable.Range(0, width * height).Select(block => RoomBlockAppearance.Of(block))];
     var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, behavior, background), RoomLevelData.NothingBeyondGrid(), []);
 

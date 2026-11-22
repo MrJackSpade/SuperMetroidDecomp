@@ -56,13 +56,14 @@ internal static partial class PaletteFxRoomShades
     ];
 
     /// <summary>
-    /// The areas whose every room's pictures show colour objects no FX record names, with those objects: Tourian's, whose
-    /// statue room spawns the bosses' statue grey-outs.
+    /// The room setups that spawn colour objects no FX record names, with those objects: the statue room's unlocking
+    /// animations, which spawn the bosses' statue grey-outs (#2630). The statue room is Crateria's, so the objects follow
+    /// the setup that spawns them, not an area.
     /// </summary>
-    private static readonly Dictionary<AreaId, ImmutableArray<ColourEffectId>> AreaColourEffects =
-        new Dictionary<AreaId, ImmutableArray<ColourEffectId>>
+    private static readonly Dictionary<RoomSetupBehavior, ImmutableArray<ColourEffectId>> SetupColourEffects =
+        new Dictionary<RoomSetupBehavior, ImmutableArray<ColourEffectId>>
         {
-            [AreaId.Tourian] = StatueGreyOuts,
+            [RoomSetupBehavior.RunStatueUnlockingAnimations] = StatueGreyOuts,
         };
 
     /// <summary>
@@ -81,8 +82,8 @@ internal static partial class PaletteFxRoomShades
         {
             foreach (RoomEffectDefinition record in room.State.Fx?.Effects ?? [])
                 objects.UnionWith(record.ColourEffects);
-            if (AreaColourEffects.TryGetValue(room.Area, out ImmutableArray<ColourEffectId> areaEffects))
-                objects.UnionWith(areaEffects);
+            if (SetupColourEffects.TryGetValue(room.State.SetupBehavior, out ImmutableArray<ColourEffectId> setupEffects))
+                objects.UnionWith(setupEffects);
         }
         return [.. PaletteFxRecordShades.ShownBy(objects).Where(entry => FirstInks.ContainsKey(entry.Colours))
             .Select(entry => Shade(entry.Colours, entry.Frame, colours))];

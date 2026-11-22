@@ -1616,7 +1616,7 @@ internal static class LookupStream5Verification
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         CeresDoorAnimationState doorAnimation = door.RequireSpeciesState<CeresDoorAnimationState>();
-        IEnemyTypedAnimation doorSteps = door.EntityOf<CeresRidleyRoomDoorEntity>();
+        CeresRidleyRoomDoorEntity doorSteps = door.EntityOf<CeresRidleyRoomDoorEntity>();
         var doorContext = new EnemyAnimationCueContext
             { Samus = RoomEnemyFrameFixtures.StandaloneSamus(), Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Camera = Position16<RoomPixels>.Zero, ControllerInput = GameplayAction.None };
         for (int update = 0; doorAnimation.Look != CeresRidleyRoomDoorLook.Overlay; update++)

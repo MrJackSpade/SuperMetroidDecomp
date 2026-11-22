@@ -63,6 +63,8 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         RoomEnemyPlace placed = enemies.Places.InUpdateOrder[0];
         placed.Bind(EnemyDefinitionId.WorkRobot, placed.KeptDefinition);
         placed.Bind(placed.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        // The robot's entry carries the blank words its species reads.
+        placed.SetSpawnWords(EnemyDefinitionId.WorkRobot, words => words);
         robot = enemies.LoadAuthoredPopulation(RoomEnemyFrameFixtures.StandaloneSamus(), level)[0];
         robot.Radius = new(8, 16);
         AssertEqual(new AnimationPlayback<WorkRobotSegment>(WorkRobotAnimations.StartingWith(WorkRobotSegment.StandingFacingLeft), AnimationPlace.StartOfAnimation),

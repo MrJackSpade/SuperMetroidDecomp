@@ -107,21 +107,19 @@ internal static class EnemySoundOrderVerification
     }
 
     /// <summary>
-    /// The set-up Metroid in <paramref name="enemy"/>, its chasing loop, which its setup starts, played on a frame at a time
-    /// through the Metroid's own animation until its next script step is the loop's random cry, after its pulses.
+    /// The set-up Metroid in <paramref name="enemy"/>, its chasing loop, which its setup starts, played on through the
+    /// Metroid's own animation over every frame of the pulses before the loop's random cry: each step shows the next frame,
+    /// so its next script step is the cry.
     /// </summary>
     private static RoomEnemyPlace MetroidAtItsCry(RoomEnemySystem enemies, RoomEnemyPlace enemy)
     {
         MetroidEnemyState state = enemy.RequireSpeciesState<MetroidEnemyState>();
-        AssertEqual(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), state.Playback.Animation, "the set-up Metroid plays its chasing loop");
-        var atCry = new AnimationPlayback<MetroidSegment>(state.Playback.Animation,
-            AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue>.PlaceOf(state.Playback.Animation, MetroidSegment.ChasingCry, 0));
-        // The loop shows its pulses' frames before the cry, each frame one step.
-        int framesBeforeCry = state.Playback.Animation.Phases.Sum(phase => phase.Plays * phase.BeatCount);
-        for (int step = 0; state.Playback != atCry; step++)
+        Animation<MetroidSegment> chasing = state.Playback.Animation;
+        AssertEqual(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), chasing, "the set-up Metroid plays its chasing loop");
+        AssertEqual(AnimationPlace.StartOfAnimation, state.Playback.Place, "the set-up Metroid's chasing loop stands at its start");
+        int pulseFrames = chasing.Phases.TakeWhile(phase => phase.Segment != MetroidSegment.ChasingCry).Sum(phase => phase.Plays * phase.BeatCount);
+        for (int step = 0; step < pulseFrames; step++)
         {
-            if (step > framesBeforeCry)
-                throw new InvalidOperationException("The Metroid's chasing loop never reached its cry.");
             enemy.AnimationClock.StepOnNextUpdate();
             enemies.MetroidBehavior.AdvanceMetroidTypedAnimation(enemy, state);
         }

@@ -118,6 +118,19 @@ internal static class PopulationPlacementAccess
             return enemies.LoadRoom(new PlacedRoomEnemyPopulationDefinition(room.Name, entries, deathQuota: 0), samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         }
 
+        /// <summary>
+        /// Loads retail <paramref name="population"/> beside a lone Samus in an open room with the camera standing at
+        /// <paramref name="camera"/> as the room's enemies are placed, for an enemy whose setup reads where the camera stands
+        /// (the side Samus entered from), and returns the room's places.
+        /// </summary>
+        internal IReadOnlyList<RoomEnemyPlace> LoadRoomSeenFrom(RoomEnemyPopulationDefinition population, Position16<RoomPixels> camera)
+        {
+            Ensure.NotNull(enemies).Load(RoomEnemyFrameFixtures.StandaloneLoad(population,
+                BgArtworkFixtures.For(new SuperMetroid.AssetExtraction.Video.SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)),
+                RoomEnemyFrameFixtures.StandaloneSamus()) with { Camera = camera });
+            return enemies.Places.InUpdateOrder;
+        }
+
         /// <summary>Loads <paramref name="population"/> beside <paramref name="samus"/> in <paramref name="level"/> and returns the room's places.</summary>
         internal IReadOnlyList<RoomEnemyPlace> LoadRoom(RoomEnemyPopulationDefinition population, SamusState samus, RoomLevelData level) =>
             enemies.LoadRoom(population, samus, level, GameplayAction.None);
